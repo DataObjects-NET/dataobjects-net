@@ -19,8 +19,8 @@ namespace Xtensive.Storage.Tests.Storage
   {
     private List<Customer> allCustomers;
     private List<Order> allOrders;
-    private RecordSet customerPrimary;
-    private RecordSet orderPrimary;
+    private RecordQuery customerPrimary;
+    private RecordQuery orderPrimary;
     private int customerIdIndex;
     private int orderCustomerIndex;
 
@@ -32,8 +32,8 @@ namespace Xtensive.Storage.Tests.Storage
       var customerIdColumn = customerType.Fields["Id"].Column.Name;
       var orderCustomerColumn = orderType.Fields["Customer"].Fields[0].Column.Name;
 
-      customerPrimary = customerType.Indexes.PrimaryIndex.ToRecordSet();
-      orderPrimary = orderType.Indexes.PrimaryIndex.ToRecordSet();
+      customerPrimary = customerType.Indexes.PrimaryIndex.ToRecordQuery();
+      orderPrimary = orderType.Indexes.PrimaryIndex.ToRecordQuery();
 
       customerIdIndex = customerPrimary.Header.IndexOf(customerIdColumn);
       orderCustomerIndex = orderPrimary.Header.IndexOf(orderCustomerColumn);

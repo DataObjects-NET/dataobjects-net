@@ -718,7 +718,7 @@ namespace Xtensive.Storage
       using (new ParameterContext().Activate()) {
         keyParameter.Value = GetEntitySetTypeState().SeekTransform
           .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        foundInDatabase = GetEntitySetTypeState().SeekRecordSet.FirstOrDefault()!=null;
+        foundInDatabase = GetEntitySetTypeState().GetSeekRecordSet(Session.Handler).FirstOrDefault()!=null;
       }
       if (foundInDatabase)
         State.Register(key);
@@ -745,7 +745,7 @@ namespace Xtensive.Storage
     {
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
-      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
+      var seekProvider = entitySet.Session.CompilationService.Compile(field.Association.UnderlyingIndex.ToRecordQuery().Seek(() => keyParameter.Value).Provider);
       var ownerDescriptor = field.Association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = field.Association.TargetType.Key.TupleDescriptor;
 
@@ -769,7 +769,7 @@ namespace Xtensive.Storage
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
           field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
           ArrayUtils<Type>.EmptyArray);
-      return new EntitySetTypeState(seek, seekTransform, itemCtor,entitySet.GetItemCountQueryDelegate(field));
+      return new EntitySetTypeState(seekProvider, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
     }
     
     #endregion

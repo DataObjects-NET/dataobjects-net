@@ -146,8 +146,8 @@ namespace Xtensive.Storage
     private QueryTask CreateFetchVersionTask(Key key)
     {
       var type = key.Type;
-      var provider = type.Indexes.PrimaryIndex.ToRecordSet().Seek(key.Value).Provider;
-      var execProvider = Session.CompilationContext.Compile(provider);
+      var provider = type.Indexes.PrimaryIndex.ToRecordQuery().Seek(key.Value).Provider;
+      var execProvider = Session.CompilationService.Compile(provider);
       return new QueryTask(execProvider, null);
     }
 

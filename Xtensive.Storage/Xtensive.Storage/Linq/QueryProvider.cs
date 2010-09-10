@@ -64,14 +64,14 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public TResult Execute<TResult>(Expression expression)
     {
-      var query = Translate<TResult>(expression);
+      var translationResult = Translate<TResult>(expression);
       var cachingScope = QueryCachingScope.Current;
       if (cachingScope != null && !cachingScope.Execute)
         return default(TResult);
-      return query.Execute(new ParameterContext());
+      return translationResult.Query.Execute(new ParameterContext());
     }
 
-    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
+    internal TranslationResult<TResult> Translate<TResult>(Expression expression)
     {
       try {
         var context = new TranslatorContext(expression, Domain.Demand());

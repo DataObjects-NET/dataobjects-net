@@ -15,6 +15,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
@@ -29,13 +30,13 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo TranslateMethodInfo;
     public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
-    public TranslatedQuery<TResult> Translate<TResult>()
+    public TranslationResult<TResult> Translate<TResult>()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 
-    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
+    private TranslationResult<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
       var result = new ProjectionExpression(
@@ -51,11 +52,13 @@ namespace Xtensive.Storage.Linq
         ? PrepareCachedQuery(optimized, cachingScope)
         : optimized;
 
+      // Compilation
       var dataSource = prepared.ItemProjector.DataSource;
-      
+      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource.Provider);
+
       // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
-      var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, projection.TupleParameterBindings, tupleParameterBindings);
+      var translatedQuery = new TranslatedQuery<TResult>(compiled, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
       if (cachingScope != null && translatedQuery.TupleParameters.Count == 0) {
@@ -63,9 +66,9 @@ namespace Xtensive.Storage.Linq
           translatedQuery,
           cachingScope.QueryParameter);
         cachingScope.ParameterizedQuery = parameterizedQuery;
-        return parameterizedQuery;
+        return new TranslationResult<TResult>(parameterizedQuery, dataSource);
       }
-      return translatedQuery;
+      return new TranslationResult<TResult>(translatedQuery, dataSource);
     }
 
     private static ProjectionExpression Optimize(ProjectionExpression origin)

@@ -114,9 +114,9 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       }
     }
 
-    private RecordSet GetRecordSet<T>() where T : Entity
+    private RecordQuery GetRecordSet<T>() where T : Entity
     {
-      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordSet();
+      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordQuery();
     }
   }
 }

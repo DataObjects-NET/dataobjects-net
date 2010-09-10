@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Rse
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
           // Select *
-          RecordSet rsMain = ii.ToRecordSet();
+          RecordQuery rsMain = ii.ToRecordQuery();
           session.UpdateCache(rsMain);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Title
-          RecordSet rsTitle = rsMain.Select(0, 1, 2);
+          RecordQuery rsTitle = rsMain.Select(0, 1, 2);
           session.UpdateCache(rsTitle);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Text
-          RecordSet rsText = rsMain.Select(0, 1, 3);
+          RecordQuery rsText = rsMain.Select(0, 1, 3);
           session.UpdateCache(rsText);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Rse
           ResetState(state);
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
-          RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
+          RecordQuery rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
           session.UpdateCache(rsJoin);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);

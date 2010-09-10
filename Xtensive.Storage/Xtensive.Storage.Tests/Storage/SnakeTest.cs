@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Tests.Storage
           Session.Current.Persist();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
           var rs = rsSnakePrimary.OrderBy(OrderBy.Asc(4)).OrderBy(OrderBy.Asc(2));
 
           rs.Count();
@@ -193,7 +193,7 @@ namespace Xtensive.Storage.Tests.Storage
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
 
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
 
           var rsCalculated = rsSnakePrimary.Calculate(new CalculatedColumnDescriptor("FullName", typeof (string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 2))),
             new CalculatedColumnDescriptor("FullName2", typeof (string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 3))))
@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
           rsSnakePrimary.Count();
 
-          RecordSet aggregates = rsSnakePrimary.Aggregate(null,
+          RecordQuery aggregates = rsSnakePrimary.Aggregate(null,
             new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
             new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
             new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
@@ -223,13 +223,13 @@ namespace Xtensive.Storage.Tests.Storage
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
-          RecordSet saved = rsSnakePrimary.
+          RecordQuery saved = rsSnakePrimary.
             Take(10).
             Take(5).
             Save(scope, name);
 
           saved.Count();
-          var loaded = RecordSet.Load(saved.Header, scope, name);
+          var loaded = RecordQuery.Load(saved.Header, scope, name);
 
           AssertEx.AreEqual(saved, loaded);
           t.Complete();
@@ -433,10 +433,10 @@ namespace Xtensive.Storage.Tests.Storage
           var pName = new Parameter<Range<Entire<Tuple>>>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
 
-          RecordSet result = rsSnakePrimary
+          RecordQuery result = rsSnakePrimary
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
@@ -486,10 +486,10 @@ namespace Xtensive.Storage.Tests.Storage
           var pName = new Parameter<RangeSet<Entire<Tuple>>>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
 
-          RecordSet result = rsSnakePrimary
+          RecordQuery result = rsSnakePrimary
           .RangeSet(() => pID.Value)
           .Join(rsSnakeName
           .RangeSet(() => pName.Value)
@@ -541,9 +541,9 @@ namespace Xtensive.Storage.Tests.Storage
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           TypeInfo lizardType = Domain.Model.Types[typeof(Lizard)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
-          RecordSet rsLizardName = lizardType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
+          RecordQuery rsLizardName = lizardType.Indexes.GetIndex("Name").ToRecordQuery();
 
 
           var snakes1 = rsSnakePrimary
@@ -613,9 +613,9 @@ namespace Xtensive.Storage.Tests.Storage
           Session.Current.Persist();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-          RecordSet rsSnake = snakeType.Indexes.GetIndex(cLength, "Description").ToRecordSet();
+          RecordQuery rsSnake = snakeType.Indexes.GetIndex(cLength, "Description").ToRecordQuery();
 
-          RecordSet result = rsSnake
+          RecordQuery result = rsSnake
             .Like(Tuple.Create(1, "KkK"));
 
           var c = result.Count();
@@ -659,10 +659,10 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
           string name = "90";
 
-          RecordSet result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
+          RecordQuery result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
           Assert.Greater(result.Count(), 0);
           
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).EndsWith(name));
@@ -713,7 +713,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           var session = Session.Current;
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-          RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
+          RecordQuery rsPrimary = type.Indexes.PrimaryIndex.ToRecordQuery();
           foreach (var entity in rsPrimary.ToEntities<ICreature>(0).ToList())
             entity.Remove();
           t.Complete(); 
@@ -740,7 +740,7 @@ namespace Xtensive.Storage.Tests.Storage
 
           session.Persist();
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-          RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
+          RecordQuery rsPrimary = type.Indexes.PrimaryIndex.ToRecordQuery();
           foreach (var entity in rsPrimary.ToEntities<ICreature>(0))
             Assert.IsNotNull(entity.Name);
           t.Complete();
@@ -767,7 +767,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           var session = Session.Current;
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-          RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
+          RecordQuery rs = type.Indexes.PrimaryIndex.ToRecordQuery();
           foreach (var entity in rs.ToEntities<ICreature>(0).ToList())
             entity.Remove();
           Session.Current.Persist();
@@ -816,31 +816,31 @@ namespace Xtensive.Storage.Tests.Storage
           Tuple fromName = Tuple.Create("Kaa");
           Tuple toName = Tuple.Create("Kaa900");
           TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
           
           // Test for SQL generation
           var rsSkipTest = rsSnakePrimary.Skip(2);
           var skipCount = rsSkipTest.Count(); // Tests for specific case.
           Assert.AreEqual(rsSnakePrimary.Count(), skipCount + 2);
 
-          var rsTwoFieldIndex = snakeType.Indexes.GetIndex("Name", "AlsoKnownAs").ToRecordSet();
+          var rsTwoFieldIndex = snakeType.Indexes.GetIndex("Name", "AlsoKnownAs").ToRecordQuery();
           var twoFieldIndexCount = rsTwoFieldIndex.Skip(3).Count(); // Tests for specific case.
           Assert.AreEqual(rsSnakePrimary.Count(), twoFieldIndexCount + 3);
 
           using (new Measurement("Query performance")) {
-            RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+            RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
             rsSnakeName = rsSnakeName
               .Range(fromName, toName)
               .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
               .Alias("NameIndex");
 
-            RecordSet range = rsSnakePrimary.Range(from, to);
-            RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf("NameIndex."+cID)));
-            RecordSet where = join.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= 100);
-            RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)));
-            RecordSet skip = orderBy.Skip(5);
-            RecordSet take = skip.Take(50);
-            RecordSet skip2 = take.Skip(7);
+            RecordQuery range = rsSnakePrimary.Range(from, to);
+            RecordQuery join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf("NameIndex."+cID)));
+            RecordQuery where = join.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= 100);
+            RecordQuery orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)));
+            RecordQuery skip = orderBy.Skip(5);
+            RecordQuery take = skip.Take(50);
+            RecordQuery skip2 = take.Skip(7);
             var snakesRse = take.ToEntities<Snake>(0);
             t.Complete();
             foreach (Snake snake in snakesRse) {
@@ -849,7 +849,7 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.AreEqual(15, snakesRse.Count());
             Assert.AreEqual(8, skip2.Count());
             // Row Number
-            RecordSet rsRowNumber1 = skip2.RowNumber("RowNumber1");
+            RecordQuery rsRowNumber1 = skip2.RowNumber("RowNumber1");
             Assert.AreEqual(skip2.Count(), rsRowNumber1.Count());
             int rowNumber = 1;
             foreach (var tuple in rsRowNumber1)
@@ -914,10 +914,10 @@ namespace Xtensive.Storage.Tests.Storage
           Tuple fromName = Tuple.Create("Kaa");
           Tuple toName = Tuple.Create("Kaa900");
           TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
 
           using (new Measurement("Query performance")) {
-            RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+            RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
             rsSnakeName = rsSnakeName
               .Range(fromName, toName)
               .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
@@ -970,10 +970,10 @@ namespace Xtensive.Storage.Tests.Storage
           var pLength = new Parameter<int>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
 
-          RecordSet result = rsSnakePrimary
+          RecordQuery result = rsSnakePrimary
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
@@ -1088,7 +1088,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain))
       using (Transaction.Open()) {
-        var recordSet = Domain.Model.Types[typeof (Creature)].Indexes.PrimaryIndex.ToRecordSet();
+        var recordSet = Domain.Model.Types[typeof (Creature)].Indexes.PrimaryIndex.ToRecordQuery();
         var column = recordSet.Header.IndexOf("Name");
         var descriptor = new CalculatedColumnDescriptor("WowName", typeof (string), t => ((string) t.GetValue(column)) + "!!!");
         recordSet.Calculate(descriptor).Alias("lalala").ToList();

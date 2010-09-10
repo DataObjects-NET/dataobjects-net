@@ -243,7 +243,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         int i = 0;
         using (var ts = Transaction.Open()) {
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
@@ -425,7 +425,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
-              var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+              var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterContext().Activate()) {
                 pKey.Value = Tuple.Create((long)(i % instanceCount));
@@ -449,7 +449,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var ts = Transaction.Open()) {
           TestHelper.CollectGarbage();
           var pKey = new Parameter<Tuple>();
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
           rs = rs.Seek(() => pKey.Value);
           using (new ParameterContext().Activate()) {
             using (warmup ? null : new Measurement("Cached RSE query", count)) {

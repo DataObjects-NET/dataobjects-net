@@ -6,6 +6,8 @@
 
 using System;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Providers;
+using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse;
@@ -15,7 +17,7 @@ namespace Xtensive.Storage.Internals
   [Serializable]
   internal sealed class EntitySetTypeState
   {
-    public readonly RecordSet SeekRecordSet;
+    private readonly ExecutableProvider seekProvider;
 
     public readonly MapTransform SeekTransform;
 
@@ -23,10 +25,15 @@ namespace Xtensive.Storage.Internals
 
     public readonly Func<long> ItemCountQuery;
 
-    public EntitySetTypeState(RecordSet seekRecordSet, MapTransform seekTransform,
+    public RecordSet GetSeekRecordSet (SessionHandler handler)
+    {
+      return new RecordSet(handler.CreateEnumerationContext(), seekProvider);
+    }
+
+    public EntitySetTypeState(ExecutableProvider seekProvider, MapTransform seekTransform,
       Func<Tuple, Entity> itemCtor, Func<long> itemCountQuery)
     {
-      SeekRecordSet = seekRecordSet;
+      this.seekProvider = seekProvider;
       SeekTransform = seekTransform;
       ItemCtor = itemCtor;
       ItemCountQuery = itemCountQuery;

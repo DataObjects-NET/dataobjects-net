@@ -51,7 +51,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      var executor = handlers.SessionHandler.GetService<IQueryExecutor>(true);
+      var sessionContext = (EnumerationContext) context;
+      var sessionHandler = sessionContext.SessionHandler;
+      var executor = sessionHandler.GetService<IQueryExecutor>(true);
       var enumerator = executor.ExecuteTupleReader(Request);
       using (enumerator) {
         while (enumerator.MoveNext()) {

@@ -33,16 +33,16 @@ namespace Xtensive.Storage.Providers.Index.Memory
       new Dictionary<IndexInfo, MapTransform>();
 
     /// <inheritdoc/>
-    public override IStorageView CreateView(IsolationLevel isolationLevel)
+    public override IStorageView CreateView(Providers.SessionHandler sessionHandler, IsolationLevel isolationLevel)
     {
-      return new MemoryIndexStorageView(this, Model, isolationLevel);
+      return new MemoryIndexStorageView(this, Model, sessionHandler, isolationLevel);
     }
 
     /// <inheritdoc/>
-    public override IStorageView GetView(Guid transactionId)
+    public override IStorageView GetView(Providers.SessionHandler sessionHandler, Guid transactionId)
     {
       // TODO: Complete this
-      return new MemoryIndexStorageView(this, Model, IsolationLevel.RepeatableRead);
+      return new MemoryIndexStorageView(this, Model, sessionHandler, IsolationLevel.RepeatableRead);
     }
 
     /// <inheritdoc/>

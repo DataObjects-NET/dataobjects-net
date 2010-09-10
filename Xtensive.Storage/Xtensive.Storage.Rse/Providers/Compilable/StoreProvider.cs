@@ -13,7 +13,7 @@ using Xtensive.Storage.Rse.Compilation;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Provides access to some previously stored named <see cref="RecordSet"/> 
+  /// Provides access to some previously stored named <see cref="RecordQuery"/> 
   /// or stores the specified <see cref="Source"/> with the specified <see cref="Name"/>.
   /// </summary>
   [Serializable]

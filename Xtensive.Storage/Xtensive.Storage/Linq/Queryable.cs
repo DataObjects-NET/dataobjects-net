@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Linq
   public sealed class Queryable<T> : IOrderedQueryable<T> 
   {
     private readonly Expression expression;
-    private RecordSet compiledRecordset;
+    private RecordQuery translatedRecordQuery;
     private object _lock = new object();
 
     /// <inheritdoc/>
@@ -45,21 +45,21 @@ namespace Xtensive.Storage.Linq
     }
 
     /// <summary>
-    /// Gets the <see cref="RecordSet"/> this query is compiled to.
+    /// Gets the <see cref="RecordQuery"/> this query is compiled to.
     /// </summary>
-    public RecordSet Compiled
+    public RecordQuery Translated
     {
       get
       {
-        if (compiledRecordset!=null)
-          return compiledRecordset;
+        if (translatedRecordQuery!=null)
+          return translatedRecordQuery;
         lock (_lock) {
-          if (compiledRecordset!=null)
-            return compiledRecordset;
-          compiledRecordset = QueryProvider.Instance
+          if (translatedRecordQuery!=null)
+            return translatedRecordQuery;
+          translatedRecordQuery = QueryProvider.Instance
             .Translate<IEnumerable<T>>(expression)
-            .DataSource;
-          return compiledRecordset;
+            .RecordQuery;
+          return translatedRecordQuery;
         }
       }
     }

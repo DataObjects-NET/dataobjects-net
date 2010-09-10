@@ -18,6 +18,12 @@ namespace Xtensive.Storage.Providers
   {
     private readonly EnumerationContextOptions options;
 
+    /// <summary>
+    /// Gets the session handler.
+    /// </summary>
+    /// <value>The session handler.</value>
+    public SessionHandler SessionHandler { get; private set; }
+
     /// <inheritdoc/>
     public override EnumerationContextOptions Options { get { return options; } }
 
@@ -40,7 +46,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateNew()
     {
-      return new EnumerationContext(options);
+      return new EnumerationContext(SessionHandler, options);
     }
 
     /// <inheritdoc/>
@@ -53,11 +59,13 @@ namespace Xtensive.Storage.Providers
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="sessionHandler">The session handler.</param>
     /// <param name="options">A value for <see cref="Options"/>.</param>
-    public EnumerationContext(EnumerationContextOptions options)
+    public EnumerationContext(SessionHandler sessionHandler, EnumerationContextOptions options)
     {
+      SessionHandler = sessionHandler;
       this.options = options;
     }
   }

@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       using (isUpgradeRunning ? null : Session.Open(domainHandler.Domain, SessionType.KeyGenerator))
       using (var t = Transaction.Open()) {
-        var queryExecutor = Handlers.SessionHandler.GetService<IQueryExecutor>(true);
+        var queryExecutor = this.GetService<IQueryExecutor>(true);
         if (!info.InsertRequest.IsNullOrEmpty())
           queryExecutor.ExecuteNonQuery(info.InsertRequest);
         object value = queryExecutor.ExecuteScalar(info.SelectRequest);

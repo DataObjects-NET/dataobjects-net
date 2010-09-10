@@ -20,6 +20,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Validation;
@@ -272,13 +273,18 @@ namespace Xtensive.Storage
     {
       using (new ParameterContext().Activate()) {
         keyParameter.Value = Key.Value;
+        var domain = Session.Domain;
         object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
-          return IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result.Seek(keyParameter.Value)
-            .Lock(() => triplet.Second, () => triplet.Third).Select();
+          return domain.Handler.CompilationService.Compile(
+            IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result
+              .Seek(keyParameter.Value)
+              .Lock(() => triplet.Second, () => triplet.Third)
+              .Select().Provider);
         };
-        var recordSet = (RecordSet) Session.Domain.Cache.GetValue(key, generator);
+        var source = (ExecutableProvider) domain.Cache.GetValue(key, generator);
+        var recordSet = new RecordSet(Session.Handler.CreateEnumerationContext(), source);
         recordSet.First();
       }
     }

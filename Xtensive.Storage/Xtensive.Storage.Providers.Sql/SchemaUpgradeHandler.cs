@@ -29,7 +29,6 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
     private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
-    private SqlConnection Connection { get { return ((SessionHandler) Handlers.SessionHandler).Connection; } }
     private Driver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
@@ -107,7 +106,7 @@ namespace Xtensive.Storage.Providers.Sql
           var commandText = Driver.BuildBatch(subbatch.ToArray());
           if (string.IsNullOrEmpty(commandText))
             return;
-          var command = Connection.CreateCommand(commandText);
+          var command = SessionHandler.Connection.CreateCommand(commandText);
           using (command) {
             Driver.ExecuteNonQuery(null, command);
           }
@@ -117,7 +116,7 @@ namespace Xtensive.Storage.Providers.Sql
         foreach (var commandText in batch) {
           if (string.IsNullOrEmpty(commandText))
             continue;
-          var command = Connection.CreateCommand(commandText);
+          var command = SessionHandler.Connection.CreateCommand(commandText);
           using (command) {
             Driver.ExecuteNonQuery(null, command);
           }

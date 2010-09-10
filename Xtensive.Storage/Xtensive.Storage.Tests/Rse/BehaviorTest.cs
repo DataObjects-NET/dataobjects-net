@@ -64,14 +64,14 @@ namespace Xtensive.Storage.Tests.Rse
         }
       }
 
-      RecordSet personsRS = new RawProvider(personHeader, persons).Result;
-      RecordSet authorsRS = new RawProvider(authorHeader, authors).Result;
+      RecordQuery personsRS = new RawProvider(personHeader, persons).Result;
+      RecordQuery authorsRS = new RawProvider(authorHeader, authors).Result;
 
-      RecordSet personIndexed = personsRS.OrderBy(OrderBy.Asc(0), true);
-      RecordSet authorsIndexed = authorsRS.OrderBy(OrderBy.Asc(0), true).Alias("Authors");
+      RecordQuery personIndexed = personsRS.OrderBy(OrderBy.Asc(0), true);
+      RecordQuery authorsIndexed = authorsRS.OrderBy(OrderBy.Asc(0), true).Alias("Authors");
 
-      RecordSet resultLeft = personIndexed.LeftJoin(authorsIndexed, 0, 0);
-      RecordSet resultLeft1 = personIndexed.LeftJoin(authorsIndexed, JoinAlgorithm.Hash, 0, 0);
+      RecordQuery resultLeft = personIndexed.LeftJoin(authorsIndexed, 0, 0);
+      RecordQuery resultLeft1 = personIndexed.LeftJoin(authorsIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount);
 
       resultLeft = personIndexed.Join(authorsIndexed, 0, 0);
@@ -126,8 +126,8 @@ namespace Xtensive.Storage.Tests.Rse
         }
       }
 
-      RecordSet authorRS = new RawProvider(authorHeader, authors).Result;
-      RecordSet bookRS = new RawProvider(bookHeader, books).Result;
+      RecordQuery authorRS = new RawProvider(authorHeader, authors).Result;
+      RecordQuery bookRS = new RawProvider(bookHeader, books).Result;
 
       // trying to execute following query 
       // select books.Title from books
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       RegularTuple authorFilterTuple = Tuple.Create("LastName16");
 
-      RecordSet result = authorRS
+      RecordQuery result = authorRS
         .Alias("Authors")
         .OrderBy(OrderBy.Asc(2, 0), true)
         .Range(authorFilterTuple, authorFilterTuple)
@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Tests.Rse
         authors[i] = author;
       }
 
-      RecordSet authorRS = authors
+      RecordQuery authorRS = authors
         .ToRecordSet(authorHeader)
         .OrderBy(new DirectionCollection<int>(0), true);
 
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Tests.Rse
       authorRS.Save(TemporaryDataScope.Transaction, "authors");
     }
 
-    private void TestJoinCount(RecordSet item1, RecordSet item2, int resultCount)
+    private void TestJoinCount(RecordQuery item1, RecordQuery item2, int resultCount)
     {
       using (EnumerationScope.Open()) {
         var count1 = (int) item1.Count();
@@ -213,7 +213,7 @@ namespace Xtensive.Storage.Tests.Rse
       }
 
       using (new Measurement(authorCount)) {
-        RecordSet authorRS = authors
+        RecordQuery authorRS = authors
           .ToRecordSet(authorHeader)
           .Distinct();
 
@@ -260,8 +260,8 @@ namespace Xtensive.Storage.Tests.Rse
         }
       }
 
-      RecordSet authorRS = new RawProvider(authorHeader, authors).Result;
-      RecordSet bookRS = new RawProvider(bookHeader, books).Result.Alias("Book");
+      RecordQuery authorRS = new RawProvider(authorHeader, authors).Result;
+      RecordQuery bookRS = new RawProvider(bookHeader, books).Result.Alias("Book");
 
 //      Assert.IsTrue(bookRS.All(t => t.GetValue(0) == t.GetValue(0)));
 
@@ -306,7 +306,7 @@ namespace Xtensive.Storage.Tests.Rse
       // One row number
 
       var rowNumberColumnName = "AuthorRowNumberColumn";
-      RecordSet authorRS = authors
+      RecordQuery authorRS = authors
         .ToRecordSet(authorHeader)
         .OrderBy(new DirectionCollection<int>(0))
         .RowNumber(rowNumberColumnName);
@@ -320,7 +320,7 @@ namespace Xtensive.Storage.Tests.Rse
       // Two row numbers
 
       var rowNumberColumnName2 = "AuthorRowNumberColumn2";
-      RecordSet authorRS2 = authorRS.RowNumber(rowNumberColumnName2);
+      RecordQuery authorRS2 = authorRS.RowNumber(rowNumberColumnName2);
 
       Assert.AreEqual(6, authorRS2.Header.Length);
       int rowNumber2 = 1;
@@ -345,7 +345,7 @@ namespace Xtensive.Storage.Tests.Rse
       }
 
       const string categoryRowNumberColumnName = "CategoryRowNumber";
-      RecordSet categoryRS = categories
+      RecordQuery categoryRS = categories
         .ToRecordSet(categoryHeader)
         .OrderBy(new DirectionCollection<int>(0))
         .RowNumber(categoryRowNumberColumnName);

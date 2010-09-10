@@ -7,6 +7,7 @@
 using System;
 using System.Transactions;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Indexing
 {
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Indexing
     /// </summary>
     /// <param name="isolationLevel">Required isolation level.</param>
     /// <returns>New transactional view.</returns>
-    IStorageView CreateView(IsolationLevel isolationLevel);
+    IStorageView CreateView(SessionHandler sessionHandler, IsolationLevel isolationLevel);
 
     /// <summary>
     /// Gets the transactional view.
@@ -28,6 +29,6 @@ namespace Xtensive.Storage.Indexing
     /// <param name="transactionId">The transaction identifier to get the view for.</param>
     /// <returns>The transactional view;
     /// <see langword="null" />, if no view is available for the specified transaction.</returns>
-    IStorageView GetView(Guid transactionId);
+    IStorageView GetView(SessionHandler sessionHandler, Guid transactionId);
   }
 }

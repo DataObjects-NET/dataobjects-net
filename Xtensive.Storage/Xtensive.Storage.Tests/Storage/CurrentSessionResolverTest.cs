@@ -50,7 +50,6 @@ namespace Xtensive.Storage.Tests.Storage
       Assert.AreEqual(3, resolveCount);
       Assert.IsTrue(session.IsActive);
       Assert.AreEqual(4, resolveCount);
-      Assert.AreEqual(session.CompilationContext, CompilationContext.Current);
       Assert.AreEqual(5, resolveCount);
 
       isSessionActive = false;
@@ -64,9 +63,6 @@ namespace Xtensive.Storage.Tests.Storage
 
         Assert.AreEqual(session, Session.Current);
         Assert.IsTrue(session.IsActive);
-
-        Assert.AreEqual(session.CompilationContext, CompilationContext.Current);
-
         session.Activate();
       }
 
@@ -81,9 +77,6 @@ namespace Xtensive.Storage.Tests.Storage
 
         Assert.AreEqual(session, Session.Current);
         Assert.IsTrue(session.IsActive);
-
-        Assert.AreEqual(session.CompilationContext, CompilationContext.Current);
-
         session.Activate();
       }
 

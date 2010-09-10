@@ -390,7 +390,7 @@ namespace Xtensive.Storage.Linq
       var projection = predicate!=null
         ? VisitWhere(source, predicate)
         : VisitSequence(source);
-      RecordSet rightDataSource = null;
+      RecordQuery rightDataSource = null;
       switch (method.Name) {
       case Core.Reflection.WellKnown.Queryable.First:
         applySequenceType = ApplySequenceType.First;
@@ -453,7 +453,7 @@ namespace Xtensive.Storage.Linq
       Func<int> compiledParameter;
       if (index.NodeType==ExpressionType.Quote)
         index = index.StripQuotes();
-      RecordSet rs;
+      RecordQuery rs;
       if (index.Type==typeof (Func<int>)) {
         Expression<Func<int>> elementAtIndex;
         if (QueryCachingScope.Current==null) {
@@ -895,13 +895,13 @@ namespace Xtensive.Storage.Linq
     }
 
     private ProjectionExpression CombineProjections(ProjectionExpression outer, ProjectionExpression inner,
-      RecordSet recordSet, LambdaExpression resultSelector)
+      RecordQuery recordQuery, LambdaExpression resultSelector)
     {
       var outerDataSource = outer.ItemProjector.DataSource;
       var outerLength = outerDataSource.Header.Length;
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings).ToDictionary(pair => pair.Key, pair => pair.Value);
-      outer = new ProjectionExpression(outer.Type, outer.ItemProjector.Remap(recordSet, 0), tupleParameterBindings);
-      inner = new ProjectionExpression(inner.Type, inner.ItemProjector.Remap(recordSet, outerLength), tupleParameterBindings);
+      outer = new ProjectionExpression(outer.Type, outer.ItemProjector.Remap(recordQuery, 0), tupleParameterBindings);
+      inner = new ProjectionExpression(inner.Type, inner.ItemProjector.Remap(recordQuery, outerLength), tupleParameterBindings);
 
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer))
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner))
@@ -1245,7 +1245,7 @@ namespace Xtensive.Storage.Linq
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
 
-    private Expression AddSubqueryColumn(Type columnType, RecordSet subquery)
+    private Expression AddSubqueryColumn(Type columnType, RecordQuery subquery)
     {
       if (subquery.Header.Length!=1)
         throw Exceptions.InternalError(String.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), Log.Instance);

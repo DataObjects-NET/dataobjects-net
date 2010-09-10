@@ -63,10 +63,8 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       materializer = translatedQuery.Materializer;
       tupleParameterBindings = translatedQuery.TupleParameterBindings;
-      using (parameterContext.ActivateSafely()) {
-        var executableProvider = CompilationContext.Current.Compile(translatedQuery.DataSource.Provider);
-        Task = new QueryTask(executableProvider, parameterContext);
-      }
+      using (parameterContext.ActivateSafely())
+        Task = new QueryTask(translatedQuery.DataSource, parameterContext);
     }
   }
 }

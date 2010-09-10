@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Index
       lock (connectionSyncRoot) {
         if (StorageView!=null)
           throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
-        StorageView = storage.CreateView(isolationLevel);
+        StorageView = storage.CreateView(this, isolationLevel);
         // TODO: Implement transactions
       }
     }
@@ -163,9 +163,9 @@ namespace Xtensive.Storage.Providers.Index
     #region IIndexResolver members
 
     /// <inheritdoc/>
-    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
+    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler)
     {
-      return StorageView.GetIndex(indexInfo);
+      return StorageView.GetIndex(indexInfo, sessionHandler);
     }
 
     #endregion

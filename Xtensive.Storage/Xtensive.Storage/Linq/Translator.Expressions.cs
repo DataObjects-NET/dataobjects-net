@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Linq
             ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
             : ProcessProjectionElement(body);
         if (state.CalculatedColumns.Count > 0) {
-          RecordSet dataSource = projection.ItemProjector.DataSource.Calculate(
+          RecordQuery dataSource = projection.ItemProjector.DataSource.Calculate(
             !state.BuildingProjection,
             state.CalculatedColumns.ToArray());
           var itemProjector = new ItemProjectorExpression(body, dataSource, context);
@@ -972,21 +972,21 @@ namespace Xtensive.Storage.Linq
 
         // Replace original recordset. New recordset is left join with old recordset
         ProjectionExpression originalResultExpression = context.Bindings[parameter];
-        RecordSet originalRecordset = originalResultExpression.ItemProjector.DataSource;
+        RecordQuery originalRecordset = originalResultExpression.ItemProjector.DataSource;
         int offset = originalRecordset.Header.Columns.Count;
 
         // Join primary index of target type
         IndexInfo joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-        RecordSet joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+        RecordQuery joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
         IEnumerable<int> keySegment = entityExpression.Key.Mapping.GetItems();
         Pair<int>[] keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
 
         // Replace recordset.
-        RecordSet joinedRecordSet = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
+        RecordQuery joinedRecordQuery = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
-          joinedRecordSet,
+          joinedRecordQuery,
           context);
         var projectionExpression = new ProjectionExpression(originalResultExpression.Type, itemProjectorExpression, originalResultExpression.TupleParameterBindings);
         context.Bindings.ReplaceBound(parameter, projectionExpression);
@@ -1012,7 +1012,7 @@ namespace Xtensive.Storage.Linq
         typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
         return; // All fields are already joined
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      RecordSet joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(itemProjector.Context.GetNextAlias());
+      RecordQuery joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(itemProjector.Context.GetNextAlias());
       Segment<int> keySegment = entityExpression.Key.Mapping;
       Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -1030,7 +1030,7 @@ namespace Xtensive.Storage.Linq
         return;
       TypeInfo typeInfo = entityFieldExpression.PersistentType;
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      RecordSet joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      RecordQuery joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
       Segment<int> keySegment = entityFieldExpression.Mapping;
       Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))

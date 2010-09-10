@@ -157,11 +157,11 @@ namespace Xtensive.Storage
       set {
         resolver = value;
         if (value==null)
-          Rse.Compilation.CompilationContext.Resolver = null;
+          Rse.Compilation.CompilationService.Resolver = null;
         else
-          Rse.Compilation.CompilationContext.Resolver = () => {
+          Rse.Compilation.CompilationService.Resolver = () => {
             var session = resolver.Invoke();
-            return session==null ? null : session.CompilationContext;
+            return session==null ? null : session.CompilationService;
           };
       }
     }
@@ -183,7 +183,7 @@ namespace Xtensive.Storage
 
     internal Pinner Pinner { get; private set; }
 
-    internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
+    internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
     internal bool IsDelayedQueryRunning { get; private set; }
 

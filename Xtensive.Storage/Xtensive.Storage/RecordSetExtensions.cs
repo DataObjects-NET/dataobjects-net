@@ -14,7 +14,7 @@ using System.Linq;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// <see cref="RecordSet"/> related extension methods.
+  /// <see cref="RecordQuery"/> related extension methods.
   /// </summary>
   public static class RecordSetExtensions
   {

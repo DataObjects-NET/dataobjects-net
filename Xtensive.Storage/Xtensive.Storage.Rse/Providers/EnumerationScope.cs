@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Providers
       get { return base.Context; }
     }
 
-    /// <summary>
+  /*  /// <summary>
     /// Create the new <see cref="EnumerationScope"/> using 
     /// <see cref="CompilationContext.CreateEnumerationContext"/> method of the
     /// <see cref="CompilationContext.Current"/> compilation context, 
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Rse.Providers
         throw new InvalidOperationException(
           Strings.ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext);        
       return compilationContext.CreateEnumerationContext().Activate();
-    }
+    }*/
 
     /// <summary>
     /// Create the new <see cref="EnumerationScope"/> having

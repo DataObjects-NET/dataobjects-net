@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Rse;
 using System.Collections.Generic;
@@ -36,12 +37,12 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public TranslatedQuery(RecordSet dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer)
+    public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer)
       : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), EnumerableUtils<Parameter<Tuple>>.Empty)
     {
     }
 
-    public TranslatedQuery(RecordSet dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
+    public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
       : base(dataSource)
     {
       Materializer = materializer;

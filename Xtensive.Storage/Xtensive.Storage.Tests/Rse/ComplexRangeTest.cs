@@ -71,9 +71,9 @@ namespace Xtensive.Storage.Tests.Rse
   [TestFixture, Category("Rse")]
   public class ComplexRangeTest : AutoBuildTest
   {
-    private RecordSet rsCat;
-    private RecordSet rsDog;
-    private RecordSet rsBird;
+    private RecordQuery rsCat;
+    private RecordQuery rsDog;
+    private RecordQuery rsBird;
     private const int CatCount = 100;
     private const int DogCount = 100;
     private const int BirdCount = 100;
@@ -366,14 +366,14 @@ namespace Xtensive.Storage.Tests.Rse
 
     #region Private methods
 
-    private void TestRange(RecordSet recordSet, Range<Entire<Tuple>> range, int testCount)
+    private void TestRange(RecordQuery recordQuery, Range<Entire<Tuple>> range, int testCount)
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var parameter = new Parameter<Range<Entire<Tuple>>>();
-          RecordSet result = recordSet
+          RecordQuery result = recordQuery
             .Range(() => parameter.Value)
-            .OrderBy(OrderBy.Asc(recordSet.Header.IndexOf("ID")));
+            .OrderBy(OrderBy.Asc(recordQuery.Header.IndexOf("ID")));
 
           using (new ParameterContext().Activate()) {
             parameter.Value = range;
@@ -407,11 +407,11 @@ namespace Xtensive.Storage.Tests.Rse
     private void GetRecordSets()
     {
       TypeInfo animalType = Domain.Model.Types[typeof(Cat)];
-      rsCat = animalType.Indexes.GetIndex("Name").ToRecordSet();
+      rsCat = animalType.Indexes.GetIndex("Name").ToRecordQuery();
       TypeInfo dogType = Domain.Model.Types[typeof(Dog)];
-      rsDog = dogType.Indexes.GetIndex("Name", "TailLength").ToRecordSet();
+      rsDog = dogType.Indexes.GetIndex("Name", "TailLength").ToRecordQuery();
       TypeInfo birdType = Domain.Model.Types[typeof(Bird)];
-      rsBird = birdType.Indexes.GetIndex("Name", "Airspeed", "Lifetime").ToRecordSet();
+      rsBird = birdType.Indexes.GetIndex("Name", "Airspeed", "Lifetime").ToRecordQuery();
     }
 
     #endregion

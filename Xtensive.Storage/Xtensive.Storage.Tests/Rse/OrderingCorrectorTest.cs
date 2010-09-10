@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Rse
         .OrderBy(originalOrder)
         .Select(0, 2, 10);
       using (EnumerationScope.Open()) {
-        var compiledProvider = CompilationContext.Current.Compile(result.Provider);
+        var compiledProvider = CompilationService.Current.Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var compiledSort = ((SortProvider) ((SelectProvider) compiledProvider.Origin).Source);
         Assert.IsTrue(originalOrder.SequenceEqual(compiledSort.Order));
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Rse
         .Distinct()
         .Select(0, 2, 10);
       using (EnumerationScope.Open()) {
-        var compiledProvider = CompilationContext.Current.Compile(result.Provider);
+        var compiledProvider = CompilationService.Current.Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var lastSelect = (SelectProvider) compiledProvider.Origin;
         Assert.AreEqual(typeof (DistinctProvider), lastSelect.Source.GetType());
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Tests.Rse
         .Aggregate(new[] {2, 3})
         .Select(1);
       using (EnumerationScope.Open()) {
-        var compiledProvider = CompilationContext.Current.Compile(result.Provider);
+        var compiledProvider = CompilationService.Current.Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var root = (SelectProvider) compiledProvider.Origin;
         Assert.AreEqual(typeof (AggregateProvider), root.Source.GetType());

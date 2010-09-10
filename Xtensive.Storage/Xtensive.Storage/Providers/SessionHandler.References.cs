@@ -34,14 +34,14 @@ namespace Xtensive.Storage.Providers
         return FindReferences(target, association, true);
       object key = new Pair<object, AssociationInfo>(CachingRegion, association);
       Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second);
-      var pair = (Pair<RecordSet, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
+      var pair = (Pair<RecordQuery, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
       var recordSet = pair.First;
       var parameter = pair.Second;
       var parameterContext = new ParameterContext();
       ExecutableProvider executableProvider;
       using (parameterContext.Activate()) {
         parameter.Value = target.Key.Value;
-        executableProvider = CompilationContext.Current.Compile(recordSet.Provider);
+        executableProvider = Session.CompilationService.Compile(recordSet.Provider);
       }
       var queryTask = new QueryTask(executableProvider, parameterContext);
       Session.RegisterDelayedQuery(queryTask);
@@ -86,15 +86,15 @@ namespace Xtensive.Storage.Providers
       }
     }
 
-    private static Pair<RecordSet,Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
+    private static Pair<RecordQuery,Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
     {
-      var recordSet = (RecordSet)null;
+      var recordSet = (RecordQuery)null;
       var parameter = new Parameter<Tuple>();
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
         case Multiplicity.ManyToOne: {
           var index = association.OwnerType.Indexes.PrimaryIndex;
-          recordSet = index.ToRecordSet()
+          recordSet = index.ToRecordQuery()
             .Filter(QueryHelper.BuildFilterLambda(
               association.OwnerField.MappingInfo.Offset,
               association.OwnerField.Columns.Select(c => c.ValueType).ToList(),
@@ -105,13 +105,13 @@ namespace Xtensive.Storage.Providers
         case Multiplicity.OneToMany: {
           var index = association.OwnerType.Indexes.PrimaryIndex;
           var targetIndex = association.TargetType.Indexes.PrimaryIndex;
-          recordSet = targetIndex.ToRecordSet()
+          recordSet = targetIndex.ToRecordQuery()
             .Filter(QueryHelper.BuildFilterLambda(0,
               association.TargetType.Key.TupleDescriptor,
               parameter))
             .Alias("a")
             .Join(
-              index.ToRecordSet(), 
+              index.ToRecordQuery(), 
               JoinAlgorithm.Loop, 
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
@@ -136,14 +136,14 @@ namespace Xtensive.Storage.Providers
           var referencedField = association.IsMaster
             ? association.AuxiliaryType.Fields[WellKnown.MasterFieldName]
             : association.AuxiliaryType.Fields[WellKnown.SlaveFieldName];
-          recordSet = targetIndex.ToRecordSet()
+          recordSet = targetIndex.ToRecordQuery()
             .Filter(QueryHelper.BuildFilterLambda(
               referencingField.MappingInfo.Offset,
               referencingType.Key.TupleDescriptor,
               parameter))
             .Alias("a")
             .Join(
-              index.ToRecordSet(),
+              index.ToRecordQuery(),
               JoinAlgorithm.Loop,
               referencedField.MappingInfo
                 .GetItems()
@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Providers
           break;
         }
       }
-      return new Pair<RecordSet, Parameter<Tuple>>(recordSet, parameter);
+      return new Pair<RecordQuery, Parameter<Tuple>>(recordSet, parameter);
     }
   }
 }

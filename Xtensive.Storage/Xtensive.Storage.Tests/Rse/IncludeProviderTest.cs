@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Rse
       var suppliers = Query.All<Supplier>().Take(10).ToList();
       var ids = suppliers.Select(supplier => (Tuple)Tuple.Create(supplier.Id));
 
-      var supplierRs = Domain.Model.Types[typeof (Supplier)].Indexes.PrimaryIndex.ToRecordSet();
+      var supplierRs = Domain.Model.Types[typeof (Supplier)].Indexes.PrimaryIndex.ToRecordQuery();
       var inRs = supplierRs.Include(() => ids, "columnName", new[] {0});
       var inIndex = inRs.Header.Columns.Count-1;
       var whereRs = inRs.Filter(tuple => tuple.GetValueOrDefault<bool>(inIndex));
