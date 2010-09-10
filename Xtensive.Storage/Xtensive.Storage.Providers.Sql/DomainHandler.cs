@@ -131,11 +131,12 @@ namespace Xtensive.Storage.Providers.Sql
         || provider.Type==ProviderType.Seek || provider.Type==ProviderType.Range
         || provider.Type == ProviderType.RowNumber || provider.Type == ProviderType.Reindex
         || provider.Type == ProviderType.Sort || provider.Type == ProviderType.Range
-        || provider.Type == ProviderType.Seek;
+        || provider.Type == ProviderType.Seek
+        || provider.Type==ProviderType.Distinct;
       bool isOrderBreaker = provider.Type==ProviderType.Except
         || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
         || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence
-        || provider.Type==ProviderType.Distinct;
+        /*|| provider.Type==ProviderType.Distinct*/;
       bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex;
       return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker,
         isSorter);

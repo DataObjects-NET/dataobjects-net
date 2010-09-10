@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var source = VisitCompilable(provider.Source);
       if (source!=provider.Source)
         result = OnRecreateSelectProvider(provider, source);
-      if (SortOrder.Count > 0 && provider.ExpectedOrder.Count==0 && consumerDescriptor!=null && !consumerDescriptor.Value.BreaksOrder)
+      if (SortOrder.Count > 0 && provider.ExpectedOrder.Count==0 && consumerDescriptor!=null && !consumerDescriptor.Value.BreaksOrder && !consumerDescriptor.Value.PreservesOrder)
         OnValidateRemovingOfOrderedColumns();
       CheckCorruptionOfOrder();
       OriginalExpectedOrder = provider.ExpectedOrder;
