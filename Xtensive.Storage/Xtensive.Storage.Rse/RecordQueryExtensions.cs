@@ -13,6 +13,8 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -206,12 +208,18 @@ namespace Xtensive.Storage.Rse
       return new AggregateProvider(recordQuery.Provider, groupIndexes, descriptors).Result;
     }
 
-//    public static long Count(this RecordQuery recordQuery)
-//    {
-//      var resultSet = recordQuery.Aggregate(null, 
-//        new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-//      return resultSet.First().GetValue<long>(0);
-//    }
+    public static long Count(this RecordQuery recordQuery, EnumerationContext context, CompilationService compilationService)
+    {
+      var resultQuery = recordQuery.Aggregate(null, 
+        new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
+      var recordSet = new RecordSet(context, compilationService.Compile(resultQuery.Provider));
+      return recordSet.First().GetValue<long>(0);
+    }
+
+    public static RecordSet ToRecordSet(this RecordQuery recordQuery, EnumerationContext context, CompilationService compilationService)
+    {
+      return new RecordSet(context, compilationService.Compile(recordQuery.Provider));
+    }
 
     public static RecordQuery Skip(this RecordQuery recordQuery, Func<int> count)
     {

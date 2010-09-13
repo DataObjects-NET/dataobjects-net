@@ -247,9 +247,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
-              foreach (var tuple in rs) {
-                var o = new SqlClientCrudModel.Simplest 
-                {
+              foreach (var tuple in rs.ToRecordSet(s)) {
+                var o = new SqlClientCrudModel.Simplest  {
                   Id = tuple.GetValueOrDefault<long>(0), 
                   Value = tuple.GetValueOrDefault<long>(2)
                 };
@@ -429,7 +428,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterContext().Activate()) {
                 pKey.Value = Tuple.Create((long)(i % instanceCount));
-                var es = rs.ToEntities<Simplest>(0);
+                var es = rs.ToRecordSet(s).ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }
@@ -455,7 +454,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             using (warmup ? null : new Measurement("Cached RSE query", count)) {
               for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create((long)(i % instanceCount));
-                var es = rs.ToEntities<Simplest>(0);
+                var es = rs.ToRecordSet(s).ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }

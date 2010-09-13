@@ -63,9 +63,9 @@ namespace Xtensive.Storage.Tests.Rse
     public static CompilableProvider GetOptimizedProvider<T>(IQueryable<T> query)
     {
       CompilableProvider optimizedProvider;
-      using (EnumerationScope.Open()) {
+      using (new DefaultEnumerationContext().Activate()) {
         var recordSet = ((Queryable<T>) query).Translated;
-        optimizedProvider = CompilationService.Current.Compile(recordSet.Provider).Origin;
+        optimizedProvider = new DefaultCompilationService().Compile(recordSet.Provider).Origin;
       }
       return optimizedProvider;
     }

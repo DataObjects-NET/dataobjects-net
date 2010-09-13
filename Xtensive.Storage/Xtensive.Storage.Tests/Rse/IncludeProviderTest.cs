@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Tests.Rse
       var inRs = supplierRs.Include(() => ids, "columnName", new[] {0});
       var inIndex = inRs.Header.Columns.Count-1;
       var whereRs = inRs.Filter(tuple => tuple.GetValueOrDefault<bool>(inIndex));
-      var result = whereRs.ToList();
-      Assert.AreEqual(0, whereRs.Select(t=>t.GetValue<int>(0)).Except(suppliers.Select(s=>s.Id)).Count());
+      var result = whereRs.ToRecordSet(Session.Current).ToList();
+      Assert.AreEqual(0, whereRs.ToRecordSet(Session.Current).Select(t => t.GetValue<int>(0)).Except(suppliers.Select(s => s.Id)).Count());
     }
   }
 }

@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Providers
       var queryTask = new QueryTask(executableProvider, parameterContext);
       Session.RegisterDelayedQuery(queryTask);
       return queryTask
-        .ToEntities(recordSet.Header, 0)
+        .ToEntities(recordSet.Header, Session, 0)
         .Select(item => new ReferenceInfo(item, target, association));
     }
 

@@ -145,9 +145,9 @@ namespace Xtensive.Storage.Tests.Model
           var a2 = new A();
           var rs = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordQuery();
 
-          foreach (Tuple tuple in rs) {
+          foreach (Tuple tuple in rs.ToRecordSet(Session.Current)) {
             var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordQuery();
-            foreach (Tuple tuple2 in rs2) {
+            foreach (Tuple tuple2 in rs2.ToRecordSet(Session.Current)) {
               Log.Debug(tuple2.ToString());
             }
           }

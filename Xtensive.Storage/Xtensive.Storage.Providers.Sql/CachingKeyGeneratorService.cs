@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="schema">The schema.</param>
     /// <param name="sequenceMappingName">Name of the sequence mapping.</param>
     /// <returns>SQL compile unit making the necessary action.</returns>
-    protected virtual ISqlCompileUnit GetNextImplementation(ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
+    protected internal virtual ISqlCompileUnit GetNextImplementation(ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
     {
       if (providerInfo.Supports(ProviderFeatures.Sequences))
         return GetSequenceBasedNextImplementation(providerInfo, schema, sequenceMappingName);

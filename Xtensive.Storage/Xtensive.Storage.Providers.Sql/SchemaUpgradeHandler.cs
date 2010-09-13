@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var queryExecutor = SessionHandler.GetService<IQueryExecutor>(true);
 
+      var cachingKeyGeneratorService = (CachingKeyGeneratorService)DomainHandler.Domain.Services.Get<ICachingKeyGeneratorService>();
       var enforceChangedColumns = UpgradeContext.Demand().Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
@@ -48,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         queryExecutor.ExecuteScalar, 
         queryExecutor.ExecuteNonQuery,
-        SessionHandler.GetNextImplementation);
+        cachingKeyGeneratorService.GetNextImplementation);
 
       translator.Translate();
 

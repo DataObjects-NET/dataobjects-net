@@ -377,7 +377,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           using (new ParameterContext().Activate()) {
             parameter.Value = range;
-            var count = result.Count();
+            var count = result.Count(Session.Current);
             Assert.AreEqual(testCount, count);
           }
           t.Complete();
