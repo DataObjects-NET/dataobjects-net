@@ -29,9 +29,12 @@ namespace Xtensive.Storage.Linq
       get { return Materializer; }
     }
 
-    public TResult Execute(ParameterContext parameterContext)
+    public TResult Execute(Session session, ParameterContext parameterContext)
     {
-      return Materializer(DataSource, TupleParameterBindings, parameterContext);
+      return Materializer(
+        new RecordSet(session.CreateEnumerationContext(), DataSource), 
+        TupleParameterBindings, 
+        parameterContext);
     }
 
 

@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Linq
       var cachingScope = QueryCachingScope.Current;
       if (cachingScope != null && !cachingScope.Execute)
         return default(TResult);
-      return translationResult.Query.Execute(new ParameterContext());
+      return translationResult.Query.Execute(Session.Demand(), new ParameterContext());
     }
 
     internal TranslationResult<TResult> Translate<TResult>(Expression expression)

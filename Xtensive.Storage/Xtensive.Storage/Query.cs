@@ -476,7 +476,7 @@ namespace Xtensive.Storage
     private static TResult ExecuteInternal<TResult>(ParameterizedQuery<TResult> query, object target)
     {
       var context = CreateParameterContext(target, query);
-      return query.Execute(context);
+      return query.Execute(Session.Demand(), context);
     }
 
     private static ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key,

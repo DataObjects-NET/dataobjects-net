@@ -10,15 +10,32 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
-  internal sealed class TranslationResult<TResult>
+  internal abstract class TranslationResult
   {
-    public TranslatedQuery<TResult> Query { get; private set; }
+    public TranslatedQuery UntypedQuery { get; private set; }
     public RecordQuery RecordQuery { get; private set; }
 
+
+    // Constructors
+
+    protected TranslationResult(TranslatedQuery untypedQuery, RecordQuery recordQuery)
+    {
+      UntypedQuery = untypedQuery;
+      RecordQuery = recordQuery;
+    }
+  }
+
+  internal sealed class TranslationResult<TResult> : TranslationResult
+  {
+    public TranslatedQuery<TResult> Query { get; private set; }
+    
+
+    // Constructors
+
     public TranslationResult(TranslatedQuery<TResult> query, RecordQuery recordQuery)
+      : base(query, recordQuery)
     {
       Query = query;
-      RecordQuery = recordQuery;
     }
   }
 }
