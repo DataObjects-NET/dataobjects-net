@@ -16,10 +16,12 @@ namespace Xtensive.Storage
     /// </summary>
     /// <exception cref="InvalidOperationException">Can not get validation context: There is no active transaction.</exception>
     public ValidationContext ValidationContext {
-      get {
-        if (Transaction==null)
+      get
+      {
+        var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
+        if (transaction==null)
           throw new InvalidOperationException(Strings.ExCanNotGetValidationContextThereIsNoActiveTransaction);
-        return Transaction.ValidationContext;
+        return transaction.ValidationContext;
       }
     }
   }

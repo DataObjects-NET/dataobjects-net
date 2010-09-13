@@ -22,7 +22,7 @@ namespace Xtensive.Storage
 
     private int nextSavepoint;
     private TransactionScope ambientTransactionScope;
-    
+
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
@@ -85,7 +85,7 @@ namespace Xtensive.Storage
 
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UsesAutoShortenedTransactions)
+      if (!Configuration.UsesAutoShortenedTransactions || IsDisconnected)
         StartTransaction(transaction);
     }
 
@@ -155,10 +155,11 @@ namespace Xtensive.Storage
 
     private void EnsureTransactionIsStarted()
     {
-      if (Transaction==null)
+      var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
+      if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      if (!Transaction.IsActuallyStarted)
-        StartTransaction(Transaction);
+      if (!transaction.IsActuallyStarted)
+        StartTransaction(transaction);
     }
 
     /// <exception cref="InvalidOperationException">Can't create a transaction
@@ -213,8 +214,8 @@ namespace Xtensive.Storage
 
     private TransactionScope CreateOutermostTransaction(IsolationLevel isolationLevel)
     {
-      var newTransaction = new Transaction(this, isolationLevel);
-      return OpenTransactionScope(newTransaction);
+      var transaction = new Transaction(this, isolationLevel);
+      return OpenTransactionScope(transaction);
     }
 
     private TransactionScope CreateNestedTransaction(IsolationLevel isolationLevel)
