@@ -11,7 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Linq
 {
   /// <summary>
-  /// LINQ translation exception. Throws than query translates.
+  /// LINQ translation exception.
   /// </summary>
   [Serializable]
   public sealed class TranslationException : ApplicationException

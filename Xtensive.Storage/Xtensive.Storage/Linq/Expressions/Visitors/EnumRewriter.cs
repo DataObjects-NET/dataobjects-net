@@ -7,7 +7,7 @@ using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
-  public class EnumRewriter : ExpressionVisitor
+  internal class EnumRewriter : ExpressionVisitor
   {
     protected override Expression VisitUnknown(Expression e)
     {
