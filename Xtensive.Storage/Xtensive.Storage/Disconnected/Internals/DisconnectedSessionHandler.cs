@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Disconnected
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
-      if (chainedHandler.TransactionIsStarted/* && !disconnectedState.IsAttachedWhenTransactionWasOpen*/)
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
         chainedHandler.CommitTransaction();
       disconnectedState.OnTransactionCommited();
     }
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Disconnected
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
-      if (chainedHandler.TransactionIsStarted/* && !disconnectedState.IsAttachedWhenTransactionWasOpen*/)
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
         chainedHandler.RollbackTransaction();
       disconnectedState.OnTransactionRollbacked();
     }
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Disconnected
     public void CommitChainedTransaction()
     {
       // We assume that chained transactions are always readonly, so there is no rollback.
-      if (chainedHandler.TransactionIsStarted/* && !disconnectedState.IsAttachedWhenTransactionWasOpen*/)
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
         chainedHandler.CommitTransaction();
     }
 

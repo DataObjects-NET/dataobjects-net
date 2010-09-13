@@ -247,12 +247,13 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     [Test]
     public void CreateNewEntitiesAsCtorSideEffectTest()
     {
+      Author testAuthor;
       var ds = new DisconnectedState();
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          var author1 = new Author("Author 1");
+          testAuthor = new Author("Author 1");
           AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));
           var author3 = new Author("Author 3 ({0})".FormatWith(Author.Famous));
           ds.ApplyChanges();
@@ -266,6 +267,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
           Assert.IsNull(author2);
           Assert.IsNotNull(author3);
           Assert.IsNotNull(author3book);
+          Assert.AreSame(testAuthor, author1);
         }
         // tx.Complete();
       }

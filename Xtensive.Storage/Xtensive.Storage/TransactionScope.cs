@@ -19,8 +19,8 @@ namespace Xtensive.Storage
   {
     private static readonly TransactionScope VoidScope = new TransactionScope();
 
-    private IDisposable disposable;
-    private bool isDisposed;
+    protected IDisposable disposable;
+    protected bool isDisposed;
 
     /// <summary>
     /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsVoid">nested</see> scopes.
