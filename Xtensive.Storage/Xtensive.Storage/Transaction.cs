@@ -30,7 +30,9 @@ namespace Xtensive.Storage
     public static Transaction Current {
       get {
         var session = Session.Current;
-        return session!=null ? session.Transaction : null;
+        return session != null 
+          ? session.Transaction ?? (session.IsDisconnected ? session.DisconnectedState.AlreadyOpenedTransaction : null)
+          : null;
       }
     }
 
