@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace Xtensive.Core.Collections
 {
   /// <summary>
-  /// double-ended queue contract.
+  /// Double-ended queue contract.
   /// </summary>
   /// <typeparam name="T">The type of queued elements.</typeparam>
   public interface IDeque<T> : IList<T>, IList, ICountable<T>
