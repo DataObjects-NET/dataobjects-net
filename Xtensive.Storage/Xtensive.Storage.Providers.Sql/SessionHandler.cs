@@ -21,8 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public partial class SessionHandler : Providers.SessionHandler,
     IQueryExecutor,
-    IDirectSqlService,
-    ICachingKeyGeneratorService
+    IDirectSqlService
   {
     private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations =
       EnumerableUtils<ServiceRegistration>.Empty;
