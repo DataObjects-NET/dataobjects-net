@@ -40,8 +40,6 @@ namespace Xtensive.Storage
         }
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        if (IsDisconnected && DisconnectedState.AlreadyOpenedTransaction != null)
-          return TransactionScope.VoidScopeInstance;
         return Configuration.UsesAmbientTransactions
           ? CreateAmbientTransaction(isolationLevel)
           : CreateOutermostTransaction(isolationLevel);

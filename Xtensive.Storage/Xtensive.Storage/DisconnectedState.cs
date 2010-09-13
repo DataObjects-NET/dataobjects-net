@@ -715,7 +715,6 @@ namespace Xtensive.Storage
       if (session.Transaction != null && !session.Transaction.IsActuallyStarted) {
         AlreadyOpenedTransaction = session.Transaction;
         session.BeginTransaction(session.Transaction);
-        OnTransactionOpened();
       }
       transactionReplacementScope = directSessionAccessor.NullifySessionTransaction();
       handler = new DisconnectedSessionHandler(session.Handler, this);
