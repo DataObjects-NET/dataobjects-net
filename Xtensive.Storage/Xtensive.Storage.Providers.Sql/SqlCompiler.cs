@@ -13,7 +13,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Providers.Sql.Expressions;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;

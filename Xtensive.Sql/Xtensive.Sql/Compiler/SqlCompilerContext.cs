@@ -8,6 +8,9 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// SQL compiler context.
+  /// </summary>
   public class SqlCompilerContext
   {
     private SqlNode[] traversalPath;

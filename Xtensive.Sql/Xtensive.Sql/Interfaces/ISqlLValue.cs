@@ -4,6 +4,9 @@
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A contract for server-independent LValue in SQL DOM query model.
+  /// </summary>
   public interface ISqlLValue : ISqlNode
   {
   }

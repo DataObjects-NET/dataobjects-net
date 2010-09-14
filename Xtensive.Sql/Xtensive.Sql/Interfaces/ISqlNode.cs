@@ -6,6 +6,9 @@ using System;
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A contract for server-independent node in SQL DOM query model.
+  /// </summary>
   public interface ISqlNode : ICloneable
   {
     SqlNodeType NodeType { get; }

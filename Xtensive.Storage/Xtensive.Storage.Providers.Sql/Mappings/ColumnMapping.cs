@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings

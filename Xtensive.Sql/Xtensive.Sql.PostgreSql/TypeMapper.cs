@@ -14,7 +14,7 @@ using NpgsqlTypes;
 
 namespace Xtensive.Sql.PostgreSql
 {
-  internal class TypeMapper : ValueTypeMapping.TypeMapper
+  internal class TypeMapper : Sql.TypeMapper
   {
     public override bool IsLiteralCastRequired(Type type)
     {

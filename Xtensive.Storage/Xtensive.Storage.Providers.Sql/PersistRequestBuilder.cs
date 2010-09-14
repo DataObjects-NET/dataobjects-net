@@ -11,7 +11,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql

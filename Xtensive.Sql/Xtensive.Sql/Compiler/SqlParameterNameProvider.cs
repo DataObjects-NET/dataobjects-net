@@ -9,6 +9,9 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// SQL parameter name provider.
+  /// </summary>
   [Serializable]
   public class SqlParameterNameProvider
   {

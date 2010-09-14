@@ -4,6 +4,9 @@
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A contract for server-independent  SQL compilation unit.
+  /// </summary>
   public interface ISqlCompileUnit : ISqlNode
   {
   }

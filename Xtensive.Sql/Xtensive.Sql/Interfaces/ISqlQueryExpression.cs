@@ -7,6 +7,9 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A contract for server-independent expression in SQL DOM query model.
+  /// </summary>
   public interface ISqlQueryExpression : ISqlCompileUnit, IEnumerable<ISqlQueryExpression>
   {
     SqlQueryExpression Except(ISqlQueryExpression operand);

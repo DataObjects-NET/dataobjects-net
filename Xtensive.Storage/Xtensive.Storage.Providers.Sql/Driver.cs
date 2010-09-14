@@ -11,7 +11,6 @@ using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.ValueTypeMapping;
 using System;
 
 namespace Xtensive.Storage.Providers.Sql

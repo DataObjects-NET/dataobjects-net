@@ -6,6 +6,9 @@ using System;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// SQL compiler output scope.
+  /// </summary>
   public class SqlCompilerOutputScope : IDisposable
   {
     private readonly SqlCompilerContext context;

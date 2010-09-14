@@ -11,8 +11,11 @@ using System.Data.Common;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Resources;
 
-namespace Xtensive.Sql.ValueTypeMapping
+namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A collection of <see cref="TypeMapping"/> objects.
+  /// </summary>
   public sealed class TypeMappingCollection : IEnumerable<TypeMapping>
   {
     public TypeMapping Boolean { get; private set; }

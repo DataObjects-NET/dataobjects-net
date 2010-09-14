@@ -26,7 +26,7 @@ namespace Xtensive.Sql.SqlServer.v09
       return new Translator(this);
     }
 
-    protected override ValueTypeMapping.TypeMapper CreateTypeMapper()
+    protected override Sql.TypeMapper CreateTypeMapper()
     {
       return new TypeMapper(this);
     }

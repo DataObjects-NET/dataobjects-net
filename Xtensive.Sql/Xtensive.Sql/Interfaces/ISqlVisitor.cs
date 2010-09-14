@@ -7,6 +7,9 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A contract for visitor of SQL DOM query model.
+  /// </summary>
   public interface ISqlVisitor
   {
     void Visit(SqlAggregate node);
