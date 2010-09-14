@@ -775,6 +775,29 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session">The session.</param>
+    protected Entity(Session session)
+      : base(session)
+    {
+      try
+      {
+        var key = Key.Create(Session.Domain, GetType());
+        State = Session.CreateEntityState(key);
+        SystemBeforeInitialize(false);
+      }
+      catch (Exception error)
+      {
+        InitializationError(GetType(), error);
+        // GetType() call is correct here: no code will be executed further,
+        // if base constructor will fail, but since descendant's constructor is aspected,
+        // we must "simulate" its own call of InitializationError method.
+        throw;
+      }
+    }
+
     // Is used for EntitySetItem<,> instance construction
     [Infrastructure]
     internal Entity(Tuple keyTuple)
@@ -788,6 +811,24 @@ namespace Xtensive.Storage
       }
       catch (Exception error) {
         InitializationError(GetType(), error); 
+        throw;
+      }
+    }
+
+    // Is used for EntitySetItem<,> instance construction
+    [Infrastructure]
+    internal Entity(Session session, Tuple keyTuple)
+      : base(session)
+    {
+      try {
+        ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
+        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
+        State = Session.CreateEntityState(key);
+        SystemBeforeInitialize(false);
+        Initialize(GetType());
+      }
+      catch (Exception error) {
+        InitializationError(GetType(), error);
         throw;
       }
     }
@@ -842,12 +883,82 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="values">The field values that will be used for key building.</param>
+    /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
+    /// <example>
+    /// 	<code>
+    /// [HierarchyRoot]
+    /// public class Book : Entity
+    /// {
+    /// [Field, KeyField]
+    /// public string ISBN { get; set; }
+    /// public Book(string isbn) : base(isbn) { }
+    /// }
+    /// </code>
+    /// </example>
+    protected Entity(Session session, params object[] values)
+      : base(session)
+    {
+      try {
+        ArgumentValidator.EnsureArgumentNotNull(values, "values");
+        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+        State = Session.CreateEntityState(key);
+        var operations = Session.Operations;
+        using (operations.BeginRegistration(OperationType.System)) {
+          if (operations.CanRegisterOperation)
+            operations.RegisterOperation(new EntityInitializeOperation(key), true);
+          var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
+          if (references.Count > 0) {
+            using (Session.Pin(this)) {
+              foreach (var referenceField in references) {
+                var referenceValue = (Entity) GetFieldValue(referenceField);
+                Session.PairSyncManager.ProcessRecursively(
+                  null, PairIntegrity.OperationType.Set, referenceField.Association, this, referenceValue, null);
+              }
+            }
+          }
+        }
+        SystemBeforeInitialize(false);
+      }
+      catch (Exception error) {
+        InitializationError(GetType(), error); 
+        // GetType() call is correct here: no code will be executed further,
+        // if base constructor will fail, but since descendant's constructor is aspected,
+        // we must "simulate" its own call of InitializationError method.
+        throw;
+      }
+    }
+
+    /// <summary>
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// Used internally to initialize the entity on materialization.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
     [Infrastructure]
     protected Entity(EntityState state)
+    {
+      try {
+        State = state;
+        SystemBeforeInitialize(true);
+        InitializeOnMaterialize();
+      }
+      catch (Exception error) {
+        InitializationErrorOnMaterialize(error);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate()" copy="true"/>
+    /// Used internally to initialize the entity on materialization.
+    /// </summary>
+    /// <param name="state">The initial state of this instance fetched from storage.</param>
+    [Infrastructure]
+    protected Entity(Session session, EntityState state)
+      : base(session)
     {
       try {
         State = state;

@@ -903,5 +903,11 @@ namespace Xtensive.Storage
     {
       EnterCtorTransactionScope();
     }
+
+    internal Persistent(Session session)
+      : base(session)
+    {
+      EnterCtorTransactionScope();
+    }
   }
 }

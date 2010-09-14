@@ -53,7 +53,7 @@ namespace Xtensive.Storage
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
   [DebuggerDisplay("FullName = {FullName}")]
-  public sealed partial class Session : DomainBound,
+  public partial class Session : DomainBound,
     IVersionSetProvider,
     IIdentified<long>,
     IContext<SessionScope>, 
@@ -379,6 +379,9 @@ namespace Xtensive.Storage
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
       Handler.Session = this;
       Handler.Initialize();
+
+      // Query endpoint
+      Query = new QueryEndpoint();
 
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
