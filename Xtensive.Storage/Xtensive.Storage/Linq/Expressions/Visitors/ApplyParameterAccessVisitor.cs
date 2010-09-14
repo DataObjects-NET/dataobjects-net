@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
   /// <summary>
   /// Apply parameter access visitor. 
-  //  This type is used internally by DataObjects.Net.
+  /// This type is used internally by DataObjects.Net.
   /// </summary>
   public class ApplyParameterAccessVisitor : ExpressionVisitor
   {
