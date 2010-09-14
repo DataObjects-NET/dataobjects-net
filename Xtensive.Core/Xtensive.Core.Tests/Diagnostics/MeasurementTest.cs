@@ -44,12 +44,12 @@ namespace Xtensive.Core.Tests.Diagnostics
         Assert.IsTrue(m.TimeSpent.TotalMilliseconds < 5);
         Log.Info("Before array allocation: "+m.ToString());
         long before = m.MemoryAllocated;
-        byte[] a = new byte[100000];
+        byte[] a = new byte[1000000];
         a[0] = 1;
         long diff = m.MemoryAllocated-before;
         Log.Info("Difference: " + diff);
-        Assert.IsTrue(diff>100000);
-        Assert.IsTrue(diff<110000);
+        Assert.IsTrue(diff>900000);
+        Assert.IsTrue(diff<1100000);
         Log.Info("After array allocation: "+m.ToString());
         Thread.Sleep(150);
         a = null;
