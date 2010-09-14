@@ -14,6 +14,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public static MethodInfo IsMaterializedMethodInfo { get; private set; }
     public static MethodInfo GetEntityMethodInfo      { get; private set; }
     public static MethodInfo MaterializeMethodInfo    { get; private set; }
+    public static System.Reflection.FieldInfo SessionFieldInfo { get; private set; }
 
     public readonly Session Session;
     public readonly MaterializationContext MaterializationContext;
@@ -79,6 +80,7 @@ namespace Xtensive.Storage.Linq.Materialization
       IsMaterializedMethodInfo = typeof (ItemMaterializationContext).GetMethod("IsMaterialized");
       GetEntityMethodInfo = typeof (ItemMaterializationContext).GetMethod("GetEntity");
       MaterializeMethodInfo = typeof (ItemMaterializationContext).GetMethod("Materialize");
+      SessionFieldInfo = typeof(ItemMaterializationContext).GetField("Session");
     }
   }
 }

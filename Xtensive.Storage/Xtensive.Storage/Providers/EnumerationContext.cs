@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.30
 
+using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
@@ -26,6 +27,12 @@ namespace Xtensive.Storage.Providers
 
     /// <inheritdoc/>
     public override EnumerationContextOptions Options { get { return options; } }
+
+    /// <inheritdoc/>
+    public override IDisposable BeginEnumeration()
+    {
+      return Transaction.HandleAutoTransaction(SessionHandler.Session, TransactionalBehavior.Auto);
+    }
 
     /// <inheritdoc/>
     public override GlobalTemporaryData GlobalTemporaryData {

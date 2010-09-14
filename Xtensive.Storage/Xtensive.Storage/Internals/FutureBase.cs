@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Internals
   [Serializable]
   public abstract class FutureBase<TResult>
   {
-    private readonly Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
+    private readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
     protected readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
     private readonly Transaction transaction;
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Internals
           Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
       if (Task.Result==null)
         transaction.Session.ExecuteDelayedQueries(false);
-      return materializer.Invoke(Task.Result, tupleParameterBindings, new ParameterContext());
+      return materializer.Invoke(Task.Result, Session.Demand(), tupleParameterBindings, new ParameterContext());
     }
 
 

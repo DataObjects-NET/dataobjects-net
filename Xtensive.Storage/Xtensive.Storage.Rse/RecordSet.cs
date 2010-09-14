@@ -15,6 +15,10 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Rse
 {
+  /// <summary>
+  /// Provides access to a sequence of <see cref="Tuple"/>s
+  /// exposed by its <see cref="Provider"/>.
+  /// </summary>
   public class RecordSet : IEnumerable<Tuple>
   {
     public EnumerationContext Context { get; private set; }
@@ -24,23 +28,37 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
-      ExecutableProvider compiled;
+      if (Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator))
+        return GetGreedyEnumerator();
+      return GetBatchedEnumerator();
+    }
+
+    /// <summary>
+    ///   Way 1: preloading all the data into memory and returning it inside this scope.
+    /// </summary>
+    private IEnumerator<Tuple> GetGreedyEnumerator()
+    {
+      using (Context.BeginEnumeration())
       using (Context.Activate()) {
-        if (Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator)) {
-          //  Way 1: preloading all the data into memory and returning it inside this scope
-          foreach (var tuple in Source.ToList())
-            yield return tuple;
-          yield break;
-        }
+        foreach (var tuple in Source.ToList())
+          yield return tuple;
+        yield break;
       }
-      //  Way 2: batched enumeration with periodical context activation
+    }
+
+    /// <summary>
+    ///   Way 2: batched enumeration with periodical context activation
+    /// </summary>
+    private IEnumerator<Tuple> GetBatchedEnumerator()
+    {
       EnumerationScope currentScope = null;
       var batched = Source.Batch(2).ApplyBeforeAndAfter(
-        () => currentScope = Context.Activate(), () => currentScope.DisposeSafely());
-      foreach (var batch in batched)
-        foreach (var tuple in batch)
-          yield return tuple;
-
+        () => currentScope = Context.Activate(),
+        () => currentScope.DisposeSafely());
+      using (Context.BeginEnumeration())
+        foreach (var batch in batched)
+          foreach (var tuple in batch)
+            yield return tuple;
     }
 
     /// <inheritdoc/>

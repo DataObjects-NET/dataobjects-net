@@ -197,7 +197,7 @@ namespace Xtensive.Storage
     {
       Persist(PersistReason.Query);
       ProcessDelayedQueries(true);
-      EnsureTransactionIsStarted();
+//      EnsureTransactionIsStarted();
       return Handler.CreateEnumerationContext();
     }
 

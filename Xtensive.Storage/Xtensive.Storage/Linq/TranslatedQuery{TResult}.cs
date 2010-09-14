@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Linq
   [Serializable]
   public class TranslatedQuery<TResult> : TranslatedQuery
   {
-    public readonly Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> Materializer;
+    public readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> Materializer;
     public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
     public List<Parameter<Tuple>> TupleParameters { get; private set; }
 
@@ -32,7 +32,8 @@ namespace Xtensive.Storage.Linq
     public TResult Execute(Session session, ParameterContext parameterContext)
     {
       return Materializer(
-        new RecordSet(session.CreateEnumerationContext(), DataSource), 
+        new RecordSet(session.CreateEnumerationContext(), DataSource),
+        session, 
         TupleParameterBindings, 
         parameterContext);
     }
@@ -40,12 +41,12 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer)
+    public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer)
       : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), EnumerableUtils<Parameter<Tuple>>.Empty)
     {
     }
 
-    public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
+    public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
       : base(dataSource)
     {
       Materializer = materializer;

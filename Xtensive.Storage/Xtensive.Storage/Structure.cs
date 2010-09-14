@@ -434,35 +434,7 @@ namespace Xtensive.Storage
     /// <param name="field">The owner field that describes this instance.</param>
     [Infrastructure]
     protected Structure(Persistent owner, FieldInfo field)
-    {
-      try {
-        typeInfo = GetTypeInfo();
-        Owner = owner;
-        Field = field;
-        if (owner==null || field==null)
-          tuple = typeInfo.TuplePrototype.Clone();
-        else
-          tuple = field.ExtractValue(
-            new ReferencedTuple(() => Owner.Tuple));
-        SystemBeforeInitialize(true);
-        InitializeOnMaterialize();
-      }
-      catch (Exception error) {
-        InitializationErrorOnMaterialize(error);
-        throw;
-      }
-    }
-
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// Used internally to initialize the structure on materialization.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="owner">The owner of this instance.</param>
-    /// <param name="field">The owner field that describes this instance.</param>
-    [Infrastructure]
-    protected Structure(Session session, Persistent owner, FieldInfo field)
-      : base(session)
+      : base(owner.Session)
     {
       try {
         typeInfo = GetTypeInfo();

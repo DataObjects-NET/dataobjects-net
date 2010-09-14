@@ -27,8 +27,8 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    protected EntitySetItem(Tuple tuple)
-      : base(tuple)
+    protected EntitySetItem(Session session, Tuple tuple)
+      : base(session, tuple)
     {
     }
   }

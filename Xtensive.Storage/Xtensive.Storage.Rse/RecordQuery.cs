@@ -11,18 +11,13 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using System.Linq;
 
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Provides access to a sequence of <see cref="Tuple"/>s
-  /// exposed by its <see cref="Provider"/>, as well as wide
+  /// Provides a wrapper for <see cref="Provider"/>, as well as wide
   /// range of extension methods (see <see cref="RecordQueryExtensions"/>)
   /// to operate with them.
   /// </summary>

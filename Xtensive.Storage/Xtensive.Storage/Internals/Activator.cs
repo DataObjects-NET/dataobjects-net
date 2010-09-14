@@ -15,14 +15,14 @@ namespace Xtensive.Storage.Internals
 {
   internal static class Activator
   {
-    private static readonly ThreadSafeDictionary<Type, Func<EntityState, Entity>> entityActivators =
-      ThreadSafeDictionary<Type, Func<EntityState, Entity>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<Session, EntityState, Entity>> entityActivators =
+      ThreadSafeDictionary<Type, Func<Session, EntityState, Entity>>.Create(new object());
 
-    private static readonly ThreadSafeDictionary<Type, Func<Entity>> newEntityActivators =
-      ThreadSafeDictionary<Type, Func<Entity>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<Session,Entity>> newEntityActivators =
+      ThreadSafeDictionary<Type, Func<Session,Entity>>.Create(new object());
 
-    private static readonly ThreadSafeDictionary<Type, Func<Tuple, Structure>> structureTupleActivators =
-      ThreadSafeDictionary<Type, Func<Tuple, Structure>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<Session, Tuple, Structure>> structureTupleActivators =
+      ThreadSafeDictionary<Type, Func<Session, Tuple, Structure>>.Create(new object());
 
     private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>> 
       structureActivators = ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>>
@@ -32,20 +32,20 @@ namespace Xtensive.Storage.Internals
       entitySetActivators = ThreadSafeDictionary<Type, Func<Entity, FieldInfo, EntitySetBase>>
       .Create(new object());
 
-    internal static Entity CreateEntity(Type type, EntityState state)
+    internal static Entity CreateEntity(Session session, Type type, EntityState state)
     {
       var activator = entityActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<EntityState, Entity>>);
-      Entity result = activator(state);
+        DelegateHelper.CreateConstructorDelegate<Func<Session, EntityState, Entity>>);
+      Entity result = activator(session, state);
       result.SystemInitialize(true);
       return result;
     }
 
-    internal static Entity CreateNewEntity(Type type)
+    internal static Entity CreateNewEntity(Session session, Type type)
     {
       var activator = newEntityActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Entity>>);
-      Entity result = activator();
+        DelegateHelper.CreateConstructorDelegate<Func<Session,Entity>>);
+      Entity result = activator(session);
       return result;
     }
 
@@ -58,11 +58,11 @@ namespace Xtensive.Storage.Internals
       return result;
     }
 
-    internal static Structure CreateStructure(Type type, Tuple tuple)
+    internal static Structure CreateStructure(Session session, Type type, Tuple tuple)
     {
       var activator = structureTupleActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Tuple, Structure>>);
-      Structure result = activator(tuple);
+        DelegateHelper.CreateConstructorDelegate<Func<Session, Tuple, Structure>>);
+      Structure result = activator(session, tuple);
       return result;
     }
 

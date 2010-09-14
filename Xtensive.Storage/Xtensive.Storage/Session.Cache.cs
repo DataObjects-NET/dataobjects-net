@@ -66,7 +66,7 @@ namespace Xtensive.Storage
     internal Entity CreateEntity(Type type, Key key)
     {
       var state = CreateEntityState(key);
-      return Activator.CreateEntity(type, state);
+      return Activator.CreateEntity(this, type, state);
     }
 
     internal Entity CreateOrInitializeExistingEntity(Type type, Key key)
@@ -74,7 +74,7 @@ namespace Xtensive.Storage
       var state = CreateEntityState(key);
       var entity = state.TryGetEntity();
       if (entity==null)
-        return Activator.CreateEntity(type, state);
+        return Activator.CreateEntity(this, type, state);
       else {
         InitializeEntity(entity, false);
         return entity;

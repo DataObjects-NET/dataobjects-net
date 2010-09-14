@@ -235,6 +235,7 @@ namespace Xtensive.Storage.Linq.Materialization
         return Expression.Convert(
           Expression.Call(
             WellKnownMembers.CreateStructure,
+            Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
             Expression.Constant(expression.Type),
             persistentTupleExpression),
           expression.Type);
@@ -278,6 +279,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return Expression.Convert(
         Expression.Call(
           WellKnownMembers.CreateStructure,
+          Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
           Expression.Constant(expression.Type),
           persistentTupleExpression),
         expression.Type);

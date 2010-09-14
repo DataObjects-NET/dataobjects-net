@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Services
         if (!typeof(Structure).IsAssignableFrom(structureType))
           throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof(Structure)));
 
-        return Activator.CreateStructure(structureType, structureData);
+        return Activator.CreateStructure(Session, structureType, structureData);
       }
     }
 

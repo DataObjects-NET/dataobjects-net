@@ -15,6 +15,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Internals;
@@ -104,9 +105,10 @@ namespace Xtensive.Storage.Linq
       return origin;
     }
 
-    private Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof(IEnumerable<Tuple>), "rs");
+      var session = Expression.Parameter(typeof(Session), "session");
       var tupleParameterBindings = Expression.Parameter(typeof(Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var parameterContext = Expression.Parameter(typeof(ParameterContext), "parameterContext");
       
@@ -119,9 +121,11 @@ namespace Xtensive.Storage.Linq
         .MakeGenericMethod(elementType);
 
       var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {materializationInfo.Expression});
-      Expression<Func<int, MaterializationContext>> materializationContextCtor = n => new MaterializationContext(n);
+      Expression<Func<Session, int, MaterializationContext>> materializationContextCtor = (s,n) => new MaterializationContext(s,n);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(
+          session,
+          Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
@@ -144,7 +148,7 @@ namespace Xtensive.Storage.Linq
           ? body
           : Expression.Convert(body, typeof (TResult));
 
-      var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, tupleParameterBindings, parameterContext);
+      var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, session, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
     }
 

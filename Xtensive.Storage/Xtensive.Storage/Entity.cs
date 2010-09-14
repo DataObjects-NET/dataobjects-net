@@ -800,23 +800,6 @@ namespace Xtensive.Storage
 
     // Is used for EntitySetItem<,> instance construction
     [Infrastructure]
-    internal Entity(Tuple keyTuple)
-    {
-      try {
-        ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
-        State = Session.CreateEntityState(key);
-        SystemBeforeInitialize(false);
-        Initialize(GetType());
-      }
-      catch (Exception error) {
-        InitializationError(GetType(), error); 
-        throw;
-      }
-    }
-
-    // Is used for EntitySetItem<,> instance construction
-    [Infrastructure]
     internal Entity(Session session, Tuple keyTuple)
       : base(session)
     {
