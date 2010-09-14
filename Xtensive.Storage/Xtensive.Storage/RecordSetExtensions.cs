@@ -65,7 +65,7 @@ namespace Xtensive.Storage
         if (tuple!=null)
           yield return session.Handler.RegisterEntityState(key, tuple).Entity;
         else
-          yield return Query.SingleOrDefault(session, key);
+          yield return session.Query.SingleOrDefault(key);
       }
     }
 
@@ -90,7 +90,7 @@ namespace Xtensive.Storage
         if (tuple!=null)
           yield return session.Handler.RegisterEntityState(key, tuple).Entity;
         else
-          yield return Query.SingleOrDefault(session, key);
+          yield return session.Query.SingleOrDefault(key);
       }
     }
   }

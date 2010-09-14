@@ -25,10 +25,21 @@ namespace Xtensive.Storage
     /// <returns>Prefetched sequence.</returns>
     public static IEnumerable<Entity> Prefetch(this IEnumerable<Key> source)
     {
-      return (
-        from key in source.Prefetch<Key>(key => key)
-        select Query.SingleOrDefault(key)
-        ).ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
+      return source.Prefetch(Session.Demand());
+    }
+
+    /// <summary>
+    /// Prefetches specified <paramref name="source"/> sequence.
+    /// </summary>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="session">The session.</param>
+    /// <returns>Prefetched sequence.</returns>
+    public static IEnumerable<Entity> Prefetch(this IEnumerable<Key> source, Session session)
+    {
+      return source
+        .Prefetch<Key>(key => key)
+        .Select(key => session.Query.SingleOrDefault(key))
+        .ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
     }
 
     /// <summary>

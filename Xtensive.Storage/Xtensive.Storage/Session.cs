@@ -311,7 +311,7 @@ namespace Xtensive.Storage
     {
       using (Activate())
       using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto)) {
-        var entities = keys.Prefetch();
+        var entities = keys.Prefetch(this);
         var result = new VersionSet();
         foreach (var entity in entities)
           if (entity!=null)
@@ -381,7 +381,7 @@ namespace Xtensive.Storage
       Handler.Initialize();
 
       // Query endpoint
-      Query = new QueryEndpoint();
+      Query = new QueryEndpoint(this);
 
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);

@@ -60,7 +60,7 @@ namespace Xtensive.Storage
           var keys =
             from triplet in entitySubscribers
             select triplet.First;
-          keys.Prefetch().Run();
+          keys.Prefetch(this).Run();
         }
 
         var skipRemovedEntities = 

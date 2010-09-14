@@ -77,7 +77,7 @@ namespace Xtensive.Storage
             operation.Prepare(executionContext);
 
           executionContext.KeysToPrefetch
-            .Prefetch()
+            .Prefetch(session)
             .Run();
 
           foreach (var operation in operations) {

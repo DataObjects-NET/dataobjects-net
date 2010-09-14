@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Internals.FieldAccessors
       Key key = obj.GetReferenceKey(field);
       if (key==null)
         return default(T);
-      return (T) (object) Query.SingleOrDefault(key);
+      return (T) (object) obj.Session.Query.SingleOrDefault(key);
     }
   }
 }

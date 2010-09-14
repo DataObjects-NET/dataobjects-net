@@ -66,9 +66,6 @@ namespace Xtensive.Storage
     IQueryable<TItem>
     where TItem : IEntity
   {
-    private static readonly MethodInfo GetItemCountQueryMethod = typeof(EntitySet<TItem>)
-      .GetMethod("GetItemCountQuery", BindingFlags.Static | BindingFlags.NonPublic);
-    
     private Expression expression;
     private bool isCountCalculated;
 
@@ -241,7 +238,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    public IQueryProvider Provider { get { return QueryProvider.Instance; } }
+    public IQueryProvider Provider { get { return Session.Query.Provider; } }
 
     #endregion
     
@@ -249,20 +246,15 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected sealed override Func<long> GetItemCountQueryDelegate(FieldInfo field)
     {
-      return (Func<long>) Delegate.CreateDelegate(typeof (Func<long>), field, GetItemCountQueryMethod);
+      return () => GetItemsQuery(field).LongCount();
     }
 
-    private static IQueryable<TItem> GetItemsQuery(FieldInfo field)
+    private IQueryable<TItem> GetItemsQuery(FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
         .GetProperty("Value", typeof(Entity)));
       var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, field);
-      return new Queryable<TItem>(queryExpression);
-    }
-
-    private static long GetItemCountQuery(FieldInfo field)
-    {
-      return GetItemsQuery(field).LongCount();
+      return Session.Query.Provider.CreateQuery<TItem>(queryExpression);
     }
 
     // Constructors

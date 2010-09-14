@@ -53,7 +53,7 @@ namespace Xtensive.Storage
 
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UseAutoShortenedTransactions || transaction.IsNested || IsDisconnected)
+      if (!Configuration.UseAutoShortenedTransactions || IsDisconnected)
         StartTransaction(transaction);
     }
 

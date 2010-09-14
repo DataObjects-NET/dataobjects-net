@@ -9,19 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Storage.Internals;
-using Xtensive.Storage.Linq;
-using Xtensive.Storage.Linq.Expressions.Visitors;
-using Xtensive.Storage.Resources;
-using Activator=System.Activator;
 
 namespace Xtensive.Storage
 {
@@ -32,10 +19,6 @@ namespace Xtensive.Storage
   /// </summary>
   public static class Query
   {
-    private static readonly object indexSeekCachingRegion = new object();
-    private static readonly object transformCachingRegion = new object();
-    private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
-
     /// <summary>
     /// The "starting point" for any LINQ query -
     /// a <see cref="IQueryable{T}"/> enumerating all the instances
@@ -49,7 +32,7 @@ namespace Xtensive.Storage
     public static IQueryable<T> All<T>()
       where T: class, IEntity
     {
-      return new Queryable<T>();
+      return Session.Demand().Query.All<T>();
     }
 
     /// <summary>
@@ -64,9 +47,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static IQueryable All(Type elementType)
     {
-      var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
-      var queryable = (IQueryable)queryAll.Invoke(null, ArrayUtils<object>.EmptyArray);
-      return queryable;
+      return Session.Demand().Query.All(elementType);
     }
 
     /// <summary>
@@ -81,10 +62,7 @@ namespace Xtensive.Storage
     public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria) 
       where T: Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.FreeTextString.MakeGenericMethod(typeof (T));
-      var expression = Expression.Call(method, Expression.Constant(searchCriteria));
-      return QueryProvider.Instance.CreateQuery<FullTextMatch<T>>(expression);
+      return Session.Demand().Query.FreeText<T>(searchCriteria);
     }
 
     /// <summary>
@@ -99,12 +77,8 @@ namespace Xtensive.Storage
     public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria) 
       where T: Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.FreeTextExpression.MakeGenericMethod(typeof (T));
-      var expression = Expression.Call(null, method, new[] {searchCriteria});
-      return QueryProvider.Instance.CreateQuery<FullTextMatch<T>>(expression);
+      return Session.Demand().Query.FreeText<T>(searchCriteria);
     }
-
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
@@ -117,7 +91,7 @@ namespace Xtensive.Storage
     /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
     public static Entity Single(Key key)
     {
-      return Single(Session.Demand(), key);
+      return Session.Demand().Query.Single(key);
     }
 
     /// <summary>
@@ -131,7 +105,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static Entity SingleOrDefault(Key key)
     {
-      return SingleOrDefault(Session.Demand(), key);
+      return Session.Demand().Query.SingleOrDefault(key);
     }
 
     /// <summary>
@@ -147,7 +121,7 @@ namespace Xtensive.Storage
     public static T Single<T>(Key key)
       where T : class, IEntity
     {
-      return (T) (object) Single(key);
+      return Session.Demand().Query.Single<T>(key);
     }
 
     /// <summary>
@@ -163,7 +137,7 @@ namespace Xtensive.Storage
     public static T Single<T>(params object[] keyValues)
       where T : class, IEntity
     {
-      return (T) (object) Single(GetKeyByValues<T>(keyValues));
+      return Session.Demand().Query.Single<T>(keyValues);
     }
 
     /// <summary>
@@ -178,7 +152,7 @@ namespace Xtensive.Storage
     public static T SingleOrDefault<T>(Key key)
       where T : class, IEntity
     {
-      return (T) (object) SingleOrDefault(key);
+      return Session.Demand().Query.SingleOrDefault<T>(key);
     }
 
     /// <summary>
@@ -193,7 +167,7 @@ namespace Xtensive.Storage
     public static T SingleOrDefault<T>(params object[] keyValues)
       where T : class, IEntity
     {
-      return (T) (object) SingleOrDefault(GetKeyByValues<T>(keyValues));
+      return Session.Demand().Query.SingleOrDefault<T>(keyValues);
     }
 
     /// <summary>
@@ -208,7 +182,7 @@ namespace Xtensive.Storage
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
-      return Execute(query.Method, query);
+      return Session.Demand().Query.Execute(query.Method, query);
     }
 
     /// <summary>
@@ -223,7 +197,7 @@ namespace Xtensive.Storage
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      return ExecuteInternal(GetParameterizedQuery(key, query, Session.Demand()), query.Target);
+      return Session.Demand().Query.Execute(key, query);
     }
 
     /// <summary>
@@ -238,7 +212,7 @@ namespace Xtensive.Storage
     /// <returns>Query result.</returns>
     public static TResult Execute<TResult>(Func<TResult> query)
     {
-      return Execute(query.Method, query);
+      return Session.Demand().Query.Execute(query);
     }
 
     /// <summary>
@@ -253,32 +227,7 @@ namespace Xtensive.Storage
     /// <returns>Query result.</returns>
     public static TResult Execute<TResult>(object key, Func<TResult> query)
     {
-      var domain = Domain.Demand();
-      var target = query.Target;
-      var cache = domain.QueryCache;
-      Pair<object, TranslatedQuery> item;
-      ParameterizedQuery<TResult> parameterizedQuery = null;
-      lock (cache)
-        if (cache.TryGetItem(key, true, out item))
-          parameterizedQuery = (ParameterizedQuery<TResult>) item.Second;
-      if (parameterizedQuery == null) {
-        ExtendedExpressionReplacer replacer;
-        var queryParameter = BuildQueryParameter(target, out replacer);
-        using (var queryCachingScope = new QueryCachingScope(queryParameter, replacer)) {
-          TResult result;
-          using (new ParameterContext().Activate()) {
-            if (queryParameter!=null)
-              queryParameter.Value = target;
-            result = query.Invoke();
-          }
-          parameterizedQuery = (ParameterizedQuery<TResult>) queryCachingScope.ParameterizedQuery;
-          lock (cache)
-            if (!cache.TryGetItem(key, false, out item))
-              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-          return result;
-        }
-      }
-      return ExecuteInternal(parameterizedQuery, target);
+      return Session.Demand().Query.Execute(key, query);
     }
 
     /// <summary>
@@ -293,34 +242,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
-      var session = Session.Demand();
-      var domain = session.Domain;
-      var target = query.Target;
-      var cache = domain.QueryCache;
-      Pair<object, TranslatedQuery> item;
-      ParameterizedQuery<TResult> parameterizedQuery = null;
-      lock (cache)
-        if (cache.TryGetItem(key, true, out item))
-          parameterizedQuery = (ParameterizedQuery<TResult>) item.Second;
-      if (parameterizedQuery == null) {
-        ExtendedExpressionReplacer replacer;
-        var queryParameter = BuildQueryParameter(target, out replacer);
-        using (var queryCachingScope = new QueryCachingScope(queryParameter, replacer, false)) {
-          using (new ParameterContext().Activate()) {
-            if (queryParameter!=null)
-              queryParameter.Value = target;
-            query.Invoke();
-          }
-          parameterizedQuery = (ParameterizedQuery<TResult>) queryCachingScope.ParameterizedQuery;
-          lock (cache)
-            if (!cache.TryGetItem(key, false, out item))
-              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-        }
-      }
-      var parameterContext = CreateParameterContext(target, parameterizedQuery);
-      var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
-      return result;
+      return Session.Demand().Query.ExecuteFutureScalar(key, query);
     }
 
     /// <summary>
@@ -334,7 +256,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
-      return ExecuteFutureScalar(query.Method, query);
+      return Session.Demand().Query.ExecuteFutureScalar(query);
     }
 
     /// <summary>
@@ -349,12 +271,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      var session = Session.Demand();
-      var parameterizedQuery = GetParameterizedQuery(key, query, session);
-      var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
-      var result = new FutureSequence<TElement>(parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
-      return result;
+      return Session.Demand().Query.ExecuteFuture(key, query);
     }
 
     /// <summary>
@@ -368,180 +285,12 @@ namespace Xtensive.Storage
     /// </returns>
     public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
     {
-      return ExecuteFuture(query.Method, query);
+      return Session.Demand().Query.ExecuteFuture(query);
     }
 
     public static IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
-      var method = WellKnownMembers.Queryable.AsQueryable.MakeGenericMethod(typeof (TElement));
-      var expression = Expression.Call(method, Expression.Constant(source));
-      return new Queryable<TElement>(expression);
+      return Session.Demand().Query.Store(source);
     }
-
-    #region Private / internal methods
-
-    /// <summary>
-    /// Resolves the specified <paramref name="key"/>.
-    /// </summary>
-    /// <param name="key">The key to resolve.</param>
-    /// <param name="session">The session to resolve the <paramref name="key"/> in.</param>
-    /// <returns>
-    /// The <see cref="Entity"/> the specified <paramref name="key"/> identifies or <see langword="null" />.
-    /// </returns>
-    internal static Entity Single(Session session, Key key)
-    {
-      if (key==null)
-        return null;
-      var result = SingleOrDefault(session, key);
-      if (result == null)
-        throw new KeyNotFoundException(string.Format(
-          Strings.EntityWithKeyXDoesNotExist, key));
-      return result;
-    }
-
-    /// <summary>
-    /// Resolves the specified <paramref name="key"/>.
-    /// </summary>
-    /// <param name="key">The key to resolve.</param>
-    /// <param name="session">The session to resolve the <paramref name="key"/> in.</param>
-    /// <returns>
-    /// The <see cref="Entity"/> the specified <paramref name="key"/> identifies or <see langword="null" />.
-    /// </returns>
-    internal static Entity SingleOrDefault(Session session, Key key)
-    {
-      if (key==null)
-        return null;
-      Entity result;
-      using (var transactionScope = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto)) {
-        var cache = session.EntityStateCache;
-        var state = cache[key, true];
-
-        if (state==null) {
-          if (session.IsDebugEventLoggingEnabled)
-            Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key,
-              key.HasExactType ? Strings.Known : Strings.Unknown);
-            state = session.Handler.FetchEntityState(key);
-        }
-
-        if (state==null || state.IsNotAvailableOrMarkedAsRemoved || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType)) 
-          // No state or Tuple = null or incorrect query type => no data in storage
-          result = null;
-        else
-          result = state.Entity;
-
-        transactionScope.Complete();
-      }
-      return result;
-    }
-
-    /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>
-    private static Key GetKeyByValues<T>(object[] keyValues)
-      where T : class, IEntity
-    {
-      ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
-      if (keyValues.Length==0)
-        throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
-      if (keyValues.Length==1) {
-        var keyValue = keyValues[0];
-        if (keyValue is Key)
-          return keyValue as Key;
-        if (keyValue is Entity)
-          return (keyValue as Entity).Key;
-      }
-      return Key.Create(typeof (T), keyValues);
-    }
-
-    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
-    private static Parameter BuildQueryParameter(object target, out ExtendedExpressionReplacer replacer)
-    {
-      if (target == null) {
-        replacer = new ExtendedExpressionReplacer(e => e);
-        return null;
-      }
-      var closureType = target.GetType();
-      var parameterType = typeof(Parameter<>).MakeGenericType(closureType);
-      var valueMemberInfo = parameterType.GetProperty("Value", closureType);
-      var queryParameter = (Parameter)Activator.CreateInstance(parameterType, "pClosure", target);
-      replacer = new ExtendedExpressionReplacer(e => {
-        if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
-          if (e.Type == closureType)
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-          throw new NotSupportedException(String.Format(Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, e));
-        }
-        return null;
-      });
-      return queryParameter;
-    }
-
-    private static TResult ExecuteInternal<TResult>(ParameterizedQuery<TResult> query, object target)
-    {
-      var context = CreateParameterContext(target, query);
-      return query.Execute(Session.Demand(), context);
-    }
-
-    private static ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key,
-      Func<IQueryable<TElement>> query, Session session)
-    {
-      var domain = session.Domain;
-      var cache = domain.QueryCache;
-      Pair<object, TranslatedQuery> item;
-      ParameterizedQuery<IEnumerable<TElement>> parameterizedQuery = null;
-      lock (cache)
-        if (cache.TryGetItem(key, true, out item))
-          parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) item.Second;
-      if (parameterizedQuery == null) {
-        ExtendedExpressionReplacer replacer;
-        var queryParameter = BuildQueryParameter(query.Target, out replacer);
-        using (new QueryCachingScope(queryParameter, replacer)) {
-          var result = query.Invoke();
-          var translationResult = QueryProvider.Instance.Translate<IEnumerable<TElement>>(result.Expression);
-          parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translationResult.Query;
-          lock (cache)
-            if (!cache.TryGetItem(key, false, out item))
-              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-        }
-      }
-      return parameterizedQuery;
-    }
-
-    private static Expression ReplaceClosure(Expression source, out object target, out Parameter parameter)
-    {
-      Type currentClosureType = null;
-      Parameter queryParameter = null;
-      Type parameterType = null;
-      PropertyInfo valueMemberInfo = null;
-      object currentTarget = null;
-      var replacer = new ExtendedExpressionReplacer(e => {
-        if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
-          if (currentClosureType == null) {
-            currentClosureType = e.Type;
-            currentTarget = ((ConstantExpression) e).Value;
-            parameterType = typeof (Parameter<>).MakeGenericType(currentClosureType);
-            valueMemberInfo = parameterType.GetProperty("Value", currentClosureType);
-            queryParameter = (Parameter) Activator.CreateInstance(parameterType, "pClosure", currentTarget);
-          }
-          if (e.Type == currentClosureType)
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType),
-              valueMemberInfo);
-          throw new InvalidOperationException(Strings.ExQueryContainsClosuresOfDifferentTypes);
-        }
-        return null;
-      });
-      var result = replacer.Replace(source);
-      target = currentTarget;
-      parameter = queryParameter;
-      return result;
-    }
-
-    private static ParameterContext CreateParameterContext<TResult>(object target, ParameterizedQuery<TResult> query)
-    {
-      var parameterContext = new ParameterContext();
-      if (query.QueryParameter != null)
-        using (parameterContext.Activate())
-          query.QueryParameter.Value = target;
-      return parameterContext;
-    }
-
-    #endregion
   }
 }

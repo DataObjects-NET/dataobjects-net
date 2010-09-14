@@ -77,7 +77,7 @@ namespace Xtensive.Storage
     {
       Prefetch();
       foreach (var key in State)
-        yield return Query.SingleOrDefault(Session, key);
+        yield return Session.Query.SingleOrDefault(key);
     }
 
     /// <summary>
@@ -679,7 +679,7 @@ namespace Xtensive.Storage
       using (new ParameterContext().Activate()) {
         ownerParameter.Value = owner;
         var cachedState = GetEntitySetTypeState();
-        State.TotalItemCount = Query.Execute(cachedState, cachedState.ItemCountQuery);
+        State.TotalItemCount = Session.Query.Execute(cachedState, cachedState.ItemCountQuery);
       }
     }
 

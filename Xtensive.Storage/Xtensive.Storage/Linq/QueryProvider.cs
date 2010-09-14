@@ -22,22 +22,14 @@ namespace Xtensive.Storage.Linq
   /// </summary>
   public sealed class QueryProvider : IQueryProvider
   {
-    private static readonly QueryProvider instance = new QueryProvider();
-
-    /// <summary>
-    /// Gets the only instance of this provider.
-    /// </summary>
-    public static QueryProvider Instance
-    {
-      get { return instance; }
-    }
+    private readonly Session session;
 
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
       Type elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable) typeof (Queryable<>).Activate(new[] {elementType}, new object[] {expression});
+        var query = (IQueryable) typeof (Queryable<>).Activate(new[] {elementType}, new object[] {this, expression});
         return query;
       }
       catch (TargetInvocationException e) {
@@ -48,7 +40,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
     {
-      return new Queryable<TElement>(expression);
+      return new Queryable<TElement>(this, expression);
     }
 
     /// <inheritdoc/>
@@ -68,13 +60,13 @@ namespace Xtensive.Storage.Linq
       var cachingScope = QueryCachingScope.Current;
       if (cachingScope != null && !cachingScope.Execute)
         return default(TResult);
-      return translationResult.Query.Execute(Session.Demand(), new ParameterContext());
+      return translationResult.Query.Execute(session, new ParameterContext());
     }
 
     internal TranslationResult<TResult> Translate<TResult>(Expression expression)
     {
       try {
-        var context = new TranslatorContext(expression, Domain.Demand());
+        var context = new TranslatorContext(expression, session.Domain);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
@@ -85,8 +77,9 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    private QueryProvider()
+    internal QueryProvider(Session session)
     {
+      this.session = session;
     }
   }
 }

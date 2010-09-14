@@ -141,9 +141,10 @@ namespace Xtensive.Storage.Upgrade
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private void UpdateTypes()
     {
-      var domainModel = Domain.Demand().Model;
-      Query.All<M.Type>().Remove();
-      Session.Demand().Persist();
+      var session = Session.Demand();
+      var domainModel = session.Domain.Model;
+      session.Query.All<M.Type>().Remove();
+      session.Persist();
       domainModel.Types
         .Where(type => type.IsEntity && type.TypeId!=TypeInfo.NoTypeId)
         .ForEach(type => new M.Type(type.TypeId, type.UnderlyingType.GetFullName()));

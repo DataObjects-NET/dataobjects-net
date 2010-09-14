@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Linq.Materialization
         result = entityState.Entity;
       }
       else {
-        result = Query.SingleOrDefault(Session, key);
+        result = Session.Query.SingleOrDefault(key);
       }
       entities[entityIndex] = result;
       return result;

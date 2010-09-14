@@ -516,7 +516,7 @@ namespace Xtensive.Storage
       var all =
         from pair in AllPersistenceStates()
         where pair.Value!=PersistenceState.Removed
-        let entity = Query.SingleOrDefault(pair.Key)
+        let entity = Session.Query.SingleOrDefault(pair.Key)
         where entity!=null
         select entity;
       return all.GetEnumerator();
