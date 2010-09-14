@@ -6,6 +6,9 @@
 
 namespace Xtensive.Core.Diagnostics
 {
+  /// <summary>
+  /// Log provider contract.
+  /// </summary>
   public interface ILogProvider
   {
     /// <summary>

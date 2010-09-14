@@ -6,14 +6,26 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Sorting
 {
+  /// <summary>
+  /// Base type for <see cref="TopologicalSortResult{NodeItem,TConnectionItem}"/>.
+  /// </summary>
+  /// <typeparam name="TNodeItem">The type of the node item.</typeparam>
   [Serializable]
   public class TopologicalSortResult<TNodeItem>
   {
+    /// <summary>
+    /// Gets or sets the sorting result.
+    /// </summary>
     public List<TNodeItem> Result{ get; private set;}
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="result">The sorting result.</param>
     public TopologicalSortResult(List<TNodeItem> result)
     {
       Result = result;

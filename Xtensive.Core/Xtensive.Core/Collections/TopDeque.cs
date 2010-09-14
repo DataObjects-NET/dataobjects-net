@@ -166,7 +166,7 @@ namespace Xtensive.Core.Collections
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Collection is empty.</exception>
-    public V PeekTop()
+    public V PopTop()
     {
       if (list.Count==0)
         throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
@@ -180,7 +180,7 @@ namespace Xtensive.Core.Collections
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Collection is empty.</exception>
-    public V PeekBottom()
+    public V PopBottom()
     {
       if (list.Count==0)
         throw new InvalidOperationException(Strings.ExCollectionIsEmpty);

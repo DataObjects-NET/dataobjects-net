@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
   /// <summary>
-  /// A serializable version of <see cref="LambdaExpression"/>.
+  /// A serializable representation of <see cref="LambdaExpression"/>.
   /// </summary>
   [Serializable]
   public sealed class SerializableLambdaExpression : SerializableExpression

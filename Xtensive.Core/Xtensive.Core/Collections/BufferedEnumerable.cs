@@ -11,6 +11,13 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
 {
+  /// <summary>
+  /// Caches passed <see cref="IEnumerable{T}"/> inside internal
+  /// <see cref="List{T}"/> on construction, and uses this list
+  /// on subsequent enumerations.
+  /// So the original sequence is enumerated just once.
+  /// </summary>
+  /// <typeparam name="TItem">The type of the item.</typeparam>
   public class BufferedEnumerable<TItem>: ICountable<TItem>
   {
     private readonly ICollection<TItem> buffer;
@@ -40,15 +47,6 @@ namespace Xtensive.Core.Collections
     public BufferedEnumerable(IEnumerable<TItem> source)
     {
       buffer = new List<TItem>(source);
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="source">The source.</param>
-    public BufferedEnumerable(ICollection<TItem> source)
-    {
-      buffer = source;
     }
   }
 }

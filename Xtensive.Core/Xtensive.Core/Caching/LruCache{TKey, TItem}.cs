@@ -153,7 +153,7 @@ namespace Xtensive.Core.Caching
       }
       size += sizeExtractor(item);
       while (size > maxSize && deque.Count > 0) {
-        oldCached = deque.PeekBottom();
+        oldCached = deque.PopBottom();
         size -= sizeExtractor(oldCached.Value);
         if (chainedCache!=null)
           chainedCache.Add(oldCached.Value, true);
@@ -187,7 +187,7 @@ namespace Xtensive.Core.Caching
     public virtual void Clear()
     {
       while (deque.Count > 0) {
-        var cached = deque.PeekBottom();
+        var cached = deque.PopBottom();
         var key = cached.Key;
         size -= sizeExtractor(cached.Value);
         if (chainedCache!=null)

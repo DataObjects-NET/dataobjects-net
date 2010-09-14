@@ -18,8 +18,13 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Aspects
 {
   /// <summary>
-  /// Implements epilogue call in constructor.
+  /// Injects epilogue method calls into the constructor.
   /// </summary>
+  /// <remarks>
+  /// If you're really interested in actual behavior, we recommend you to
+  /// study the decompiled MSIL code of class having this attribute applied 
+  /// using .NET Reflector.
+  /// </remarks>
   [MulticastAttributeUsage(MulticastTargets.InstanceConstructor)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]

@@ -13,6 +13,9 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.IoC.Configuration
 {
+  /// <summary>
+  /// IoC container configuration element.
+  /// </summary>
   [Serializable]
   public class ContainerElement : ConfigurationCollectionElementBase
   {
