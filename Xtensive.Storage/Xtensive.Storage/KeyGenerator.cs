@@ -19,7 +19,7 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage
 {
   ///<summary>
-  /// Base key generator class.
+  /// Abstract base class for any key generator.
   ///</summary>
   public abstract class KeyGenerator
   {

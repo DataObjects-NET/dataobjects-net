@@ -31,7 +31,7 @@ using Tuple = Xtensive.Core.Tuples.Tuple;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for <see cref="EntitySet{TItem}"/>.
+  /// Abstract base for <see cref="EntitySet{TItem}"/>.
   /// </summary>
   [EntitySetAspect]
   [Initializable]

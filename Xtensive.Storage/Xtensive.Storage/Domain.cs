@@ -28,7 +28,7 @@ using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An access point to a single storage.
+  /// Storage access point.
   /// </summary>
   /// <sample>
   /// <code lang="cs" source="..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>

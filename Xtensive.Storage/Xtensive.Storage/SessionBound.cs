@@ -17,10 +17,17 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for all objects that are bound to the <see cref="Session"/> instance.
-  /// Methods of any descendant of this typer must be processed by PostSharp 
-  /// to ensure its <see cref="Session"/> is active inside method bodies.
+  /// Base class for any object that is bound to <see cref="Session"/> instance.
+  /// Methods of descendants of this interface must be processed by PostSharp 
+  /// to ensure their own <see cref="Session"/> is activated inside their method bodies, 
+  /// and transaction is already opened there.
   /// </summary>
+  /// <remarks>
+  /// Only public and protected methods and properties are processed by
+  /// <see cref="TransactionalTypeAttribute"/> aspect.
+  /// To override the default behavior, use <see cref="TransactionalAttribute"/> and
+  /// <see cref="InfrastructureAttribute"/>.
+  /// </remarks>
   [Infrastructure]
   public abstract class SessionBound : ISessionBound
   {

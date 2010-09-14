@@ -10,6 +10,9 @@ using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Operation sequence contract.
+  /// </summary>
   public interface IOperationSequence : ICountable<IOperation>,
     Core.IOperationSequence
   {

@@ -11,8 +11,10 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An exception that is thrown when RDBMS can not serialize concurrent access.
-  /// This exception is unrelated with .NET serialization.
+  /// An exception that is thrown when RDBMS can not serialize concurrent access
+  /// It's nearly the same as <see cref="DeadlockException"/>, but this one is normally
+  /// thrown for RDBMS that implement multi-version concurrency control (MVCC) isolation.
+  /// This exception is unrelated to .NET serialization!
   /// </summary>
   [Serializable]
   public class TransactionSerializationFailureException : ReprocessableException

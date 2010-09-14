@@ -137,7 +137,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value is contained in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in the specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
@@ -150,7 +150,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value is contained in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in the specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
@@ -165,7 +165,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value is contained in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in the specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
@@ -179,7 +179,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value is contained in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in the specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>

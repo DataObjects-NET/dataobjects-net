@@ -1263,7 +1263,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void NonPersistentFieldTest()
     {
       var result = from e in Query.All<Employee>() where e.FullName!=null select e;

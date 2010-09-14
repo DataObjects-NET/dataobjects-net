@@ -11,9 +11,9 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An exception that is thrown when generated RDBMS query contains syntax error.
-  /// When you've got this exception, you either did not configured access rights in your RDBMS
-  /// or you've found an error in DataObjects.
+  /// An exception that is thrown when generated RDBMS query has syntax error(s).
+  /// When you've got this exception, you either did not configured access permissions
+  /// in your RDBMS, or you've found an error in DataObjects.Net.
   /// </summary>
   [Serializable]
   public class SyntaxErrorException : StorageException

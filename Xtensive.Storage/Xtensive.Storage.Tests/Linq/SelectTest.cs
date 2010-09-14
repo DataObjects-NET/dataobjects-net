@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void IndexerError1Test()
     {
       var result = Query
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void IndexerError2Test()
     {
       var result = Query
@@ -231,7 +231,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void OutOfHierarchy()
     {
       Assert.Greater(Query.All<Person>().Count(), 0);
@@ -694,7 +694,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void NonPersistentFieldTest()
     {
       var result = from e in Query.All<Employee>() select e.FullName;
@@ -971,7 +971,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void ExternalMethodWithIncorrectParamsCall()
     {
       var query = Query.All<Customer>().Select(c => GetCustomers(c.Orders.Count()).Single(c2 => c2==c)).ToList();

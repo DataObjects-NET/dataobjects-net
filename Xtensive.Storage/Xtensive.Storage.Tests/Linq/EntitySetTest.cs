@@ -76,8 +76,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnsupportedMethodsTest()
     {
-      AssertEx.Throws<TranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Add(null)).ToList());
-      AssertEx.Throws<TranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Remove(null)).ToList());
+      AssertEx.Throws<QueryTranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Add(null)).ToList());
+      AssertEx.Throws<QueryTranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Remove(null)).ToList());
     }
 
     [Test]

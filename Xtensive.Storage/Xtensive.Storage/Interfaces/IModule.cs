@@ -10,7 +10,7 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// The contract of extension module.
+  /// <see cref="Domain"/>-level extension module contract.
   /// </summary>
   public interface IModule
   {

@@ -15,7 +15,7 @@ namespace Xtensive.Storage
   /// This also includes violations of a NOT NULL constraints.
   /// </summary>
   [Serializable]
-  public class CheckConstraintViolationException : ConstraintViolationException
+  public sealed class CheckConstraintViolationException : ConstraintViolationException
   {
     // Constructors
 

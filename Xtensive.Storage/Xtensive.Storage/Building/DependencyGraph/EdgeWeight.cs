@@ -4,9 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2009.05.20
 
+using System;
+
 namespace Xtensive.Storage.Building.DependencyGraph
 {
-  public enum EdgeWeight
+  [Serializable]
+  internal enum EdgeWeight
   {
     Default = Normal,
     Low = -1,

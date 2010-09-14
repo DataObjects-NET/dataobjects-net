@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Building.Builders
         if (fullTextAttribute == null) 
           continue;
 
-        var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyze) {
+        var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyzed) {
           Configuration = fullTextAttribute.Configuration, 
         };
         fullTextIndexDef.Fields.Add(fullTextField);

@@ -26,39 +26,61 @@ using System.Runtime.Serialization;
 
 namespace Xtensive.Core.Tuples.Internals
 {
+  /// <summary>
+  /// Provides access to maximal generated tuple length value.
+  /// </summary>
   public static class MaxGeneratedTupleLength
   {
+    /// <summary>
+    /// Defines maximal generated tuple length value.
+    /// The value is <see langword="<#= TupleCount #>" />.
+    /// </summary>
     public const int Value = <#= TupleCount #>;
   }
 
 <# for (int i = 0; i < TupleCount; i++) { #>
+  /// <summary>
+  /// Describes tuple of length <#= i+1 #>.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<#= GetGenericArgumentsString(i + 1) #> : RegularTuple
   {
-    private const int count = <#= i+1#>;
+    private const int count = <#= i+1 #>;
+	
 <# for (int j = 0; j <= i; j++) { #>
+    /// <summary>
+    /// Value number <#= j #>.
+    /// </summary>
     [DataMember]
     public T<#= j #> Value<#= j #>;
+	
 <# } #>
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<#= GetGenericArgumentsString(i + 1) #>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<#= GetGenericArgumentsString(i + 1) #>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -67,6 +89,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -76,6 +99,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -88,6 +112,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -117,6 +142,12 @@ namespace Xtensive.Core.Tuples.Internals
     }
 
 <# for (int j = 0; j <= i; j++) { #>
+    /// <summary>
+    /// Gets the value and state of field <#= j #>.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T<#= j #> GetValue<#= j #>(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<#= GetGenericArgumentsString(i + 1) #>)tuple;
@@ -126,6 +157,11 @@ namespace Xtensive.Core.Tuples.Internals
 <# } #>
 
 <# for (int j = 0; j <= i; j++) { #>
+    /// <summary>
+    /// Sets the value of field <#= j #>.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue<#= j #>(Tuple tuple, T<#= j #> value)
     {
       var t = (Tuple<#= GetGenericArgumentsString(i + 1) #>)tuple;
@@ -138,6 +174,7 @@ namespace Xtensive.Core.Tuples.Internals
     }
 <# } #>
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -154,6 +191,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -176,6 +214,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {

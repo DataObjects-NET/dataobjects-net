@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// ENumerates possible options for <see cref="Session.NotifyChanged"/> method.
+  /// Enumerates possible options for <see cref="Session.NotifyChanged(Xtensive.Storage.NotifyChangedOptions)"/> method.
   /// </summary>
   [Flags]
   public enum NotifyChangedOptions

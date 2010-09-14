@@ -197,11 +197,11 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// Finds compiled query in cache by specified <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
-    /// and executes them if it's already cached;
+    /// and executes it, if found;
     /// otherwise executes the <paramref name="query"/> delegate
-    /// and caches the result.
+    /// and caches the compilation result.
     /// </summary>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -213,9 +213,9 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="key"/>
-    /// and executes them if it's already cached;
+    /// and executes it, if found;
     /// otherwise executes the <paramref name="query"/> delegate
-    /// and caches the result.
+    /// and caches the compilation result.
     /// </summary>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
@@ -229,9 +229,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
-    /// and executes them if it's already cached;
+    /// and executes it, if found;
     /// otherwise executes the <paramref name="query"/> delegate
-    /// and caches the result.
+    /// and caches the compilation result.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -243,9 +243,9 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="key"/>
-    /// and executes them if it's already cached;
+    /// and executes it, if found;
     /// otherwise executes the <paramref name="query"/> delegate
-    /// and caches the result.
+    /// and caches the compilation result.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
@@ -283,7 +283,7 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
-    /// The query associated with the future scalar will be cached.
+    /// The query compilation result associated with the future scalar will be cached as well.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
@@ -325,7 +325,7 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
-    /// The query associated with the future scalar will not be cached.
+    /// The query compilation result associated with the future scalar will be cached as well.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -339,7 +339,7 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Creates future query and registers it for the later execution.
-    /// The associated query will be cached.
+    /// The query compilation result will be cached as well.
     /// </summary>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
@@ -359,7 +359,7 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Creates future query and registers it for the later execution.
-    /// The associated query will be cached.
+    /// The query compilation result will be cached as well.
     /// </summary>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -371,6 +371,14 @@ namespace Xtensive.Storage
       return ExecuteFuture(query.Method, query);
     }
 
+    /// <summary>
+    /// Stores the specified sequence of keys (<see cref="Entity">entities</see>),
+    /// anonymous types or DTOs to the database and allows it to use as
+    /// <see cref="IQueryable{T}"/> further.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the sequence element.</typeparam>
+    /// <param name="source">The sequence to store.</param>
+    /// <returns><see cref="IQueryable{T}"/> providing access to the stored sequence.</returns>
     public static IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
       var method = WellKnownMembers.Queryable.AsQueryable.MakeGenericMethod(typeof (TElement));

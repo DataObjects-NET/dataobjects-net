@@ -527,7 +527,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void GroupBySelectManyKeyTest()
     {
       var result = Query.All<Customer>()

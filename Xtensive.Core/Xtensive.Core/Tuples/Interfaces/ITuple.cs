@@ -39,7 +39,7 @@ namespace Xtensive.Core.Tuples
     TupleFieldState GetFieldState(int fieldIndex);
 
     /// <summary>
-    /// Gets the value field value by its index.
+    /// Gets the field value by its index.
     /// </summary>
     /// <param name="fieldIndex">Index of the field to get value of.</param>
     /// <returns>Field value.</returns>
@@ -51,7 +51,7 @@ namespace Xtensive.Core.Tuples
     object GetValue(int fieldIndex);
 
     /// <summary>
-    /// Gets the value field value by its index, if it is available;
+    /// Gets the field value by its index, if it is available;
     /// otherwise returns default value for field type.
     /// </summary>
     /// <param name="fieldIndex">Index of the field to get value of.</param>

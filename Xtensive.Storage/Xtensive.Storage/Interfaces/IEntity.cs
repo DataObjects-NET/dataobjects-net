@@ -13,7 +13,7 @@ using Xtensive.Storage.Rse;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Should be implemented by any persistent entity.
+  /// Persistent entity contract.
   /// </summary>
   [SystemType]
   public interface IEntity: 

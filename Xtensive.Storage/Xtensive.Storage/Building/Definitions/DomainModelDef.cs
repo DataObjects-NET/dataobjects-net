@@ -17,7 +17,8 @@ using System.Linq;
 namespace Xtensive.Storage.Building.Definitions
 {
   /// <summary>
-  /// Represents a definition of <see cref="Domain"/>.
+  /// Defines the whole <see cref="Domain"/> model.
+  /// The root definition.
   /// </summary>
   [Serializable]
   public sealed class DomainModelDef : Node

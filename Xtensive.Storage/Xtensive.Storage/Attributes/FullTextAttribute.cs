@@ -18,11 +18,12 @@ namespace Xtensive.Storage
   {
     /// <summary>
     /// Gets or sets a value indicating whether content of the field marked by this
-    /// attribute must be analyzed or not. Analyzed implies it will be splat to a
-    /// sequence of words; otherwise it will be represented as a single word
-    /// in index.
+    /// attribute must be analyzed or not. 
+    /// "Analyzed" implies the content must be splat into a sequence of words; 
+    /// otherwise it will be represented as a single word in index.
+    /// Default value is <see langword="true" />.
     /// </summary>
-    public bool Analyze { get; set; }
+    public bool Analyzed { get; set; }
 
     /// <summary>
     /// Gets the configuration name for word-breaker and stemmer. 
@@ -38,7 +39,7 @@ namespace Xtensive.Storage
     public FullTextAttribute(string configuration)
     {
       Configuration = configuration;
-      Analyze = true;
+      Analyzed = true;
     }
   }
 }

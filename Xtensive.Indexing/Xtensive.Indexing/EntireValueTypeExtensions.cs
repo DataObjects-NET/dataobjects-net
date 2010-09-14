@@ -6,8 +6,18 @@
 
 namespace Xtensive.Indexing
 {
+  /// <summary>
+  /// <see cref="EntireValueType"/> related extension methods.
+  /// </summary>
   public static class EntireValueTypeExtensions
   {
+    /// <summary>
+    /// Determines whether the specified <see cref="EntireValueType"/> is infinity.
+    /// </summary>
+    /// <param name="valueType">Entire value type to check.</param>
+    /// <returns>
+    /// Check result.
+    /// </returns>
     public static bool IsInfinity(this EntireValueType valueType)
     {
       return 

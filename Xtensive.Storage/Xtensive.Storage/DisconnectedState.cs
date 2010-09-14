@@ -817,7 +817,7 @@ namespace Xtensive.Storage
     // Serialization
 
     [OnSerializing]
-    protected void OnSerializing(StreamingContext context)
+    private void OnSerializing(StreamingContext context)
     {
       EnsureNoTransaction();
       serializedOperations = state.Operations;
@@ -828,7 +828,7 @@ namespace Xtensive.Storage
     }
 
     [OnSerialized]
-    protected void OnSerialized(StreamingContext context)
+    private void OnSerialized(StreamingContext context)
     {
       serializedState = null;
       serializedOriginalState = null;
@@ -836,7 +836,7 @@ namespace Xtensive.Storage
     }
 
     [OnDeserialized]
-    protected void OnDeserialized(StreamingContext context)
+    private void OnDeserialized(StreamingContext context)
     {
       var domain = Session.Demand().Domain;
 
