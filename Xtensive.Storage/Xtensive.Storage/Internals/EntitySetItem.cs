@@ -5,12 +5,21 @@
 // Created:    2008.09.05
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
+  /// <summary>
+  /// Abstract base class for internally used <see cref="EntitySet{TItem}"/> items.
+  /// Instances of runtime-generated descendants of this type are used
+  /// to actually describe the relationship behind the <see cref="EntitySet{TItem}"/>,
+  /// if it isn't paired, or is paired to another <see cref="EntitySet{TItem}"/>.
+  /// </summary>
+  /// <typeparam name="TMaster">The type of the master.</typeparam>
+  /// <typeparam name="TSlave">The type of the slave.</typeparam>
   [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
@@ -18,17 +27,27 @@ namespace Xtensive.Storage.Internals
     where TMaster : IEntity
     where TSlave : IEntity
   {
+    /// <summary>
+    /// Gets the master entity reference.
+    /// </summary>
     [Field, Key(0)]
     public TMaster Master { get; private set; }
 
+    /// <summary>
+    /// Gets the slave entity reference.
+    /// </summary>
     [Field, Key(1)]
     public TSlave Slave { get; private set; }
 
 
     // Constructors
 
-    protected EntitySetItem(Tuple tuple)
-      : base(tuple)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="keyTuple">The tuple containing key value for this instance.</param>
+    protected EntitySetItem(Tuple keyTuple)
+      : base(keyTuple)
     {
     }
   }

@@ -16,7 +16,7 @@ namespace Xtensive.Core.Collections
   /// <summary>
   /// Pool implementation.
   /// </summary>
-  /// <typeparam name="TItem">The type of pooled item.</typeparam>
+  /// <typeparam name="T">The type of pooled item.</typeparam>
   [Serializable]
   [DebuggerDisplay("Count = {Count}, AvailableCount = {AvailableCount}, Capacity = {Capacity}")]
   public class Pool<T> : IPool<T>

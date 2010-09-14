@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
@@ -17,13 +18,26 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Internals
 {
+  /// <summary>
+  /// Delayed query task. 
+  /// Used internally to support delayed (future) queries.
+  /// </summary>
   [Serializable]
   public sealed class QueryTask : IEnumerable<Tuple>
   {
+    /// <summary>
+    /// The data surce (data provider).
+    /// </summary>
     public readonly ExecutableProvider DataSource;
 
+    /// <summary>
+    /// The parameter value context.
+    /// </summary>
     public readonly ParameterContext ParameterContext;
 
+    /// <summary>
+    /// Gets or sets the result of execution of this query task.
+    /// </summary>
     public List<Tuple> Result { get; set; }
 
     /// <exception cref="InvalidOperationException">Query task is not executed yet.</exception>
@@ -44,6 +58,11 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="dataSource">The data source.</param>
+    /// <param name="parameterContext">The parameter value context.</param>
     public QueryTask(ExecutableProvider dataSource, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataSource, "dataSource");

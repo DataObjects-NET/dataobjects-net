@@ -243,7 +243,7 @@ namespace Xtensive.Core.Tuples.Internals
         var secondDescriptor = descriptor.SkipFields(MaxGeneratedTupleLength.Value);
         if (firstDescriptor == null || secondDescriptor == null)
           throw new InvalidOperationException();
-        return new TupleExtender(descriptor, Create(firstDescriptor), Create(secondDescriptor));
+        return new JoinedTuple(descriptor, Create(firstDescriptor), Create(secondDescriptor));
       }
       if (fieldCount == 0)
         return EmptyTuple.Instance;

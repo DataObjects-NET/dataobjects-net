@@ -18,7 +18,7 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage.Internals
 {
   /// <summary>
-  /// Base class for a future implementation.
+  /// Abstract base for a future query and future scalar implementation.
   /// </summary>
   /// <typeparam name="TResult">The type of the result.</typeparam>
   [Serializable]
