@@ -5,12 +5,20 @@
 // Created:    2009.10.06
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Diagnostics
 {
+  /// <summary>
+  /// Default log implementation (see <see cref="LogImplementationBase"/>).
+  /// </summary>
   [Serializable]
   public class LogImplementation : LogImplementationBase
   {
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="realLog">Real log to wrap.</param>
     public LogImplementation(IRealLog realLog)
       : base(realLog)
     {

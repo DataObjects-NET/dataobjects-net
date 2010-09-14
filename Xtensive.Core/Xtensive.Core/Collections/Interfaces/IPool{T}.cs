@@ -30,6 +30,12 @@ namespace Xtensive.Core.Collections
     T    Consume();
 
     /// <summary>
+    /// Adds the specified item into the pool and immediately consumes it.
+    /// </summary>
+    /// <param name="item">Item to add and consume.</param>
+    void Consume(T item);
+
+    /// <summary>
     /// Consumes the item from the pool;
     /// creates a new one (using <paramref name="itemGenerator"/>),
     /// if no available item is found in pool.
@@ -39,14 +45,8 @@ namespace Xtensive.Core.Collections
     T    Consume(Func<T> itemGenerator);
 
     /// <summary>
-    /// Adds the specified item into the pool and immediately consumes it.
-    /// </summary>
-    /// <param name="item">Item to add and consume.</param>
-    void Consume(T item);
-
-    /// <summary>
     /// Executes <paramref name="consumer"/> action for either
-    /// pooled or newly created item. 
+    /// pooled or newly created item.
     /// <see cref="IPoolBase{T}.Release"/>s the item on completion of
     /// execution.
     /// </summary>

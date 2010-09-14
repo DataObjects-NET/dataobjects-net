@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Model
 {
   /// <summary>
-  /// A collection of hierarchies.
+  /// A collection of <see cref="HierarchyInfo"/> objects.
   /// </summary>
   [Serializable]
   public sealed class HierarchyInfoCollection : NodeCollection<HierarchyInfo>

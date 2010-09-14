@@ -16,6 +16,11 @@ using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Composite
 {
+  /// <summary>
+  /// Describes segment of composite index.
+  /// </summary>
+  /// <typeparam name="TKey">The type of the key.</typeparam>
+  /// <typeparam name="TItem">The type of the item.</typeparam>
   public class IndexSegment<TKey, TItem> : UniqueOrderedIndexBase<TKey, TItem>
     where TKey : Tuple
     where TItem : Tuple

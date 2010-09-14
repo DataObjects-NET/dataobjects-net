@@ -15,7 +15,7 @@ namespace Xtensive.Storage
   /// detected during <see cref="Domain"/>.<see cref="Domain.Build"/> execution.
   /// </summary>
   [Serializable]
-  public class SchemaSynchronizationException : StorageException
+  public sealed class SchemaSynchronizationException : StorageException
   {
     // Constructors
 

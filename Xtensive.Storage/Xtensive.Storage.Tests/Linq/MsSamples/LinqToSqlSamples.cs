@@ -1651,7 +1651,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     }
 
 
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "Simple")]
     [Description("This sample returns all contacts where the city is London.")]
@@ -1671,7 +1671,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Category("Inheritance")]
     [Test(Description = "OfType")]
     [Description("This sample uses OfType to return all customer contacts.")]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void DLinq136()
     {
       var cons = from c in Query.All<Person>().OfType<Customer>()
@@ -1680,7 +1680,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "IS")]
     [Description("This sample uses IS to return all shipper contacts.")]
@@ -1693,7 +1693,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "AS")]
     [Description("This sample uses AS to return FullContact or null.")]
@@ -1705,7 +1705,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "Cast")]
     [Description("This sample uses a cast to retrieve customer contacts who work in 'Around the Horn'.")]

@@ -21,7 +21,9 @@ using System.Linq;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Contains a set of identifying values of an <see cref="Entity"/>.
+  /// Identifies a particular <see cref="Entity"/>.
+  /// Stores the set of <see cref="Entity"/>'s <see cref="KeyAttribute">[Key]</see> field values, 
+  /// as well as <see cref="HierarchyInfo"/> the entity belongs to.
   /// </summary>
   /// <remarks>
   /// Every entity is uniquely identified by its <see cref="Entity.Key"/>.
@@ -31,10 +33,14 @@ namespace Xtensive.Storage
   {
     private const char KeyFormatEscape    = '\\';
     private const char KeyFormatDelimiter = ':';
-
-    protected Tuple value;
     private int? hashCode;
     private string cachedFormatResult;
+
+    /// <summary>
+    /// Protected member caching the tuple with key values.
+    /// Can be <see langword="null" />, if the value isn't materialized yet.
+    /// </summary>
+    protected Tuple value;
 
     /// <summary>
     /// Gets the key value.

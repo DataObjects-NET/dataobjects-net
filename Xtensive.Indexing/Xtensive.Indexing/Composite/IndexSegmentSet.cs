@@ -10,6 +10,11 @@ using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Indexing.Composite
 {
+  /// <summary>
+  /// Describes a set of segments composing the composite index.
+  /// </summary>
+  /// <typeparam name="TKey">The type of the key.</typeparam>
+  /// <typeparam name="TItem">The type of the item.</typeparam>
   public class IndexSegmentSet<TKey, TItem> : ConfigurationSetBase<IndexSegment<TKey, TItem>>
     where TKey : Tuple
     where TItem : Tuple

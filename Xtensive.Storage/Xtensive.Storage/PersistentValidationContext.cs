@@ -8,8 +8,10 @@ using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Storage
 {
-  public class PersistentValidationContext : ValidationContextBase
+  /// <summary>
+  /// <see cref="ValidationContextBase"/> implementation used in DataObjects.Net.
+  /// </summary>
+  public sealed class PersistentValidationContext : ValidationContextBase
   {
-    
   }
 }

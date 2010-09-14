@@ -12,7 +12,7 @@ using Oracle.DataAccess.Types;
 
 namespace Xtensive.Sql.Oracle.v09
 {
-  internal class TypeMapper : ValueTypeMapping.TypeMapper
+  internal class TypeMapper : Sql.TypeMapper
   {
     private const int BooleanPrecision = 1;
     private const int BytePrecision = 3;

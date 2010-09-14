@@ -18,8 +18,10 @@ namespace Xtensive.Storage
   /// connection is required to perform the operation.
   /// </summary>
   [Serializable]
-  public class ConnectionRequiredException : StorageException
+  public sealed class ConnectionRequiredException : StorageException
   {
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>

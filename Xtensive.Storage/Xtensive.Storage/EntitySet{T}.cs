@@ -22,7 +22,7 @@ using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Non-ordered persistent entity-bound set (with no duplicate items).
+  /// Unordered persistent <see cref="Entity"/>-bound set (i.e. there can be no duplicates).
   /// </summary>
   /// <typeparam name="TItem">The type of the entities in this set.</typeparam>
   /// <remarks>

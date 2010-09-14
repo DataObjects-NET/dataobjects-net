@@ -15,6 +15,11 @@ using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
+  /// <summary>
+  /// Defines index configuration.
+  /// </summary>
+  /// <typeparam name="TKey">The type of the key.</typeparam>
+  /// <typeparam name="TItem">The type of the item.</typeparam>
   [Serializable]
   public class IndexConfiguration<TKey, TItem> : IndexConfigurationBase<TKey, TItem>
   {

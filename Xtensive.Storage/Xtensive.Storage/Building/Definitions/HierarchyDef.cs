@@ -11,6 +11,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building.Definitions
 {
+  /// <summary>
+  /// Defines a signle persistent type hierarchy.
+  /// </summary>
   [Serializable]
   public sealed class HierarchyDef : Node
   {

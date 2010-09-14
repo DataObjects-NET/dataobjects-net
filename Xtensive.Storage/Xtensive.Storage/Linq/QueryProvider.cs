@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Linq
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
-        throw new TranslationException(String.Format(Resources.Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
+        throw new QueryTranslationException(String.Format(Resources.Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
 

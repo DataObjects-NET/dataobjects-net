@@ -17,8 +17,11 @@ using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  /// <summary>
+  /// Multi-seek operation executable provider.
+  /// </summary>
   [Serializable]
-  public class MultySeekProvider: UnaryExecutableProvider<Compilable.FilterProvider>
+  public class MultiSeekProvider: UnaryExecutableProvider<Compilable.FilterProvider>
   {
     private Func<IEnumerable<Tuple>> filterDataSource;
 
@@ -53,7 +56,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    public MultySeekProvider(Compilable.FilterProvider origin, 
+    public MultiSeekProvider(Compilable.FilterProvider origin, 
       ExecutableProvider source, 
       Expression<Func<IEnumerable<Tuple>>> filterDataSource)
       : base(origin, source)

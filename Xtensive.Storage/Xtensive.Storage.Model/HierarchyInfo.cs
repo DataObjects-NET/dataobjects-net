@@ -13,6 +13,9 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Describes a single persistent type hierarchy.
+  /// </summary>
   [Serializable]
   public sealed class HierarchyInfo : Node
   {

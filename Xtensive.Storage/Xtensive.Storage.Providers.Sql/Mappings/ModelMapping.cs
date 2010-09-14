@@ -11,6 +11,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// Defines model mapping.
+  /// </summary>
   [Serializable]
   public sealed class ModelMapping
   {

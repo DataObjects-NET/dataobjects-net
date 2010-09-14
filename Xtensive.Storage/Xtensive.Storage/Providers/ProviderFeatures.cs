@@ -8,6 +8,9 @@ using System;
 
 namespace Xtensive.Storage.Providers
 {
+  /// <summary>
+  /// Enumerates all the features supported by storage providers.
+  /// </summary>
   [Flags]
   public enum ProviderFeatures : long
   {

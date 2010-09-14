@@ -8,6 +8,9 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// <see cref="PostCompiler"/> configuration.
+  /// </summary>
   public sealed class SqlPostCompilerConfiguration
   {
     public HashSet<object> AlternativeBranches { get; private set; }

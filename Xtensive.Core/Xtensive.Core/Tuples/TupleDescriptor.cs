@@ -157,14 +157,14 @@ namespace Xtensive.Core.Tuples
       SetValueDelegates = new Delegate[Count];
       SetNullableValueDelegates = new Delegate[Count];
       if (Count > MaxGeneratedTupleLength.Value) {
-        var tupleExtender = (TupleExtender)factory;
+        var tupleExtender = (JoinedTuple)factory;
         var firstDescriptor = tupleExtender.First.Descriptor;
         var secondDescriptor = tupleExtender.Second.Descriptor;
         if (firstDescriptor == null || secondDescriptor == null)
           throw new InvalidOperationException();
         for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
           var type = fieldTypes[fieldIndex];
-          var extenderAccessorType = typeof (TupleExtenderAccessor<>).MakeGenericType(type);
+          var extenderAccessorType = typeof (JoinedTupleAccessor<>).MakeGenericType(type);
           object extenderAccessorInstance;
           if (fieldIndex < MaxGeneratedTupleLength.Value)
             extenderAccessorInstance = Activator.CreateInstance(
@@ -178,7 +178,7 @@ namespace Xtensive.Core.Tuples
               secondDescriptor.GetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
               secondDescriptor.SetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
               fieldIndex);
-          var extenderAccessor = (TupleExtenderAccessor)extenderAccessorInstance;
+          var extenderAccessor = (JoinedTupleAccessor)extenderAccessorInstance;
           var getValueDelegate = extenderAccessor.GetValueDelegate;
           var setValueDelegate = extenderAccessor.SetValueDelegate;
           GetValueDelegates[fieldIndex] = getValueDelegate;

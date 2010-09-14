@@ -12,16 +12,20 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Helpers
 {
+  /// <summary>
+  /// A binary serializable wrapper using .NET <see cref="BinaryFormatter"/>
+  /// to serialize and deserialize the <see cref="Value"/>.
+  /// </summary>
+  /// <typeparam name="T">The type of the <see cref="Value"/>.</typeparam>
   [Serializable]
   public class BinarySerializable<T>
   {
     [NonSerialized]
     private T value;
-
     private byte[] data;
 
     /// <summary>
-    /// Gets or sets the value.
+    /// Gets or sets the value to wrap (serialize).
     /// </summary>
     public T Value {
       get { return value; }
@@ -65,7 +69,7 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="value">The value.</param>
+    /// <param name="value">The value to wrap.</param>
     public BinarySerializable(T value)
     {
       this.value = value;

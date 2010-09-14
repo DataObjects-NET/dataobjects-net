@@ -14,6 +14,9 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Maps type fields to interface fields and vice versa.
+  /// </summary>
   [Serializable]
   public sealed class FieldMap: LockableBase, IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>
   {

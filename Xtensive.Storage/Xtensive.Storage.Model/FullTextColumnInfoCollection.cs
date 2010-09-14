@@ -9,6 +9,9 @@ using System.Diagnostics;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A collection of <see cref="FullTextColumnInfo"/> objects.
+  /// </summary>
   [Serializable]
   public sealed class FullTextColumnInfoCollection : NodeCollection<FullTextColumnInfo>
   {

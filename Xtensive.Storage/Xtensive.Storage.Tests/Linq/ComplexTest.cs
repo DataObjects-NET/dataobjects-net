@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void CachedQueryTest()
     {
       for (char c = 'A'; c <= 'Z'; c++) {

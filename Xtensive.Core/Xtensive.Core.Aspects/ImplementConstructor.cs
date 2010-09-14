@@ -18,6 +18,11 @@ namespace Xtensive.Core.Aspects
   /// Implements protected constructor with a set of specified parameter types.
   /// Implemented constructor will call the constructor with the same set of arguments from the base type.
   /// </summary>
+  /// <remarks>
+  /// If you're really interested in actual behavior, we recommend you to
+  /// study the decompiled MSIL code of class having this attribute applied 
+  /// using .NET Reflector.
+  /// </remarks>
   [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Class, Inheritance = MulticastInheritance.Strict)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]

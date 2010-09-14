@@ -4,6 +4,9 @@
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// Container node in SQL DOM query model.
+  /// </summary>
   public class ContainerNode : Node
   {
     private Node current;

@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Rse.Compilation
           var keyTupleDescriptor = indexProvider.Index.KeyTupleDescriptor;
           if (includeProvider.FilteredColumns.SequenceEqual(Enumerable.Range(0, keyTupleDescriptor.Count))) {
             var compiledIndexProvider = Compile(includeProvider.Source);
-            return new Providers.Executable.MultySeekProvider(
+            return new Providers.Executable.MultiSeekProvider(
               provider,
               compiledIndexProvider,
               includeProvider.FilterDataSource);

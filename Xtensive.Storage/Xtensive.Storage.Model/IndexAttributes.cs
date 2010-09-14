@@ -8,6 +8,9 @@ using System;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Index attributes.
+  /// </summary>
   [Flags]
   public enum IndexAttributes
   {

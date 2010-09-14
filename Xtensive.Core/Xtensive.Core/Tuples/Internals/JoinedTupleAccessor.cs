@@ -9,13 +9,13 @@ using System.Diagnostics;
 
 namespace Xtensive.Core.Tuples.Internals
 {
-  internal class TupleExtenderAccessor
+  internal class JoinedTupleAccessor
   {
     public Delegate GetValueDelegate;
     public Delegate SetValueDelegate;
   }
 
-  internal sealed class TupleExtenderAccessor<T> : TupleExtenderAccessor
+  internal sealed class JoinedTupleAccessor<T> : JoinedTupleAccessor
   {
     private readonly GetValueDelegate<T> getValue;
     private readonly Action<Tuple, T> setValue;
@@ -23,32 +23,32 @@ namespace Xtensive.Core.Tuples.Internals
 
     public T GetValueFirst(Tuple tuple, out TupleFieldState fieldState)
     {
-      var extender = (TupleExtender) tuple;
+      var extender = (JoinedTuple) tuple;
       return getValue(extender.First, out fieldState);
     }
 
     public T GetValueSecond(Tuple tuple, out TupleFieldState fieldState)
     {
-      var extender = (TupleExtender)tuple;
+      var extender = (JoinedTuple)tuple;
       return getValue(extender.Second, out fieldState);
     }
 
     public void SetValueFirst(Tuple tuple, T value)
     {
-      var extender = (TupleExtender)tuple;
+      var extender = (JoinedTuple)tuple;
       setValue(extender.First, value);
     }
 
     public void SetValueSecond(Tuple tuple, T value)
     {
-      var extender = (TupleExtender)tuple;
+      var extender = (JoinedTuple)tuple;
       setValue(extender.Second, value);
     }
 
 
     // Constructors
 
-    public TupleExtenderAccessor(GetValueDelegate<T> getValue, Action<Tuple, T> setValue, int fieldIndex)
+    public JoinedTupleAccessor(GetValueDelegate<T> getValue, Action<Tuple, T> setValue, int fieldIndex)
     {
       this.getValue = getValue;
       this.setValue = setValue;
@@ -56,7 +56,7 @@ namespace Xtensive.Core.Tuples.Internals
 
       GetValueDelegate<T> getValueDelegate;
       Action<Tuple, T> setValueDelegate;
-      if (fieldIndex < TupleExtender.FirstCount) {
+      if (fieldIndex < JoinedTuple.FirstCount) {
         getValueDelegate = GetValueFirst;
         setValueDelegate = SetValueFirst;
       }

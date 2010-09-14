@@ -14,8 +14,13 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Aspects
 {
   /// <summary>
-  /// Implements static factory method that calls specified constructor found by its signature.
+  /// Implements static factory method that calls the specified constructor found by its signature.
   /// </summary>
+  /// <remarks>
+  /// If you're really interested in actual behavior, we recommend you to
+  /// study the decompiled MSIL code of class having this attribute applied 
+  /// using .NET Reflector.
+  /// </remarks>
   [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Class, Inheritance = MulticastInheritance.Strict, TargetTypeAttributes = MulticastAttributes.NonAbstract)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]

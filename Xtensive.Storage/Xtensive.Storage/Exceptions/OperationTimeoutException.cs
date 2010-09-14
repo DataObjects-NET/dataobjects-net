@@ -11,10 +11,11 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An exception that is thrown when currently executing operation timed out.
+  /// An exception that is thrown when currently executing operation 
+  /// is timed out.
   /// </summary>
   [Serializable]
-  public class OperationTimeoutException : StorageException
+  public sealed class OperationTimeoutException : StorageException
   {
     // Constructors
 

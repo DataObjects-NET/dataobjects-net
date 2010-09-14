@@ -9,7 +9,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Sql.Compiler
 {
   /// <summary>
-  /// A <see cref="SqlCompiler"/> exception
+  /// An <see cref="SqlCompiler"/> exception.
   /// </summary>
   [Serializable]
   public class SqlCompilerException : Exception

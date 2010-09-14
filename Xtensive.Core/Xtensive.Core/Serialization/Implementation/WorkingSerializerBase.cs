@@ -64,7 +64,7 @@ namespace Xtensive.Core.Serialization
         var queue = context.SerializationQueue;
         while (queue.Count > 0) {
           var nextSource = queue.BottomKey;
-          var nextPair = queue.PeekBottom();
+          var nextPair = queue.PopBottom();
           queue.Remove(nextSource);
           writer.Append(GetObjectData(nextSource, nextPair.Second, true));
         }

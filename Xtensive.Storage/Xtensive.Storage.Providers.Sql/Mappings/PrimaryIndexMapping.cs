@@ -7,11 +7,14 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// Defines primary index mapping.
+  /// </summary>
   [Serializable]
   public sealed class PrimaryIndexMapping
   {

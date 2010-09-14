@@ -9,10 +9,13 @@ using System.Data.Common;
 using System.Linq;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Provider-level <see cref="DbDataReader"/> accessor.
+  /// </summary>
   public sealed class DbDataReaderAccessor
   {
     private readonly TypeMapping[] mappings;

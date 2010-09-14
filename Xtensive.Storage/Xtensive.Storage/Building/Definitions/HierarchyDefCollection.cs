@@ -10,6 +10,9 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Building.Definitions
 {
+  /// <summary>
+  /// A collection of <see cref="HierarchyDef"/> items.
+  /// </summary>
   public class HierarchyDefCollection : CollectionBase<HierarchyDef>
   {
     /// <inheritdoc/>

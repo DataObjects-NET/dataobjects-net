@@ -12,6 +12,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building.Definitions
 {
+  /// <summary>
+  /// Defines full-text index.
+  /// </summary>
   [Serializable]
   public sealed class FullTextIndexDef : Node
   {

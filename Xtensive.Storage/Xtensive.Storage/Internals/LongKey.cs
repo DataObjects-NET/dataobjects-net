@@ -12,7 +12,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Internals
 {
   [Serializable]
-  public sealed class LongKey : Key
+  internal sealed class LongKey : Key
   {
     /// <inheritdoc/>
     protected override Tuple GetValue()

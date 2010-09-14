@@ -9,6 +9,10 @@ using System.Reflection;
 
 namespace Xtensive.Core.Linq
 {
+  /// <summary>
+  /// Base interface for compiler providers.
+  /// See <see cref="IMemberCompilerProvider{T}"/>.
+  /// </summary>
   public interface IMemberCompilerProvider : ILockable
   {
     /// <summary>

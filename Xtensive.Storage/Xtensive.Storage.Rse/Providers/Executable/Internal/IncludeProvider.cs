@@ -16,6 +16,11 @@ using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  /// <summary>
+  /// Executable provider that returns <see cref="bool"/> column. 
+  /// Column value is <see langword="true" /> if source value equal to one of provided values; 
+  /// otherwise, <see langword="false" />.
+  /// </summary>
   [Serializable]
   public class IncludeProvider : UnaryExecutableProvider<Compilable.IncludeProvider>
   {

@@ -9,8 +9,7 @@ using System.Linq.Expressions;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An interface that must be implemented by any
-  /// LINQ query preprocessor.
+  /// LINQ query preprocessor contract.
   /// </summary>
   public interface IQueryPreprocessor
   {
@@ -22,7 +21,7 @@ namespace Xtensive.Storage
     Expression Apply(Expression query);
 
     /// <summary>
-    /// Determines whether this query preprocessor is dependent on <paramref name="other"/>.
+    /// Determines whether this query preprocessor is dependent on the <paramref name="other"/> one.
     /// </summary>
     /// <param name="other">The other query preprocessor.</param>
     /// <returns>

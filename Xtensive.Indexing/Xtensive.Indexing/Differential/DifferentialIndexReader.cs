@@ -15,6 +15,12 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Differential
 {
+  /// <summary>
+  /// Differential index reader.
+  /// </summary>
+  /// <typeparam name="TKey">The type of the key.</typeparam>
+  /// <typeparam name="TItem">The type of the item.</typeparam>
+  /// <typeparam name="TImpl">The type of the impl.</typeparam>
   public struct DifferentialIndexReader<TKey, TItem, TImpl> : IIndexReader<TKey, TItem>
     where TImpl : IUniqueOrderedIndex<TKey, TItem>, IConfigurable<IndexConfigurationBase<TKey, TItem>>, new()
   {

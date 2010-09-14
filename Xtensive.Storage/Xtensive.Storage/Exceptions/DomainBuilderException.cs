@@ -14,8 +14,10 @@ namespace Xtensive.Storage
   /// Describes various errors detected during <see cref="Domain"/>.<see cref="Domain.Build"/> execution.
   /// </summary>
   [Serializable]
-  public class DomainBuilderException : StorageException
+  public sealed class DomainBuilderException : StorageException
   {
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

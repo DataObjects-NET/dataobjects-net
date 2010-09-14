@@ -11,6 +11,9 @@ using Xtensive.Core.Aspects.Resources;
 
 namespace Xtensive.Core.Aspects
 {
+  /// <summary>
+  /// Error log used by aspects.
+  /// </summary>
   public static class ErrorLog
   {
     private readonly static string usingStringsX = Strings.XW0001;

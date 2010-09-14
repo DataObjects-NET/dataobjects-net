@@ -18,7 +18,6 @@ using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
-  [Serializable]
   internal class ApplyParameterRewriter : ExtendedExpressionVisitor
   {
     private readonly Expression newApplyParameterValueExpression;

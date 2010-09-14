@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Model
 {
   /// <summary>
-  /// Describes a full-text index in terms of storage.
+  /// Describes a single full-text index.
   /// </summary>
   [Serializable]
   public sealed class FullTextIndexInfo : Node 

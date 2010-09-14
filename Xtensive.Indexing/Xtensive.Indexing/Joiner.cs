@@ -13,19 +13,31 @@ using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Indexing
 {
+  /// <summary>
+  /// A class providing various join algorithms.
+  /// </summary>
   public static class Joiner
   {
     private const int SCAN_ITERATIONS = 4;
 
+    /// <summary>
+    /// Merge join implementation.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TRightValue">The type of the right value.</typeparam>
+    /// <param name="left">The left sequence.</param>
+    /// <param name="right">The right sequence.</param>
+    /// <returns>Join operation result.</returns>
     public static IEnumerable<Pair<TValue, TRightValue>> MergeJoin<TKey, TValue, TRightValue>(
       this IOrderedEnumerable<TKey, TValue> left, 
       IOrderedEnumerable<TKey, TRightValue> right)
     {
-      AdvancedComparer<TKey> comparer = left.KeyComparer;
-      IIndexReader<TKey, TValue> lReader = left.CreateReader(left.GetFullRange());
-      IIndexReader<TKey, TRightValue> rReader = right.CreateReader(right.GetFullRange());
+      var comparer = left.KeyComparer;
+      var lReader = left.CreateReader(left.GetFullRange());
+      var rReader = right.CreateReader(right.GetFullRange());
 
-      LinkedList<KeyValuePair<TKey, TRightValue>> rList = new LinkedList<KeyValuePair<TKey, TRightValue>>();
+      var rList = new LinkedList<KeyValuePair<TKey, TRightValue>>();
 
       int lScanCount = 0;
       int rScanCount = 0;
@@ -81,6 +93,21 @@ namespace Xtensive.Indexing
       }
     }
 
+    /// <summary>
+    /// "Merge join left" implementation.
+    /// "Left" implies any item from the left sequence will be kept in the output sequence,
+    /// even if there is no corresponding item in the right sequence; if so,
+    /// default value for <typeparamref name="TRightValue"/> will be used as matching one there.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TRightValue">The type of the right value.</typeparam>
+    /// <param name="left">The left sequence.</param>
+    /// <param name="right">The right sequence.</param>
+    /// <param name="keyExtractorLeft">The key extractor for the left sequence.</param>
+    /// <param name="keyExtractorRight">The key extractor for the right sequence.</param>
+    /// <param name="comparer">The comparer.</param>
+    /// <returns>Join operation result.</returns>
     public static IEnumerable<Pair<TValue, TRightValue>> MergeJoinLeft<TKey, TValue, TRightValue>(
       this IEnumerable<TValue> left, 
       IEnumerable<TRightValue> right,
@@ -145,7 +172,18 @@ namespace Xtensive.Indexing
       }
     }
 
-
+    /// <summary>
+    /// "Merge join left" implementation.
+    /// "Left" implies any item from the left sequence will be kept in the output sequence,
+    /// even if there is no corresponding item in the right sequence; if so,
+    /// default value for <typeparamref name="TRightValue"/> will be used as matching one there.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TRightValue">The type of the right value.</typeparam>
+    /// <param name="left">The left sequence.</param>
+    /// <param name="right">The right sequence.</param>
+    /// <returns>Join operation result.</returns>
     public static IEnumerable<Pair<TValue, TRightValue>> MergeJoinLeft<TKey, TValue, TRightValue>(
       this IOrderedEnumerable<TKey, TValue> left, 
       IOrderedEnumerable<TKey, TRightValue> right)
@@ -218,6 +256,16 @@ namespace Xtensive.Indexing
       }
     }
 
+    /// <summary>
+    /// Loop join implementation.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TRightValue">The type of the right value.</typeparam>
+    /// <param name="left">The left sequence.</param>
+    /// <param name="right">The right sequence.</param>
+    /// <param name="keyExtractor">The key extractor.</param>
+    /// <returns>Join operation result.</returns>
     public static IEnumerable<Pair<TValue, TRightValue>> LoopJoin<TKey, TValue, TRightValue>(
       this IEnumerable<TValue> left,
       IOrderedEnumerable<TKey, TRightValue> right,
@@ -230,6 +278,19 @@ namespace Xtensive.Indexing
       }
     }
 
+    /// <summary>
+    /// "Loop join left" implementation.
+    /// "Left" implies any item from the left sequence will be kept in the output sequence,
+    /// even if there is no corresponding item in the right sequence; if so,
+    /// default value for <typeparamref name="TRightValue"/> will be used as matching one there.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TRightValue">The type of the right value.</typeparam>
+    /// <param name="left">The left sequence.</param>
+    /// <param name="right">The right sequence.</param>
+    /// <param name="keyExtractor">The key extractor.</param>
+    /// <returns>Join operation result.</returns>
     public static IEnumerable<Pair<TValue, TRightValue>> LoopJoinLeft<TKey, TValue, TRightValue>(
       this IEnumerable<TValue> left, 
       IOrderedEnumerable<TKey, TRightValue> right, 
@@ -247,6 +308,18 @@ namespace Xtensive.Indexing
       }
     }
 
+    /// <summary>
+    /// Nested loop join implementation.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TRightValue">The type of the right value.</typeparam>
+    /// <param name="left">The left sequence.</param>
+    /// <param name="right">The right sequence.</param>
+    /// <param name="keyExtractorLeft">The key extractor for the left sequence.</param>
+    /// <param name="keyExtractorRight">The key extractor for the right sequence.</param>
+    /// <param name="comparer">The comparer.</param>
+    /// <returns>Join operation result.</returns>
     public static IEnumerable<Pair<TValue, TRightValue>> NestedLoopJoin<TKey, TValue, TRightValue>(
       this IEnumerable<TValue> left, 
       IEnumerable<TRightValue> right, 
@@ -264,6 +337,21 @@ namespace Xtensive.Indexing
       }
     }
 
+    /// <summary>
+    /// "Nested loop join left" implementation.
+    /// "Left" implies any item from the left sequence will be kept in the output sequence,
+    /// even if there is no corresponding item in the right sequence; if so,
+    /// default value for <typeparamref name="TRightValue"/> will be used as matching one there.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TRightValue">The type of the right value.</typeparam>
+    /// <param name="left">The left sequence.</param>
+    /// <param name="right">The right sequence.</param>
+    /// <param name="keyExtractorLeft">The key extractor for the left sequence.</param>
+    /// <param name="keyExtractorRight">The key extractor for the right sequence.</param>
+    /// <param name="comparer">The comparer.</param>
+    /// <returns>Join operation result.</returns>
     public static IEnumerable<Pair<TValue, TRightValue>> NestedLoopJoinLeft<TKey, TValue, TRightValue>(
       this IEnumerable<TValue> left, 
       IEnumerable<TRightValue> right, 

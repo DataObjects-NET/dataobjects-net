@@ -21,6 +21,11 @@ namespace Xtensive.Core.Aspects
   /// <summary>
   /// Replaces auto-property implementation to invocation of property get and set generic handlers.
   /// </summary>
+  /// <remarks>
+  /// If you're really interested in actual behavior, we recommend you to
+  /// study the decompiled MSIL code of class having this attribute applied 
+  /// using .NET Reflector.
+  /// </remarks>
   [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast)]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]

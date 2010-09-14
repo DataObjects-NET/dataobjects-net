@@ -19,8 +19,20 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects
 {
+  /// <summary>
+  /// Injects "initializable" aspect by modifying constructors so that
+  /// methods with name <see cref="InitializeMethodName"/> and 
+  /// <see cref="InitializationErrorMethodName"/> are invoked by each of them
+  /// to ensure common post-construction initialization task is completed.
+  /// </summary>
+  /// <remarks>
+  /// If you're really interested in actual behavior, we recommend you to
+  /// study the decompiled MSIL code of class having this attribute applied 
+  /// using .NET Reflector.
+  /// </remarks>
   [Serializable]
-  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false, PersistMetaData = true)]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, 
+    Inheritance = MulticastInheritance.Multicast, AllowMultiple = false, PersistMetaData = true)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ImplementConstructor))]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]

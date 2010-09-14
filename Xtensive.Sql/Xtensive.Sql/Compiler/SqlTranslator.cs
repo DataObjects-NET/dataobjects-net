@@ -17,6 +17,9 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// SQL translator.
+  /// </summary>
   public abstract class SqlTranslator : SqlDriverBound
   {
     public DateTimeFormatInfo DateTimeFormat { get; private set; }

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Linq
   public class SkipTakeElementAtTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseTake1Test()
     {
       var result1 = TakeCustomersIncorrect(1).Count();
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseSkipTest()
     {
       var totalCount = Query.All<Customer>().Count();
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseElementAtTest()
     {
       var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseElementAtOrDefault2Test()
     {
       var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();

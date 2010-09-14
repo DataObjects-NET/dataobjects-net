@@ -15,7 +15,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.SqlServer.Resources;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 
 namespace Xtensive.Sql.SqlServer.v09
 {
@@ -398,7 +398,7 @@ namespace Xtensive.Sql.SqlServer.v09
       if (literalType==typeof(DateTime)) {
         var dateTime = (DateTime) literalValue;
         var dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
-        var newValue = DataRangeValidator.Correct(dateTime, dateTimeRange);
+        var newValue = ValueRangeValidator.Correct(dateTime, dateTimeRange);
         return newValue.ToString(DateTimeFormatString);
       }
       if (literalType==typeof(byte[])) {

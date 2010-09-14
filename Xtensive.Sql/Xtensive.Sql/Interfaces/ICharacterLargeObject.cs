@@ -7,7 +7,7 @@
 namespace Xtensive.Sql
 {
   /// <summary>
-  /// A server-independed wrapper for using character large objects (CLOBs) as query parameters.
+  /// A contract for server-independent character large objects (CLOBs) query parameter.
   /// </summary>
   public interface ICharacterLargeObject : ILargeObject
   {

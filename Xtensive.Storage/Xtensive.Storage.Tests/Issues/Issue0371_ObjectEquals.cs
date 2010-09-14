@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void ItemEquals1Test()
     {
       using (Session.Open(Domain)) {

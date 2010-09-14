@@ -4,6 +4,9 @@
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// Node in SQL DOM query model.
+  /// </summary>
   public abstract class Node
   {
     public Node Next;

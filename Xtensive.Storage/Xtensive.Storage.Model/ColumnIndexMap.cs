@@ -10,6 +10,9 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A map of useful column indexes.
+  /// </summary>
   [Serializable]
   public sealed class ColumnIndexMap
   {

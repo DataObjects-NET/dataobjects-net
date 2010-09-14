@@ -11,7 +11,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Building.Definitions
 {
   /// <summary>
-  /// Collection of <see cref="FullTextIndexDef"/> items.
+  /// A collection of <see cref="FullTextIndexDef"/> items.
   /// </summary>
   [Serializable]
   public class FullTextIndexDefCollection : CollectionBase<FullTextIndexDef>

@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {

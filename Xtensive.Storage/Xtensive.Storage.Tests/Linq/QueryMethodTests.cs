@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleSubqueryNonGenericTest()
     {
       var query = Query.All<Customer>().Where(c => c==Query.Single(Query.All<Customer>().FirstOrDefault().Key));
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleSubqueryTupleTest()
     {
       var query = Query.All<Customer>().Where(c => c==Query.Single<Customer>(Query.All<Customer>().FirstOrDefault().Id));
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleOrDefaultSubqueryNonGenericTest()
     {
       var query = Query.All<Customer>().Where(c => c==Query.SingleOrDefault(Query.All<Customer>().FirstOrDefault().Key));
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleOrDefaultSubqueryTupleTest()
     {
       var query = Query.All<Customer>().Where(c => c==Query.SingleOrDefault<Customer>(Query.All<Customer>().FirstOrDefault().Id));

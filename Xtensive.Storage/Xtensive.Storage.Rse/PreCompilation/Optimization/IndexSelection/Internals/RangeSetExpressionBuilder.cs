@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
   {
     private static readonly MethodInfo tupleCreateMethod;
     private static readonly ConstructorInfo tupleUpdaterConstructor;
-    private static readonly MethodInfo tupleUpdateMethod;
+    private static readonly MethodInfo setValueMethod;
     private static readonly PropertyInfo wrappedTupleProperty;
     private static readonly ConstructorInfo entireConstructor;
     private static readonly ConstructorInfo shiftedEntireConstutor;
@@ -276,7 +276,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         Expression.Constant(tupleDescriptor));
       Expression result = Expression.New(tupleUpdaterConstructor, tupleCreation);
       foreach (var indexKeyValue in indexKeyValues) {
-        result = Expression.Call(result, tupleUpdateMethod, Expression.Constant(indexKeyValue.Key),
+        result = Expression.Call(result, setValueMethod, Expression.Constant(indexKeyValue.Key),
           Expression.Convert(indexKeyValue.Value, typeof (object)));
       }
       result = Expression.Property(result, wrappedTupleProperty);
@@ -295,7 +295,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       tupleCreateMethod = typeof (Tuple).GetMethod("Create", new[] {typeof (TupleDescriptor)});
       tupleUpdaterConstructor = typeof (TupleUpdater).GetConstructor(new[] {typeof (Tuple)});
-      tupleUpdateMethod = typeof(TupleUpdater).GetMethod("UpdateField");
+      setValueMethod = typeof(TupleUpdater).GetMethod("SetValue");
       wrappedTupleProperty = typeof (TupleUpdater).GetProperty("Tuple");
       entireConstructor = typeof (Entire<Tuple>).GetConstructor(new[] {typeof (Tuple)});
       shiftedEntireConstutor = typeof (Entire<Tuple>)
