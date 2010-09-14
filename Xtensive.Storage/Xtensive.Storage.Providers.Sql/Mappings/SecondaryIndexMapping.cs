@@ -10,6 +10,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// Defines secondary index mapping.
+  /// </summary>
   [Serializable]
   public sealed class SecondaryIndexMapping
   {

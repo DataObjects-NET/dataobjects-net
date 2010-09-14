@@ -16,7 +16,6 @@ using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
-  [Serializable]
   internal class ClosureAccessRewriter : ExpressionVisitor
   {
     public static Expression Rewrite(Expression e)

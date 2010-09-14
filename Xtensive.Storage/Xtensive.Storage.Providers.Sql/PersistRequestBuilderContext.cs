@@ -12,6 +12,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// <see cref="PersistRequestBuilder"/> context.
+  /// </summary>
   public sealed class PersistRequestBuilderContext
   {
     public SqlBatch Batch { get; private set; }

@@ -19,6 +19,9 @@ using System;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Unified SQL provider implementation (<see cref="ExecutableProvider"/>).
+  /// </summary>
   public class SqlProvider : ExecutableProvider
   {
     protected readonly HandlerAccessor handlers;

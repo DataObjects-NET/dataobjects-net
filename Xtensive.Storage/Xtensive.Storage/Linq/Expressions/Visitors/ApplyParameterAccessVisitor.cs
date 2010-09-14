@@ -14,11 +14,7 @@ using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
-  /// <summary>
-  /// Detects access to ApplyParameter within <see cref="Expression"/>.
-  /// </summary>
-  [Serializable]
-  public class ApplyParameterAccessVisitor : ExpressionVisitor
+  internal class ApplyParameterAccessVisitor : ExpressionVisitor
   {
     private readonly ApplyParameter applyParameter;
     private readonly Func<MethodCallExpression, int, Expression> processor;

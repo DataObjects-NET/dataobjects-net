@@ -12,7 +12,6 @@ using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
-  [Serializable]
   internal class IncludeFilterMappingGatherer :ExtendedExpressionVisitor
   {
     private int tupleIndex = -1;

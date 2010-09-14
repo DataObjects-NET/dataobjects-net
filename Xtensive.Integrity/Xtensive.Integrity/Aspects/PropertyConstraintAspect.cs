@@ -29,7 +29,8 @@ namespace Xtensive.Integrity.Aspects
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
-  [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance)]
+  [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance, 
+    PersistMetaData = true)]
   [ProvideAspectRole(StandardRoles.Validation)]
   [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]

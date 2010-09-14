@@ -15,8 +15,7 @@ using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
-  [Serializable]
-  public sealed class SubqueryFilterRemover : CompilableProviderVisitor
+  internal sealed class SubqueryFilterRemover : CompilableProviderVisitor
   {
     private readonly SubqueryFilterChecker checker;
 

@@ -11,6 +11,9 @@ using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  /// <summary>
+  /// Enumerates specified array of <see cref="Tuple"/> instances.
+  /// </summary>
   [Serializable]
   public sealed class RawProvider : ExecutableProvider<Compilable.RawProvider>
   {

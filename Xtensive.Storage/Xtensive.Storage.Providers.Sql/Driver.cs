@@ -15,6 +15,9 @@ using System;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// SQL provider driver.
+  /// </summary>
   public sealed partial class Driver
   {
     private readonly Domain domain;

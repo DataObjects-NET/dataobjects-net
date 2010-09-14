@@ -10,6 +10,9 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Default implementation of SQL temporary data provider.
+  /// </summary>
   public class SqlStoreProvider : SqlTemporaryDataProvider,
     IHasNamedResult
   {

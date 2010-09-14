@@ -15,6 +15,9 @@ using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Describes a single field.
+  /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
   [Serializable]
   public sealed class FieldInfo : MappingNode,

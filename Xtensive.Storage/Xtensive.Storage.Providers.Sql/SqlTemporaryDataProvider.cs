@@ -13,6 +13,9 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Abstract base class for any SQL temporary data provider.
+  /// </summary>
   public abstract class SqlTemporaryDataProvider : SqlProvider
   {
     private const string TemporaryTableLockName = "TemporaryTableLockName";

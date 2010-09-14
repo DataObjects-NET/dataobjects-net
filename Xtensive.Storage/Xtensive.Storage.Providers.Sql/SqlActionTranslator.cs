@@ -659,7 +659,7 @@ namespace Xtensive.Storage.Providers.Sql
         ftColumn.Languages.Add(new Language(column.Configuration));
       }
       var transactionalStage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
-        ? NonTransactionalStage.Epilog
+        ? NonTransactionalStage.Epilogue
         : NonTransactionalStage.None;
       RegisterCommand(SqlDdl.Create(ftIndex), transactionalStage);
     }
@@ -675,7 +675,7 @@ namespace Xtensive.Storage.Providers.Sql
         ?? table.Indexes.OfType<FullTextIndex>().Single();
 
       var transactionalStage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
-        ? NonTransactionalStage.Prolog
+        ? NonTransactionalStage.Prologue
         : NonTransactionalStage.None;
       RegisterCommand(SqlDdl.Drop(ftIndex), transactionalStage);
       table.Indexes.Remove(ftIndex);
@@ -1067,12 +1067,12 @@ namespace Xtensive.Storage.Providers.Sql
     {
       string commandText = driver.Compile(command).GetCommandText();
       switch(nonTransactionalStage) {
-        case NonTransactionalStage.Prolog:
+        case NonTransactionalStage.Prologue:
           if (inNewBatch)
             nonTransactionalPrologCommands.Add(string.Empty);
           nonTransactionalPrologCommands.Add(commandText);
           return;
-        case NonTransactionalStage.Epilog:
+        case NonTransactionalStage.Epilogue:
           if (inNewBatch)
             nonTransactionalEpilogCommands.Add(string.Empty);
           nonTransactionalEpilogCommands.Add(commandText);

@@ -13,6 +13,9 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A collection of <see cref="FullTextIndexInfo"/> objects.
+  /// </summary>
   [Serializable]
   public sealed class FullTextIndexInfoCollection : LockableBase,
     IEnumerable<FullTextIndexInfo>

@@ -6,6 +6,9 @@
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  /// <summary>
+  /// Enumerates all supported provider types.
+  /// </summary>
   public enum ProviderType
   {
     Index,

@@ -12,6 +12,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// Defines column mapping.
+  /// </summary>
   [Serializable]
   [DebuggerDisplay("ColumnInfo = {ColumnInfo}")]
   public sealed class ColumnMapping

@@ -6,10 +6,22 @@
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Enumerates non-transactional stages.
+  /// </summary>
   public enum NonTransactionalStage
   {
+    /// <summary>
+    /// None.
+    /// </summary>
     None = 0,
-    Prolog,
-    Epilog
+    /// <summary>
+    /// Prologue.
+    /// </summary>
+    Prologue,
+    /// <summary>
+    /// Epilogue.
+    /// </summary>
+    Epilogue
   }
 }

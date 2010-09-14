@@ -12,6 +12,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// Defines primary index mapping.
+  /// </summary>
   [Serializable]
   public sealed class PrimaryIndexMapping
   {

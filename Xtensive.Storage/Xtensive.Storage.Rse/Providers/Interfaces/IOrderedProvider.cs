@@ -6,6 +6,10 @@
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  /// <summary>
+  /// Returned as service (see <see cref="ExecutableProvider.GetService{T}"/>) 
+  /// by providers that return ordered sequence of records.
+  /// </summary>
   public interface IOrderedProvider
   {
   }

@@ -20,7 +20,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
   /// Compilable provider that returns <see cref="bool"/> column. 
-  /// Column value is <see langword="true" /> if source value equal to one of provided values; otherwise <see langword="false" />.
+  /// Column value is <see langword="true" /> if source value equal to one of provided values; 
+  /// otherwise, <see langword="false" />.
   /// </summary>
   [Serializable]
   public class IncludeProvider: UnaryProvider,

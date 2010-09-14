@@ -14,6 +14,9 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Describes a single column.
+  /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
   [Serializable]
   public sealed class ColumnInfo : Node, 

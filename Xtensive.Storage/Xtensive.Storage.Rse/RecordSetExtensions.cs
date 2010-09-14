@@ -19,6 +19,9 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse
 {
+  /// <summary>
+  /// <see cref="RecordSet"/> related extension methods.
+  /// </summary>
   public static class RecordSetExtensions
   {
     public static RecordSet Range(this RecordSet recordSet, Func<Range<Entire<Tuple>>> range)
