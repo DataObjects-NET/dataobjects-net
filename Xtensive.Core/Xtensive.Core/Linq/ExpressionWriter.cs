@@ -348,7 +348,7 @@ namespace Xtensive.Core.Linq
         Write("\"");
       }
       else if (type==typeof (DateTime)) {
-        Write("new DataTime(\"");
+        Write("new DateTime(\"");
         Write(c.Value.ToString());
         Write("\")");
       }
