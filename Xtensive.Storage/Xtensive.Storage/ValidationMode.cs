@@ -12,7 +12,8 @@ namespace Xtensive.Storage
   public enum ValidationMode
   {
     /// <summary>
-    /// Default value, actually is <see cref="Continuous"/>.
+    /// Default value.
+    /// The same as <see cref="Continuous"/>.
     /// </summary>
     Default = Continuous,
 
