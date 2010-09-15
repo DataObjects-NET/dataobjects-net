@@ -287,20 +287,11 @@ namespace Xtensive.Storage.Providers.Sql
     protected override SqlProvider VisitSelect(SelectProvider provider)
     {
       var compiledSource = Compile(provider.Source);
-      SqlSelect query;
 
-      if (provider.ColumnIndexes.Length==0) {
-        SqlSelect source = compiledSource.Request.SelectStatement;
-        query = source.ShallowClone();
-        query.Columns.Clear();
-        query.Columns.Add(SqlDml.Null, "NULL");
-      }
-      else {
-        query = ExtractSqlSelect(provider, compiledSource);
-        var originalColumns = query.Columns.ToList();
-        query.Columns.Clear();
-        query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
-      }
+      SqlSelect query = ExtractSqlSelect(provider, compiledSource);
+      var originalColumns = query.Columns.ToList();
+      query.Columns.Clear();
+      query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
 
       return CreateProvider(query, provider, compiledSource);
     }

@@ -152,6 +152,25 @@ namespace Xtensive.Storage.Tests.Issues
       }
     }
 
+    [Test]
+    public void SimplifiedTest()
+    {
+      var today = DateTime.Now;
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+
+          var query =
+            from kalinaGasObject in Query.All<PipeAbonent>()
+            let matchGuess = Query.All<Kalina2RngGasObjectMatchGuess>().FirstOrDefault()
+            let owner = Query.All<PipeAbonentOwnershipInfo>().FirstOrDefault()
+            orderby matchGuess.Rank ?? 0 descending
+            select matchGuess;
+
+          var result = query.ToList();
+        }
+      }
+    }
+
     private PipeAbonent GetMatch(GasObject rngGasObject)
     {
       return null;
