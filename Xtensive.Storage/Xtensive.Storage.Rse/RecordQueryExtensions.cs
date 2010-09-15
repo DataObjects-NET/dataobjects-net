@@ -21,6 +21,9 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse
 {
+  /// <summary>
+  /// <see cref="RecordQuery"/> related extension methods.
+  /// </summary>
   public static class RecordQueryExtensions
   {
     public static RecordQuery Range(this RecordQuery recordQuery, Func<Range<Entire<Tuple>>> range)
@@ -322,7 +325,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="source">The source.</param>
     /// <param name="lockMode">The lock mode.</param>
     /// <param name="lockBehavior">The lock behavior.</param>
-    /// <returns>The <see cref="RecordQuery"/> which is the result of 
+    /// <returns>The <see cref="RecordSet"/> which is the result of 
     /// the created <see cref="LockProvider"/>.</returns>
     public static RecordQuery Lock(this RecordQuery source, LockMode lockMode, LockBehavior lockBehavior)
     {
@@ -335,7 +338,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="source">The source.</param>
     /// <param name="lockMode">The delegate returning the lock mode.</param>
     /// <param name="lockBehavior">The delegate returning the lock behavior.</param>
-    /// <returns>The <see cref="RecordQuery"/> which is the result of 
+    /// <returns>The <see cref="RecordSet"/> which is the result of 
     /// the created <see cref="LockProvider"/>.</returns>
     public static RecordQuery Lock(this RecordQuery source, Func<LockMode> lockMode,
       Func<LockBehavior> lockBehavior)

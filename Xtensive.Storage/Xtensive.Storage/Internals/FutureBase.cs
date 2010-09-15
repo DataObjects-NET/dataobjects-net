@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Internals
           Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
       if (Task.Result==null)
         transaction.Session.ExecuteDelayedQueries(false);
-      return materializer.Invoke(Task.Result, Session.Demand(), tupleParameterBindings, new ParameterContext());
+      return materializer.Invoke(Task.Result, transaction.Session, tupleParameterBindings, new ParameterContext());
     }
 
 

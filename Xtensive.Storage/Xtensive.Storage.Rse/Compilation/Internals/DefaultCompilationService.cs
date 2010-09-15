@@ -16,9 +16,6 @@ namespace Xtensive.Storage.Rse.Compilation
   /// <summary>
   /// Default <see cref="CompilationService"/> implementation.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   public sealed class DefaultCompilationService : CompilationService
   {
     /// <summary>

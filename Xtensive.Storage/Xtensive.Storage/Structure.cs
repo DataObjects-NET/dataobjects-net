@@ -421,6 +421,7 @@ namespace Xtensive.Storage
         typeInfo = GetTypeInfo();
         tuple = data;
         SystemBeforeInitialize(false);
+        InitializeOnMaterialize();
       }
       catch (Exception error) {
         InitializationError(GetType(), error);

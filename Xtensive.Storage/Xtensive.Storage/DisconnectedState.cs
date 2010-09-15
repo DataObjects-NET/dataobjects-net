@@ -70,9 +70,6 @@ namespace Xtensive.Storage
     [NonSerialized]
     private AssociationCache associationCache;
   
-    [NonSerialized]
-    internal Transaction AlreadyOpenedTransaction;
-
 
     /// <summary>
     /// Gets the session this instance attached to.

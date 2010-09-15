@@ -53,7 +53,7 @@ namespace Xtensive.Storage
 
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UseAutoShortenedTransactions || IsDisconnected)
+      if (!Configuration.UseAutoShortenedTransactions || transaction.IsNested || IsDisconnected)
         StartTransaction(transaction);
     }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Storage
       }
     }
 
-    private void EnsureTransactionIsStarted()
+    internal void EnsureTransactionIsStarted()
     {
       var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
       if (transaction==null)

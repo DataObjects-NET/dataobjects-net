@@ -5,6 +5,7 @@
 // Created:    2008.08.30
 
 using System;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
@@ -31,7 +32,10 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override IDisposable BeginEnumeration()
     {
-      return Transaction.HandleAutoTransaction(SessionHandler.Session, TransactionalBehavior.Auto);
+      var session = SessionHandler.Session;
+      var handleAutoTransaction = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto);
+      session.EnsureTransactionIsStarted();
+      return handleAutoTransaction;
     }
 
     /// <inheritdoc/>
