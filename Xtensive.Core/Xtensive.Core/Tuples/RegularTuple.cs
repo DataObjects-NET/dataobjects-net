@@ -47,8 +47,9 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="descriptor">The tuple descriptor.</param>
     protected RegularTuple(TupleDescriptor descriptor)
     {
       this.descriptor = descriptor;

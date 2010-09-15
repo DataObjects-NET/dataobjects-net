@@ -10,11 +10,11 @@ using System.Data.Common;
 using System.Data.SqlServerCe;
 using System.Security;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 
 namespace Xtensive.Sql.SqlServerCe.v3_5
 {
-  internal class TypeMapper : ValueTypeMapping.TypeMapper
+  internal class TypeMapper : Sql.TypeMapper
   {
     private ValueRange<DateTime> dateTimeRange;
 
@@ -93,7 +93,7 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
     public override void SetDateTimeParameterValue(DbParameter parameter, object value)
     {
       if (value!=null)
-        value = DataRangeValidator.Correct((DateTime) value, dateTimeRange);
+        value = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
       base.SetDateTimeParameterValue(parameter, value);
     }
 

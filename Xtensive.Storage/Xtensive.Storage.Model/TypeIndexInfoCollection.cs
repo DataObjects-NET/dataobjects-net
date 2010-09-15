@@ -12,6 +12,9 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A collection of indexes that belongs to a particular <see cref="TypeInfo"/>.
+  /// </summary>
   [Serializable]
   public sealed class TypeIndexInfoCollection : IndexInfoCollection
   {

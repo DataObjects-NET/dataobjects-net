@@ -7,7 +7,7 @@
 namespace Xtensive.Sql
 {
   /// <summary>
-  /// A server-independed wrapper for using native binary large objects (BLOBs) as query parameters.
+  /// A contract for server-independent native binary large objects (BLOBs) query parameter.
   /// </summary>
   public interface IBinaryLargeObject : ILargeObject
   {

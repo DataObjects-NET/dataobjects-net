@@ -11,36 +11,58 @@ using System.Runtime.Serialization;
 
 namespace Xtensive.Core.Tuples.Internals
 {
+  /// <summary>
+  /// Provides access to maximal generated tuple length value.
+  /// </summary>
   public static class MaxGeneratedTupleLength
   {
+    /// <summary>
+    /// Defines maximal generated tuple length value.
+    /// The value is <see langword="32" />.
+    /// </summary>
     public const int Value = 32;
   }
 
+  /// <summary>
+  /// Describes tuple of length 1.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0> : RegularTuple
   {
     private const int count = 1;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -49,6 +71,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -58,6 +81,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -68,6 +92,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -92,6 +117,12 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0>)tuple;
@@ -99,6 +130,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value0;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0>)tuple;
@@ -110,6 +146,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value0 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -124,6 +161,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -142,6 +180,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -155,33 +194,52 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 2.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1> : RegularTuple
   {
     private const int count = 2;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -190,6 +248,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -199,6 +258,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -211,6 +271,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -241,12 +302,24 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1>)tuple;
@@ -254,6 +327,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value1;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1>)tuple;
@@ -264,6 +342,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1>)tuple;
@@ -275,6 +358,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value1 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -291,6 +375,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -311,6 +396,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -325,35 +411,58 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 3.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2> : RegularTuple
   {
     private const int count = 3;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -362,6 +471,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -371,6 +481,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -385,6 +496,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -421,18 +533,36 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2>)tuple;
@@ -440,6 +570,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value2;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2>)tuple;
@@ -450,6 +585,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2>)tuple;
@@ -460,6 +600,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2>)tuple;
@@ -471,6 +616,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value2 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -489,6 +635,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -511,6 +658,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -526,37 +674,64 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 4.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3> : RegularTuple
   {
     private const int count = 4;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -565,6 +740,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -574,6 +750,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -590,6 +767,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -632,24 +810,48 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
@@ -657,6 +859,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value3;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
@@ -667,6 +874,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
@@ -677,6 +889,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
@@ -687,6 +904,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3>)tuple;
@@ -698,6 +920,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value3 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -718,6 +941,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -742,6 +966,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -758,39 +983,70 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 5.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4> : RegularTuple
   {
     private const int count = 5;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -799,6 +1055,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -808,6 +1065,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -826,6 +1084,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -874,30 +1133,60 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
@@ -905,6 +1194,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value4;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
@@ -915,6 +1209,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
@@ -925,6 +1224,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
@@ -935,6 +1239,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
@@ -945,6 +1254,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4>)tuple;
@@ -956,6 +1270,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value4 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -978,6 +1293,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -1004,6 +1320,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -1021,41 +1338,76 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 6.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5> : RegularTuple
   {
     private const int count = 6;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1064,6 +1416,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1073,6 +1426,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -1093,6 +1447,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1147,36 +1502,72 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
@@ -1184,6 +1575,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value5;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
@@ -1194,6 +1590,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
@@ -1204,6 +1605,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
@@ -1214,6 +1620,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
@@ -1224,6 +1635,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
@@ -1234,6 +1650,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5>)tuple;
@@ -1245,6 +1666,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value5 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -1269,6 +1691,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -1297,6 +1720,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -1315,43 +1739,82 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 7.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6> : RegularTuple
   {
     private const int count = 7;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1360,6 +1823,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1369,6 +1833,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -1391,6 +1856,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1451,42 +1917,84 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1494,6 +2002,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value6;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1504,6 +2017,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1514,6 +2032,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1524,6 +2047,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1534,6 +2062,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1544,6 +2077,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1554,6 +2092,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6>)tuple;
@@ -1565,6 +2108,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value6 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -1591,6 +2135,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -1621,6 +2166,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -1640,45 +2186,88 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 8.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7> : RegularTuple
   {
     private const int count = 8;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1687,6 +2276,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1696,6 +2286,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -1720,6 +2311,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -1786,48 +2378,96 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1835,6 +2475,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value7;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1845,6 +2490,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1855,6 +2505,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1865,6 +2520,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1875,6 +2535,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1885,6 +2550,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1895,6 +2565,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1905,6 +2580,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7>)tuple;
@@ -1916,6 +2596,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value7 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -1944,6 +2625,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -1976,6 +2658,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -1996,47 +2679,94 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 9.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8> : RegularTuple
   {
     private const int count = 9;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2045,6 +2775,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2054,6 +2785,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -2080,6 +2812,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2152,54 +2885,108 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2207,6 +2994,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value8;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2217,6 +3009,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2227,6 +3024,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2237,6 +3039,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2247,6 +3054,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2257,6 +3069,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2267,6 +3084,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2277,6 +3099,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2287,6 +3114,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>)tuple;
@@ -2298,6 +3130,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value8 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -2328,6 +3161,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -2362,6 +3196,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -2383,49 +3218,100 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 10.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> : RegularTuple
   {
     private const int count = 10;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2434,6 +3320,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2443,6 +3330,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -2471,6 +3359,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2549,60 +3438,120 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2610,6 +3559,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value9;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2620,6 +3574,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2630,6 +3589,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2640,6 +3604,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2650,6 +3619,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2660,6 +3634,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2670,6 +3649,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2680,6 +3664,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2690,6 +3679,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2700,6 +3694,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>)tuple;
@@ -2711,6 +3710,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value9 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -2743,6 +3743,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -2779,6 +3780,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -2801,51 +3803,106 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 11.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : RegularTuple
   {
     private const int count = 11;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2854,6 +3911,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2863,6 +3921,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -2893,6 +3952,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -2977,66 +4037,132 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3044,6 +4170,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value10;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3054,6 +4185,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3064,6 +4200,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3074,6 +4215,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3084,6 +4230,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3094,6 +4245,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3104,6 +4260,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3114,6 +4275,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3124,6 +4290,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3134,6 +4305,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3144,6 +4320,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>)tuple;
@@ -3155,6 +4336,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value10 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -3189,6 +4371,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -3227,6 +4410,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -3250,53 +4434,112 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 12.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : RegularTuple
   {
     private const int count = 12;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -3305,6 +4548,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -3314,6 +4558,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -3346,6 +4591,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -3436,72 +4682,144 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3509,6 +4827,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value11;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3519,6 +4842,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3529,6 +4857,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3539,6 +4872,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3549,6 +4887,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3559,6 +4902,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3569,6 +4917,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3579,6 +4932,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3589,6 +4947,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3599,6 +4962,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3609,6 +4977,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3619,6 +4992,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>)tuple;
@@ -3630,6 +5008,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value11 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -3666,6 +5045,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -3706,6 +5086,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -3730,55 +5111,118 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 13.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : RegularTuple
   {
     private const int count = 13;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -3787,6 +5231,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -3796,6 +5241,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -3830,6 +5276,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -3926,78 +5373,156 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4005,6 +5530,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value12;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4015,6 +5545,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4025,6 +5560,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4035,6 +5575,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4045,6 +5590,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4055,6 +5605,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4065,6 +5620,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4075,6 +5635,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4085,6 +5650,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4095,6 +5665,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4105,6 +5680,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4115,6 +5695,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4125,6 +5710,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>)tuple;
@@ -4136,6 +5726,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value12 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -4174,6 +5765,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -4216,6 +5808,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -4241,57 +5834,124 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 14.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : RegularTuple
   {
     private const int count = 14;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -4300,6 +5960,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -4309,6 +5970,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -4345,6 +6007,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -4447,84 +6110,168 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4532,6 +6279,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value13;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4542,6 +6294,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4552,6 +6309,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4562,6 +6324,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4572,6 +6339,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4582,6 +6354,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4592,6 +6369,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4602,6 +6384,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4612,6 +6399,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4622,6 +6414,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4632,6 +6429,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4642,6 +6444,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4652,6 +6459,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4662,6 +6474,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>)tuple;
@@ -4673,6 +6490,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value13 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -4713,6 +6531,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -4757,6 +6576,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -4783,59 +6603,130 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 15.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> : RegularTuple
   {
     private const int count = 15;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -4844,6 +6735,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -4853,6 +6745,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -4891,6 +6784,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -4999,90 +6893,180 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5090,6 +7074,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value14;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5100,6 +7089,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5110,6 +7104,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5120,6 +7119,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5130,6 +7134,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5140,6 +7149,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5150,6 +7164,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5160,6 +7179,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5170,6 +7194,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5180,6 +7209,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5190,6 +7224,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5200,6 +7239,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5210,6 +7254,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5220,6 +7269,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5230,6 +7284,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>)tuple;
@@ -5241,6 +7300,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value14 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -5283,6 +7343,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -5329,6 +7390,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -5356,61 +7418,136 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 16.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> : RegularTuple
   {
     private const int count = 16;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -5419,6 +7556,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -5428,6 +7566,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -5468,6 +7607,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -5582,96 +7722,192 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5679,6 +7915,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value15;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5689,6 +7930,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5699,6 +7945,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5709,6 +7960,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5719,6 +7975,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5729,6 +7990,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5739,6 +8005,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5749,6 +8020,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5759,6 +8035,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5769,6 +8050,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5779,6 +8065,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5789,6 +8080,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5799,6 +8095,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5809,6 +8110,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5819,6 +8125,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5829,6 +8140,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>)tuple;
@@ -5840,6 +8156,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value15 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -5884,6 +8201,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -5932,6 +8250,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -5960,63 +8279,142 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 17.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> : RegularTuple
   {
     private const int count = 17;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -6025,6 +8423,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -6034,6 +8433,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -6076,6 +8476,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -6196,102 +8597,204 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6299,6 +8802,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value16;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6309,6 +8817,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6319,6 +8832,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6329,6 +8847,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6339,6 +8862,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6349,6 +8877,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6359,6 +8892,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6369,6 +8907,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6379,6 +8922,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6389,6 +8937,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6399,6 +8952,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6409,6 +8967,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6419,6 +8982,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6429,6 +8997,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6439,6 +9012,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6449,6 +9027,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6459,6 +9042,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>)tuple;
@@ -6470,6 +9058,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value16 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -6516,6 +9105,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -6566,6 +9156,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -6595,65 +9186,148 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 18.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17> : RegularTuple
   {
     private const int count = 18;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -6662,6 +9336,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -6671,6 +9346,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -6715,6 +9391,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -6841,108 +9518,216 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -6950,6 +9735,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value17;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -6960,6 +9750,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -6970,6 +9765,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -6980,6 +9780,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -6990,6 +9795,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7000,6 +9810,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7010,6 +9825,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7020,6 +9840,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7030,6 +9855,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7040,6 +9870,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7050,6 +9885,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7060,6 +9900,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7070,6 +9915,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7080,6 +9930,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7090,6 +9945,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7100,6 +9960,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7110,6 +9975,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7120,6 +9990,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>)tuple;
@@ -7131,6 +10006,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value17 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -7179,6 +10055,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -7231,6 +10108,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -7261,67 +10139,154 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 19.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18> : RegularTuple
   {
     private const int count = 19;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -7330,6 +10295,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -7339,6 +10305,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -7385,6 +10352,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -7517,114 +10485,228 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7632,6 +10714,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value18;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7642,6 +10729,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7652,6 +10744,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7662,6 +10759,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7672,6 +10774,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7682,6 +10789,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7692,6 +10804,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7702,6 +10819,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7712,6 +10834,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7722,6 +10849,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7732,6 +10864,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7742,6 +10879,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7752,6 +10894,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7762,6 +10909,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7772,6 +10924,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7782,6 +10939,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7792,6 +10954,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7802,6 +10969,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7812,6 +10984,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>)tuple;
@@ -7823,6 +11000,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value18 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -7873,6 +11051,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -7927,6 +11106,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -7958,69 +11138,160 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 20.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19> : RegularTuple
   {
     private const int count = 20;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -8029,6 +11300,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -8038,6 +11310,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -8086,6 +11359,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -8224,120 +11498,240 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8345,6 +11739,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value19;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8355,6 +11754,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8365,6 +11769,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8375,6 +11784,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8385,6 +11799,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8395,6 +11814,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8405,6 +11829,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8415,6 +11844,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8425,6 +11859,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8435,6 +11874,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8445,6 +11889,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8455,6 +11904,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8465,6 +11919,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8475,6 +11934,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8485,6 +11949,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8495,6 +11964,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8505,6 +11979,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8515,6 +11994,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8525,6 +12009,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8535,6 +12024,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>)tuple;
@@ -8546,6 +12040,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value19 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -8598,6 +12093,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -8654,6 +12150,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -8686,71 +12183,166 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 21.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20> : RegularTuple
   {
     private const int count = 21;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -8759,6 +12351,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -8768,6 +12361,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -8818,6 +12412,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -8962,126 +12557,252 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9089,6 +12810,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value20;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9099,6 +12825,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9109,6 +12840,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9119,6 +12855,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9129,6 +12870,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9139,6 +12885,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9149,6 +12900,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9159,6 +12915,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9169,6 +12930,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9179,6 +12945,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9189,6 +12960,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9199,6 +12975,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9209,6 +12990,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9219,6 +13005,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9229,6 +13020,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9239,6 +13035,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9249,6 +13050,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9259,6 +13065,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9269,6 +13080,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9279,6 +13095,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9289,6 +13110,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>)tuple;
@@ -9300,6 +13126,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value20 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -9354,6 +13181,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -9412,6 +13240,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -9445,73 +13274,172 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 22.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21> : RegularTuple
   {
     private const int count = 22;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -9520,6 +13448,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -9529,6 +13458,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -9581,6 +13511,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -9731,132 +13662,264 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9864,6 +13927,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value21;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9874,6 +13942,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9884,6 +13957,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9894,6 +13972,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9904,6 +13987,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9914,6 +14002,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9924,6 +14017,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9934,6 +14032,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9944,6 +14047,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9954,6 +14062,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9964,6 +14077,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9974,6 +14092,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9984,6 +14107,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -9994,6 +14122,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10004,6 +14137,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10014,6 +14152,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10024,6 +14167,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10034,6 +14182,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10044,6 +14197,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10054,6 +14212,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10064,6 +14227,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10074,6 +14242,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>)tuple;
@@ -10085,6 +14258,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value21 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -10141,6 +14315,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -10201,6 +14376,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -10235,75 +14411,178 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 23.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22> : RegularTuple
   {
     private const int count = 23;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -10312,6 +14591,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -10321,6 +14601,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -10375,6 +14656,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -10531,138 +14813,276 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10670,6 +15090,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value22;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10680,6 +15105,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10690,6 +15120,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10700,6 +15135,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10710,6 +15150,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10720,6 +15165,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10730,6 +15180,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10740,6 +15195,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10750,6 +15210,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10760,6 +15225,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10770,6 +15240,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10780,6 +15255,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10790,6 +15270,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10800,6 +15285,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10810,6 +15300,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10820,6 +15315,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10830,6 +15330,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10840,6 +15345,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10850,6 +15360,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10860,6 +15375,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10870,6 +15390,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10880,6 +15405,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10890,6 +15420,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>)tuple;
@@ -10901,6 +15436,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value22 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -10959,6 +15495,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -11021,6 +15558,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -11056,77 +15594,184 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 24.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23> : RegularTuple
   {
     private const int count = 24;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -11135,6 +15780,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -11144,6 +15790,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -11200,6 +15847,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -11362,144 +16010,288 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11507,6 +16299,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value23;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11517,6 +16314,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11527,6 +16329,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11537,6 +16344,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11547,6 +16359,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11557,6 +16374,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11567,6 +16389,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11577,6 +16404,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11587,6 +16419,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11597,6 +16434,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11607,6 +16449,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11617,6 +16464,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11627,6 +16479,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11637,6 +16494,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11647,6 +16509,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11657,6 +16524,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11667,6 +16539,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11677,6 +16554,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11687,6 +16569,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11697,6 +16584,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11707,6 +16599,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11717,6 +16614,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11727,6 +16629,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11737,6 +16644,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>)tuple;
@@ -11748,6 +16660,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value23 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -11808,6 +16721,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -11872,6 +16786,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -11908,79 +16823,190 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 25.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24> : RegularTuple
   {
     private const int count = 25;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -11989,6 +17015,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -11998,6 +17025,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -12056,6 +17084,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -12224,150 +17253,300 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12375,6 +17554,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value24;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12385,6 +17569,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12395,6 +17584,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12405,6 +17599,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12415,6 +17614,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12425,6 +17629,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12435,6 +17644,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12445,6 +17659,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12455,6 +17674,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12465,6 +17689,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12475,6 +17704,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12485,6 +17719,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12495,6 +17734,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12505,6 +17749,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12515,6 +17764,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12525,6 +17779,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12535,6 +17794,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12545,6 +17809,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12555,6 +17824,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12565,6 +17839,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12575,6 +17854,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12585,6 +17869,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12595,6 +17884,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12605,6 +17899,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12615,6 +17914,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>)tuple;
@@ -12626,6 +17930,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value24 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -12688,6 +17993,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -12754,6 +18060,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -12791,81 +18098,196 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 26.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25> : RegularTuple
   {
     private const int count = 26;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Value number 25.
+    /// </summary>
     [DataMember]
     public T25 Value25;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -12874,6 +18296,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -12883,6 +18306,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -12943,6 +18367,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -13117,156 +18542,312 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (24 << 1)) & 3);
       return t.Value24;
     }
+    /// <summary>
+    /// Gets the value and state of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T25 GetValue25(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13274,6 +18855,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value25;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13284,6 +18870,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13294,6 +18885,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13304,6 +18900,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13314,6 +18915,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13324,6 +18930,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13334,6 +18945,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13344,6 +18960,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13354,6 +18975,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13364,6 +18990,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13374,6 +19005,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13384,6 +19020,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13394,6 +19035,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13404,6 +19050,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13414,6 +19065,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13424,6 +19080,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13434,6 +19095,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13444,6 +19110,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13454,6 +19125,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13464,6 +19140,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13474,6 +19155,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13484,6 +19170,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13494,6 +19185,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13504,6 +19200,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13514,6 +19215,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13524,6 +19230,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
     }
+    /// <summary>
+    /// Sets the value of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue25(Tuple tuple, T25 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>)tuple;
@@ -13535,6 +19246,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value25 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -13599,6 +19311,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -13667,6 +19380,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -13705,83 +19419,202 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 27.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26> : RegularTuple
   {
     private const int count = 27;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Value number 25.
+    /// </summary>
     [DataMember]
     public T25 Value25;
+	
+    /// <summary>
+    /// Value number 26.
+    /// </summary>
     [DataMember]
     public T26 Value26;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -13790,6 +19623,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -13799,6 +19633,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -13861,6 +19696,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -14041,162 +19877,324 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (24 << 1)) & 3);
       return t.Value24;
     }
+    /// <summary>
+    /// Gets the value and state of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T25 GetValue25(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (25 << 1)) & 3);
       return t.Value25;
     }
+    /// <summary>
+    /// Gets the value and state of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T26 GetValue26(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14204,6 +20202,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value26;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14214,6 +20217,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14224,6 +20232,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14234,6 +20247,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14244,6 +20262,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14254,6 +20277,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14264,6 +20292,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14274,6 +20307,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14284,6 +20322,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14294,6 +20337,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14304,6 +20352,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14314,6 +20367,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14324,6 +20382,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14334,6 +20397,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14344,6 +20412,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14354,6 +20427,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14364,6 +20442,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14374,6 +20457,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14384,6 +20472,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14394,6 +20487,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14404,6 +20502,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14414,6 +20517,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14424,6 +20532,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14434,6 +20547,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14444,6 +20562,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14454,6 +20577,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
     }
+    /// <summary>
+    /// Sets the value of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue25(Tuple tuple, T25 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14464,6 +20592,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (25 << 1));
       t.Value25 = value;
     }
+    /// <summary>
+    /// Sets the value of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue26(Tuple tuple, T26 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>)tuple;
@@ -14475,6 +20608,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value26 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -14541,6 +20675,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -14611,6 +20746,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -14650,85 +20786,208 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 28.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27> : RegularTuple
   {
     private const int count = 28;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Value number 25.
+    /// </summary>
     [DataMember]
     public T25 Value25;
+	
+    /// <summary>
+    /// Value number 26.
+    /// </summary>
     [DataMember]
     public T26 Value26;
+	
+    /// <summary>
+    /// Value number 27.
+    /// </summary>
     [DataMember]
     public T27 Value27;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -14737,6 +20996,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -14746,6 +21006,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -14810,6 +21071,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -14996,168 +21258,336 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (24 << 1)) & 3);
       return t.Value24;
     }
+    /// <summary>
+    /// Gets the value and state of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T25 GetValue25(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (25 << 1)) & 3);
       return t.Value25;
     }
+    /// <summary>
+    /// Gets the value and state of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T26 GetValue26(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (26 << 1)) & 3);
       return t.Value26;
     }
+    /// <summary>
+    /// Gets the value and state of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T27 GetValue27(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15165,6 +21595,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value27;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15175,6 +21610,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15185,6 +21625,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15195,6 +21640,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15205,6 +21655,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15215,6 +21670,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15225,6 +21685,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15235,6 +21700,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15245,6 +21715,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15255,6 +21730,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15265,6 +21745,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15275,6 +21760,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15285,6 +21775,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15295,6 +21790,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15305,6 +21805,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15315,6 +21820,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15325,6 +21835,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15335,6 +21850,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15345,6 +21865,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15355,6 +21880,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15365,6 +21895,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15375,6 +21910,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15385,6 +21925,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15395,6 +21940,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15405,6 +21955,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15415,6 +21970,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
     }
+    /// <summary>
+    /// Sets the value of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue25(Tuple tuple, T25 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15425,6 +21985,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (25 << 1));
       t.Value25 = value;
     }
+    /// <summary>
+    /// Sets the value of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue26(Tuple tuple, T26 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15435,6 +22000,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (26 << 1));
       t.Value26 = value;
     }
+    /// <summary>
+    /// Sets the value of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue27(Tuple tuple, T27 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>)tuple;
@@ -15446,6 +22016,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value27 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -15514,6 +22085,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -15586,6 +22158,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -15626,87 +22199,214 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 29.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28> : RegularTuple
   {
     private const int count = 29;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Value number 25.
+    /// </summary>
     [DataMember]
     public T25 Value25;
+	
+    /// <summary>
+    /// Value number 26.
+    /// </summary>
     [DataMember]
     public T26 Value26;
+	
+    /// <summary>
+    /// Value number 27.
+    /// </summary>
     [DataMember]
     public T27 Value27;
+	
+    /// <summary>
+    /// Value number 28.
+    /// </summary>
     [DataMember]
     public T28 Value28;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -15715,6 +22415,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -15724,6 +22425,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -15790,6 +22492,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -15982,174 +22685,348 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (24 << 1)) & 3);
       return t.Value24;
     }
+    /// <summary>
+    /// Gets the value and state of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T25 GetValue25(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (25 << 1)) & 3);
       return t.Value25;
     }
+    /// <summary>
+    /// Gets the value and state of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T26 GetValue26(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (26 << 1)) & 3);
       return t.Value26;
     }
+    /// <summary>
+    /// Gets the value and state of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T27 GetValue27(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (27 << 1)) & 3);
       return t.Value27;
     }
+    /// <summary>
+    /// Gets the value and state of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T28 GetValue28(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16157,6 +23034,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value28;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16167,6 +23049,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16177,6 +23064,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16187,6 +23079,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16197,6 +23094,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16207,6 +23109,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16217,6 +23124,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16227,6 +23139,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16237,6 +23154,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16247,6 +23169,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16257,6 +23184,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16267,6 +23199,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16277,6 +23214,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16287,6 +23229,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16297,6 +23244,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16307,6 +23259,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16317,6 +23274,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16327,6 +23289,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16337,6 +23304,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16347,6 +23319,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16357,6 +23334,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16367,6 +23349,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16377,6 +23364,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16387,6 +23379,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16397,6 +23394,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16407,6 +23409,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
     }
+    /// <summary>
+    /// Sets the value of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue25(Tuple tuple, T25 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16417,6 +23424,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (25 << 1));
       t.Value25 = value;
     }
+    /// <summary>
+    /// Sets the value of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue26(Tuple tuple, T26 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16427,6 +23439,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (26 << 1));
       t.Value26 = value;
     }
+    /// <summary>
+    /// Sets the value of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue27(Tuple tuple, T27 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16437,6 +23454,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (27 << 1));
       t.Value27 = value;
     }
+    /// <summary>
+    /// Sets the value of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue28(Tuple tuple, T28 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>)tuple;
@@ -16448,6 +23470,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value28 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -16518,6 +23541,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -16592,6 +23616,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -16633,89 +23658,220 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 30.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29> : RegularTuple
   {
     private const int count = 30;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Value number 25.
+    /// </summary>
     [DataMember]
     public T25 Value25;
+	
+    /// <summary>
+    /// Value number 26.
+    /// </summary>
     [DataMember]
     public T26 Value26;
+	
+    /// <summary>
+    /// Value number 27.
+    /// </summary>
     [DataMember]
     public T27 Value27;
+	
+    /// <summary>
+    /// Value number 28.
+    /// </summary>
     [DataMember]
     public T28 Value28;
+	
+    /// <summary>
+    /// Value number 29.
+    /// </summary>
     [DataMember]
     public T29 Value29;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -16724,6 +23880,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -16733,6 +23890,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -16801,6 +23959,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -16999,180 +24158,360 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (24 << 1)) & 3);
       return t.Value24;
     }
+    /// <summary>
+    /// Gets the value and state of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T25 GetValue25(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (25 << 1)) & 3);
       return t.Value25;
     }
+    /// <summary>
+    /// Gets the value and state of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T26 GetValue26(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (26 << 1)) & 3);
       return t.Value26;
     }
+    /// <summary>
+    /// Gets the value and state of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T27 GetValue27(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (27 << 1)) & 3);
       return t.Value27;
     }
+    /// <summary>
+    /// Gets the value and state of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T28 GetValue28(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (28 << 1)) & 3);
       return t.Value28;
     }
+    /// <summary>
+    /// Gets the value and state of field 29.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T29 GetValue29(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17180,6 +24519,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value29;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17190,6 +24534,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17200,6 +24549,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17210,6 +24564,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17220,6 +24579,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17230,6 +24594,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17240,6 +24609,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17250,6 +24624,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17260,6 +24639,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17270,6 +24654,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17280,6 +24669,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17290,6 +24684,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17300,6 +24699,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17310,6 +24714,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17320,6 +24729,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17330,6 +24744,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17340,6 +24759,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17350,6 +24774,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17360,6 +24789,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17370,6 +24804,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17380,6 +24819,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17390,6 +24834,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17400,6 +24849,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17410,6 +24864,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17420,6 +24879,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17430,6 +24894,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
     }
+    /// <summary>
+    /// Sets the value of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue25(Tuple tuple, T25 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17440,6 +24909,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (25 << 1));
       t.Value25 = value;
     }
+    /// <summary>
+    /// Sets the value of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue26(Tuple tuple, T26 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17450,6 +24924,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (26 << 1));
       t.Value26 = value;
     }
+    /// <summary>
+    /// Sets the value of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue27(Tuple tuple, T27 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17460,6 +24939,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (27 << 1));
       t.Value27 = value;
     }
+    /// <summary>
+    /// Sets the value of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue28(Tuple tuple, T28 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17470,6 +24954,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (28 << 1));
       t.Value28 = value;
     }
+    /// <summary>
+    /// Sets the value of field 29.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue29(Tuple tuple, T29 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>)tuple;
@@ -17481,6 +24970,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value29 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -17553,6 +25043,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -17629,6 +25120,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -17671,91 +25163,226 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 31.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30> : RegularTuple
   {
     private const int count = 31;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Value number 25.
+    /// </summary>
     [DataMember]
     public T25 Value25;
+	
+    /// <summary>
+    /// Value number 26.
+    /// </summary>
     [DataMember]
     public T26 Value26;
+	
+    /// <summary>
+    /// Value number 27.
+    /// </summary>
     [DataMember]
     public T27 Value27;
+	
+    /// <summary>
+    /// Value number 28.
+    /// </summary>
     [DataMember]
     public T28 Value28;
+	
+    /// <summary>
+    /// Value number 29.
+    /// </summary>
     [DataMember]
     public T29 Value29;
+	
+    /// <summary>
+    /// Value number 30.
+    /// </summary>
     [DataMember]
     public T30 Value30;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -17764,6 +25391,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -17773,6 +25401,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -17843,6 +25472,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -18047,186 +25677,372 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (24 << 1)) & 3);
       return t.Value24;
     }
+    /// <summary>
+    /// Gets the value and state of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T25 GetValue25(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (25 << 1)) & 3);
       return t.Value25;
     }
+    /// <summary>
+    /// Gets the value and state of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T26 GetValue26(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (26 << 1)) & 3);
       return t.Value26;
     }
+    /// <summary>
+    /// Gets the value and state of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T27 GetValue27(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (27 << 1)) & 3);
       return t.Value27;
     }
+    /// <summary>
+    /// Gets the value and state of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T28 GetValue28(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (28 << 1)) & 3);
       return t.Value28;
     }
+    /// <summary>
+    /// Gets the value and state of field 29.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T29 GetValue29(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (29 << 1)) & 3);
       return t.Value29;
     }
+    /// <summary>
+    /// Gets the value and state of field 30.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T30 GetValue30(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18234,6 +26050,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value30;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18244,6 +26065,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18254,6 +26080,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18264,6 +26095,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18274,6 +26110,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18284,6 +26125,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18294,6 +26140,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18304,6 +26155,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18314,6 +26170,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18324,6 +26185,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18334,6 +26200,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18344,6 +26215,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18354,6 +26230,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18364,6 +26245,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18374,6 +26260,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18384,6 +26275,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18394,6 +26290,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18404,6 +26305,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18414,6 +26320,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18424,6 +26335,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18434,6 +26350,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18444,6 +26365,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18454,6 +26380,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18464,6 +26395,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18474,6 +26410,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18484,6 +26425,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
     }
+    /// <summary>
+    /// Sets the value of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue25(Tuple tuple, T25 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18494,6 +26440,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (25 << 1));
       t.Value25 = value;
     }
+    /// <summary>
+    /// Sets the value of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue26(Tuple tuple, T26 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18504,6 +26455,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (26 << 1));
       t.Value26 = value;
     }
+    /// <summary>
+    /// Sets the value of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue27(Tuple tuple, T27 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18514,6 +26470,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (27 << 1));
       t.Value27 = value;
     }
+    /// <summary>
+    /// Sets the value of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue28(Tuple tuple, T28 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18524,6 +26485,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (28 << 1));
       t.Value28 = value;
     }
+    /// <summary>
+    /// Sets the value of field 29.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue29(Tuple tuple, T29 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18534,6 +26500,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (29 << 1));
       t.Value29 = value;
     }
+    /// <summary>
+    /// Sets the value of field 30.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue30(Tuple tuple, T30 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>)tuple;
@@ -18545,6 +26516,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value30 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -18619,6 +26591,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -18697,6 +26670,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -18740,93 +26714,232 @@ namespace Xtensive.Core.Tuples.Internals
     }
   }
   
+  /// <summary>
+  /// Describes tuple of length 32.
+  /// </summary>
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31> : RegularTuple
   {
     private const int count = 32;
+	
+    /// <summary>
+    /// Value number 0.
+    /// </summary>
     [DataMember]
     public T0 Value0;
+	
+    /// <summary>
+    /// Value number 1.
+    /// </summary>
     [DataMember]
     public T1 Value1;
+	
+    /// <summary>
+    /// Value number 2.
+    /// </summary>
     [DataMember]
     public T2 Value2;
+	
+    /// <summary>
+    /// Value number 3.
+    /// </summary>
     [DataMember]
     public T3 Value3;
+	
+    /// <summary>
+    /// Value number 4.
+    /// </summary>
     [DataMember]
     public T4 Value4;
+	
+    /// <summary>
+    /// Value number 5.
+    /// </summary>
     [DataMember]
     public T5 Value5;
+	
+    /// <summary>
+    /// Value number 6.
+    /// </summary>
     [DataMember]
     public T6 Value6;
+	
+    /// <summary>
+    /// Value number 7.
+    /// </summary>
     [DataMember]
     public T7 Value7;
+	
+    /// <summary>
+    /// Value number 8.
+    /// </summary>
     [DataMember]
     public T8 Value8;
+	
+    /// <summary>
+    /// Value number 9.
+    /// </summary>
     [DataMember]
     public T9 Value9;
+	
+    /// <summary>
+    /// Value number 10.
+    /// </summary>
     [DataMember]
     public T10 Value10;
+	
+    /// <summary>
+    /// Value number 11.
+    /// </summary>
     [DataMember]
     public T11 Value11;
+	
+    /// <summary>
+    /// Value number 12.
+    /// </summary>
     [DataMember]
     public T12 Value12;
+	
+    /// <summary>
+    /// Value number 13.
+    /// </summary>
     [DataMember]
     public T13 Value13;
+	
+    /// <summary>
+    /// Value number 14.
+    /// </summary>
     [DataMember]
     public T14 Value14;
+	
+    /// <summary>
+    /// Value number 15.
+    /// </summary>
     [DataMember]
     public T15 Value15;
+	
+    /// <summary>
+    /// Value number 16.
+    /// </summary>
     [DataMember]
     public T16 Value16;
+	
+    /// <summary>
+    /// Value number 17.
+    /// </summary>
     [DataMember]
     public T17 Value17;
+	
+    /// <summary>
+    /// Value number 18.
+    /// </summary>
     [DataMember]
     public T18 Value18;
+	
+    /// <summary>
+    /// Value number 19.
+    /// </summary>
     [DataMember]
     public T19 Value19;
+	
+    /// <summary>
+    /// Value number 20.
+    /// </summary>
     [DataMember]
     public T20 Value20;
+	
+    /// <summary>
+    /// Value number 21.
+    /// </summary>
     [DataMember]
     public T21 Value21;
+	
+    /// <summary>
+    /// Value number 22.
+    /// </summary>
     [DataMember]
     public T22 Value22;
+	
+    /// <summary>
+    /// Value number 23.
+    /// </summary>
     [DataMember]
     public T23 Value23;
+	
+    /// <summary>
+    /// Value number 24.
+    /// </summary>
     [DataMember]
     public T24 Value24;
+	
+    /// <summary>
+    /// Value number 25.
+    /// </summary>
     [DataMember]
     public T25 Value25;
+	
+    /// <summary>
+    /// Value number 26.
+    /// </summary>
     [DataMember]
     public T26 Value26;
+	
+    /// <summary>
+    /// Value number 27.
+    /// </summary>
     [DataMember]
     public T27 Value27;
+	
+    /// <summary>
+    /// Value number 28.
+    /// </summary>
     [DataMember]
     public T28 Value28;
+	
+    /// <summary>
+    /// Value number 29.
+    /// </summary>
     [DataMember]
     public T29 Value29;
+	
+    /// <summary>
+    /// Value number 30.
+    /// </summary>
     [DataMember]
     public T30 Value30;
+	
+    /// <summary>
+    /// Value number 31.
+    /// </summary>
     [DataMember]
     public T31 Value31;
+	
+    /// <summary>
+    /// Nullability and availability map..
+    /// </summary>
     [DataMember]
     public long Flags;
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return count; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>(descriptor);
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return new Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>(this);
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -18835,6 +26948,7 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -18844,6 +26958,7 @@ namespace Xtensive.Core.Tuples.Internals
       Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);
@@ -18916,6 +27031,7 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldIndex < 0 || fieldIndex >= count)
@@ -19126,192 +27242,384 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
+    /// <summary>
+    /// Gets the value and state of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T0 GetValue0(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (0 << 1)) & 3);
       return t.Value0;
     }
+    /// <summary>
+    /// Gets the value and state of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T1 GetValue1(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (1 << 1)) & 3);
       return t.Value1;
     }
+    /// <summary>
+    /// Gets the value and state of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T2 GetValue2(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (2 << 1)) & 3);
       return t.Value2;
     }
+    /// <summary>
+    /// Gets the value and state of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T3 GetValue3(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (3 << 1)) & 3);
       return t.Value3;
     }
+    /// <summary>
+    /// Gets the value and state of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T4 GetValue4(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (4 << 1)) & 3);
       return t.Value4;
     }
+    /// <summary>
+    /// Gets the value and state of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T5 GetValue5(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (5 << 1)) & 3);
       return t.Value5;
     }
+    /// <summary>
+    /// Gets the value and state of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T6 GetValue6(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (6 << 1)) & 3);
       return t.Value6;
     }
+    /// <summary>
+    /// Gets the value and state of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T7 GetValue7(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (7 << 1)) & 3);
       return t.Value7;
     }
+    /// <summary>
+    /// Gets the value and state of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T8 GetValue8(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (8 << 1)) & 3);
       return t.Value8;
     }
+    /// <summary>
+    /// Gets the value and state of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T9 GetValue9(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (9 << 1)) & 3);
       return t.Value9;
     }
+    /// <summary>
+    /// Gets the value and state of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T10 GetValue10(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (10 << 1)) & 3);
       return t.Value10;
     }
+    /// <summary>
+    /// Gets the value and state of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T11 GetValue11(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (11 << 1)) & 3);
       return t.Value11;
     }
+    /// <summary>
+    /// Gets the value and state of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T12 GetValue12(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (12 << 1)) & 3);
       return t.Value12;
     }
+    /// <summary>
+    /// Gets the value and state of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T13 GetValue13(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (13 << 1)) & 3);
       return t.Value13;
     }
+    /// <summary>
+    /// Gets the value and state of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T14 GetValue14(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (14 << 1)) & 3);
       return t.Value14;
     }
+    /// <summary>
+    /// Gets the value and state of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T15 GetValue15(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (15 << 1)) & 3);
       return t.Value15;
     }
+    /// <summary>
+    /// Gets the value and state of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T16 GetValue16(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (16 << 1)) & 3);
       return t.Value16;
     }
+    /// <summary>
+    /// Gets the value and state of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T17 GetValue17(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (17 << 1)) & 3);
       return t.Value17;
     }
+    /// <summary>
+    /// Gets the value and state of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T18 GetValue18(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (18 << 1)) & 3);
       return t.Value18;
     }
+    /// <summary>
+    /// Gets the value and state of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T19 GetValue19(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (19 << 1)) & 3);
       return t.Value19;
     }
+    /// <summary>
+    /// Gets the value and state of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T20 GetValue20(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (20 << 1)) & 3);
       return t.Value20;
     }
+    /// <summary>
+    /// Gets the value and state of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T21 GetValue21(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (21 << 1)) & 3);
       return t.Value21;
     }
+    /// <summary>
+    /// Gets the value and state of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T22 GetValue22(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (22 << 1)) & 3);
       return t.Value22;
     }
+    /// <summary>
+    /// Gets the value and state of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T23 GetValue23(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (23 << 1)) & 3);
       return t.Value23;
     }
+    /// <summary>
+    /// Gets the value and state of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T24 GetValue24(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (24 << 1)) & 3);
       return t.Value24;
     }
+    /// <summary>
+    /// Gets the value and state of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T25 GetValue25(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (25 << 1)) & 3);
       return t.Value25;
     }
+    /// <summary>
+    /// Gets the value and state of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T26 GetValue26(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (26 << 1)) & 3);
       return t.Value26;
     }
+    /// <summary>
+    /// Gets the value and state of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T27 GetValue27(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (27 << 1)) & 3);
       return t.Value27;
     }
+    /// <summary>
+    /// Gets the value and state of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T28 GetValue28(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (28 << 1)) & 3);
       return t.Value28;
     }
+    /// <summary>
+    /// Gets the value and state of field 29.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T29 GetValue29(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (29 << 1)) & 3);
       return t.Value29;
     }
+    /// <summary>
+    /// Gets the value and state of field 30.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T30 GetValue30(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (30 << 1)) & 3);
       return t.Value30;
     }
+    /// <summary>
+    /// Gets the value and state of field 31.
+    /// </summary>
+    /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
     public static T31 GetValue31(Tuple tuple, out TupleFieldState fieldState)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19319,6 +27627,11 @@ namespace Xtensive.Core.Tuples.Internals
       return t.Value31;
     }
 
+    /// <summary>
+    /// Sets the value of field 0.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue0(Tuple tuple, T0 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19329,6 +27642,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
     }
+    /// <summary>
+    /// Sets the value of field 1.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue1(Tuple tuple, T1 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19339,6 +27657,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
     }
+    /// <summary>
+    /// Sets the value of field 2.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue2(Tuple tuple, T2 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19349,6 +27672,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
     }
+    /// <summary>
+    /// Sets the value of field 3.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue3(Tuple tuple, T3 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19359,6 +27687,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
     }
+    /// <summary>
+    /// Sets the value of field 4.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue4(Tuple tuple, T4 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19369,6 +27702,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
     }
+    /// <summary>
+    /// Sets the value of field 5.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue5(Tuple tuple, T5 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19379,6 +27717,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
     }
+    /// <summary>
+    /// Sets the value of field 6.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue6(Tuple tuple, T6 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19389,6 +27732,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
     }
+    /// <summary>
+    /// Sets the value of field 7.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue7(Tuple tuple, T7 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19399,6 +27747,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
     }
+    /// <summary>
+    /// Sets the value of field 8.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue8(Tuple tuple, T8 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19409,6 +27762,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
     }
+    /// <summary>
+    /// Sets the value of field 9.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue9(Tuple tuple, T9 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19419,6 +27777,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
     }
+    /// <summary>
+    /// Sets the value of field 10.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue10(Tuple tuple, T10 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19429,6 +27792,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
     }
+    /// <summary>
+    /// Sets the value of field 11.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue11(Tuple tuple, T11 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19439,6 +27807,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
     }
+    /// <summary>
+    /// Sets the value of field 12.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue12(Tuple tuple, T12 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19449,6 +27822,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
     }
+    /// <summary>
+    /// Sets the value of field 13.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue13(Tuple tuple, T13 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19459,6 +27837,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
     }
+    /// <summary>
+    /// Sets the value of field 14.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue14(Tuple tuple, T14 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19469,6 +27852,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
     }
+    /// <summary>
+    /// Sets the value of field 15.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue15(Tuple tuple, T15 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19479,6 +27867,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
     }
+    /// <summary>
+    /// Sets the value of field 16.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue16(Tuple tuple, T16 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19489,6 +27882,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
     }
+    /// <summary>
+    /// Sets the value of field 17.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue17(Tuple tuple, T17 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19499,6 +27897,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
     }
+    /// <summary>
+    /// Sets the value of field 18.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue18(Tuple tuple, T18 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19509,6 +27912,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
     }
+    /// <summary>
+    /// Sets the value of field 19.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue19(Tuple tuple, T19 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19519,6 +27927,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
     }
+    /// <summary>
+    /// Sets the value of field 20.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue20(Tuple tuple, T20 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19529,6 +27942,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
     }
+    /// <summary>
+    /// Sets the value of field 21.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue21(Tuple tuple, T21 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19539,6 +27957,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
     }
+    /// <summary>
+    /// Sets the value of field 22.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue22(Tuple tuple, T22 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19549,6 +27972,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
     }
+    /// <summary>
+    /// Sets the value of field 23.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue23(Tuple tuple, T23 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19559,6 +27987,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
     }
+    /// <summary>
+    /// Sets the value of field 24.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue24(Tuple tuple, T24 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19569,6 +28002,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
     }
+    /// <summary>
+    /// Sets the value of field 25.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue25(Tuple tuple, T25 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19579,6 +28017,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (25 << 1));
       t.Value25 = value;
     }
+    /// <summary>
+    /// Sets the value of field 26.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue26(Tuple tuple, T26 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19589,6 +28032,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (26 << 1));
       t.Value26 = value;
     }
+    /// <summary>
+    /// Sets the value of field 27.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue27(Tuple tuple, T27 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19599,6 +28047,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (27 << 1));
       t.Value27 = value;
     }
+    /// <summary>
+    /// Sets the value of field 28.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue28(Tuple tuple, T28 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19609,6 +28062,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (28 << 1));
       t.Value28 = value;
     }
+    /// <summary>
+    /// Sets the value of field 29.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue29(Tuple tuple, T29 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19619,6 +28077,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (29 << 1));
       t.Value29 = value;
     }
+    /// <summary>
+    /// Sets the value of field 30.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue30(Tuple tuple, T30 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19629,6 +28092,11 @@ namespace Xtensive.Core.Tuples.Internals
         t.Flags = (t.Flags & ~mask) | (1L << (30 << 1));
       t.Value30 = value;
     }
+    /// <summary>
+    /// Sets the value of field 31.
+    /// </summary>
+    /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="value">The value to set.</param>
     public static void SetValue31(Tuple tuple, T31 value)
     {
       var t = (Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>)tuple;
@@ -19640,6 +28108,7 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value31 = value;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(Tuple other)
     {
       if (other == null)
@@ -19716,6 +28185,7 @@ namespace Xtensive.Core.Tuples.Internals
       return true;
     }
 	
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = 0;
@@ -19796,6 +28266,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     // Constructors
 
+    /// <inheritdoc/>
     public Tuple(TupleDescriptor descriptor)
       : base(descriptor)
     {
@@ -19852,7 +28323,7 @@ namespace Xtensive.Core.Tuples.Internals
         var secondDescriptor = descriptor.SkipFields(MaxGeneratedTupleLength.Value);
         if (firstDescriptor == null || secondDescriptor == null)
           throw new InvalidOperationException();
-        return new TupleExtender(descriptor, Create(firstDescriptor), Create(secondDescriptor));
+        return new JoinedTuple(descriptor, Create(firstDescriptor), Create(secondDescriptor));
       }
       if (fieldCount == 0)
         return EmptyTuple.Instance;

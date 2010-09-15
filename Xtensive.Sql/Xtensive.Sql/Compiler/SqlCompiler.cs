@@ -15,6 +15,9 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// Base class for any SQL compiler.
+  /// </summary>
   public class SqlCompiler : SqlDriverBound,
     ISqlVisitor
   {

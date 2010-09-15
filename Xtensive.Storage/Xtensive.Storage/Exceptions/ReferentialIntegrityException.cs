@@ -5,6 +5,7 @@
 // Created:    2008.07.01
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
@@ -18,7 +19,7 @@ namespace Xtensive.Storage
   /// option pointing to it.
   /// </summary>
   [Serializable]
-  public class ReferentialIntegrityException : StorageException
+  public sealed class ReferentialIntegrityException : StorageException
   {
     /// <summary>
     /// Gets the association.
@@ -46,14 +47,26 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ReferentialIntegrityException(AssociationInfo association, Entity initiator, Entity referencingObject, Entity referencedObject)
-      : base(string.Format(
-      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, initiator.GetType().GetFullName(), initiator.Key))
+    public ReferentialIntegrityException(AssociationInfo association, 
+      Entity initiator, 
+      Entity referencingObject, 
+      Entity referencedObject)
+      : base(string.Format(Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, 
+        initiator.GetType().GetFullName(), initiator.Key))
     {
       Association = association;
       Initiator = initiator.Key;
       ReferencingObject = referencingObject.Key;
       ReferencedObject = referencedObject.Key;
+    }
+
+    // Serialization
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    protected ReferentialIntegrityException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      // We can't serialize any of members declared in this type
     }
   }
 }

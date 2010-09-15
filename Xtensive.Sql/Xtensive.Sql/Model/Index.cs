@@ -10,7 +10,7 @@ using Xtensive.Sql.Dml;
 namespace Xtensive.Sql.Model
 {
   /// <summary>
-  /// Represents an Index object.
+  /// Represents an index.
   /// </summary>
   [Serializable]
   public class Index : DataTableNode, IPartitionable

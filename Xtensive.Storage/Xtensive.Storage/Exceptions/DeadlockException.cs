@@ -14,8 +14,10 @@ namespace Xtensive.Storage
   /// An exception that is thrown when deadlock is detected by RDBMS.
   /// </summary>
   [Serializable]
-  public class DeadlockException : ReprocessableException
+  public sealed class DeadlockException : ReprocessableException
   {
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

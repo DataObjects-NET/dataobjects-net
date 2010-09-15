@@ -10,13 +10,13 @@ using System.Collections.Generic;
 namespace Xtensive.Storage.Building.DependencyGraph
 {
   [Serializable]
-  public class Node<TValue>
+  internal class Node<TValue>
   {
-    internal TValue Value { get; private set; }
+    public TValue Value { get; private set; }
 
-    internal HashSet<Edge<TValue>> OutgoingEdges { get; private set; }
+    public HashSet<Edge<TValue>> OutgoingEdges { get; private set; }
 
-    internal HashSet<Edge<TValue>> IncomingEdges { get; private set; }
+    public HashSet<Edge<TValue>> IncomingEdges { get; private set; }
 
     /// <inheritdoc/>
     public override string ToString()

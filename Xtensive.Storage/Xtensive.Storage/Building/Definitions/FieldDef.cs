@@ -14,6 +14,9 @@ using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 
 namespace Xtensive.Storage.Building.Definitions
 {
+  /// <summary>
+  /// Defines a signle persistent field.
+  /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
   [Serializable]
   public class FieldDef : MappingNode

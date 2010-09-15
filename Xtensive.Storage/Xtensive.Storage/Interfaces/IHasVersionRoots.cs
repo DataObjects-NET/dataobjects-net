@@ -9,14 +9,13 @@ using System.Collections.Generic;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Should be implemented by any entities thats has version roots.
+  /// Should be implemented by entities that have version roots.
   /// </summary>
   public interface IHasVersionRoots
   {
     /// <summary>
-    /// Gets the version roots instances.
+    /// Gets the sequence of entity's version roots.
     /// </summary>
-    /// <returns>Version root sequence.</returns>
     IEnumerable<Entity> GetVersionRoots();
   }
 }

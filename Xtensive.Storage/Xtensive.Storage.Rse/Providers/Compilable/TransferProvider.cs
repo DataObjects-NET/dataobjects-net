@@ -10,6 +10,9 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
+  /// <summary>
+  /// Transfers further computations to the specified location.
+  /// </summary>
   [Serializable]
   public sealed class TransferProvider : UnaryProvider
   {

@@ -15,9 +15,9 @@ using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
   /// <summary>
-  /// Detects access to ApplyParameter within <see cref="Expression"/>.
+  /// Apply parameter access visitor. 
+  /// This type is used internally by DataObjects.Net.
   /// </summary>
-  [Serializable]
   public class ApplyParameterAccessVisitor : ExpressionVisitor
   {
     private readonly ApplyParameter applyParameter;

@@ -1,8 +1,8 @@
-// Copyright (C) 2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Denis Krjuchkov
-// Created:    2010.02.08
+// Created by: Alexey Gamzov
+// Created:    2009.12.07
 
 using System;
 using System.Runtime.Serialization;
@@ -11,10 +11,11 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An exception that is thrown when a connection error occured.
+  /// LINQ query translation exception. 
+  /// Describes various errors that occurs during query compilation.
   /// </summary>
   [Serializable]
-  public sealed class ConnectionErrorException : StorageException
+  public sealed class QueryTranslationException : StorageException
   {
     // Constructors
 
@@ -22,7 +23,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="message">The error message.</param>
-    public ConnectionErrorException(string message)
+    public QueryTranslationException(string message)
       : base(message)
     {
     }
@@ -32,7 +33,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="message">The error message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ConnectionErrorException(string message, Exception innerException)
+    public QueryTranslationException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -40,9 +41,9 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    protected ConnectionErrorException(SerializationInfo info, StreamingContext context)
+    protected QueryTranslationException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-    } 
+    }
   }
 }

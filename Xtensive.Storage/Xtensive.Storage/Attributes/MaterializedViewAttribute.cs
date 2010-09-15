@@ -9,6 +9,7 @@ using System;
 namespace Xtensive.Storage
 {
   /// <summary>
+  /// <b>Not yet supported.</b>
   /// Indicates that materialized view should be created for
   /// the interface type it is applied on.
   /// </summary>

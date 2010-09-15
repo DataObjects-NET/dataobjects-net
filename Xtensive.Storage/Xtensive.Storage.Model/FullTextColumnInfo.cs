@@ -10,6 +10,9 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Describes single column in full-text index.
+  /// </summary>
   [Serializable]
   public sealed class FullTextColumnInfo : Node
   {

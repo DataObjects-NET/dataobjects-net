@@ -7,8 +7,11 @@
 using System;
 using System.Data.Common;
 
-namespace Xtensive.Sql.ValueTypeMapping
+namespace Xtensive.Sql
 {
+  /// <summary>
+  /// Value (data) type mapping.
+  /// </summary>
   public sealed class TypeMapping
   {
     private readonly Func<DbDataReader, int, object> valueReader;

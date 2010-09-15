@@ -11,6 +11,9 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A collection of <see cref="ColumnInfo"/> objects.
+  /// </summary>
   [Serializable]
   public sealed class ColumnInfoCollection : NodeCollection<ColumnInfo>,
     IFilterable<ColumnAttributes, ColumnInfo>

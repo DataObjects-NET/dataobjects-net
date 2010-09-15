@@ -13,7 +13,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Building.Definitions
 {
   /// <summary>
-  /// Represents collection of objects indexed by <see cref="Type"/> and name.
+  /// A collection of <see cref="TypeDef"/> items.
   /// </summary>
   public sealed class TypeDefCollection : NodeCollection<TypeDef>
   {

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Linq
   public class JoinTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void JoinWrongKeysTest()
     {
       var result = 
@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Tests.Linq
           p => p.Id,
           (c, pGroup) => pGroup,
           AdvancedComparer<int>.Default.EqualityComparerImplementation);
-      AssertEx.Throws<TranslationException>(() => result.ToList());
+      AssertEx.Throws<QueryTranslationException>(() => result.ToList());
     }
 
     [Test]
@@ -298,7 +298,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void DefaultIfEmptyTest()
     {
       var categories = Query.All<Category>();

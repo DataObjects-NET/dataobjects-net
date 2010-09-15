@@ -10,6 +10,9 @@ using System.Runtime.Serialization;
 
 namespace Xtensive.Core.Tuples.Internals
 {
+  /// <summary>
+  /// Describes empty tuple.
+  /// </summary>
   [Serializable]
   public sealed class EmptyTuple : RegularTuple
   {
@@ -24,36 +27,43 @@ namespace Xtensive.Core.Tuples.Internals
       get { return instance; }
     }
 
+    /// <inheritdoc/>
     public override int Count
     {
       get { return 0; }
     }
 
+    /// <inheritdoc/>
     public override Tuple CreateNew()
     {
       return instance;
     }
 
+    /// <inheritdoc/>
     public override Tuple Clone()
     {
       return instance;
     }
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       throw new ArgumentOutOfRangeException("fieldIndex");

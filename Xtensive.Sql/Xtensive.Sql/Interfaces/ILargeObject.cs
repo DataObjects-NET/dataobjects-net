@@ -10,7 +10,7 @@ using System.Data.Common;
 namespace Xtensive.Sql
 {
   /// <summary>
-  /// A server-independed wrapper for using native large objects (LOBs) as query parameters.
+  /// A contract for server-independent native large objects (LOBs) query parameter.
   /// </summary>
   public interface ILargeObject : IDisposable
   {

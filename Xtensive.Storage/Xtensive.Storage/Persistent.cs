@@ -29,7 +29,7 @@ using Tuple = Xtensive.Core.Tuples.Tuple;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for all persistent classes.
+  /// Abstract base class for any persistent type (<see cref="Entity"/> or <see cref="Structure"/>).
   /// </summary>
   /// <seealso cref="Entity"/>
   /// <seealso cref="Structure"/>
@@ -41,6 +41,8 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     IDataErrorInfo
   {
+    #region Nested type: CtorTransactionInfo
+
     // [DebuggerDisplay("Id = {Id}")]
     private sealed class CtorTransactionInfo
     {
@@ -60,6 +62,7 @@ namespace Xtensive.Storage
       }
     }
 
+    #endregion
 
     private IFieldValueAdapter[] fieldAdapters;
 

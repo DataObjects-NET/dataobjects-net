@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
+    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseFreeText1Test()
     {
       var result1 = TakeMatchesIncorrect("Dessert candy and coffee seafood").Count();

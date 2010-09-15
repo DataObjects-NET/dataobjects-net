@@ -13,6 +13,9 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Definitions
 {
+  /// <summary>
+  /// Defines a single index.
+  /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}.")]
   [Serializable]
   public sealed class IndexDef : MappingNode

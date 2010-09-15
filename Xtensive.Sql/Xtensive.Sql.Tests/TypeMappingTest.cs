@@ -11,7 +11,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 
 namespace Xtensive.Sql.Tests
 {

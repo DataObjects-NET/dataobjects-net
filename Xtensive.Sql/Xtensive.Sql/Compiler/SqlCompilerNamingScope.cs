@@ -8,6 +8,9 @@ using System;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// SQL compiler naming scope.
+  /// </summary>
   [Serializable]
   public class SqlCompilerNamingScope : IDisposable
   {

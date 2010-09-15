@@ -7,11 +7,14 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Sql;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// Defines column mapping.
+  /// </summary>
   [Serializable]
   [DebuggerDisplay("ColumnInfo = {ColumnInfo}")]
   public sealed class ColumnMapping

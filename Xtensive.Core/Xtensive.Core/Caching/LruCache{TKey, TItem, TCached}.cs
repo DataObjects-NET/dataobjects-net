@@ -154,7 +154,7 @@ namespace Xtensive.Core.Caching
       }
       size += cached.Size;
       while (size > maxSize && deque.Count > 0) {
-        oldCached = deque.PeekBottom();
+        oldCached = deque.PopBottom();
         size -= oldCached.Size;
         if (chainedCache!=null)
           chainedCache.Add(cacheConverter.ConvertBackward(oldCached), true);
@@ -188,7 +188,7 @@ namespace Xtensive.Core.Caching
     public virtual void Clear()
     {
       while (deque.Count > 0) {
-        var cached = deque.PeekBottom();
+        var cached = deque.PopBottom();
         var key = cached.Identifier;
         size -= cached.Size;
         if (chainedCache!=null)

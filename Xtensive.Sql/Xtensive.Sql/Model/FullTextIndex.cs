@@ -10,6 +10,9 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Model
 {
+  /// <summary>
+  /// Represents full-text index.
+  /// </summary>
   [Serializable]
   public class FullTextIndex : Index
   {

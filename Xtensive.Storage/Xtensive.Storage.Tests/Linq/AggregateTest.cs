@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Linq
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void EntitySetWithGroupingAggregateTest()
     {
       var query =
@@ -51,8 +51,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntityNotSupportedTest()
     {
-      AssertEx.Throws<TranslationException>(() => Query.All<Order>().Max());
-      AssertEx.Throws<TranslationException>(() => Query.All<Order>().Min());
+      AssertEx.Throws<QueryTranslationException>(() => Query.All<Order>().Max());
+      AssertEx.Throws<QueryTranslationException>(() => Query.All<Order>().Min());
     }
 
     [Test]

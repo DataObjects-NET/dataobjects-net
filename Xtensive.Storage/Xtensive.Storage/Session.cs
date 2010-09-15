@@ -28,21 +28,24 @@ using EnumerationContext=Xtensive.Storage.Rse.Providers.EnumerationContext;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Data context, which all persistent objects are bound to.
+  /// <c>DataContext</c> analogue maintaining database connection
+  /// and entity cache (identity map in the simplest case).
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Each session has its own connection to database and set of materialized persistent instates.
-  /// It contains identity map and tracks changes in bound persistent classes.
+  /// Each session maintains its own connection to the database and 
+  /// caches a set of materialized persistent instates.
   /// </para>
   /// <para>
-  /// <c>Session</c> implements <see cref="IContext"/> interface, it means that each <c>Session</c>
-  /// can be either active or not active in particular thread (see <see cref="IsActive"/> property).
-  /// Each thread can contain only one active session, it can be a accessed via 
-  /// <see cref="Current">Session.Current</see> property or <see cref="Demand">Session.Demand()</see> method.
+  /// <c>Session</c> implements <see cref="IContext"/> interface, that means each <c>Session</c>
+  /// can be either active or not active in a particular thread (see <see cref="IsActive"/> property).
+  /// Each thread can contain only one active session in each point of time, such session 
+  /// can be a accessed via <see cref="Current">Session.Current</see> property 
+  /// or <see cref="Demand">Session.Demand()</see> method.
   /// </para>
   /// <para>
-  /// Session can be open and activated by <see cref="Open(Xtensive.Storage.Domain)">Session.Open(domain)</see> method. 
+  /// Sessions are opened (and, optionally, activated) by 
+  /// <see cref="Open(Xtensive.Storage.Domain)">Session.Open(domain)</see> method. 
   /// Existing session can be activated by <see cref="Activate"/> method.
   /// </para>
   /// </remarks>

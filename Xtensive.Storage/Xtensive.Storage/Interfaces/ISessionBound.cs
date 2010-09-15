@@ -4,16 +4,24 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.14
 
+using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
 using Xtensive.Storage;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Tagging interface for all the objects that are bound to the <see cref="Session"/> instance,
-  /// which methods must be processed by PostSharp
-  /// to ensure its <see cref="Session"/> is active inside method bodies.
+  /// Contract for all the objects that are bound to the <see cref="Session"/> instance.
+  /// Methods of implementors of this interface must be processed by PostSharp 
+  /// to ensure their own <see cref="Session"/> is activated inside their method bodies, 
+  /// and transaction is already opened there.
   /// </summary>
+  /// <remarks>
+  /// Only public and protected methods and properties are processed by
+  /// <see cref="TransactionalTypeAttribute"/> aspect.
+  /// To override the default behavior, use <see cref="TransactionalAttribute"/> and
+  /// <see cref="InfrastructureAttribute"/>.
+  /// </remarks>
   [TransactionalType(TransactionalBehavior.Auto)]
   public interface ISessionBound : IContextBound<Session>
   {

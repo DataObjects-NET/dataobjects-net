@@ -26,16 +26,21 @@ using Xtensive.Storage.Services;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Persistent type that has a value-type behavior.
+  /// Abstract base class for any persistent structure.
+  /// Persistent structures are types having <see cref="ValueType"/> behavior -
+  /// they have no keys, and thus can be stored only as parts of entities.
   /// </summary>
   /// <remarks>
-  /// Like <see cref="Entity"/>, it supports inheritance and consists of one or more properties 
-  /// of value type, <see cref="Structure"/>, or <see cref="Entity"/> references.
+  /// <para>
+  /// Like <see cref="Entity"/>, structures support inheritance and consist of one or more persistent 
+  /// fields (properties) of scalar, <see cref="Structure"/>, or <see cref="Entity"/> type.
+  /// </para>
+  /// <para>
   /// However unlike entity, structure is not identified by <see cref="Key"/>
-  /// and has value type behavior: it can exist only inside entity, it is stored in
-  /// its owners space and cannot be referenced directly.
+  /// and has value type behavior: it can be stored only inside some entity.
+  /// </para>
   /// </remarks>
-  /// <example> In following example address fields (City, Street and Building) will be included in Person table.
+  /// <example>In the following example Address fields (City, Street and Building) will be included in Person table.
   /// <code>
   /// public class Person : Entity
   /// {

@@ -10,8 +10,11 @@ using System.Data.Common;
 using System.Linq;
 using Xtensive.Sql.Resources;
 
-namespace Xtensive.Sql.ValueTypeMapping
+namespace Xtensive.Sql
 {
+  /// <summary>
+  /// Abstract base class for any value (data) type mapper.
+  /// </summary>
   public abstract class TypeMapper
   {
     private const int DecimalPrecisionLimit = 60;

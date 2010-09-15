@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void Poco1Test()
     {
       var pocos = Query.All<Customer>()
@@ -329,7 +329,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void TypeLoop1Test()
     {
       var nodes = new Node[10];
@@ -368,7 +368,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void KeyTest()
     {
       var keys = Query.All<Order>().Take(10).Select(order => order.Key).ToList();
@@ -703,7 +703,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void ClosureCacheTest()
     {
       var localItems = GetLocalItems(100);

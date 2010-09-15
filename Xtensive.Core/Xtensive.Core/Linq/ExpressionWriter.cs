@@ -31,10 +31,22 @@ namespace Xtensive.Core.Linq
 
     #region Nested type: IndentType
 
+    /// <summary>
+    /// Enumerates possible indent types.
+    /// </summary>
     protected enum IndentType
     {
+      /// <summary>
+      /// The same indent must be used.
+      /// </summary>
       Same,
+      /// <summary>
+      /// Indent must be 1-unit smaller then before.
+      /// </summary>
       Inner,
+      /// <summary>
+      /// Indent must be 1-unit larger then before.
+      /// </summary>
       Outer
     }
 

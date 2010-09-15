@@ -9,7 +9,6 @@ using System.Diagnostics;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
-  [Serializable]
   internal class EntityExpressionJoiner : ExtendedExpressionVisitor
   {
     private readonly ItemProjectorExpression itemProjectorExpression;

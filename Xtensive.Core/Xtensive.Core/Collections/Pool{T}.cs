@@ -13,6 +13,10 @@ using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Collections
 {
+  /// <summary>
+  /// Pool implementation.
+  /// </summary>
+  /// <typeparam name="T">The type of pooled item.</typeparam>
   [Serializable]
   [DebuggerDisplay("Count = {Count}, AvailableCount = {AvailableCount}, Capacity = {Capacity}")]
   public class Pool<T> : IPool<T>

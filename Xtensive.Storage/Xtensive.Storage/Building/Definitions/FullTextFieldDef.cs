@@ -11,6 +11,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building.Definitions
 {
+  /// <summary>
+  /// Defines a single field inside full-text index.
+  /// </summary>
   [Serializable]
   [DebuggerDisplay("{Name}")]
   public class FullTextFieldDef : Node

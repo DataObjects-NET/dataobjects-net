@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Tuples
 {
   ///<summary>
-  /// Helper for tuple updating with the functional style syntax.
+  /// Helper type allowing to update tuples using functional style syntax.
   ///</summary>
   [Serializable]
   public struct TupleUpdater
@@ -24,12 +24,12 @@ namespace Xtensive.Core.Tuples
     public Tuple Tuple { get { return tuple; } }
 
     /// <summary>
-    /// Updates the field of <see cref="Tuple"/> with specified index.
+    /// Updates the field of <see cref="Tuple"/> with the specified index.
     /// </summary>
     /// <param name="fieldIndex">The field index.</param>
-    /// <param name="value">The field value</param>
+    /// <param name="value">The new field value</param>
     /// <returns><see langword="this" /></returns>
-    public TupleUpdater UpdateField(int fieldIndex, object value)
+    public TupleUpdater SetValue(int fieldIndex, object value)
     {
       tuple.SetValue(fieldIndex, value);
       return this;
@@ -39,9 +39,9 @@ namespace Xtensive.Core.Tuples
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="tuple">The tuple to be wrapped.</param>
+    /// <param name="tuple">The tuple to wrap.</param>
     public TupleUpdater(Tuple tuple)
     {
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");

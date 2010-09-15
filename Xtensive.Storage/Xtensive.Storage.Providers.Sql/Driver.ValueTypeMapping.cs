@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Sql;
-using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql

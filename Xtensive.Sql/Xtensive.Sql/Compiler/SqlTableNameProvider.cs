@@ -8,6 +8,9 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
 {
+  /// <summary>
+  /// Table name provider.
+  /// </summary>
   public class SqlTableNameProvider
   {
     private readonly Dictionary<SqlTable, string> aliasMap = new Dictionary<SqlTable, string>(16);

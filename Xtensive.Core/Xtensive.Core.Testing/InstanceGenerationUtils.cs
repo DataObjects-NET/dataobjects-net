@@ -9,13 +9,32 @@ using System.Collections.Generic;
 
 namespace Xtensive.Core.Testing
 {
+  /// <summary>
+  /// Helper type providing instance generation facilities.
+  /// </summary>
+  /// <typeparam name="T">The type of generated items.</typeparam>
   public static class InstanceGenerationUtils<T>
   {
+    /// <summary>
+    /// Generates the sequence of pairs of type <typeparamref name="T"/>
+    /// using default instance generator (see <see cref="InstanceGeneratorProvider.Default"/>).
+    /// </summary>
+    /// <param name="random">The random generator to use.</param>
+    /// <param name="equalityProbability">The item equality probability.</param>
+    /// <returns>Described sequence.</returns>
     public static IEnumerable<Pair<T>> GetPairs(Random random, double equalityProbability)
     {
       return GetPairs(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>(), random, equalityProbability);
     }
 
+    /// <summary>
+    /// Generates the sequence of pairs of type <typeparamref name="T"/>
+    /// using specified instance generator.
+    /// </summary>
+    /// <param name="generator">The instance generator to use.</param>
+    /// <param name="random">The random generator to use.</param>
+    /// <param name="equalityProbability">The item equality probability.</param>
+    /// <returns>Described sequence.</returns>
     public static IEnumerable<Pair<T>> GetPairs(IInstanceGenerator<T> generator, Random random, double equalityProbability)
     {
       bool isValueType = typeof (T).IsValueType;
@@ -37,11 +56,26 @@ namespace Xtensive.Core.Testing
       }
     }
 
+    /// <summary>
+    /// Generates the sequence of instances of type <typeparamref name="T"/>
+    /// using default instance generator (see <see cref="InstanceGeneratorProvider.Default"/>).
+    /// </summary>
+    /// <param name="random">The random generator to use.</param>
+    /// <param name="equalityProbability">The subsequent item equality probability.</param>
+    /// <returns>Described sequence.</returns>
     public static IEnumerable<T> GetInstances(Random random, double equalityProbability)
     {
       return GetInstances(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>(), random, equalityProbability);
     }
 
+    /// <summary>
+    /// Generates the sequence of instances of type <typeparamref name="T"/>
+    /// using specified instance generator.
+    /// </summary>
+    /// <param name="generator">The instance generator to use.</param>
+    /// <param name="random">The random generator to use.</param>
+    /// <param name="equalityProbability">The subsequent item equality probability.</param>
+    /// <returns>Described sequence.</returns>
     public static IEnumerable<T> GetInstances(IInstanceGenerator<T> generator, Random random, double equalityProbability)
     {
       bool isValueType = typeof (T).IsValueType;

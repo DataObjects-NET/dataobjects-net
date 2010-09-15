@@ -9,12 +9,12 @@ using Xtensive.Core.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Resources;
 
-namespace Xtensive.Sql.ValueTypeMapping
+namespace Xtensive.Sql
 {
   /// <summary>
-  /// A validator for primitive types.
+  /// A range validator for primitive types.
   /// </summary>
-  public static class DataRangeValidator
+  public static class ValueRangeValidator
   {
     /// <summary>
     /// Ensures that the specified value is in <paramref name="allowedRange"/>.

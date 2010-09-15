@@ -16,6 +16,9 @@ using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
+  /// <summary>
+  /// Executes full-text search (free text query) against specified <see cref="PrimaryIndex"/>.
+  /// </summary>
   [Serializable]
   public class FreeTextProvider : CompilableProvider
   {

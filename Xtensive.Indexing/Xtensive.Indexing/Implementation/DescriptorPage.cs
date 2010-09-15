@@ -15,6 +15,11 @@ using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Implementation
 {
+  /// <summary>
+  /// Base class for index descriptor page.
+  /// </summary>
+  /// <typeparam name="TKey">The type of the key.</typeparam>
+  /// <typeparam name="TItem">The type of the item.</typeparam>
   [Serializable]
   public class DescriptorPage<TKey, TItem> : Page<TKey, TItem>
   {

@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void IsIntermediateTest()
     {
       Query.All<Product>()
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void IsCountTest()
     {
       int productCount = Query.All<Product>().Count();
@@ -227,7 +227,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void IsGetParentFieldTest()
     {
       var result = Query.All<Product>()
@@ -238,7 +238,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void IsGetChildFieldTest()
     {
       var result = Query.All<Product>()
@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Tests.Linq
 
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof(QueryTranslationException))]
     public void ComplexIsCastTest()
     {
       var result = Query.All<Product>()

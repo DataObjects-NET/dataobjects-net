@@ -16,7 +16,7 @@ using TypeAttributes=Xtensive.Storage.Model.TypeAttributes;
 namespace Xtensive.Storage.Building.Definitions
 {
   /// <summary>
-  /// Represents a persistent type definition.
+  /// Defines a single persistent type.
   /// </summary>
   [DebuggerDisplay("{underlyingType}")]
   [Serializable]

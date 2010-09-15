@@ -14,6 +14,9 @@ using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Type discriminator map.
+  /// </summary>
   [Serializable]
   public sealed class TypeDiscriminatorMap : Node, 
     IEnumerable<Pair<object, TypeInfo>>

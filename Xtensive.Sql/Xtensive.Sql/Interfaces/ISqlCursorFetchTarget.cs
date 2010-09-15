@@ -4,6 +4,9 @@
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A contract for server-independent cursor fetch target.
+  /// </summary>
   public interface ISqlCursorFetchTarget : ISqlLValue
   {
   }

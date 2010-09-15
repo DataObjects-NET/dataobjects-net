@@ -40,7 +40,7 @@ using OperationType = Xtensive.Storage.Operations.OperationType;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for all entities in a model.
+  /// Abstract base class for any persistent entity.
   /// </summary>
   /// <remarks>
   /// <para>
