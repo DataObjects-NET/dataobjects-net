@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
     {
-      return new EmptyPostCompiler();
+      return new EmptySelectCorrector();
     }
 
     /// <summary>

@@ -15,20 +15,21 @@ namespace Xtensive.Storage
   public enum VersionMode
   {
     /// <summary>
-    /// The field is included into entity version and its value requires manual update.
+    /// Default value.
+    /// The same as <see cref="Manual"/>.
+    /// </summary>
+    Default = Manual,
+    /// <summary>
+    /// The field is included into entity version; its value must be updated manually.
     /// </summary>
     Manual = 0,
     /// <summary>
-    /// The field does not participate in version checks and don't included into entity version.
+    /// The field must not be included into entity version.
     /// </summary>
     Skip,
     /// <summary>
-    /// The field is included into entity version and its value managed automatically.
+    /// The field is included into entity version; its value is updated automatically.
     /// </summary>
     Auto,
-    /// <summary>
-    /// Default value is <see cref="Manual"/>.
-    /// </summary>
-    Default = Manual
   }
 }
