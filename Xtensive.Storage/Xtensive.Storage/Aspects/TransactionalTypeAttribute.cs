@@ -29,7 +29,7 @@ namespace Xtensive.Storage
       MulticastAttributes.Public |
       MulticastAttributes.Managed |
       MulticastAttributes.NonAbstract)]
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
   [ProvideAspectRole(StandardRoles.TransactionHandling)]
   [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof (ReplaceAutoProperty))]
@@ -48,83 +48,6 @@ namespace Xtensive.Storage
     /// Gets or sets a value indicating whether a session should be activated on the method boundaries.
     /// </summary>
     public bool ActivateSession { get; set; }
-
-    #region Hide base properties
-
-    // ReSharper disable UnusedMember.Local
-    private new bool AttributeId
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AspectPriority
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeExclude
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeInheritance
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributePriority
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeReplace
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetAssemblies
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetElements
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetMemberAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetMembers
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetParameterAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetParameters
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetTypeAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetTypes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    // ReSharper restore UnusedMember.Local
-
-    #endregion
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(object target)

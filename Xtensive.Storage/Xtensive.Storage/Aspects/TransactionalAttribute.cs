@@ -33,7 +33,7 @@ namespace Xtensive.Storage
       MulticastAttributes.AnyVisibility |
       MulticastAttributes.Managed | 
       MulticastAttributes.NonAbstract)]
-  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   [ProvideAspectRole(StandardRoles.TransactionHandling)]
   [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
@@ -53,79 +53,7 @@ namespace Xtensive.Storage
     /// </summary>
     public bool ActivateSession { get; set; }
 
-    #region Hide base properties
-    // ReSharper disable UnusedMember.Local
-    private new bool AttributeId
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AspectPriority
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeExclude
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeInheritance
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributePriority
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeReplace
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetAssemblies
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetElements
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetMemberAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetMembers
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetParameterAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetParameters
-    {
-      get { throw new NotSupportedException(); }
-    }
-    private new bool AttributeTargetTypeAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-    private new bool AttributeTargetTypes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    // ReSharper restore UnusedMember.Local
-    #endregion
-    
+    /// <inheritdoc/>
     public override void CompileTimeInitialize(MethodBase method, AspectInfo aspectInfo)
     {
       ActivateSession &= typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) && !method.IsStatic;
@@ -138,6 +66,7 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (AspectHelper.IsInfrastructureMethod(method))
@@ -209,14 +138,12 @@ namespace Xtensive.Storage
     {
       Mode = mode;
       ActivateSession = true;
-      base.AttributePriority = 2;
     }
 
     internal TransactionalAttribute(TransactionalTypeAttribute transactionalTypeAttribute)
     {
       Mode = transactionalTypeAttribute.Mode;
       ActivateSession = transactionalTypeAttribute.ActivateSession;
-      base.AttributePriority = 1;
     }
   }
 }

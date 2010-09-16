@@ -72,7 +72,6 @@ namespace Xtensive.Storage.Tests.Storage
   [TransactionalType(TransactionalBehavior.Suppress, ActivateSession = true, AttributeReplace = true)]
   public class NotTransactionalSessionBound : SessionBound
   {
-//    [Transactional(TransactionalBehavior.Suppress)]
     public void Method1()
     {
       Console.Out.WriteLine("Blah...");
