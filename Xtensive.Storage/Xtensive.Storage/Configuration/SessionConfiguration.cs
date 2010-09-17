@@ -48,8 +48,7 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
 
-    private SessionBehavior behavior = SessionBehavior.Server;
-    private SessionOptions options = SessionOptions.AutoShortenTransactions;
+    private SessionOptions options = SessionOptions.LegacyProfile;
     private string userName = string.Empty;
     private string password = string.Empty;
     private int cacheSize = DefaultCacheSize;
@@ -88,19 +87,6 @@ namespace Xtensive.Storage.Configuration
       set {
         this.EnsureNotLocked();
         password = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the session behavior. Default is <see cref="SessionBehavior.Server"/>
-    /// </summary>
-    public SessionBehavior Behavior
-    {
-      get { return behavior; }
-      set
-      {
-        this.EnsureNotLocked();
-        behavior = value;
       }
     }
 
@@ -154,7 +140,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets session type.
-    /// Default value is <see cref="SessionType.Default"/>.
+    /// Default value is <see cref="SessionType.User"/>.
     /// </summary>
     public SessionType Type { get; private set; }
 
@@ -172,7 +158,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets session options.
-    /// Default value is <see cref="SessionOptions.Default"/>.
+    /// Default value is <see cref="SessionOptions.Transactional"/> | <see cref="SessionOptions.AutoPersist"/> | <see cref="SessionOptions.AutoShortenTransactions"/>.
     /// </summary>
     public SessionOptions Options {
       get { return options; }
@@ -271,7 +257,7 @@ namespace Xtensive.Storage.Configuration
       // Currently disabled
       // if (Type != SessionType.User)
       //   throw new InvalidOperationException(Resources.Strings.ExUnableToCloneNonUserSessionConfiguration);
-      return new SessionConfiguration(Name);
+      return new SessionConfiguration(Name, Options);
     }
 
     /// <inheritdoc/>
@@ -281,7 +267,6 @@ namespace Xtensive.Storage.Configuration
       var configuration = (SessionConfiguration) source;
       UserName = configuration.UserName;
       Password = configuration.Password;
-      behavior = configuration.behavior;
       options = configuration.options;
       CacheType = configuration.CacheType;
       CacheSize = configuration.CacheSize;
@@ -318,23 +303,39 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="name">Value for <see cref="Name"/>.</param>
-    public SessionConfiguration(string name) 
-      : this(name, SessionBehavior.Server)
-    {}
+    public SessionConfiguration()
+      : this(WellKnown.Sessions.Default)
+    {
+    }
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="sessionOptions">The session options.</param>
+    public SessionConfiguration(SessionOptions sessionOptions)
+      : this(null, sessionOptions)
+    {
+    }
 
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
-    /// <param name="sessionBehavior"><see cref="Behavior"/> property value.</param>
-    public SessionConfiguration(string name, SessionBehavior sessionBehavior) 
-      : this(sessionBehavior)
+    public SessionConfiguration(string name)
+      : this(name, SessionOptions.LegacyProfile)
+    {
+    }
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">Value for <see cref="Name"/>.</param>
+    public SessionConfiguration(string name, SessionOptions sessionOptions) 
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       Name = name;
-
+      Options = sessionOptions;
       switch (name) {
       case WellKnown.Sessions.System:
         Type = SessionType.System;
@@ -351,28 +352,6 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public SessionConfiguration()
-      : this (SessionBehavior.Server)
-    {
-    }
-
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="sessionBehavior"><see cref="Behavior"/> property value.</param>
-    public SessionConfiguration(SessionBehavior sessionBehavior)
-    {
-      behavior = sessionBehavior;
-      options = sessionBehavior == SessionBehavior.Server
-        ? SessionOptions.AutoPersist
-          | SessionOptions.AutoShortenTransactions
-          | SessionOptions.Transactional
-        : SessionOptions.AutoShortenTransactions;
-//      options = options & ~SessionOptions.AutoShortenTransactions;
-    }
 
     // Type initializer
 

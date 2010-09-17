@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SessionsTest()
     {
-      var session = Session.Open(Domain, false);
+      var session = Session.Open(Domain);
 
       MySessionBound testObject;
 
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
   }
 
-  [TransactionalType(TransactionalBehavior.Suppress, ActivateSession = true, AttributeReplace = true)]
+  [TransactionalType(TransactionalBehavior.Suppress)]
   public class NotTransactionalSessionBound : SessionBound
   {
     public void Method1()

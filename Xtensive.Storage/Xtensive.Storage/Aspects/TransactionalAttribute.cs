@@ -42,6 +42,8 @@ namespace Xtensive.Storage
 #endif
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
+    internal bool? activateSession;
+
     /// <summary>
     /// Gets or sets value describing transaction opening mode.
     /// Default value is <see cref="TransactionOpenMode.Auto"/>.
@@ -50,20 +52,28 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Gets or sets a value indicating whether a session should be activated on the method boundaries.
-    /// </summary>
-    public bool ActivateSession { get; set; }
+    ///  </summary>
+    /// <remarks>When the value is not set explicitely actual value will be resolved according to 
+    /// <see cref="SessionOptions.AutoActivation"/> flag of the current session.</remarks>
+    public bool ActivateSession
+    {
+      get { return activateSession.GetValueOrDefault(); }
+      set { activateSession = value; }
+    }
 
     /// <inheritdoc/>
     public override void CompileTimeInitialize(MethodBase method, AspectInfo aspectInfo)
     {
-      ActivateSession &= typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) && !method.IsStatic;
-      if (ActivateSession && AspectHelper.ContextActivationIsSuppressed(method, typeof (Session)))
+      var canActivate = typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) 
+        && !method.IsStatic
+        && AspectHelper.ContextActivationIsSuppressed(method, typeof(Session));
+      if (!canActivate)
         ActivateSession = false;
-      if (Mode != TransactionalBehavior.Suppress) {
-        var nonTransactionalAttribute = method.GetAttribute<NonTransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
-        if (nonTransactionalAttribute != null)
-          Mode = TransactionalBehavior.Suppress;
-      }
+      if (Mode == TransactionalBehavior.Suppress) 
+        return;
+      var nonTransactionalAttribute = method.GetAttribute<NonTransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
+      if (nonTransactionalAttribute != null)
+        Mode = TransactionalBehavior.Suppress;
     }
 
     /// <inheritdoc/>
@@ -71,7 +81,9 @@ namespace Xtensive.Storage
     {
       if (AspectHelper.IsInfrastructureMethod(method))
         return false;
-      return ActivateSession || Mode != TransactionalBehavior.Suppress;
+      if (Mode != TransactionalBehavior.Suppress)
+        return true;
+      return activateSession == null || activateSession.Value;
     }
 
     /// <inheritdoc/>
@@ -84,7 +96,10 @@ namespace Xtensive.Storage
         ? Session.Demand()
         : sessionBound.Session;
       IDisposable sessionScope = null;
-      if (ActivateSession)
+      var activate = activateSession.HasValue
+        ? activateSession.Value
+        : (session.Configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation;
+      if (activate)
         sessionScope = session.Activate(true);
       var transactionScope = Transaction.HandleAutoTransaction(session, Mode);
       args.MethodExecutionTag = transactionScope.IsVoid
@@ -107,7 +122,7 @@ namespace Xtensive.Storage
       }
       var joiningDisposable = args.MethodExecutionTag as JoiningDisposable;
       if (joiningDisposable!=null) { // Less probable case : session & trans. were opened
-        transactionScope = joiningDisposable.First as TransactionScope;
+        transactionScope = (TransactionScope)joiningDisposable.First;
         transactionScope.Complete();
       }
     }
@@ -137,7 +152,6 @@ namespace Xtensive.Storage
     public TransactionalAttribute(TransactionalBehavior mode)
     {
       Mode = mode;
-      ActivateSession = true;
     }
 
     internal TransactionalAttribute(TransactionalTypeAttribute transactionalTypeAttribute)

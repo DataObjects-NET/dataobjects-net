@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SessionActivationTest()
     {
-      var session = Session.Open(Domain, false);
+      var session = Session.Open(Domain);
 
       Author author;
 

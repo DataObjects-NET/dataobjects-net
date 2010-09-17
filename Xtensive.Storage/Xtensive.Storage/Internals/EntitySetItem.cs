@@ -45,8 +45,8 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-	/// <param name="session">The session.</param>
-    /// <param name="keyTuple">The tuple containing key value for this instance.</param>
+    /// <param name="session">The session.</param>
+    /// <param name="tuple">The tuple containing key value for this instance.</param>
     protected EntitySetItem(Session session, Tuple tuple)
       : base(session, tuple)
     {

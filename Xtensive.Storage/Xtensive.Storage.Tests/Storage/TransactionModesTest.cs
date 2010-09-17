@@ -99,12 +99,12 @@ namespace Xtensive.Storage.Tests.Storage
         using (var outer = Transaction.Open(TransactionOpenMode.New)) {
           Assert.IsFalse(outer.Transaction.IsActuallyStarted);
           using (var mid = Transaction.Open(TransactionOpenMode.New)) {
-            Assert.IsFalse(outer.Transaction.IsActuallyStarted);
-            Assert.IsFalse(mid.Transaction.IsActuallyStarted);
+            Assert.IsTrue(outer.Transaction.IsActuallyStarted);
+            Assert.IsTrue(mid.Transaction.IsActuallyStarted);
             using (var inner = Transaction.Open(TransactionOpenMode.New)) {
-              Assert.IsFalse(outer.Transaction.IsActuallyStarted);
-              Assert.IsFalse(mid.Transaction.IsActuallyStarted);
-              Assert.IsFalse(inner.Transaction.IsActuallyStarted);
+              Assert.IsTrue(outer.Transaction.IsActuallyStarted);
+              Assert.IsTrue(mid.Transaction.IsActuallyStarted);
+              Assert.IsTrue(inner.Transaction.IsActuallyStarted);
             }
           }
         }

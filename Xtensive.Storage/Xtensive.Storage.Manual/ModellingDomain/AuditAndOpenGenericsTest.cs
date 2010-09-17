@@ -334,17 +334,15 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Cat tom;
       Cat musya;
       Person alex;
-
-      using (Session.Open(domain)) {
+      using (var session = Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
           tom = new Cat {Name = "Tom"};
           new Dog {Name = "Sharik"};
           tx.Complete();
         }
-        Assert.AreEqual(1, Query.All<TransactionInfo>().Count());
-        Assert.AreEqual(2, Query.All<AuditRecord<Animal>>().Count());
-
         using (var tx = Transaction.Open()) {
+          Assert.AreEqual(1, Query.All<TransactionInfo>().Count());
+          Assert.AreEqual(2, Query.All<AuditRecord<Animal>>().Count());
           musya = new Cat();
           tx.Complete();
         }

@@ -8,12 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// A single item in <see cref="RecordSetExtensions.Read"/> result 
+  /// A single item in <see cref="RecordSetReader.Read"/> result 
   /// containing both raw <see cref="Source"/> and parsed primary keys.
   /// </summary>
   public sealed class Record

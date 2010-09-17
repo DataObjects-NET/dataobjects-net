@@ -141,13 +141,11 @@ namespace Xtensive.Storage
     {
       switch (behavior) {
         case TransactionalBehavior.Auto:
-          if (session.IsDisconnected)
+          if ((session.Configuration.Options & SessionOptions.AutoTransactionOpenMode) == SessionOptions.AutoTransactionOpenMode)
             goto case TransactionalBehavior.Open;
-          if (session.Configuration.Behavior == SessionBehavior.Client)
+          if ((session.Configuration.Options & SessionOptions.AutoTransactionSuppressMode) == SessionOptions.AutoTransactionSuppressMode)
             goto case TransactionalBehavior.Suppress;
-          if (session.Configuration.Behavior == SessionBehavior.Server)
-            goto case TransactionalBehavior.Require;
-          goto default;
+          goto case TransactionalBehavior.Require;
         case TransactionalBehavior.Require:
           Require(session);
           return TransactionScope.VoidScopeInstance;

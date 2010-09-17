@@ -14,6 +14,7 @@ using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage
 {
@@ -38,6 +39,8 @@ namespace Xtensive.Storage
 #endif
   public sealed class TransactionalTypeAttribute : Aspect, IAspectProvider
   {
+    internal bool? activateSession;
+
     /// <summary>
     /// Gets or sets value describing transaction opening mode.
     /// Default value is <see cref="TransactionalBehavior.Auto"/>.
@@ -46,8 +49,14 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Gets or sets a value indicating whether a session should be activated on the method boundaries.
-    /// </summary>
-    public bool ActivateSession { get; set; }
+    ///  </summary>
+    /// <remarks>When the value is not set explicitely actual value will be resolved according to 
+    /// <see cref="SessionOptions.AutoActivation"/> flag of the current session.</remarks>
+    public bool ActivateSession
+    {
+      get { return activateSession.GetValueOrDefault(); }
+      set { activateSession = value; }
+    }
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(object target)
@@ -86,7 +95,6 @@ namespace Xtensive.Storage
     public TransactionalTypeAttribute(TransactionalBehavior mode)
     {
       Mode = mode;
-      ActivateSession = true;
     }
 
     #endregion

@@ -62,5 +62,44 @@ namespace Xtensive.Storage.Configuration
     /// </para>
     /// </remarks>
     AllowSwitching = 0x10,
+
+    /// <summary>
+    /// Enables automatic activation of session on all public members of <see cref="ISessionBound"/> implementors 
+    /// (e.g. <see cref="Entity"/>, <see cref="Structure"/> and their inheritors).
+    /// </summary>
+    AutoActivation = 0x20,
+
+    /// <summary>
+    /// <see cref="DisconnectedState"/> will be created and attached in the session constructor.
+    /// </summary>
+    Disconnected = 0x40,
+
+    /// <summary>
+    /// Consider <see cref="TransactionalBehavior.Auto"/> option as <see cref="TransactionalBehavior.Suppress"/> when processing <see cref="TransactionalAttribute"/>.
+    /// </summary>
+    AutoTransactionSuppressMode = 0x80,
+
+    /// <summary>
+    /// Consider <see cref="TransactionalBehavior.Auto"/> option as <see cref="TransactionalBehavior.Open"/> when processing <see cref="TransactionalAttribute"/>.
+    /// </summary>
+    AutoTransactionOpenMode = 0x100,
+
+    /// <summary>
+    /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
+    /// Combines <see cref="AutoPersist"/> | <see cref="Transactional"/> | <see cref="AutoShortenTransactions"/> flags.
+    /// </summary>
+    ClientProfile = AutoPersist | Transactional | AutoShortenTransactions | Disconnected,
+
+    /// <summary>
+    /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
+    /// Combines  <see cref="AutoActivation"/> | <see cref="AutoPersist"/> | <see cref="Transactional"/> | <see cref="AutoShortenTransactions"/> flags.
+    /// </summary>
+    ServerProfile = AutoActivation | AutoPersist | Transactional | AutoShortenTransactions,
+
+    /// <summary>
+    /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
+    /// Combines <see cref="AutoTransactionOpenMode"/> | <see cref="AutoActivation"/> | <see cref="AutoPersist"/> | <see cref="Transactional"/> | <see cref="AutoShortenTransactions"/> flags.
+    /// </summary>
+    LegacyProfile = AutoTransactionOpenMode | AutoActivation | AutoPersist | Transactional | AutoShortenTransactions
   }
 }

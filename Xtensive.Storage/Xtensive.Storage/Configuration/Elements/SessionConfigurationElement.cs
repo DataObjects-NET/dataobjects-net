@@ -24,8 +24,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string PasswordElementName = "password";
     private const string CacheSizeElementName = "cacheSize";
     private const string CacheTypeElementName = "cacheType";
-//    private const string OptionsElementName = "options";
-    private const string BehaviorElementName = "behavior";
+    private const string OptionsElementName = "options";
     private const string IsolationLevelElementName = "isolationLevel";
     private const string CommandTimeoutElementName = "commandTimeout";
     private const string BatchSizeElementName = "batchSize";
@@ -87,10 +86,10 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.Options" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(BehaviorElementName, DefaultValue = "Server")]
-    public string Behavior {
-      get { return (string) this[BehaviorElementName]; }
-      set { this[BehaviorElementName] = value; }
+    [ConfigurationProperty(OptionsElementName, DefaultValue = "LegacyProfile")]
+    public string Options {
+      get { return (string)this[OptionsElementName]; }
+      set { this[OptionsElementName] = value; }
     }
 
     /// <summary>
@@ -176,7 +175,7 @@ namespace Xtensive.Storage.Configuration.Elements
         CacheSize = CacheSize,
         BatchSize = BatchSize,
         CacheType = (SessionCacheType) Enum.Parse(typeof (SessionCacheType), CacheType, true),
-        Behavior = (SessionBehavior) Enum.Parse(typeof (SessionBehavior), Behavior, true),
+        Options = (SessionOptions) Enum.Parse(typeof (SessionOptions), Options, true),
         DefaultIsolationLevel = (IsolationLevel) Enum.Parse(typeof (IsolationLevel), DefaultIsolationLevel, true),
         ReaderPreloading = (ReaderPreloadingPolicy) Enum.Parse(typeof (ReaderPreloadingPolicy), ReaderPreloading, true),
         ServiceContainerType = Type.GetType(ServiceContainerType),

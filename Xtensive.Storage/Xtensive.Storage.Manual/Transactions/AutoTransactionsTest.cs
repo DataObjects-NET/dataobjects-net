@@ -92,6 +92,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     {
       var domain = GetDomain();
       using (var session = Session.Open(domain)) {
+        Assert.IsNotNull(Session.Current);
         Assert.IsNull(Transaction.Current);
         
         var alex = Query.Single<Person>(personKeys["Alex"]);
