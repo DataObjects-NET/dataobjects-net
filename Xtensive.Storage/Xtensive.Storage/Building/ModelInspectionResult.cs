@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Building
 {
   internal class ModelInspectionResult
   {
-    public HashSet<HierarchyDef> GeneratedHieararchies { get; private set; }
+    public HashSet<HierarchyDef> GeneratedHierarchies { get; private set; }
 
     public HashSet<TypeDef> GeneratedTypes { get; private set; }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Building
       Actions = new Queue<FixupAction>();
       SingleHierarchyInterfaces = new List<TypeDef>();
       RemovedTypes = new HashSet<TypeDef>();
-      GeneratedHieararchies = new HashSet<HierarchyDef>();
+      GeneratedHierarchies = new HashSet<HierarchyDef>();
       GeneratedTypes = new HashSet<TypeDef>();
     }
   }

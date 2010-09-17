@@ -146,7 +146,8 @@ namespace Xtensive.Storage.Building
           let root = hierarchy.Root
           where 
             !root.IsSystem && 
-            !root.IsAutoGenericInstance
+            !root.IsAutoGenericInstance &&
+            !root.IsAbstract
           select root.UnderlyingType);
         var types = new List<Type>();
         while (queue.Count > 0) {

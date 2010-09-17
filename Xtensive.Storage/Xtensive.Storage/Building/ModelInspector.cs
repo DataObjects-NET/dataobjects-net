@@ -261,7 +261,8 @@ namespace Xtensive.Storage.Building
           if (!allGenericConstraintsAreEntity)
             return;
 
-          context.ModelInspectionResult.Register(new BuildGenericTypeInstancesAction(typeDef));
+          if (!typeDef.IsAbstract)
+            context.ModelInspectionResult.Register(new BuildGenericTypeInstancesAction(typeDef));
           context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
           return;
         }
