@@ -746,7 +746,7 @@ namespace Xtensive.Storage.Linq
         .Select((subqueryIndex, groupIndex) => new {
           SubQueryIndex = subqueryIndex, 
           GroupIndex = groupIndex, 
-          keyDataSource.Header.Columns[groupIndex].Type })
+          Type = keyDataSource.Header.Columns[groupIndex].Type.ToNullable() })
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
       var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");

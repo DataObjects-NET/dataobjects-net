@@ -25,6 +25,14 @@ namespace Xtensive.Storage.Tests.Linq
   {
 
     [Test]
+    public void NullableGroupingKeyTest()
+    {
+      var grouping = Query.All<Order>().GroupBy(p => p.ProcessingTime).FirstOrDefault(g=>g.Key==null);
+      Assert.IsNotNull(grouping);
+      Assert.IsTrue(grouping.Count()> 0);
+    }
+
+    [Test]
     public void EntityWithLazyLoadFieldTest()
     {
       var category = Query.All<Product>()
@@ -48,6 +56,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AggregateAfterGroupingAnonymousTest()
     {
+
       var query = Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
