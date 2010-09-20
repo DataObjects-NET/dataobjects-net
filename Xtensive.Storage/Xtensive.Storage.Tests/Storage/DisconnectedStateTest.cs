@@ -803,12 +803,9 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Modify data
       using (var session = Session.Open(Domain)) {
-        Order order1;
-        using (var tx = Transaction.Open(session)) {
-          order1 = Query.All<Order>().First(order => order.Number == 1);
-          order1Key = order1.Key;
-          Assert.AreEqual(2, order1.Details.Count);
-        }
+        var order1 = Query.All<Order>().First(order => order.Number==1);
+        order1Key = order1.Key;
+        Assert.AreEqual(2, order1.Details.Count);
 
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
@@ -1923,15 +1920,11 @@ namespace Xtensive.Storage.Tests.Storage
       // Merge and check
       using (var session = Session.Open(Domain)) {
         using (state2.Attach(session)) {
-//          using (var tx = Transaction.Open(session)) {
-            AssertEx.Throws<VersionConflictException>(() => state2.Merge(state1, MergeMode.Strict));
-            state2.Merge(state1, MergeMode.PreferOriginal);
-            using(Transaction.Open(session))
-              Assert.AreEqual("Value1", Query.Single<Simple>(key).Value);
-            state2.Merge(state1, MergeMode.PreferNew);
-            using (Transaction.Open(session))
-              Assert.AreEqual("Value2", Query.Single<Simple>(key).Value);
-//          }
+          AssertEx.Throws<VersionConflictException>(() => state2.Merge(state1, MergeMode.Strict));
+          state2.Merge(state1, MergeMode.PreferOriginal);
+          Assert.AreEqual("Value1", Query.Single<Simple>(key).Value);
+          state2.Merge(state1, MergeMode.PreferNew);
+          Assert.AreEqual("Value2", Query.Single<Simple>(key).Value);
         }
       }
     }

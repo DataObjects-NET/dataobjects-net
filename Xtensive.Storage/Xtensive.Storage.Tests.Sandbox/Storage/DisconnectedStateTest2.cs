@@ -274,7 +274,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           Assert.IsFalse(book.IsRemoved);
           Assert.AreSame(book, Query.Single(bookKey));
         }
-        TransactionalExtensions.InvokeTransactionally(() => book.Remove(), session);
+        book.Remove();
       }
     }
 
@@ -351,7 +351,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           Assert.IsFalse(book.IsRemoved);
           Assert.AreSame(book, Query.Single(bookKey));
         }
-        TransactionalExtensions.InvokeTransactionally(() => book.Remove(), session);
+        book.Remove();
       }
     }
   }

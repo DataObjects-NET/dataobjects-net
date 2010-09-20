@@ -1393,10 +1393,10 @@ Schema difference:
     <value>Cyclic dependency in query preprocessor graph is detected.</value>
   </data>
   <data name="ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked" xml:space="preserve">
-    <value><![CDATA[An attempt to automatically activate Session '{0}' inside Session '{1}' (Session switching) is blocked. 
+    <value>An attempt to automatically activate Session '{0}' inside Session '{1}' (Session switching) is blocked. 
 Most likely, mixed usage of objects from different Sessions is a result of a bug in your code. 
 Use manual Session activation (Session.Deactivate(), Session.Activate()) or 
-SessionOptions.AllowSwitching flag to avoid this exception, if this is intentional.]]></value>
+SessionOptions.AllowSwitching flag to avoid this exception, if this is intentional.</value>
   </data>
   <data name="ExDuplicateForOperationXIsFound" xml:space="preserve">
     <value>The duplicate for the operation {0} is found.</value>
@@ -1404,7 +1404,7 @@ SessionOptions.AllowSwitching flag to avoid this exception, if this is intention
   <data name="ExCannotGenerateNextVersionValueOfTypeX" xml:space="preserve">
     <value>Can't generate next version value of type '{0}'.</value>
   </data>
-	<data name="ExPropertyXDoesnTHavePublicGetter" xml:space="preserve">
+  <data name="ExPropertyXDoesnTHavePublicGetter" xml:space="preserve">
     <value>Property '{0}' doesn't have public getter.</value>
   </data>
   <data name="ExPropertyXDoesnTHavePublicSetter" xml:space="preserve">
@@ -1492,8 +1492,8 @@ SessionOptions.AllowSwitching flag to avoid this exception, if this is intention
   <data name="LogSessionXEntityWithKeyYIdentifiedAsZ" xml:space="preserve">
     <value>Session '{0}'. Identifying entity: Key = '{1}', identified as '{2}'.</value>
   </data>
-  <data name="ExUnableToApplyVersionOnFieldXOfTypeY">
-    <value xml:space="preserve">Unable to apply VersionAttribute with VersionMode.Auto or Version.Mode.Manual mode set on field {0} of type {1}. Only VersionMode.Skip is allowed.</value>
+  <data name="ExUnableToApplyVersionOnFieldXOfTypeY" xml:space="preserve">
+    <value>Unable to apply VersionAttribute with VersionMode.Auto or Version.Mode.Manual mode set on field {0} of type {1}. Only VersionMode.Skip is allowed.</value>
   </data>
   <data name="ExInvalidScopeDisposalOrder" xml:space="preserve">
     <value>Invalid scope disposal order.</value>
@@ -1510,24 +1510,27 @@ SessionOptions.AllowSwitching flag to avoid this exception, if this is intention
   <data name="ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty" xml:space="preserve">
     <value>You must either apply or cancel cached changes before changing this property.</value>
   </data>
-	<data name="LogFailedToAddSchemaHintXErrorY">
-		<value><![CDATA[Failed to add schema hint '{0}' to schema hint collection. The hint will be ignored.
+  <data name="LogFailedToAddSchemaHintXErrorY" xml:space="preserve">
+    <value>Failed to add schema hint '{0}' to schema hint collection. The hint will be ignored.
 Likely, the schema object (table, column, etc.) it references does not exists, because it was manually removed from the database.
-Error: {1}]]></value>
-	</data>
-	<data name="LogSessionXVersionValidationFailedKeyYVersionZExpected3">
-		<value><![CDATA[Session '{0}'. Version validation failed: Key = '{1}', Version = '{2}' (expected version = '{3}').]]></value>
-	</data>
-	<data name="ExOperationIsNotRegisteredYet">
-		<value><![CDATA[Operation isn't registered yet. See Session.Oeprations.RegisterOperations().]]></value>
-	</data>
-	<data name="ExOperationStartedIsAlreadyCalledForThisOperation">
-		<value xml:space="preserve">OperatonStarted is alerady called for this operation.</value>
-	</data>
-	<data name="ExOperationIsNotMarkedAsStarted">
-		<value><![CDATA[Operation isn't marked as started. See Sessopn.Operations.OperationStarted() method.]]></value>
-	</data>
-	<data name="ExNullableAndNullableOnUpgradeCannotBeUsedWithXField">
-		<value><![CDATA[Nullable and NullableOnUpgrade flags can't be used with '{0}' field. They can be used only with reference-typed fields (except Structure descendants).]]></value>
-	</data>
+Error: {1}</value>
+  </data>
+  <data name="LogSessionXVersionValidationFailedKeyYVersionZExpected3" xml:space="preserve">
+    <value>Session '{0}'. Version validation failed: Key = '{1}', Version = '{2}' (expected version = '{3}').</value>
+  </data>
+  <data name="ExOperationIsNotRegisteredYet" xml:space="preserve">
+    <value>Operation isn't registered yet. See Session.Oeprations.RegisterOperations().</value>
+  </data>
+  <data name="ExOperationStartedIsAlreadyCalledForThisOperation" xml:space="preserve">
+    <value>OperatonStarted is alerady called for this operation.</value>
+  </data>
+  <data name="ExOperationIsNotMarkedAsStarted" xml:space="preserve">
+    <value>Operation isn't marked as started. See Sessopn.Operations.OperationStarted() method.</value>
+  </data>
+  <data name="ExNullableAndNullableOnUpgradeCannotBeUsedWithXField" xml:space="preserve">
+    <value>Nullable and NullableOnUpgrade flags can't be used with '{0}' field. They can be used only with reference-typed fields (except Structure descendants).</value>
+  </data>
+  <data name="XW0001" xml:space="preserve">
+    <value>{0}</value>
+  </data>
 </root>

@@ -5,8 +5,11 @@
 // Created:    2008.08.30
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Linq.Materialization;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
 
@@ -20,21 +23,56 @@ namespace Xtensive.Storage.Providers
   {
     private readonly EnumerationContextOptions options;
 
+    private class EnumerationFinalizer : ICompletableScope
+    {
+      private readonly Queue<Action> finalizationQueue;
+      private readonly TransactionScope transactionScope;
+
+      public void Complete()
+      {
+        if (IsCompleted)
+          return;
+        IsCompleted = true;
+        transactionScope.Complete();
+      }
+
+      public bool IsCompleted { get; private set; }
+
+      public void Dispose()
+      {
+        while (finalizationQueue.Count > 0) {
+          var materializeSelf = finalizationQueue.Dequeue();
+          materializeSelf.Invoke();
+        }
+        transactionScope.DisposeSafely();
+      }
+
+      public EnumerationFinalizer(Queue<Action> finalizationQueue, TransactionScope transactionScope)
+      {
+        this.finalizationQueue = finalizationQueue;
+        this.transactionScope = transactionScope;
+      }
+    }
+
     /// <summary>
     /// Gets the session handler.
     /// </summary>
     /// <value>The session handler.</value>
     public SessionHandler SessionHandler { get; private set; }
 
+    internal MaterializationContext MaterializationContext { get; set; }
+
     /// <inheritdoc/>
     public override EnumerationContextOptions Options { get { return options; } }
 
     /// <inheritdoc/>
-    public override IDisposable BeginEnumeration()
+    public override ICompletableScope BeginEnumeration()
     {
       var session = SessionHandler.Session;
       var handleAutoTransaction = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto);
       session.EnsureTransactionIsStarted();
+      if (MaterializationContext != null && MaterializationContext.MaterializationQueue != null)
+        return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, handleAutoTransaction);
       return handleAutoTransaction;
     }
 

@@ -95,6 +95,7 @@ namespace Xtensive.Storage
     public TransactionalTypeAttribute(TransactionalBehavior mode)
     {
       Mode = mode;
+      activateSession = null;
     }
 
     #endregion

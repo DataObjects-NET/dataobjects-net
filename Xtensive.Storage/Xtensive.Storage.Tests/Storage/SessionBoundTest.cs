@@ -18,7 +18,6 @@ namespace Xtensive.Storage.Tests.Storage
   {
     internal class TestHelper : SessionBound
     {
-      [Transactional(ActivateSession = true)]
       public void Validate(Ray first, Ray second, Session secondSession)
       {
         // Inside this method this.Session is activated
@@ -55,8 +54,6 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var sc1 = new SessionConfiguration("First");
       var sc2 = new SessionConfiguration("Second");
-      sc1.Options |= SessionOptions.AutoTransactionOpenMode;
-      sc2.Options |= SessionOptions.AutoTransactionOpenMode;
       using (var session1 = Session.Open(Domain, sc1)) {
         using (Transaction.Open()) {
           Ray ray1 = new Ray();

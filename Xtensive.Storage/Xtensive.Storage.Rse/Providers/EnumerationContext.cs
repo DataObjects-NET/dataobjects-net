@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// Should be called before enumeration of your <see cref="IEnumerable{T}"/>.
     /// </summary>
     /// <returns>An <see cref="IDisposable"/> object.</returns>
-    public virtual IDisposable BeginEnumeration()
+    public virtual ICompletableScope BeginEnumeration()
     {
       return null;
     }

@@ -18,6 +18,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -42,7 +43,7 @@ namespace Xtensive.Storage
 #endif
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
-    internal bool? activateSession;
+    private bool? activateSession;
 
     /// <summary>
     /// Gets or sets value describing transaction opening mode.
@@ -66,8 +67,8 @@ namespace Xtensive.Storage
     {
       var canActivate = typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) 
         && !method.IsStatic
-        && AspectHelper.ContextActivationIsSuppressed(method, typeof(Session));
-      if (!canActivate)
+        && !AspectHelper.ContextActivationIsSuppressed(method, typeof(Session));
+      if (!canActivate) 
         ActivateSession = false;
       if (Mode == TransactionalBehavior.Suppress) 
         return;
@@ -152,12 +153,13 @@ namespace Xtensive.Storage
     public TransactionalAttribute(TransactionalBehavior mode)
     {
       Mode = mode;
+      activateSession = null;
     }
 
     internal TransactionalAttribute(TransactionalTypeAttribute transactionalTypeAttribute)
     {
       Mode = transactionalTypeAttribute.Mode;
-      ActivateSession = transactionalTypeAttribute.ActivateSession;
+      activateSession = transactionalTypeAttribute.activateSession;
     }
   }
 }

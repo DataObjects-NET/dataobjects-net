@@ -38,11 +38,12 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     private IEnumerator<Tuple> GetGreedyEnumerator()
     {
-      using (Context.BeginEnumeration())
+      using (var cs = Context.BeginEnumeration())
       using (Context.Activate()) {
         foreach (var tuple in Source.ToList())
           yield return tuple;
-        yield break;
+        if (cs != null)
+          cs.Complete();
       }
     }
 
@@ -55,10 +56,13 @@ namespace Xtensive.Storage.Rse
       var batched = Source.Batch(2).ApplyBeforeAndAfter(
         () => currentScope = Context.Activate(),
         () => currentScope.DisposeSafely());
-      using (Context.BeginEnumeration())
+      using (var cs = Context.BeginEnumeration()) {
         foreach (var batch in batched)
           foreach (var tuple in batch)
             yield return tuple;
+        if (cs != null)
+          cs.Complete();
+      }
     }
 
     /// <inheritdoc/>
