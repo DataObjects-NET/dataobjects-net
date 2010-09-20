@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
 
   [Serializable]
   [HierarchyRoot]
+  [TransactionalType(AttributeReplace = true)]
   public class Person : Entity
   {
     [Key, Field]
@@ -34,7 +35,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     [Association(PairTo = "Friends")]
     public EntitySet<Person> Friends { get; private set; }
 
-    // Transactional - this is default mode for any public ISessionBound method
+    // Transactional - because of applying [TransactionalType]
     public string FullName {
       get {
         return "{Name} {Surname}".FormatWith(this);
@@ -47,7 +48,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
       return ToString(false);
     }
 
-    // Transactional - this is default mode for any public ISessionBound method
+    // Transactional
     public string ToString(bool withFriends)
     {
       if (withFriends)
@@ -91,6 +92,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     {
       var domain = GetDomain();
       using (var session = Session.Open(domain)) {
+        Assert.IsNotNull(Session.Current);
         Assert.IsNull(Transaction.Current);
         
         var alex = Query.Single<Person>(personKeys["Alex"]);
@@ -114,7 +116,6 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
           alex.Name = "Not Alex";
           // no tx.Complete() => rollback
         }
-        Assert.AreEqual("Alex", alex.Name); // Auto state update
 
         // Auto transactions on query enumeration
         Console.WriteLine("All persons:");
