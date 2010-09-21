@@ -70,6 +70,11 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
     public void SystemOperationRegistrationBugTest1()
     {
       var ds = new DisconnectedState();
+      if (ds.OperationLogType!=OperationLogType.SystemOperationLog) {
+        Assert.Ignore("SystemOperationLog type is required to run this test");
+        return;
+      }
+
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
@@ -97,6 +102,11 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
     public void SystemOperationRegistrationBugTest2()
     {
       var ds = new DisconnectedState();
+      if (ds.OperationLogType!=OperationLogType.SystemOperationLog) {
+        Assert.Ignore("SystemOperationLog type is required to run this test");
+        return;
+      }
+
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))

@@ -45,24 +45,6 @@ namespace Xtensive.Storage
     public OperationType Type { get; internal set; }
 
     /// <inheritdoc/>
-    public IOperation OuterOperation { get; internal set; }
-
-    /// <inheritdoc/>
-    public IOperation OutermostOperation {
-      get { return OuterOperation==null ? this : OuterOperation.OutermostOperation; }
-    }
-
-    /// <inheritdoc/>
-    public bool IsNested {
-      get { return OuterOperation!=null; }
-    }
-
-    /// <inheritdoc/>
-    public bool IsOutermost {
-      get { return OuterOperation==null; }
-    }
-
-    /// <inheritdoc/>
     public ReadOnlyList<IOperation> PrecedingOperations {
       get { return precedingOperations; }
       internal set { precedingOperations = value; }

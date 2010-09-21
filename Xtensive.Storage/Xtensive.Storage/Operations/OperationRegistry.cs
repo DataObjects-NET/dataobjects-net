@@ -123,11 +123,10 @@ namespace Xtensive.Storage.Operations
       if (scope.Operation!=null)
         throw new InvalidOperationException(Strings.ExOnlyOneOperationCanBeRegisteredInEachScope);
       operation.Type = scope.OperationType;
-      operation.OuterOperation = scope.Parent==null ? null : scope.Parent.Operation;
       scope.Operation = operation;
       if (isStarted) {
         scope.IsOperationStarted = true;
-        if (operation.IsOutermost)
+        if (scope.IsOutermost)
           NotifyOutermostOperationStarting(operation);
         else
           NotifyNestedOperationStarting(operation);
@@ -166,7 +165,7 @@ namespace Xtensive.Storage.Operations
       if (scope.IsOperationStarted)
         throw new InvalidOperationException(Strings.ExOperationStartedIsAlreadyCalledForThisOperation);
       scope.IsOperationStarted = true;
-      if (operation.IsOutermost)
+      if (scope.IsOutermost)
         NotifyOutermostOperationStarting(operation);
       else
         NotifyNestedOperationStarting(operation);
@@ -303,7 +302,7 @@ namespace Xtensive.Storage.Operations
         RemoveCurrentScope(scope);
       }
       // Adding it to parent scope's nested operations collection
-      var parentScope = (OperationRegistrationScope) GetCurrentScope();
+      var parentScope = GetCurrentOrParentOperationRegistrationScope();
       if (parentScope != null) {
         if (!parentScope.IsOperationStarted) {
           if (parentScope.PrecedingOperations==null)
@@ -317,7 +316,7 @@ namespace Xtensive.Storage.Operations
         }
       }
       // Notifying...
-      if (operation.IsOutermost)
+      if (scope.IsOutermost)
         NotifyOutermostOperationCompleted(operation, scope.IsCompleted);
       else
         NotifyNestedOperationCompleted(operation, scope.IsCompleted);
@@ -395,6 +394,24 @@ namespace Xtensive.Storage.Operations
       if (scope==null)
         throw new InvalidOperationException(Strings.ExNoOperationRegistrationScope);
       return scope as OperationRegistrationScope;
+    }
+
+    private OperationRegistrationScope GetCurrentOrParentOperationRegistrationScope()
+    {
+      var scope = GetCurrentScope();
+      if (scope==null)
+        return null;
+      var result = scope as OperationRegistrationScope;
+      if (result!=null)
+        return result;
+      var list = new CompletableScope[scopes.Count];
+      scopes.CopyTo(list, 0);
+      for (int i = list.Length - 2; i>=0; i--) {
+        result = list[i] as OperationRegistrationScope;
+        if (result!=null)
+          return result;
+      }
+      throw new InvalidOperationException(Strings.ExNoOperationRegistrationScope);
     }
 
     internal CompletableScope SetCurrentScope(CompletableScope scope)

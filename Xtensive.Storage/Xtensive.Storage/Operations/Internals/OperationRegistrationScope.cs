@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Operations
     private bool isDisposed;
 
     public OperationRegistry Owner;
-    public OperationRegistrationScope Parent;
+    public bool IsOutermost;
     public OperationType OperationType;
     public IOperation Operation;
     public bool IsOperationStarted;
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Operations
     {
       Owner = owner;
       OperationType = operationType;
-      Parent = (OperationRegistrationScope) currentScope;
+      IsOutermost = currentScope==null;
 
       oldIsSystemOperationRegistrationEnabled = owner.IsSystemOperationRegistrationEnabled;
       if ((operationType & OperationType.System)==OperationType.System)
