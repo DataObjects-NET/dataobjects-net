@@ -394,7 +394,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       foreach (var typeInfo in autoGenericInstances)
         Console.WriteLine("  {0}", typeInfo.UnderlyingType.GetShortName());
       Console.WriteLine();
-      Assert.AreEqual(8, autoGenericInstances.Count);
+      Assert.AreEqual(6, autoGenericInstances.Count);
     }
 
     private void DumpAuditLog()
