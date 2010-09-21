@@ -52,6 +52,7 @@ namespace Xtensive.Storage.Building.Builders
         // Applying fixup actions to the model definition.
         FixupActionProcessor.Run();
 
+        ModelDefBuilder.ProcessTypes();
         InspectAndProcessGeneratedEntities(context);
       }
       BuildModel();
@@ -61,11 +62,11 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void InspectAndProcessGeneratedEntities(BuildingContext context)
     {
-      foreach (var hieararchy in context.ModelInspectionResult.GeneratedHieararchies)
+      foreach (var hieararchy in context.ModelInspectionResult.GeneratedHierarchies)
         ModelInspector.Inspect(hieararchy);
       foreach (var type in context.ModelInspectionResult.GeneratedTypes)
         ModelInspector.Inspect(type);
-      context.ModelInspectionResult.GeneratedHieararchies.Clear();
+      context.ModelInspectionResult.GeneratedHierarchies.Clear();
       context.ModelInspectionResult.GeneratedTypes.Clear();
 
       if (context.ModelInspectionResult.HasActions)
@@ -255,7 +256,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void OnHierarchyAdded(object sender, CollectionChangeNotifierEventArgs<HierarchyDef> e)
     {
       var context = BuildingContext.Demand();
-      context.ModelInspectionResult.GeneratedHieararchies.Add(e.Item);
+      context.ModelInspectionResult.GeneratedHierarchies.Add(e.Item);
     }
 
     private static void OnTypeAdded(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)

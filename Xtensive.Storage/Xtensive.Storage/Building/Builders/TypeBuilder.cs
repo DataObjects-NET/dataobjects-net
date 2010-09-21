@@ -228,14 +228,14 @@ namespace Xtensive.Storage.Building.Builders
 
       if (fieldInfo.IsEntity) {
         var fields = context.Model.Types[fieldInfo.ValueType].Fields.Where(f => f.IsPrimaryKey);
-        BuildNestedFields(context, fieldInfo, fields);
+        BuildNestedFields(context, null, fieldInfo, fields);
 
         if (!IsAuxiliaryType(type))
           AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
       }
 
       if (fieldInfo.IsStructure)
-        BuildNestedFields(context, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
+        BuildNestedFields(context, null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
 
       if (fieldInfo.IsPrimitive)
         fieldInfo.Column = BuildDeclaredColumn(context, fieldInfo);
@@ -251,13 +251,13 @@ namespace Xtensive.Storage.Building.Builders
       field.DeclaringType = inheritedField.DeclaringType;
       field.IsInherited = true;
 
-      BuildNestedFields(context, field, inheritedField.Fields);
+      BuildNestedFields(context, inheritedField, field, inheritedField.Fields);
 
       if (inheritedField.Column!=null)
         field.Column = BuildInheritedColumn(context, field, inheritedField.Column);
     }
 
-    private static void BuildNestedFields(BuildingContext context, FieldInfo target, IEnumerable<FieldInfo> fields)
+    private static void BuildNestedFields(BuildingContext context, FieldInfo source, FieldInfo target, IEnumerable<FieldInfo> fields)
     {
       var buffer = fields.ToList();
 
@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Building.Builders
         target.ReflectedType.Fields.Add(clone);
 
         if (field.IsStructure || field.IsEntity) {
-          BuildNestedFields(context, clone, field.Fields);
+          BuildNestedFields(context, source, clone, field.Fields);
           foreach (FieldInfo clonedFields in clone.Fields)
             target.Fields.Add(clonedFields);
         }
@@ -292,7 +292,7 @@ namespace Xtensive.Storage.Building.Builders
         }
         if (clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
           var origin = context.Model.Associations.Find(context.Model.Types[field.ValueType], true).Where(a => a.OwnerField==field).FirstOrDefault();
-          if (origin!=null) {
+          if (origin!=null && !clone.IsInherited) {
             AssociationBuilder.BuildAssociation(origin, clone);
             context.DiscardedAssociations.Add(origin);
           }
