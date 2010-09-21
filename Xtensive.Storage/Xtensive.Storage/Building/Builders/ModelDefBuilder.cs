@@ -162,6 +162,8 @@ namespace Xtensive.Storage.Building.Builders
 
         // Checking whether property type is registered in model
         var propertyType = field.UnderlyingProperty.PropertyType;
+        if (propertyType.IsGenericParameter)
+          continue;
         if (propertyType.IsSubclassOf(typeof(Persistent)) && !context.ModelDef.Types.Contains(propertyType))
           context.Types.Enqueue(propertyType);
       }
