@@ -11,15 +11,29 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A collection of <see cref="IndexInfo"/> objects.
+  /// </summary>
   [Serializable]
   public class IndexInfoCollection: NodeCollection<IndexInfo>,
     IFilterable<IndexAttributes, IndexInfo>
   {
+    /// <summary>
+    /// Finds <see cref="IndexInfo"/> objects by the specified criteria.
+    /// </summary>
+    /// <param name="criteria">The criteria.</param>
+    /// <returns>A sequence of found objects.</returns>
     public ICountable<IndexInfo> Find(IndexAttributes criteria)
     {
       return Find(criteria, MatchType.Full);
     }
 
+    /// <summary>
+    /// Finds <see cref="IndexInfo"/> objects by the specified criteria and match type.
+    /// </summary>
+    /// <param name="criteria">The criteria.</param>
+    /// <param name="matchType">Type of the match.</param>
+    /// <returns>A sequence of found objects.</returns>
     public ICountable<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
     {
       if (criteria == IndexAttributes.None)

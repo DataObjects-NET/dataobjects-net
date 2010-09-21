@@ -201,6 +201,13 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
+    public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
+    {
+      Session.ExecuteDelayedQueries(skipPersist); // Important!
+      return base.ExecutePrefetchTasks(skipPersist);
+    }
+
+    /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       BeginChainedTransaction();

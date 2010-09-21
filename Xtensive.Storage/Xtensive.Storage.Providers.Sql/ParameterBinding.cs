@@ -10,6 +10,9 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Describes SQL parameter binding.
+  /// </summary>
   public abstract class ParameterBinding
   {
     /// <summary>

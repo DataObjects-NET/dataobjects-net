@@ -34,6 +34,11 @@ namespace Xtensive.Storage
     public const string TypeIdFieldName = "TypeId";
 
     /// <summary>
+    /// Name of the <see cref="Entity.PersistenceState"/> property.
+    /// </summary>
+    public const string PeristenceStatePropertyName = "PersistenceState";
+
+    /// <summary>
     /// Name of the field that describes master in <see cref="Multiplicity.ManyToMany"/>
     /// or <see cref="Multiplicity.ZeroToMany"/> association.
     /// </summary>
@@ -84,7 +89,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
     /// </summary>
-    public const int EntitySetCacheSize = 10240;
+    public const int EntitySetCacheSize = 1024000;
 
     /// <summary>
     /// Number of items that are preloaded on first <see cref="EntitySet{TItem}"/> access.

@@ -52,7 +52,6 @@ namespace Xtensive.Storage.Providers
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public StrongReferenceContainer ExecutePrefetchTasks()
     {
-      EnsureTransactionIsOpened();
       return ExecutePrefetchTasks(false);
     }
 
