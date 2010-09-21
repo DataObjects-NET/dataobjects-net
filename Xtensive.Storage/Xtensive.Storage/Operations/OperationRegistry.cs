@@ -252,26 +252,27 @@ namespace Xtensive.Storage.Operations
     /// <returns></returns>
     public CompletableScope BeginRegistration(OperationType operationType)
     {
-      var currentScope = GetCurrentScope();
-      if (currentScope == null) {
-        if (!IsOutermostOperationRegistrationEnabled)
-          return SetCurrentScope(blockingScope);
-        else {
-          if (((operationType & OperationType.System)==OperationType.System) && !IsSystemOperationRegistrationEnabled)
-            return SetCurrentScope(blockingScope);
-          else
-            return SetCurrentScope(new OperationRegistrationScope(this, operationType));
-        }
-      }
-      var currentOperationRegistrationScope = currentScope as OperationRegistrationScope;
-      if (currentOperationRegistrationScope == null || !IsNestedOperationRegistrationEnabled)
+      // Let's see if any kind of operation (incl. undo) is enabled for registration
+      bool isRegistrationEnabled = IsOutermostOperationRegistrationEnabled; 
+      if (!isRegistrationEnabled)
         return SetCurrentScope(blockingScope);
-      else {
-        if (((operationType & OperationType.System)==OperationType.System) && !IsSystemOperationRegistrationEnabled)
+      
+      CompletableScope currentScope;
+      bool isSystemOperation = (operationType & OperationType.System)==OperationType.System;
+      if (isSystemOperation) {
+        if (!IsSystemOperationRegistrationEnabled)
           return SetCurrentScope(blockingScope);
-        else
-          return SetCurrentScope(new OperationRegistrationScope(this, operationType));
+        // otherwise we must create normal scope
+        currentScope = GetCurrentScope();
       }
+      else {
+        currentScope = GetCurrentScope();
+        bool currentScopeIsBlocking = currentScope!=null && (currentScope as OperationRegistrationScope)==null;
+        if (currentScopeIsBlocking)
+          return SetCurrentScope(blockingScope);
+      }
+      
+      return SetCurrentScope(new OperationRegistrationScope(this, operationType, currentScope));
     }
 
     internal void CloseOperationRegistrationScope(OperationRegistrationScope scope)

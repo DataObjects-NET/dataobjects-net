@@ -479,6 +479,7 @@ namespace Xtensive.Storage
       Session.SystemEvents.NotifyEntityRemoveCompleted(this, exception);
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyEntityRemoveCompleted(this, exception);
+        NotifyPropertyChanged(WellKnown.PeristenceStatePropertyName);
       }
     }
 

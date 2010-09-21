@@ -93,10 +93,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
             Session.EnforceChangeRegistrySizeLimit();
             scope.Complete();
 
-            foreach (var entity in processedEntities) {
+            foreach (var entity in processedEntities)
               entity.SystemRemoveCompleted(null);
-              entity.NotifyPropertyChanged(WellKnown.PeristenceStatePropertyName);
-            }
 
             region.Complete();
           }
