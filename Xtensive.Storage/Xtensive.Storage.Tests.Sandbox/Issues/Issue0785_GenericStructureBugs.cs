@@ -22,14 +22,27 @@ namespace Xtensive.Storage.Tests.Issues.Issue0785.Model
 
     [Field]
     public string Title { get; set; }
-
-    [Field]
-    public RefHolder<Book> BookRef { get; set; }
+    [Field]    public RefHolder<Book> BookRef { get; set; }
 
     public override string ToString()
     {
       return Title;
     }
+  }
+
+  [HierarchyRoot]
+  public abstract class ItemInfo<T> : Entity where T: Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public RefHolder<T> Reference { get; set; }
+  }
+
+  public class BookInfo : ItemInfo<Book>
+  {
+    
   }
 
   [Serializable]
