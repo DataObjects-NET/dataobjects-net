@@ -45,7 +45,7 @@ namespace Xtensive.Storage
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
-      using(var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified)){
+      using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)){
         var performPinning = Pinner.RootCount > 0;
         if (performPinning)
           switch (reason) {

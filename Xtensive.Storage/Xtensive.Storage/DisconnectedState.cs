@@ -767,12 +767,13 @@ namespace Xtensive.Storage
     private void ConnectInternal()
     {
       IsConnected = true;
+      handler.Connect();
     }
 
     private void DisconnectInternal()
     {
       IsConnected = false;
-      handler.CommitChainedTransaction();
+      handler.Disconnect();
     }
 
     private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)

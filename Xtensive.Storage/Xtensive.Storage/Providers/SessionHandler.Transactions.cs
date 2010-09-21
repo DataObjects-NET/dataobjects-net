@@ -21,19 +21,17 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Opens the transaction.
     /// </summary>
-    public abstract void BeginTransaction(IsolationLevel isolationLevel);
+    public abstract void BeginTransaction(Transaction transaction);
 
     /// <summary>
     /// Makes the savepoint.
     /// </summary>
-    /// <param name="name">The name.</param>
-    public abstract void CreateSavepoint(string name);
+    public abstract void CreateSavepoint(Transaction transaction);
 
     /// <summary>
     /// Rollbacks to savepoint.
     /// </summary>
-    /// <param name="name">The name.</param>
-    public virtual void RollbackToSavepoint(string name)
+    public virtual void RollbackToSavepoint(Transaction transaction)
     {
       prefetchManager.Clear();
     }
@@ -41,8 +39,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Releases the savepoint.
     /// </summary>
-    /// <param name="name">The name.</param>
-    public virtual void ReleaseSavepoint(string name)
+    public virtual void ReleaseSavepoint(Transaction transaction)
     {
       prefetchManager.Clear();
     }
@@ -50,7 +47,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Commits the transaction.
     /// </summary>    
-    public virtual void CommitTransaction()
+    public virtual void CommitTransaction(Transaction transaction)
     {
       prefetchManager.Clear();
     }
@@ -58,7 +55,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Rollbacks the transaction.
     /// </summary>    
-    public virtual void RollbackTransaction()
+    public virtual void RollbackTransaction(Transaction transaction)
     {
       prefetchManager.Clear();
     }

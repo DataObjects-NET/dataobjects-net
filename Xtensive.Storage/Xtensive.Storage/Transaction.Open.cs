@@ -24,7 +24,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open()
     {
       var session = Session.Demand();
-      return session.OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified);
+      return session.OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
-      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel);
+      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel, false);
     }
     
     /// <summary>
@@ -54,7 +54,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(TransactionOpenMode mode)
     {
       var session = Session.Demand();
-      return session.OpenTransaction(mode, IsolationLevel.Unspecified);
+      return session.OpenTransaction(mode, IsolationLevel.Unspecified, false);
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
-      return session.OpenTransaction(mode, isolationLevel);
+      return session.OpenTransaction(mode, isolationLevel, false);
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified);
+      return session.OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel);
+      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel, false);
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session, TransactionOpenMode mode)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(mode, IsolationLevel.Unspecified);
+      return session.OpenTransaction(mode, IsolationLevel.Unspecified, false);
     }
 
     /// <summary>
@@ -134,25 +134,29 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session, TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(mode, isolationLevel);
+      return session.OpenTransaction(mode, isolationLevel, false);
     }
 
     internal static TransactionScope HandleAutoTransaction(Session session, TransactionalBehavior behavior)
     {
-      switch (behavior) {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      switch (behavior)
+      {
         case TransactionalBehavior.Auto:
-          if ((session.Configuration.Options & SessionOptions.AutoTransactionOpenMode) == SessionOptions.AutoTransactionOpenMode)
+          if ((session.Configuration.Options & SessionOptions.AutoTransactionOpenMode) ==
+              SessionOptions.AutoTransactionOpenMode)
             goto case TransactionalBehavior.Open;
-          if ((session.Configuration.Options & SessionOptions.AutoTransactionSuppressMode) == SessionOptions.AutoTransactionSuppressMode)
+          if ((session.Configuration.Options & SessionOptions.AutoTransactionSuppressMode) ==
+              SessionOptions.AutoTransactionSuppressMode)
             goto case TransactionalBehavior.Suppress;
           goto case TransactionalBehavior.Require;
         case TransactionalBehavior.Require:
           Require(session);
           return TransactionScope.VoidScopeInstance;
         case TransactionalBehavior.Open:
-          return Open(session, TransactionOpenMode.Auto);
+          return session.OpenTransaction(TransactionOpenMode.Auto, IsolationLevel.Unspecified, true);
         case TransactionalBehavior.New:
-          return Open(session, TransactionOpenMode.New);
+          return session.OpenTransaction(TransactionOpenMode.New, IsolationLevel.Unspecified, true);
         case TransactionalBehavior.Suppress:
           return TransactionScope.VoidScopeInstance;
         default:

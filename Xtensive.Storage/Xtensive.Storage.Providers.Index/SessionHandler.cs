@@ -38,40 +38,40 @@ namespace Xtensive.Storage.Providers.Index
     public override bool TransactionIsStarted { get { return StorageView!=null; } }
 
     /// <inheritdoc/>
-    public override void BeginTransaction(IsolationLevel isolationLevel)
+    public override void BeginTransaction(Transaction transaction)
     {
       lock (connectionSyncRoot) {
         if (StorageView!=null)
           throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
-        StorageView = storage.CreateView(this, isolationLevel);
+        StorageView = storage.CreateView(this, transaction.IsolationLevel);
         // TODO: Implement transactions
       }
     }
 
     /// <inheritdoc/>
-    public override void CreateSavepoint(string name)
+    public override void CreateSavepoint(Transaction transaction)
     {
       // TODO: Implement transactions
     }
 
     /// <inheritdoc/>
-    public override void RollbackToSavepoint(string name)
+    public override void RollbackToSavepoint(Transaction transaction)
     {
-      base.RollbackToSavepoint(name);
+      base.RollbackToSavepoint(transaction);
       // TODO: Implement transactions
     }
 
-    public override void ReleaseSavepoint(string name)
+    public override void ReleaseSavepoint(Transaction transaction)
     {
-      base.ReleaseSavepoint(name);
+      base.ReleaseSavepoint(transaction);
       // TODO: Implement transactions
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
-    public override void CommitTransaction()
+    public override void CommitTransaction(Transaction transaction)
     {
-      base.CommitTransaction();
+      base.CommitTransaction(transaction);
       lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
@@ -83,9 +83,9 @@ namespace Xtensive.Storage.Providers.Index
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
-    public override void RollbackTransaction()
+    public override void RollbackTransaction(Transaction transaction)
     {
-      base.RollbackTransaction();
+      base.RollbackTransaction(transaction);
       lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);

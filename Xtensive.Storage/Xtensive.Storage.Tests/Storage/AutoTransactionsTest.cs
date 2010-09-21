@@ -42,6 +42,15 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         var testObject = new MySessionBound();
         testObject.CheckAutoTransactions();
+        new MyEntity();
+        try {
+          foreach (var myEntity in Query.All<MyEntity>()) {
+            throw new InvalidOperationException();
+          }
+        }
+        catch {
+          Assert.IsNull(Transaction.Current);
+        }
       }
     }
 

@@ -2080,6 +2080,24 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void AutoTransactionsTest()
+    {
+      var dState = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (dState.Attach(session)) {
+        var customer = new Customer {Name = "Yet another customer"};
+        using (dState.Connect()) {
+          var customers = session.Query.All<Customer>();
+          foreach (var c in customers) {
+            c.Orders.ToList();
+          }
+          var products = session.Query.All<Product>().ToList();
+        }
+        dState.ApplyChanges();
+      }
+    }
+
     private void FillDataBase()
     {
       using (var session = Session.Open(Domain)) {
