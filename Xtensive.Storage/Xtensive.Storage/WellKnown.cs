@@ -34,6 +34,11 @@ namespace Xtensive.Storage
     public const string TypeIdFieldName = "TypeId";
 
     /// <summary>
+    /// Name of the <see cref="Entity.PersistenceState"/> property.
+    /// </summary>
+    public const string PeristenceStatePropertyName = "PersistenceState";
+
+    /// <summary>
     /// Name of the field that describes master in <see cref="Multiplicity.ManyToMany"/>
     /// or <see cref="Multiplicity.ZeroToMany"/> association.
     /// </summary>

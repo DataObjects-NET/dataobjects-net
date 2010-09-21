@@ -563,6 +563,7 @@ namespace Xtensive.Storage
       if (State == null)
         return;
       State.PersistenceState = PersistenceState.Removed;
+      NotifyPropertyChanged(WellKnown.PeristenceStatePropertyName);
       ((IInvalidatable)State).Invalidate();
       Session.EntityStateCache.Remove(State);
     }

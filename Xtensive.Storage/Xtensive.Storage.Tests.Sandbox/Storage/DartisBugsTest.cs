@@ -5,6 +5,7 @@
 // Created:    2010.06.24
 
 using System;
+using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -63,6 +64,60 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(Book).Assembly, typeof(Book).Namespace);
       return configuration;
+    }
+
+    [Test]
+    public void SystemOperationRegistrationBugTest1()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          var author = new Author {Title = "Author"};
+          var book = new Book {Title = "Book"};
+          Author author2 = null;
+          author.Books.CollectionChanged += (sender, e) => {
+            author2 = new Author();
+          };
+          book.Author = author;
+
+          Assert.IsNotNull(author2);
+          author2.Title = "Author 2";
+
+          ds.ApplyChanges();
+        }
+        Assert.AreEqual(2, Query.All<Author>().Count());
+        Assert.AreEqual(1, Query.All<Book>().Count());
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void SystemOperationRegistrationBugTest2()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          var author = new Author {Title = "Author"};
+          var book = new Book {Title = "Book"};
+          Author author2 = null;
+          book.PropertyChanged += (sender, e) => {
+            author2 = new Author();
+          };
+          book.Remove(); // Must raise "PersistenceState" property changed event
+
+          Assert.IsNotNull(author2);
+          author2.Title = "Author 2";
+
+          ds.ApplyChanges();
+        }
+        Assert.AreEqual(2, Query.All<Author>().Count());
+        Assert.AreEqual(0, Query.All<Book>().Count());
+        // tx.Complete();
+      }
     }
 
     [Test]
