@@ -89,7 +89,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
     /// </summary>
-    public const int EntitySetCacheSize = 10240;
+    public const int EntitySetCacheSize = 1024000;
 
     /// <summary>
     /// Number of items that are preloaded on first <see cref="EntitySet{TItem}"/> access.
