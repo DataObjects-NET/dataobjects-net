@@ -36,7 +36,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Name of the <see cref="Entity.PersistenceState"/> property.
     /// </summary>
-    public const string PeristenceStatePropertyName = "PersistenceState";
+    public const string PersistenceStatePropertyName = "PersistenceState";
 
     /// <summary>
     /// Name of the field that describes master in <see cref="Multiplicity.ManyToMany"/>
