@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Disposing;
@@ -830,9 +831,7 @@ namespace Xtensive.Storage
     internal void EnterCtorTransactionScope()
     {
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
-        TransactionScope = Session.Transaction == null
-          ? Transaction.HandleAutoTransaction(Session, TransactionalBehavior.Auto)
-          : null,
+        TransactionScope = Transaction.HandleAutoTransaction(Session, TransactionalBehavior.Auto, IsolationLevel.Unspecified),
         InconsistentRegion = Validation.Disable(Session),
         Previous = CtorTransactionInfo.Current,
       };

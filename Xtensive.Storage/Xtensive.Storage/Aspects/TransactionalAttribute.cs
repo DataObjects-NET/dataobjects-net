@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Security;
+using System.Transactions;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -102,7 +103,7 @@ namespace Xtensive.Storage
         : (session.Configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation;
       if (activate)
         sessionScope = session.Activate(true);
-      var transactionScope = Transaction.HandleAutoTransaction(session, Mode);
+      var transactionScope = Transaction.HandleAutoTransaction(session, Mode, IsolationLevel.Unspecified);
       args.MethodExecutionTag = transactionScope.IsVoid
         ? sessionScope
         : (sessionScope == null

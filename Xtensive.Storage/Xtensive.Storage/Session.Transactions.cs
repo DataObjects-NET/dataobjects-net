@@ -123,7 +123,7 @@ namespace Xtensive.Storage
 
     internal void EnsureTransactionIsStarted()
     {
-      var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
+      var transaction = Transaction;
       if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       if (!transaction.IsActuallyStarted)
@@ -193,8 +193,8 @@ namespace Xtensive.Storage
       SystemEvents.NotifyTransactionOpening(transaction);
       Events.NotifyTransactionOpening(transaction);
 
-      transaction.Begin();
       Transaction = transaction;
+      transaction.Begin();
 
       IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled)

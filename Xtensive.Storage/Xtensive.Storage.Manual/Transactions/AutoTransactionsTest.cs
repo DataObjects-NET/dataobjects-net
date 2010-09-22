@@ -133,11 +133,13 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         Assert.IsNull(Transaction.Current);
 
         // Auto transactions on EntitySet enumeration
+        Assert.IsNull(Transaction.Current);
         Console.WriteLine("Fields of Alex (EntitySet enumeration):");
         foreach (var person in alex.Friends) {
-          Assert.IsNull(Transaction.Current);
+          Assert.IsNotNull(Transaction.Current);
           Console.WriteLine("  " + person);
         }
+        Assert.IsNull(Transaction.Current);
 
         // Auto transactions on scalar queries
         var count         = Query.All<Person>().Count();

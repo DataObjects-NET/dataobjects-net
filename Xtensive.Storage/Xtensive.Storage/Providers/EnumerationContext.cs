@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
@@ -69,7 +70,7 @@ namespace Xtensive.Storage.Providers
     public override ICompletableScope BeginEnumeration()
     {
       var session = SessionHandler.Session;
-      var handleAutoTransaction = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto);
+      var handleAutoTransaction = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto, IsolationLevel.Unspecified);
       session.EnsureTransactionIsStarted();
       if (MaterializationContext != null && MaterializationContext.MaterializationQueue != null)
         return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, handleAutoTransaction);

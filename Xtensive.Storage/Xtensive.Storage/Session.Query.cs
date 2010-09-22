@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
@@ -136,7 +137,7 @@ namespace Xtensive.Storage
         if (key == null)
           return null;
         Entity result;
-        using (var transactionScope = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto)) {
+        using (var transactionScope = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto, IsolationLevel.Unspecified)) {
           var cache = session.EntityStateCache;
           var state = cache[key, true];
 

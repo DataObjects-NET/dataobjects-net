@@ -45,16 +45,13 @@ namespace Xtensive.Storage
     [NonSerialized]
     private OperationLogType logType;
     [NonSerialized]
-    internal Transaction AlreadyOpenedTransaction;
-
+    private bool attachedWhenTransactionExisted;
     [NonSerialized]
     private Session session;
     [NonSerialized]
     private IVersionSetProvider versionsProvider;
     [NonSerialized]
     private IDisposable sessionHandlerSubstitutionScope;
-    [NonSerialized] 
-    private IDisposable transactionReplacementScope;
     [NonSerialized] 
     private IDisposable logIndentScope;
     [NonSerialized]
@@ -214,17 +211,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets a value indicating whether disconnected state
-    /// was attached to a <see cref="Session"/> with already
-    /// running transaction.
-    /// </summary>
-    public bool IsAttachedWhenTransactionWasOpen {
-      get {
-        return IsAttached && transactionReplacementScope!=null;
-      }
-    }
-
-    /// <summary>
     /// Attaches the disconnected state to the current session.
     /// </summary>
     /// <returns>A disposable object that will detach the disconnected state
@@ -294,7 +280,6 @@ namespace Xtensive.Storage
     public KeyMapping ApplyChanges(Session targetSession)
     {
       ArgumentValidator.EnsureArgumentNotNull(targetSession, "targetSession");
-      EnsureNoTransaction();
 
       IDisposable disposable = null;
       KeyMapping keyMapping;
@@ -710,18 +695,23 @@ namespace Xtensive.Storage
       logIndentScope = session.IsDebugEventLoggingEnabled 
         ? Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
         : null;
-      session.DisconnectedState = this;
-      this.session = session;
 
-      var directSessionAccessor = session.Services.Demand<DirectSessionAccessor>();
       if (session.Transaction != null && !session.Transaction.IsActuallyStarted) {
-        AlreadyOpenedTransaction = session.Transaction;
         session.BeginTransaction(session.Transaction);
+        session.EnsureTransactionIsStarted();
       }
-      transactionReplacementScope = directSessionAccessor.NullifySessionTransaction();
+
+      this.session = session;
+      session.DisconnectedState = this;
       handler = new DisconnectedSessionHandler(session.Handler, this);
-      sessionHandlerSubstitutionScope = session.Services.Get<DirectSessionAccessor>()
-        .ChangeSessionHandler(handler);
+      var directSessionAccessor = session.Services.Get<DirectSessionAccessor>();
+      sessionHandlerSubstitutionScope = directSessionAccessor.ChangeSessionHandler(handler);
+
+      if (session.Transaction != null) {
+        OnTransactionOpened();
+        attachedWhenTransactionExisted = true;
+      }
+
       if (versionsProvider==this)
         versionsProvider = session;
     }
@@ -729,19 +719,19 @@ namespace Xtensive.Storage
     private void DetachInternal()
     {
       EnsureIsAttached();
-      bool transactionWasOpen = transactionReplacementScope!=null;
-      try {
+      try
+      {
         try {
-          try {
-            if (IsConnected)
-              DisconnectInternal();
+          Session.Persist(PersistReason.DisconnectedStateAttach);
+          if (attachedWhenTransactionExisted) {
+            attachedWhenTransactionExisted = false;
+            OnTransactionCommited();
           }
-          finally {
-            sessionHandlerSubstitutionScope.DisposeSafely();
-          }
+          if (IsConnected)
+            DisconnectInternal();
         }
         finally {
-          transactionReplacementScope.DisposeSafely();
+          sessionHandlerSubstitutionScope.DisposeSafely();
         }
       }
       finally {
@@ -754,12 +744,10 @@ namespace Xtensive.Storage
             versionsProvider = this;
           session.DisconnectedState = null;
           sessionHandlerSubstitutionScope = null;
-          transactionReplacementScope = null;
           logIndentScope = null;
           session = null;
           handler = null;
-          if (transactionWasOpen)
-            oldSession.Invalidate();
+          oldSession.Invalidate();
         }
       }
     }

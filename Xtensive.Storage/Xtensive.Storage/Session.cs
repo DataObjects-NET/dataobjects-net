@@ -24,6 +24,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using EnumerationContext=Xtensive.Storage.Rse.Providers.EnumerationContext;
+using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Xtensive.Storage
 {
@@ -313,7 +314,7 @@ namespace Xtensive.Storage
     public VersionSet CreateVersionSet(IEnumerable<Key> keys)
     {
       using (Activate())
-      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto)) {
+      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto, IsolationLevel.Unspecified)) {
         var entities = keys.Prefetch(this);
         var result = new VersionSet();
         foreach (var entity in entities)
@@ -349,7 +350,7 @@ namespace Xtensive.Storage
     public void Remove<T>(IEnumerable<T> entities)
       where T : IEntity
     {
-      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto)) {
+      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto, IsolationLevel.Unspecified)) {
         RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
         tx.Complete();
       }

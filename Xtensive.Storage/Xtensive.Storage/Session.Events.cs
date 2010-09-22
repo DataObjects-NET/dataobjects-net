@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Transactions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace Xtensive.Storage
     public void NotifyChanged(NotifyChangedOptions options)
     {
       using (Activate()) 
-      using (var transactionScope = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto)) {
+      using (var transactionScope = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto, IsolationLevel.Unspecified)) {
         var entitySubscribers    = EntityEvents.GetSubscribers(EntityEventBroker.PropertyChangedEventKey).ToList();
         var entitySetSubscribers = EntityEvents.GetSubscribers(EntityEventBroker.CollectionChangedEventKey).ToList();
 

@@ -137,7 +137,7 @@ namespace Xtensive.Storage
       return session.OpenTransaction(mode, isolationLevel, false);
     }
 
-    internal static TransactionScope HandleAutoTransaction(Session session, TransactionalBehavior behavior)
+    internal static TransactionScope HandleAutoTransaction(Session session, TransactionalBehavior behavior, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       switch (behavior)
@@ -154,9 +154,11 @@ namespace Xtensive.Storage
           Require(session);
           return TransactionScope.VoidScopeInstance;
         case TransactionalBehavior.Open:
-          return session.OpenTransaction(TransactionOpenMode.Auto, IsolationLevel.Unspecified, true);
+          if (session.Transaction != null && !session.Transaction.IsAutomatic && session.IsDisconnected)
+            goto case TransactionalBehavior.New;
+          return session.OpenTransaction(TransactionOpenMode.Auto, isolationLevel, true);
         case TransactionalBehavior.New:
-          return session.OpenTransaction(TransactionOpenMode.New, IsolationLevel.Unspecified, true);
+          return session.OpenTransaction(TransactionOpenMode.New, isolationLevel, true);
         case TransactionalBehavior.Suppress:
           return TransactionScope.VoidScopeInstance;
         default:

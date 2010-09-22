@@ -31,7 +31,7 @@ namespace Xtensive.Storage
       get {
         var session = Session.Current;
         return session != null 
-          ? session.Transaction ?? (session.IsDisconnected ? session.DisconnectedState.AlreadyOpenedTransaction : null)
+          ? session.Transaction
           : null;
       }
     }
@@ -61,8 +61,6 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       if (session.Transaction != null)
-        return;
-      if (session.IsDisconnected && session.DisconnectedState.AlreadyOpenedTransaction != null)
         return;
       throw new InvalidOperationException(
           Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
