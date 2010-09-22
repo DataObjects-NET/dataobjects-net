@@ -70,10 +70,26 @@ namespace Xtensive.Storage.Tests.Storage.NotifyXxxTests
         Assert.AreEqual(NotifyCollectionChangedAction.Add, lastChangeAction);
         Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
 
-        ResetLastXxx();
-        book1.RelatedBooks.Remove(book2);
-        Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+        { // Test 1
+          ResetLastXxx();
+          book1.RelatedBooks.Remove(book2);
+          // "Reset", coz collection is considered as not fully loaded
+          Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
+          Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+        }
+
+        // Restoring removed item
+        book1.RelatedBooks.Add(book2);
+        // Let's fully load the collection
+        var bookCount = book1.RelatedBooks.Count;
+
+        { // Test 2
+          ResetLastXxx();
+          book1.RelatedBooks.Remove(book2);
+          // Now we must get "Remove" event, since item index can be found
+          Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
+          Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+        }
 
         ResetLastXxx();
         book1.RelatedBooks.Clear();
