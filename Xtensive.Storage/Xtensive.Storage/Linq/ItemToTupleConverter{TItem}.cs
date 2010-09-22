@@ -64,6 +64,7 @@ namespace Xtensive.Storage.Linq
     {
       // TODO: AG: Take info from storage!
       return type.IsPrimitive || 
+        type.IsEnum ||
         type==typeof (byte[]) || 
         type==typeof (decimal) || 
         type==typeof (string) || 
