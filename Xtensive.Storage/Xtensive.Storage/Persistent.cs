@@ -584,10 +584,20 @@ namespace Xtensive.Storage
       while (rootField.Parent != null)
         rootField = rootField.Parent;
 
+      NotifyPropertyChanged(rootField.Name);
+    }
+
+    /// <summary>
+    /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
+    /// </summary>
+    /// <param name="propertyName">Name of the changed property.</param>
+    protected internal void NotifyPropertyChanged(string propertyName)
+    {
       var subscription = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
-      if (subscription.Second != null)
+      if (subscription.Second != null) {
         ((PropertyChangedEventHandler)subscription.Second)
-          .Invoke(this, new PropertyChangedEventArgs(rootField.Name));
+          .Invoke(this, new PropertyChangedEventArgs(propertyName));
+      }
     }
 
     /// <summary>

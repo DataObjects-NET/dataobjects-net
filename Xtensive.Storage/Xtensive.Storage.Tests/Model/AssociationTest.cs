@@ -110,6 +110,11 @@ namespace Xtensive.Storage.Tests.Model.Association
     public EntitySet<H> Children { get; private set; }
   }
 
+  public class I : A
+  {
+    
+  }
+
   [Serializable]
   public class IntermediateStructure1 : Structure
   {

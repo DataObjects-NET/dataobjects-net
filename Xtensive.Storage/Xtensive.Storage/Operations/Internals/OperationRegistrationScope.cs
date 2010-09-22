@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Operations
     private bool isDisposed;
 
     public OperationRegistry Owner;
-    public OperationRegistrationScope Parent;
+    public bool IsOutermost;
     public OperationType OperationType;
     public IOperation Operation;
     public bool IsOperationStarted;
@@ -66,18 +66,14 @@ namespace Xtensive.Storage.Operations
     
     // Constructors
 
-    public OperationRegistrationScope(OperationRegistry owner, OperationType operationType)
+    public OperationRegistrationScope(OperationRegistry owner, OperationType operationType, CompletableScope currentScope)
     {
       Owner = owner;
       OperationType = operationType;
-      var currentScope = owner.GetCurrentScope();
-      Parent = (OperationRegistrationScope) currentScope;
+      IsOutermost = currentScope==null;
 
       oldIsSystemOperationRegistrationEnabled = owner.IsSystemOperationRegistrationEnabled;
-      if (currentScope==null && ((operationType & OperationType.System)==OperationType.System))
-        // We automatically disable system operation registration inside each of them;
-        // they must be explicitly enabled via Session.Operations.EnableSystemOperationsRegistration() call,
-        // that normally should wrap each invocation of event or overridable method.
+      if ((operationType & OperationType.System)==OperationType.System)
         owner.IsSystemOperationRegistrationEnabled = false;
     }
 

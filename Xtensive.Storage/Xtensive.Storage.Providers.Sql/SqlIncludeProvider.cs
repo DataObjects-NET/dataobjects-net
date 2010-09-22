@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Sql.Dml;
@@ -18,6 +19,9 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Default implementation for SQL <see cref="IncludeProvider"/>.
+  /// </summary>
   public class SqlIncludeProvider : SqlTemporaryDataProvider
   {
     public const string RowFilterDataName = "RowFilterData";
@@ -26,6 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
 
+    /// <inheritdoc/>
     protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
@@ -48,6 +53,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    /// <inheritdoc/>
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
@@ -56,6 +62,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="handlers">The handlers.</param>
+    /// <param name="request">The request.</param>
+    /// <param name="tableDescriptor">The table descriptor.</param>
+    /// <param name="filterDataSource">The filter data source.</param>
+    /// <param name="origin">The origin.</param>
+    /// <param name="source">The source.</param>
     public SqlIncludeProvider(
       HandlerAccessor handlers, QueryRequest request,
       TemporaryTableDescriptor tableDescriptor, Func<IEnumerable<Tuple>> filterDataSource,

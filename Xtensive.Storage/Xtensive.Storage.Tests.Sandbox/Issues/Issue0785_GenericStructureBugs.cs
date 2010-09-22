@@ -32,6 +32,21 @@ namespace Xtensive.Storage.Tests.Issues.Issue0785.Model
     }
   }
 
+  [HierarchyRoot]
+  public abstract class ItemInfo<T> : Entity where T: Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public RefHolder<T> Reference { get; set; }
+  }
+
+  public class BookInfo : ItemInfo<Book>
+  {
+    
+  }
+
   [Serializable]
   public class RefHolder<T> : Structure
   {

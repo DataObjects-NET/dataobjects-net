@@ -264,19 +264,13 @@ namespace Xtensive.Storage.Disconnected
         .ForEach(item => disconnectedState.Persist(item, PersistActionKind.Remove));
     }
 
-   /* /// <inheritdoc/>
-    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
+    /// <inheritdoc/>
+    public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
-      BeginChainedTransaction();
-      base.ExecuteQueryTasks(queryTasks, allowPartialExecution);
+      Session.ExecuteDelayedQueries(skipPersist); // Important!
+      return base.ExecutePrefetchTasks(skipPersist);
     }
 
-    /// <inheritdoc/>
-    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
-    {
-      BeginChainedTransaction();
-      return base.CreateEnumerationContext();
-    }*/
 
     /// <inheritdoc/>
     public override IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)

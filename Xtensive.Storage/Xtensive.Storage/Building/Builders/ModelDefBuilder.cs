@@ -25,39 +25,44 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
 
-        BuildingContext context = BuildingContext.Demand();
+        var context = BuildingContext.Demand();
         context.ModelDef = new DomainModelDef();
 
-        using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
-          var typeFilter = GetTypeFilter();
-          var closedGenericTypes = new List<Type>();
-          var openGenericTypes = new List<Type>();
-
-          while (context.Types.Count != 0) {
-            var type = context.Types.Dequeue();
-            if (!typeFilter(type))
-              continue;
-            if (type.IsGenericType) {
-              if (type.IsGenericTypeDefinition)
-                openGenericTypes.Add(type);
-              else
-                closedGenericTypes.Add(type);
-            }
-            else
-              ProcessType(type);
-          }
-          closedGenericTypes = closedGenericTypes.Where(t => !t.FullName.IsNullOrEmpty()).ToList();
-          List<Node<Type, object>> loops;
-          closedGenericTypes = TopologicalSorter.Sort(
-            closedGenericTypes,
-            (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)), 
-            out loops);
-          foreach (var type in closedGenericTypes)
-            ProcessType(type);
-          foreach (var type in openGenericTypes)
-            ProcessType(type);
-        }
+        using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types))
+          ProcessTypes();
       }
+    }
+
+    public static void ProcessTypes()
+    {
+      var context = BuildingContext.Demand();
+      var typeFilter = GetTypeFilter();
+      var closedGenericTypes = new List<Type>();
+      var openGenericTypes = new List<Type>();
+
+      while (context.Types.Count != 0) {
+        var type = context.Types.Dequeue();
+        if (!typeFilter(type))
+          continue;
+        if (type.IsGenericType) {
+          if (type.IsGenericTypeDefinition)
+            openGenericTypes.Add(type);
+          else
+            closedGenericTypes.Add(type);
+        }
+        else
+          ProcessType(type);
+      }
+      closedGenericTypes = closedGenericTypes.Where(t => !t.FullName.IsNullOrEmpty()).ToList();
+      List<Node<Type, object>> loops;
+      closedGenericTypes = TopologicalSorter.Sort(
+        closedGenericTypes,
+        (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)), 
+        out loops);
+      foreach (var type in closedGenericTypes)
+        ProcessType(type);
+      foreach (var type in openGenericTypes)
+        ProcessType(type);
     }
 
     #region Automatic processing members
@@ -157,6 +162,8 @@ namespace Xtensive.Storage.Building.Builders
 
         // Checking whether property type is registered in model
         var propertyType = field.UnderlyingProperty.PropertyType;
+        if (propertyType.IsGenericParameter)
+          continue;
         if (propertyType.IsSubclassOf(typeof(Persistent)) && !context.ModelDef.Types.Contains(propertyType))
           context.Types.Enqueue(propertyType);
       }

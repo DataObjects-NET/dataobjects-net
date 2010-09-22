@@ -16,7 +16,7 @@ using Xtensive.Storage.Model.Resources;
 namespace Xtensive.Storage.Model
 {
   /// <summary>
-  /// Represents collection of <see cref="TypeInfo"/> instances and is indexed by <see cref="Type"/> and name.
+  /// A collection of <see cref="TypeInfo"/> objects.
   /// </summary>
   [Serializable]
   public sealed class TypeInfoCollection

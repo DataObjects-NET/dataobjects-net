@@ -45,7 +45,7 @@ namespace Xtensive.Storage
         return state;
       }
       set {
-        EnsureIsActual();
+        // EnsureIsActual(); - absolutely unnecessary; commented to increase performance
         BindToCurrentTransaction(true);
         isActual = true;
         state = value;

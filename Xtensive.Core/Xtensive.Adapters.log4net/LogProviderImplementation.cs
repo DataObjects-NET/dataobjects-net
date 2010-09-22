@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.10
 
+using System;
 using System.Configuration;
 using System.IO;
 using System.Text;
@@ -11,6 +12,7 @@ using System.Xml;
 using log4net;
 using log4net.Config;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.IoC;
 using ILog=Xtensive.Core.Diagnostics.ILog;
 
 namespace Xtensive.Adapters.log4net
@@ -18,6 +20,8 @@ namespace Xtensive.Adapters.log4net
   /// <summary>
   /// Log provider implementation for log4net.
   /// </summary>
+  [Serializable]
+  [Service(typeof(ILogProvider), Singleton = true)]
   public sealed class LogProviderImplementation: LogProviderImplementationBase
   {
     /// <summary>
@@ -45,7 +49,8 @@ namespace Xtensive.Adapters.log4net
 
     static void EnsureLoggingConfigured()
     {
-      string defaultConfig = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
+      string defaultConfig =
+@"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <log4net>
   <appender name=""ConsoleAppender"" type=""log4net.Appender.ConsoleAppender"">
     <layout type=""log4net.Layout.PatternLayout"">

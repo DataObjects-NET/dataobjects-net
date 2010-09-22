@@ -181,7 +181,7 @@ namespace Xtensive.Storage
       }
     }
 
-    private void SystemAdd(Entity item)
+    private void SystemAdd(Entity item, int? index)
     {
       Session.SystemEvents.NotifyEntitySetItemAdd(this, item);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -195,7 +195,7 @@ namespace Xtensive.Storage
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, item);
         OnAdd(item);
-        NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
+        NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
       }
     }
 
@@ -223,7 +223,7 @@ namespace Xtensive.Storage
       }
     }
 
-    private void SystemRemove(Entity item)
+    private void SystemRemove(Entity item, int? index)
     {
       Session.SystemEvents.NotifyEntitySetItemRemoved(Owner, this, item);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -237,7 +237,10 @@ namespace Xtensive.Storage
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, item);
         OnRemove(item);
-        NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+        if (index==null)
+          NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null, null);
+        else
+          NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
       }
     }
 
@@ -283,7 +286,7 @@ namespace Xtensive.Storage
             ((Action<Key, FieldInfo>) subscriptionInfo.Second)
               .Invoke(subscriptionInfo.First, Field);
           OnClear();
-          NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+          NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null, null);
         }
       }
     }
@@ -346,8 +349,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="action">The actual action.</param>
     /// <param name="item">The item, that was participating in the specified action.</param>
+    /// <param name="index">The index on the item, if available.</param>
     [Infrastructure]
-    protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
+    protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item, int? index)
     {
       if (!Session.EntityEvents.HasSubscribers)
         return;
@@ -356,8 +360,10 @@ namespace Xtensive.Storage
         var handler = (NotifyCollectionChangedEventHandler) subscriptionInfo.Second;
         if (action==NotifyCollectionChangedAction.Reset)
           handler.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        else
+        else if (!index.HasValue)
           handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+        else
+          handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item, index.GetValueOrDefault()));
       }
       NotifyPropertyChanged("Count");
     }
@@ -436,18 +442,20 @@ namespace Xtensive.Storage
       try {
         var operations = Session.Operations;
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          var itemKey = item.Key;
           if (operations.CanRegisterOperation)
-            operations.RegisterOperation(new EntitySetItemAddOperation(Owner.Key, Field, item.Key));
+            operations.RegisterOperation(new EntitySetItemAddOperation(Owner.Key, Field, itemKey));
 
           SystemBeforeAdd(item);
 
+          int? index = null;
           Action finalizer = () => {
             var auxiliaryType = Field.Association.AuxiliaryType;
             if (auxiliaryType!=null && Field.Association.IsMaster) {
               var combinedTuple = auxilaryTypeKeyTransform.Apply(
                 TupleTransformType.Tuple,
                 Owner.Key.Value,
-                item.Key.Value);
+                itemKey.Value);
 
               var combinedKey = Key.Create(
                 Session.Domain,
@@ -458,7 +466,9 @@ namespace Xtensive.Storage
               Session.CreateOrInitializeExistingEntity(auxiliaryType.UnderlyingType, combinedKey);
             }
 
-            State.Add(item.Key);
+            var state = State;
+            state.Add(itemKey);
+            index = GetItemIndex(state, itemKey);
             Owner.UpdateVersionInfo(Owner, Field);
           };
           
@@ -469,7 +479,7 @@ namespace Xtensive.Storage
           else
             finalizer.Invoke();
 
-          SystemAdd(item);
+          SystemAdd(item, index);
           SystemAddCompleted(item, null);
           scope.Complete();
           return true;
@@ -495,18 +505,20 @@ namespace Xtensive.Storage
       try {
         var operations = Session.Operations;
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          var itemKey = item.Key;
           if (operations.CanRegisterOperation)
-            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, item.Key));
+            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey));
 
           SystemBeforeRemove(item);
 
+          int? index = null;
           Action finalizer = () => {
             var auxiliaryType = Field.Association.AuxiliaryType;
             if (auxiliaryType != null && Field.Association.IsMaster) {
               var combinedTuple = auxilaryTypeKeyTransform.Apply(
                 TupleTransformType.Tuple,
                 Owner.Key.Value,
-                item.Key.Value);
+                itemKey.Value);
 
               var combinedKey = Key.Create(
                 Session.Domain,
@@ -517,7 +529,9 @@ namespace Xtensive.Storage
               Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey);
             }
 
-            State.Remove(item.Key);
+            var state = State;
+            index = GetItemIndex(state, itemKey);
+            state.Remove(itemKey);
             Owner.UpdateVersionInfo(Owner, Field);
           };
 
@@ -528,7 +542,7 @@ namespace Xtensive.Storage
           else
             finalizer.Invoke();
 
-          SystemRemove(item);
+          SystemRemove(item, index);
           SystemRemoveCompleted(item, null);
           scope.Complete();
           return true;
@@ -772,6 +786,27 @@ namespace Xtensive.Storage
       return new EntitySetTypeState(seekProvider, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
     }
     
+    private int? GetItemIndex(EntitySetState state, Key key)
+    {
+      if (!state.IsFullyLoaded)
+        return null;
+      if (!Session.EntityEvents.HasSubscribers)
+        return null;
+      var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
+      if (subscriptionInfo.Second==null)
+        return null;
+
+      // Ok, it seems there is a reason 
+      // to waste linear time on calculating this...
+      int i = 0;
+      foreach (var cachedKey in state) {
+        if (key==cachedKey)
+          return i;
+        i++;
+      }
+      return null;
+    }
+
     #endregion
 
 

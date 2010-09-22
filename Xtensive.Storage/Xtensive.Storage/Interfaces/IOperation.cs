@@ -33,26 +33,6 @@ namespace Xtensive.Storage
     OperationType Type { get; }
 
     /// <summary>
-    /// Gets the outer operation.
-    /// </summary>
-    IOperation OuterOperation { get; }
-
-    /// <summary>
-    /// Gets the outermost operation.
-    /// </summary>
-    IOperation OutermostOperation { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether operation is nested.
-    /// </summary>
-    bool IsNested { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether operation is outermost.
-    /// </summary>
-    bool IsOutermost { get; }
-
-    /// <summary>
     /// Gets the list of preconditions.
     /// </summary>
     ReadOnlyList<IOperation> PrecedingOperations { get; }
@@ -86,8 +66,7 @@ namespace Xtensive.Storage
     void Execute(OperationExecutionContext context);
 
     /// <summary>
-    /// Clones the operation and <see cref="PrecedingOperations"/>,
-    /// but doesn't clone <see cref="OuterOperation"/>,
+    /// Clones the operation, <see cref="PrecedingOperations"/>,
     /// <see cref="FollowingOperations"/> and <see cref="UndoOperations"/>.
     /// </summary>
     /// <param name="withIdentifiedEntities">if set to <see langword="true"/> <see cref="IdentifiedEntities"/>

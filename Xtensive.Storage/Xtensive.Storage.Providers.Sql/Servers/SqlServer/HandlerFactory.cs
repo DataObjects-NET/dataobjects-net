@@ -7,9 +7,9 @@
 namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
 {
   /// <summary>
-  /// Storage provider for MS SQL.
+  /// Storage provider for Microsoft SQL Server.
   /// </summary>
-  [Provider(WellKnown.Provider.SqlServer, "Storage provider for MS SQL.")]
+  [Provider(WellKnown.Provider.SqlServer, "Storage provider for Microsoft SQL Server.")]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

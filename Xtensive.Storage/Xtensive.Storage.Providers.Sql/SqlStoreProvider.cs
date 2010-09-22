@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -21,17 +22,22 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region IHasNamedResult members
 
+    /// <inheritdoc/>
     public TemporaryDataScope Scope { get { return Origin.Scope; } }
+
+    /// <inheritdoc/>
     public string Name { get { return Origin.Name; } }
 
     #endregion
 
+    /// <inheritdoc/>
     protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       LockAndStore(context, Source);
     }
 
+    /// <inheritdoc/>
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
@@ -41,6 +47,14 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="handlers">The handlers.</param>
+    /// <param name="request">The request.</param>
+    /// <param name="descriptor">The descriptor.</param>
+    /// <param name="origin">The origin.</param>
+    /// <param name="source">The source.</param>
     public SqlStoreProvider(
       HandlerAccessor handlers, QueryRequest request, TemporaryTableDescriptor descriptor,
       StoreProvider origin, ExecutableProvider source)
