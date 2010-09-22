@@ -788,13 +788,16 @@ namespace Xtensive.Storage
     
     private int? GetItemIndex(EntitySetState state, Key key)
     {
-      // Currently this method always returns null;
-      // to enable returning an actual number here,
-      // we must ensure this operation takes constant time.
-      return null; 
-#pragma warning disable 162
       if (!state.IsFullyLoaded)
         return null;
+      if (!Session.EntityEvents.HasSubscribers)
+        return null;
+      var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
+      if (subscriptionInfo.Second==null)
+        return null;
+
+      // Ok, it seems there is a reason 
+      // to waste linear time on calculating this...
       int i = 0;
       foreach (var cachedKey in state) {
         if (key==cachedKey)
@@ -802,7 +805,6 @@ namespace Xtensive.Storage
         i++;
       }
       return null;
-#pragma warning restore 162
     }
 
     #endregion
