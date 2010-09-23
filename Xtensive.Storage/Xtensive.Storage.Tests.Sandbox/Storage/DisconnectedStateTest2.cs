@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           bookKey1 = book1.Key;
           var book2 = new Book() {Title = "Book2"};
           bookKey2 = book2.Key;
-          session.Persist(); // Necessary to flush the changes to DisconnectedState
+          session.SaveChanges(); // Necessary to flush the changes to DisconnectedState
 
           Assert.AreEqual(1, ds.Versions.Count);
           Assert.AreEqual(2, ds.AllPersistenceStates().Count());
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
 
           book1.Title = book1.Title + "_";
           book2.Title = book2.Title + "_";
-          session.Persist(); // Necessary to flush the changes to DisconnectedState
+          session.SaveChanges(); // Necessary to flush the changes to DisconnectedState
 
           Assert.AreEqual(PersistenceState.Modified, ds.GetPersistenceState(bookKey1));
           Assert.AreEqual(PersistenceState.New, ds.GetPersistenceState(bookKey2));
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
         using (ds.Attach(session))
         using (ds.Connect()) {
           var book = new Book() {Title = NewBookTitle};
-          session.Persist();
+          session.SaveChanges();
           book.Title += " Changed";
           ds.ApplyChanges();
           book.Title += " Changed";

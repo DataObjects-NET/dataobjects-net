@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (Transaction.Open()) {
           Ray ray1 = new Ray();
           var helper = new TestHelper(Session.Current);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           using (var session2 = Session.Open(Domain, sc2)) {
             Assert.IsNull(Transaction.Current);

@@ -235,7 +235,7 @@ namespace Xtensive.Storage.Tests.Issues
           TeaserImage = image
         };
       }
-      Session.Current.Persist();
+      Session.Current.SaveChanges();
     }
   }
 }

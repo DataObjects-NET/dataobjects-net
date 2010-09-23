@@ -676,7 +676,7 @@ namespace Xtensive.Storage.Tests.Model
         using (Transaction.Open()) {
           book1 = new Book("0976470705");
           book1.Remove();
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           Book book2 = new Book("0976470705");          
           book2.Remove();
 

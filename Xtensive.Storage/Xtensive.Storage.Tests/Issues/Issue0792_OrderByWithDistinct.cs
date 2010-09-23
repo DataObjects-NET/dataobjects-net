@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Issues
           var person3 = new Person {Name = "Person3"};
           var person2 = new Person {Name = "Person2"};
           var person1 = new Person {Name = "Person1"};
-          session.Persist();
+          session.SaveChanges();
           var query = Query.All<Person>().OrderBy(p => p.Name).Distinct().ToList();
           Assert.IsTrue(query.SequenceEqual(new []{person1, person2, person3}));
           // Rollback

@@ -398,7 +398,7 @@ namespace Xtensive.Storage.Tests.Rse
           new Dog { Name = i, TailLength = i };
         for (int i = 1; i <= BirdCount; i++)
           new Bird { Name = i, Airspeed = i, Lifetime = i };
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         t.Complete();
         GetRecordSets();
       }

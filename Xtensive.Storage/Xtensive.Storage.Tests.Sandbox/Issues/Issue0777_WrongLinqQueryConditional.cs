@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
         new BooleanHell { ApocalypseDate = new DateTime(2012, 12, 12), DefaultApocalypseDate = new DateTime(2012, 12, 12)};
-        session.Persist();
+        session.SaveChanges();
 
         var firstHell = Query.All<BooleanHell>()
           .Where(hell => hell.ApocalypseDate >= (apocalypseNow.HasValue ? apocalypseNow.Value : hell.DefaultApocalypseDate))

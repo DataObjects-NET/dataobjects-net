@@ -70,10 +70,10 @@ namespace Xtensive.Storage
     private static Func<Session> resolver;
     private static long lastUsedIdentifier;
 
-    private SessionScope sessionScope;
+    private DisposableSet disposableSet;
     private ExtensionCollection extensions;
     private volatile bool isDisposed;
-    private bool allowSwitching;
+    private readonly bool allowSwitching;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -115,7 +115,7 @@ namespace Xtensive.Storage
     public bool IsDebugEventLoggingEnabled { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating whether <see cref="Persist"/> method is running.
+    /// Gets a value indicating whether <see cref="SaveChanges"/> method is running.
     /// </summary>
     public bool IsPersisting { get; private set; }
 
@@ -402,9 +402,6 @@ namespace Xtensive.Storage
       Pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
 
-      if (activate)
-        sessionScope = new SessionScope(this);
-
       // Creating Services
       var serviceContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);
       Services = 
@@ -413,6 +410,18 @@ namespace Xtensive.Storage
           from registration in ServiceRegistration.CreateAll(type)
           select registration,
           ServiceContainer.Create(serviceContainerType, Handler.CreateBaseServices()));
+
+      disposableSet = new DisposableSet();
+
+      // Handling Disconnected option
+      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected) {
+        disposableSet.Add(new DisconnectedState().Attach(this));
+        disposableSet.Add(DisconnectedState.Connect());
+      }
+
+      // Perform activation
+      if (activate)
+        disposableSet.Add(new SessionScope(this));
     }
 
     // IDisposable implementation
@@ -433,8 +442,8 @@ namespace Xtensive.Storage
         
         Services.DisposeSafely();
         Handler.DisposeSafely();
-        sessionScope.DisposeSafely();
-        sessionScope = null;
+        disposableSet.DisposeSafely();
+        disposableSet = null;
       }
       finally {
         isDisposed = true;

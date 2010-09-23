@@ -373,7 +373,7 @@ namespace Xtensive.Storage
       bool inTransaction = IsAttached && Session.Transaction!=null;
 
       if (inTransaction)
-        Session.Persist();
+        Session.Persist(PersistReason.DisconnectedStateMerge);
       try {
         var sourceStates = source.originalState.EntityStates;
         foreach (var entityState in sourceStates)

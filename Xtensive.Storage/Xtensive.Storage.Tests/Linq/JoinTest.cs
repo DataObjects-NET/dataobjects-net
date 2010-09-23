@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void LeftJoin1Test()
     {
       Query.All<Territory>().First().Region = null;
-      Session.Current.Persist();
+      Session.Current.SaveChanges();
       var territories = Query.All<Territory>();
       var regions = Query.All<Region>();
       var result = territories.LeftJoin(
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void LeftJoin2Test()
     {
       Query.All<Territory>().First().Region = null;
-      Session.Current.Persist();
+      Session.Current.SaveChanges();
       var territories = Query.All<Territory>();
       var regions = Query.All<Region>();
       var result = territories.LeftJoin(

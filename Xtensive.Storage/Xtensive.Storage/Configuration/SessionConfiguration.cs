@@ -193,22 +193,6 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets a value indicating whether session uses auto persist.
-    /// </summary>
-    public bool UseAutoPersist
-    {
-      get { return (options & SessionOptions.AutoPersist) == SessionOptions.AutoPersist; }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether session uses transactional behavior.
-    /// </summary>
-    public bool UseTransactionalBehavior
-    {
-      get { return (options & SessionOptions.Transactional) == SessionOptions.Transactional; }
-    }
-
-    /// <summary>
     /// Gets a value indicating whether session uses autoshortened transactions.
     /// </summary>
     public bool UseAutoShortenedTransactions {

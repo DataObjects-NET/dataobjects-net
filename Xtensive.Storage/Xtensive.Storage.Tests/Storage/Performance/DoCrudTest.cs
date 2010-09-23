@@ -494,7 +494,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query) {
               o.Value = o.Value++;
-              s.Persist();
+              s.SaveChanges();
             }
             ts.Complete();
           }

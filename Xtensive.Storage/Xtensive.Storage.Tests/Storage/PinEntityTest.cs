@@ -104,20 +104,20 @@ namespace Xtensive.Storage.Tests.Storage
         var firstVictim = new Victim();
         // "Killers" who have not killed yet should not be considered as killers
         using (session.Pin(butcher)) {
-          session.Persist();
+          session.SaveChanges();
           Assert.AreEqual(PersistenceState.New, butcher.PersistenceState);
           Assert.AreEqual(PersistenceState.Synchronized, firstVictim.PersistenceState);
           butcher.Kill(firstVictim);
-          session.Persist();
+          session.SaveChanges();
           Assert.AreEqual(PersistenceState.New, butcher.PersistenceState);
           Assert.AreEqual(PersistenceState.Modified, firstVictim.PersistenceState);
         }
-        session.Persist();
+        session.SaveChanges();
         using (session.Pin(butcher)) {
           firstVictim.Resurrect();
           var secondVictim = new Victim();
           butcher.Kill(secondVictim);
-          session.Persist();
+          session.SaveChanges();
           Assert.AreEqual(PersistenceState.Modified, butcher.PersistenceState);
           Assert.AreEqual(PersistenceState.Synchronized, firstVictim.PersistenceState);
           Assert.AreEqual(PersistenceState.Synchronized, secondVictim.PersistenceState);
@@ -138,17 +138,17 @@ namespace Xtensive.Storage.Tests.Storage
             foreach (var item in allTrees)
               Assert.AreEqual(PersistenceState.New, item.PersistenceState);
           }
-          session.Persist();
+          session.SaveChanges();
           AssertNumberOfNodesInDatabaseIs(allTrees.Count);
           using (session.Pin(node)) {
             foreach (var item in allTrees)
               item.Tag++;
-            session.Persist();
+            session.SaveChanges();
             Assert.AreEqual(PersistenceState.Modified, node.PersistenceState);
             foreach (var item in allTrees.Where(item => item!=node))
               Assert.AreEqual(PersistenceState.Synchronized, item.PersistenceState);
           }
-          session.Persist();
+          session.SaveChanges();
           var newNode = T(node);
           using (session.Pin(newNode)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 1);
@@ -157,21 +157,21 @@ namespace Xtensive.Storage.Tests.Storage
             foreach (var item in allTrees.Where(item => item!=newNode && item!=node))
               Assert.AreEqual(PersistenceState.Synchronized, item.PersistenceState);
           }
-          session.Persist();
+          session.SaveChanges();
           AssertNumberOfNodesInDatabaseIs(allTrees.Count);
           var cycledNode = T();
           cycledNode.Parent = cycledNode;
           using (session.Pin(cycledNode)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 1);
           }
-          session.Persist();
+          session.SaveChanges();
           var cycledGraph = T(T(T(cycledNode)));
           cycledGraph.Parent = cycledNode;
           using (session.Pin(cycledGraph)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 3);
             Assert.AreEqual(PersistenceState.Modified, cycledNode.PersistenceState);
           }
-          session.Persist();
+          session.SaveChanges();
         }
       }
       finally {

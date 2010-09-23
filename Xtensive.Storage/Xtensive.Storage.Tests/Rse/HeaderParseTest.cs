@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Rse
         using (var t = Transaction.Open()) {
           Book book = new Book {Title = "Title", Text = "Text"};
           key = book.Key;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }

@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Tests.Storage
           new Snake { Name = "Kaa1", Length = 3, Features = Features.CanCrawl };
           new Snake { Name = "Kaa3", Length = 3, Features = Features.None };
 
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordQuery rqSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
@@ -189,7 +189,7 @@ namespace Xtensive.Storage.Tests.Storage
           for (int i = 0; i < lizardsCount; i++)
             new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
 
-          session.Persist();
+          session.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
 
@@ -278,7 +278,7 @@ namespace Xtensive.Storage.Tests.Storage
           lizard.Color = "#ff5544";
           lizard.Features = Features.CanWalk;
 
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -318,7 +318,7 @@ namespace Xtensive.Storage.Tests.Storage
           key = s.Key;
           s.Name = "Kaa";
           Assert.AreEqual(PersistenceState.New, s.PersistenceState);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           Assert.AreEqual("Kaa", s.Name);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
@@ -334,7 +334,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual("Kaa", s.Name);
           s.Length = 32;
           Assert.AreEqual(PersistenceState.Modified, s.PersistenceState);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           Assert.AreEqual(32, s.Length);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
@@ -427,7 +427,7 @@ namespace Xtensive.Storage.Tests.Storage
             l.Color = "Color" + i;
           }
 
-          session.Persist();
+          session.SaveChanges();
 
           var pID = new Parameter<Range<Entire<Tuple>>>();
           var pName = new Parameter<Range<Entire<Tuple>>>();
@@ -480,7 +480,7 @@ namespace Xtensive.Storage.Tests.Storage
             s.Length = i;
           }
 
-          session.Persist();
+          session.SaveChanges();
 
           var pID = new Parameter<RangeSet<Entire<Tuple>>>();
           var pName = new Parameter<RangeSet<Entire<Tuple>>>();
@@ -537,7 +537,7 @@ namespace Xtensive.Storage.Tests.Storage
             l.Name = "Lizard" + i;
             l.Color = "Color" + i;
           }
-          session.Persist();
+          session.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           TypeInfo lizardType = Domain.Model.Types[typeof(Lizard)];
@@ -610,7 +610,7 @@ namespace Xtensive.Storage.Tests.Storage
           s3.Description = "Kkl";
           s3.Length = 1;
 
-          session.Persist();
+          session.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
           RecordQuery rsSnake = snakeType.Indexes.GetIndex(cLength, "Description").ToRecordQuery();
@@ -737,7 +737,7 @@ namespace Xtensive.Storage.Tests.Storage
             l.Color = "Color" + i;
           }
 
-          session.Persist();
+          session.SaveChanges();
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
           RecordQuery rsPrimary = type.Indexes.PrimaryIndex.ToRecordQuery();
           foreach (var entity in rsPrimary.ToRecordSet(session).ToEntities<ICreature>(0))
@@ -757,7 +757,7 @@ namespace Xtensive.Storage.Tests.Storage
             s.Name = "Kaa" + i;
             s.Length = i;
           }
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -769,7 +769,7 @@ namespace Xtensive.Storage.Tests.Storage
           RecordQuery rs = type.Indexes.PrimaryIndex.ToRecordQuery();
           foreach (var entity in rs.ToRecordSet(session).ToEntities<ICreature>(0).ToList())
             entity.Remove();
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -1019,7 +1019,7 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.AreEqual(snakesDTO[i].GetValue<string>(1), persistedSnake.Name);
             Assert.AreEqual(snakesDTO[i].GetValue<int?>(2), persistedSnake.Length);
           }
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }

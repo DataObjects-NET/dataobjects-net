@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Issues
           m1.Remove();
           Assert.AreEqual(PersistenceState.Removed, m1.PersistenceState);
           Assert.AreEqual(PersistenceState.Removed, s1.PersistenceState);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           // Rollback
         }
       }

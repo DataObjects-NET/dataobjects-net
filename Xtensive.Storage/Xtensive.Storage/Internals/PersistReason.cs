@@ -7,7 +7,7 @@
 namespace Xtensive.Storage.Internals
 {
   /// <summary>
-  /// A reason of calling <see cref="Session.Persist(PersistReason)"/>.
+  /// A reason of calling <see cref="Session.Persist(Xtensive.Storage.Internals.PersistReason)"/>.
   /// </summary>
   internal enum PersistReason
   {
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Internals
     /// <see cref="Session.EntityChangeRegistry"/> has reached its size limit.
     /// </summary>
     ChangeRegistrySizeLimit,
-    RemoveInsertCorrection,
+    DisconnectedStateMerge,
     DisconnectedStateAttach,
     DisconnectedStateGetReference,
     DisconnectedStateRemapKeys

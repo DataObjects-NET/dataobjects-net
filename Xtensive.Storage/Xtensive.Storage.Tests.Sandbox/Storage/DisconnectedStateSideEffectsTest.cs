@@ -279,7 +279,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
         var testAuthor = new Author("Author 1");
         AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));
         new Author("Author 3 ({0})".FormatWith(Author.Famous));
-        session.Persist();
+        session.SaveChanges();
 
         var author1 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
         var author2 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();

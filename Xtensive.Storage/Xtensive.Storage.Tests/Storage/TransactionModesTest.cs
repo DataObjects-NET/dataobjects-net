@@ -32,10 +32,10 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.All<Product>().First();
         product.ReorderLevel++;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         var dbTransaction = StorageTestHelper.GetNativeTransaction();
         product.ReorderLevel++;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
         product.ReorderLevel++;
         reorderLevel = product.ReorderLevel;

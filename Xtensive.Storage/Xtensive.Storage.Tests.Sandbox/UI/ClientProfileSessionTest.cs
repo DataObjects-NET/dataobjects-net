@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.UI
   }
 
   [TestFixture]
-  public class UISessionTest : AutoBuildTest
+  public class ClientProfileSessionTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -43,13 +43,15 @@ namespace Xtensive.Storage.Tests.UI
     [Test]
     public void CreateTest()
     {
-      using (var session = UISession.Open(Domain)) {
+      var config = Domain.Configuration.Sessions.Default.Clone();
+      config.Options = SessionOptions.ClientProfile;
+      using (var session = Session.Open(Domain, config)) {
         new Author(session) {Name = "Alex"};
       }
-      using (var session = UISession.Open(Domain)) {
+      using (var session = Session.Open(Domain, config)) {
         Assert.IsFalse(session.Query.All<Author>().Any(a => a.Name == "Alex"));
       }
-      using (var session = UISession.Open(Domain)) {
+      using (var session = Session.Open(Domain, config)) {
         new Author(session) { Name = "Alex" };
         session.SaveChanges();
         Assert.IsTrue(session.Query.All<Author>().Any(a => a.Name == "Alex"));
@@ -59,10 +61,12 @@ namespace Xtensive.Storage.Tests.UI
     [Test]
     public void QueryTest()
     {
-      using (var session = UISession.Open(Domain)) {
+      var config = Domain.Configuration.Sessions.Default.Clone();
+      config.Options = SessionOptions.ClientProfile;
+      using (var session = Session.Open(Domain, config)) {
         session.Query.All<Author>().ToList();
       }
-      using (var session = UISession.Open(Domain)) {
+      using (var session = Session.Open(Domain, config)) {
         new Author(session) { Name = "Alex" };
         session.SaveChanges();
         var authors = session.Query.All<Author>().Where(a => a.Name == "Alex").ToList();

@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Issues
           Photo = new byte[] {i, i, i}
         };
       }
-      Session.Current.Persist();
+      Session.Current.SaveChanges();
     }
 
     protected override DomainConfiguration BuildConfiguration()

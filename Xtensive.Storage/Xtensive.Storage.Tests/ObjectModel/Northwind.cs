@@ -594,7 +594,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #endregion
 
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         tr.Complete();
       }
 

@@ -478,7 +478,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
 
           var order = new Order();
-          session.Persist();
+          session.SaveChanges();
           key = order.Key;
         }
 
@@ -823,9 +823,9 @@ namespace Xtensive.Storage.Tests.Storage
               Name = "NewCustomer"
             };
             newCustomerKey = newCustomer.Key;
-            session.Persist();
+            session.SaveChanges();
             newCustomer.Remove();
-            session.Persist();
+            session.SaveChanges();
             
             Assert.AreEqual(2, order1.Details.Count);
             Product product3 = null;
@@ -1090,7 +1090,7 @@ namespace Xtensive.Storage.Tests.Storage
             }
             updatedSupplierKey = supplier1.Key;
             supplier1.Name = "UpdatedSupplier1";
-            session.Persist();
+            session.SaveChanges();
 
             transactionScope.Complete();
           }
@@ -1108,7 +1108,7 @@ namespace Xtensive.Storage.Tests.Storage
               Name = "NewSupplier"
             };
             newSupplierKey = newSupplier.Key;
-            session.Persist();
+            session.SaveChanges();
 
             // Rollback
           }
@@ -1333,9 +1333,9 @@ namespace Xtensive.Storage.Tests.Storage
           
           var newCustomer = new Customer {Name = "NewCustomer"};
           newCustomerKey = newCustomer.Key;
-          session.Persist();
+          session.SaveChanges();
           newCustomer.Remove();
-          session.Persist();
+          session.SaveChanges();
 
           var order1 = orders.First(order => order.Number==1);
           order1Key = order1.Key;
@@ -1407,9 +1407,9 @@ namespace Xtensive.Storage.Tests.Storage
               Name = "NewCustomer"
             };
             newCustomerKey = newCustomer.Key;
-            session.Persist();
+            session.SaveChanges();
             newCustomer.Remove();
-            session.Persist();
+            session.SaveChanges();
 
             var order1 = orders.First(order => order.Number==1);
             order1Key = order1.Key;

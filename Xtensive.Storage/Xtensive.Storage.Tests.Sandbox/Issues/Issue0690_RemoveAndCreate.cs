@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Issues
         book.Reviews.Add(review);
         book.Reviews.Clear();
         book.Reviews.Add(review);
-        session.Persist();
+        session.SaveChanges();
       }
     }
 
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Issues
         var message = new Message(id);
         message.Remove();
         message = new Message(id);
-        session.Persist();
+        session.SaveChanges();
       }
     }
 

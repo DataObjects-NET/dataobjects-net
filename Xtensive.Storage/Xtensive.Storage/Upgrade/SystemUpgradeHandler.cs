@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Upgrade
       var session = Session.Demand();
       var domainModel = session.Domain.Model;
       session.Query.All<M.Type>().Remove();
-      session.Persist();
+      session.SaveChanges();
       domainModel.Types
         .Where(type => type.IsEntity && type.TypeId!=TypeInfo.NoTypeId)
         .ForEach(type => new M.Type(type.TypeId, type.UnderlyingType.GetFullName()));

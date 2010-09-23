@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
         using (Transaction.Open()) {
           hexagon.Kwanza = 12;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
         }
         using (Transaction.Open()) {
           Assert.AreEqual(3, hexagon.Kwanza);

@@ -260,7 +260,7 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Register the entity in removing queue. Removal operation will be postponed 
-    /// until <see cref="Session.Persist"/> method is called; some query is executed 
+    /// until <see cref="Session.SaveChanges"/> method is called; some query is executed 
     /// or current transaction is being committed.
     /// </summary>
     public void RemoveLater()
