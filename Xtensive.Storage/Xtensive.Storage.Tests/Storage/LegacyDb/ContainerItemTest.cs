@@ -155,7 +155,7 @@ ALTER TABLE [dbo].[ItemOption] CHECK CONSTRAINT [FK_ItemOption_Item]
         c.Items.Add(item);
         var option = new Option(c);
         c.Options.Add(option);
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         c.Remove();
         t.Complete();
       }

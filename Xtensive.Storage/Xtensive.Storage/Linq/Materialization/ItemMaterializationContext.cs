@@ -14,6 +14,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public static MethodInfo IsMaterializedMethodInfo { get; private set; }
     public static MethodInfo GetEntityMethodInfo      { get; private set; }
     public static MethodInfo MaterializeMethodInfo    { get; private set; }
+    public static System.Reflection.FieldInfo SessionFieldInfo { get; private set; }
 
     public readonly Session Session;
     public readonly MaterializationContext MaterializationContext;
@@ -46,10 +47,10 @@ namespace Xtensive.Storage.Linq.Materialization
       var materializationInfo = MaterializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
       Key key;
       if (materializationInfo.KeyIndexes.Length <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Materialize(Domain.Demand(), materializationInfo.Type, tuple, accuracy, canCache, materializationInfo.KeyIndexes);
+        key = KeyFactory.Materialize(Session.Domain, materializationInfo.Type, tuple, accuracy, canCache, materializationInfo.KeyIndexes);
       else {
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Materialize(Domain.Demand(), materializationInfo.Type, keyTuple, accuracy, canCache, null);
+        key = KeyFactory.Materialize(Session.Domain, materializationInfo.Type, keyTuple, accuracy, canCache, null);
       }
       if (accuracy==TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
@@ -57,7 +58,7 @@ namespace Xtensive.Storage.Linq.Materialization
         result = entityState.Entity;
       }
       else {
-        result = Query.SingleOrDefault(Session, key);
+        result = Session.Query.SingleOrDefault(key);
       }
       entities[entityIndex] = result;
       return result;
@@ -79,6 +80,7 @@ namespace Xtensive.Storage.Linq.Materialization
       IsMaterializedMethodInfo = typeof (ItemMaterializationContext).GetMethod("IsMaterialized");
       GetEntityMethodInfo = typeof (ItemMaterializationContext).GetMethod("GetEntity");
       MaterializeMethodInfo = typeof (ItemMaterializationContext).GetMethod("Materialize");
+      SessionFieldInfo = typeof(ItemMaterializationContext).GetField("Session");
     }
   }
 }

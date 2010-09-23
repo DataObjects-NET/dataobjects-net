@@ -22,9 +22,8 @@ namespace Xtensive.Storage.Linq
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
   public sealed class Queryable<T> : IOrderedQueryable<T> 
   {
+    private readonly QueryProvider provider;
     private readonly Expression expression;
-    private RecordSet compiledRecordset;
-    private object _lock = new object();
 
     /// <inheritdoc/>
     public Expression Expression
@@ -41,29 +40,20 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     IQueryProvider IQueryable.Provider
     {
-      get { return Session.Demand().Handler.QueryProvider; }
+      get { return provider; }
     }
 
     /// <summary>
-    /// Gets the <see cref="RecordSet"/> this query is compiled to.
+    /// Gets the <see cref="RecordQuery"/> this query is compiled to.
     /// </summary>
-    public RecordSet Compiled
+    public RecordQuery Translated
     {
       get
       {
-        if (compiledRecordset!=null)
-          return compiledRecordset;
-        lock (_lock) {
-          if (compiledRecordset!=null)
-            return compiledRecordset;
-          compiledRecordset = Session
-            .Demand()
-            .Handler
-            .QueryProvider
-            .Translate<IEnumerable<T>>(expression)
-            .DataSource;
-          return compiledRecordset;
-        }
+        var translatedRecordQuery = provider
+          .Translate<IEnumerable<T>>(expression)
+          .RecordQuery;
+        return translatedRecordQuery;
       }
     }
 
@@ -72,8 +62,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      var session = Session.Demand();
-      var result = session.Handler.QueryProvider.Execute<IEnumerable<T>>(expression);
+      var result = provider.Execute<IEnumerable<T>>(expression);
       return result.GetEnumerator();
     }
 
@@ -97,18 +86,13 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public Queryable()
-    {
-      var allMethod = WellKnownMembers.Query.All.MakeGenericMethod(typeof (T));
-      expression = Expression.Call(null, allMethod);
-    }
-
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="expression"/>  is out of range.</exception>
-    public Queryable(Expression expression)
+    public Queryable(QueryProvider provider, Expression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       if (!typeof (IQueryable<T>).IsAssignableFrom(expression.Type))
         throw new ArgumentOutOfRangeException("expression");
+      this.provider = provider;
       this.expression = expression;
     }
   }

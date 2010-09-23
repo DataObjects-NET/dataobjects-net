@@ -267,7 +267,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var tx = Transaction.Open()) {
         var result = mapper.Compare(originalPersonDtos, modifiedPersonDtos);
         result.Operations.Replay();
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
 
         Action<CustomPersonDto, CustomPerson> validator = (personDto, person) => {
           Assert.AreEqual(personDto.AuxString, person.AuxString);

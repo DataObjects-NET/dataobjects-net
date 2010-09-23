@@ -22,7 +22,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue0785.Model
 
     [Field]
     public string Title { get; set; }
-    [Field]    public RefHolder<Book> BookRef { get; set; }
+
+    [Field]
+    public RefHolder<Book> BookRef { get; set; }
 
     public override string ToString()
     {
@@ -68,7 +70,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void StandardTest()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open(session)) {
         var book = new Book() { Title = "Book" };
         var bookRef = new RefHolder<Book>();
         bookRef.Ref = book;

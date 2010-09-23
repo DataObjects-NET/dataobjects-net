@@ -14,7 +14,6 @@ using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
@@ -29,13 +28,13 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo TranslateMethodInfo;
     public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
-    public TranslatedQuery<TResult> Translate<TResult>()
+    public TranslationResult<TResult> Translate<TResult>()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 
-    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
+    private TranslationResult<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
       var result = new ProjectionExpression(
@@ -51,11 +50,13 @@ namespace Xtensive.Storage.Linq
         ? PrepareCachedQuery(optimized, cachingScope)
         : optimized;
 
+      // Compilation
       var dataSource = prepared.ItemProjector.DataSource;
-      
+      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource.Provider);
+
       // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
-      var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, projection.TupleParameterBindings, tupleParameterBindings);
+      var translatedQuery = new TranslatedQuery<TResult>(compiled, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
       if (cachingScope != null && translatedQuery.TupleParameters.Count == 0) {
@@ -63,9 +64,9 @@ namespace Xtensive.Storage.Linq
           translatedQuery,
           cachingScope.QueryParameter);
         cachingScope.ParameterizedQuery = parameterizedQuery;
-        return parameterizedQuery;
+        return new TranslationResult<TResult>(parameterizedQuery, dataSource);
       }
-      return translatedQuery;
+      return new TranslationResult<TResult>(translatedQuery, dataSource);
     }
 
     private static ProjectionExpression Optimize(ProjectionExpression origin)
@@ -101,9 +102,10 @@ namespace Xtensive.Storage.Linq
       return origin;
     }
 
-    private Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof(IEnumerable<Tuple>), "rs");
+      var session = Expression.Parameter(typeof(Session), "session");
       var tupleParameterBindings = Expression.Parameter(typeof(Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var parameterContext = Expression.Parameter(typeof(ParameterContext), "parameterContext");
       
@@ -116,9 +118,11 @@ namespace Xtensive.Storage.Linq
         .MakeGenericMethod(elementType);
 
       var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {materializationInfo.Expression});
-      Expression<Func<int, MaterializationContext>> materializationContextCtor = n => new MaterializationContext(n);
+      Expression<Func<Session, int, MaterializationContext>> materializationContextCtor = (s,n) => new MaterializationContext(s,n);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(
+          session,
+          Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
@@ -141,7 +145,7 @@ namespace Xtensive.Storage.Linq
           ? body
           : Expression.Convert(body, typeof (TResult));
 
-      var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, tupleParameterBindings, parameterContext);
+      var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, session, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
     }
 

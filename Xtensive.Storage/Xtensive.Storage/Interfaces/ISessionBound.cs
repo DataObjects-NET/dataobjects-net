@@ -22,7 +22,7 @@ namespace Xtensive.Storage
   /// To override the default behavior, use <see cref="TransactionalAttribute"/> and
   /// <see cref="InfrastructureAttribute"/>.
   /// </remarks>
-  [TransactionalType]
+  [TransactionalType(TransactionalBehavior.Auto)]
   public interface ISessionBound : IContextBound<Session>
   {
     /// <summary>

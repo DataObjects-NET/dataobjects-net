@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return GetCachedValue<Index<Tuple, Tuple>>(context, IndexKey);
+      return GetCachedValue<Index<Tuple, Tuple>>(context, IndexKey) ?? new Index<Tuple, Tuple>(indexConfiguration);
     }
 
     /// <inheritdoc/>
@@ -38,7 +38,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       if (typeof(T) == typeof(ICachingProvider))
         return base.GetService<T>();
-      return GetCachedValue<Index<Tuple, Tuple>>(EnumerationScope.CurrentContext, IndexKey) as T;
+      var index = GetCachedValue<Index<Tuple, Tuple>>(EnumerationScope.CurrentContext, IndexKey) 
+        ?? new Index<Tuple, Tuple>(indexConfiguration);
+      return index as T;
     }
 
     /// <inheritdoc/>
@@ -49,8 +51,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         KeyComparer = Origin.OrderKeyComparer, 
         KeyExtractor = Origin.OrderKeyExtractor
       };
-      var index = new Index<Tuple, Tuple>(indexConfiguration);
-      SetCachedValue(EnumerationContext.Current, IndexKey, index);
     }
 
 

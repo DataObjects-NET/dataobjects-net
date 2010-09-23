@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var config = DomainConfigurationFactory.Create();
       var domain = Domain.Build(config);
-      var session = Session.Open(domain, false);
+      var session = Session.Open(domain);
 
       bool isSessionActive = false;
       int resolveCount = 0;
@@ -50,7 +50,6 @@ namespace Xtensive.Storage.Tests.Storage
       Assert.AreEqual(3, resolveCount);
       Assert.IsTrue(session.IsActive);
       Assert.AreEqual(4, resolveCount);
-      Assert.AreEqual(session.CompilationContext, CompilationContext.Current);
       Assert.AreEqual(5, resolveCount);
 
       isSessionActive = false;
@@ -64,9 +63,6 @@ namespace Xtensive.Storage.Tests.Storage
 
         Assert.AreEqual(session, Session.Current);
         Assert.IsTrue(session.IsActive);
-
-        Assert.AreEqual(session.CompilationContext, CompilationContext.Current);
-
         session.Activate();
       }
 
@@ -81,9 +77,6 @@ namespace Xtensive.Storage.Tests.Storage
 
         Assert.AreEqual(session, Session.Current);
         Assert.IsTrue(session.IsActive);
-
-        Assert.AreEqual(session.CompilationContext, CompilationContext.Current);
-
         session.Activate();
       }
 

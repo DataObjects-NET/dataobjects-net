@@ -141,9 +141,9 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       IndexConfigurationBase<TKey, TItem> indexConfigurationBase = (IndexConfigurationBase<TKey, TItem>)source;
       keyExtractor         = indexConfigurationBase.keyExtractor;
       keyComparer          = indexConfigurationBase.keyComparer;

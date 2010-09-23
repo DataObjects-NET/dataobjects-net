@@ -90,13 +90,8 @@ namespace Xtensive.Storage.Services
     /// <returns>Created structure.</returns>
     public Structure CreateStructure(Type structureType)
     {
-      using (Session.OpenSystemLogicOnlyRegion()) {
-        ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
-        if (!typeof (Structure).IsAssignableFrom(structureType))
-          throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof (Structure)));
-
-        return Activator.CreateStructure(structureType, null, null);
-      }
+      var tuple = Session.Domain.Model.Types[structureType].TuplePrototype.CreateNew();
+      return CreateStructure(structureType, tuple);
     }
 
     /// <summary>
@@ -112,7 +107,7 @@ namespace Xtensive.Storage.Services
         if (!typeof(Structure).IsAssignableFrom(structureType))
           throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof(Structure)));
 
-        return Activator.CreateStructure(structureType, structureData);
+        return Activator.CreateStructure(Session, structureType, structureData);
       }
     }
 

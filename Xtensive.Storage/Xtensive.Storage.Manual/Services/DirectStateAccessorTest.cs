@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Manual.Services
             Value = Guid.NewGuid().ToString()
           };
           entityKey = entity.Key;
-          session.Persist();
+          session.SaveChanges();
 
           // Let's get session cache accessor
           var sessionState = DirectStateAccessor.Get(session);

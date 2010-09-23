@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
@@ -66,10 +67,8 @@ namespace Xtensive.Storage
     /// </returns>
     public static IEnumerable<ReferenceInfo> GetReferencesTo(Entity target)
     {
-      var handler = Session.Demand().Handler;
-      foreach (var association in target.TypeInfo.GetTargetAssociations())
-        foreach (var item in handler.GetReferencesTo(target, association))
-          yield return item;
+      var handler = target.Session.Handler;
+      return target.TypeInfo.GetTargetAssociations().SelectMany(association => handler.GetReferencesTo(target, association));
     }
 
     /// <summary>
@@ -84,7 +83,7 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Type doesn't participate in the specified association.</exception>
     public static IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
-      var handler = Session.Demand().Handler;
+      var handler = target.Session.Handler;
       if (!association.TargetType.UnderlyingType.IsAssignableFrom(target.TypeInfo.UnderlyingType))
         throw new InvalidOperationException(
           String.Format(Strings.TypeXDoesNotParticipateInTheSpecifiedAssociation, target.TypeInfo.Name));
@@ -102,7 +101,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static IEnumerable<ReferenceInfo> GetReferencesFrom(Entity source, AssociationInfo association)
     {
-      var handler = Session.Demand().Handler;
+      var handler = source.Session.Handler;
       return handler.GetReferencesFrom(source, association);
     }
   }

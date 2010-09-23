@@ -21,14 +21,13 @@ namespace Xtensive.Storage
     private const string SavepointNameFormat = "s{0}";
 
     private int nextSavepoint;
-    private TransactionScope ambientTransactionScope;
-
+    
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
     public Transaction Transaction { get; private set; }
 
-    internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
+    internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel, bool isAutomatic)
     {
       var transaction = Transaction;
       switch (mode) {
@@ -40,52 +39,21 @@ namespace Xtensive.Storage
         }
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        return Configuration.UsesAmbientTransactions
-          ? CreateAmbientTransaction(isolationLevel)
-          : CreateOutermostTransaction(isolationLevel);
+        return CreateOutermostTransaction(isolationLevel, isAutomatic);
       case TransactionOpenMode.New:
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        if (transaction!=null)
-          return CreateNestedTransaction(isolationLevel);
-        if (Configuration.UsesAmbientTransactions) {
-          CreateAmbientTransaction(isolationLevel);
-          return CreateNestedTransaction(isolationLevel);
-        }
-        return CreateOutermostTransaction(isolationLevel);
+        return transaction!=null 
+          ? CreateNestedTransaction(isolationLevel, isAutomatic) 
+          : CreateOutermostTransaction(isolationLevel, isAutomatic);
       default:
         throw new ArgumentOutOfRangeException("mode");
       }
     }
 
-    /// <summary>
-    /// Commits the ambient transaction.
-    /// </summary>
-    public void CommitAmbientTransaction()
-    {
-      var scope = ambientTransactionScope;
-      try {
-        scope.Complete();
-      }
-      finally {
-        ambientTransactionScope = null;
-        scope.DisposeSafely();
-      }
-    }
-
-    /// <summary>
-    /// Rolls back the ambient transaction.
-    /// </summary>
-    public void RollbackAmbientTransaction()
-    {
-      var scope = ambientTransactionScope;
-      ambientTransactionScope = null;
-      scope.DisposeSafely();
-    }
-
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UsesAutoShortenedTransactions || IsDisconnected)
+      if (!Configuration.UseAutoShortenedTransactions || transaction.IsNested || IsDisconnected)
         StartTransaction(transaction);
     }
 
@@ -105,9 +73,9 @@ namespace Xtensive.Storage
       if (!transaction.IsActuallyStarted)
         return;
       if (transaction.IsNested)
-        Handler.ReleaseSavepoint(transaction.SavepointName);
+        Handler.ReleaseSavepoint(transaction);
       else
-        Handler.CommitTransaction();
+        Handler.CommitTransaction(transaction);
     }
 
     internal void RollbackTransaction(Transaction transaction)
@@ -121,9 +89,9 @@ namespace Xtensive.Storage
       finally {
         if (transaction.IsActuallyStarted)
           if (transaction.IsNested)
-            Handler.RollbackToSavepoint(transaction.SavepointName);
+            Handler.RollbackToSavepoint(transaction);
           else
-            Handler.RollbackTransaction();
+            Handler.RollbackTransaction(transaction);
         ClearChangeRegistry();
       }
     }
@@ -153,9 +121,9 @@ namespace Xtensive.Storage
       }
     }
 
-    private void EnsureTransactionIsStarted()
+    internal void EnsureTransactionIsStarted()
     {
-      var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
+      var transaction = Transaction;
       if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       if (!transaction.IsActuallyStarted)
@@ -183,10 +151,10 @@ namespace Xtensive.Storage
         if (!transaction.Outer.IsActuallyStarted)
           StartTransaction(transaction.Outer);
         Persist(PersistReason.NestedTransaction);
-        Handler.CreateSavepoint(transaction.SavepointName);
+        Handler.CreateSavepoint(transaction);
       }
       else
-        Handler.BeginTransaction(transaction.IsolationLevel);
+        Handler.BeginTransaction(transaction);
     }
 
     private string GetNextSavepointName()
@@ -205,22 +173,15 @@ namespace Xtensive.Storage
       EntityChangeRegistry.Clear();
     }
 
-    private TransactionScope CreateAmbientTransaction(IsolationLevel isolationLevel)
+    private TransactionScope CreateOutermostTransaction(IsolationLevel isolationLevel, bool isAutomatic)
     {
-      var newTransaction = new Transaction(this, isolationLevel);
-      ambientTransactionScope = OpenTransactionScope(newTransaction);
-      return TransactionScope.VoidScopeInstance;
-    }
-
-    private TransactionScope CreateOutermostTransaction(IsolationLevel isolationLevel)
-    {
-      var transaction = new Transaction(this, isolationLevel);
+      var transaction = new Transaction(this, isolationLevel) { IsAutomatic = isAutomatic };
       return OpenTransactionScope(transaction);
     }
 
-    private TransactionScope CreateNestedTransaction(IsolationLevel isolationLevel)
+    private TransactionScope CreateNestedTransaction(IsolationLevel isolationLevel, bool isAutomatic)
     {
-      var newTransaction = new Transaction(this, isolationLevel, Transaction, GetNextSavepointName());
+      var newTransaction = new Transaction(this, isolationLevel, Transaction, GetNextSavepointName()) { IsAutomatic = isAutomatic };
       return OpenTransactionScope(newTransaction);
     }
 
@@ -232,8 +193,8 @@ namespace Xtensive.Storage
       SystemEvents.NotifyTransactionOpening(transaction);
       Events.NotifyTransactionOpening(transaction);
 
-      transaction.Begin();
       Transaction = transaction;
+      transaction.Begin();
 
       IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled)

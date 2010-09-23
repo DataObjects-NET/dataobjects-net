@@ -48,6 +48,15 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
+    public Providers.SessionHandler SessionHandler
+    {
+      get
+      {
+        EnsureRealViewIsAlive();
+        return RealStorageView.SessionHandler;
+      }
+    }
+
     /// <inheritdoc/>
     public CommandResult Execute(Command command)
     {
@@ -70,10 +79,10 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
+    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler)
     {
       EnsureRealViewIsAlive();
-      return RealStorageView.GetIndex(indexInfo);
+      return RealStorageView.GetIndex(indexInfo, sessionHandler);
     }
 
     #region Private / internal methods
@@ -90,7 +99,7 @@ namespace Xtensive.Storage.Providers.Index
 
     private void Refresh()
     {
-      var newClientView = storage.GetView(transactionId) as ClientStorageView;
+      var newClientView = storage.GetView(RealStorageView.SessionHandler, transactionId) as ClientStorageView;
       RealStorageView = newClientView.RealStorageView;
     }
 

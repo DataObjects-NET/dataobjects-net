@@ -19,7 +19,7 @@ using IEnumerable = System.Collections.IEnumerable;
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// Abstract base class for any <see cref="RecordSet"/> <see cref="RecordSet.Provider"/>,
+  /// Abstract base class for any <see cref="RecordQuery"/> <see cref="RecordQuery.Provider"/>,
   /// that does not need to be compiled.
   /// </summary>
   [Serializable]
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// Gets or sets a value indicating whether this instance can be
     /// cached and further returned as result of compilation of
     /// <see cref="Origin"/> once more by the same 
-    /// <see cref="CompilationContext"/>.
+    /// <see cref="CompilationService"/>.
     /// </summary>
     public bool IsCacheable { get; protected set; }
 

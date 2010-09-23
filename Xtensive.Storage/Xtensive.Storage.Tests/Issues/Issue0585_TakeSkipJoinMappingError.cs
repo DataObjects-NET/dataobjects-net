@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Tests.Issues
           };
         }
       }
-      Session.Current.Persist();
+      Session.Current.SaveChanges();
     }
 
     protected override DomainConfiguration BuildConfiguration()

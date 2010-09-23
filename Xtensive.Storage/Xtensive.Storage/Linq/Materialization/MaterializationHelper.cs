@@ -11,6 +11,8 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Providers;
+using Xtensive.Storage.Rse;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals.Prefetch;
@@ -112,23 +114,27 @@ namespace Xtensive.Storage.Linq.Materialization
       using (parameterContext.Activate())
         foreach (var tupleParameterBinding in tupleParameterBindings)
           tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
-      var session = Session.Demand();
+      var session = context.Session;
+      var recordSet = dataSource as RecordSet;
+      if (recordSet != null) {
+        var enumerationContext = (EnumerationContext)recordSet.Context;
+        enumerationContext.MaterializationContext = context;
+      }
       var materializedSequence = dataSource
         .Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session)));
       return context.MaterializationQueue == null 
-        ? BatchMaterialize(materializedSequence, context, parameterContext, session) 
+        ? BatchMaterialize(materializedSequence, context, parameterContext) 
         : SubqueryMaterialize(materializedSequence, parameterContext);
     }
 
-    private static IEnumerable<TResult> BatchMaterialize<TResult>(IEnumerable<TResult> materializedSequence, MaterializationContext context, ParameterContext parameterContext, Session session)
+    private static IEnumerable<TResult> BatchMaterialize<TResult>(IEnumerable<TResult> materializedSequence, MaterializationContext context, ParameterContext parameterContext)
     {
       var materializationQueue = new Queue<Action>();
       var batchActivator = new BatchActivator(materializationQueue, parameterContext);
       context.MaterializationQueue = materializationQueue;
       var batchSequence = materializedSequence
         .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
-        .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate)
-        .ToTransactional();
+        .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate);
       return batchSequence.SelectMany(batch => batch);
     }
 
@@ -139,8 +145,7 @@ namespace Xtensive.Storage.Linq.Materialization
         .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
         .ApplyBeforeAndAfter(
           () => scope = parameterContext.Activate(),
-          () => scope.DisposeSafely())
-        .ToTransactional();
+          () => scope.DisposeSafely());
       return batchSequence.SelectMany(batch => batch);
     }
 

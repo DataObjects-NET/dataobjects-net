@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var webSite = new WebSite();
           webSite.WebSite = webSite; // self-refernece
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           // Rollback
         }
       }
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Issues
           var webSite = new WebSite();
           webSite.WebSite = webSite; // self-refernece 1
           webSite.WebSite2 = webSite; // self-refernece 2
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           // Rollback
         }
       }
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var myEntity = new MyEntity();
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           // Rollback
         }
       }

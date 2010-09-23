@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
   /// </summary>
   public sealed class MemoryIndexStorageView : IndexStorageView
   {
+    private readonly Providers.SessionHandler sessionHandler;
     private readonly MemoryIndexTransaction transaction;
 
     /// <inheritdoc/>
@@ -73,7 +74,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     }
     
     /// <inheritdoc/>
-    public override IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
+    public override IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler)
     {
       return Storage.GetRealIndex(indexInfo);
     }
@@ -93,7 +94,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     private void Update(Tuple key, Tuple value, string tableName)
     {
       var table = Model.Tables[tableName];
-      var primaryIndex = GetIndex(table.PrimaryIndex);
+      var primaryIndex = GetIndex(table.PrimaryIndex, sessionHandler);
       var oldValue = FindTuple(tableName, key);
       var newValue = oldValue.Clone();
       newValue.MergeWith(value, MergeBehavior.PreferDifference);
@@ -107,7 +108,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
         if (!oldTransformed.GetFieldState(0).IsAvailable())
           continue;
         var newTransformed = transform.Apply(TupleTransformType.Tuple, newValue);
-        var secondaryIndex = GetIndex(indexInfo);
+        var secondaryIndex = GetIndex(indexInfo, sessionHandler);
         secondaryIndex.Remove(oldTransformed);
         secondaryIndex.Add(newTransformed);
       }
@@ -116,7 +117,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     private void Insert(Tuple key, Tuple value, string tableName)
     {
       var table = Model.Tables[tableName];
-      var primaryIndex = GetIndex(table.PrimaryIndex);
+      var primaryIndex = GetIndex(table.PrimaryIndex, sessionHandler);
       primaryIndex.Add(value);
 
       foreach (var indexInfo in table.SecondaryIndexes) {
@@ -124,7 +125,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
         var transformedTuple = transform.Apply(TupleTransformType.Tuple, value);
         if (!transformedTuple.GetFieldState(0).IsAvailable()) 
           continue;
-        var secondaryIndex = GetIndex(indexInfo);
+        var secondaryIndex = GetIndex(indexInfo, sessionHandler);
         secondaryIndex.Add(transformedTuple);
       }
     }
@@ -133,13 +134,13 @@ namespace Xtensive.Storage.Providers.Index.Memory
     {
       var value = FindTuple(tableName, key);
       var table = Model.Tables[tableName];
-      var primaryIndex = GetIndex(table.PrimaryIndex);
+      var primaryIndex = GetIndex(table.PrimaryIndex, sessionHandler);
       primaryIndex.RemoveKey(value);
 
       foreach (var indexInfo in table.SecondaryIndexes) {
         var transform = Storage.GetTransform(indexInfo);
         var transformedTuple = transform.Apply(TupleTransformType.Tuple, value);
-        var secondaryIndex = GetIndex(indexInfo);
+        var secondaryIndex = GetIndex(indexInfo, sessionHandler);
         secondaryIndex.Remove(transformedTuple);
       }
     }
@@ -148,7 +149,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     private Tuple FindTuple(string tableName, Tuple key)
     {
       var indexInfo = Model.Tables[tableName].PrimaryIndex;
-      var primaryIndex = GetIndex(indexInfo);
+      var primaryIndex = GetIndex(indexInfo, sessionHandler);
       var seekResult = primaryIndex.Seek(key);
       if (seekResult.ResultType!=SeekResultType.Exact)
         throw new InvalidOperationException(
@@ -168,9 +169,10 @@ namespace Xtensive.Storage.Providers.Index.Memory
     /// <param name="storage">The storage.</param>
     /// <param name="model">The model.</param>
     /// <param name="isolationLevel">The transaction isolation level.</param>
-    public MemoryIndexStorageView(MemoryIndexStorage storage, StorageInfo model, IsolationLevel isolationLevel)
-      :base(storage, model)
+    public MemoryIndexStorageView(MemoryIndexStorage storage, StorageInfo model, Providers.SessionHandler sessionHandler, IsolationLevel isolationLevel)
+      :base(storage, model, sessionHandler)
     {
+      this.sessionHandler = sessionHandler;
       transaction = new MemoryIndexTransaction(Guid.NewGuid(), isolationLevel);
     }
   }

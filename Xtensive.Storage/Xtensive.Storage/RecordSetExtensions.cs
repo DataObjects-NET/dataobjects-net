@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Rse;
 using System.Linq;
@@ -40,10 +41,10 @@ namespace Xtensive.Storage
     /// <returns>
     /// The sequence of <see cref="Entity"/> instances.
     /// </returns>
-    public static IEnumerable<T> ToEntities<T>(this IEnumerable<Tuple> source, RecordSetHeader header, int primaryKeyIndex)
+    public static IEnumerable<T> ToEntities<T>(this IEnumerable<Tuple> source, RecordSetHeader header, Session session, int primaryKeyIndex)
       where T : class, IEntity
     {
-      return ToEntities(source, header, primaryKeyIndex).Cast<T>();
+      return ToEntities(source, header, session, primaryKeyIndex).Cast<T>();
     }
 
     /// <summary>
@@ -54,7 +55,7 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, int primaryKeyIndex)
     {
-      var session = Session.Demand();
+      var session = ((EnumerationContext)source.Context).SessionHandler.Session;
       var reader = session.Domain.RecordSetReader;
       foreach (var record in reader.Read(source, source.Header)) {
         var key = record.GetKey(primaryKeyIndex);
@@ -64,7 +65,7 @@ namespace Xtensive.Storage
         if (tuple!=null)
           yield return session.Handler.RegisterEntityState(key, tuple).Entity;
         else
-          yield return Query.SingleOrDefault(session, key);
+          yield return session.Query.SingleOrDefault(key);
       }
     }
 
@@ -73,13 +74,13 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="source">The tuples to process.</param>
     /// <param name="header">The record set header.</param>
+    /// <param name="session">The session.</param>
     /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>
     /// The sequence of <see cref="Entity"/> instances.
     /// </returns>
-    public static IEnumerable<Entity> ToEntities(this IEnumerable<Tuple> source, RecordSetHeader header, int primaryKeyIndex)
+    public static IEnumerable<Entity> ToEntities(this IEnumerable<Tuple> source, RecordSetHeader header, Session session, int primaryKeyIndex)
     {
-      var session = Session.Demand();
       var reader = session.Domain.RecordSetReader;
       foreach (var record in reader.Read(source, header)) {
         var key = record.GetKey(primaryKeyIndex);
@@ -89,18 +90,8 @@ namespace Xtensive.Storage
         if (tuple!=null)
           yield return session.Handler.RegisterEntityState(key, tuple).Entity;
         else
-          yield return Query.SingleOrDefault(session, key);
+          yield return session.Query.SingleOrDefault(key);
       }
-    }
-
-    public static IEnumerable<Record> Read(this RecordSet source)
-    {
-      return Domain.Demand().RecordSetReader.Read(source, source.Header);
-    }
-
-    public static Record ReadSingleRow(this RecordSet source)
-    {
-      return Domain.Demand().RecordSetReader.ReadSingleRow(source, source.Header, null);
     }
   }
 }

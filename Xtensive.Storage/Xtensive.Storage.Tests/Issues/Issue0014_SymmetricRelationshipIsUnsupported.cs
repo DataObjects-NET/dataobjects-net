@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Issues
           first.Friends.Clear();
           second.Friends.Clear();
           third.Friends.Clear();
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           first.Friends.Add(first);
 

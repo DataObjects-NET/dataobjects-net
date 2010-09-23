@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Rse
         using (var t = Transaction.Open()) {
           Book book = new Book {Title = "Title", Text = "Text"};
           key = book.Key;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -46,8 +46,8 @@ namespace Xtensive.Storage.Tests.Rse
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
           // Select *
-          RecordSet rsMain = ii.ToRecordSet();
-          session.UpdateCache(rsMain);
+          RecordQuery rsMain = ii.ToRecordQuery();
+          session.UpdateCache(rsMain.ToRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -55,8 +55,8 @@ namespace Xtensive.Storage.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Title
-          RecordSet rsTitle = rsMain.Select(0, 1, 2);
-          session.UpdateCache(rsTitle);
+          RecordQuery rsTitle = rsMain.Select(0, 1, 2);
+          session.UpdateCache(rsTitle.ToRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Text
-          RecordSet rsText = rsMain.Select(0, 1, 3);
-          session.UpdateCache(rsText);
+          RecordQuery rsText = rsMain.Select(0, 1, 3);
+          session.UpdateCache(rsText.ToRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
@@ -73,8 +73,8 @@ namespace Xtensive.Storage.Tests.Rse
           ResetState(state);
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
-          RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
-          session.UpdateCache(rsJoin);
+          RecordQuery rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
+          session.UpdateCache(rsJoin.ToRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());

@@ -31,7 +31,7 @@ namespace Xtensive.Storage
       get {
         var session = Session.Current;
         return session != null 
-          ? session.Transaction ?? (session.IsDisconnected ? session.DisconnectedState.AlreadyOpenedTransaction : null)
+          ? session.Transaction
           : null;
       }
     }
@@ -52,11 +52,33 @@ namespace Xtensive.Storage
       return currentTransaction;
     }
 
+    /// <summary>
+    /// Checks whether a transaction exists or not in the provided session.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
+    public static void Require(Session session)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      if (session.Transaction != null)
+        return;
+      throw new InvalidOperationException(
+          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
+    }
+
     #endregion
 
     private InconsistentRegion inconsistentRegion;
     private ExtensionCollection extensions;
     private Transaction inner;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is automatic transaction.
+    /// </summary>
+    /// <value>
+    ///   <see langword="true"/> if this instance is automatic transaction; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool IsAutomatic { get; internal set; }
     
     /// <summary>
     /// Gets the unique identifier of this transaction.

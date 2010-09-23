@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
       using (Transaction.Open()) {
         var u1 = new User {Name = "U1"};
         u1.Boss = u1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var u1 = new User { Name = "U1" };
         var u2 = new User { Name = "U2" };
         u1.Boss = u2;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var u2 = new User { Name = "U2" };
         u1.Boss = u2;
         u2.Boss = u1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var u1 = new User { Name = "U1" };
         var c1 = new Company { Name = "C1" };
         u1.Company = c1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var c1 = new Company { Name = "C1" };
         u1.Company = c1;
         c1.Director = u1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -191,9 +191,9 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         u1.Boss = u1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var c1 = new Company { Name = "C1" };
         var u1 = new User { Name = "U1" };
         c1.Director = u1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var u1 = new User { Name = "U1" };
         c1.Director = u1;
         u1.Company = c1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -232,10 +232,10 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
       using (Transaction.Open())
       {
         var c1 = new Company { Name = "C1" };
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         var u1 = new User { Name = "U1" };
         c1.Director = u1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -249,9 +249,9 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var u1 = new User { Name = "U1" };
         c1.Director = u1;
         u1.Company = c1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         u1.Remove();
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -265,9 +265,9 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
       {
         var u1 = new User { Name = "U1" };
         u1.Boss = u1;
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
         u1.Remove();
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 
@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         var u1 = new User { Name = "U1" };
         var p1 = new Project { Name = "P1" };
         u1.Projects.Add(p1);
-        Session.Current.Persist();
+        Session.Current.SaveChanges();
       }
     }
 

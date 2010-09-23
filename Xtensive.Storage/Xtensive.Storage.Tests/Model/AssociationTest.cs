@@ -148,11 +148,11 @@ namespace Xtensive.Storage.Tests.Model
         using (Transaction.Open()) {
           var a1 = new A();
           var a2 = new A();
-          var rs = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordSet();
+          var rs = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordQuery();
 
-          foreach (Tuple tuple in rs) {
-            var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordSet();
-            foreach (Tuple tuple2 in rs2) {
+          foreach (Tuple tuple in rs.ToRecordSet(Session.Current)) {
+            var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordQuery();
+            foreach (Tuple tuple2 in rs2.ToRecordSet(Session.Current)) {
               Log.Debug(tuple2.ToString());
             }
           }
@@ -648,7 +648,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(0, a1.ManyToManyMaster.Count);
           Assert.AreEqual(0, g1.ManytoManyPaired.Count);
           Assert.AreEqual(0, g2.ManytoManyPaired.Count);
-          session.Persist();
+          session.SaveChanges();
           a1.ManyToManyMaster.Add(g1);
           a2.ManyToManyMaster.Add(g1);
           a1.ManyToManyMaster.Add(g2);

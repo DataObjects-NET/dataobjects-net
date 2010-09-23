@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Security;
+using System.Transactions;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -17,6 +18,8 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -25,14 +28,14 @@ namespace Xtensive.Storage
   /// Opens the transaction, if this is necessary.
   /// </summary>
   [Serializable]
-  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.None, AllowMultiple = false, 
+  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.None, AllowMultiple = false,
     TargetMemberAttributes = 
       MulticastAttributes.AnyGeneration |
       MulticastAttributes.AnyScope |
       MulticastAttributes.AnyVisibility |
       MulticastAttributes.Managed | 
       MulticastAttributes.NonAbstract)]
-  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   [ProvideAspectRole(StandardRoles.TransactionHandling)]
   [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
@@ -41,112 +44,48 @@ namespace Xtensive.Storage
 #endif
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
+    private bool? activateSession;
+
     /// <summary>
     /// Gets or sets value describing transaction opening mode.
     /// Default value is <see cref="TransactionOpenMode.Auto"/>.
     /// </summary>
-    public TransactionOpenMode Mode { get; set; }
+    public TransactionalBehavior Mode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a session should be activated on the method boundaries.
-    /// </summary>
-    public bool ActivateSession { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether transaction should be opened.
-    /// </summary>
-    public bool OpenTransaction { get; set; }
-
-    #region Hide base properties
-    // ReSharper disable UnusedMember.Local
-    private new bool AttributeId
+    ///  </summary>
+    /// <remarks>When the value is not set explicitely actual value will be resolved according to 
+    /// <see cref="SessionOptions.AutoActivation"/> flag of the current session.</remarks>
+    public bool ActivateSession
     {
-      get { throw new NotSupportedException(); }
+      get { return activateSession.GetValueOrDefault(); }
+      set { activateSession = value; }
     }
 
-    private new bool AspectPriority
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeExclude
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeInheritance
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributePriority
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeReplace
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetAssemblies
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetElements
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetMemberAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetMembers
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetParameterAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    private new bool AttributeTargetParameters
-    {
-      get { throw new NotSupportedException(); }
-    }
-    private new bool AttributeTargetTypeAttributes
-    {
-      get { throw new NotSupportedException(); }
-    }
-    private new bool AttributeTargetTypes
-    {
-      get { throw new NotSupportedException(); }
-    }
-
-    // ReSharper restore UnusedMember.Local
-    #endregion
-    
+    /// <inheritdoc/>
     public override void CompileTimeInitialize(MethodBase method, AspectInfo aspectInfo)
     {
-      ActivateSession &= typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) && !method.IsStatic;
-      if (ActivateSession && AspectHelper.ContextActivationIsSuppressed(method, typeof (Session)))
+      var canActivate = typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) 
+        && !method.IsStatic
+        && !AspectHelper.ContextActivationIsSuppressed(method, typeof(Session));
+      if (!canActivate) 
         ActivateSession = false;
-      if (OpenTransaction) {
-        var nonTransactionalAttribute = method.GetAttribute<NonTransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
-        if (nonTransactionalAttribute != null)
-          OpenTransaction = false;
-      }
+      if (Mode == TransactionalBehavior.Suppress) 
+        return;
+      var nonTransactionalAttribute = method.GetAttribute<NonTransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
+      if (nonTransactionalAttribute != null)
+        Mode = TransactionalBehavior.Suppress;
     }
 
+    /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (AspectHelper.IsInfrastructureMethod(method))
         return false;
-      return ActivateSession || OpenTransaction;
+      if (Mode != TransactionalBehavior.Suppress)
+        return true;
+      return activateSession == null || activateSession.Value;
     }
 
     /// <inheritdoc/>
@@ -159,24 +98,23 @@ namespace Xtensive.Storage
         ? Session.Demand()
         : sessionBound.Session;
       IDisposable sessionScope = null;
-      if (ActivateSession)
+      var activate = activateSession.HasValue
+        ? activateSession.Value
+        : (session.Configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation;
+      if (activate)
         sessionScope = session.Activate(true);
-      if (OpenTransaction) {
-        var transactionScope = Transaction.Open(session, Mode);
-        args.MethodExecutionTag = sessionScope == null
-          ? (IDisposable) transactionScope
-          : transactionScope.Join(sessionScope);
-      }
-      else
-        args.MethodExecutionTag = sessionScope;
+      var transactionScope = Transaction.HandleAutoTransaction(session, Mode, IsolationLevel.Unspecified);
+      args.MethodExecutionTag = transactionScope.IsVoid
+        ? sessionScope
+        : (sessionScope == null
+              ? (IDisposable) transactionScope
+              : transactionScope.Join(sessionScope));
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnSuccess(MethodExecutionArgs args)
     {
-      if (!OpenTransaction)
-        return;
       if (args.MethodExecutionTag == null) // The most probable case : inner call, nothing was opened
         return;
       var transactionScope = args.MethodExecutionTag as TransactionScope;
@@ -186,7 +124,7 @@ namespace Xtensive.Storage
       }
       var joiningDisposable = args.MethodExecutionTag as JoiningDisposable;
       if (joiningDisposable!=null) { // Less probable case : session & trans. were opened
-        transactionScope = joiningDisposable.First as TransactionScope;
+        transactionScope = (TransactionScope)joiningDisposable.First;
         transactionScope.Complete();
       }
     }
@@ -206,28 +144,23 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public TransactionalAttribute()
-      : this (TransactionOpenMode.Auto)
+      : this (TransactionalBehavior.Open)
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="mode">The transaction opening mode.</param>
-    public TransactionalAttribute(TransactionOpenMode mode)
+    public TransactionalAttribute(TransactionalBehavior mode)
     {
       Mode = mode;
-      ActivateSession = true;
-      OpenTransaction = true;
-      base.AttributeReplace = true;
-      base.AttributePriority = 2;
+      activateSession = null;
     }
 
     internal TransactionalAttribute(TransactionalTypeAttribute transactionalTypeAttribute)
     {
       Mode = transactionalTypeAttribute.Mode;
-      ActivateSession = transactionalTypeAttribute.ActivateSession;
-      OpenTransaction = transactionalTypeAttribute.OpenTransaction;
-      base.AttributePriority = 1;
+      activateSession = transactionalTypeAttribute.activateSession;
     }
   }
 }

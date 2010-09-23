@@ -15,29 +15,17 @@ namespace Xtensive.Storage.Configuration
   public enum SessionOptions
   {
     /// <summary>
-    /// Default options is <see cref="None"/>.
-    /// </summary>
-    Default = None,
-
-    /// <summary>
     /// None of <see cref="SessionOptions"/>.
     /// Value is <see langword="0x0"/>.
     /// </summary>
     None = 0x0,
 
     /// <summary>
-    /// Session uses ambient transactions.
-    /// This mode must be normally used for UI sessions.
-    /// Value is <see langword="0x3" />.
-    /// </summary>
-    AmbientTransactions = 0x3,
-
-    /// <summary>
     /// Transactions will actually be opened just before execution of DB command. 
     /// This option is ignored for non-SQL providers.
-    /// Value is <see langword="0x4" />.
+    /// Value is <see langword="0x8" />.
     /// </summary>
-    AutoShortenTransactions = 0x4,
+    AutoShortenTransactions = 0x8,
 
     /// <summary>
     /// Enables activation of this <see cref="Session"/> from another session having this option.
@@ -63,6 +51,45 @@ namespace Xtensive.Storage.Configuration
     /// this feature on Support@x-tensive.com</see> for further details and examples.
     /// </para>
     /// </remarks>
-    AllowSwitching = 0x8,
+    AllowSwitching = 0x10,
+
+    /// <summary>
+    /// Enables automatic activation of session on all public members of <see cref="ISessionBound"/> implementors 
+    /// (e.g. <see cref="Entity"/>, <see cref="Structure"/> and their inheritors).
+    /// </summary>
+    AutoActivation = 0x20,
+
+    /// <summary>
+    /// <see cref="DisconnectedState"/> will be created and attached in the session constructor.
+    /// </summary>
+    Disconnected = 0x40,
+
+    /// <summary>
+    /// Consider <see cref="TransactionalBehavior.Auto"/> option as <see cref="TransactionalBehavior.Suppress"/> when processing <see cref="TransactionalAttribute"/>.
+    /// </summary>
+    AutoTransactionSuppressMode = 0x80,
+
+    /// <summary>
+    /// Consider <see cref="TransactionalBehavior.Auto"/> option as <see cref="TransactionalBehavior.Open"/> when processing <see cref="TransactionalAttribute"/>.
+    /// </summary>
+    AutoTransactionOpenMode = 0x100,
+
+    /// <summary>
+    /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
+    /// Combines <see cref="AutoShortenTransactions"/> | <see cref="AutoTransactionOpenMode"/> | <see cref="Disconnected"/> flags.
+    /// </summary>
+    ClientProfile = AutoShortenTransactions | AutoTransactionOpenMode | Disconnected,
+
+    /// <summary>
+    /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
+    /// Combines  <see cref="AutoActivation"/> | <see cref="AutoShortenTransactions"/> flags.
+    /// </summary>
+    ServerProfile = AutoShortenTransactions | AutoActivation,
+
+    /// <summary>
+    /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
+    /// Combines <see cref="AutoTransactionOpenMode"/> | <see cref="AutoActivation"/> | <see cref="AutoShortenTransactions"/> flags.
+    /// </summary>
+    LegacyProfile = AutoShortenTransactions | AutoTransactionOpenMode | AutoActivation
   }
 }

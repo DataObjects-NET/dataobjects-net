@@ -43,13 +43,15 @@ namespace Xtensive.Storage
     private Func<Key, bool> versionUpdateFilter;
 
     [NonSerialized]
+    private OperationLogType logType;
+    [NonSerialized]
+    private bool attachedWhenTransactionExisted;
+    [NonSerialized]
     private Session session;
     [NonSerialized]
     private IVersionSetProvider versionsProvider;
     [NonSerialized]
     private IDisposable sessionHandlerSubstitutionScope;
-    [NonSerialized] 
-    private IDisposable transactionReplacementScope;
     [NonSerialized] 
     private IDisposable logIndentScope;
     [NonSerialized]
@@ -65,9 +67,6 @@ namespace Xtensive.Storage
     [NonSerialized]
     private AssociationCache associationCache;
   
-    [NonSerialized]
-    internal Transaction AlreadyOpenedTransaction;
-
 
     /// <summary>
     /// Gets the session this instance attached to.
@@ -212,17 +211,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets a value indicating whether disconnected state
-    /// was attached to a <see cref="Session"/> with already
-    /// running transaction.
-    /// </summary>
-    public bool IsAttachedWhenTransactionWasOpen {
-      get {
-        return IsAttached && transactionReplacementScope!=null;
-      }
-    }
-
-    /// <summary>
     /// Attaches the disconnected state to the current session.
     /// </summary>
     /// <returns>A disposable object that will detach the disconnected state
@@ -292,7 +280,6 @@ namespace Xtensive.Storage
     public KeyMapping ApplyChanges(Session targetSession)
     {
       ArgumentValidator.EnsureArgumentNotNull(targetSession, "targetSession");
-      EnsureNoTransaction();
 
       IDisposable disposable = null;
       KeyMapping keyMapping;
@@ -386,7 +373,7 @@ namespace Xtensive.Storage
       bool inTransaction = IsAttached && Session.Transaction!=null;
 
       if (inTransaction)
-        Session.Persist();
+        Session.Persist(PersistReason.DisconnectedStateMerge);
       try {
         var sourceStates = source.originalState.EntityStates;
         foreach (var entityState in sourceStates)
@@ -510,11 +497,11 @@ namespace Xtensive.Storage
     public IEnumerator<Entity> GetEnumerator()
     {
       EnsureIsAttached();
-      Session.Persist();
+//      Session.Persist();
       var all =
         from pair in AllPersistenceStates()
         where pair.Value!=PersistenceState.Removed
-        let entity = Query.SingleOrDefault(pair.Key)
+        let entity = Session.Query.SingleOrDefault(pair.Key)
         where entity!=null
         select entity;
       return all.GetEnumerator();
@@ -708,18 +695,23 @@ namespace Xtensive.Storage
       logIndentScope = session.IsDebugEventLoggingEnabled 
         ? Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
         : null;
-      session.DisconnectedState = this;
-      this.session = session;
 
-      var directSessionAccessor = session.Services.Demand<DirectSessionAccessor>();
       if (session.Transaction != null && !session.Transaction.IsActuallyStarted) {
-        AlreadyOpenedTransaction = session.Transaction;
         session.BeginTransaction(session.Transaction);
+        session.EnsureTransactionIsStarted();
       }
-      transactionReplacementScope = directSessionAccessor.NullifySessionTransaction();
+
+      this.session = session;
+      session.DisconnectedState = this;
       handler = new DisconnectedSessionHandler(session.Handler, this);
-      sessionHandlerSubstitutionScope = session.Services.Get<DirectSessionAccessor>()
-        .ChangeSessionHandler(handler);
+      var directSessionAccessor = session.Services.Get<DirectSessionAccessor>();
+      sessionHandlerSubstitutionScope = directSessionAccessor.ChangeSessionHandler(handler);
+
+      if (session.Transaction != null) {
+        OnTransactionOpened();
+        attachedWhenTransactionExisted = true;
+      }
+
       if (versionsProvider==this)
         versionsProvider = session;
     }
@@ -727,19 +719,19 @@ namespace Xtensive.Storage
     private void DetachInternal()
     {
       EnsureIsAttached();
-      bool transactionWasOpen = transactionReplacementScope!=null;
-      try {
+      try
+      {
         try {
-          try {
-            if (IsConnected)
-              DisconnectInternal();
+          Session.Persist(PersistReason.DisconnectedStateAttach);
+          if (attachedWhenTransactionExisted) {
+            attachedWhenTransactionExisted = false;
+            OnTransactionCommited();
           }
-          finally {
-            sessionHandlerSubstitutionScope.DisposeSafely();
-          }
+          if (IsConnected)
+            DisconnectInternal();
         }
         finally {
-          transactionReplacementScope.DisposeSafely();
+          sessionHandlerSubstitutionScope.DisposeSafely();
         }
       }
       finally {
@@ -752,12 +744,10 @@ namespace Xtensive.Storage
             versionsProvider = this;
           session.DisconnectedState = null;
           sessionHandlerSubstitutionScope = null;
-          transactionReplacementScope = null;
           logIndentScope = null;
           session = null;
           handler = null;
-          if (transactionWasOpen)
-            oldSession.Invalidate();
+          oldSession.Invalidate();
         }
       }
     }
@@ -765,12 +755,13 @@ namespace Xtensive.Storage
     private void ConnectInternal()
     {
       IsConnected = true;
+      handler.Connect();
     }
 
     private void DisconnectInternal()
     {
       IsConnected = false;
-      handler.CommitChainedTransaction();
+      handler.Disconnect();
     }
 
     private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)
@@ -806,7 +797,7 @@ namespace Xtensive.Storage
     /// </summary>
     public DisconnectedState()
     {
-      associationCache = new AssociationCache();
+      associationCache = new AssociationCache(this);
       originalState = new StateRegistry(this, associationCache);
       state = new StateRegistry(originalState);
       versions = new VersionSet();
@@ -838,10 +829,11 @@ namespace Xtensive.Storage
     [OnDeserialized]
     private void OnDeserialized(StreamingContext context)
     {
-      var domain = Session.Demand().Domain;
+      session = Session.Demand();
+      var domain = session.Domain;
 
       versionsProvider = this;
-      associationCache = new AssociationCache();
+      associationCache = new AssociationCache(this);
       originalState = new StateRegistry(this, associationCache);
       state = new StateRegistry(originalState);
       

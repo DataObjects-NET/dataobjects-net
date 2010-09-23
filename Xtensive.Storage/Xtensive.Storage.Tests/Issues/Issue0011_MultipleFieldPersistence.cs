@@ -32,12 +32,12 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var e1 = new MyEntity();
           e1.Field3 = 3;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           e1.Field3 = 3;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           e1.Field1 = 1;
           e1.Field2 = 2;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }

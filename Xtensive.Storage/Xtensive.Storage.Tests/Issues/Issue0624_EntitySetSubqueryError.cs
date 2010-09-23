@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Issues
         var messageId = Guid.NewGuid();
         var control = new Control(controlId);
         var message = new ControlMessage(messageId) {Owner = control};
-        session.Persist();
+        session.SaveChanges();
 
         var ids = new[] { controlId, messageId };
         var itemsX = Query.All<Control>().Where(a => a.Messages.Select(b => b.Id).Any(id => ids.Contains(id))).ToList();

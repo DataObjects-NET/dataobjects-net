@@ -161,7 +161,7 @@ namespace Xtensive.Core.Configuration
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
       ConfigurationSetBase<TItem> configurationSet = (ConfigurationSetBase<TItem>) source;
       foreach (TItem item in configurationSet) {
