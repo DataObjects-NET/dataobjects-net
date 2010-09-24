@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
     }
 
     [Test]
-    public void PersistOnConnectBugTest()
+    public void PersistOnAttachTest()
     {
       var ds = new DisconnectedState();
       using (var session = Session.Open(Domain)) {
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
     }
 
     [Test]
-    public void EntityRemoveBugTest()
+    public void EntityRemoveTest()
     {
       var ds = new DisconnectedState();
       using (var session = Session.Open(Domain)) {

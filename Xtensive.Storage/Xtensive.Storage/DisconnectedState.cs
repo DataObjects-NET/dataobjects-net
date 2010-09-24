@@ -708,6 +708,8 @@ namespace Xtensive.Storage
       logIndentScope = session.IsDebugEventLoggingEnabled 
         ? Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
         : null;
+      if (session.Transaction!=null)
+        session.Persist(PersistReason.DisconnectedState);
       session.DisconnectedState = this;
       this.session = session;
 

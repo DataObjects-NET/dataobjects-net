@@ -24,6 +24,10 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     NestedTransaction,
     /// <summary>
+    /// <see cref="DisconnectedState"/> is about to be attached.
+    /// </summary>
+    DisconnectedState,
+    /// <summary>
     /// Commit is to be performed.
     /// </summary>
     Commit,

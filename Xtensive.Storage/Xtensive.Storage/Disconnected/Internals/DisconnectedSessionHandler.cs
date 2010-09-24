@@ -170,7 +170,9 @@ namespace Xtensive.Storage.Disconnected
       
       // If state is cached, let's return it
       if (cachedState!=null && cachedState.IsLoadedOrRemoved) {
-        var tuple = cachedState.Tuple!=null ? cachedState.Tuple.Clone() : null;
+        Tuple tuple = null;
+        if (!cachedState.IsRemoved && cachedState.Tuple!=null) 
+          tuple = cachedState.Tuple.Clone();
         var entityState = Session.UpdateEntityState(cachedState.Key, tuple, true);
         return cachedState.IsRemoved ? null : entityState;
       }
