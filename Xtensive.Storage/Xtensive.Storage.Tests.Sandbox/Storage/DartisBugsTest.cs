@@ -67,6 +67,39 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
     }
 
     [Test]
+    public void PersistOnConnectBugTest()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          var author = new Author {Title = "Author"};
+          using (ds.Attach(session))
+          using (ds.Connect()) {
+            Assert.IsFalse(author.IsRemoved());
+          }
+          // tx.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void EntityRemoveBugTest()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          var author = new Author {Title = "Author"};
+          using (ds.Attach(session))
+          using (ds.Connect()) {
+            author.Remove();
+            Assert.IsTrue(author.IsRemoved);
+          }
+          // tx.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void SystemOperationRegistrationBugTest1()
     {
       var ds = new DisconnectedState();

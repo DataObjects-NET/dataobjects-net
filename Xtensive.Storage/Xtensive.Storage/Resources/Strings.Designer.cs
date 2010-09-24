@@ -286,7 +286,10 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An attempt to automatically activate Session &apos;{0}&apos; inside Session &apos;{1}&apos; (Session switching) is blocked. Most likely, mixed usage of objects from different Sessions is a result of a bug in your code. Use manual Session activation (Session.Activate() or Session.Deactivate()) to avoid this exception, if this is intentional..
+        ///   Looks up a localized string similar to An attempt to automatically activate Session &apos;{0}&apos; inside Session &apos;{1}&apos; (Session switching) is blocked. 
+        ///Most likely, mixed usage of objects from different Sessions is a result of a bug in your code. 
+        ///Use manual Session activation (Session.Deactivate(), Session.Activate()) or 
+        ///SessionOptions.AllowSwitching flag to avoid this exception, if this is intentional..
         /// </summary>
         internal static string ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked {
             get {
