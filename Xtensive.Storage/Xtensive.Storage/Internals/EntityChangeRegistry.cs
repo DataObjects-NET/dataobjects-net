@@ -35,8 +35,7 @@ namespace Xtensive.Storage.Internals
     internal void Register(EntityState item)
     {
       // Remove-create sequences fix for Issue 690
-      if (item.PersistenceState == PersistenceState.New && removed.Contains(item))
-      {
+      if (item.PersistenceState == PersistenceState.New && removed.Contains(item)) {
         removed.Remove(item);
         count--;
         if (item.DifferentialTuple.Difference == null) {
@@ -45,14 +44,12 @@ namespace Xtensive.Storage.Internals
         }
         item.SetPersistenceState(PersistenceState.Modified);
       }
-      else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item))
-      {
+      else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item)) {
         @new.Remove(item);
         count--;
         return;
       }
-      else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item))
-      {
+      else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
         modified.Remove(item);
       }
 
