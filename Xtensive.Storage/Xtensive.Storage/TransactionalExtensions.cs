@@ -323,7 +323,7 @@ namespace Xtensive.Storage
     public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, Session session, IsolationLevel isolationLevel)
     {
       using (session.Activate(true))
-      using (var tx = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto, isolationLevel)) {
+      using (var tx = Transaction.OpenAuto(session, isolationLevel)) {
         foreach (var item in source)
           yield return item;
         tx.Complete();

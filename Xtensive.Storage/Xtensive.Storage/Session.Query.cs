@@ -137,7 +137,7 @@ namespace Xtensive.Storage
         if (key == null)
           return null;
         Entity result;
-        using (var transactionScope = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto, IsolationLevel.Unspecified)) {
+        using (var tx = Transaction.OpenAuto(session)) {
           var cache = session.EntityStateCache;
           var state = cache[key, true];
 
@@ -154,7 +154,7 @@ namespace Xtensive.Storage
           else
             result = state.Entity;
 
-          transactionScope.Complete();
+          tx.Complete();
         }
         return result;
       }

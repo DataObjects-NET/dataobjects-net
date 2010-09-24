@@ -73,12 +73,15 @@ namespace Xtensive.Storage
     private Transaction inner;
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is automatic transaction.
+    /// Gets a value indicating whether this instance is automatic transaction.
     /// </summary>
-    /// <value>
-    ///   <see langword="true"/> if this instance is automatic transaction; otherwise, <see langword="false"/>.
-    /// </value>
-    public bool IsAutomatic { get; internal set; }
+    public bool IsAutomatic { get; private set; }
+    
+    /// <summary>
+    /// Gets a value indicating whether this instance is 
+    /// transaction running locally in <see cref="DisconnectedState"/>.
+    /// </summary>
+    public bool IsDisconnected { get; private set; }
     
     /// <summary>
     /// Gets the unique identifier of this transaction.
@@ -241,17 +244,19 @@ namespace Xtensive.Storage
     
     // Constructors
 
-    internal Transaction(Session session, IsolationLevel isolationLevel)
-      : this(session, isolationLevel, null, null)
+    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic)
+      : this(session, isolationLevel, isAutomatic, null, null)
     {
     }
 
-    internal Transaction(Session session, IsolationLevel isolationLevel, Transaction outer, string savepointName)
+    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer, string savepointName)
     {
       Guid = Guid.NewGuid();
       State = TransactionState.NotActivated;
       Session = session;
       IsolationLevel = isolationLevel;
+      IsAutomatic = isAutomatic;
+      IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
       TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();

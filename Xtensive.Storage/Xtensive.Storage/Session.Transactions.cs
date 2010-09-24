@@ -186,13 +186,13 @@ namespace Xtensive.Storage
 
     private TransactionScope CreateOutermostTransaction(IsolationLevel isolationLevel, bool isAutomatic)
     {
-      var transaction = new Transaction(this, isolationLevel) { IsAutomatic = isAutomatic };
+      var transaction = new Transaction(this, isolationLevel, isAutomatic);
       return OpenTransactionScope(transaction);
     }
 
     private TransactionScope CreateNestedTransaction(IsolationLevel isolationLevel, bool isAutomatic)
     {
-      var newTransaction = new Transaction(this, isolationLevel, Transaction, GetNextSavepointName()) { IsAutomatic = isAutomatic };
+      var newTransaction = new Transaction(this, isolationLevel, isAutomatic, Transaction, GetNextSavepointName());
       return OpenTransactionScope(newTransaction);
     }
 

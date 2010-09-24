@@ -841,7 +841,7 @@ namespace Xtensive.Storage
     internal void EnterCtorTransactionScope()
     {
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
-        TransactionScope = Transaction.HandleAutoTransaction(Session, TransactionalBehavior.Auto, IsolationLevel.Unspecified),
+        TransactionScope = Transaction.OpenAuto(Session),
         InconsistentRegion = Validation.Disable(Session),
         Previous = CtorTransactionInfo.Current,
       };

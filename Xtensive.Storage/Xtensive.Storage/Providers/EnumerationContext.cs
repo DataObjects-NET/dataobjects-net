@@ -70,11 +70,11 @@ namespace Xtensive.Storage.Providers
     public override ICompletableScope BeginEnumeration()
     {
       var session = SessionHandler.Session;
-      var handleAutoTransaction = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto, IsolationLevel.Unspecified);
+      var tx = Transaction.OpenAuto(session);
       session.EnsureTransactionIsStarted();
       if (MaterializationContext != null && MaterializationContext.MaterializationQueue != null)
-        return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, handleAutoTransaction);
-      return handleAutoTransaction;
+        return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, tx);
+      return tx;
     }
 
     /// <inheritdoc/>
