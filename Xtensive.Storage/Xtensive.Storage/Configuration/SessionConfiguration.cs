@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
 
-    private SessionOptions options = SessionOptions.LegacyProfile;
+    private SessionOptions options = SessionOptions.Default;
     private string userName = string.Empty;
     private string password = string.Empty;
     private int cacheSize = DefaultCacheSize;
@@ -158,7 +158,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets session options.
-    /// Default value is <see cref="SessionOptions.Transactional"/> | <see cref="SessionOptions.AutoPersist"/> | <see cref="SessionOptions.AutoShortenTransactions"/>.
+    /// Default value is <see cref="SessionOptions.Default"/>.
     /// </summary>
     public SessionOptions Options {
       get { return options; }

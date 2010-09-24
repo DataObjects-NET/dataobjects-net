@@ -160,13 +160,6 @@ namespace Xtensive.Storage
       }
       set {
         resolver = value;
-        if (value==null)
-          Rse.Compilation.CompilationService.Resolver = null;
-        else
-          Rse.Compilation.CompilationService.Resolver = () => {
-            var session = resolver.Invoke();
-            return session==null ? null : session.CompilationService;
-          };
       }
     }
 

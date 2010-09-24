@@ -31,9 +31,21 @@ namespace Xtensive.Storage.Internals
     /// <see cref="Session.EntityChangeRegistry"/> has reached its size limit.
     /// </summary>
     ChangeRegistrySizeLimit,
-    DisconnectedStateMerge,
+    /// <summary>
+    /// <see cref="DisconnectedState"/> is about to be attached to <see cref="Session"/>.
+    /// </summary>
     DisconnectedStateAttach,
+    /// <summary>
+    /// <see cref="DisconnectedState"/> is about to be merged with another one.
+    /// </summary>
+    DisconnectedStateMerge,
+    /// <summary>
+    /// <see cref="DisconnectedState"/> is about to run local refeernce-related query.
+    /// </summary>
     DisconnectedStateGetReference,
+    /// <summary>
+    /// <see cref="DisconnectedState"/> is about to remap its keys.
+    /// </summary>
     DisconnectedStateRemapKeys
   }
 }

@@ -447,7 +447,7 @@ namespace Xtensive.Storage
         let entityState = GetEntityState(key)
         let persistenceState = GetPersistenceState(entityState)
         where persistenceState.HasValue
-        select new KeyValuePair<Key, PersistenceState>(entityState.Key, persistenceState.GetValueOrDefault());
+        select new KeyValuePair<Key, PersistenceState>(key, persistenceState.GetValueOrDefault());
     }
 
     /// <summary>
@@ -696,9 +696,13 @@ namespace Xtensive.Storage
         ? Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
         : null;
 
-      if (session.Transaction != null && !session.Transaction.IsActuallyStarted) {
-        session.BeginTransaction(session.Transaction);
-        session.EnsureTransactionIsStarted();
+      if (session.Transaction!=null) {
+        session.Persist(PersistReason.DisconnectedStateAttach);
+        if (!session.Transaction.IsActuallyStarted) {
+          session.BeginTransaction(session.Transaction);
+          session.EnsureTransactionIsStarted();
+        }
+        session.Invalidate();
       }
 
       this.session = session;
@@ -722,7 +726,6 @@ namespace Xtensive.Storage
       try
       {
         try {
-          Session.Persist(PersistReason.DisconnectedStateAttach);
           if (attachedWhenTransactionExisted) {
             attachedWhenTransactionExisted = false;
             OnTransactionCommited();

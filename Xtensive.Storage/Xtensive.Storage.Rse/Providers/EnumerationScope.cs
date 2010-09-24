@@ -34,41 +34,6 @@ namespace Xtensive.Storage.Rse.Providers
       get { return base.Context; }
     }
 
-  /*  /// <summary>
-    /// Create the new <see cref="EnumerationScope"/> using 
-    /// <see cref="CompilationContext.CreateEnumerationContext"/> method of the
-    /// <see cref="CompilationContext.Current"/> compilation context, 
-    /// if <see cref="CurrentContext"/> is <see langword="null" />.
-    /// Otherwise, returns <see langword="null" />.
-    /// </summary>
-    /// <returns>Either new <see cref="EnumerationScope"/> or <see langword="null" />.</returns>
-    /// <exception cref="InvalidOperationException">Active <see cref="CompilationContext"/> absents.</exception>
-    public static EnumerationScope Open()
-    {
-      if (CurrentContext!=null)
-        return null;
-      var compilationContext = CompilationContext.Current;
-      if (compilationContext==null)
-        throw new InvalidOperationException(
-          Strings.ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext);        
-      return compilationContext.CreateEnumerationContext().Activate();
-    }*/
-
-    /// <summary>
-    /// Create the new <see cref="EnumerationScope"/> having
-    /// <see cref="EnumerationContext"/> property set to <see langword="null" />, 
-    /// if <see cref="CurrentContext"/> is not <see langword="null" />.
-    /// Otherwise, returns <see langword="null" />.
-    /// In fact, temporarily blocks current <see cref="EnumerationContext"/>
-    /// and ensures next call to <see cref="Open"/> will return 
-    /// a new <see cref="EnumerationScope"/>.
-    /// </summary>
-    /// <returns>Either new <see cref="EnumerationScope"/> or <see langword="null" />.</returns>
-    public static EnumerationScope Block()
-    {
-      return CurrentContext==null ? null : new EnumerationScope(null);
-    }
-
 
     // Constructors
 
