@@ -59,6 +59,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (isEmpty)
         return;
       var processedEntities = new List<Entity>();
+      var notifiedEntities = new HashSet<Entity>();
       try {
         using (var region = Validation.Disable()) {
           var operations = Session.Operations;
@@ -96,10 +97,11 @@ namespace Xtensive.Storage.ReferentialIntegrity
             scope.Complete(); // Successful anyway
 
             using (var ae = new ExceptionAggregator()) {
-              for (int i = processedEntities.Count-1; i >= 0; i--) {
-                // Backward order
-                var entity = processedEntities[i];
-                ae.Execute(() => entity.SystemRemoveCompleted(null));
+              foreach (var entity in processedEntities) {
+                ae.Execute(() => {
+                  notifiedEntities.Add(entity);
+                  entity.SystemRemoveCompleted(null);
+                });
               }
             }
 
@@ -109,6 +111,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
       catch (Exception e) {
         foreach (var entity in processedEntities) {
+          if (notifiedEntities.Contains(entity))
+            continue;
           try {
             entity.SystemRemoveCompleted(e);
           }

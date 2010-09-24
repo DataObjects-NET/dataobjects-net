@@ -436,17 +436,16 @@ namespace Xtensive.Storage
               // Postponing finalizers (events)
               removalContext.EnqueueFinalizer(() => {
                 try {
-                  SystemSetValue(field, oldValue, value);
-                  SystemSetValueCompleted(field, oldValue, value, null);
-                  scope.Complete();
-                }
-                catch (Exception e) {
                   try {
+                    SystemSetValue(field, oldValue, value);
+                    SystemSetValueCompleted(field, oldValue, value, null);
+                    scope.Complete();
+                  }
+                  finally {
                     scope.DisposeSafely();
                   }
-  // ReSharper disable EmptyGeneralCatchClause
-                  catch {}
-  // ReSharper restore EmptyGeneralCatchClause
+                }
+                catch (Exception e) {
                   SystemSetValueCompleted(field, oldValue, value, e);
                   throw;
                 }

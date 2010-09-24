@@ -550,18 +550,17 @@ namespace Xtensive.Storage
             // Postponing finalizers (events)
             removalContext.EnqueueFinalizer(() => {
               try {
-                Owner.UpdateVersionInfo(Owner, Field);
-                SystemRemove(item, index);
-                SystemRemoveCompleted(item, null);
-                scope.Complete();
-              }
-              catch (Exception e) {
                 try {
+                  Owner.UpdateVersionInfo(Owner, Field);
+                  SystemRemove(item, index);
+                  SystemRemoveCompleted(item, null);
+                  scope.Complete();
+                }
+                finally {
                   scope.DisposeSafely();
                 }
-// ReSharper disable EmptyGeneralCatchClause
-                catch {}
-// ReSharper restore EmptyGeneralCatchClause
+              }
+              catch (Exception e) {
                 SystemRemoveCompleted(item, e);
                 throw;
               }
