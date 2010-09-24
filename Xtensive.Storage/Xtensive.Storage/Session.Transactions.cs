@@ -10,6 +10,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using SD=System.Data;
@@ -70,6 +71,7 @@ namespace Xtensive.Storage
 
       Persist(PersistReason.Commit);
 
+      Handler.CompletingTransaction(transaction);
       if (!transaction.IsActuallyStarted)
         return;
       if (transaction.IsNested)
@@ -87,12 +89,21 @@ namespace Xtensive.Storage
         Events.NotifyTransactionRollbacking(transaction);
       }
       finally {
-        if (transaction.IsActuallyStarted)
-          if (transaction.IsNested)
-            Handler.RollbackToSavepoint(transaction);
-          else
-            Handler.RollbackTransaction(transaction);
-        ClearChangeRegistry();
+        try {
+          Handler.CompletingTransaction(transaction);
+        }
+        finally {
+          try {
+            if (transaction.IsActuallyStarted)
+              if (transaction.IsNested)
+                Handler.RollbackToSavepoint(transaction);
+              else
+                Handler.RollbackTransaction(transaction);
+          }
+          finally {
+            ClearChangeRegistry();
+          }
+        }
       }
     }
 
