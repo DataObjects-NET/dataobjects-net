@@ -6,22 +6,23 @@
 
 using System;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.ReferentialIntegrity;
 
 namespace Xtensive.Storage.PairIntegrity
 {
   internal struct SyncActionSet
   {
     public Func<AssociationInfo, IEntity, IEntity> GetValue { get; private set; }
-    public Action<AssociationInfo, IEntity, IEntity, SyncContext> Break { get; private set; }
-    public Action<AssociationInfo, IEntity, IEntity, SyncContext> Create { get; private set; }
+    public Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> Break { get; private set; }
+    public Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> Create { get; private set; }
 
 
     // Constructors
 
     public SyncActionSet(
       Func<AssociationInfo, IEntity, IEntity> getValue,
-      Action<AssociationInfo, IEntity, IEntity, SyncContext> @break,
-      Action<AssociationInfo, IEntity, IEntity, SyncContext> create)
+      Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> @break,
+      Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> create)
       : this()
     {
       GetValue = getValue;

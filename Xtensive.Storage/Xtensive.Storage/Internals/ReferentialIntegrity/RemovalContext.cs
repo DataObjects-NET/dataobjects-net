@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 using System.Linq;
 
@@ -18,6 +19,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private readonly Queue<TypeInfo> types = new Queue<TypeInfo>();
     private readonly Dictionary<TypeInfo, List<Entity>> queue = new Dictionary<TypeInfo, List<Entity>>();
     private readonly RemovalContext parent;
+    private readonly List<Action> finalizers = new List<Action>();
 
     public bool QueueIsEmpty
     {
@@ -87,6 +89,27 @@ namespace Xtensive.Storage.ReferentialIntegrity
           list = new List<Entity>(group);
           queue.Add(type, list);
         }
+      }
+    }
+
+    public void EnqueueFinalizer(Action finalizer)
+    {
+      try {
+        finalizers.Add(finalizer);
+      }
+// ReSharper disable EmptyGeneralCatchClause
+      catch {
+        // This method  should never fail
+      }
+// ReSharper restore EmptyGeneralCatchClause
+    }
+
+    public void ProcessFinalizers()
+    {
+      using (var ae = new ExceptionAggregator()) {
+        // Backward order
+        for (int i = finalizers.Count - 1; i >= 0; i--)
+          ae.Execute(finalizers[i]);
       }
     }
 

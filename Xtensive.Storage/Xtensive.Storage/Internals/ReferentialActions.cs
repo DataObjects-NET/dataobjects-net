@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
+using Xtensive.Storage.ReferentialIntegrity;
 
 namespace Xtensive.Storage.Internals
 {
@@ -15,13 +16,13 @@ namespace Xtensive.Storage.Internals
   {
     public static readonly Func<AssociationInfo, IEntity, IEntity> GetReference = OnGetReference;
 
-    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext> ClearReference = OnClearReference;
+    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> ClearReference = OnClearReference;
 
-    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext> SetReference = OnSetReference;
+    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> SetReference = OnSetReference;
 
-    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext> AddReference = OnAddReference;
+    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> AddReference = OnAddReference;
 
-    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext> RemoveReference = OnRemoveReference;
+    public static readonly Action<AssociationInfo, IEntity, IEntity, SyncContext, RemovalContext> RemoveReference = OnRemoveReference;
 
     #region Implementation
 
@@ -30,26 +31,26 @@ namespace Xtensive.Storage.Internals
       return (IEntity) ((Entity) owner).GetFieldValue(association.OwnerField);
     }
 
-    private static void OnClearReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext)
+    private static void OnClearReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
       var nullIsEntity = owner as IHasNullEntity;
       var nullValue = nullIsEntity==null ? null : nullIsEntity.NullEntity;
-      ((Entity) owner).SetFieldValue(association.OwnerField, nullValue, syncContext);
+      ((Entity) owner).SetFieldValue(association.OwnerField, nullValue, syncContext, removalContext);
     }
 
-    private static void OnSetReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext)
+    private static void OnSetReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
-      ((Entity) owner).SetFieldValue(association.OwnerField, target, syncContext);
+      ((Entity) owner).SetFieldValue(association.OwnerField, target, syncContext, removalContext);
     }
 
-    private static void OnAddReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext)
+    private static void OnAddReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
-      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Add((Entity) target, syncContext);
+      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Add((Entity) target, syncContext, removalContext);
     }
 
-    private static void OnRemoveReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext)
+    private static void OnRemoveReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
-      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Remove((Entity) target, syncContext);
+      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Remove((Entity) target, syncContext, removalContext);
     }
 
     #endregion

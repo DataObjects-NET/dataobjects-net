@@ -17,15 +17,15 @@ namespace Xtensive.Storage.ReferentialIntegrity
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
-          ReferentialActions.ClearReference(association, referencingObject, null, null);
+        ReferentialActions.ClearReference(association, referencingObject, null, null, context);
           break;
         case Multiplicity.ManyToOne:
-          ReferentialActions.RemoveReference(association.Reversed, referencedObject, referencingObject, null);
+          ReferentialActions.RemoveReference(association.Reversed, referencedObject, referencingObject, null, context);
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.OneToMany:
         case Multiplicity.ManyToMany:
-          ReferentialActions.RemoveReference(association, referencingObject, referencedObject, null);
+          ReferentialActions.RemoveReference(association, referencingObject, referencedObject, null, context);
           break;
       }
     }

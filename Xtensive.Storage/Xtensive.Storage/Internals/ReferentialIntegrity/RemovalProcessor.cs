@@ -90,19 +90,32 @@ namespace Xtensive.Storage.ReferentialIntegrity
               entity.SystemRemove();
               entity.State.PersistenceState = PersistenceState.Removed;
             }
+            Context.ProcessFinalizers();
             Session.EnforceChangeRegistrySizeLimit();
-            scope.Complete();
 
-            foreach (var entity in processedEntities)
-              entity.SystemRemoveCompleted(null);
+            scope.Complete(); // Successful anyway
+
+            using (var ae = new ExceptionAggregator()) {
+              for (int i = processedEntities.Count-1; i >= 0; i--) {
+                // Backward order
+                var entity = processedEntities[i];
+                ae.Execute(() => entity.SystemRemoveCompleted(null));
+              }
+            }
 
             region.Complete();
           }
         }
       }
       catch (Exception e) {
-        foreach (var entity in processedEntities)
-          entity.SystemRemoveCompleted(e);
+        foreach (var entity in processedEntities) {
+          try {
+            entity.SystemRemoveCompleted(e);
+          }
+// ReSharper disable EmptyGeneralCatchClause
+          catch {}
+// ReSharper restore EmptyGeneralCatchClause
+        }
         throw;
       }
     }

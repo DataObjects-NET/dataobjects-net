@@ -23,6 +23,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.PairIntegrity;
+using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
@@ -431,10 +432,10 @@ namespace Xtensive.Storage
     [Transactional]
     internal bool Add(Entity item)
     {
-      return Add(item, null);
+      return Add(item, null, null);
     }
 
-    internal bool Add(Entity item, SyncContext syncContext)
+    internal bool Add(Entity item, SyncContext syncContext, RemovalContext removalContext)
     {
       if (Contains(item))
         return false;
@@ -469,23 +470,26 @@ namespace Xtensive.Storage
             var state = State;
             state.Add(itemKey);
             index = GetItemIndex(state, itemKey);
-            Owner.UpdateVersionInfo(Owner, Field);
           };
           
           operations.NotifyOperationStarting();
           if (Field.Association.IsPaired)
-            Session.PairSyncManager.ProcessRecursively(
-              syncContext, OperationType.Add, Field.Association, Owner, item, finalizer);
+            Session.PairSyncManager.ProcessRecursively(syncContext, removalContext, 
+              OperationType.Add, Field.Association, Owner, item, finalizer);
           else
             finalizer.Invoke();
 
+          // removalContext is unused here, since Add is never 
+          // invoked in reference cleanup process directly
+
+          Owner.UpdateVersionInfo(Owner, Field);
           SystemAdd(item, index);
           SystemAddCompleted(item, null);
           scope.Complete();
           return true;
         }
       }
-      catch(Exception e) {
+      catch (Exception e) {
         SystemAddCompleted(item, e);
         throw;
       }
@@ -494,17 +498,18 @@ namespace Xtensive.Storage
     [Transactional]
     internal bool Remove(Entity item)
     {
-      return Remove(item, null);
+      return Remove(item, null, null);
     }
 
-    internal bool Remove(Entity item, SyncContext syncContext)
+    internal bool Remove(Entity item, SyncContext syncContext, RemovalContext removalContext)
     {
       if (!Contains(item))
         return false;
 
       try {
         var operations = Session.Operations;
-        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+        var scope = operations.BeginRegistration(Operations.OperationType.System);
+        try {
           var itemKey = item.Key;
           if (operations.CanRegisterOperation)
             operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey));
@@ -532,23 +537,50 @@ namespace Xtensive.Storage
             var state = State;
             index = GetItemIndex(state, itemKey);
             state.Remove(itemKey);
-            Owner.UpdateVersionInfo(Owner, Field);
           };
 
           operations.NotifyOperationStarting();
           if (Field.Association.IsPaired)
-            Session.PairSyncManager.ProcessRecursively(
-              syncContext, OperationType.Remove, Field.Association, Owner, item, finalizer);
+            Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
+              OperationType.Remove, Field.Association, Owner, item, finalizer);
           else
             finalizer.Invoke();
 
+          if (removalContext!=null) {
+            // Postponing finalizers (events)
+            removalContext.EnqueueFinalizer(() => {
+              try {
+                Owner.UpdateVersionInfo(Owner, Field);
+                SystemRemove(item, index);
+                SystemRemoveCompleted(item, null);
+                scope.Complete();
+              }
+              catch (Exception e) {
+                try {
+                  scope.DisposeSafely();
+                }
+// ReSharper disable EmptyGeneralCatchClause
+                catch {}
+// ReSharper restore EmptyGeneralCatchClause
+                SystemRemoveCompleted(item, e);
+                throw;
+              }
+            });
+            return true;
+          }
+
+          Owner.UpdateVersionInfo(Owner, Field);
           SystemRemove(item, index);
           SystemRemoveCompleted(item, null);
           scope.Complete();
           return true;
         }
+        finally {
+          if (removalContext==null)
+            scope.DisposeSafely();
+        }
       }
-      catch(Exception e) {
+      catch (Exception e) {
         SystemRemoveCompleted(item, e);
         throw;
       }
