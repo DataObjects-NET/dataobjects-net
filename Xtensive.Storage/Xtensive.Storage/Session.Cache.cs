@@ -39,7 +39,7 @@ namespace Xtensive.Storage
       if (keyMapping.Map.Count==0)
         return;
       using (Activate()) {
-        Persist(PersistReason.DisconnectedStateRemapKeys);
+        Persist(PersistReason.RemapEntityKeys);
         Invalidate();
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);

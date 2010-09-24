@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Disconnected
         case Multiplicity.ZeroToOne:
         case Multiplicity.ZeroToMany:
         case Multiplicity.ManyToMany:
-          Session.Persist(PersistReason.DisconnectedStateGetReference);
+          Session.Persist(PersistReason.DisconnectedStateReferenceCacheLookup);
           var list = new List<ReferenceInfo>();
           var state = disconnectedState.GetEntityState(target.Key);
           if (state!=null) {

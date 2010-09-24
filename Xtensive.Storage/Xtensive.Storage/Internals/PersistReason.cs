@@ -32,6 +32,18 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     ChangeRegistrySizeLimit,
     /// <summary>
+    /// <see cref="VersionValidator"/> is about to be disposed.
+    /// </summary>
+    ValidateVersions,
+    /// <summary>
+    /// <see cref="Session"/> is about to remap its keys.
+    /// </summary>
+    RemapEntityKeys,
+    /// <summary>
+    /// It's necessary to flush entity removal.
+    /// </summary>
+    PersistEntityRemoval,
+    /// <summary>
     /// <see cref="DisconnectedState"/> is about to be attached to <see cref="Session"/>.
     /// </summary>
     DisconnectedStateAttach,
@@ -42,10 +54,14 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// <see cref="DisconnectedState"/> is about to run local refeernce-related query.
     /// </summary>
-    DisconnectedStateGetReference,
+    DisconnectedStateReferenceCacheLookup,
     /// <summary>
-    /// <see cref="DisconnectedState"/> is about to remap its keys.
+    /// <see cref="DisconnectedState"/> is about to be enumerated.
     /// </summary>
-    DisconnectedStateRemapKeys
+    DisconnectedStateEnumeration,
+    /// <summary>
+    /// Another persist reason.
+    /// </summary>
+    Other,
   }
 }
