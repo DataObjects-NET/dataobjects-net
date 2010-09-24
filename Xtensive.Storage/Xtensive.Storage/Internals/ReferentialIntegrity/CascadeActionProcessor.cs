@@ -20,7 +20,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       case Multiplicity.ZeroToMany:
       case Multiplicity.OneToMany:
       case Multiplicity.ManyToMany:
-        ReferentialActions.RemoveReference(association, referencingObject, referencedObject, null);
+        ReferentialActions.RemoveReference(association, referencingObject, referencedObject, null, context);
         break;
       }
       target.RemoveLater();

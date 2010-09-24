@@ -850,8 +850,8 @@ namespace Xtensive.Storage
             using (Session.Pin(this)) {
               foreach (var referenceField in references) {
                 var referenceValue = (Entity) GetFieldValue(referenceField);
-                Session.PairSyncManager.ProcessRecursively(
-                  null, PairIntegrity.OperationType.Set, referenceField.Association, this, referenceValue, null);
+                Session.PairSyncManager.ProcessRecursively(null, null,
+                  PairIntegrity.OperationType.Set, referenceField.Association, this, referenceValue, null);
               }
             }
           }

@@ -59,6 +59,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (isEmpty)
         return;
       var processedEntities = new List<Entity>();
+      var notifiedEntities = new HashSet<Entity>();
       try {
         using (var region = Validation.Disable()) {
           var operations = Session.Operations;
@@ -90,19 +91,35 @@ namespace Xtensive.Storage.ReferentialIntegrity
               entity.SystemRemove();
               entity.State.PersistenceState = PersistenceState.Removed;
             }
+            Context.ProcessFinalizers();
             Session.EnforceChangeRegistrySizeLimit();
-            scope.Complete();
 
-            foreach (var entity in processedEntities)
-              entity.SystemRemoveCompleted(null);
+            scope.Complete(); // Successful anyway
+
+            using (var ae = new ExceptionAggregator()) {
+              foreach (var entity in processedEntities) {
+                ae.Execute(() => {
+                  notifiedEntities.Add(entity);
+                  entity.SystemRemoveCompleted(null);
+                });
+              }
+            }
 
             region.Complete();
           }
         }
       }
       catch (Exception e) {
-        foreach (var entity in processedEntities)
-          entity.SystemRemoveCompleted(e);
+        foreach (var entity in processedEntities) {
+          if (notifiedEntities.Contains(entity))
+            continue;
+          try {
+            entity.SystemRemoveCompleted(e);
+          }
+// ReSharper disable EmptyGeneralCatchClause
+          catch {}
+// ReSharper restore EmptyGeneralCatchClause
+        }
         throw;
       }
     }

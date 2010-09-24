@@ -47,6 +47,28 @@ namespace Xtensive.Core
       get { return exceptions!=null ? exceptions.Count : 0; }
     }
 
+    /// <summary>
+    /// Adds the specified exception to the list of caught exceptions.
+    /// </summary>
+    /// <param name="exception">The exception to add.</param>
+    /// <param name="handle">Indicates whether <see cref="ExceptionHandler"/>
+    /// must be invoked for this exception or not.</param>
+    public void Add(Exception exception, bool handle)
+    {
+      if (handle)
+        HandleException(exception);
+      else {
+        InnerAdd(exception);
+      }
+    }
+
+    private void InnerAdd(Exception exception)
+    {
+      if (exceptions==null)
+        exceptions = new List<Exception>();
+      exceptions.Add(exception);
+    }
+
     #region Execute(...) methods
 
     /// <summary>
@@ -275,9 +297,7 @@ namespace Xtensive.Core
     {
       if (exceptionHandler!=null)
         exceptionHandler(exception);
-      if (exceptions==null)
-        exceptions = new List<Exception>();
-      exceptions.Add(exception);
+      InnerAdd(exception);
     }
 
 

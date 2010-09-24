@@ -9,20 +9,21 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.ReferentialIntegrity;
 
 namespace Xtensive.Storage.PairIntegrity
 {
   [Infrastructure]
   internal class SyncManager : SessionBound
   {
-    public void ProcessRecursively(SyncContext context, OperationType type, 
-      AssociationInfo association, Entity owner, Entity target,
+    public void ProcessRecursively(SyncContext context, RemovalContext removalContext, 
+      OperationType type, AssociationInfo association, Entity owner, Entity target,
       Action finalizer)
     {
       if (context==null) {
         // We must create a new context
         using (var region = Validation.Disable(owner.Session)) {
-          context = CreateContext(type, association, owner, target);
+          context = CreateContext(removalContext, type, association, owner, target);
           context.ProcessPendingActionsRecursively(finalizer);
           region.Complete();
         }
@@ -36,7 +37,8 @@ namespace Xtensive.Storage.PairIntegrity
       }
     }
 
-    private SyncContext CreateContext(OperationType type, AssociationInfo association, Entity owner, Entity target)
+    private SyncContext CreateContext(RemovalContext removalContext, 
+      OperationType type, AssociationInfo association, Entity owner, Entity target)
     {
       SyncActionSet masterActions = GetSyncActions(association);
       SyncActionSet slaveActions = GetSyncActions(association.Reversed);
@@ -50,7 +52,7 @@ namespace Xtensive.Storage.PairIntegrity
       if (slave2!=null && slaveActions.GetValue!=null)
         master2 = (Entity) slaveActions.GetValue(association.Reversed, slave2);
 
-      var context = new SyncContext();
+      var context = new SyncContext(removalContext);
       switch (type) {
       case OperationType.Add:
       case OperationType.Set:
@@ -65,8 +67,8 @@ namespace Xtensive.Storage.PairIntegrity
           context.Enqueue(new SyncAction(slaveActions.Break, association.Reversed, slave1, master1));
         break;
       case OperationType.Remove:
-        var removalContext = Session.RemovalProcessor.Context;
-        var isNotYetRemoved = removalContext==null || !removalContext.Contains(slave2);
+        var currentRemovalContext = Session.RemovalProcessor.Context;
+        var isNotYetRemoved = currentRemovalContext==null || !currentRemovalContext.Contains(slave2);
         if ((!(association.IsLoop && master1==slave2)) && isNotYetRemoved)
           context.Enqueue(new SyncAction(slaveActions.Break, association.Reversed, slave2, master1));
         break;

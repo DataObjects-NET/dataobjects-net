@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.PairIntegrity
@@ -19,6 +20,7 @@ namespace Xtensive.Storage.PairIntegrity
     private static volatile int identifier;
     public int Identifier = identifier++;
 
+    private RemovalContext removalContext;
     private List<SyncAction> actions = new List<SyncAction>(3);
     private Stack<Action> finalizers = new Stack<Action>(3);
     private int currentActionIndex;
@@ -54,7 +56,15 @@ namespace Xtensive.Storage.PairIntegrity
     private void ExecuteNextPendingAction()
     {
       var action = actions[currentActionIndex++];
-      action.Action.Invoke(action.Association, action.Owner, action.Target, this);
+      action.Action.Invoke(action.Association, action.Owner, action.Target, this, removalContext);
+    }
+
+    
+    // Constructors
+    
+    public SyncContext(RemovalContext removalContext)
+    {
+      this.removalContext = removalContext;
     }
   }
 }

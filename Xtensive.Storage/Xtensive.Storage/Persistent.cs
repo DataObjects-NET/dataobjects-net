@@ -21,6 +21,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.PairIntegrity;
+using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
 using AggregateException = Xtensive.Core.AggregateException;
@@ -368,6 +369,11 @@ namespace Xtensive.Storage
 
     internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext)
     {
+      SetFieldValue(field, value, syncContext, null);
+    }
+
+    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
+    {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
       SystemSetValueAttempt(field, value);
@@ -375,7 +381,8 @@ namespace Xtensive.Storage
       object oldValue = GetFieldValue(field);
       try {
         var operations = Session.Operations;
-        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+        var scope = operations.BeginRegistration(Operations.OperationType.System);
+        try {
           if (operations.CanRegisterOperation) {
             var entity = this as Entity;
             if (entity != null)
@@ -412,8 +419,8 @@ namespace Xtensive.Storage
               if (newReference!=null)
                 newKey = newReference.Key;
               if (currentKey!=newKey) {
-                Session.PairSyncManager.ProcessRecursively(
-                  syncContext, OperationType.Set, association, (Entity) this, newReference, () => {
+                Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
+                  OperationType.Set, association, (Entity) this, newReference, () => {
                     SystemBeforeTupleChange();
                     fieldAccessor.SetUntypedValue(this, value);
                   });
@@ -425,10 +432,36 @@ namespace Xtensive.Storage
                 fieldAccessor.SetUntypedValue(this, value);
               }
             }
+
+            if (removalContext!=null) {
+              // Postponing finalizers (events)
+              removalContext.EnqueueFinalizer(() => {
+                try {
+                  try {
+                    SystemSetValue(field, oldValue, value);
+                    SystemSetValueCompleted(field, oldValue, value, null);
+                    scope.Complete();
+                  }
+                  finally {
+                    scope.DisposeSafely();
+                  }
+                }
+                catch (Exception e) {
+                  SystemSetValueCompleted(field, oldValue, value, e);
+                  throw;
+                }
+              });
+              return;
+            }
+
             SystemSetValue(field, oldValue, value);
             SystemSetValueCompleted(field, oldValue, value, null);
           }
           scope.Complete();
+        }
+        finally {
+          if (removalContext==null)
+            scope.DisposeSafely();
         }
       }
       catch (Exception e) {
