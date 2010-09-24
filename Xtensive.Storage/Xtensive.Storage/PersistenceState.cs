@@ -15,17 +15,14 @@ namespace Xtensive.Storage
     /// The entity is synchronized with the database (there are no unsaved changes).
     /// </summary>
     Synchronized = 0,
-
     /// <summary>
     /// The entity is created, but not persisted yet.
     /// </summary>
     New = 1,
-
     /// <summary>
     /// The entity presents in database, but has some unpersisted changes.
     /// </summary>
     Modified = 2,
-
     /// <summary>
     /// The entity is marked as removed, but is not removed from database yet.
     /// </summary>

@@ -386,7 +386,7 @@ namespace Xtensive.Storage
       bool inTransaction = IsAttached && Session.Transaction!=null;
 
       if (inTransaction)
-        Session.Persist();
+        Session.Persist(PersistReason.DisconnectedStateMerge);
       try {
         var sourceStates = source.originalState.EntityStates;
         foreach (var entityState in sourceStates)
@@ -510,7 +510,8 @@ namespace Xtensive.Storage
     public IEnumerator<Entity> GetEnumerator()
     {
       EnsureIsAttached();
-      Session.Persist();
+	  if (Session.Transaction!=null)
+        Session.Persist(PersistReason.Query);
       var all =
         from pair in AllPersistenceStates()
         where pair.Value!=PersistenceState.Removed
@@ -709,7 +710,7 @@ namespace Xtensive.Storage
         ? Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
         : null;
       if (session.Transaction!=null)
-        session.Persist(PersistReason.DisconnectedState);
+        session.Persist(PersistReason.DisconnectedStateAttach);
       session.DisconnectedState = this;
       this.session = session;
 
@@ -840,7 +841,8 @@ namespace Xtensive.Storage
     [OnDeserialized]
     private void OnDeserialized(StreamingContext context)
     {
-      var domain = Session.Demand().Domain;
+      session = Session.Demand();
+      var domain = session.Domain;
 
       versionsProvider = this;
       associationCache = new AssociationCache();

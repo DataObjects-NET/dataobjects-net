@@ -39,7 +39,7 @@ namespace Xtensive.Storage
       if (keyMapping.Map.Count==0)
         return;
       using (Activate()) {
-        Persist();
+        Persist(PersistReason.RemapEntityKeys);
         Invalidate();
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);
@@ -120,7 +120,7 @@ namespace Xtensive.Storage
       // Checking for deleted entity with the same key
       var result = EntityStateCache[key, false];
       if (result != null && result.PersistenceState==PersistenceState.Removed)
-        Persist();
+        Persist(PersistReason.PersistEntityRemoval);
       else
         EnforceChangeRegistrySizeLimit(); // Must be done before new entity registration
 

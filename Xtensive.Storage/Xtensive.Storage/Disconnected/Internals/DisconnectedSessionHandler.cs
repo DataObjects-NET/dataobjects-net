@@ -231,12 +231,14 @@ namespace Xtensive.Storage.Disconnected
         case Multiplicity.ZeroToOne:
         case Multiplicity.ZeroToMany:
         case Multiplicity.ManyToMany:
-          Session.Persist();
+          Session.Persist(PersistReason.DisconnectedStateReferenceCacheLookup);
           var list = new List<ReferenceInfo>();
           var state = disconnectedState.GetEntityState(target.Key);
-          foreach (var reference in state.GetReferences(association.OwnerField)) {
-            var item = FetchEntityState(reference.Key);
-            list.Add(new ReferenceInfo(item.Entity, target, association));
+          if (state!=null) {
+            foreach (var reference in state.GetReferences(association.OwnerField)) {
+              var item = FetchEntityState(reference.Key);
+              list.Add(new ReferenceInfo(item.Entity, target, association));
+            }
           }
           return list;
         case Multiplicity.OneToOne:
@@ -244,9 +246,10 @@ namespace Xtensive.Storage.Disconnected
           var key = target.GetReferenceKey(association.Reversed.OwnerField);
           if (key!=null)
             return EnumerableUtils.One(new ReferenceInfo(FetchEntityState(key).Entity, target, association));
-          break;
+          return EnumerableUtils<ReferenceInfo>.Empty;
+        default:
+          throw new ArgumentOutOfRangeException("association.Multiplicity");
       }
-      throw new ArgumentException("association.Multiplicity");
     }
 
 
