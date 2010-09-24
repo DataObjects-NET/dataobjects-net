@@ -376,7 +376,7 @@ namespace Xtensive.Storage
     {
       try {
         if (Session.Transaction!=null) {
-          Session.Persist();
+          Session.Persist(PersistReason.ValidateVersions);
           FetchLeftVersions();
           ValidateFetchedVersions();
         }
