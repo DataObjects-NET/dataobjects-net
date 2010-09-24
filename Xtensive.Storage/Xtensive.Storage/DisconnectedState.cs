@@ -510,8 +510,7 @@ namespace Xtensive.Storage
     public IEnumerator<Entity> GetEnumerator()
     {
       EnsureIsAttached();
-	  if (Session.Transaction!=null)
-        Session.Persist(PersistReason.Query);
+      Session.Persist(PersistReason.DisconnectedStateEnumeration);
       var all =
         from pair in AllPersistenceStates()
         where pair.Value!=PersistenceState.Removed
