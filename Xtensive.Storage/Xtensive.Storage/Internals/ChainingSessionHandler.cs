@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.06
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -35,6 +36,12 @@ namespace Xtensive.Storage.Internals
     public override void BeginTransaction(Transaction transaction)
     {
       chainedHandler.BeginTransaction(transaction);
+    }
+
+    /// <inheritdoc/>
+    public override void CompletingTransaction(Transaction transaction)
+    {
+      chainedHandler.CompletingTransaction(transaction);
     }
 
     /// <inheritdoc/>

@@ -220,15 +220,16 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         SetSlim<GraphContainer> graphContainers;
         using (var tx = Transaction.Open()) {
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
-          tx.Complete();
           graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
           Assert.AreEqual(1, graphContainers.Count);
+          tx.Complete();
         }
         Assert.AreEqual(0, graphContainers.Count);
 
         using (var tx = Transaction.Open()) {
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField));
           Assert.AreEqual(1, graphContainers.Count);
+          // tx.Complete();
         }
         Assert.AreEqual(0, graphContainers.Count);
       }

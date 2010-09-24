@@ -100,7 +100,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void RollbackToSavepoint(Transaction transaction)
     {
-      base.RollbackToSavepoint(transaction);
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.RollbackToSavepoint(Session, connection, transaction.SavepointName);
@@ -110,7 +109,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void ReleaseSavepoint(Transaction transaction)
     {
-      base.ReleaseSavepoint(transaction);
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
@@ -120,7 +118,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
-      base.CommitTransaction(transaction);
       lock (connectionSyncRoot) {
         if (Connection.ActiveTransaction!=null)
           driver.CommitTransaction(Session, connection);
@@ -131,7 +128,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
-      base.RollbackTransaction(transaction);
       lock (connectionSyncRoot) {
         if (Connection.ActiveTransaction!=null)
           driver.RollbackTransaction(Session, Connection);

@@ -74,26 +74,6 @@ namespace Xtensive.Storage.Rse.Compilation
 
 
     /// <summary>
-    /// Gets or sets the <see cref="Current"/> compilation context resolver to use
-    /// when there is no active <see cref="CompilationService"/>.
-    /// </summary>
-    /// <remarks>
-    /// The setter of this property can be invoked just once per application lifetime; 
-    /// assigned resolver can not be changed.
-    /// </remarks>
-    /// <exception cref="NotSupportedException">Resolver is already assigned.</exception>
-    public static Func<CompilationService> Resolver {
-      [DebuggerStepThrough]
-      get {
-        return resolver;
-      }
-      [DebuggerStepThrough]
-      set {
-        resolver = value;
-      }
-    }
-
-    /// <summary>
     /// Compiles the specified provider by passing it to <see cref="ICompiler"/>.
     /// <see cref="ICompiler.Compile"/> method.
     /// </summary>

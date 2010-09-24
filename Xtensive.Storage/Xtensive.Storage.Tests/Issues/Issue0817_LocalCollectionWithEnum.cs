@@ -12,7 +12,9 @@ namespace Xtensive.Storage.Tests.Issues_Issue0817_LocalCollectionWithEnum
     public long Id { get; private set; }
 
     [Field]
+#pragma warning disable 108,114
     public ItemState State { get; set; }
+#pragma warning restore 108,114
   }
 
   public enum ItemState

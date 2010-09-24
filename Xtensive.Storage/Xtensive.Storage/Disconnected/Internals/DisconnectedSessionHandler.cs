@@ -232,7 +232,9 @@ namespace Xtensive.Storage.Disconnected
       
       // If state is cached, let's return it
       if (cachedState!=null && cachedState.IsLoadedOrRemoved) {
-        var tuple = cachedState.Tuple!=null ? cachedState.Tuple.Clone() : null;
+        Tuple tuple = null;
+        if (!cachedState.IsRemoved && cachedState.Tuple!=null) 
+          tuple = cachedState.Tuple.Clone();
         var entityState = Session.UpdateEntityState(cachedState.Key, tuple, true);
         return cachedState.IsRemoved ? null : entityState;
       }
@@ -283,9 +285,11 @@ namespace Xtensive.Storage.Disconnected
           Session.Persist(PersistReason.DisconnectedStateGetReference);
           var list = new List<ReferenceInfo>();
           var state = disconnectedState.GetEntityState(target.Key);
-          foreach (var reference in state.GetReferences(association.OwnerField)) {
-            var item = FetchEntityState(reference.Key);
-            list.Add(new ReferenceInfo(item.Entity, target, association));
+          if (state!=null) {
+            foreach (var reference in state.GetReferences(association.OwnerField)) {
+              var item = FetchEntityState(reference.Key);
+              list.Add(new ReferenceInfo(item.Entity, target, association));
+            }
           }
           return list;
         case Multiplicity.OneToOne:
@@ -293,9 +297,10 @@ namespace Xtensive.Storage.Disconnected
           var key = target.GetReferenceKey(association.Reversed.OwnerField);
           if (key!=null)
             return EnumerableUtils.One(new ReferenceInfo(FetchEntityState(key).Entity, target, association));
-          break;
+          return EnumerableUtils<ReferenceInfo>.Empty;
+        default:
+          throw new ArgumentOutOfRangeException("association.Multiplicity");
       }
-      throw new ArgumentException("association.Multiplicity");
     }
 
 
@@ -309,7 +314,5 @@ namespace Xtensive.Storage.Disconnected
     {
       this.disconnectedState = disconnectedState;
     }
-
-    
   }
 }

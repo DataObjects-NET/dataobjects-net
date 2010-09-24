@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Rse
 
 //    #region IEnumerable<...> methods
 //
-    /// <inheritdoc/>
+//    /// <inheritdoc/>
 //    public IEnumerator<Tuple> GetEnumerator()
 //    {
 //      EnumerationContext ctx;
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Rse
 //          yield return tuple;
 //    }
 //
-    /// <inheritdoc/>
+//    /// <inheritdoc/>
 //    IEnumerator IEnumerable.GetEnumerator()
 //    {
 //      return GetEnumerator();

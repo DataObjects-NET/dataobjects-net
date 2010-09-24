@@ -160,13 +160,6 @@ namespace Xtensive.Storage
       }
       set {
         resolver = value;
-        if (value==null)
-          Rse.Compilation.CompilationService.Resolver = null;
-        else
-          Rse.Compilation.CompilationService.Resolver = () => {
-            var session = resolver.Invoke();
-            return session==null ? null : session.CompilationService;
-          };
       }
     }
 
@@ -314,7 +307,7 @@ namespace Xtensive.Storage
     public VersionSet CreateVersionSet(IEnumerable<Key> keys)
     {
       using (Activate())
-      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto, IsolationLevel.Unspecified)) {
+      using (var tx = Transaction.OpenAuto(this)) {
         var entities = keys.Prefetch(this);
         var result = new VersionSet();
         foreach (var entity in entities)
@@ -350,7 +343,7 @@ namespace Xtensive.Storage
     public void Remove<T>(IEnumerable<T> entities)
       where T : IEntity
     {
-      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto, IsolationLevel.Unspecified)) {
+      using (var tx = Transaction.OpenAuto(this)) {
         RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
         tx.Complete();
       }

@@ -57,13 +57,11 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override void RollbackToSavepoint(Transaction transaction)
     {
-      base.RollbackToSavepoint(transaction);
       // TODO: Implement transactions
     }
 
     public override void ReleaseSavepoint(Transaction transaction)
     {
-      base.ReleaseSavepoint(transaction);
       // TODO: Implement transactions
     }
 
@@ -71,7 +69,6 @@ namespace Xtensive.Storage.Providers.Index
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void CommitTransaction(Transaction transaction)
     {
-      base.CommitTransaction(transaction);
       lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
@@ -85,7 +82,6 @@ namespace Xtensive.Storage.Providers.Index
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void RollbackTransaction(Transaction transaction)
     {
-      base.RollbackTransaction(transaction);
       lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);

@@ -12,9 +12,11 @@ namespace Xtensive.Storage.Providers
 {
   partial class SessionHandler
   {
+    // Transaction related methods
+
     /// <summary>
     /// Gets a value indicating whether transaction is actually started.
-    /// This indicates presence of outermost transaction only.
+    /// This property indicates presence of outermost transaction only.
     /// </summary>
     public abstract bool TransactionIsStarted { get; }
 
@@ -24,41 +26,43 @@ namespace Xtensive.Storage.Providers
     public abstract void BeginTransaction(Transaction transaction);
 
     /// <summary>
-    /// Makes the savepoint.
-    /// </summary>
-    public abstract void CreateSavepoint(Transaction transaction);
-
-    /// <summary>
-    /// Rollbacks to savepoint.
-    /// </summary>
-    public virtual void RollbackToSavepoint(Transaction transaction)
+    /// Clears transaction-related caches.
+    /// This method is called for non-actual transactions as well.
+    /// </summary>    
+    public virtual void CompletingTransaction(Transaction transaction)
     {
-      prefetchManager.Clear();
-    }
-
-    /// <summary>
-    /// Releases the savepoint.
-    /// </summary>
-    public virtual void ReleaseSavepoint(Transaction transaction)
-    {
-      prefetchManager.Clear();
+      prefetchManager.CancelTasks();
     }
 
     /// <summary>
     /// Commits the transaction.
+    /// This method is invoked for actual transactions only.
     /// </summary>    
-    public virtual void CommitTransaction(Transaction transaction)
-    {
-      prefetchManager.Clear();
-    }
+    public abstract void CommitTransaction(Transaction transaction);
 
     /// <summary>
     /// Rollbacks the transaction.
+    /// This method is invoked for actual transactions only.
     /// </summary>    
-    public virtual void RollbackTransaction(Transaction transaction)
-    {
-      prefetchManager.Clear();
-    }
+    public abstract void RollbackTransaction(Transaction transaction);
+
+    // Savepoint related methods
+
+    /// <summary>
+    /// Creates the savepoint.
+    /// </summary>
+    public abstract void CreateSavepoint(Transaction transaction);
+
+    /// <summary>
+    /// Releases the savepoint.
+    /// </summary>
+    public abstract void ReleaseSavepoint(Transaction transaction);
+
+    /// <summary>
+    /// Rollbacks to savepoint.
+    /// </summary>
+    public abstract void RollbackToSavepoint(Transaction transaction);
+
 
     /// <summary>
     /// Ensures the transaction is opened.
