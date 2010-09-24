@@ -193,7 +193,7 @@ namespace Xtensive.Storage
     {
       if (e.Transaction.IsNested)
         return;
-      Session.Persist(PersistReason.Commit);
+      Session.Persist(PersistReason.ValidateVersions);
       try {
         FetchLeftVersions();
         ValidateFetchedVersions();
