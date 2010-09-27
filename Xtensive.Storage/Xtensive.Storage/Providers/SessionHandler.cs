@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using Xtensive.Core;
@@ -97,6 +98,12 @@ namespace Xtensive.Storage.Providers
           task.Result = task.DataSource.ToList();
       }
     }
+
+    /// <summary>
+    /// Sets command timeout for all <see cref="IDbCommand"/> created within current instance.
+    /// </summary>
+    /// <param name="commandTimeout">The command timeout.</param>
+    public abstract void SetCommandTimeout(int? commandTimeout);
 
     #region IoC support (Domain.Services)
 

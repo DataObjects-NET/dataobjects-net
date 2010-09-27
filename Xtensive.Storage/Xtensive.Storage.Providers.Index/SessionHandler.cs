@@ -37,6 +37,9 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override bool TransactionIsStarted { get { return StorageView!=null; } }
 
+    public override void SetCommandTimeout(int? commandTimeout)
+    {}
+
     /// <inheritdoc/>
     public override void BeginTransaction(Transaction transaction)
     {
