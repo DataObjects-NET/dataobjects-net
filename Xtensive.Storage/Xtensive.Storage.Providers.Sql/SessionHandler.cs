@@ -49,6 +49,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    public override void SetCommandTimeout(int? commandTimeout)
+    {
+      if (connection!=null)
+        connection.CommandTimeout = commandTimeout;
+    }
+
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {

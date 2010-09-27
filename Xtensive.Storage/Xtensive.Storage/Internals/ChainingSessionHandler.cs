@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.06
 
+using System;
 using System.Collections.Generic;
 using System.Transactions;
 using Xtensive.Core;
@@ -36,6 +37,11 @@ namespace Xtensive.Storage.Internals
 
     /// <inheritdoc/>
     public override bool TransactionIsStarted { get { return chainedHandler.TransactionIsStarted; } }
+
+    public override void SetCommandTimeout(int? commandTimeout)
+    {
+      chainedHandler.SetCommandTimeout(commandTimeout);
+    }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)

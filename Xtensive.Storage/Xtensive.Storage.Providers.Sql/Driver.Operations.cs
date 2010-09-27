@@ -22,7 +22,9 @@ namespace Xtensive.Storage.Providers.Sql
         if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXCreatingConnectionY,
             session.GetFullNameSafely(), connectionInfo);
-        return underlyingDriver.CreateConnection(connectionInfo);
+        var connection = underlyingDriver.CreateConnection(connectionInfo);
+        connection.CommandTimeout = session.CommandTimeout;
+        return connection;
       }
       catch (Exception exception) {
         throw TranslateException(null, exception);

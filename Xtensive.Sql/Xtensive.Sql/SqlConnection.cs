@@ -17,6 +17,8 @@ namespace Xtensive.Sql
   public abstract class SqlConnection : SqlDriverBound,
     IDisposable
   {
+    private int? commandTimeout;
+
     /// <summary>
     /// Gets the underlying connection.
     /// </summary>
@@ -26,6 +28,19 @@ namespace Xtensive.Sql
     /// Gets the active transaction.
     /// </summary>
     public abstract DbTransaction ActiveTransaction { get; }
+
+    /// <summary>
+    /// Gets or sets the command timeout.
+    /// </summary>
+    public int? CommandTimeout
+    {
+      get { return commandTimeout; }
+      set {
+        if (value.HasValue)
+          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, "CommandTimeout");
+        commandTimeout = value;
+      }
+    }
 
     /// <summary>
     /// Gets the state of the connection.
@@ -39,6 +54,8 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand()
     {
       var command = CreateNativeCommand();
+      if (commandTimeout.HasValue)
+        command.CommandTimeout = commandTimeout.Value;
       command.Transaction = ActiveTransaction;
       return command;
     }
@@ -52,6 +69,8 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
       var command = CreateNativeCommand();
+      if (commandTimeout.HasValue)
+        command.CommandTimeout = commandTimeout.Value;
       command.Transaction = ActiveTransaction;
       command.CommandText = Driver.Compile(statement).GetCommandText();
       return command;
@@ -66,6 +85,8 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, "commandText");
       var command = CreateNativeCommand();
+      if (commandTimeout.HasValue)
+        command.CommandTimeout = commandTimeout.Value;
       command.Transaction = ActiveTransaction;
       command.CommandText = commandText;
       return command;

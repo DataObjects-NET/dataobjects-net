@@ -136,12 +136,23 @@ namespace Xtensive.Storage
     /// </summary>
     public OperationRegistry Operations { get; private set; }
 
+    private int? commandTimeout;
+
     /// <summary>
     /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
     /// are executed within this session.
     /// <seealso cref="IDbCommand.CommandTimeout"/>
     /// </summary>
-    public int? CommandTimeout { get; set; }
+    public int? CommandTimeout
+    {
+      get { return commandTimeout; }
+      set
+      {
+        if (Handler != null)
+          Handler.SetCommandTimeout(value);
+        commandTimeout = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the <see cref="Current"/> session resolver to use
