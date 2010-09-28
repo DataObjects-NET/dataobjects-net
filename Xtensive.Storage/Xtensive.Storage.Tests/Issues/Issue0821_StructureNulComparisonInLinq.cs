@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Issues
           var address = new Address {City = "Moscow", Street = "Lomonosova"};
           var nullStrucutre = new User();
           var notNullStructure = new User {Address = address};
-          session.SaveChanges();
+          session.Persist();
           var nullQuery = Query.All<User>().Where(u => u.Address==null).ToList();
           var notNullQuery = Query.All<User>().Where(u => u.Address!=null).ToList();
           Assert.AreEqual(0, nullQuery.Count);
