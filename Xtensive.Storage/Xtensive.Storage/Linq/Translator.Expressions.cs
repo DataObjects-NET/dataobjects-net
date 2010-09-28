@@ -542,6 +542,12 @@ namespace Xtensive.Storage.Linq
         rightExpressions = GetAnonymousArguments(right);
         break;
       case MemberType.Structure:
+        if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value==null)
+          || left is ConstantExpression && ((ConstantExpression) left).Value==null)
+          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
+        if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
+          || right is ConstantExpression && ((ConstantExpression) right).Value==null)
+          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
         // Structure split to it's fields.
         var leftStructureExpression = left as StructureFieldExpression;
         var rightStructureExpression = right as StructureFieldExpression;
