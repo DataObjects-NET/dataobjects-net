@@ -32,6 +32,15 @@ namespace Xtensive.Storage.Tests.Linq
       var list = result.ToList();
     }
 
+    [Test]
+    public void EntityJoinWithNullTest()
+    {
+      var id = Query.All<Product>().First().Id;
+      var result = Query.All<Product>().Select(p=>p.Id==id ? null : p).Select(p=>p==null ? null : p.Category).ToList();
+      var expected = Query.All<Product>().ToList().Select(p=>p.Id==id ? null : p).Select(p=>p==null ? null : p.Category).ToList();
+      Assert.AreEqual(result.Count, expected.Count);
+    }
+
 
     [Test]
     public void GroupJoinAggregateTest()
