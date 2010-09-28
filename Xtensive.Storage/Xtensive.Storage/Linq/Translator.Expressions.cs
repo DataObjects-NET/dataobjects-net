@@ -143,7 +143,15 @@ namespace Xtensive.Storage.Linq
 
     protected override MemberAssignment VisitMemberAssignment(MemberAssignment ma)
     {
-      var expression = Visit(ma.Expression);
+      Expression expression;
+      using (state.CreateScope()) {
+        state.CalculateExpressions = false;
+        expression = Visit(ma.Expression);
+      }
+      expression = expression.IsProjection()
+        ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
+        : ProcessProjectionElement(expression);
+
       if (state.SetOperationProjection)
         expression = ProcessProjectionElement(expression);
       if (expression!=ma.Expression)
@@ -157,8 +165,8 @@ namespace Xtensive.Storage.Linq
     {
       Expression left;
       Expression right;
-       MemberType memberType = binaryExpression.Left.Type==typeof (object) 
-        ? binaryExpression.Right.GetMemberType() 
+      MemberType memberType = binaryExpression.Left.Type==typeof (object)
+        ? binaryExpression.Right.GetMemberType()
         : binaryExpression.Left.GetMemberType();
       if (memberType==MemberType.EntitySet) {
         if (context.Evaluator.CanBeEvaluated(binaryExpression.Left)) {
@@ -166,8 +174,8 @@ namespace Xtensive.Storage.Linq
         }
         else {
           var leftMemberAccess = binaryExpression.Left as MemberExpression;
-          left = leftMemberAccess!=null && leftMemberAccess.Member.ReflectedType.IsClosure() 
-            ? ExpressionEvaluator.Evaluate(leftMemberAccess) 
+          left = leftMemberAccess!=null && leftMemberAccess.Member.ReflectedType.IsClosure()
+            ? ExpressionEvaluator.Evaluate(leftMemberAccess)
             : Visit(binaryExpression.Left);
         }
         if (context.Evaluator.CanBeEvaluated(binaryExpression.Right)) {
@@ -175,8 +183,8 @@ namespace Xtensive.Storage.Linq
         }
         else {
           var rightMemberAccess = binaryExpression.Right as MemberExpression;
-          right = rightMemberAccess!=null && rightMemberAccess.Member.ReflectedType.IsClosure() 
-            ? ExpressionEvaluator.Evaluate(rightMemberAccess) 
+          right = rightMemberAccess!=null && rightMemberAccess.Member.ReflectedType.IsClosure()
+            ? ExpressionEvaluator.Evaluate(rightMemberAccess)
             : Visit(binaryExpression.Right);
         }
       }
@@ -455,16 +463,16 @@ namespace Xtensive.Storage.Linq
       IList<Expression> rightExpressions;
 
       // Split left and right arguments to subexpressions.
-      MemberType memberType = left.Type==typeof (object) 
-        ? right.GetMemberType() 
+      MemberType memberType = left.Type==typeof (object)
+        ? right.GetMemberType()
         : left.GetMemberType();
       switch (memberType) {
       case MemberType.EntitySet:
         if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value==null)
-          || left is ConstantExpression && ((ConstantExpression)left).Value==null)
+          || left is ConstantExpression && ((ConstantExpression) left).Value==null)
           return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
         if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
-          || right is ConstantExpression && ((ConstantExpression)right).Value==null)
+          || right is ConstantExpression && ((ConstantExpression) right).Value==null)
           return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
         var leftEntitySetExpression = left as EntitySetExpression;
         var rightEntitySetExpression = right as EntitySetExpression;
@@ -472,25 +480,25 @@ namespace Xtensive.Storage.Linq
           if (leftEntitySetExpression.Field!=rightEntitySetExpression.Field)
             return Expression.Constant(false, typeof (bool));
           var binary = Expression.MakeBinary(binaryExpression.NodeType,
-            (Expression)leftEntitySetExpression.Owner,
-            (Expression)rightEntitySetExpression.Owner,
+            (Expression) leftEntitySetExpression.Owner,
+            (Expression) rightEntitySetExpression.Owner,
             binaryExpression.IsLiftedToNull,
             binaryExpression.Method);
           return VisitBinaryRecursive(binary, originalBinaryExpression);
         }
         if (rightEntitySetExpression!=null && left is ConstantExpression) {
-          var leftEntitySet = (EntitySetBase)((ConstantExpression) left).Value;
+          var leftEntitySet = (EntitySetBase) ((ConstantExpression) left).Value;
           var binary = Expression.MakeBinary(binaryExpression.NodeType,
             Expression.Constant(leftEntitySet.Owner),
-            (Expression)rightEntitySetExpression.Owner,
+            (Expression) rightEntitySetExpression.Owner,
             binaryExpression.IsLiftedToNull,
             binaryExpression.Method);
           return VisitBinaryRecursive(binary, originalBinaryExpression);
         }
         if (leftEntitySetExpression!=null && right is ConstantExpression) {
-          var rightEntitySet = (EntitySetBase)((ConstantExpression) right).Value;
+          var rightEntitySet = (EntitySetBase) ((ConstantExpression) right).Value;
           var binary = Expression.MakeBinary(binaryExpression.NodeType,
-            (Expression)leftEntitySetExpression.Owner,
+            (Expression) leftEntitySetExpression.Owner,
             Expression.Constant(rightEntitySet.Owner),
             binaryExpression.IsLiftedToNull,
             binaryExpression.Method);
@@ -750,7 +758,7 @@ namespace Xtensive.Storage.Linq
         if (found)
           return body;
 
-        if (body.Type.IsEnum)     
+        if (body.Type.IsEnum)
           body = new EnumRewriter().Visit(body);
         var convertExpression = Expression.Convert(body, typeof (object));
 
