@@ -90,9 +90,9 @@ namespace Xtensive.Indexing.Composite
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       IndexSegmentConfiguration<TKey, TItem> indexConfiguration = (IndexSegmentConfiguration<TKey, TItem>) source;
       segmentName = indexConfiguration.SegmentName;
     }

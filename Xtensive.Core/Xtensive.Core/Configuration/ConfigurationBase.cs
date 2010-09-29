@@ -36,7 +36,7 @@ namespace Xtensive.Core.Configuration
     public virtual object Clone()
     {
       ConfigurationBase clone = CreateClone();
-      clone.Clone(this);
+      clone.CopyFrom(this);
       return clone;
     }
 
@@ -53,7 +53,7 @@ namespace Xtensive.Core.Configuration
     /// Used by <see cref="Clone"/> method implementation.
     /// </summary>
     /// <param name="source">The configuration to copy properties from.</param>
-    protected virtual void Clone(ConfigurationBase source)
+    protected virtual void CopyFrom(ConfigurationBase source)
     {
       // Does nothing in this class.
     }

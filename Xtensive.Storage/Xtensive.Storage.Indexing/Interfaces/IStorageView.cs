@@ -20,5 +20,10 @@ namespace Xtensive.Storage.Indexing
     /// Gets the transaction this view belongs to.
     /// </summary>
     ITransaction Transaction { get; }
+
+    /// <summary>
+    /// Gets the session handler this vierw belongs to.
+    /// </summary>
+    Providers.SessionHandler SessionHandler { get; }
   }
 }

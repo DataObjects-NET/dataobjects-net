@@ -172,14 +172,14 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           var c = new Container();
 
           c.StringKey = a.Key;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           Assert.AreEqual(c.StringKey, a.Key);
           c.StringKey = b.Key;
           Assert.AreEqual(c.StringKey, b.Key);
 
           c.StringKey = null;
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           Assert.AreEqual(c.StringKey, null);
 
           var appleEntity1 = Query.SingleOrDefault<Apple>("1");

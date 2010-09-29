@@ -58,16 +58,16 @@ namespace Xtensive.Storage.Tests.Issues
       using (var trs = Transaction.Open()) {
         var e1 = new MyEntity();
         var e2 = new MyEntity();
-        RecordSet rsMyEntities = Domain.Model.Types[typeof (MyEntity)]
-          .Indexes.PrimaryIndex.ToRecordSet()
+        RecordQuery rsMyEntities = Domain.Model.Types[typeof (MyEntity)]
+          .Indexes.PrimaryIndex.ToRecordQuery()
           .Filter(t => t.GetValue<int>(0) == e1.Id || t.GetValue<int>(0) == e2.Id);
 
-        Assert.AreEqual(2, rsMyEntities.Count());
+        Assert.AreEqual(2, rsMyEntities.Count(Session.Current));
 
-        Assert.AreEqual(0, rsMyEntities.Take(1).Skip(1).Count());
-        Assert.AreEqual(1, rsMyEntities.Skip(1).Take(1).Count());
-        Assert.AreEqual(1, rsMyEntities.Take(1).Take(2).Count());
-        Assert.AreEqual(0, rsMyEntities.Skip(1).Skip(1).Count());
+        Assert.AreEqual(0, rsMyEntities.Take(1).Skip(1).Count(Session.Current));
+        Assert.AreEqual(1, rsMyEntities.Skip(1).Take(1).Count(Session.Current));
+        Assert.AreEqual(1, rsMyEntities.Take(1).Take(2).Count(Session.Current));
+        Assert.AreEqual(0, rsMyEntities.Skip(1).Skip(1).Count(Session.Current));
         trs.Complete();
       }
     }

@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator()
     {
-      var sessionHandler = Session.Demand().Handler;
+      var sessionHandler = session.Handler;
       IEnumerable<TElement> result = new RootElementsPrefetcher<TElement>(source, keyExtractor, modelType,
         fieldDescriptors, sessionHandler);
       foreach (var prefetchManyDelegate in prefetchManyProcessorCreators)

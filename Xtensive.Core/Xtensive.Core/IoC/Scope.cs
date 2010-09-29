@@ -96,11 +96,11 @@ namespace Xtensive.Core.IoC
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="context">The context of this scope.</param>
-    protected internal Scope(TContext context)
+    /// <param name="service">The context of this scope.</param>
+    protected internal Scope(TContext service)
       : this()
     {
-      Activate(context);
+      Activate(service);
     }
 
     /// <summary>

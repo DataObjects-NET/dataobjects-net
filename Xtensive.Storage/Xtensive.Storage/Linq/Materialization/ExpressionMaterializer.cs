@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Linq.Materialization
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
       var resultType = SequenceHelper.GetSequenceType(elementType);
       var translateMethod = Translator.TranslateMethodInfo.MakeGenericMethod(new[] {resultType});
-      return (TranslatedQuery) translateMethod.Invoke(context.Translator, new object[] {projection, tupleParameters.AddOne(parameterOfTuple)});
+      return ((TranslationResult) translateMethod.Invoke(context.Translator, new object[] {projection, tupleParameters.AddOne(parameterOfTuple)})).UntypedQuery;
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)
@@ -235,6 +235,7 @@ namespace Xtensive.Storage.Linq.Materialization
         return Expression.Convert(
           Expression.Call(
             WellKnownMembers.CreateStructure,
+            Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
             Expression.Constant(expression.Type),
             persistentTupleExpression),
           expression.Type);
@@ -278,6 +279,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return Expression.Convert(
         Expression.Call(
           WellKnownMembers.CreateStructure,
+          Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
           Expression.Constant(expression.Type),
           persistentTupleExpression),
         expression.Type);
@@ -292,7 +294,7 @@ namespace Xtensive.Storage.Linq.Materialization
         Expression.Constant(expression.Mapping));
       return Expression.Call(
         WellKnownMembers.Key.Create,
-        Expression.Constant(Domain.Demand()),
+        Expression.Constant(context.Domain),
         Expression.Constant(expression.EntityType),
         Expression.Constant(TypeReferenceAccuracy.BaseType),
         tupleExpression);

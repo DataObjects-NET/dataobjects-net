@@ -802,7 +802,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
           #endregion
 
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           tr.Complete();
         }
         transaction.Commit();

@@ -94,9 +94,7 @@ namespace Xtensive.Storage.Web
     /// <para>
     /// This delegate is invoked to open the <see cref="Session"/> on the first attempt
     /// to read this property (see <see cref="HasSession"/> as well) in each web request.
-    /// Normally, this delegate must also ensure a transaction is created there as well - 
-    /// either by opening it explicitly, or by using 
-    /// <see cref="SessionOptions.AmbientTransactions"/>.
+    /// Normally, this delegate must also ensure a transaction is created there.
     /// </para>
     /// <para>
     /// The setter of this property can be invoked just once per application lifetime; 
@@ -237,7 +235,7 @@ namespace Xtensive.Storage.Web
     /// to invoke on request completion.</returns>
     protected virtual Pair<Session, IDisposable> ProvideSession()
     {
-      var newSession = Session.Open(Domain, false); // Open, but don't activate!
+      var newSession = Session.Open(Domain); // Open, but don't activate!
       var transactionScope = Transaction.Open(newSession);
       var toDispose = transactionScope.Join(newSession);
       return new Pair<Session, IDisposable>(newSession, new Disposable(disposing => {

@@ -75,9 +75,9 @@ namespace Xtensive.Indexing.Differential
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       DifferentialIndexConfiguration<TKey, TItem> indexConfiguration = (DifferentialIndexConfiguration<TKey, TItem>) source;
       origin = indexConfiguration.Origin;
       insertions = indexConfiguration.Insertions;

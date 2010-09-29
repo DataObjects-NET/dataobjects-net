@@ -24,11 +24,12 @@ namespace Xtensive.Storage.Providers.Sql
     
     protected void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
     {
-      var tableLock = DomainHandler.TemporaryTableManager.Acquire(tableDescriptor);
+      var storageContext = (EnumerationContext)context;
+      var tableLock = DomainHandler.TemporaryTableManager.Acquire(storageContext, tableDescriptor);
       if (tableLock == null) 
         return;
-      context.SetValue(this, TemporaryTableLockName, tableLock);
-      var executor = handlers.SessionHandler.GetService<IQueryExecutor>(true);
+      storageContext.SetValue(this, TemporaryTableLockName, tableLock);
+      var executor = storageContext.SessionHandler.GetService<IQueryExecutor>(true);
       executor.Store(tableDescriptor, data);
     }
 
@@ -37,8 +38,9 @@ namespace Xtensive.Storage.Providers.Sql
       var tableLock = context.GetValue<IDisposable>(this, TemporaryTableLockName);
       if (tableLock==null)
         return false;
+      var storageContext = (EnumerationContext)context;
       using (tableLock)
-        handlers.SessionHandler.GetService<IQueryExecutor>(true)
+        storageContext.SessionHandler.GetService<IQueryExecutor>(true)
           .Clear(tableDescriptor);
       return true;
     }

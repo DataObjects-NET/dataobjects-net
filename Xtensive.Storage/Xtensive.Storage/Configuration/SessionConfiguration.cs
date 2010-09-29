@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets session type.
-    /// Default value is <see cref="SessionType.Default"/>.
+    /// Default value is <see cref="SessionType.User"/>.
     /// </summary>
     public SessionType Type { get; private set; }
 
@@ -193,17 +193,16 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets a value indicating whether session uses ambient transactions.
-    /// </summary>
-    public bool UsesAmbientTransactions {
-      get { return (options & SessionOptions.AmbientTransactions)==SessionOptions.AmbientTransactions; }
-    }
-
-    /// <summary>
     /// Gets a value indicating whether session uses autoshortened transactions.
     /// </summary>
-    public bool UsesAutoShortenedTransactions {
+    public bool UseAutoShortenedTransactions {
       get { return (options & SessionOptions.AutoShortenTransactions)==SessionOptions.AutoShortenTransactions; }
+      set {
+        this.EnsureNotLocked();
+        options = value
+          ? (options | SessionOptions.AutoShortenTransactions)
+          : (options & ~SessionOptions.AutoShortenTransactions);
+      }
     }
 
     /// <summary>
@@ -242,17 +241,17 @@ namespace Xtensive.Storage.Configuration
       // Currently disabled
       // if (Type != SessionType.User)
       //   throw new InvalidOperationException(Resources.Strings.ExUnableToCloneNonUserSessionConfiguration);
-      return new SessionConfiguration(Name);
+      return new SessionConfiguration(Name, Options);
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       var configuration = (SessionConfiguration) source;
       UserName = configuration.UserName;
       Password = configuration.Password;
-      Options = configuration.Options;
+      options = configuration.options;
       CacheType = configuration.CacheType;
       CacheSize = configuration.CacheSize;
       BatchSize = configuration.BatchSize;
@@ -288,14 +287,39 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    public SessionConfiguration()
+      : this(WellKnown.Sessions.Default)
+    {
+    }
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="sessionOptions">The session options.</param>
+    public SessionConfiguration(SessionOptions sessionOptions)
+      : this(null, sessionOptions)
+    {
+    }
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
-    public SessionConfiguration(string name) 
-      : this()
+    public SessionConfiguration(string name)
+      : this(name, SessionOptions.LegacyProfile)
+    {
+    }
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">Value for <see cref="Name"/>.</param>
+    public SessionConfiguration(string name, SessionOptions sessionOptions) 
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       Name = name;
-
+      Options = sessionOptions;
       switch (name) {
       case WellKnown.Sessions.System:
         Type = SessionType.System;
@@ -307,17 +331,11 @@ namespace Xtensive.Storage.Configuration
         Type = SessionType.KeyGenerator;
         break;
       default:
-        Type = SessionType.Default;
+        Type = SessionType.User;
         break;
       }
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public SessionConfiguration()
-    {
-    }
 
     // Type initializer
 

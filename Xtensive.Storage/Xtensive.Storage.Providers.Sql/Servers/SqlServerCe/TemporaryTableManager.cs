@@ -20,20 +20,20 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
     }
 
     /// <inheritdoc/>
-    protected override void InitializeTable(TemporaryTableDescriptor descriptor)
+    protected override void InitializeTable(EnumerationContext context, TemporaryTableDescriptor descriptor)
     {
     }
   
     /// <inheritdoc/>
-    protected override void AcquireTable(TemporaryTableDescriptor descriptor)
+    protected override void AcquireTable(EnumerationContext context, TemporaryTableDescriptor descriptor)
     {
-      ExecuteNonQuery(descriptor.CreateStatement);
+      ExecuteNonQuery(context, descriptor.CreateStatement);
     }
 
     /// <inheritdoc/>
-    protected override void ReleaseTable(TemporaryTableDescriptor descriptor)
+    protected override void ReleaseTable(EnumerationContext context, TemporaryTableDescriptor descriptor)
     {
-      ExecuteNonQuery(descriptor.DropStatement);
+      ExecuteNonQuery(context, descriptor.DropStatement);
     }
   }
 }

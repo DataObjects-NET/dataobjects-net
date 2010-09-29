@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Issues
             .ToList();
 
           // Query
-          session.Persist();
+          session.SaveChanges();
           var structures = Query.All<EntityB>().Select(b => b.ComplexStructure).Skip(83).Take(1);
           var str = structures.Single();
           var testEntities = Query.All<EntityB>().Where(b => b.ComplexStructure==str).ToArray();

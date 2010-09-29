@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
@@ -198,6 +199,12 @@ namespace Xtensive.Storage.Providers.Sql
         new OrderingCorrector(ResolveOrderingDescriptor, false),
         new RedundantColumnOptimizer(),
         new OrderingCorrector(ResolveOrderingDescriptor, true));
+    }
+
+    /// <inheritdoc/>
+    protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
+    {
+      registrations.Add(new ServiceRegistration(typeof (ICachingKeyGeneratorService), new CachingKeyGeneratorService(Handlers)));
     }
 
     // Initialization

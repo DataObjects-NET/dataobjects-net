@@ -24,7 +24,7 @@ namespace Xtensive.Storage.All
       typeof (TypeInfo),
       typeof (Providers.Index.Memory.DomainHandler),
       typeof (Providers.Sql.DomainHandler),
-      typeof (RecordSet),
+      typeof (RecordQuery),
     };
 
 

@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SessionActivationTest()
     {
-      var session = Session.Open(Domain, false);
+      var session = Session.Open(Domain);
 
       Author author;
 
@@ -269,7 +269,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(list.Count, category.Products.Count);
           category.Products.Clear();
           Assert.AreEqual(category.Products.Count, 0);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
 
@@ -278,7 +278,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(category.Products.Count, 0);
           var product = new ActiveProduct();
           category.Products.Add(product);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
 

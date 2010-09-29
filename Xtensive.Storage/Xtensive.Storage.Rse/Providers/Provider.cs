@@ -16,7 +16,7 @@ using Xtensive.Core.Reflection;
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// Abstract base class for any <see cref="RecordSet"/> <see cref="RecordSet.Provider"/>.
+  /// Abstract base class for any <see cref="RecordQuery"/> <see cref="RecordQuery.Provider"/>.
   /// </summary>
   [Serializable]
   [Initializable]

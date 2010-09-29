@@ -165,7 +165,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
 
       if (Session.Handler.ExecutePrefetchTasks()==null)
-        Session.ExecuteDelayedQueries();
+        Session.ExecuteDelayedQueries(false);
 
       foreach (var container in referenceDescriptors) {
         var processor = container.Processor;

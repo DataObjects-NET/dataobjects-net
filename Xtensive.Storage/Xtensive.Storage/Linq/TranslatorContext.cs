@@ -68,9 +68,9 @@ namespace Xtensive.Storage.Linq
       return GetApplyParameter(projection.ItemProjector.DataSource);
     }
 
-    internal ApplyParameter GetApplyParameter(RecordSet newRecordSet)
+    internal ApplyParameter GetApplyParameter(RecordQuery newRecordQuery)
     {
-      var provider = newRecordSet.Provider;
+      var provider = newRecordQuery.Provider;
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
         parameter = new ApplyParameter(provider.GetType().GetShortName());

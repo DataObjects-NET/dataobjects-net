@@ -6,10 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
-using Xtensive.Integrity.Transactions;
-using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.AutoTransactionsTestModel;
 
@@ -45,13 +42,22 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         var testObject = new MySessionBound();
         testObject.CheckAutoTransactions();
+        new MyEntity();
+        try {
+          foreach (var myEntity in Query.All<MyEntity>()) {
+            throw new InvalidOperationException();
+          }
+        }
+        catch {
+          Assert.IsNull(Transaction.Current);
+        }
       }
     }
 
     [Test]
     public void SessionsTest()
     {
-      var session = Session.Open(Domain, false);
+      var session = Session.Open(Domain);
 
       MySessionBound testObject;
 
@@ -60,12 +66,35 @@ namespace Xtensive.Storage.Tests.Storage
       }
       testObject.CheckSessionActivation();
     }
-  }    
 
+    [Test]
+    public void NonTransactionalSessionBoundTest()
+    {
+      using (Session.Open(Domain))
+      {
+        var sb = new NotTransactionalSessionBound();
+        sb.Method1();
+      }
+    }
+  }
+
+  [TransactionalType(TransactionalBehavior.Suppress)]
+  public class NotTransactionalSessionBound : SessionBound
+  {
+    public void Method1()
+    {
+      Console.Out.WriteLine("Blah...");
+      Assert.IsNull(Session.Transaction);
+    }
+
+    public string Name { get; private set; }
+  }
+
+  [TransactionalType(TransactionalBehavior.Open, AttributeReplace = true)]
   public class MySessionBound : SessionBound
   {
 
-    [Transactional(ActivateSession = false, OpenTransaction = false)]
+    [Transactional(ActivateSession = false, Mode = TransactionalBehavior.Suppress)]
     public void CheckSessionActivation()
     {
       CheckState(this, TransactionState.None, SessionState.NotActive);

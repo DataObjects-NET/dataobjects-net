@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Internals
   [Serializable]
   public abstract class FutureBase<TResult>
   {
-    private readonly Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
+    private readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
     protected readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
     private readonly Transaction transaction;
@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(
           Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
       if (Task.Result==null)
-        transaction.Session.ExecuteDelayedQueries();
-      return materializer.Invoke(Task.Result, tupleParameterBindings, new ParameterContext());
+        transaction.Session.ExecuteDelayedQueries(false);
+      return materializer.Invoke(Task.Result, transaction.Session, tupleParameterBindings, new ParameterContext());
     }
 
 
@@ -63,10 +63,8 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       materializer = translatedQuery.Materializer;
       tupleParameterBindings = translatedQuery.TupleParameterBindings;
-      using (parameterContext.ActivateSafely()) {
-        var executableProvider = CompilationContext.Current.Compile(translatedQuery.DataSource.Provider);
-        Task = new QueryTask(executableProvider, parameterContext);
-      }
+      using (parameterContext.ActivateSafely())
+        Task = new QueryTask(translatedQuery.DataSource, parameterContext);
     }
   }
 }

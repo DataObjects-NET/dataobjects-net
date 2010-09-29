@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Rse;
 
@@ -19,9 +20,9 @@ namespace Xtensive.Storage.Linq
   public abstract class TranslatedQuery
   {
     /// <summary>
-    /// The <see cref="RecordSet"/> acting as source for further materialization.
+    /// The <see cref="ExecutableProvider"/> acting as source for further materialization.
     /// </summary>
-    public readonly RecordSet DataSource;
+    public readonly ExecutableProvider DataSource;
 
     /// <summary>
     /// Gets the untyped materializer.
@@ -35,7 +36,7 @@ namespace Xtensive.Storage.Linq
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="dataSource">The <see cref="DataSource"/> property value.</param>
-    protected TranslatedQuery(RecordSet dataSource)
+    protected TranslatedQuery(ExecutableProvider dataSource)
     {
       DataSource = dataSource;
     }

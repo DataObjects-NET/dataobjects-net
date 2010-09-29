@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Transactions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace Xtensive.Storage
     public void NotifyChanged(NotifyChangedOptions options)
     {
       using (Activate()) 
-      using (var transactionScope = Transaction.Open(this)) {
+      using (var tx = Transaction.OpenAuto(this)) {
         var entitySubscribers    = EntityEvents.GetSubscribers(EntityEventBroker.PropertyChangedEventKey).ToList();
         var entitySetSubscribers = EntityEvents.GetSubscribers(EntityEventBroker.CollectionChangedEventKey).ToList();
 
@@ -60,7 +61,7 @@ namespace Xtensive.Storage
           var keys =
             from triplet in entitySubscribers
             select triplet.First;
-          keys.Prefetch().Run();
+          keys.Prefetch(this).Run();
         }
 
         var skipRemovedEntities = 
@@ -90,7 +91,7 @@ namespace Xtensive.Storage
             handler.Invoke(sender, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
           }
         }
-        transactionScope.Complete();
+        tx.Complete();
       }
     }
   }

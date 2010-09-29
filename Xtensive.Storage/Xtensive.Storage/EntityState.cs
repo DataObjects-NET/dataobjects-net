@@ -94,7 +94,7 @@ namespace Xtensive.Storage
       get {
         var notAvailable = IsNotAvailable;
         if (entity==null && !notAvailable)
-          Activator.CreateEntity(Type.UnderlyingType, this); 
+          Activator.CreateEntity(Session, Type.UnderlyingType, this); 
         return notAvailable ? null : entity;
       }
       internal set {
@@ -130,6 +130,11 @@ namespace Xtensive.Storage
         Session.EntityChangeRegistry.Register(this);
         BindToCurrentTransaction();
       }
+    }
+
+    internal void SetPersistenceState(PersistenceState newState)
+    {
+      persistenceState = newState;
     }
 
     /// <summary>

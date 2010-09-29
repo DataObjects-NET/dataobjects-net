@@ -14,12 +14,9 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// Default <see cref="CompilationContext"/> implementation.
+  /// Default <see cref="CompilationService"/> implementation.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
-  public sealed class DefaultCompilationContext : CompilationContext
+  public sealed class DefaultCompilationService : CompilationService
   {
     /// <summary>
     /// Default method to resolve <see cref="ProviderOrderingDescriptor"/> 
@@ -36,22 +33,16 @@ namespace Xtensive.Storage.Rse.Compilation
       bool isOrderBreaker = provider.Type==ProviderType.Except
         || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
         || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence
-        /*|| provider.Type==ProviderType.Distinct*/;
+        || provider.Type==ProviderType.Distinct;
       bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex;
       return new ProviderOrderingDescriptor(isOrderSensitive, true, isOrderBreaker, isSorter);
-    }
-
-    /// <inheritdoc/>
-    public override EnumerationContext CreateEnumerationContext()
-    {
-      return new DefaultEnumerationContext();
     }
 
 
     // Constructors
 
     /// <inheritdoc/>
-    public DefaultCompilationContext()
+    public DefaultCompilationService()
       : base(
         () => new ClientCompiler(),
         () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor, false)),

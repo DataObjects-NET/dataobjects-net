@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Manual.Services
 
         using (var t = Transaction.Open()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
-          session.Persist(); // Ensures changes are flushed
+          session.SaveChanges(); // Ensures changes are flushed
           
           // Article is created:
           Assert.IsFalse(article.IsRemoved);

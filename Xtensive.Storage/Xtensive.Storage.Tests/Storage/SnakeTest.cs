@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       TestFixtureTearDown();
       TestFixtureSetUp();
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           new Snake {Name = "Kaa1", Length = 1, Features = Features.None};
           new Snake { Name = "Kaa2", Length = 2, Features = Features.None };
@@ -149,14 +149,14 @@ namespace Xtensive.Storage.Tests.Storage
           new Snake { Name = "Kaa1", Length = 3, Features = Features.CanCrawl };
           new Snake { Name = "Kaa3", Length = 3, Features = Features.None };
 
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          var rs = rsSnakePrimary.OrderBy(OrderBy.Asc(4)).OrderBy(OrderBy.Asc(2));
+          RecordQuery rqSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          var recordQuery = rqSnakePrimary.OrderBy(OrderBy.Asc(4)).OrderBy(OrderBy.Asc(2));
 
-          rs.Count();
-          rs = rs.Aggregate(
+          recordQuery.Count(session);
+          recordQuery = recordQuery.Aggregate(
             new [] {4, 2},
             new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
             new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Storage
             new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg));
 
           t.Complete();
-          Assert.AreEqual(rs.Count(), 4);
+          Assert.AreEqual(recordQuery.Count(session), 4);
         }
       }
     }
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++)
             new Snake {Name = ("MyKaa" + i), Length = i};
@@ -189,25 +189,25 @@ namespace Xtensive.Storage.Tests.Storage
           for (int i = 0; i < lizardsCount; i++)
             new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
 
-          Session.Current.Persist();
+          session.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
 
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
 
           var rsCalculated = rsSnakePrimary.Calculate(new CalculatedColumnDescriptor("FullName", typeof (string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 2))),
             new CalculatedColumnDescriptor("FullName2", typeof (string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 3))))
             .Take(10);
 
-          Assert.AreEqual(10, rsCalculated.Count());
+          Assert.AreEqual(10, rsCalculated.Count(session));
 
-          foreach (var tuple in rsCalculated) {
+          foreach (var tuple in rsCalculated.ToRecordSet(session)) {
             Assert.AreEqual("My", tuple.GetValue(rsCalculated.Header.Length - 2));
             Assert.AreEqual("MyK", tuple.GetValue(rsCalculated.Header.Length - 1));
           }
-          rsSnakePrimary.Count();
+          rsSnakePrimary.Count(session);
 
-          RecordSet aggregates = rsSnakePrimary.Aggregate(null,
+          RecordQuery aggregates = rsSnakePrimary.Aggregate(null,
             new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
             new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
             new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
@@ -219,19 +219,19 @@ namespace Xtensive.Storage.Tests.Storage
             new AggregateColumnDescriptor("Count3", 3, AggregateType.Count),
             new AggregateColumnDescriptor("Max3", 3, AggregateType.Max));
 
-          Assert.AreEqual(aggregates.Count(), 1);
+          Assert.AreEqual(aggregates.Count(session), 1);
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
-          RecordSet saved = rsSnakePrimary.
+          RecordQuery saved = rsSnakePrimary.
             Take(10).
             Take(5).
             Save(scope, name);
 
-          saved.Count();
-          var loaded = RecordSet.Load(saved.Header, scope, name);
+          saved.Count(session);
+          var loaded = RecordQuery.Load(saved.Header, scope, name);
 
-          AssertEx.AreEqual(saved, loaded);
+          AssertEx.AreEqual(saved.ToRecordSet(session), loaded.ToRecordSet(session));
           t.Complete();
         }
       }
@@ -278,7 +278,7 @@ namespace Xtensive.Storage.Tests.Storage
           lizard.Color = "#ff5544";
           lizard.Features = Features.CanWalk;
 
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -318,7 +318,7 @@ namespace Xtensive.Storage.Tests.Storage
           key = s.Key;
           s.Name = "Kaa";
           Assert.AreEqual(PersistenceState.New, s.PersistenceState);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           Assert.AreEqual("Kaa", s.Name);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
@@ -334,7 +334,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual("Kaa", s.Name);
           s.Length = 32;
           Assert.AreEqual(PersistenceState.Modified, s.PersistenceState);
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           Assert.AreEqual(32, s.Length);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
@@ -410,7 +410,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -427,16 +427,16 @@ namespace Xtensive.Storage.Tests.Storage
             l.Color = "Color" + i;
           }
 
-          Session.Current.Persist();
+          session.SaveChanges();
 
           var pID = new Parameter<Range<Entire<Tuple>>>();
           var pName = new Parameter<Range<Entire<Tuple>>>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
 
-          RecordSet result = rsSnakePrimary
+          RecordQuery result = rsSnakePrimary
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
@@ -447,7 +447,7 @@ namespace Xtensive.Storage.Tests.Storage
             pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)),
               new Entire<Tuple>(Tuple.Create(120), Direction.Positive));
             pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
-            var count = result.Count();
+            var count = result.Count(session);
             Assert.AreEqual(91, count);
           }
 
@@ -455,7 +455,7 @@ namespace Xtensive.Storage.Tests.Storage
             .OrderBy(OrderBy.Desc(rsSnakeName.Header.IndexOf(cName)), true)
             .Like(Tuple.Create("Kaa" + 10));
 
-          var cc = result.Count();
+          var cc = result.Count(session);
           Assert.AreEqual(cc, 11);
           
           t.Complete();
@@ -472,7 +472,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureSetUp();
 
       if (Domain.Configuration.Name == "memory")
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -480,16 +480,16 @@ namespace Xtensive.Storage.Tests.Storage
             s.Length = i;
           }
 
-          Session.Current.Persist();
+          session.SaveChanges();
 
           var pID = new Parameter<RangeSet<Entire<Tuple>>>();
           var pName = new Parameter<RangeSet<Entire<Tuple>>>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
 
-          RecordSet result = rsSnakePrimary
+          RecordQuery result = rsSnakePrimary
           .RangeSet(() => pID.Value)
           .Join(rsSnakeName
           .RangeSet(() => pName.Value)
@@ -507,7 +507,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (new ParameterContext().Activate()) {
             pID.Value = idRange;
             pName.Value = nameRange;
-            var count = result.Count();
+            var count = result.Count(session);
             Assert.AreEqual(191, count);
           }
           t.Complete();
@@ -525,7 +525,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       TestFixtureTearDown();
       TestFixtureSetUp();
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -537,13 +537,13 @@ namespace Xtensive.Storage.Tests.Storage
             l.Name = "Lizard" + i;
             l.Color = "Color" + i;
           }
-          Session.Current.Persist();
+          session.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           TypeInfo lizardType = Domain.Model.Types[typeof(Lizard)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
-          RecordSet rsLizardName = lizardType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
+          RecordQuery rsLizardName = lizardType.Indexes.GetIndex("Name").ToRecordQuery();
 
 
           var snakes1 = rsSnakePrimary
@@ -558,22 +558,22 @@ namespace Xtensive.Storage.Tests.Storage
             .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID))
             .Filter(sId => sId.GetValue<int>(0) <= snakesCount / 5);
  
-          var count = snakes1.Intersect(snakes2).Count();
+          var count = snakes1.Intersect(snakes2).Count(session);
           Assert.AreEqual(count, snakesCount / 5);
-          count = snakes1.Except(snakes2).Count();
+          count = snakes1.Except(snakes2).Count(session);
           Assert.AreEqual(count, snakesCount / 2 - snakesCount / 5);
-          count = snakes1.Concat(snakes2).Count();
+          count = snakes1.Concat(snakes2).Count(session);
           Assert.AreEqual(count, snakesCount / 2 + snakesCount / 5);
-          count = snakes1.Union(snakes2).Count();
+          count = snakes1.Union(snakes2).Count(session);
           Assert.AreEqual(count, snakesCount / 2);
 
-          count = rsSnakeName.Except(rsLizardName).Count();
+          count = rsSnakeName.Except(rsLizardName).Count(session);
           Assert.AreEqual(count, snakesCount);
-          count = rsSnakeName.Intersect(rsLizardName).Count();
+          count = rsSnakeName.Intersect(rsLizardName).Count(session);
           Assert.AreEqual(count, 0);
-          count = rsSnakeName.Concat(rsLizardName).Count();
+          count = rsSnakeName.Concat(rsLizardName).Count(session);
           Assert.AreEqual(count, snakesCount + lizardsCount);
-          count = rsSnakeName.Union(rsLizardName).Count();
+          count = rsSnakeName.Union(rsLizardName).Count(session);
           Assert.AreEqual(count, snakesCount + lizardsCount);
 
           AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Intersect(rsSnakePrimary));
@@ -591,7 +591,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       TestFixtureTearDown();
       TestFixtureSetUp();
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
 
           ClearSnake s = new ClearSnake();
@@ -610,15 +610,15 @@ namespace Xtensive.Storage.Tests.Storage
           s3.Description = "Kkl";
           s3.Length = 1;
 
-          Session.Current.Persist();
+          session.SaveChanges();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-          RecordSet rsSnake = snakeType.Indexes.GetIndex(cLength, "Description").ToRecordSet();
+          RecordQuery rsSnake = snakeType.Indexes.GetIndex(cLength, "Description").ToRecordQuery();
 
-          RecordSet result = rsSnake
+          RecordQuery result = rsSnake
             .Like(Tuple.Create(1, "KkK"));
 
-          var c = result.Count();
+          var c = result.Count(session);
           Assert.AreEqual(c, 2);
           
           t.Complete();
@@ -636,7 +636,7 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -656,45 +656,45 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
           string name = "90";
 
-          RecordSet result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
-          Assert.Greater(result.Count(), 0);
+          RecordQuery result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
+          Assert.Greater(result.Count(session), 0);
           
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).EndsWith(name));
-          Assert.Greater(result.Count(), 0);
+          Assert.Greater(result.Count(session), 0);
 
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > 10);
-          Assert.Greater(result.Count(), 0);
+          Assert.Greater(result.Count(session), 0);
 
           int len = 10;
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > len);
-          Assert.Greater(result.Count(), 0);
+          Assert.Greater(result.Count(session), 0);
 
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) * 2 * tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > len);
-          Assert.Greater(result.Count(), 0);
+          Assert.Greater(result.Count(session), 0);
 
           var pLen = new Parameter<int>();
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > pLen.Value);
           using (new ParameterContext().Activate()) {
             pLen.Value = 10;
-            Assert.Greater(result.Count(), 0);
+            Assert.Greater(result.Count(session), 0);
           }
 
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(3, 1) == "9");
-          Assert.Greater(result.Count(), 0);
+          Assert.Greater(result.Count(session), 0);
 
           name = "Kaa90";
           var keyColumns = rsSnakePrimary.Header.ColumnGroups[0].Keys.ToArray();
           var nameFieldIndex = rsSnakePrimary.Header.IndexOf(cName);
           result = rsSnakePrimary
             .Filter(tuple => tuple.GetValue<string>(nameFieldIndex).GreaterThan(name));
-          Assert.Greater(result.Count(), 0);
-          Assert.Greater(result.ToEntities<Snake>(0)
+          Assert.Greater(result.Count(session), 0);
+          Assert.Greater(result.ToRecordSet(session).ToEntities<Snake>(0)
             .Where(s => s != null && s.Name.GreaterThan(name)).Count(), 1);
 
           t.Complete();
@@ -709,12 +709,11 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 10;
       const int lizardsCount = 10;
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var session = Session.Current;
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-          RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
-          foreach (var entity in rsPrimary.ToEntities<ICreature>(0).ToList())
+          RecordQuery rsPrimary = type.Indexes.PrimaryIndex.ToRecordQuery();
+          foreach (var entity in rsPrimary.ToRecordSet(session).ToEntities<ICreature>(0).ToList())
             entity.Remove();
           t.Complete(); 
         }
@@ -738,10 +737,10 @@ namespace Xtensive.Storage.Tests.Storage
             l.Color = "Color" + i;
           }
 
-          session.Persist();
+          session.SaveChanges();
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-          RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
-          foreach (var entity in rsPrimary.ToEntities<ICreature>(0))
+          RecordQuery rsPrimary = type.Indexes.PrimaryIndex.ToRecordQuery();
+          foreach (var entity in rsPrimary.ToRecordSet(session).ToEntities<ICreature>(0))
             Assert.IsNotNull(entity.Name);
           t.Complete();
         }
@@ -758,7 +757,7 @@ namespace Xtensive.Storage.Tests.Storage
             s.Name = "Kaa" + i;
             s.Length = i;
           }
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -767,10 +766,10 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           var session = Session.Current;
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-          RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
-          foreach (var entity in rs.ToEntities<ICreature>(0).ToList())
+          RecordQuery rs = type.Indexes.PrimaryIndex.ToRecordQuery();
+          foreach (var entity in rs.ToRecordSet(session).ToEntities<ICreature>(0).ToList())
             entity.Remove();
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -793,9 +792,8 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var session = Session.Current;
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
             s.Name = "Kaa" + i;
@@ -816,43 +814,43 @@ namespace Xtensive.Storage.Tests.Storage
           Tuple fromName = Tuple.Create("Kaa");
           Tuple toName = Tuple.Create("Kaa900");
           TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
           
           // Test for SQL generation
           var rsSkipTest = rsSnakePrimary.Skip(2);
-          var skipCount = rsSkipTest.Count(); // Tests for specific case.
-          Assert.AreEqual(rsSnakePrimary.Count(), skipCount + 2);
+          var skipCount = rsSkipTest.Count(session); // Tests for specific case.
+          Assert.AreEqual(rsSnakePrimary.Count(session), skipCount + 2);
 
-          var rsTwoFieldIndex = snakeType.Indexes.GetIndex("Name", "AlsoKnownAs").ToRecordSet();
-          var twoFieldIndexCount = rsTwoFieldIndex.Skip(3).Count(); // Tests for specific case.
-          Assert.AreEqual(rsSnakePrimary.Count(), twoFieldIndexCount + 3);
+          var rsTwoFieldIndex = snakeType.Indexes.GetIndex("Name", "AlsoKnownAs").ToRecordQuery();
+          var twoFieldIndexCount = rsTwoFieldIndex.Skip(3).Count(session); // Tests for specific case.
+          Assert.AreEqual(rsSnakePrimary.Count(session), twoFieldIndexCount + 3);
 
           using (new Measurement("Query performance")) {
-            RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+            RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
             rsSnakeName = rsSnakeName
               .Range(fromName, toName)
               .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
               .Alias("NameIndex");
 
-            RecordSet range = rsSnakePrimary.Range(from, to);
-            RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf("NameIndex."+cID)));
-            RecordSet where = join.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= 100);
-            RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)));
-            RecordSet skip = orderBy.Skip(5);
-            RecordSet take = skip.Take(50);
-            RecordSet skip2 = take.Skip(7);
-            var snakesRse = take.ToEntities<Snake>(0);
+            RecordQuery range = rsSnakePrimary.Range(from, to);
+            RecordQuery join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf("NameIndex."+cID)));
+            RecordQuery where = join.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= 100);
+            RecordQuery orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)));
+            RecordQuery skip = orderBy.Skip(5);
+            RecordQuery take = skip.Take(50);
+            RecordQuery skip2 = take.Skip(7);
+            var snakesRse = take.ToRecordSet(session).ToEntities<Snake>(0);
             t.Complete();
             foreach (Snake snake in snakesRse) {
               Console.WriteLine(snake.Key);
             }
             Assert.AreEqual(15, snakesRse.Count());
-            Assert.AreEqual(8, skip2.Count());
+            Assert.AreEqual(8, skip2.Count(session));
             // Row Number
-            RecordSet rsRowNumber1 = skip2.RowNumber("RowNumber1");
-            Assert.AreEqual(skip2.Count(), rsRowNumber1.Count());
+            RecordQuery rsRowNumber1 = skip2.RowNumber("RowNumber1");
+            Assert.AreEqual(skip2.Count(session), rsRowNumber1.Count(session));
             int rowNumber = 1;
-            foreach (var tuple in rsRowNumber1)
+            foreach (var tuple in rsRowNumber1.ToRecordSet(session))
             {
               Assert.AreEqual(rowNumber++, tuple.GetValueOrDefault(rsRowNumber1.Header.Columns["RowNumber1"].Index));
             }
@@ -891,9 +889,8 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var session = Session.Current;
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
             s.Name = "Kaa" + i;
@@ -914,10 +911,10 @@ namespace Xtensive.Storage.Tests.Storage
           Tuple fromName = Tuple.Create("Kaa");
           Tuple toName = Tuple.Create("Kaa900");
           TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
 
           using (new Measurement("Query performance")) {
-            RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+            RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
             rsSnakeName = rsSnakeName
               .Range(fromName, toName)
               .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
@@ -934,7 +931,7 @@ namespace Xtensive.Storage.Tests.Storage
               //.ToEntities<Snake>()
               ;
 
-            Assert.AreEqual(15, snakesRse.Count());
+            Assert.AreEqual(15, snakesRse.Count(session));
           }
           t.Complete();
         }        
@@ -952,7 +949,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
 
           for (int i = 0; i < snakesCount; i++)
@@ -962,18 +959,15 @@ namespace Xtensive.Storage.Tests.Storage
           for (int i = 0; i < lizardsCount; i++)
             new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
 
-          Session.Current.Persist();
-
-
           var pID = new Parameter<Range<Entire<Tuple>>>();
           var pName = new Parameter<Range<Entire<Tuple>>>();
           var pLength = new Parameter<int>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
+          RecordQuery rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordQuery();
 
-          RecordSet result = rsSnakePrimary
+          RecordQuery result = rsSnakePrimary
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
@@ -990,7 +984,7 @@ namespace Xtensive.Storage.Tests.Storage
             pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")),
               new Entire<Tuple>(Tuple.Create("Kaa900")));
             pLength.Value = 100;
-            Assert.AreEqual(15, result.Count());
+            Assert.AreEqual(15, result.Count(session));
           }
 
           t.Complete();
@@ -1025,7 +1019,7 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.AreEqual(snakesDTO[i].GetValue<string>(1), persistedSnake.Name);
             Assert.AreEqual(snakesDTO[i].GetValue<int?>(2), persistedSnake.Length);
           }
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           t.Complete();
         }
       }
@@ -1086,12 +1080,12 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void AliasAfterCalculateTest()
     {
-      using (Session.Open(Domain))
+      using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var recordSet = Domain.Model.Types[typeof (Creature)].Indexes.PrimaryIndex.ToRecordSet();
+        var recordSet = Domain.Model.Types[typeof (Creature)].Indexes.PrimaryIndex.ToRecordQuery();
         var column = recordSet.Header.IndexOf("Name");
         var descriptor = new CalculatedColumnDescriptor("WowName", typeof (string), t => ((string) t.GetValue(column)) + "!!!");
-        recordSet.Calculate(descriptor).Alias("lalala").ToList();
+        recordSet.Calculate(descriptor).Alias("lalala").ToRecordSet(session).ToList();
       }
     }
 

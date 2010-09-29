@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Storage.Internals;
 

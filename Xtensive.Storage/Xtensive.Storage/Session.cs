@@ -24,6 +24,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using EnumerationContext=Xtensive.Storage.Rse.Providers.EnumerationContext;
+using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Xtensive.Storage
 {
@@ -56,7 +57,7 @@ namespace Xtensive.Storage
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
   [DebuggerDisplay("FullName = {FullName}")]
-  public sealed partial class Session : DomainBound,
+  public partial class Session : DomainBound,
     IVersionSetProvider,
     IIdentified<long>,
     IContext<SessionScope>, 
@@ -69,10 +70,10 @@ namespace Xtensive.Storage
     private static Func<Session> resolver;
     private static long lastUsedIdentifier;
 
-    private SessionScope sessionScope;
+    private DisposableSet disposableSet;
     private ExtensionCollection extensions;
     private volatile bool isDisposed;
-    private bool allowSwitching;
+    private readonly bool allowSwitching;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -114,7 +115,7 @@ namespace Xtensive.Storage
     public bool IsDebugEventLoggingEnabled { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating whether <see cref="Persist"/> method is running.
+    /// Gets a value indicating whether <see cref="SaveChanges"/> method is running.
     /// </summary>
     public bool IsPersisting { get; private set; }
 
@@ -170,13 +171,6 @@ namespace Xtensive.Storage
       }
       set {
         resolver = value;
-        if (value==null)
-          Rse.Compilation.CompilationContext.Resolver = null;
-        else
-          Rse.Compilation.CompilationContext.Resolver = () => {
-            var session = resolver.Invoke();
-            return session==null ? null : session.CompilationContext;
-          };
       }
     }
 
@@ -197,7 +191,7 @@ namespace Xtensive.Storage
 
     internal Pinner Pinner { get; private set; }
 
-    internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
+    internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
     internal bool IsDelayedQueryRunning { get; private set; }
 
@@ -211,7 +205,7 @@ namespace Xtensive.Storage
     {
       Persist(PersistReason.Query);
       ProcessDelayedQueries(true);
-      EnsureTransactionIsStarted();
+//      EnsureTransactionIsStarted();
       return Handler.CreateEnumerationContext();
     }
 
@@ -324,8 +318,8 @@ namespace Xtensive.Storage
     public VersionSet CreateVersionSet(IEnumerable<Key> keys)
     {
       using (Activate())
-      using (var tx = Transaction.Open()) {
-        var entities = keys.Prefetch();
+      using (var tx = Transaction.OpenAuto(this)) {
+        var entities = keys.Prefetch(this);
         var result = new VersionSet();
         foreach (var entity in entities)
           if (entity!=null)
@@ -360,7 +354,7 @@ namespace Xtensive.Storage
     public void Remove<T>(IEnumerable<T> entities)
       where T : IEntity
     {
-      using (var tx = Transaction.Open()) {
+      using (var tx = Transaction.OpenAuto(this)) {
         RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
         tx.Complete();
       }
@@ -394,6 +388,9 @@ namespace Xtensive.Storage
       Handler.Session = this;
       Handler.Initialize();
 
+      // Query endpoint
+      Query = new QueryEndpoint(this);
+
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
@@ -409,9 +406,6 @@ namespace Xtensive.Storage
       Pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
 
-      if (activate)
-        sessionScope = new SessionScope(this);
-
       // Creating Services
       var serviceContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);
       Services = 
@@ -420,6 +414,18 @@ namespace Xtensive.Storage
           from registration in ServiceRegistration.CreateAll(type)
           select registration,
           ServiceContainer.Create(serviceContainerType, Handler.CreateBaseServices()));
+
+      disposableSet = new DisposableSet();
+
+      // Handling Disconnected option
+      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected) {
+        disposableSet.Add(new DisconnectedState().Attach(this));
+        disposableSet.Add(DisconnectedState.Connect());
+      }
+
+      // Perform activation
+      if (activate)
+        disposableSet.Add(new SessionScope(this));
     }
 
     // IDisposable implementation
@@ -440,8 +446,8 @@ namespace Xtensive.Storage
         
         Services.DisposeSafely();
         Handler.DisposeSafely();
-        sessionScope.DisposeSafely();
-        sessionScope = null;
+        disposableSet.DisposeSafely();
+        disposableSet = null;
       }
       finally {
         isDisposed = true;

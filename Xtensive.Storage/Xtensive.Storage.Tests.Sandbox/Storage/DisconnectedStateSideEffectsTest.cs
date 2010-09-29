@@ -255,21 +255,42 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
         using (ds.Connect()) {
           testAuthor = new Author("Author 1");
           AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));
-          var author3 = new Author("Author 3 ({0})".FormatWith(Author.Famous));
+          new Author("Author 3 ({0})".FormatWith(Author.Famous));
           ds.ApplyChanges();
         }
-        {
-          var author1 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
-          var author2 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
-          var author3 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
-          var author3book = Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
-          Assert.IsNotNull(author1);
-          Assert.IsNull(author2);
-          Assert.IsNotNull(author3);
-          Assert.IsNotNull(author3book);
-          Assert.AreSame(testAuthor, author1);
-        }
+        var author1 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
+        var author2 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
+        var author3 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
+        var author3book = Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
+        Assert.IsNotNull(author1);
+        Assert.IsNull(author2);
+        Assert.IsNotNull(author3);
+        Assert.IsNotNull(author3book);
+        Assert.AreSame(testAuthor, author1);
         // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void NotDisconnectedNewEntitySideEffectTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var testAuthor = new Author("Author 1");
+        AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));
+        new Author("Author 3 ({0})".FormatWith(Author.Famous));
+        session.SaveChanges();
+
+        var author1 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
+        var author2 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
+        var author3 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
+        var author3book = Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
+        Assert.IsNotNull(author1);
+        Assert.IsNull(author2);
+        Assert.IsNotNull(author3);
+        Assert.IsNotNull(author3book);
+        Assert.AreSame(testAuthor, author1);
+
       }
     }
   }

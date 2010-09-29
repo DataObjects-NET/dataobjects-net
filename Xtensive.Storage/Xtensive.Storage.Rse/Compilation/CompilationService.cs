@@ -17,12 +17,9 @@ using Xtensive.Storage.Rse.Resources;
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// <see cref="CompilableProvider"/> compilation context.
+  /// <see cref="CompilableProvider"/> compilation service.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
-  public abstract class CompilationContext : Context<CompilationScope>
+  public abstract class CompilationService
   {
     /// <summary>
     /// Gets the size of compilation cache.
@@ -30,7 +27,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     public const int DefaultCacheSize = 256;
     
-    private static Func<CompilationContext> resolver;
+    private static Func<CompilationService> resolver;
     private readonly ICache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
     private readonly Func<ICompiler> compilerProvider;
@@ -38,8 +35,8 @@ namespace Xtensive.Storage.Rse.Compilation
     private readonly Func<ICompiler, IPostCompiler> postCompilerProvider;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    public readonly static DefaultCompilationContext Default = 
-      new DefaultCompilationContext();
+    public readonly static DefaultCompilationService Default = 
+      new DefaultCompilationService();
 
     #region Nested type: CacheEntry
 
@@ -75,45 +72,6 @@ namespace Xtensive.Storage.Rse.Compilation
 
     #endregion
 
-
-    /// <summary>
-    /// Gets or sets the <see cref="Current"/> compilation context resolver to use
-    /// when there is no active <see cref="CompilationContext"/>.
-    /// </summary>
-    /// <remarks>
-    /// The setter of this property can be invoked just once per application lifetime; 
-    /// assigned resolver can not be changed.
-    /// </remarks>
-    /// <exception cref="NotSupportedException">Resolver is already assigned.</exception>
-    public static Func<CompilationContext> Resolver {
-      [DebuggerStepThrough]
-      get {
-        return resolver;
-      }
-      [DebuggerStepThrough]
-      set {
-        resolver = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets the current compilation context.
-    /// </summary>
-    public static CompilationContext Current {
-      [DebuggerStepThrough]
-      get 
-      { 
-        return CompilationScope.CurrentContext ??
-          (resolver==null ? null : resolver.Invoke()) ?? Default; 
-      }
-    }
-
-    public override CompilationScope Activate()
-    {
-      if (CompilationScope.CurrentContext==this)
-        return null;
-      return new CompilationScope(this);
-    }
 
     /// <summary>
     /// Compiles the specified provider by passing it to <see cref="ICompiler"/>.
@@ -154,14 +112,6 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <summary>
-    /// Creates the enumeration context suitable 
-    /// for compilation results produced by this
-    /// <see cref="CompilationContext"/>.
-    /// </summary>
-    /// <returns>Newly created <see cref="EnumerationContext"/> object.</returns>
-    public abstract EnumerationContext CreateEnumerationContext();
-
-    /// <summary>
     /// Creates RSE compilation cache.
     /// </summary>
     /// <param name="cacheSize">Size of the cache.</param>
@@ -173,22 +123,6 @@ namespace Xtensive.Storage.Rse.Compilation
           new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
     }
 
-    #region IContext<...> members
-
-    /// <inheritdoc/>
-    protected override CompilationScope CreateActiveScope()
-    {
-      return new CompilationScope(this);
-    }
-
-    /// <inheritdoc/>
-    public override bool IsActive
-    {
-      get { return CompilationScope.CurrentContext == this; }
-    }
-
-    #endregion
-
 
     // Constructors
 
@@ -198,7 +132,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="compilerProvider">The compiler provider.</param>
     /// <param name="preCompilerProvider">The pre-compiler provider.</param>
     /// <param name="postCompilerProvider">The post-compiler provider.</param>
-    protected CompilationContext(
+    protected CompilationService(
       Func<ICompiler> compilerProvider,
       Func<IPreCompiler> preCompilerProvider,
       Func<ICompiler, IPostCompiler> postCompilerProvider)
@@ -213,7 +147,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="preCompilerProvider">The pre-compiler provider.</param>
     /// <param name="postCompilerProvider">The post-compiler provider.</param>
     /// <param name="cacheSize">Size of the cache.</param>
-    protected CompilationContext(
+    protected CompilationService(
       Func<ICompiler> compilerProvider,
       Func<IPreCompiler> preCompilerProvider,
       Func<ICompiler, IPostCompiler> postCompilerProvider,

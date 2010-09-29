@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Operations
       var session = context.Session;
       var key = context.TryRemapKey(Key);
       var valueKey = context.TryRemapKey(ValueKey);
-      var entity = Query.Single(session, key);
-      var value = ValueKey != null ? Query.Single(session, valueKey) : Value;
+      var entity = session.Query.Single(key);
+      var value = ValueKey != null ? session.Query.Single(valueKey) : Value;
       entity.SetFieldValue(Field, value);
     }
 
