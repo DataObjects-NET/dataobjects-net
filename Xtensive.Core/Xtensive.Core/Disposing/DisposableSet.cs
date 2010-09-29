@@ -87,9 +87,8 @@ namespace Xtensive.Core.Disposing
     {
     }
 
-    // Destructor
-
-    private void Dispose(bool disposing)
+    /// <see cref="ClassDocTemplate.Dispose"/>
+    void IDisposable.Dispose() 
     {
       try {
         if (list==null)
@@ -103,19 +102,6 @@ namespace Xtensive.Core.Disposing
         set = null;
         list = null;
       }
-    }
-
-    /// <see cref="ClassDocTemplate.Dispose"/>
-    void IDisposable.Dispose() 
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this); 
-    }
-
-    /// <see cref="ClassDocTemplate.Dtor"/>
-    ~DisposableSet()
-    {
-      Dispose(false);
     }
   }
 }
