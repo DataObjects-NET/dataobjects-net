@@ -34,10 +34,10 @@ namespace Xtensive.Storage.Providers.Index
     public string Name { get; private set; }
 
     /// <inheritdoc/>
-    public abstract IStorageView CreateView(Providers.SessionHandler sessionHandler, IsolationLevel isolationLevel);
+    public abstract IStorageView CreateView(IsolationLevel isolationLevel);
 
     /// <inheritdoc/>
-    public abstract IStorageView GetView(Providers.SessionHandler sessionHandler, Guid transactionId);
+    public abstract IStorageView GetView(Guid transactionId);
 
     /// <summary>
     /// Gets real index.

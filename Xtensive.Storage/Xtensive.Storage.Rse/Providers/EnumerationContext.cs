@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
 using Xtensive.Storage.Rse.Providers.Executable;
@@ -37,15 +36,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// Gets the options of this context.
     /// </summary>
     public abstract EnumerationContextOptions Options { get; }
-
-    /// <summary>
-    /// Should be called before enumeration of your <see cref="IEnumerable{T}"/>.
-    /// </summary>
-    /// <returns>An <see cref="IDisposable"/> object.</returns>
-    public virtual ICompletableScope BeginEnumeration()
-    {
-      return null;
-    }
 
     /// <summary>
     /// Gets the global temporary data.

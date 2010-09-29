@@ -93,7 +93,7 @@ namespace Xtensive.Storage
     static PersistentAspect()
     {
       replacer = new ReplaceAutoProperty(HandlerMethodSuffix);
-      transactional = new TransactionalAttribute(TransactionalBehavior.Auto);
+      transactional = new TransactionalAttribute();
     }
   }
 }

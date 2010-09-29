@@ -20,7 +20,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Validation;
@@ -260,7 +259,7 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Register the entity in removing queue. Removal operation will be postponed 
-    /// until <see cref="Session.SaveChanges"/> method is called; some query is executed 
+    /// until <see cref="Session.Persist"/> method is called; some query is executed 
     /// or current transaction is being committed.
     /// </summary>
     public void RemoveLater()
@@ -273,18 +272,13 @@ namespace Xtensive.Storage
     {
       using (new ParameterContext().Activate()) {
         keyParameter.Value = Key.Value;
-        var domain = Session.Domain;
         object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
-          return domain.Handler.CompilationService.Compile(
-            IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result
-              .Seek(keyParameter.Value)
-              .Lock(() => triplet.Second, () => triplet.Third)
-              .Select().Provider);
+          return IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result.Seek(keyParameter.Value)
+            .Lock(() => triplet.Second, () => triplet.Third).Select();
         };
-        var source = (ExecutableProvider) domain.Cache.GetValue(key, generator);
-        var recordSet = new RecordSet(Session.Handler.CreateEnumerationContext(), source);
+        var recordSet = (RecordSet) Session.Domain.Cache.GetValue(key, generator);
         recordSet.First();
       }
     }
@@ -359,7 +353,7 @@ namespace Xtensive.Storage
     /// <see cref="IHasVersionRoots"/>.</exception>
     protected internal bool UpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
-      if (State.IsVersionInfoUpdated || IsRemoved || changedEntity.TypeInfo.IsSystem)
+      if (State.IsVersionInfoUpdated || IsRemoved)
         return true;
       bool changed = false;
       try {
@@ -432,9 +426,9 @@ namespace Xtensive.Storage
         Session.Events.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
       }
 
-      var changed = TypeInfo.HasVersionFields
+      bool changed = TypeInfo.HasVersionFields
         ? UpdateVersion(changedEntity, changedField)
-        : !changedField.IsEntitySet;
+        : false;
 
       Session.SystemEvents.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -777,33 +771,9 @@ namespace Xtensive.Storage
       }
     }
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session.</param>
-    protected Entity(Session session)
-      : base(session)
-    {
-      try
-      {
-        var key = Key.Create(Session.Domain, GetType());
-        State = Session.CreateEntityState(key);
-        SystemBeforeInitialize(false);
-      }
-      catch (Exception error)
-      {
-        InitializationError(GetType(), error);
-        // GetType() call is correct here: no code will be executed further,
-        // if base constructor will fail, but since descendant's constructor is aspected,
-        // we must "simulate" its own call of InitializationError method.
-        throw;
-      }
-    }
-
     // Is used for EntitySetItem<,> instance construction
     [Infrastructure]
-    internal Entity(Session session, Tuple keyTuple)
-      : base(session)
+    internal Entity(Tuple keyTuple)
     {
       try {
         ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
@@ -813,7 +783,7 @@ namespace Xtensive.Storage
         Initialize(GetType());
       }
       catch (Exception error) {
-        InitializationError(GetType(), error);
+        InitializationError(GetType(), error); 
         throw;
       }
     }
@@ -868,82 +838,12 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="values">The field values that will be used for key building.</param>
-    /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
-    /// <example>
-    /// 	<code>
-    /// [HierarchyRoot]
-    /// public class Book : Entity
-    /// {
-    /// [Field, KeyField]
-    /// public string ISBN { get; set; }
-    /// public Book(string isbn) : base(isbn) { }
-    /// }
-    /// </code>
-    /// </example>
-    protected Entity(Session session, params object[] values)
-      : base(session)
-    {
-      try {
-        ArgumentValidator.EnsureArgumentNotNull(values, "values");
-        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
-        State = Session.CreateEntityState(key);
-        var operations = Session.Operations;
-        using (operations.BeginRegistration(OperationType.System)) {
-          if (operations.CanRegisterOperation)
-            operations.RegisterOperation(new EntityInitializeOperation(key), true);
-          var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
-          if (references.Count > 0) {
-            using (Session.Pin(this)) {
-              foreach (var referenceField in references) {
-                var referenceValue = (Entity) GetFieldValue(referenceField);
-                Session.PairSyncManager.ProcessRecursively(null, null, 
-                  PairIntegrity.OperationType.Set, referenceField.Association, this, referenceValue, null);
-              }
-            }
-          }
-        }
-        SystemBeforeInitialize(false);
-      }
-      catch (Exception error) {
-        InitializationError(GetType(), error); 
-        // GetType() call is correct here: no code will be executed further,
-        // if base constructor will fail, but since descendant's constructor is aspected,
-        // we must "simulate" its own call of InitializationError method.
-        throw;
-      }
-    }
-
-    /// <summary>
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// Used internally to initialize the entity on materialization.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
     [Infrastructure]
     protected Entity(EntityState state)
-    {
-      try {
-        State = state;
-        SystemBeforeInitialize(true);
-        InitializeOnMaterialize();
-      }
-      catch (Exception error) {
-        InitializationErrorOnMaterialize(error);
-        throw;
-      }
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate()" copy="true"/>
-    /// Used internally to initialize the entity on materialization.
-    /// </summary>
-    /// <param name="state">The initial state of this instance fetched from storage.</param>
-    [Infrastructure]
-    protected Entity(Session session, EntityState state)
-      : base(session)
     {
       try {
         State = state;

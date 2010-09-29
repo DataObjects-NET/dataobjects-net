@@ -17,7 +17,6 @@ namespace Xtensive.Storage
   /// </summary>
   [SystemType]
   public interface IEntity: 
-    ISessionBound,
     IIdentified<Key>, 
     IHasVersion<VersionInfo>,
     INotifyPropertyChanged

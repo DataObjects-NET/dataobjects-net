@@ -5,7 +5,6 @@
 // Created:    2009.12.03
 
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Indexing.Model;
@@ -21,8 +20,7 @@ namespace Xtensive.Storage.Indexing
     /// Gets the index.
     /// </summary>
     /// <param name="indexInfo">The index.</param>
-    /// <param name="sessionHandler"></param>
     /// <returns>The unique ordered index.</returns>
-    IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, SessionHandler sessionHandler);
+    IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo);    
   }
 }

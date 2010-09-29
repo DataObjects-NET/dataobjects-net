@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Storage
           A a = new A();
           a.B = new B();
           a.C = new C();
-          Session.Current.SaveChanges();
+          Session.Current.Persist();
           Assert.AreEqual(1, Query.All<A>().Count());
           Assert.AreEqual(1, Query.All<B>().Count());
           Assert.AreEqual(1, Query.All<C>().Count());
@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Storage
           Log.Debug(a.Key.ToString());
           Log.Debug(c.Key.ToString());
           a.Remove();
-          Session.Current.SaveChanges();
+          Session.Current.Persist();
         }
       }
     }
@@ -278,7 +278,7 @@ namespace Xtensive.Storage.Tests.Storage
             var containers = Query.All<Container>();
             foreach (var container in containers)
               container.Remove();
-            session.SaveChanges();
+            session.Persist();
           }
 
           Assert.AreEqual(0, Query.All<Container>().Count());
@@ -311,7 +311,7 @@ namespace Xtensive.Storage.Tests.Storage
           const int operationCount = containersCount*3 + containersCount*itemCount*2;
           using (new Measurement("Remove...", operationCount)) {
             Query.All<Container>().Remove();
-            session.SaveChanges();
+            session.Persist();
           }
 
           Assert.AreEqual(0, Query.All<Container>().Count());

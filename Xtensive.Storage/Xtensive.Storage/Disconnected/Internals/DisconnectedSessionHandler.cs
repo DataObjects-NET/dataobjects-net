@@ -26,7 +26,6 @@ namespace Xtensive.Storage.Disconnected
   public sealed class DisconnectedSessionHandler : ChainingSessionHandler
   {
     private readonly DisconnectedState disconnectedState;
-    private readonly Stack<Transaction> virtualTransactions = new Stack<Transaction>();
     
     #region Transactions
 
@@ -35,105 +34,47 @@ namespace Xtensive.Storage.Disconnected
       get { return disconnectedState.IsLocalTransactionOpen; }
     }
 
-    internal void Connect()
-    {
-      if (virtualTransactions.Count > 0) {
-        var transaction = virtualTransactions.Peek();
-        base.BeginTransaction(transaction);
-      }
-    }
-
-    internal void Disconnect()
-    {
-      if (virtualTransactions.Count > 0) {
-        var transaction = virtualTransactions.Peek();
-        base.CommitTransaction(transaction);
-      }
-    }
-
     /// <inheritdoc/>
-    public override void BeginTransaction(Transaction transaction)
+    public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       disconnectedState.OnTransactionOpened();
-      if (transaction.IsAutomatic) 
-        return;
-
-      if (disconnectedState.IsConnected)
-        base.BeginTransaction(transaction);
-      else
-        virtualTransactions.Push(transaction);
     }
 
     /// <inheritdoc/>
-    public override void CreateSavepoint(Transaction transaction)
+    public override void CreateSavepoint(string name)
     {
       disconnectedState.OnTransactionOpened();
-      if (transaction.IsAutomatic)
-        return;
-
-      if (disconnectedState.IsConnected)
-        base.CreateSavepoint(transaction);
-      else
-        virtualTransactions.Push(transaction);
     }
 
     /// <inheritdoc/>
-    public override void RollbackToSavepoint(Transaction transaction)
+    public override void RollbackToSavepoint(string name)
     {
       disconnectedState.OnTransactionRollbacked();
-      if (transaction.IsAutomatic)
-        return;
-
-      if (disconnectedState.IsConnected)
-        base.RollbackToSavepoint(transaction);
-      else
-        virtualTransactions.Pop();
     }
 
     /// <inheritdoc/>
-    public override void ReleaseSavepoint(Transaction transaction)
+    public override void ReleaseSavepoint(string name)
     {
-      disconnectedState.OnTransactionCommited();
-      if (transaction.IsAutomatic)
-        return;
-
-      if (disconnectedState.IsConnected)
-        base.ReleaseSavepoint(transaction);
-      else
-        virtualTransactions.Pop();
-    }
-
-    /// <inheritdoc/>
-    public override void CommitTransaction(Transaction transaction)
-    {
-//      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-//        chainedHandler.CommitTransaction(transaction);
-//      disconnectedState.OnTransactionCommited();
-      if (!transaction.IsAutomatic) {
-        if (disconnectedState.IsConnected)
-          base.CommitTransaction(transaction);
-        else
-          virtualTransactions.Pop();
-      }
       disconnectedState.OnTransactionCommited();
     }
 
     /// <inheritdoc/>
-    public override void RollbackTransaction(Transaction transaction)
+    public override void CommitTransaction()
     {
-//      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-//        chainedHandler.RollbackTransaction(transaction);
-//      disconnectedState.OnTransactionRollbacked();
-      if (!transaction.IsAutomatic) {
-        if (disconnectedState.IsConnected)
-          base.RollbackTransaction(transaction);
-        else
-          virtualTransactions.Pop();
-      }
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
+        chainedHandler.CommitTransaction();
+      disconnectedState.OnTransactionCommited();
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackTransaction()
+    {
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
+        chainedHandler.RollbackTransaction();
       disconnectedState.OnTransactionRollbacked();
     }
 
-   /* public void BeginChainedTransaction()
+    public void BeginChainedTransaction()
     {
       if (chainedHandler.TransactionIsStarted)
         return;
@@ -147,7 +88,7 @@ namespace Xtensive.Storage.Disconnected
       // We assume that chained transactions are always readonly, so there is no rollback.
       if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
         chainedHandler.CommitTransaction();
-    }*/
+    }
 
 
     #endregion
@@ -200,13 +141,10 @@ namespace Xtensive.Storage.Disconnected
       
       // Fetch version roots
       if (entityState.Type.HasVersionRoots) {
-//        BeginChainedTransaction();
+        BeginChainedTransaction();
         var entity = entityState.Entity as IHasVersionRoots;
-        if (entity != null) {
-          if (!disconnectedState.IsConnected)
-            throw new ConnectionRequiredException();
+        if (entity!=null)
           entity.GetVersionRoots().ToList();
-        }
       }
       return entityState;
     }
@@ -241,9 +179,7 @@ namespace Xtensive.Storage.Disconnected
 
       // If state isn't cached, let's try to to get it from storage
       if ((cachedState!=null && !cachedState.IsLoadedOrRemoved) || disconnectedState.IsConnected) {
-        if (!disconnectedState.IsConnected)
-          throw new ConnectionRequiredException();
-//        BeginChainedTransaction();
+        BeginChainedTransaction();
         var type = key.TypeReference.Type;
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
         ExecutePrefetchTasks(true);
@@ -273,6 +209,19 @@ namespace Xtensive.Storage.Disconnected
       return base.ExecutePrefetchTasks(skipPersist);
     }
 
+    /// <inheritdoc/>
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
+    {
+      BeginChainedTransaction();
+      base.ExecuteQueryTasks(queryTasks, allowPartialExecution);
+    }
+
+    /// <inheritdoc/>
+    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
+    {
+      BeginChainedTransaction();
+      return base.CreateEnumerationContext();
+    }
 
     /// <inheritdoc/>
     public override IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)

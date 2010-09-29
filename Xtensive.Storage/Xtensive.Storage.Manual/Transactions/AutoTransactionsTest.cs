@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
 
   [Serializable]
   [HierarchyRoot]
-  [TransactionalType(AttributeReplace = true)]
   public class Person : Entity
   {
     [Key, Field]
@@ -35,7 +34,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     [Association(PairTo = "Friends")]
     public EntitySet<Person> Friends { get; private set; }
 
-    // Transactional - because of applying [TransactionalType]
+    // Transactional - this is default mode for any public ISessionBound method
     public string FullName {
       get {
         return "{Name} {Surname}".FormatWith(this);
@@ -48,7 +47,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
       return ToString(false);
     }
 
-    // Transactional
+    // Transactional - this is default mode for any public ISessionBound method
     public string ToString(bool withFriends)
     {
       if (withFriends)
@@ -57,7 +56,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         return "Person('{0}')".FormatWith(FullName);
     }
 
-    [Transactional(TransactionalBehavior.New)]
+    [Transactional(TransactionOpenMode.New)]
     public void TransactionalMethodRequiringNewTransaction(Transaction outerTransaction)
     {
       Assert.AreSame(Session, Session.Current);
@@ -92,7 +91,6 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     {
       var domain = GetDomain();
       using (var session = Session.Open(domain)) {
-        Assert.IsNotNull(Session.Current);
         Assert.IsNull(Transaction.Current);
         
         var alex = Query.Single<Person>(personKeys["Alex"]);
@@ -116,6 +114,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
           alex.Name = "Not Alex";
           // no tx.Complete() => rollback
         }
+        Assert.AreEqual("Alex", alex.Name); // Auto state update
 
         // Auto transactions on query enumeration
         Console.WriteLine("All persons:");
@@ -123,23 +122,19 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         foreach (var item in 
           from person in Query.All<Person>()
           select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()}) {
-          // Transaction is not null while enumeration is still in process; otherwise is null (committed)
-          // Assert.IsNotNull(Transaction.Current);
+          Assert.IsNull(Transaction.Current);
           Console.WriteLine("  {0}, {1}, {2}", 
             item.person,
             item.twoFriends.ToCommaDelimitedString(), // Auto transaction for subquery 
             item.friendCount);
         }
-        Assert.IsNull(Transaction.Current);
 
         // Auto transactions on EntitySet enumeration
-        Assert.IsNull(Transaction.Current);
         Console.WriteLine("Fields of Alex (EntitySet enumeration):");
         foreach (var person in alex.Friends) {
-          Assert.IsNotNull(Transaction.Current);
+          Assert.IsNull(Transaction.Current);
           Console.WriteLine("  " + person);
         }
-        Assert.IsNull(Transaction.Current);
 
         // Auto transactions on scalar queries
         var count         = Query.All<Person>().Count();
@@ -152,8 +147,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         foreach (var item in Query.Execute(() => 
           from person in Query.All<Person>()
           select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()})) {
-          // Transaction is not null while enumeration is still in process; otherwise is null (committed)
-          // Assert.IsNotNull(Transaction.Current);
+          Assert.IsNull(Transaction.Current);
           Console.WriteLine("  {0}, {1}, {2}", 
             item.person,
             item.twoFriends.ToCommaDelimitedString(), // Auto transaction for subquery 

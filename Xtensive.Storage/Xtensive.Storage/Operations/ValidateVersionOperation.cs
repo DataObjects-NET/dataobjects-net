@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Operations
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
-      var entity = session.Query.Single(Key);
+      var entity = Query.Single(session, Key);
       if (entity.VersionInfo != Version) {
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,

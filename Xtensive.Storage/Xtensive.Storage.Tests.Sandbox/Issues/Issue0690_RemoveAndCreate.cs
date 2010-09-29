@@ -34,9 +34,6 @@ namespace Xtensive.Storage.Tests.Issue0690_Model
     [Key, Field(Length = 50)]
     public string Id { get; private set; }
 
-    [Field]
-    public string Name { get; set; }
-
     public Message(string id)
       : base(id)
     {
@@ -67,7 +64,7 @@ namespace Xtensive.Storage.Tests.Issues
         book.Reviews.Add(review);
         book.Reviews.Clear();
         book.Reviews.Add(review);
-        session.SaveChanges();
+        session.Persist();
       }
     }
 
@@ -80,70 +77,7 @@ namespace Xtensive.Storage.Tests.Issues
         var message = new Message(id);
         message.Remove();
         message = new Message(id);
-        session.SaveChanges();
-      }
-    }
-
-    [Test]
-    public void RemoveCreateTest()
-    {
-      var id = Guid.NewGuid().ToString();
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
-          var message = new Message(id) {Name = "Alfa"};
-          t.Complete();
-        }
-        using (var t = Transaction.Open()) {
-          var message = Query.Single<Message>(id);
-          message.Remove();
-          message = new Message(id) {Name = "Beta"};
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
-    public void CreateRemoveTest()
-    {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
-        var id = Guid.NewGuid().ToString();
-        var message = new Message(id) { Name = "Alfa" };
-        message.Remove();
-        t.Complete();
-      }
-    }
-
-    [Test]
-    public void CreateRemoveCreateTest()
-    {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open())
-      {
-        var id = Guid.NewGuid().ToString();
-        var message = new Message(id) { Name = "Alfa" };
-        message.Remove();
-        message = new Message(id) {Name ="Beta"};
-        t.Complete();
-      }
-    }
-
-    [Test]
-    public void RemoveCreateRemoveTest()
-    {
-      var id = Guid.NewGuid().ToString();
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
-          var message = new Message(id) {Name = "Alfa"};
-          t.Complete();
-        }
-        using (var t = Transaction.Open()) {
-          var message = Query.Single<Message>(id);
-          message.Remove();
-          message = new Message(id) {Name = "Beta"};
-          message.Remove();
-          t.Complete();
-        }
+        session.Persist();
       }
     }
   }

@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Storage
         
         using (var t = Transaction.Open()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
-          session.SaveChanges();
+          session.Persist();
           
           // Now both are definitely not null
           Assert.IsNotNull(directSql.Connection);
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Storage
           DirectStateAccessor.Get(session).Invalidate();
 
           var anotherArticle = new Article { Title = "Another title", Content = "Another content" };
-          session.SaveChanges();
+          session.Persist();
 
           AssertEx.ThrowsInvalidOperationException(() => Assert.IsNotNull(article.Content));
           Assert.AreEqual(1, Query.All<Article>().Count());

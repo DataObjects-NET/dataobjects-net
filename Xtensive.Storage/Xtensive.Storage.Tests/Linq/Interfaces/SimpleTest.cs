@@ -41,8 +41,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       var type = typeof (Order);
       var queryable = Query.All(type);
       var result = new List<DTO>();
-      var anonyms = queryable.Select("new(Freight as Freight)");
-      foreach (dynamic anonym in anonyms)
+      foreach (dynamic anonym in queryable.Select("new(Freight as Freight)"))
         result.Add(new DTO() {Freight = anonym.Freight});
       Assert.Greater(result.Count, 0);
     }

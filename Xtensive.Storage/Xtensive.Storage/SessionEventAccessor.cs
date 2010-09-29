@@ -36,7 +36,7 @@ namespace Xtensive.Storage
     public event EventHandler Disposing;
 
     /// <summary>
-    /// Occurs when <see cref="Session"/> is about to <see cref="Storage.Session.SaveChanges"/> changes.
+    /// Occurs when <see cref="Session"/> is about to <see cref="Xtensive.Storage.Session.Persist"/> changes.
     /// </summary>
     public event EventHandler Persisting;
 

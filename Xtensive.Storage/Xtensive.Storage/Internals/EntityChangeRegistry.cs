@@ -18,9 +18,10 @@ namespace Xtensive.Storage.Internals
   [Infrastructure]
   public sealed class EntityChangeRegistry : SessionBound
   {
-    private readonly HashSet<EntityState> @new = new HashSet<EntityState>();
-    private readonly HashSet<EntityState> modified = new HashSet<EntityState>();
-    private readonly HashSet<EntityState> removed = new HashSet<EntityState>();
+    private readonly List<EntityState> @new = new List<EntityState>();
+    private readonly List<EntityState> modified = new List<EntityState>();
+    private readonly List<EntityState> removed = new List<EntityState>();
+    private readonly HashSet<Key> removedSet = new HashSet<Key>();
     private int count;
 
     /// <summary>
@@ -34,28 +35,18 @@ namespace Xtensive.Storage.Internals
     /// <param name="item">The item.</param>
     internal void Register(EntityState item)
     {
-      // Remove-create sequences fix for Issue 690
-      if (item.PersistenceState == PersistenceState.New && removed.Contains(item)) {
-        removed.Remove(item);
-        count--;
-        if (item.DifferentialTuple.Difference == null) {
-          item.SetPersistenceState(PersistenceState.Synchronized);
-          return;
-        }
-        item.SetPersistenceState(PersistenceState.Modified);
-      }
-      else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item)) {
-        @new.Remove(item);
-        count--;
-        return;
-      }
-      else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
-        modified.Remove(item);
-      }
+      // Workaround for Issue 690
+      if (item.PersistenceState==PersistenceState.New)
+        if (removedSet.Contains(item.Key))
+          Session.Persist(PersistReason.PersistEntityRemoval);
 
       var container = GetContainer(item.PersistenceState);
       container.Add(item);
       count++;
+
+      // Workaround for Issue 690
+      if (item.PersistenceState==PersistenceState.Removed)
+        removedSet.Add(item.Key);
     }
 
     /// <summary>
@@ -78,10 +69,11 @@ namespace Xtensive.Storage.Internals
       @new.Clear();
       modified.Clear();
       removed.Clear();
+      removedSet.Clear();
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
-    private HashSet<EntityState> GetContainer(PersistenceState state)
+    private List<EntityState> GetContainer(PersistenceState state)
     {
       switch (state) {
       case PersistenceState.New:

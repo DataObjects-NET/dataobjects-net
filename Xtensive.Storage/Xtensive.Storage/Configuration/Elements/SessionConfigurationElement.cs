@@ -86,9 +86,9 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.Options" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(OptionsElementName, DefaultValue = "LegacyProfile")]
+    [ConfigurationProperty(OptionsElementName, DefaultValue = "Default")]
     public string Options {
-      get { return (string)this[OptionsElementName]; }
+      get { return (string) this[OptionsElementName]; }
       set { this[OptionsElementName] = value; }
     }
 

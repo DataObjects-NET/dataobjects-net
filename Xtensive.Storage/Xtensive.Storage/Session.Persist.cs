@@ -6,10 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
@@ -19,46 +17,6 @@ namespace Xtensive.Storage
 {
   public partial class Session
   {
-    /// <summary>
-    /// Saves all modified instances immediately to the database.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This method should be called to ensure that all delayed
-    /// updates are flushed to the storage.
-    /// </para>
-    /// <para>
-    /// For non-disconnected (without <see cref="SessionOptions.Disconnected"/> option) session this method is called automatically when it's necessary,
-    /// e.g. before beginning, committing and rolling back a transaction, performing a
-    /// query and so further. So generally you should not worry
-    /// about calling this method.
-    /// </para>
-    /// <para>
-    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) you should call this method manually.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
-    public void SaveChanges()
-    {
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected)
-        DisconnectedState.ApplyChanges();
-      else
-        Persist(PersistReason.Manual);
-    }
-
-    /// <summary>
-    /// Cancels all changes and resets modified entities to their original state.
-    /// </summary>
-    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
-    /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
-    public void CancelChanges()
-    {
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected)
-        DisconnectedState.CancelChanges();
-      else
-        throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
-    }
-
     /// <summary>
     /// Persists all modified instances immediately.
     /// </summary>
@@ -75,7 +33,6 @@ namespace Xtensive.Storage
     /// </para>
     /// </remarks>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
-    [Obsolete("Use SaveChanges() method instead.")]
     public void Persist()
     {
       Persist(PersistReason.Manual);
@@ -84,71 +41,72 @@ namespace Xtensive.Storage
     internal void Persist(PersistReason reason)
     {
       EnsureNotDisposed();
+      if (Transaction==null)
+        return;
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
-      using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)){
-        var performPinning = Pinner.RootCount > 0;
-        if (performPinning)
-          switch (reason) {
-          case PersistReason.NestedTransaction:
-          case PersistReason.Commit:
-            throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
-          }
+      bool performPinning = Pinner.RootCount > 0;
 
-        IsPersisting = true;
+      if (performPinning)
+        switch (reason) {
+        case PersistReason.NestedTransaction:
+        case PersistReason.Commit:
+          throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
+        }
+
+      IsPersisting = true;
       
-        SystemEvents.NotifyPersisting();
-        Events.NotifyPersisting();
-        try {
-          using (this.OpenSystemLogicOnlyRegion()) {
-            EnsureTransactionIsStarted();
-            if (IsDebugEventLoggingEnabled)
-              Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+      SystemEvents.NotifyPersisting();
+      Events.NotifyPersisting();
+      try {
+        using (this.OpenSystemLogicOnlyRegion()) {
+          EnsureTransactionIsStarted();
+          if (IsDebugEventLoggingEnabled)
+            Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
 
-            EntityChangeRegistry itemsToPersist;
+          EntityChangeRegistry itemsToPersist;
+          if (performPinning) {
+            Pinner.Process(EntityChangeRegistry);
+            itemsToPersist = Pinner.PersistableItems;
+          }
+          else
+            itemsToPersist = EntityChangeRegistry;
+
+          try {
+            Handler.Persist(itemsToPersist, reason == PersistReason.Query);
+          }
+          finally {
+            foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
+              item.PersistenceState = PersistenceState.Synchronized;
+            foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
+              item.PersistenceState = PersistenceState.Synchronized;
+            foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
+              item.Update(null);
+
             if (performPinning) {
-              Pinner.Process(EntityChangeRegistry);
-              itemsToPersist = Pinner.PersistableItems;
+              EntityChangeRegistry = Pinner.PinnedItems;
+              Pinner.Reset();
             }
             else
-              itemsToPersist = EntityChangeRegistry;
+              EntityChangeRegistry.Clear();
 
-            try {
-              Handler.Persist(itemsToPersist, reason == PersistReason.Query);
-            }
-            finally {
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
-                item.PersistenceState = PersistenceState.Synchronized;
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
-                item.PersistenceState = PersistenceState.Synchronized;
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
-                item.Update(null);
-
-              if (performPinning) {
-                EntityChangeRegistry = Pinner.PinnedItems;
-                Pinner.Reset();
-              }
-              else
-                EntityChangeRegistry.Clear();
-
-              if (IsDebugEventLoggingEnabled)
-                Log.Debug(Strings.LogSessionXPersistCompleted, this);
-            }
+            if (IsDebugEventLoggingEnabled)
+              Log.Debug(Strings.LogSessionXPersistCompleted, this);
           }
-          SystemEvents.NotifyPersisted();
-          Events.NotifyPersisted();
         }
-        finally {
-          IsPersisting = false;
-        }
+        SystemEvents.NotifyPersisted();
+        Events.NotifyPersisted();
+      }
+      finally {
+        IsPersisting = false;
       }
     }
 
     /// <summary>
     /// Pins the specified <see cref="IEntity"/>.
     /// Pinned entity is prevented from being persisted,
-    /// when <see cref="SaveChanges"/> is called or query is executed.
+    /// when <see cref="Persist"/> is called or query is executed.
     /// If persist is to be performed due to starting a nested transaction or committing a transaction,
     /// any pinned entity will lead to failure.
     /// If <paramref name="target"/> is not present in the database,
@@ -165,7 +123,8 @@ namespace Xtensive.Storage
       targetEntity.EnsureNotRemoved();
       if (IsDisconnected)
         return new Disposable(b => {return;}); // No need to pin in this case
-      return Pinner.RegisterRoot(targetEntity.State);
+      else
+        return Pinner.RegisterRoot(targetEntity.State);
     }
   }
 }

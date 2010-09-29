@@ -334,25 +334,24 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Cat tom;
       Cat musya;
       Person alex;
-      using (var session = Session.Open(domain)) {
+
+      using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
           tom = new Cat {Name = "Tom"};
           new Dog {Name = "Sharik"};
           tx.Complete();
         }
+        Assert.AreEqual(1, Query.All<TransactionInfo>().Count());
+        Assert.AreEqual(2, Query.All<AuditRecord<Animal>>().Count());
+
         using (var tx = Transaction.Open()) {
-          Assert.AreEqual(1, Query.All<TransactionInfo>().Count());
-          Assert.AreEqual(2, Query.All<AuditRecord<Animal>>().Count());
           musya = new Cat();
           tx.Complete();
         }
 
         // Auto transactions
-        using (var tx = Transaction.Open()) {
-          musya.Name = "Musya";
-          musya.Remove();
-          tx.Complete();
-        }
+        musya.Name = "Musya";
+        musya.Remove();
 
         // Rollback test
         using (var tx = Transaction.Open()) {
@@ -369,16 +368,10 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
           }
         }
 
-        using (var tx = Transaction.Open())
-        {
-          alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
-        }
+        alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
 
-        using (var tx = Transaction.Open())
-        {
-          tom.Owner = alex;
-          tx.Complete();
-        }
+        // Auto transaction
+        tom.Owner = alex;
 
         // And now - the magic!
         DumpAuditLog();
@@ -404,39 +397,41 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Assert.AreEqual(6, autoGenericInstances.Count);
     }
 
-    [Transactional(TransactionalBehavior.Open)]
     private void DumpAuditLog()
     {
       Console.WriteLine("Audit log:");
-      var auditTable =
-        from record in Query.All<AuditRecord>()
-        let transaction = record.Transaction
-        orderby transaction.Id , record.EntityKey
-        select new {Record = record, Transaction = transaction};
+      using (var tx = Transaction.Open()) {
+        var auditTable =
+          from record in Query.All<AuditRecord>()
+          let transaction = record.Transaction
+          orderby transaction.Id , record.EntityKey
+          select new {Record = record, Transaction = transaction};
 
-      // Prefetching AuditRecord<T> - so far we're sure there is only
-      // AuditRecord fields and Transaction, but we need descendant fields
-      // as well.
-      auditTable
-        .Select(e => e.Record.Key)
-        .Prefetch<Entity, Key>(key => key)
-        .Run();
-      // Prefetching AuditRecord.EntityKey
-      auditTable
-        .Select(e => e.Record.EntityKey)
-        .Prefetch<Entity, Key>(key => key)
-        .Run();
+        // Prefetching AuditRecord<T> - so far we're sure there is only
+        // AuditRecord fields and Transaction, but we need descendant fields
+        // as well.
+        auditTable
+          .Select(e => e.Record.Key)
+          .Prefetch<Entity, Key>(key => key)
+          .Run();
+        // Prefetching AuditRecord.EntityKey
+        auditTable
+          .Select(e => e.Record.EntityKey)
+          .Prefetch<Entity, Key>(key => key)
+          .Run();
 
-      TransactionInfo lastTransaction = null;
-      foreach (var entry in auditTable) {
-        var transaction = entry.Transaction;
-        if (lastTransaction!=transaction) {
-          // Client-side grouping ;) Actually, for nicer output.
-          Console.WriteLine();
-          Console.WriteLine(transaction.ToString());
-          lastTransaction = transaction;
+        TransactionInfo lastTransaction = null;
+        foreach (var entry in auditTable) {
+          var transaction = entry.Transaction;
+          if (lastTransaction!=transaction) {
+            // Client-side grouping ;) Actually, for nicer output.
+            Console.WriteLine();
+            Console.WriteLine(transaction.ToString());
+            lastTransaction = transaction;
+          }
+          Console.WriteLine(entry.Record.ToString().Indent(2));
         }
-        Console.WriteLine(entry.Record.ToString().Indent(2));
+        tx.Complete();
       }
     }
   }

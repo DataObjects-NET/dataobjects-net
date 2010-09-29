@@ -31,8 +31,6 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public StorageInfo Model { get; protected set; }
 
-    public Providers.SessionHandler SessionHandler { get; private set; }
-
     /// <inheritdoc/>
     public abstract ITransaction Transaction { get; }
 
@@ -46,7 +44,7 @@ namespace Xtensive.Storage.Providers.Index
     public abstract void Update(ActionSequence sequence);
 
     /// <inheritdoc/>
-    public abstract IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler);
+    public abstract IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo);
     
     // TODO: Get rid of this!
     /// <summary>
@@ -76,12 +74,10 @@ namespace Xtensive.Storage.Providers.Index
     /// </summary>
     /// <param name="storage">The storage.</param>
     /// <param name="model">The model.</param>
-    /// <param name="sessionHandler">The session handler.</param>
-    protected IndexStorageView(IndexStorage storage, StorageInfo model, Providers.SessionHandler sessionHandler)
+    protected IndexStorageView(IndexStorage storage, StorageInfo model)
     {
       Storage = storage;
       Model = model;
-      SessionHandler = sessionHandler;
     }
   }
 }

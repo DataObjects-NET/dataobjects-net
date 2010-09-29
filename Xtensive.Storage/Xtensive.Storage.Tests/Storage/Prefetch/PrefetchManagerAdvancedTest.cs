@@ -220,16 +220,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         SetSlim<GraphContainer> graphContainers;
         using (var tx = Transaction.Open()) {
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
+          tx.Complete();
           graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
           Assert.AreEqual(1, graphContainers.Count);
-          tx.Complete();
         }
         Assert.AreEqual(0, graphContainers.Count);
 
         using (var tx = Transaction.Open()) {
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField));
           Assert.AreEqual(1, graphContainers.Count);
-          // tx.Complete();
         }
         Assert.AreEqual(0, graphContainers.Count);
       }
@@ -354,7 +353,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(customer0Key, null, new PrefetchFieldDescriptor(CityField));
         prefetchManager.ExecuteTasks(true);
-        var cache = (IEnumerable) CompilationContextCacheField.GetValue(session.CompilationService);
+        var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
         var expectedCachedProviders = cache.Cast<object>().ToList();
         
         prefetchManager.InvokePrefetch(customer1Key, null, new PrefetchFieldDescriptor(CityField));
@@ -394,7 +393,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(order0Key, null, new PrefetchFieldDescriptor(DetailsField, 3));
         prefetchManager.ExecuteTasks(true);
-        var cache = (IEnumerable)CompilationContextCacheField.GetValue(session.CompilationService);
+        var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
         var expectedCachedProviders = cache.Cast<object>().ToList();
         
         prefetchManager.InvokePrefetch(order1Key, null, new PrefetchFieldDescriptor(DetailsField, 2));
@@ -409,7 +408,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(order0Key, null, new PrefetchFieldDescriptor(DetailsField));
         prefetchManager.ExecuteTasks(true);
-        var cache = (IEnumerable)CompilationContextCacheField.GetValue(session.CompilationService);
+        var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
         var expectedCachedProviders = cache.Cast<object>().ToList();
         
         prefetchManager.InvokePrefetch(order1Key, null, new PrefetchFieldDescriptor(DetailsField));
@@ -736,11 +735,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var cacheEntryType = typeof (Xtensive.Storage.Rse.Compilation.CompilationService)
+        var cacheEntryType = typeof (Xtensive.Storage.Rse.Compilation.CompilationContext)
           .GetNestedType("CacheEntry", BindingFlags.NonPublic);
         var keyField = cacheEntryType.GetField("Key");
         var nameField = typeof (Person).GetTypeInfo(Domain).Fields["Name"];
-        var cache = (IEnumerable)CompilationContextCacheField.GetValue(session.CompilationService);
+        var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
         cache.GetType().GetMethod("Clear").Invoke(cache, null);
         var originalCachedItems = cache.Cast<object>().ToList();
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);

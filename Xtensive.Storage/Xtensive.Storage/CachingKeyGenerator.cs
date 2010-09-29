@@ -62,7 +62,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected virtual IEnumerable<TKeyType> NextBulk()
     {
-      var service = Handlers.Domain.Services.Get<ICachingKeyGeneratorService>();
+      var service = Handlers.SessionHandler.GetService<ICachingKeyGeneratorService>();
       if (service!=null) {
         // Using SessionHandler's service
         foreach (var value in service.NextBulk(this))

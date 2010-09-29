@@ -18,7 +18,7 @@ using System.Linq;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Header of <see cref="RecordQuery"/>.
+  /// Header of <see cref="RecordSet"/>.
   /// </summary>
   [Serializable]
   public sealed class RecordSetHeader
@@ -36,23 +36,23 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
-    /// Gets the <see cref="RecordQuery"/> keys.
+    /// Gets the <see cref="RecordSet"/> keys.
     /// </summary>
     /// <value>The keys.</value>
     public ColumnGroupCollection ColumnGroups { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="RecordQuery"/> columns.
+    /// Gets the <see cref="RecordSet"/> columns.
     /// </summary>
     public ColumnCollection Columns { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="RecordQuery"/> tuple descriptor.
+    /// Gets the <see cref="RecordSet"/> tuple descriptor.
     /// </summary>
     public TupleDescriptor TupleDescriptor { get; private set; }
 
     /// <summary>
-    /// Gets the indexes of columns <see cref="RecordQuery"/> is ordered by.
+    /// Gets the indexes of columns <see cref="RecordSet"/> is ordered by.
     /// </summary>
     public DirectionCollection<int> Order { get; private set; }
 

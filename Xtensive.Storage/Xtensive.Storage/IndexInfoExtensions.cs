@@ -16,11 +16,11 @@ namespace Xtensive.Storage
   public static class IndexInfoExtensions
   {
     /// <summary>
-    /// Creates the <see cref="RecordQuery"/> allowing to query the specified <paramref name="index"/>.
+    /// Creates the <see cref="RecordSet"/> allowing to query the specified <paramref name="index"/>.
     /// </summary>
-    /// <param name="index">The index to create the <see cref="RecordQuery"/> for.</param>
-    /// <returns>Newly created <see cref="RecordQuery"/> object.</returns>
-    public static RecordQuery ToRecordQuery(this IndexInfo index)
+    /// <param name="index">The index to create the <see cref="RecordSet"/> for.</param>
+    /// <returns>Newly created <see cref="RecordSet"/> object.</returns>
+    public static RecordSet ToRecordSet(this IndexInfo index)
     {
       return IndexProvider.Get(index).Result;
     }

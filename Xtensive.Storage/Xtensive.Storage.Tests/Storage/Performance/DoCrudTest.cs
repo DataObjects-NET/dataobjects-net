@@ -243,12 +243,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         int i = 0;
         using (var ts = Transaction.Open()) {
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
-              foreach (var tuple in rs.ToRecordSet(s)) {
-                var o = new SqlClientCrudModel.Simplest  {
+              foreach (var tuple in rs) {
+                var o = new SqlClientCrudModel.Simplest 
+                {
                   Id = tuple.GetValueOrDefault<long>(0), 
                   Value = tuple.GetValueOrDefault<long>(2)
                 };
@@ -424,11 +425,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
-              var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
+              var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterContext().Activate()) {
                 pKey.Value = Tuple.Create((long)(i % instanceCount));
-                var es = rs.ToRecordSet(s).ToEntities<Simplest>(0);
+                var es = rs.ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }
@@ -448,13 +449,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var ts = Transaction.Open()) {
           TestHelper.CollectGarbage();
           var pKey = new Parameter<Tuple>();
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           rs = rs.Seek(() => pKey.Value);
           using (new ParameterContext().Activate()) {
             using (warmup ? null : new Measurement("Cached RSE query", count)) {
               for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create((long)(i % instanceCount));
-                var es = rs.ToRecordSet(s).ToEntities<Simplest>(0);
+                var es = rs.ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }
@@ -494,7 +495,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query) {
               o.Value = o.Value++;
-              s.SaveChanges();
+              s.Persist();
             }
             ts.Complete();
           }

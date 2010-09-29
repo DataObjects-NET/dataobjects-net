@@ -71,12 +71,13 @@ namespace Xtensive.Storage
       using (session.Activate()) {
         using (isSystemOperationLog ? session.OpenSystemLogicOnlyRegion() : null) 
         using (var tx = Transaction.Open(TransactionOpenMode.New)) {
+          transaction = tx.Transaction;
 
           foreach (var operation in operations)
             operation.Prepare(executionContext);
 
           executionContext.KeysToPrefetch
-            .Prefetch(session)
+            .Prefetch()
             .Run();
 
           foreach (var operation in operations) {
@@ -87,10 +88,12 @@ namespace Xtensive.Storage
             });
 
             session.Operations.OutermostOperationCompleted += handler;
+            // session.Operations.NestedOperationCompleted += handler;
             try {
               operation.Execute(executionContext);
             }
             finally {
+              // session.Operations.NestedOperationCompleted -= handler;
               session.Operations.OutermostOperationCompleted -= handler;
             }
 

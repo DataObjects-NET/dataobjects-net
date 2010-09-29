@@ -6,10 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Internals.Prefetch;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Internals
@@ -25,6 +28,9 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     protected readonly SessionHandler chainedHandler;
 
+    /// <inheritdoc/>
+    public override QueryProvider QueryProvider { get { return chainedHandler.QueryProvider; } }
+
     internal override int PrefetchTaskExecutionCount {
       get { return chainedHandler.PrefetchTaskExecutionCount; }
     }
@@ -38,45 +44,39 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void BeginTransaction(Transaction transaction)
+    public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      chainedHandler.BeginTransaction(transaction);
+      chainedHandler.BeginTransaction(isolationLevel);
     }
 
     /// <inheritdoc/>
-    public override void CompletingTransaction(Transaction transaction)
+    public override void CommitTransaction()
     {
-      chainedHandler.CompletingTransaction(transaction);
+      chainedHandler.CommitTransaction();
     }
 
     /// <inheritdoc/>
-    public override void CommitTransaction(Transaction transaction)
+    public override void RollbackTransaction()
     {
-      chainedHandler.CommitTransaction(transaction);
+      chainedHandler.RollbackTransaction();
     }
 
     /// <inheritdoc/>
-    public override void RollbackTransaction(Transaction transaction)
+    public override void CreateSavepoint(string name)
     {
-      chainedHandler.RollbackTransaction(transaction);
+      chainedHandler.CreateSavepoint(name);
     }
 
     /// <inheritdoc/>
-    public override void CreateSavepoint(Transaction transaction)
+    public override void RollbackToSavepoint(string name)
     {
-      chainedHandler.CreateSavepoint(transaction);
+      chainedHandler.RollbackToSavepoint(name);
     }
 
     /// <inheritdoc/>
-    public override void RollbackToSavepoint(Transaction transaction)
+    public override void ReleaseSavepoint(string name)
     {
-      chainedHandler.RollbackToSavepoint(transaction);
-    }
-
-    /// <inheritdoc/>
-    public override void ReleaseSavepoint(Transaction transaction)
-    {
-      chainedHandler.ReleaseSavepoint(transaction);
+      chainedHandler.ReleaseSavepoint(name);
     }
 
     /// <inheritdoc/>

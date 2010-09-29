@@ -46,7 +46,8 @@ namespace Xtensive.Storage.Tests.Issues
       {
         BatchSize = 25,
         DefaultIsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
-        CacheSize = 1000
+        CacheSize = 1000,
+        Options = SessionOptions.AutoShortenTransactions
       }); 
       configuration.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       return configuration;
@@ -56,15 +57,9 @@ namespace Xtensive.Storage.Tests.Issues
     public void Test()
     {
       using (var session = Session.Open(Domain)) {
-        Person person;
-        Key key;
-        VersionInfo version;
-        using (var tx = Transaction.Open()) {
-          person = new Person() {Name = "Name"};
-          key = person.Key;
-          version = person.VersionInfo;
-          tx.Complete();
-        }
+        var person  = new Person() { Name = "Name" };
+        var key     = person.Key;
+        var version = person.VersionInfo;
 
         // 1st update (ok)
         OptimisticUpdate<Person>(key, version, p => p.Name = "ANewName" );

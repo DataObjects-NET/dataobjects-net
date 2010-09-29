@@ -322,11 +322,19 @@ namespace Xtensive.Storage
     /// <returns>"Transactional" version of sequence.</returns>
     public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, Session session, IsolationLevel isolationLevel)
     {
-      using (session.Activate(true))
-      using (var tx = Transaction.OpenAuto(session, isolationLevel)) {
-        foreach (var item in source)
-          yield return item;
-        tx.Complete();
+      using (session.Activate(true)) {
+        if (Transaction.Current!=null)
+          foreach (var item in source)
+            yield return item;
+        else {
+          List<T> cache;
+          using (var tx = Transaction.Open(session, isolationLevel)) {
+            cache = source.ToList();
+            tx.Complete();
+          }
+          foreach (var item in cache)
+            yield return item;
+        }
       }
     }
 

@@ -15,7 +15,7 @@ using Xtensive.Indexing;
 namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {
   /// <summary>
-  /// Base class for <see cref="RecordQuery"/> <see cref="IIndexReader{TKey,TItem}"/>s.
+  /// Base class for <see cref="RecordSet"/> <see cref="IIndexReader{TKey,TItem}"/>s.
   /// </summary>
   internal abstract class VirtualIndexReader: IIndexReader<Tuple, Tuple>
   {

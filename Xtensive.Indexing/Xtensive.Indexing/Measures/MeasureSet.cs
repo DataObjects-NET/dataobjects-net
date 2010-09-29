@@ -44,9 +44,9 @@ namespace Xtensive.Indexing.Measures
     }
 
     /// <inheritdoc/>
-    protected override void CopyFrom(ConfigurationBase source)
+    protected override void Clone(ConfigurationBase source)
     {
-      base.CopyFrom(source);
+      base.Clone(source);
       Clear();
       var set = (MeasureSet<TItem>)source;
       foreach (IMeasure<TItem> measure in set)

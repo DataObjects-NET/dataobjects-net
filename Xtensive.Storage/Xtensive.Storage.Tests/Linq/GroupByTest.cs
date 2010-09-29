@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var customer = Query.All<Customer>().First();
       customer.Address.Country = null;
-      Session.Current.SaveChanges();
+      Session.Current.Persist();
       StructureGroupTest();
     }
 

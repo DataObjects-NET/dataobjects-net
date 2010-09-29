@@ -64,12 +64,11 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void SelectCharTest()
     {
-      using (var session = Session.Open(Domain))
+      using (Session.Open(Domain))
       using (var transaction = Transaction.Open()) {
-        var rs = GetRecordQuery<MyEntity>();
+        var rs = GetRecordSet<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
-          .ToRecordSet(Session.Current)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(3, result.Count);
@@ -86,11 +85,10 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       using (Session.Open(Domain))
       using (var transaction = Transaction.Open()) {
         var y = 'Y';
-        var rs = GetRecordQuery<MyEntity>();
+        var rs = GetRecordSet<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0) == y)
-          .ToRecordSet(Session.Current)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);
@@ -104,11 +102,10 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       using (Session.Open(Domain))
       using (var transaction = Transaction.Open()) {
-        var rs = GetRecordQuery<MyEntity>();
+        var rs = GetRecordSet<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
-          .ToRecordSet(Session.Current)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);
@@ -117,9 +114,9 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       }
     }
 
-    private RecordQuery GetRecordQuery<T>() where T : Entity
+    private RecordSet GetRecordSet<T>() where T : Entity
     {
-      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordQuery();
+      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordSet();
     }
   }
 }

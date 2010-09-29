@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
   {
     private readonly int typeIdColumn;
     private readonly int typeId;
+    private readonly IOrderedEnumerable<Tuple,Tuple> source;
     private Func<Tuple, Tuple> typeInjector;
 
     /// <inheritdoc/>
@@ -48,25 +49,25 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     /// <inheritdoc/>
     public Func<Entire<Tuple>, Tuple, int> AsymmetricKeyCompare
     {
-      get { return Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).AsymmetricKeyCompare; }
+      get { return source.AsymmetricKeyCompare; }
     }
 
     /// <inheritdoc/>
     public AdvancedComparer<Entire<Tuple>> EntireKeyComparer
     {
-      get { return Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).EntireKeyComparer; }
+      get { return source.EntireKeyComparer; }
     }
 
     /// <inheritdoc/>
     public AdvancedComparer<Tuple> KeyComparer
     {
-      get { return Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer; }
+      get { return source.KeyComparer; }
     }
 
     /// <inheritdoc/>
     public Converter<Tuple, Tuple> KeyExtractor
     {
-      get { return Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor; }
+      get { return source.KeyExtractor; }
     }
 
     #endregion
@@ -74,28 +75,28 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     /// <inheritdoc/>
     public IEnumerable<Tuple> GetItems(Range<Entire<Tuple>> range)
     {
-      var items = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).GetItems(range);
+      var items = source.GetItems(range);
       return items.Select(typeInjector);
     }
 
     /// <inheritdoc/>
     public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> range)
     {
-      var items = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).GetItems(range);
+      var items = source.GetItems(range);
       return items.Select(typeInjector);
     }
 
     /// <inheritdoc/>
     public IEnumerable<Tuple> GetKeys(Range<Entire<Tuple>> range)
     {
-      var items = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).GetItems(range);
+      var items = source.GetItems(range);
       return items.Select(typeInjector).Select(tuple => KeyExtractor(tuple));
     }
 
     /// <inheritdoc/>
     public SeekResult<Tuple> Seek(Ray<Entire<Tuple>> ray)
     {
-      var seek = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).Seek(ray);
+      var seek = source.Seek(ray);
       var result = seek.ResultType == SeekResultType.None
         ? default(Tuple)
         : typeInjector(seek.Result);
@@ -105,7 +106,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     /// <inheritdoc/>
     public SeekResult<Tuple> Seek(Tuple key)
     {
-      var seek = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).Seek(key);
+      var seek = source.Seek(key);
       var result = seek.ResultType == SeekResultType.None
         ? default(Tuple)
         : typeInjector(seek.Result);
@@ -121,7 +122,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).Select(typeInjector);
+      return source.Select(typeInjector);
     }
 
     protected override void Initialize()
@@ -149,7 +150,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
       AddService<ICountable>();
       this.typeIdColumn = typeIdColumn;
       this.typeId = typeId;
-//      source = provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
+      source = provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
     }
   }
 }

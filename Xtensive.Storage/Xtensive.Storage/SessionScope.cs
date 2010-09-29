@@ -4,6 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.29
 
+using System;
+using Xtensive.Core;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
 
@@ -14,6 +17,8 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class SessionScope : Scope<Session>
   {
+    private IDisposable toDispose;
+
     /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
@@ -40,6 +45,23 @@ namespace Xtensive.Storage
     public SessionScope(Session session)
       : base(session)
     {
+      if (session!=null)
+        toDispose = session.CompilationContext.Activate();
+    }
+
+    // Desctructor
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+      try {
+        var disposable = toDispose;
+        toDispose = null;
+        disposable.DisposeSafely();
+      }
+      finally {
+        base.Dispose(disposing);
+      }
     }
   }
 }

@@ -31,7 +31,7 @@ namespace Xtensive.Storage
       get {
         var session = Session.Current;
         return session != null 
-          ? session.Transaction
+          ? session.Transaction ?? (session.IsDisconnected ? session.DisconnectedState.AlreadyOpenedTransaction : null)
           : null;
       }
     }
@@ -52,36 +52,11 @@ namespace Xtensive.Storage
       return currentTransaction;
     }
 
-    /// <summary>
-    /// Checks whether a transaction exists or not in the provided session.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
-    public static void Require(Session session)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      if (session.Transaction != null)
-        return;
-      throw new InvalidOperationException(
-          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
-    }
-
     #endregion
 
     private InconsistentRegion inconsistentRegion;
     private ExtensionCollection extensions;
     private Transaction inner;
-
-    /// <summary>
-    /// Gets a value indicating whether this instance is automatic transaction.
-    /// </summary>
-    public bool IsAutomatic { get; private set; }
-    
-    /// <summary>
-    /// Gets a value indicating whether this instance is 
-    /// transaction running locally in <see cref="DisconnectedState"/>.
-    /// </summary>
-    public bool IsDisconnected { get; private set; }
     
     /// <summary>
     /// Gets the unique identifier of this transaction.
@@ -244,19 +219,17 @@ namespace Xtensive.Storage
     
     // Constructors
 
-    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic)
-      : this(session, isolationLevel, isAutomatic, null, null)
+    internal Transaction(Session session, IsolationLevel isolationLevel)
+      : this(session, isolationLevel, null, null)
     {
     }
 
-    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer, string savepointName)
+    internal Transaction(Session session, IsolationLevel isolationLevel, Transaction outer, string savepointName)
     {
       Guid = Guid.NewGuid();
       State = TransactionState.NotActivated;
       Session = session;
       IsolationLevel = isolationLevel;
-      IsAutomatic = isAutomatic;
-      IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
       TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();

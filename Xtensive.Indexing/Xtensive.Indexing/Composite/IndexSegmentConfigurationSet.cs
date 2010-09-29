@@ -35,9 +35,9 @@ namespace Xtensive.Indexing.Composite
     }
 
     /// <inheritdoc/>
-    protected override void CopyFrom(ConfigurationBase source)
+    protected override void Clone(ConfigurationBase source)
     {
-      base.CopyFrom(source);
+      base.Clone(source);
       IndexSegmentConfigurationSet<TKey, TItem> set = (IndexSegmentConfigurationSet<TKey, TItem>)source;
       foreach (IndexSegmentConfiguration<TKey, TItem> configuration in set)
         Add((IndexSegmentConfiguration<TKey, TItem>)configuration.Clone());

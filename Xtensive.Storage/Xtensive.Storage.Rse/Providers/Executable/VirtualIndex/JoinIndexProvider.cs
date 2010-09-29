@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     private readonly int keyColumnsCount;
     private readonly List<Pair<int, List<int>>> valueColumnsMap;
     private readonly ExecutableProvider root;
+    private readonly IOrderedEnumerable<Tuple, Tuple> rootEnumerable;
     private readonly ExecutableProvider[] inheritors;
     private MapTransform mapTransform;
 
@@ -50,28 +51,28 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
 
     Func<Entire<Tuple>, Tuple, int> IHasKeyComparers<Tuple>.AsymmetricKeyCompare
     {
-      get { return root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).AsymmetricKeyCompare; }
+      get { return rootEnumerable.AsymmetricKeyCompare; }
     }
 
     AdvancedComparer<Entire<Tuple>> IHasKeyComparers<Tuple>.EntireKeyComparer
     {
-      get { return root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).EntireKeyComparer; }
+      get { return rootEnumerable.EntireKeyComparer; }
     }
 
     AdvancedComparer<Tuple> IHasKeyComparers<Tuple>.KeyComparer
     {
-      get { return root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer; }
+      get { return rootEnumerable.KeyComparer; }
     }
 
     /// <inheritdoc/>
     public Converter<Tuple, Tuple> KeyExtractor
     {
-      get { return root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor; }
+      get { return rootEnumerable.KeyExtractor; }
     }
 
     IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetKeys(Range<Entire<Tuple>> range)
     {
-      return root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).GetKeys(range);
+      return rootEnumerable.GetKeys(range);
     }
 
     IIndexReader<Tuple, Tuple> IOrderedEnumerable<Tuple, Tuple>.CreateReader(Range<Entire<Tuple>> range)
@@ -81,7 +82,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
 
     SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Ray<Entire<Tuple>> ray)
     {
-      SeekResult<Tuple> seek = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).Seek(ray);
+      SeekResult<Tuple> seek = rootEnumerable.Seek(ray);
       if (seek.ResultType == SeekResultType.Exact) {
         var resultTuples = new Tuple[1+inheritors.Length];
         resultTuples[0] = seek.Result;
@@ -101,7 +102,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
 
     SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Tuple key)
     {
-      SeekResult<Tuple> seek = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).Seek(key);
+      SeekResult<Tuple> seek = rootEnumerable.Seek(key);
       if (seek.ResultType == SeekResultType.Exact) {
         var resultTuples = new Tuple[1+inheritors.Length];
         resultTuples[0] = seek.Result;
@@ -121,9 +122,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(Range<Entire<Tuple>> range)
     {
       return Internal.JoinAlgorithm.Join(
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).GetItems(range),
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor,
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer, 
+        rootEnumerable.GetItems(range),
+        rootEnumerable.KeyExtractor,
+        rootEnumerable.KeyComparer, 
         mapTransform,
         inheritors
           .Select(provider => new Pair<Provider,IOrderedEnumerable<Tuple,Tuple>>(provider, provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true)))
@@ -135,9 +136,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(RangeSet<Entire<Tuple>> range)
     {
       return Internal.JoinAlgorithm.Join(
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).GetItems(range),
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor,
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer,
+        rootEnumerable.GetItems(range),
+        rootEnumerable.KeyExtractor,
+        rootEnumerable.KeyComparer,
         mapTransform,
         inheritors
           .Select(provider => new Pair<Provider, IOrderedEnumerable<Tuple, Tuple>>(provider, provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true)))
@@ -153,8 +154,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     {
       return Internal.JoinAlgorithm.Join(
         root,
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor,
-        root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer,
+        rootEnumerable.KeyExtractor,
+        rootEnumerable.KeyComparer,
         mapTransform,
         inheritors
           .Select(provider => new Pair<Provider, IOrderedEnumerable<Tuple, Tuple>>(provider, provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true)))
@@ -197,7 +198,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
       this.valueColumnsMap = valueColumnsMap;
       this.keyColumnsCount = keyColumnsCount;
       this.root = root;
-      this.inheritors = inheritors;
+      rootEnumerable = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
+      this.inheritors = inheritors;      
     }
   }
 }

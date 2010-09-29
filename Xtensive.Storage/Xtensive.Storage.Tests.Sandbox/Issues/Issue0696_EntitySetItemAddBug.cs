@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (var tx = Transaction.Open()) {
         var m = new Master();
 
-        session.SaveChanges();
+        session.Persist();
         session.Events.EntitySetItemAdd += (sender, e) => {
           if (e.EntitySet ==m.Details && e.Item is Detail) {
             // This call leads to EntitySet content refresh, and thus

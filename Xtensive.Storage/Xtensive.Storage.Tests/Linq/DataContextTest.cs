@@ -23,46 +23,44 @@ namespace Xtensive.Storage.Tests.Linq
     {
     }
 
-    private class DataContext
+    private static class DataContext
     {
-      public IQueryable<Order> Orders { get; private set; }
-      public IQueryable<Customer> Customers { get; private set; }
+      public static IQueryable<Order> Orders { get; private set; }
+      public static IQueryable<Customer> Customers { get; private set; }
 
-      public IQueryable<Customer> CustomersException
+      public static IQueryable<Customer> CustomersException
       {
         get { throw new UserException(); }
       }
 
-      public IQueryable<Customer> CustomersNull
+      public static IQueryable<Customer> CustomersNull
       {
         get { return null; }
       }
 
-      public IQueryable<Customer> CustomersNullQueryableExpression
+      public static IQueryable<Customer> CustomersNullQueryableExpression
       {
         get { throw new NotImplementedException(); }
       }
 
-      public IQueryable<Customer> CustomersFakeQueryableExpression
+      public static IQueryable<Customer> CustomersFakeQueryableExpression
       {
         get { throw new NotImplementedException(); }
       }
 
-      public DataContext(Session session)
+      static DataContext()
       {
-        Orders = session.Query.All<Order>();
-        Customers = session.Query.All<Customer>();
+        Orders = Query.All<Order>();
+        Customers = Query.All<Customer>();
       }
     }
 
     [Test]
     public void JoinTest()
     {
-      var context = new DataContext(Session.Current);
-      var result = 
-        from c in context.Customers
-        from o in context.Orders
-        select new {c, o};
+      var result = from c in DataContext.Customers
+      from o in DataContext.Orders
+      select new {c, o};
       var expected = from c in Query.All<Customer>().AsEnumerable()
       from o in Query.All<Order>().AsEnumerable()
       select new {c, o};
@@ -72,15 +70,13 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NullTest()
     {
-      var context = new DataContext(Session.Current);
-      AssertEx.Throws<ArgumentNullException>(()=>context.CustomersNull.SelectMany(c => context.Orders, (c, o) => new {c, o}));
+      AssertEx.Throws<ArgumentNullException>(()=>DataContext.CustomersNull.SelectMany(c => DataContext.Orders, (c, o) => new {c, o}));
     }
 
     [Test]
     public void ExceptionTest()
     {
-      var context = new DataContext(Session.Current);
-      AssertEx.Throws<UserException>(()=>context.CustomersException.SelectMany(c => context.Orders, (c, o) => new {c, o}));
+      AssertEx.Throws<UserException>(()=>DataContext.CustomersException.SelectMany(c => DataContext.Orders, (c, o) => new {c, o}));
     }
   }
 }

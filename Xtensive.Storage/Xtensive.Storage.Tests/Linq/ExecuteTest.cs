@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.IsNotNull(order);
       }
 
-      var provider = query.Provider;
+      var provider = (IQueryProvider) QueryProvider.Instance;
       var result = provider.Execute(nonGenericQuery.Expression);
       var enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {
@@ -45,6 +45,7 @@ namespace Xtensive.Storage.Tests.Linq
 
       query = Query.All<Order>().Where(o => o.Freight > 5);
       nonGenericQuery = (IQueryable) query;
+      provider = (IQueryProvider) QueryProvider.Instance;
       result = provider.Execute(nonGenericQuery.Expression);
       enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {

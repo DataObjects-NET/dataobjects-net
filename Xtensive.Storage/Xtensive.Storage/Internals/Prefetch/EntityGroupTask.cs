@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly PrefetchManager manager;
     private List<QueryTask> queryTasks;
 
-    public RecordQuery RecordQuery { get; private set; }
+    public RecordSet RecordSet { get; private set; }
 
     public void AddKey(Key key, bool exactType)
     {
@@ -117,20 +117,20 @@ namespace Xtensive.Storage.Internals.Prefetch
         includeParameter.Value = currentKeySet;
         object key = new Pair<object, EntityGroupTask>(recordSetCachingRegion, this);
         Func<object, object> generator = CreateRecordSet;
-        RecordQuery = (RecordQuery) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
-        var executableProvider = manager.Owner.Session.CompilationService.Compile(RecordQuery.Provider);
+        RecordSet = (RecordSet) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
+        var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
       }
     }
 
-    private static RecordQuery CreateRecordSet(object cachingKey)
+    private static RecordSet CreateRecordSet(object cachingKey)
     {
       var pair = (Pair<object, EntityGroupTask>) cachingKey;
       var selectedColumnIndexes = pair.Second.columnIndexes;
       var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
         .Take(pair.Second.type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
       var columnCollectionLenght = pair.Second.type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.type.Indexes.PrimaryIndex.ToRecordQuery().Include(IncludeAlgorithm.ComplexCondition,
+      return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Include(IncludeAlgorithm.ComplexCondition,
         true, () => includeParameter.Value, String.Format("includeColumnName-{0}", Guid.NewGuid()),
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);
     }
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,
       HashSet<Key> foundedKeys)
     {
-      var records = reader.Read(queryResult, RecordQuery.Header);
+      var records = reader.Read(queryResult, RecordSet.Header);
       foreach (var record in records) {
         if (record!=null) {
           var fetchedKey = record.GetKey();

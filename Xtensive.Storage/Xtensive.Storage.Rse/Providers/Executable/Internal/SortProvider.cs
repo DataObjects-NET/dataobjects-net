@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return GetCachedValue<List<Tuple>>(context, SortKey) ?? EnumerableUtils<Tuple>.Empty;
+      return GetCachedValue<List<Tuple>>(context, SortKey);
     }
 
     protected override void Initialize()
@@ -77,6 +77,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       keyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(ComparisonRule.Positive, rules, ComparisonRules.None));
       TupleDescriptor keyDescriptor = TupleDescriptor.Create(columnIndexes.Select(i => Header.TupleDescriptor[i]));
       transform = new MapTransform(true, keyDescriptor, columnIndexes);
+
+      var context = EnumerationScope.CurrentContext;
+      SetCachedValue(context, SortKey, new List<Tuple>());
     }
 
 

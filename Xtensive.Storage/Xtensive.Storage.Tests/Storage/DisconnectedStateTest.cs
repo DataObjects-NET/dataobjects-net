@@ -478,7 +478,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
 
           var order = new Order();
-          session.SaveChanges();
+          session.Persist();
           key = order.Key;
         }
 
@@ -803,12 +803,9 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Modify data
       using (var session = Session.Open(Domain)) {
-        Order order1;
-        using (var tx = Transaction.Open(session)) {
-          order1 = Query.All<Order>().First(order => order.Number == 1);
-          order1Key = order1.Key;
-          Assert.AreEqual(2, order1.Details.Count);
-        }
+        var order1 = Query.All<Order>().First(order => order.Number==1);
+        order1Key = order1.Key;
+        Assert.AreEqual(2, order1.Details.Count);
 
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
@@ -823,9 +820,9 @@ namespace Xtensive.Storage.Tests.Storage
               Name = "NewCustomer"
             };
             newCustomerKey = newCustomer.Key;
-            session.SaveChanges();
+            session.Persist();
             newCustomer.Remove();
-            session.SaveChanges();
+            session.Persist();
             
             Assert.AreEqual(2, order1.Details.Count);
             Product product3 = null;
@@ -1090,7 +1087,7 @@ namespace Xtensive.Storage.Tests.Storage
             }
             updatedSupplierKey = supplier1.Key;
             supplier1.Name = "UpdatedSupplier1";
-            session.SaveChanges();
+            session.Persist();
 
             transactionScope.Complete();
           }
@@ -1108,7 +1105,7 @@ namespace Xtensive.Storage.Tests.Storage
               Name = "NewSupplier"
             };
             newSupplierKey = newSupplier.Key;
-            session.SaveChanges();
+            session.Persist();
 
             // Rollback
           }
@@ -1333,9 +1330,9 @@ namespace Xtensive.Storage.Tests.Storage
           
           var newCustomer = new Customer {Name = "NewCustomer"};
           newCustomerKey = newCustomer.Key;
-          session.SaveChanges();
+          session.Persist();
           newCustomer.Remove();
-          session.SaveChanges();
+          session.Persist();
 
           var order1 = orders.First(order => order.Number==1);
           order1Key = order1.Key;
@@ -1407,9 +1404,9 @@ namespace Xtensive.Storage.Tests.Storage
               Name = "NewCustomer"
             };
             newCustomerKey = newCustomer.Key;
-            session.SaveChanges();
+            session.Persist();
             newCustomer.Remove();
-            session.SaveChanges();
+            session.Persist();
 
             var order1 = orders.First(order => order.Number==1);
             order1Key = order1.Key;
@@ -1923,15 +1920,11 @@ namespace Xtensive.Storage.Tests.Storage
       // Merge and check
       using (var session = Session.Open(Domain)) {
         using (state2.Attach(session)) {
-//          using (var tx = Transaction.Open(session)) {
-            AssertEx.Throws<VersionConflictException>(() => state2.Merge(state1, MergeMode.Strict));
-            state2.Merge(state1, MergeMode.PreferOriginal);
-            using(Transaction.Open(session))
-              Assert.AreEqual("Value1", Query.Single<Simple>(key).Value);
-            state2.Merge(state1, MergeMode.PreferNew);
-            using (Transaction.Open(session))
-              Assert.AreEqual("Value2", Query.Single<Simple>(key).Value);
-//          }
+          AssertEx.Throws<VersionConflictException>(() => state2.Merge(state1, MergeMode.Strict));
+          state2.Merge(state1, MergeMode.PreferOriginal);
+          Assert.AreEqual("Value1", Query.Single<Simple>(key).Value);
+          state2.Merge(state1, MergeMode.PreferNew);
+          Assert.AreEqual("Value2", Query.Single<Simple>(key).Value);
         }
       }
     }
@@ -2077,24 +2070,6 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain))
       using (clientData.Attach()) {
         clientData.Merge(serverData);
-      }
-    }
-
-    [Test]
-    public void AutoTransactionsTest()
-    {
-      var dState = new DisconnectedState();
-      using (var session = Session.Open(Domain))
-      using (dState.Attach(session)) {
-        var customer = new Customer {Name = "Yet another customer"};
-        using (dState.Connect()) {
-          var customers = session.Query.All<Customer>();
-          foreach (var c in customers) {
-            c.Orders.ToList();
-          }
-          var products = session.Query.All<Product>().ToList();
-        }
-        dState.ApplyChanges();
       }
     }
 

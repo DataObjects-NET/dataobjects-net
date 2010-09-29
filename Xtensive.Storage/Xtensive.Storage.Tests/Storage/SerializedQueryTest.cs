@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Core.Linq.SerializableExpressions;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.Serialization;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -35,7 +34,7 @@ namespace Xtensive.Storage.Tests.Storage
       var serializedExpression = LegacyBinarySerializer.Instance.Clone(serializableExpression) as SerializableExpression;
 
       var deserializedExpression = serializedExpression.ToExpression();
-      var deserializedQuery = new Queryable<Category>((QueryProvider) query.Provider, deserializedExpression);
+      var deserializedQuery = new Xtensive.Storage.Linq.Queryable<Category>(deserializedExpression);
       var result = deserializedQuery.ToList();
     }
   }

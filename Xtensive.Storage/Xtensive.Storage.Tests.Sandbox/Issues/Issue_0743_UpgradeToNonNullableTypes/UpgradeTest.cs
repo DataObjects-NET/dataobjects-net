@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
           person3.Name = string.Empty;
 
           persons.Add(person3);
-          Session.Demand().SaveChanges();
+          Session.Demand().Persist();
 
           Assert.AreEqual("Person", person1.Name);
           Assert.AreEqual(30, person1.Age);

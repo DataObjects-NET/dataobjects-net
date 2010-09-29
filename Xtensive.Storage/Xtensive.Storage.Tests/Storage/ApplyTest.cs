@@ -11,7 +11,6 @@ using NUnit.Framework;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
-using Xtensive.Storage;
 
 namespace Xtensive.Storage.Tests.Storage
 {
@@ -20,8 +19,8 @@ namespace Xtensive.Storage.Tests.Storage
   {
     private List<Customer> allCustomers;
     private List<Order> allOrders;
-    private RecordQuery customerPrimary;
-    private RecordQuery orderPrimary;
+    private RecordSet customerPrimary;
+    private RecordSet orderPrimary;
     private int customerIdIndex;
     private int orderCustomerIndex;
 
@@ -33,14 +32,14 @@ namespace Xtensive.Storage.Tests.Storage
       var customerIdColumn = customerType.Fields["Id"].Column.Name;
       var orderCustomerColumn = orderType.Fields["Customer"].Fields[0].Column.Name;
 
-      customerPrimary = customerType.Indexes.PrimaryIndex.ToRecordQuery();
-      orderPrimary = orderType.Indexes.PrimaryIndex.ToRecordQuery();
+      customerPrimary = customerType.Indexes.PrimaryIndex.ToRecordSet();
+      orderPrimary = orderType.Indexes.PrimaryIndex.ToRecordSet();
 
       customerIdIndex = customerPrimary.Header.IndexOf(customerIdColumn);
       orderCustomerIndex = orderPrimary.Header.IndexOf(orderCustomerColumn);
 
-      allCustomers = customerPrimary.ToRecordSet(Session.Current).ToEntities<Customer>(0).ToList();
-      allOrders = orderPrimary.ToRecordSet(Session.Current).ToEntities<Order>(0).ToList();      
+      allCustomers = customerPrimary.ToEntities<Customer>(0).ToList();
+      allOrders = orderPrimary.ToEntities<Order>(0).ToList();      
     }
 
     [Test]
@@ -58,7 +57,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Alias("XYZ");
           var result = customerPrimary
             .Apply(parameter, subquery)
-            .Count(Session.Current);
+            .Count();
           Assert.AreEqual(total, result);
         }
       }
@@ -79,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Alias("XYZ");
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.All, JoinType.LeftOuter)
-            .Count(Session.Current);
+            .Count();
           Assert.AreEqual(total, result);
         }
       }      
@@ -101,7 +100,6 @@ namespace Xtensive.Storage.Tests.Storage
             .Existence("LALALA");
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.Single, JoinType.Inner)
-            .ToRecordSet(Session.Current)
             .Count(t => (bool) t.GetValue(t.Count-1));
           Assert.AreEqual(total, result);
         }

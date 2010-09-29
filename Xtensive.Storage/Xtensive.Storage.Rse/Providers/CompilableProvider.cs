@@ -14,7 +14,7 @@ using Tuple = Xtensive.Core.Tuples.Tuple;
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// Abstract base class for any <see cref="RecordQuery"/> <see cref="RecordQuery.Provider"/>,
+  /// Abstract base class for any <see cref="RecordSet"/> <see cref="RecordSet.Provider"/>,
   /// that can be compiled.
   /// </summary>
   [Serializable]
@@ -29,11 +29,11 @@ namespace Xtensive.Storage.Rse.Providers
     protected internal static DirectionCollection<int> EmptyOrder { get; private set; }
 
     /// <summary>
-    /// Creates the <see cref="RecordQuery"/> wrapping this provider.
+    /// Creates the <see cref="RecordSet"/> wrapping this provider.
     /// </summary>
-    public RecordQuery Result
+    public RecordSet Result
     {
-      get { return new RecordQuery(this); }
+      get { return new RecordSet(this); }
     }
 
     /// <summary>

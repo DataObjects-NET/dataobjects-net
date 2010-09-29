@@ -54,9 +54,9 @@ namespace Xtensive.Indexing
       return new NonUniqueIndexConfiguration<TKey, TUniqueKey, TItem>();
     }
 
-    protected override void CopyFrom(ConfigurationBase source)
+    protected override void Clone(ConfigurationBase source)
     {
-      base.CopyFrom(source);
+      base.Clone(source);
       NonUniqueIndexConfiguration<TKey, TUniqueKey, TItem> indexConfiguration = (NonUniqueIndexConfiguration<TKey,TUniqueKey,TItem>)source;
       entireConverter = indexConfiguration.entireConverter;
     }

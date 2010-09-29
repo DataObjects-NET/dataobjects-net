@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
     private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
+    private SqlConnection Connection { get { return ((SessionHandler) Handlers.SessionHandler).Connection; } }
     private Driver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
@@ -36,7 +37,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var queryExecutor = SessionHandler.GetService<IQueryExecutor>(true);
 
-      var cachingKeyGeneratorService = (CachingKeyGeneratorService)DomainHandler.Domain.Services.Get<ICachingKeyGeneratorService>();
       var enforceChangedColumns = UpgradeContext.Demand().Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         queryExecutor.ExecuteScalar, 
         queryExecutor.ExecuteNonQuery,
-        cachingKeyGeneratorService.GetNextImplementation);
+        SessionHandler.GetNextImplementation);
 
       translator.Translate();
 
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Providers.Sql
           var commandText = Driver.BuildBatch(subbatch.ToArray());
           if (string.IsNullOrEmpty(commandText))
             return;
-          var command = SessionHandler.Connection.CreateCommand(commandText);
+          var command = Connection.CreateCommand(commandText);
           using (command) {
             Driver.ExecuteNonQuery(null, command);
           }
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql
         foreach (var commandText in batch) {
           if (string.IsNullOrEmpty(commandText))
             continue;
-          var command = SessionHandler.Connection.CreateCommand(commandText);
+          var command = Connection.CreateCommand(commandText);
           using (command) {
             Driver.ExecuteNonQuery(null, command);
           }

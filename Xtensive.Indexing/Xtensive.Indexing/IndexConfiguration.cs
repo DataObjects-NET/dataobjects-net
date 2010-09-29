@@ -111,9 +111,9 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    protected override void CopyFrom(ConfigurationBase source)
+    protected override void Clone(ConfigurationBase source)
     {
-      base.CopyFrom(source);
+      base.Clone(source);
       IndexConfiguration<TKey, TItem> configuration = (IndexConfiguration<TKey, TItem>)source;
       pageSize = configuration.pageSize;
       useBloomFilter = configuration.useBloomFilter;

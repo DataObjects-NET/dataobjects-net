@@ -37,10 +37,9 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
     {
       var domain = GetDomain();
 
-      var sessionCfg = new SessionConfiguration();
-      using (var sessionA = Session.Open(domain, sessionCfg)) { // Open & activate
+      using (var sessionA = Session.Open(domain)) { // Open & activate
         var personA = Query.All<Person>().First();
-        using (var sessionB = Session.Open(domain, sessionCfg)) { // Open & activate
+        using (var sessionB = Session.Open(domain)) { // Open & activate
           // Session switching (from sessionB to sessionA) will be detected here, 
           // but allowed, since there is no running transaction
           string name = personA.Name;

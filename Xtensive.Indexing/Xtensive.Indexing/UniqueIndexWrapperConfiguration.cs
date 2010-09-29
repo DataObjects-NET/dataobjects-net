@@ -66,9 +66,9 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    protected override void CopyFrom(ConfigurationBase source)
+    protected override void Clone(ConfigurationBase source)
     {
-      base.CopyFrom(source);
+      base.Clone(source);
       UniqueIndexWrapperConfiguration<TKey, TItem, TUniqueKey, TUniqueItem> indexConfiguration =
         (UniqueIndexWrapperConfiguration<TKey, TItem, TUniqueKey, TUniqueItem>)source;
       uniqueIndexConfiguration = indexConfiguration.uniqueIndexConfiguration;

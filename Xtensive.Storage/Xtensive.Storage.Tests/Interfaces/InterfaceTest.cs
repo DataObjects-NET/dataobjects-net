@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Tests.Interfaces
           p.Pets.Add(new Animal1());
           p.Pets.Add(new Animal2());
 
-          Session.Current.SaveChanges();
+          Session.Current.Persist();
 
           p = Query.All<IPerson>().First();
           Assert.AreEqual(3, p.Pets.Count);

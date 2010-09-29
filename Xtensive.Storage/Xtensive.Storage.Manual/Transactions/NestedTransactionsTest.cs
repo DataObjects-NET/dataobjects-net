@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Manual.Transactions.NestedTransactions
     [Association(PairTo = "Friends")]
     public EntitySet<User> Friends { get; private set; }
 
-    [Transactional(TransactionalBehavior.New)]
+    [Transactional(TransactionOpenMode.New)]
     public void RemoveAndCancel()
     {
       Remove();

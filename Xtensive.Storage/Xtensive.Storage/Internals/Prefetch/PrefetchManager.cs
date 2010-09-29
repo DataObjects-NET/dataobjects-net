@@ -140,7 +140,8 @@ namespace Xtensive.Storage.Internals.Prefetch
         return prevContainer;
       }
       catch {
-        CancelTasks();
+        graphContainers.Clear();
+        referenceContainer = null;
         throw;
       }
     }
@@ -163,7 +164,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         return referenceContainer;
       }
       finally {
-        CancelTasks();
+        Clear();
         if (TaskExecutionCount < int.MaxValue)
           TaskExecutionCount++;
         else
@@ -171,7 +172,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    public void CancelTasks()
+    public void Clear()
     {
       referenceContainer = null;
       graphContainers.Clear();

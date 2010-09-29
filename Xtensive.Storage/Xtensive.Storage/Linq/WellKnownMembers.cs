@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Linq
 
       // Structure
       CreateStructure = typeof (Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-        .Where(methodInfo => methodInfo.Name=="CreateStructure" && methodInfo.GetParameters().Length==3 && methodInfo.GetParameters()[0].ParameterType == typeof(Session))
+        .Where(methodInfo => methodInfo.Name=="CreateStructure" && methodInfo.GetParameters().Length==2)
         .Single();
 
       // EntitySet

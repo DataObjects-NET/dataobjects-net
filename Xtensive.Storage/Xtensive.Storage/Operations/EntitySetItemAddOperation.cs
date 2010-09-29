@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Operations
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
-      var item = session.Query.Single(context.TryRemapKey(ItemKey));
+      var item = Query.Single(session, context.TryRemapKey(ItemKey));
       GetEntitySet(context).Add(item);
     }
 

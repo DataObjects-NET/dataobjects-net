@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (TransactionScope trs = Transaction.Open()) {
           e1 = new SqlTaskEntity();
           //insert
-          Session.Current.SaveChanges();
+          Session.Current.Persist();
           e1.Field5 = 5;
           //update
           trs.Complete();

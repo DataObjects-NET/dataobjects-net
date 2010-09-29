@@ -22,14 +22,22 @@ namespace Xtensive.Storage.Linq
   /// </summary>
   public sealed class QueryProvider : IQueryProvider
   {
-    private readonly Session session;
+    private static readonly QueryProvider instance = new QueryProvider();
+
+    /// <summary>
+    /// Gets the only instance of this provider.
+    /// </summary>
+    public static QueryProvider Instance
+    {
+      get { return instance; }
+    }
 
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
       Type elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable) typeof (Queryable<>).Activate(new[] {elementType}, new object[] {this, expression});
+        var query = (IQueryable) typeof (Queryable<>).Activate(new[] {elementType}, new object[] {expression});
         return query;
       }
       catch (TargetInvocationException e) {
@@ -38,9 +46,9 @@ namespace Xtensive.Storage.Linq
     }
 
     /// <inheritdoc/>
-    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
+    IQueryable<TElement> IQueryProvider.CreateQuery<TElement>(Expression expression)
     {
-      return new Queryable<TElement>(this, expression);
+      return new Queryable<TElement>(expression);
     }
 
     /// <inheritdoc/>
@@ -56,17 +64,17 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public TResult Execute<TResult>(Expression expression)
     {
-      var translationResult = Translate<TResult>(expression);
+      var query = Translate<TResult>(expression);
       var cachingScope = QueryCachingScope.Current;
       if (cachingScope != null && !cachingScope.Execute)
         return default(TResult);
-      return translationResult.Query.Execute(session, new ParameterContext());
+      return query.Execute(new ParameterContext());
     }
 
-    internal TranslationResult<TResult> Translate<TResult>(Expression expression)
+    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
       try {
-        var context = new TranslatorContext(expression, session.Domain);
+        var context = new TranslatorContext(expression, Domain.Demand());
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
@@ -77,9 +85,8 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    internal QueryProvider(Session session)
+    private QueryProvider()
     {
-      this.session = session;
     }
   }
 }

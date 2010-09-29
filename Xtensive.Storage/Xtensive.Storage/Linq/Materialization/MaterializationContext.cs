@@ -28,7 +28,6 @@ namespace Xtensive.Storage.Linq.Materialization
     
     private readonly EntityMappingCache[] entityMappings;
     private readonly DomainModel model;
-    public readonly Session Session;
     public int EntitiesInRow;
     public Queue<Action> MaterializationQueue;
 
@@ -80,10 +79,9 @@ namespace Xtensive.Storage.Linq.Materialization
     
     // Constructors
 
-    public MaterializationContext(Session session, int entityCount)
+    public MaterializationContext(int entityCount)
     {
-      Session = session;
-      model = session.Domain.Model;
+      model = Domain.Demand().Model;
       EntitiesInRow = entityCount;
       entityMappings = new EntityMappingCache[entityCount];
       for (int i = 0; i < entityMappings.Length; i++)

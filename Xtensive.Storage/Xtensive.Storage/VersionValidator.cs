@@ -48,7 +48,10 @@ namespace Xtensive.Storage
     public bool ValidateVersion(Key key, VersionInfo version)
     {
       var expectedVersion = expectedVersionProvider.Invoke(key);
-      return expectedVersion.IsVoid || expectedVersion == version;
+      if (expectedVersion.IsVoid)
+        return true;
+      else
+        return expectedVersion==version;
     }
 
     /// <summary>
@@ -77,7 +80,7 @@ namespace Xtensive.Storage
       return result;
     }
 
-    #region Validator logic
+    #region Valiadtor logic
 
     private void Initialize()
     {
@@ -120,7 +123,7 @@ namespace Xtensive.Storage
 
     private void EnqueueVersionValidation(Entity entity)
     {
-      if (entity.TypeInfo.VersionExtractor==null 
+      if (entity.TypeInfo.VersionExtractor==null
           || queuedVersions.ContainsKey(entity.Key)
           || processed.Contains(entity.Key))
         return;
@@ -146,14 +149,14 @@ namespace Xtensive.Storage
     private QueryTask CreateFetchVersionTask(Key key)
     {
       var type = key.Type;
-      var provider = type.Indexes.PrimaryIndex.ToRecordQuery().Seek(key.Value).Provider;
-      var execProvider = Session.CompilationService.Compile(provider);
+      var provider = type.Indexes.PrimaryIndex.ToRecordSet().Seek(key.Value).Provider;
+      var execProvider = Session.CompilationContext.Compile(provider);
       return new QueryTask(execProvider, null);
     }
 
     private void ValidateFetchedVersions()
     {
-      Session.ExecuteDelayedQueries(true);
+      Session.ExecuteDelayedQueries();
       if (fetchVersionTasks.Count > 0)
         foreach (var task in fetchVersionTasks) {
           var key = task.Key;

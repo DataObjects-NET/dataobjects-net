@@ -41,37 +41,40 @@ namespace Xtensive.Storage.Providers.Index
     {}
 
     /// <inheritdoc/>
-    public override void BeginTransaction(Transaction transaction)
+    public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       lock (connectionSyncRoot) {
         if (StorageView!=null)
           throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
-        StorageView = storage.CreateView(this, transaction.IsolationLevel);
+        StorageView = storage.CreateView(isolationLevel);
         // TODO: Implement transactions
       }
     }
 
     /// <inheritdoc/>
-    public override void CreateSavepoint(Transaction transaction)
+    public override void CreateSavepoint(string name)
     {
       // TODO: Implement transactions
     }
 
     /// <inheritdoc/>
-    public override void RollbackToSavepoint(Transaction transaction)
+    public override void RollbackToSavepoint(string name)
     {
+      base.RollbackToSavepoint(name);
       // TODO: Implement transactions
     }
 
-    public override void ReleaseSavepoint(Transaction transaction)
+    public override void ReleaseSavepoint(string name)
     {
+      base.ReleaseSavepoint(name);
       // TODO: Implement transactions
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
-    public override void CommitTransaction(Transaction transaction)
+    public override void CommitTransaction()
     {
+      base.CommitTransaction();
       lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
@@ -83,8 +86,9 @@ namespace Xtensive.Storage.Providers.Index
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
-    public override void RollbackTransaction(Transaction transaction)
+    public override void RollbackTransaction()
     {
+      base.RollbackTransaction();
       lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
@@ -162,9 +166,9 @@ namespace Xtensive.Storage.Providers.Index
     #region IIndexResolver members
 
     /// <inheritdoc/>
-    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler)
+    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
     {
-      return StorageView.GetIndex(indexInfo, sessionHandler);
+      return StorageView.GetIndex(indexInfo);
     }
 
     #endregion

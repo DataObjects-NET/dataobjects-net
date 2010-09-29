@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Model
       using (Session.Open(Domain))
       using (var ts = Transaction.Open()) {
         new Referencer {Reference = new Three()};
-        Session.Current.SaveChanges();
+        Session.Current.Persist();
       }
     }
   }

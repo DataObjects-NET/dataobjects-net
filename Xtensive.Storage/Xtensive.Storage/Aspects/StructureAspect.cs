@@ -34,11 +34,9 @@ namespace Xtensive.Storage
     {
       var result = new List<AspectInstance>();
       result.Add(new AspectInstance(targetElement, new ImplementConstructor(typeof(Tuple))));
-      result.Add(new AspectInstance(targetElement, new ImplementConstructor(typeof(Session), typeof(Tuple))));
       result.Add(new AspectInstance(targetElement, new ImplementConstructor(typeof(Persistent), typeof(FieldInfo))));
       result.Add(new AspectInstance(targetElement, new ImplementConstructor(typeof(SerializationInfo), typeof(StreamingContext))));
       result.Add(new AspectInstance(targetElement, new ImplementFactoryMethod(typeof(Tuple))));
-      result.Add(new AspectInstance(targetElement, new ImplementFactoryMethod(typeof(Session), typeof(Tuple))));
       result.Add(new AspectInstance(targetElement, new ImplementFactoryMethod(typeof(Persistent), typeof(FieldInfo))));
       result.Add(new AspectInstance(targetElement, new ImplementFactoryMethod(typeof(SerializationInfo), typeof(StreamingContext))));
       result.OfType<MulticastAttribute>().ForEach(a => a.AttributeInheritance = MulticastInheritance.None);

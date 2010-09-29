@@ -10,14 +10,21 @@ using Xtensive.Storage.Rse.Compilation;
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// An implementation of <see cref="Rse.Compilation.CompilationService"/> suitable for storage.
+  /// An implementation of <see cref="Rse.Compilation.CompilationContext"/> suitable for storage.
   /// </summary>
-  public sealed class CompilationService : Rse.Compilation.CompilationService
+  public sealed class CompilationContext : Rse.Compilation.CompilationContext
   {
+    /// <inheritdoc/>
+    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
+    {
+      return Session.Demand().CreateEnumerationContext();
+    }
+
+
     // Constructors
 
     /// <inheritdoc/>
-    public CompilationService(
+    public CompilationContext(
       Func<ICompiler> compilerProvider, 
       Func<IPreCompiler> optimizerProvider,
       Func<ICompiler,IPostCompiler> postCompilerProvider,

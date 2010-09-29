@@ -21,20 +21,21 @@ namespace Xtensive.Storage.Providers.Index
   /// </summary>
   public class IndexResolver : IIndexResolver
   {
+    private readonly HandlerAccessor handlers;
+
     /// <inheritdoc/>
-    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler)
+    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
     {
-      return sessionHandler.GetService<IIndexResolver>(true).GetIndex(indexInfo, sessionHandler);
+      return handlers.SessionHandler.GetService<IIndexResolver>(true).GetIndex(indexInfo);
     }
-
-
-    // Constructors
 
     /// <summary>
     ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public IndexResolver()
+    /// <param name="handlers">The handlers.</param>
+    public IndexResolver(HandlerAccessor handlers)
     {
+      this.handlers = handlers;
     }
   }
 }

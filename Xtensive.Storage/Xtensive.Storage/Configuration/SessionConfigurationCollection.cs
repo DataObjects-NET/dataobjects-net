@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Configuration
       foreach (var item in this.Where(item => !item.IsLocked)) {
         // ApplyDefaultSettings(item);
         if (item == system || item == keyGenerator)
-          item.UseAutoShortenedTransactions = false;
+          item.Options = item.Options & ~SessionOptions.AutoShortenTransactions;
         item.Lock(recursive);
       }
       base.Lock(recursive);
@@ -196,6 +196,7 @@ namespace Xtensive.Storage.Configuration
       if (config.DefaultIsolationLevel != Default.DefaultIsolationLevel
         && config.DefaultIsolationLevel == SessionConfiguration.DefaultDefaultIsolationLevel)
         config.DefaultIsolationLevel = Default.DefaultIsolationLevel;
+      config.Options = config.Options | Default.Options;
     }
   }
 }

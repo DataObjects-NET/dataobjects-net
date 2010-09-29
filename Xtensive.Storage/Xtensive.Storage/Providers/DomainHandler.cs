@@ -39,10 +39,10 @@ namespace Xtensive.Storage.Providers
     public ProviderInfo ProviderInfo { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="Rse.Compilation.CompilationService"/>
+    /// Gets the <see cref="Rse.Compilation.CompilationContext"/>
     /// associated with the domain.
     /// </summary>
-    public CompilationService CompilationService { get; private set; }
+    public CompilationContext CompilationContext { get; private set; }
 
     /// <summary>
     /// Builds the <see cref="ICompiler"/>.
@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Providers
 
     private void BuildCompilationContext()
     {
-      CompilationService = new CompilationService(
+      CompilationContext = new CompilationContext(
         CreateCompiler,
         CreatePreCompiler,
         CreatePostCompiler,

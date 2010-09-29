@@ -12,57 +12,56 @@ namespace Xtensive.Storage.Providers
 {
   partial class SessionHandler
   {
-    // Transaction related methods
-
     /// <summary>
     /// Gets a value indicating whether transaction is actually started.
-    /// This property indicates presence of outermost transaction only.
+    /// This indicates presence of outermost transaction only.
     /// </summary>
     public abstract bool TransactionIsStarted { get; }
 
     /// <summary>
     /// Opens the transaction.
     /// </summary>
-    public abstract void BeginTransaction(Transaction transaction);
+    public abstract void BeginTransaction(IsolationLevel isolationLevel);
 
     /// <summary>
-    /// Clears transaction-related caches.
-    /// This method is called for non-actual transactions as well.
-    /// </summary>    
-    public virtual void CompletingTransaction(Transaction transaction)
-    {
-      prefetchManager.CancelTasks();
-    }
-
-    /// <summary>
-    /// Commits the transaction.
-    /// This method is invoked for actual transactions only.
-    /// </summary>    
-    public abstract void CommitTransaction(Transaction transaction);
-
-    /// <summary>
-    /// Rollbacks the transaction.
-    /// This method is invoked for actual transactions only.
-    /// </summary>    
-    public abstract void RollbackTransaction(Transaction transaction);
-
-    // Savepoint related methods
-
-    /// <summary>
-    /// Creates the savepoint.
+    /// Makes the savepoint.
     /// </summary>
-    public abstract void CreateSavepoint(Transaction transaction);
-
-    /// <summary>
-    /// Releases the savepoint.
-    /// </summary>
-    public abstract void ReleaseSavepoint(Transaction transaction);
+    /// <param name="name">The name.</param>
+    public abstract void CreateSavepoint(string name);
 
     /// <summary>
     /// Rollbacks to savepoint.
     /// </summary>
-    public abstract void RollbackToSavepoint(Transaction transaction);
+    /// <param name="name">The name.</param>
+    public virtual void RollbackToSavepoint(string name)
+    {
+      prefetchManager.Clear();
+    }
 
+    /// <summary>
+    /// Releases the savepoint.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    public virtual void ReleaseSavepoint(string name)
+    {
+      prefetchManager.Clear();
+    }
+
+    /// <summary>
+    /// Commits the transaction.
+    /// </summary>    
+    public virtual void CommitTransaction()
+    {
+      prefetchManager.Clear();
+    }
+
+    /// <summary>
+    /// Rollbacks the transaction.
+    /// </summary>    
+    public virtual void RollbackTransaction()
+    {
+      prefetchManager.Clear();
+    }
 
     /// <summary>
     /// Ensures the transaction is opened.
@@ -70,7 +69,7 @@ namespace Xtensive.Storage.Providers
     /// <exception cref="InvalidOperationException">Transaction is not opened.</exception>
     protected void EnsureTransactionIsOpened()
     {
-      var transaction = Session.Transaction;
+      var transaction = Session.Transaction ?? (Session.IsDisconnected ? Session.DisconnectedState.AlreadyOpenedTransaction : null);
       if (transaction == null)
         throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
     }

@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
       using (var session = Session.Open(Domain)) {
         using (var tx = Transaction.Open()) {
           var author = new Author {Title = "Author"};
-          session.SaveChanges();
+          session.Persist();
           var book = new Book {Title = "Book"};
           book.Author = author;
           Assert.AreEqual(1, author.Books.Count);
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
         using (ds.Connect()) {
           using (var tx = Transaction.Open()) {
             var author = new Author {Title = "Author"};
-            session.SaveChanges();
+            session.Persist();
             var book = new Book {Title = "Book"};
             book.Author = author;
             Assert.AreEqual(1, author.Books.Count);

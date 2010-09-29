@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Operations
       var entities =
         from key in Keys
         let remappedKey = context.TryRemapKey(key)
-        let entity = session.Query.Single(remappedKey)
+        let entity = Query.Single(session, remappedKey)
         select entity;
       session.Remove(entities);
     }

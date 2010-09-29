@@ -54,9 +54,9 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       using (var t = Transaction.Open()) {
         Initialize();
         CreateEntities(3);
-        session.SaveChanges();
+        session.Persist();
         CreateQueries(5);
-        session.ExecuteDelayedQueries(true);
+        session.ExecuteDelayedQueries();
         ValidateQueries(3);
       }
     }
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
         Initialize();
         CreateEntities(5);
         CreateQueries(5);
-        session.ExecuteDelayedQueries(false);
+        session.ExecuteDelayedQueries();
         ValidateQueries(5);
         ValidateEntities(5);
       }
@@ -97,10 +97,10 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     private void CreateQueries(int amount)
     {
       for (int i = 0; i < amount; i++) {
-        var rs = Domain.Model.Types[typeof (X)].Indexes.PrimaryIndex.ToRecordQuery()
+        var rs = Domain.Model.Types[typeof (X)].Indexes.PrimaryIndex.ToRecordSet()
           .Aggregate(ArrayUtils<int>.EmptyArray,
             new AggregateColumnDescriptor("_count_", 0, AggregateType.Count));
-        var compiledProvider = session.CompilationService.Compile(rs.Provider);
+        var compiledProvider = CompilationContext.Current.Compile(rs.Provider);
         var task = new QueryTask(compiledProvider, null);
         tasks.Add(task);
         Session.Current.RegisterDelayedQuery(task);

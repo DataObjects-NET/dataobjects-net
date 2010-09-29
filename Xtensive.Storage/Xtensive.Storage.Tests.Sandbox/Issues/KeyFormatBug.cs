@@ -83,9 +83,7 @@ namespace Xtensive.Storage.Tests.Issues.KeyFormatBug
     [Test]
     public void CombinedTest()
     {
-      using (var session = Session.Open(Domain)) 
-      using(var tx = Transaction.Open(session)) {
-
+      using (var session = Session.Open(Domain)) {
         var entity = new Child();
         var key = entity.Key;
 

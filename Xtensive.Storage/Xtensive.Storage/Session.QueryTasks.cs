@@ -22,6 +22,11 @@ namespace Xtensive.Storage
       queryTasks.Add(task);
     }
 
+    internal void ExecuteDelayedQueries()
+    {
+      ExecuteDelayedQueries(false);
+    }
+
     internal void ExecuteDelayedQueries(bool skipPersist)
     {
       if (!skipPersist)

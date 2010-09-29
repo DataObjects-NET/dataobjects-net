@@ -575,7 +575,7 @@ namespace Xtensive.Storage.Model
           versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
           versionColumns = new ReadOnlyList<ColumnInfo>(new List<ColumnInfo>());
         }
-        HasVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
+        HasVersionFields = versionFields.Count > 0;
       }
         
       // Selecting master parts from paired associations & single associations

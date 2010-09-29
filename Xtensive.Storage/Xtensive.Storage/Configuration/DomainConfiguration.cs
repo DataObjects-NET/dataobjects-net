@@ -359,9 +359,9 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     /// <param name="source">The configuration to copy properties from.</param>
     /// <inheritdoc/>
-    protected override void CopyFrom(ConfigurationBase source)
+    protected override void Clone(ConfigurationBase source)
     {
-      base.CopyFrom(source);
+      base.Clone(source);
       var configuration = (DomainConfiguration) source;
       name = configuration.Name;
       connectionInfo = configuration.ConnectionInfo;

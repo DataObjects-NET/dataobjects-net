@@ -27,7 +27,6 @@ namespace Xtensive.Storage.Linq
     private readonly ProjectionExpression projectionExpression;
     private FutureSequence<TElement> futureSequence;
     private List<TElement> materializedSequence;
-    private readonly QueryProvider provider;
 
     public IOrderedEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending)
     {
@@ -58,7 +57,7 @@ namespace Xtensive.Storage.Linq
 
     public IQueryProvider Provider
     {
-      get { return provider; }
+      get { return QueryProvider.Instance; }
     }
 
     private void MaterializeSelf()
@@ -74,7 +73,6 @@ namespace Xtensive.Storage.Linq
 
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery query, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
     {
-      this.provider = context.Session.Query.Provider;
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
       var currentTranslatedQuery = ((TranslatedQuery<IEnumerable<TElement>>) query);
 
@@ -96,7 +94,7 @@ namespace Xtensive.Storage.Linq
         projectionExpression.ResultType);
       var translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(
         query.DataSource,
-        (Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
+        (Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
       futureSequence = new FutureSequence<TElement>(translatedQuery, parameterContext);

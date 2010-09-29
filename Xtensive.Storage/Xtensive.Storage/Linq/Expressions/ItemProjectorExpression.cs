@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Linq.Expressions
 {
   internal class ItemProjectorExpression : ExtendedExpression
   {
-    public RecordQuery DataSource { get; set; }
+    public RecordSet DataSource { get; set; }
     public TranslatorContext Context { get; private set; }
     public Expression Item { get; private set; }
 
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Linq.Expressions
       return ColumnGatherer.GetColumns(Item, columnExtractionModes);
     }
 
-    public ItemProjectorExpression Remap(RecordQuery dataSource, int offset)
+    public ItemProjectorExpression Remap(RecordSet dataSource, int offset)
     {
       if (offset==0)
         return new ItemProjectorExpression(Item, dataSource, Context);
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Linq.Expressions
       return new ItemProjectorExpression(item, dataSource, Context);
     }
 
-    public ItemProjectorExpression Remap(RecordQuery dataSource, int[] columnMap)
+    public ItemProjectorExpression Remap(RecordSet dataSource, int[] columnMap)
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, dataSource, Context);
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ItemProjectorExpression(Expression expression, RecordQuery dataSource, TranslatorContext context)
+    public ItemProjectorExpression(Expression expression, RecordSet dataSource, TranslatorContext context)
       : base(ExtendedExpressionType.ItemProjector, expression.Type)
     {
       DataSource = dataSource;

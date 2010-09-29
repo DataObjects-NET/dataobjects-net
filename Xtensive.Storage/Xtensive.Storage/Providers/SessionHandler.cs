@@ -13,9 +13,13 @@ using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
+using Xtensive.Storage.Linq;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers
@@ -40,6 +44,11 @@ namespace Xtensive.Storage.Providers
     public Session Session { get; internal set; }
 
     /// <summary>
+    /// Gets the query provider.
+    /// </summary>
+    public virtual QueryProvider QueryProvider {get { return QueryProvider.Instance; }}
+    
+    /// <summary>
     /// Acquires the connection lock.
     /// </summary>
     /// <returns>An implementation of <see cref="IDisposable"/> which should be disposed 
@@ -56,7 +65,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Created context.</returns>
     public virtual Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
-      return new EnumerationContext(this, GetEnumerationContextOptions());
+      return new EnumerationContext(GetEnumerationContextOptions());
     }
 
     /// <summary>
@@ -93,7 +102,7 @@ namespace Xtensive.Storage.Providers
     public virtual void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       foreach (var task in queryTasks) {
-        using (CreateEnumerationContext().Activate())
+        using (EnumerationScope.Open())
         using (task.ParameterContext.ActivateSafely())
           task.Result = task.DataSource.ToList();
       }

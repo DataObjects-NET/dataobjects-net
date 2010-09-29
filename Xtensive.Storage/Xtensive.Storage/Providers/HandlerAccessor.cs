@@ -43,8 +43,8 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets the handler of the current <see cref="Session"/>.
     /// </summary>
-//    public SessionHandler SessionHandler { get { return Session.Demand().Handler; } }
-//    
+    public SessionHandler SessionHandler { get { return Session.Demand().Handler; } }
+    
 
     // Constructors
 

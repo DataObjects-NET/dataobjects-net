@@ -360,9 +360,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var orderPrimaryIndex = OrderType.Indexes.PrimaryIndex;
         var selectedColumns = orderPrimaryIndex.ColumnIndexMap.System
           .Concat(EmployeeField.Columns.Select(column => orderPrimaryIndex.Columns.IndexOf(column))).ToArray();
-        var orderQuery = OrderType.Indexes.PrimaryIndex.ToRecordQuery()
+        var orderQuery = OrderType.Indexes.PrimaryIndex.ToRecordSet()
           .Filter(t => t.GetValue<int>(0)==orderKey.Value.GetValue<int>(0)).Select(selectedColumns);
-        orderQuery.ToRecordSet(session).ToEntities(0).Single();
+        orderQuery.ToEntities(0).Single();
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));

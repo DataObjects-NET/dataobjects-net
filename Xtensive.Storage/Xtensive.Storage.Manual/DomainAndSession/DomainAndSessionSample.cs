@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
         BatchSize = 25,
         DefaultIsolationLevel = IsolationLevel.RepeatableRead,
         CacheSize = 16384,
-        Options = SessionOptions.LegacyProfile
+        Options = SessionOptions.Default
       };
 
       // Second named Session configuration

@@ -4255,15 +4255,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}.
-        /// </summary>
-        internal static string XW0001 {
-            get {
-                return ResourceManager.GetString("XW0001", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;none&gt;.
         /// </summary>
         internal static string ZeroAssemblyVersion {

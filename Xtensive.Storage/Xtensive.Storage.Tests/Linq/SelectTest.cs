@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void NullJoinTest()
     {
       Query.All<Territory>().First().Region = null; // Set one region reference to NULL
-      Session.Current.SaveChanges();
+      Session.Current.Persist();
 
       var territories = Query.All<Territory>();
 
