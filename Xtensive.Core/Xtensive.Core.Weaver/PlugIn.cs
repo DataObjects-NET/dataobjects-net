@@ -31,6 +31,26 @@ namespace Xtensive.Core.Weaver
     private static readonly byte[] tokenExpected = new byte[]{0x93, 0xa6, 0xc5,0x3d, 0x77, 0xa5, 0x29, 0x6c};
     // "$(ProjectDir)..\..\Xtensive.Licensing\Protection\Protect.bat" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)" "true"
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
+    private static List<string> knownAssemblies = new List<string> {
+      "Xtensive.Core",
+      "Xtensive.Core.Aspects",
+      "Xtensive.Core.Weaver",
+      "Xtensive.Indexing",
+      "Xtensive.Integrity",
+      "Xtensive.Modelling",
+      "Xtensive.Sql",
+      "Xtensive.Sql.Oracle",
+      "Xtensive.Sql.PostgreSql",
+      "Xtensive.Sql.SqlServer",
+      "Xtensive.Sql.SqlServerCe",
+      "Xtensive.Storage",
+      "Xtensive.Storage.Indexing",
+      "Xtensive.Storage.Indexing.Model",
+      "Xtensive.Storage.Model",
+      "Xtensive.Storage.Providers.Index",
+      "Xtensive.Storage.Providers.Sql",
+      "Xtensive.Storage.Rse"
+    };
 
     public static LicenseInfo CurrentLicense;
     public static HashSet<string> ErrorMessages = new HashSet<string>();
@@ -56,7 +76,7 @@ namespace Xtensive.Core.Weaver
       if (!isXtensiveAssembly) {
         CurrentLicense = licenseInfo;
         var declarations = base.Project.Module.AssemblyRefs
-          .Where(a => a.Name.StartsWith("Xtensive") && !a.Name.EndsWith("Tests") && !a.Name.Contains("Sample"))
+          .Where(a => knownAssemblies.Contains(a.Name))
           .ToList();
         if (declarations.Count!=0)
           isXtensiveAssembly = declarations.All(a => IsPublicTokenConsistent(a.GetPublicKeyToken()));
