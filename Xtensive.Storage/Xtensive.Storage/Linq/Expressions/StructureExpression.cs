@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Linq.Expressions
         .Cast<PersistentFieldExpression>()
         .ToList();
       result.Fields = processedFields;
+      result.IsNullable = IsNullable;
       return result;
     }
 
@@ -82,6 +83,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var offset = processedFields.Min(f => f.Mapping.Offset);
       result.Mapping = new Segment<int>(offset, length);
         result.Fields = processedFields;
+      result.IsNullable = IsNullable;
       return result;
     }
 

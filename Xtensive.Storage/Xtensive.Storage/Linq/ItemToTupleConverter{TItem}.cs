@@ -168,6 +168,7 @@ namespace Xtensive.Storage.Linq
         KeyInfo keyInfo = typeInfo.Key;
         TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
         EntityExpression entityExpression = EntityExpression.Create(typeInfo, index, true);
+        entityExpression.IsNullable = true;
         index += keyTupleDescriptor.Count;
         types = types.Concat(keyTupleDescriptor);
         return entityExpression;

@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var keyExpression = (KeyExpression) Key.Remap(offset, processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
+      result.IsNullable = IsNullable;
       result.Fields = Fields
         .Select(f => f.Remap(offset, processedExpressions))
         .Cast<PersistentFieldExpression>()
@@ -74,6 +75,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return null;
       var result = new EntityExpression(PersistentType, keyExpression, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
+      result.IsNullable = IsNullable;
       result.Fields = Fields
         .Select(f => f.Remap(map, processedExpressions))
         .Where(f => f!=null)
