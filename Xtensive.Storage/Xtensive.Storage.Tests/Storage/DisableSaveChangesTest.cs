@@ -10,9 +10,9 @@ using NUnit.Framework;
 using System;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.PinEntityTestModel;
+using Xtensive.Storage.Tests.Storage.DisableSaveChangesTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.PinEntityTestModel
+namespace Xtensive.Storage.Tests.Storage.DisableSaveChangesTestModel
 {
   [Serializable]
   [HierarchyRoot]
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage.PinEntityTestModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class PinEntityTest : AutoBuildTest
+  public class DisableSaveChangesTest : AutoBuildTest
   {
     private List<Node> allTrees;
 
@@ -93,6 +93,41 @@ namespace Xtensive.Storage.Tests.Storage
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (Victim).Assembly, typeof (Victim).Namespace);
       return configuration;
+    }
+
+    [Test]
+    public void DisableAllTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var victim = new Victim();
+        var count = session.Query.All<Victim>().Count();
+        using (session.DisableSaveChanges()) {
+          var anotherVictim = new Victim();
+          var newCount = session.Query.All<Victim>().Count();
+          Assert.AreEqual(count, newCount);
+          session.SaveChanges();
+          var newestCount = session.Query.All<Victim>().Count();
+          Assert.AreEqual(count + 1, newestCount);
+        }
+      }
+    }
+
+    [Test]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void DisableAllCommitTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var victim = new Victim();
+        var count = session.Query.All<Victim>().Count();
+        session.DisableSaveChanges();
+
+        var anotherVictim = new Victim();
+        var newCount = session.Query.All<Victim>().Count();
+        Assert.AreEqual(count, newCount);
+        t.Complete();
+      }
     }
     
     [Test]
@@ -103,7 +138,7 @@ namespace Xtensive.Storage.Tests.Storage
         var butcher = new Killer();
         var firstVictim = new Victim();
         // "Killers" who have not killed yet should not be considered as killers
-        using (session.Pin(butcher)) {
+        using (session.DisableSaveChanges(butcher)) {
           session.SaveChanges();
           Assert.AreEqual(PersistenceState.New, butcher.PersistenceState);
           Assert.AreEqual(PersistenceState.Synchronized, firstVictim.PersistenceState);
@@ -113,7 +148,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(PersistenceState.Modified, firstVictim.PersistenceState);
         }
         session.SaveChanges();
-        using (session.Pin(butcher)) {
+        using (session.DisableSaveChanges(butcher)) {
           firstVictim.Resurrect();
           var secondVictim = new Victim();
           butcher.Kill(secondVictim);
@@ -133,14 +168,14 @@ namespace Xtensive.Storage.Tests.Storage
         using (var session = Session.Open(Domain))
         using (Transaction.Open()) {
           var node = T(T(), T(), T(T()));
-          using (session.Pin(node)) {
+          using (session.DisableSaveChanges(node)) {
             AssertNumberOfNodesInDatabaseIs(0);
             foreach (var item in allTrees)
               Assert.AreEqual(PersistenceState.New, item.PersistenceState);
           }
           session.SaveChanges();
           AssertNumberOfNodesInDatabaseIs(allTrees.Count);
-          using (session.Pin(node)) {
+          using (session.DisableSaveChanges(node)) {
             foreach (var item in allTrees)
               item.Tag++;
             session.SaveChanges();
@@ -150,7 +185,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
           session.SaveChanges();
           var newNode = T(node);
-          using (session.Pin(newNode)) {
+          using (session.DisableSaveChanges(newNode)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 1);
             Assert.AreEqual(PersistenceState.New, newNode.PersistenceState);
             Assert.AreEqual(PersistenceState.Modified, node.PersistenceState);
@@ -161,13 +196,13 @@ namespace Xtensive.Storage.Tests.Storage
           AssertNumberOfNodesInDatabaseIs(allTrees.Count);
           var cycledNode = T();
           cycledNode.Parent = cycledNode;
-          using (session.Pin(cycledNode)) {
+          using (session.DisableSaveChanges(cycledNode)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 1);
           }
           session.SaveChanges();
           var cycledGraph = T(T(T(cycledNode)));
           cycledGraph.Parent = cycledNode;
-          using (session.Pin(cycledGraph)) {
+          using (session.DisableSaveChanges(cycledGraph)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 3);
             Assert.AreEqual(PersistenceState.Modified, cycledNode.PersistenceState);
           }
@@ -185,8 +220,8 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
         var victim = new Victim();
-        using (session.Pin(victim))
-          Assert.IsNull(session.Pin(victim));
+        using (session.DisableSaveChanges(victim))
+          Assert.IsNull(session.DisableSaveChanges(victim));
       }
     }
 
@@ -197,7 +232,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Transaction.Open()) {
         var victim = new Victim();
         victim.Remove();
-        AssertEx.ThrowsInvalidOperationException(() => session.Pin(victim));
+        AssertEx.ThrowsInvalidOperationException(() => session.DisableSaveChanges(victim));
       }
     }
 
@@ -207,7 +242,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var transactionScope = Transaction.Open()) {
         var victim = new Victim();
-        using (session.Pin(victim)) {
+        using (session.DisableSaveChanges(victim)) {
           transactionScope.Complete();
           AssertEx.ThrowsInvalidOperationException(transactionScope.Dispose);
         }
@@ -220,7 +255,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
         var victim = new Victim();
-        using (session.Pin(victim))
+        using (session.DisableSaveChanges(victim))
           AssertEx.ThrowsInvalidOperationException(() => Transaction.Open(TransactionOpenMode.New));
       }
     }

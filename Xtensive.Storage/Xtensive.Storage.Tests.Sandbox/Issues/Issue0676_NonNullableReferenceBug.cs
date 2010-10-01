@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
 
     public Animal(string name)
     {
-      using (Session.Pin(this)) {
+      using (Session.DisableSaveChanges(this)) {
         Name = name;
         Mate = this;
         MateDenyRemove = this;
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
 
     public Person(string name)
     {
-      using (Session.Pin(this)) {
+      using (Session.DisableSaveChanges(this)) {
         Name = name;
         Mate = name==NullName ? this : Null;
       }

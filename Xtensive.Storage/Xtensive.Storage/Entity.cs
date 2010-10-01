@@ -847,7 +847,7 @@ namespace Xtensive.Storage
             operations.RegisterOperation(new EntityInitializeOperation(key), true);
           var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
           if (references.Count > 0) {
-            using (Session.Pin(this)) {
+            using (Session.DisableSaveChanges(this)) {
               foreach (var referenceField in references) {
                 var referenceValue = (Entity) GetFieldValue(referenceField);
                 Session.PairSyncManager.ProcessRecursively(null, null,
@@ -897,7 +897,7 @@ namespace Xtensive.Storage
             operations.RegisterOperation(new EntityInitializeOperation(key), true);
           var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
           if (references.Count > 0) {
-            using (Session.Pin(this)) {
+            using (Session.DisableSaveChanges(this)) {
               foreach (var referenceField in references) {
                 var referenceValue = (Entity) GetFieldValue(referenceField);
                 Session.PairSyncManager.ProcessRecursively(null, null, 

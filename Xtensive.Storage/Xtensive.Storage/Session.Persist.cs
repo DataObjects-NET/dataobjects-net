@@ -19,6 +19,8 @@ namespace Xtensive.Storage
 {
   public partial class Session
   {
+    private bool disableAutoSaveChanges;
+    
     /// <summary>
     /// Saves all modified instances immediately to the database.
     /// </summary>
@@ -87,19 +89,22 @@ namespace Xtensive.Storage
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
-      using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)){
-        var performPinning = Pinner.RootCount > 0;
-        if (performPinning)
-          switch (reason) {
+      var performPinning = Pinner.RootCount > 0;
+      if (performPinning || disableAutoSaveChanges) 
+        switch (reason) {
           case PersistReason.NestedTransaction:
           case PersistReason.Commit:
             throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
           }
 
+      if (disableAutoSaveChanges && reason != PersistReason.Manual)
+        return;
+
+      using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)) {
         IsPersisting = true;
-      
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
+
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
             EnsureTransactionIsStarted();
@@ -146,6 +151,49 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Temporarily disables all save changes operations (both explicit ant automatic) 
+    /// for specified <paramref name="target"/>.
+    /// Such entity is prevented from being persisted to the database,
+    /// when <see cref="SaveChanges"/> is called or query is executed.
+    /// If persist is to be performed due to starting a nested transaction or committing a transaction,
+    /// the presence of such an entity will lead to failure.
+    /// If <paramref name="target"/> is not present in the database,
+    /// all entities that reference <paramref name="target"/> are also pinned automatically.
+    /// </summary>
+    /// <param name="target">The entity to disable persisting.</param>
+    /// <returns>A special object that controls lifetime of such behavior if <paramref name="target"/> was not previously processed by the method,
+    /// otherwise <see langword="null"/>.</returns>
+    public IDisposable DisableSaveChanges(IEntity target)
+    {
+      EnsureNotDisposed();
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      var targetEntity = (Entity) target;
+      targetEntity.EnsureNotRemoved();
+      if (IsDisconnected)
+        return new Disposable(b => {return;}); // No need to pin in this case
+      return Pinner.RegisterRoot(targetEntity.State);
+    }
+
+    /// <summary>
+    /// Temporarily disables only automatic save changes operations before queries, etc.
+    /// Explicit call of <see cref="SaveChanges"/> will lead to flush changes anyway.
+    /// If save changes is to be performed due to starting a nested transaction or committing a transaction,
+    /// active disabling save changes scope will lead to failure.
+    /// <returns>A special object that controls lifetime of such behavior if there is no active scope,
+    /// otherwise <see langword="null"/>.</returns>
+    /// </summary>
+    public IDisposable DisableSaveChanges()
+    {
+      if (IsDisconnected)
+        return new Disposable(b => { return; }); // No need to pin in this case
+      if (disableAutoSaveChanges)
+        return null;
+
+      disableAutoSaveChanges = true;
+      return new Disposable(_ => { disableAutoSaveChanges = false; });
+    }
+
+    /// <summary>
     /// Pins the specified <see cref="IEntity"/>.
     /// Pinned entity is prevented from being persisted,
     /// when <see cref="SaveChanges"/> is called or query is executed.
@@ -157,14 +205,15 @@ namespace Xtensive.Storage
     /// <param name="target">The entity to pin.</param>
     /// <returns>An entity pinning scope if <paramref name="target"/> was not previously pinned,
     /// otherwise <see langword="null"/>.</returns>
+    [Obsolete("Use Session.DisableSaveChanges(...) instead.")]
     public IDisposable Pin(IEntity target)
     {
       EnsureNotDisposed();
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      var targetEntity = (Entity) target;
+      var targetEntity = (Entity)target;
       targetEntity.EnsureNotRemoved();
       if (IsDisconnected)
-        return new Disposable(b => {return;}); // No need to pin in this case
+        return new Disposable(b => { return; }); // No need to pin in this case
       return Pinner.RegisterRoot(targetEntity.State);
     }
   }
