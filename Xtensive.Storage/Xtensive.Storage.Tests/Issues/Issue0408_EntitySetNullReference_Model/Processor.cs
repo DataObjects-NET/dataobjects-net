@@ -22,19 +22,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Field]
     public string DocumentTypeToProduce { get; set; }
 
-    private log4net.ILog log;
-    protected virtual log4net.ILog Log
-    {
-      get
-      {
-        if (log == null)
-        {
-          log = log4net.LogManager.GetLogger(this.GetType().ToString());
-        }
-        return log;
-      }
-    }
-
     protected Processor()
     {
       Enabled = true;
@@ -50,7 +37,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     /// <param name="destinationDocument"></param>
     protected void PropagateAllGroups(Document sourceDocument, Document destinationDocument)
     {
-      Log.DebugFormat("Propagating to document {0} all groups of document {1}.", destinationDocument, sourceDocument);
+      Log.Debug("Propagating to document {0} all groups of document {1}.", destinationDocument, sourceDocument);
 
       //// Does the source document belong to any group(s) ?
       //QueryResult qr;
@@ -80,12 +67,12 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
 
           // propagate all groups of sourceDocument to destinationDocument
           link.LinkSource.CreateNewLinkfromMe(destinationDocument, link.LinkSemantic);
-          Log.DebugFormat("Document/ID={0} inherits a link from Document/ID={1}. Head of the group is Document/ID={2}. (LinkSemantic={3})", destinationDocument.Id, sourceDocument.Id, link.LinkSource.Id, link.LinkSemantic);
+          Log.Debug("Document/ID={0} inherits a link from Document/ID={1}. Head of the group is Document/ID={2}. (LinkSemantic={3})", destinationDocument.Id, sourceDocument.Id, link.LinkSource.Id, link.LinkSemantic);
         }
       }
       else
       {
-        Log.WarnFormat("Creating a new group from this document because no links point to it. (Document is {0})", sourceDocument); 
+        Log.Warning("Creating a new group from this document because no links point to it. (Document is {0})", sourceDocument); 
         sourceDocument.CreateNewGroupAndAddThis(); 
       }
     }

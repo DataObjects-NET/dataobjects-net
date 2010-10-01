@@ -147,7 +147,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
       }
       else
       {
-        Log.WarnFormat("No ContainerForDoneInputDocuments is defined for '{0}' DocumentProcessor", this.Name);
+        Log.Warning("No ContainerForDoneInputDocuments is defined for '{0}' DocumentProcessor", this.Name);
       }
     }
 
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     {
       if (inputDocument == null)
       {
-        Log.WarnFormat("Cannot find document to process because {0} is not a Document", inputDocument);
+        Log.Warning("Cannot find document to process because {0} is not a Document", inputDocument);
         return null;
       }
 
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
       {
         if (documentsMatchingDocType.Count > 1)
         {
-          Log.DebugFormat("Found {0} documents matching DocumentType={1} in this group. Returning the document in innermost group : {2}", documentsMatchingDocType.Count, documentTypeToProcess, documentsMatchingDocType[0].Name);
+          Log.Debug("Found {0} documents matching DocumentType={1} in this group. Returning the document in innermost group : {2}", documentsMatchingDocType.Count, documentTypeToProcess, documentsMatchingDocType[0].Name);
         }
         return documentsMatchingDocType[0];
       }

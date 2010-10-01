@@ -27,19 +27,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Field]
     protected DateTime CreationDate { get; set; }
 
-    private log4net.ILog log;
-    protected virtual log4net.ILog Log
-    {
-      get
-      {
-        if (log == null)
-        {
-          log = log4net.LogManager.GetLogger(this.GetType().ToString());
-        }
-        return log;
-      }
-    }
-
     [Field, Association(PairTo = "LinkSource", OnOwnerRemove = OnRemoveAction.Clear)]
     public EntitySet<DocumentLink> LinksFromThis { get; private set; }
 

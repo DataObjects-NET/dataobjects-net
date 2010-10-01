@@ -7,7 +7,7 @@
 using System.Reflection;
 using Xtensive.Core.Diagnostics;
 
-namespace Xtensive.Storage.Web
+namespace Xtensive.Practices.Web
 {
   /// <summary>
   /// Log for this namespace.

@@ -3,10 +3,11 @@ using System.Web;
 using System.Web.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Resources;
+using Xtensive.Practices.Web.Resources;
 
-namespace Xtensive.Storage.Web
+namespace Xtensive.Practices.Web
 {
   /// <summary>
   /// Provides access to current <see cref="Domain"/> and <see cref="Session"/> for web applications;
