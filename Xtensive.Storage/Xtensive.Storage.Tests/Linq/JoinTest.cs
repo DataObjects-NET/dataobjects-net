@@ -36,8 +36,27 @@ namespace Xtensive.Storage.Tests.Linq
     public void EntityJoinWithNullTest()
     {
       var id = Query.All<Product>().First().Id;
-      var result = Query.All<Product>().Select(p=>p.Id==id ? null : p).Select(p=>p==null ? null : p.Category).ToList();
+      var result = Query.All<Product>()
+        .Select(p=>p.Id==id ? null : p)
+        .Select(p=>p==null ? null : p.Category)
+        .ToList();
       var expected = Query.All<Product>().ToList().Select(p=>p.Id==id ? null : p).Select(p=>p==null ? null : p.Category).ToList();
+      Assert.AreEqual(result.Count, expected.Count);
+    }
+
+    [Test]
+    public void EntityJoinWithNullModifiedTest()
+    {
+      var id = Query.All<Product>().First().Id;
+      var result = Query.All<Product>()
+        .Select(p=>(p.Id==id) && (p==null) ? null : 
+          (p.Id==id) && (p!=null) ? p.Category /*exception*/ :
+          (p.Id!=id) && (p==null) ? null : p.Category)
+        .ToList();
+      var expected = Query.All<Product>().ToList()
+        .Select(p=>p.Id==id ? null : p)
+        .Select(p=>p==null ? null : p.Category)
+        .ToList();
       Assert.AreEqual(result.Count, expected.Count);
     }
 
