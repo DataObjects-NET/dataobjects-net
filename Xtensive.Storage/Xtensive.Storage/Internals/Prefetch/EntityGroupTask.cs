@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,
       HashSet<Key> foundedKeys)
     {
-      var records = reader.Read(queryResult, RecordQuery.Header);
+      var records = reader.Read(queryResult, RecordQuery.Header, manager.Owner.Session);
       foreach (var record in records) {
         if (record!=null) {
           var fetchedKey = record.GetKey();

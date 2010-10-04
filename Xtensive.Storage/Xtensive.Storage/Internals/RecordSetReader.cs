@@ -51,11 +51,11 @@ namespace Xtensive.Storage.Internals
     private readonly ICache<RecordSetHeader, CacheItem> cache;
     private readonly object _lock = new object();
     
-    public IEnumerable<Record> Read(IEnumerable<Tuple> source, RecordSetHeader header)
+    public IEnumerable<Record> Read(IEnumerable<Tuple> source, RecordSetHeader header, Session session)
     {
       CacheItem cacheItem;
       var recordPartCount = header.ColumnGroups.Count;
-      var context = new MaterializationContext(recordPartCount);
+      var context = new MaterializationContext(session, recordPartCount);
       if (!cache.TryGetItem(header, true, out cacheItem))
       lock (_lock)
       if (!cache.TryGetItem(header, false, out cacheItem)) {

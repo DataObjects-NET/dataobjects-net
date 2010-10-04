@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       var areToNotifyAboutKeys = !manager.Owner.Session.Domain.Model
         .Types[referencingFieldDescriptor.Field.ItemType].IsLeaf;
       var reader = manager.Owner.Session.Domain.RecordSetReader;
-      var records = reader.Read(itemsQueryTask.Result, RecordQuery.Header);
+      var records = reader.Read(itemsQueryTask.Result, RecordQuery.Header, manager.Owner.Session);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       List<Pair<Key, Tuple>> auxEntities = null;
       if (ReferencingField.Association.AuxiliaryType!=null)

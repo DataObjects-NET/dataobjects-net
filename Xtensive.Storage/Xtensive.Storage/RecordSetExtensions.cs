@@ -57,7 +57,7 @@ namespace Xtensive.Storage
     {
       var session = ((EnumerationContext)source.Context).SessionHandler.Session;
       var reader = session.Domain.RecordSetReader;
-      foreach (var record in reader.Read(source, source.Header)) {
+      foreach (var record in reader.Read(source, source.Header, session)) {
         var key = record.GetKey(primaryKeyIndex);
         if (key == null)
           continue;
@@ -82,7 +82,7 @@ namespace Xtensive.Storage
     public static IEnumerable<Entity> ToEntities(this IEnumerable<Tuple> source, RecordSetHeader header, Session session, int primaryKeyIndex)
     {
       var reader = session.Domain.RecordSetReader;
-      foreach (var record in reader.Read(source, header)) {
+      foreach (var record in reader.Read(source, header, session)) {
         var key = record.GetKey(primaryKeyIndex);
         if (key == null)
           continue;
