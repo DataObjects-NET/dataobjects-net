@@ -70,6 +70,8 @@ namespace Xtensive.Storage.Indexing.Model
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
           });
+
+        ea.Complete();
       }
     }
 

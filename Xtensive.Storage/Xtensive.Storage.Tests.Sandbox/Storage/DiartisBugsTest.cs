@@ -14,7 +14,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 
-namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
+namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
 {
   [Serializable]
   [HierarchyRoot]
@@ -47,7 +47,9 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
     public string Title { get; set; }
 
     [Field]
-    [Association(PairTo = "Author")]
+    [Association(PairTo = "Author", 
+      OnTargetRemove = OnRemoveAction.Clear, 
+      OnOwnerRemove  = OnRemoveAction.Cascade)]
     public EntitySet<Book> Books { get; private set; }
 
     public override string ToString()
@@ -57,7 +59,7 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
   }
 
   [TestFixture]
-  public class DartisBugsTest : AutoBuildTest
+  public class DiartisBugsTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -226,6 +228,36 @@ namespace Xtensive.Storage.Tests.Storage.DartisBugsTest
             Assert.AreEqual(1, author.Books.Count);
             // tx.Complete();
           }
+        }
+      }
+    }
+ 
+    [Test]
+    public void EntitySetCountBugTest2()
+    {
+      using (var session = Session.Open(Domain)) {
+        var author = new Author {Title = "Author"};
+        var book1 = new Book {Title = "Book 1"};
+        var book2 = new Book {Title = "Book 2"};
+        book1.Author = author;
+        book2.Author = author;
+        try {
+          using (var tx = Transaction.Open()) {
+            bool firstTime = true;
+            author.Books.CollectionChanged += (s, a) => {
+              if (firstTime)
+                Assert.AreEqual(1, author.Books.Count);
+              firstTime = false;
+            };
+            book2.Author = null;
+            Assert.AreEqual(1, author.Books.Count);
+            // tx.Complete();
+          }
+        }
+        finally {
+          book1.Remove();
+          book2.Remove();
+          author.Remove();
         }
       }
     }

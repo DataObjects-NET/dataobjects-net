@@ -67,6 +67,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
           });
+
+        ea.Complete();
       }
     }
 

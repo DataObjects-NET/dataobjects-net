@@ -106,10 +106,13 @@ namespace Xtensive.Integrity.Validation
     public static void CheckConstraints(this IValidationAware target)
     {
       var constraints = ConstraintRegistry.GetConstraints(target.GetType());
-      if (constraints.Length > 0)
-        using (var aggregator = new ExceptionAggregator())
+      if (constraints.Length > 0) {
+        using (var ea = new ExceptionAggregator()) {
           foreach (var constraint in constraints)
-            aggregator.Execute(constraint.Check, target);
+            ea.Execute(constraint.Check, target);
+          ea.Complete();
+        }
+      }
     }
 
     /// <summary>

@@ -44,10 +44,12 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        if (direction==Direction.None)
+        if (direction==Direction.None) {
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidDirectionValue, Path);
           });
+        }
+        ea.Complete();
       }
     }
 

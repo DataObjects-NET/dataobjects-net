@@ -41,12 +41,14 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        if (Type==null)
+        if (Type==null) {
           ea.Execute(() => {
             throw new ValidationException(
               string.Format(Strings.ExUndefinedTypeOfColumnX, Name),
               Path);
           });
+        }
+        ea.Complete();
       }
     }
 

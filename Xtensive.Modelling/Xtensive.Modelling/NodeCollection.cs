@@ -169,9 +169,11 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public void Validate()
     {
-      using (var ea = new ExceptionAggregator())
+      using (var ea = new ExceptionAggregator()) {
         foreach (var node in list)
           ea.Execute(x => x.Validate(), node);
+        ea.Complete();
+      }
     }
 
     /// <inheritdoc/>

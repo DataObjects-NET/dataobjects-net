@@ -96,18 +96,20 @@ namespace Xtensive.Storage.Indexing.Model
           ea.Execute(() => {
             throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
           });
+          ea.Complete();
           return;
         }
 
         var pkColumns = PrimaryKey.KeyColumns;
         var fkColumns = ForeignKeyColumns;
 
-        if (pkColumns.Count()!=pkColumns.Zip(fkColumns).Where(p => CompareKeyColumns(p.First, p.Second)).Count())
+        if (pkColumns.Count()!=pkColumns.Zip(fkColumns).Where(p => CompareKeyColumns(p.First, p.Second)).Count()) {
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);
           });
-        
+        }
+
         // var pkTypes = PrimaryKey.KeyColumns.Select(c => c.Value.Type);
         // var fkTypes = ForeignKeyColumns.Select(c => c.Value.Type);
         // if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First==p.Second).Count())
@@ -115,6 +117,8 @@ namespace Xtensive.Storage.Indexing.Model
         //    throw new ValidationException(
         //      Strings.ExInvalidForeignKeyStructure, Path);
         //  });
+
+        ea.Complete();
       }
     }
 
