@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Linq.Materialization
     #endregion
     
     private readonly EntityMappingCache[] entityMappings;
-    private readonly DomainModel model;
+    public readonly DomainModel Model;
     public readonly Session Session;
     public int EntitiesInRow;
     public Queue<Action> MaterializationQueue;
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Linq.Materialization
       if (cache.Items.TryGetValue(typeId, out result))
         return result;
 
-      var type       = model.Types[typeId];
+      var type       = Model.Types[typeId];
       var keyInfo    = type.Key;
       var descriptor = type.TupleDescriptor;
 
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Linq.Materialization
         }
 
       int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      int[] keyIndexes = Enumerable.Range(allIndexes[0], keyInfo.TupleDescriptor.Count).ToArray();
+      int[] keyIndexes = allIndexes.Take(keyInfo.TupleDescriptor.Count).ToArray();
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public MaterializationContext(Session session, int entityCount)
     {
       Session = session;
-      model = session.Domain.Model;
+      Model = Domain.Demand().Model;
       EntitiesInRow = entityCount;
       entityMappings = new EntityMappingCache[entityCount];
       for (int i = 0; i < entityMappings.Length; i++)
