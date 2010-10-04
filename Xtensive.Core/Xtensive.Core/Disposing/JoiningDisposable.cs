@@ -79,6 +79,7 @@ namespace Xtensive.Core.Disposing
             d2.DisposeSafely();
           }, this);
           ea.Execute(e => { throw e; }, ex);
+          ea.Complete();
         }
       }
       d1 = second;

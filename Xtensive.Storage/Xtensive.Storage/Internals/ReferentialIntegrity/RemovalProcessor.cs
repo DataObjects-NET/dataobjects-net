@@ -96,13 +96,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
             scope.Complete(); // Successful anyway
 
-            using (var ae = new ExceptionAggregator()) {
+            using (var ea = new ExceptionAggregator()) {
               foreach (var entity in processedEntities) {
-                ae.Execute(() => {
+                ea.Execute(() => {
                   notifiedEntities.Add(entity);
                   entity.SystemRemoveCompleted(null);
                 });
               }
+              ea.Complete();
             }
 
             region.Complete();

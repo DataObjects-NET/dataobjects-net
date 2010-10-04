@@ -83,17 +83,22 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
 
-        if (PrimaryKey==null)
+        if (PrimaryKey==null) {
           ea.Execute(() => {
             throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
           });
+        }
+
         var pkTypes = PrimaryKey.KeyColumns.Select(c => c.Value.Type);
         var fkTypes = ForeignKeyColumns.Select(c => c.Value.Type);
-        if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First.Type==p.Second.Type.StripNullable()).Count())
+        if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First.Type==p.Second.Type.StripNullable()).Count()) {
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);
           });
+        }
+
+        ea.Complete();
       }
     }
 

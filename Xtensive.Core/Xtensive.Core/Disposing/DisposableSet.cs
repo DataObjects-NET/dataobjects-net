@@ -93,9 +93,10 @@ namespace Xtensive.Core.Disposing
       try {
         if (list==null)
           return;
-        using (var a = new ExceptionAggregator()) {
+        using (var ea = new ExceptionAggregator()) {
           for (int i = list.Count-1; i>=0; i--)
-            a.Execute(d => d.Dispose(), list[i]);
+            ea.Execute(d => d.Dispose(), list[i]);
+          ea.Complete();
         }
       }
       finally {

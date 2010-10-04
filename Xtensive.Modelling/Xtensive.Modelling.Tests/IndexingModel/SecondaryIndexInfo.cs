@@ -83,19 +83,24 @@ namespace Xtensive.Modelling.Tests.IndexingModel
             .Select(cr => cr.Value)
             .Concat(PrimaryKeyColumns.Select(cr => cr.Value))
             .ToHashSet();
-        foreach (var columnRef in IncludedColumns)
+        foreach (var columnRef in IncludedColumns) {
           if (fullKeySet.Contains(columnRef.Value))
             ea.Execute(() => {
               throw new ValidationException(Strings.ExInvalidIncludedColumnsCollection, Path);
             });
+        }
+
         foreach (var group in IncludedColumns
           .GroupBy(keyColumn => keyColumn)
-          .Where(group => group.Count() > 1))
+          .Where(group => group.Count() > 1)) {
           ea.Execute((_column) => {
             throw new ValidationException(
               string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, _column.Name),
               Path);
           }, group.Key);
+        }
+
+        ea.Complete();
       }
     }
 

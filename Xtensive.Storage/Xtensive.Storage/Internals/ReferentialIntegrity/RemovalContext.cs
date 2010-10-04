@@ -106,10 +106,11 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public void ProcessFinalizers()
     {
-      using (var ae = new ExceptionAggregator()) {
+      using (var ea = new ExceptionAggregator()) {
         // Backward order
         for (int i = finalizers.Count - 1; i >= 0; i--)
-          ae.Execute(finalizers[i]);
+          ea.Execute(finalizers[i]);
+        ea.Complete();
       }
     }
 

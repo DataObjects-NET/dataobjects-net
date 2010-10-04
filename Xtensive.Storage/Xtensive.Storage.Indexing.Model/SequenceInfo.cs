@@ -92,18 +92,21 @@ namespace Xtensive.Storage.Indexing.Model
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        if (Increment<=0)
+        if (Increment<=0) {
           ea.Execute(() => {
             throw new ValidationException(
               string.Format(Strings.ExInvalideIncrementValue),
               Path);
           });
-        if (Type==null)
+        }
+        if (Type==null) {
           ea.Execute(() => {
             throw new ValidationException(
               string.Format(string.Format(Strings.ExUndefinedTypeOfSequenceX, Name)),
               Path);
           });
+        }
+        ea.Complete();
       }
     }
 
