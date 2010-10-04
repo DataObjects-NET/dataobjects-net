@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Materialization;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
@@ -20,49 +21,89 @@ namespace Xtensive.Storage.Internals
 {
   internal class RecordSetReader : DomainBound
   {
-    private readonly ICache<RecordSetHeader, RecordSetMapping> cache;
-
-    public Record ReadSingleRow(IEnumerable<Tuple> source, RecordSetHeader header, Key key)
+    private class RecordPartMapping
     {
-      var item = source.FirstOrDefault();
-      if (item==null)
-        return null;
+      public int TypeIdColumnIndex { get; private set; }
+      public Pair<int>[] Columns { get; private set; }
+      public TypeInfo ApproximateType { get; private set; }
 
-      if (key != null && key.HasExactType) {
-        var typeMapping = GetMapping(header).Mappings[0].GetTypeMapping(key.Type.TypeId);
-        var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, item);
-        return new Record(item, new Pair<Key, Tuple>(key, entityTuple));
+      public RecordPartMapping(int typeIdColumnIndex, Pair<int>[] columns, TypeInfo approximateType)
+      {
+        TypeIdColumnIndex = typeIdColumnIndex;
+        Columns = columns;
+        ApproximateType = approximateType;
       }
-      return ParseRow(item, GetMapping(header));
     }
 
+    private class CacheItem
+    {
+      public RecordSetHeader Header { get; private set; }
+      public RecordPartMapping[] Mappings { get; private set; }
+
+
+      public CacheItem(RecordSetHeader header, RecordPartMapping[] mappings)
+      {
+        Header = header;
+        Mappings = mappings;
+      }
+    }
+
+    private readonly ICache<RecordSetHeader, CacheItem> cache;
+    private readonly object _lock = new object();
+    
     public IEnumerable<Record> Read(IEnumerable<Tuple> source, RecordSetHeader header)
     {
-      var mapping = GetMapping(header);
-      foreach (var item in source)
-        yield return ParseRow(item, mapping);
+      CacheItem cacheItem;
+      var recordPartCount = header.ColumnGroups.Count;
+      var context = new MaterializationContext(recordPartCount);
+      if (!cache.TryGetItem(header, true, out cacheItem))
+      lock (_lock)
+      if (!cache.TryGetItem(header, false, out cacheItem)) {
+        var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
+        var model = context.Model;
+        var mappings = new RecordPartMapping[recordPartCount];
+        for (int i = 0; i < recordPartCount; i++) {
+          var columnGroup = header.ColumnGroups[i];
+          var approximateType = columnGroup.TypeInfoRef.Resolve(model);
+          var columnMapping = new List<Pair<int>>();
+          var typeIdColumnIndex = -1;
+          foreach (var columnIndex in columnGroup.Columns) {
+            var column = (MappedColumn) header.Columns[columnIndex];
+            var columnInfo = column.ColumnInfoRef.Resolve(model);
+            FieldInfo fieldInfo;
+            if (!approximateType.Fields.TryGetValue(columnInfo.Field.Name, out fieldInfo))
+              continue;
+            var targetColumnIndex = fieldInfo.MappingInfo.Offset;
+            if (columnInfo.Name == typeIdColumnName)
+              typeIdColumnIndex = column.Index;
+            columnMapping.Add(new Pair<int>(targetColumnIndex, columnIndex));
+          }
+          mappings[i] = new RecordPartMapping(typeIdColumnIndex, columnMapping.ToArray(), approximateType);
+        }
+        cacheItem = new CacheItem(header, mappings);
+        cache.Add(cacheItem);
+      }
+      return source.Select(tuple => ParseRow(tuple, context, cacheItem.Mappings));
     }
 
-    private Record ParseRow(Tuple tuple, RecordSetMapping mapping)
+    private Record ParseRow(Tuple tuple, MaterializationContext context, RecordPartMapping[] recordPartMappings)
     {
-      var count = mapping.Mappings.Count;
+      var count = recordPartMappings.Length;
 
       if (count == 1)
-        return new Record(tuple, ParseColumnGroup(tuple, mapping.Mappings[0]));
+        return new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]));
 
-      var pairs = new List<Pair<Key, Tuple>>(count);
-      foreach (var groupMapping in mapping.Mappings)
-        pairs.Add(ParseColumnGroup(tuple, groupMapping));
-
+      var pairs = new List<Pair<Key, Tuple>>(
+        recordPartMappings
+          .Select((recordPartMapping, i) => ParseColumnGroup(tuple, context, i, recordPartMapping)));
       return new Record(tuple, pairs);
     }
 
-    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, ColumnGroupMapping groupMapping)
+    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, RecordPartMapping mapping)
     {
-      var rootType = groupMapping.Type;
       TypeReferenceAccuracy accuracy;
-      int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out accuracy);
-      var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetTypeMapping(typeId);
+      int typeId = ExtractTypeId(mapping.ApproximateType, tuple, mapping.TypeIdColumnIndex, out accuracy);
+      var typeMapping = typeId==TypeInfo.NoTypeId ? null : context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
       if (typeMapping==null)
         return new Pair<Key, Tuple>(null, null);
 
@@ -102,96 +143,16 @@ namespace Xtensive.Storage.Internals
       return value;
     }
 
-    // TODO: Refactor this to support interface fetching and do not cache mapping by header!!!! Similar functionality is in MaterializationContext
-    internal RecordSetMapping GetMapping(RecordSetHeader header)
-    {
-      RecordSetMapping result;
-      lock (cache) {
-        result = cache[header, true];
-        if (result != null)
-          return result;
-      }
-      var mappings = new List<ColumnGroupMapping>();
-      var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
-
-      foreach (var group in header.ColumnGroups) {
-        var model = Domain.Model;
-        int typeIdColumnIndex = -1;
-        var type = group.TypeInfoRef.Resolve(model);
-        var columnMapping = new List<Pair<FieldInfo, MappedColumn>>(group.Columns.Count);
-        var keyMapping = new List<Pair<FieldInfo, MappedColumn>>(group.Keys.Count);
-
-        foreach (int columnIndex in group.Columns) {
-          var column = (MappedColumn)header.Columns[columnIndex];
-          var columnInfo = column.ColumnInfoRef.Resolve(model);
-          var field = columnInfo.Field;
-          if (type.IsInterface && !field.IsDeclared)
-            field = field.DeclaringType.Fields[field.Name];
-          columnMapping.Add(new Pair<FieldInfo, MappedColumn>(field, column));
-          if (columnInfo.Name == typeIdColumnName)
-            typeIdColumnIndex = column.Index;
-        }
-
-        foreach (int columnIndex in group.Keys) {
-          var column = (MappedColumn)header.Columns[columnIndex];
-          var columnInfo = column.ColumnInfoRef.Resolve(model);
-          var field = columnInfo.Field;
-          if (type.IsInterface && !field.IsDeclared)
-            field = field.DeclaringType.Fields[field.Name];
-          keyMapping.Add(new Pair<FieldInfo, MappedColumn>(field, column));
-        }
-
-        var implementors = (type.IsInterface 
-          ? type.GetImplementors(true)
-          : type.GetDescendants(true)).ToList();
-        if (!type.IsAbstract && !type.IsInterface)
-          implementors.Add(type);
-        var typeMappings = new IntDictionary<TypeMapping>(implementors.Count + 1);
-        foreach (TypeInfo childType in implementors) {
-          // Building typeMap
-          var typeMap = Enumerable.Repeat(MapTransform.NoMapping, childType.Columns.Count).ToArray();
-          foreach (var pair in columnMapping) {
-            var childTypeField = type.IsInterface
-              ? childType.FieldMap[pair.First]
-              : childType.Fields[pair.First.Name];
-            typeMap[childTypeField.MappingInfo.Offset] = pair.Second.Index;
-          }
-
-          // Building keyMap
-          var keyMap = Enumerable.Repeat(MapTransform.NoMapping, 
-            type.Key.TupleDescriptor.Count).ToArray();
-          foreach (var pair in keyMapping) {
-            var childTypeField = type.IsInterface
-              ? childType.FieldMap[pair.First]
-              : childType.Fields[pair.First.Name];
-            keyMap[childTypeField.MappingInfo.Offset] = pair.Second.Index;
-          }
-          var typeMapping = new TypeMapping(childType,
-            new MapTransform(true, childType.Key.TupleDescriptor, keyMap),
-            new MapTransform(true, childType.TupleDescriptor, typeMap));
-          typeMappings.Add(childType.TypeId, typeMapping);
-        }
-        var mapping =  new ColumnGroupMapping(type, typeIdColumnIndex, typeMappings);
-        mappings.Add(mapping);
-      }
-      result = new RecordSetMapping(Domain, header, mappings);
-      lock (cache) {
-        cache.Add(result);
-      }
-      return result;
-    }
-
-
     // Constructors
 
     internal RecordSetReader(Domain domain)
       : base(domain)
     {
       cache = 
-        new LruCache<RecordSetHeader, RecordSetMapping>(
+        new LruCache<RecordSetHeader, CacheItem>(
           domain.Configuration.RecordSetMappingCacheSize, 
           m => m.Header,
-          new WeakestCache<RecordSetHeader, RecordSetMapping>(false, false, 
+          new WeakestCache<RecordSetHeader, CacheItem>(false, false, 
             m => m.Header));
     }
   }

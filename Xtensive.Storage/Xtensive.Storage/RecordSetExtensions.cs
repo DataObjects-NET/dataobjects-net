@@ -97,10 +97,5 @@ namespace Xtensive.Storage
     {
       return Domain.Demand().RecordSetReader.Read(source, source.Header);
     }
-
-    public static Record ReadSingleRow(this RecordSet source)
-    {
-      return Domain.Demand().RecordSetReader.ReadSingleRow(source, source.Header, null);
-    }
   }
 }
