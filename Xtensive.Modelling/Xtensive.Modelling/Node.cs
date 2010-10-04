@@ -290,8 +290,10 @@ namespace Xtensive.Modelling
     {
       using (ValidationScope.Open()) {
         using (var ea = new ExceptionAggregator()) {
-          if (ValidationContext.Current.IsValidated(this))
+          if (ValidationContext.Current.IsValidated(this)) {
+            ea.Complete();
             return;
+          }
           ValidateState();
           foreach (var pair in PropertyAccessors) {
             if (!pair.Value.HasGetter)
@@ -308,6 +310,7 @@ namespace Xtensive.Modelling
                 ea.Execute(x => x.ValidateState(), pathNode);
             }
           }
+          ea.Complete();
         }
       }
     }

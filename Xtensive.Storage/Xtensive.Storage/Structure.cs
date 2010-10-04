@@ -256,6 +256,12 @@ namespace Xtensive.Storage
         Owner.SystemBeforeTupleChange();
     }
 
+    internal override void SystemTupleChange()
+    {
+      if (Owner != null)
+        Owner.SystemTupleChange();
+    }
+
     internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
     {
       if (!Session.IsSystemLogicOnly) {

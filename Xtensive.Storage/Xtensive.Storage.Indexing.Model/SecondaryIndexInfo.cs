@@ -61,12 +61,13 @@ namespace Xtensive.Storage.Indexing.Model
           });
         foreach (var group in keyColumns
           .GroupBy(keyColumn => keyColumn)
-          .Where(g => g.Count() > 1))
+          .Where(g => g.Count() > 1)) {
           ea.Execute((_column) => {
             throw new ValidationException(
               string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, _column.Name),
               Path);
           }, group.Key);
+        }
 
         // Primary key columns
         if (Parent.PrimaryIndex != null && PrimaryKeyColumns.Count!=Parent.PrimaryIndex.KeyColumns.Count)
@@ -88,19 +89,24 @@ namespace Xtensive.Storage.Indexing.Model
             .Select(cr => cr.Value)
             .Concat(PrimaryKeyColumns.Select(cr => cr.Value))
             .ToHashSet();
-        foreach (var columnRef in IncludedColumns)
+        foreach (var columnRef in IncludedColumns) {
           if (fullKeySet.Contains(columnRef.Value))
             ea.Execute(() => {
               throw new ValidationException(Strings.ExInvalidIncludedColumnsCollection, Path);
             });
+        }
+
         foreach (var group in IncludedColumns
           .GroupBy(keyColumn => keyColumn)
-          .Where(g => g.Count() > 1))
+          .Where(g => g.Count() > 1)) {
           ea.Execute((_column) => {
             throw new ValidationException(
               string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, _column.Name),
               Path);
           }, group.Key);
+        }
+
+        ea.Complete();
       }
     }
 

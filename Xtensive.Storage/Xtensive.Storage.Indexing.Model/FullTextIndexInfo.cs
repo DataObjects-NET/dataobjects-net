@@ -47,18 +47,20 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override void ValidateState()
     {
-      using (var ea = new ExceptionAggregator())
-      {
+      using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
         base.ValidateState();
 
         var tableColumns = Parent.Columns;
         var columns = Columns.Select(keyRef => keyRef.Value).ToList();
         
-        if (columns.Count == 0)
+        if (columns.Count == 0) {
           ea.Execute(() => {
             throw new ValidationException(Strings.ExEmptyColumnsCollection, Path);
           });
+        }
+
+        ea.Complete();
       }
     }
 

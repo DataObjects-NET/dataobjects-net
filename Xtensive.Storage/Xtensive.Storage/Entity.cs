@@ -677,14 +677,17 @@ namespace Xtensive.Storage
       }
     }
 
-    internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
+    internal override void SystemTupleChange()
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
         Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
         // to avoid post-first property set flush.
         State.PersistenceState = PersistenceState.Modified;
       }
-      
+    }
+
+    internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
+    {
       Session.SystemEvents.NotifyFieldValueSet(this, field, oldValue, newValue);
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyFieldValueSet(this, field, oldValue, newValue);

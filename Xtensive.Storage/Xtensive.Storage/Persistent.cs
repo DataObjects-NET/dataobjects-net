@@ -423,6 +423,7 @@ namespace Xtensive.Storage
                   OperationType.Set, association, (Entity) this, newReference, () => {
                     SystemBeforeTupleChange();
                     fieldAccessor.SetUntypedValue(this, value);
+                    SystemTupleChange();
                   });
               }
             }
@@ -430,6 +431,7 @@ namespace Xtensive.Storage
               if (!Equals(value, oldValue) || field.IsStructure) {
                 SystemBeforeTupleChange();
                 fieldAccessor.SetUntypedValue(this, value);
+                SystemTupleChange();
               }
             }
 
@@ -595,6 +597,8 @@ namespace Xtensive.Storage
     internal abstract void SystemBeforeSetValue(FieldInfo field, object value);
 
     internal abstract void SystemBeforeTupleChange();
+
+    internal abstract void SystemTupleChange();
 
     internal abstract void SystemSetValue(FieldInfo field, object oldValue, object newValue);
 

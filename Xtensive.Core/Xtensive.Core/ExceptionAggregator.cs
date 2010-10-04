@@ -25,6 +25,7 @@ namespace Xtensive.Core
     private List<Exception> exceptions;
     private string exceptionMessage;
 
+    private bool isCompleted = false;
     private bool isDisposed = false;
 
     /// <summary>
@@ -41,10 +42,29 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the number of caught exceptions.
     /// </summary>
-    public long Count
-    {
+    public long Count {
       [DebuggerStepThrough]
       get { return exceptions!=null ? exceptions.Count : 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating exception aggregation was completed successfully,
+    /// i.e. aggregated exceptions, if any, can be thrown on disposal.
+    /// Set to <see langword="true" /> by <see cref="Complete"/> method call.
+    /// </summary>
+    public bool IsCompleted {
+      [DebuggerStepThrough]
+      get { return isCompleted; }
+    }
+
+    /// <summary>
+    /// Indicates exception aggregation was completed successfully,
+    /// i.e. aggregated exceptions, if any, can be thrown on disposal.
+    /// Sets <see cref="IsCompleted"/> to <see langword="true" />.
+    /// </summary>
+    public void Complete()
+    {
+      isCompleted = true;
     }
 
     /// <summary>
@@ -338,12 +358,13 @@ namespace Xtensive.Core
     /// by <see cref="Execute"/> methods.</exception>
     public void Dispose()
     {
-      if (exceptions!=null && exceptions.Count>0) {
-        Exception exception = string.IsNullOrEmpty(exceptionMessage) ? 
-          new AggregateException(exceptions) : 
-          new AggregateException(exceptionMessage, exceptions);
-        exceptions = null;
-        isDisposed = true;
+      if (isDisposed)
+        return;
+      isDisposed = true;
+      if (isCompleted && exceptions!=null && exceptions.Count>0) {
+        var exception = string.IsNullOrEmpty(exceptionMessage) 
+          ? new AggregateException(exceptions) 
+          : new AggregateException(exceptionMessage, exceptions);
         throw exception;
       }
     }
