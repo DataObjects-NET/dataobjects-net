@@ -25,14 +25,17 @@ namespace Xtensive.Storage.Upgrade
     /// Gets the source type.
     /// </summary>
     public string SourceType { get; private set; }
+
     /// <summary>
     /// Gets the source field.
     /// </summary>
     public string SourceField { get; private set; }
+
     /// <summary>
     /// Gets the target type.
     /// </summary>
     public Type TargetType { get; private set; }
+
     /// <summary>
     /// Gets the target field.
     /// </summary>
