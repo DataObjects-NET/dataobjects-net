@@ -80,6 +80,9 @@ namespace Xtensive.Storage
 
     private IEnumerable<IEntity> InnerGetEntities()
     {
+      if (Owner.IsRemoved)
+        yield break; // WPF tries to enumerate EntitySets of removed Entities
+
       Prefetch();
       foreach (var key in State)
         yield return Query.SingleOrDefault(Session, key);
@@ -108,7 +111,9 @@ namespace Xtensive.Storage
     /// </summary>
     public long Count {
       get {
-        EnsureOwnerIsNotRemoved();
+        if (Owner.IsRemoved)
+          return 0; // WPF tries to use EntitySets of removed Entities
+
         EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
         EnsureCountIsLoaded();
         return (long) State.TotalItemCount;
@@ -367,17 +372,17 @@ namespace Xtensive.Storage
             // Workaround for WPF / non-WPF subscribers
             var invocationList = handler.GetInvocationList();
             foreach (var @delegate in invocationList) {
-              var particularHandler = (NotifyCollectionChangedEventHandler) @delegate;
+              var typedDelegate = (NotifyCollectionChangedEventHandler) @delegate;
               var subscriberAssemblyName = @delegate.Method.DeclaringType.Assembly.FullName;
               if (subscriberAssemblyName.StartsWith(presentationFrameworkAssemblyPrefix))
                 // WPF can't handle "Remove" event w/o item index
-                handler.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 #if DEBUG
-              if (subscriberAssemblyName.StartsWith(storageTestsAssemblyPrefix))
-                handler.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+              else if (subscriberAssemblyName.StartsWith(storageTestsAssemblyPrefix))
+                typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 #endif
               else
-                handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+                typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
             }
           }
           else
@@ -571,6 +576,7 @@ namespace Xtensive.Storage
             removalContext.EnqueueFinalizer(() => {
               try {
                 try {
+                  index = GetItemIndex(State, itemKey); // Necessary, since index can be already changed 
                   Owner.UpdateVersionInfo(Owner, Field);
                   SystemRemove(item, index);
                   SystemRemoveCompleted(item, null);
