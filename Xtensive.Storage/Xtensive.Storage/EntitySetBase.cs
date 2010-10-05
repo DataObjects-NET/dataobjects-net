@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -26,6 +27,7 @@ using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
+using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 
@@ -41,6 +43,8 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
+    private static readonly string presentationFrameworkAssemblyPrefix = "PresentationFramework,";
+    private static readonly string storageTestsAssemblyPrefix = "Xtensive.Storage.Tests.";
     private static readonly object entitySetCachingRegion = new object();
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal static readonly Parameter<Entity> ownerParameter = new Parameter<Entity>("Owner");
@@ -238,10 +242,7 @@ namespace Xtensive.Storage
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, item);
         OnRemove(item);
-        if (index==null)
-          NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null, null);
-        else
-          NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
+        NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
       }
     }
 
@@ -359,10 +360,29 @@ namespace Xtensive.Storage
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
       if (subscriptionInfo.Second != null) {
         var handler = (NotifyCollectionChangedEventHandler) subscriptionInfo.Second;
-        if (action==NotifyCollectionChangedAction.Reset)
-          handler.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        else if (!index.HasValue)
-          handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+        if (action==NotifyCollectionChangedAction.Reset) 
+          handler.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+        else if (!index.HasValue) {
+          if (action==NotifyCollectionChangedAction.Remove) {
+            // Workaround for WPF / non-WPF subscribers
+            var invocationList = handler.GetInvocationList();
+            foreach (var @delegate in invocationList) {
+              var particularHandler = (NotifyCollectionChangedEventHandler) @delegate;
+              var subscriberAssemblyName = @delegate.Method.DeclaringType.Assembly.FullName;
+              if (subscriberAssemblyName.StartsWith(presentationFrameworkAssemblyPrefix))
+                // WPF can't handle "Remove" event w/o item index
+                handler.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+#if DEBUG
+              if (subscriberAssemblyName.StartsWith(storageTestsAssemblyPrefix))
+                handler.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+#endif
+              else
+                handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+            }
+          }
+          else
+            handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+        }
         else
           handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item, index.GetValueOrDefault()));
       }

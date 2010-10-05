@@ -237,7 +237,8 @@ namespace Xtensive.Storage.Disconnected
           if (state!=null) {
             foreach (var reference in state.GetReferences(association.OwnerField)) {
               var item = FetchEntityState(reference.Key);
-              list.Add(new ReferenceInfo(item.Entity, target, association));
+              if (item!=null) // Can be already removed (TODO: check this)
+                list.Add(new ReferenceInfo(item.Entity, target, association));
             }
           }
           return list;

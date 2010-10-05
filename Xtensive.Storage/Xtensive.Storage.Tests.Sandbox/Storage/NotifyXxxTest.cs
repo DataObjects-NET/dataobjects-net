@@ -74,7 +74,11 @@ namespace Xtensive.Storage.Tests.Storage.NotifyXxxTests
           ResetLastXxx();
           book1.RelatedBooks.Remove(book2);
           // "Reset", coz collection is considered as not fully loaded
+#if DEBUG
           Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
+#else
+          Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
+#endif
           Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
         }
 
