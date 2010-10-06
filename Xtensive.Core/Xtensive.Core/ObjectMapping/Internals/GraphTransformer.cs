@@ -104,24 +104,48 @@ namespace Xtensive.Core.ObjectMapping
 
     private void InitializeTransformation(object source)
     {
-      var type = source.GetType();
-      Type interfaceType;
-      Type itemType;
-      if (MappingHelper.IsCollectionCandidate(type)
-        && MappingHelper.TryGetCollectionInterface(type, out interfaceType, out itemType))
-        foreach (var obj in (IEnumerable) source)
-          RegisterRootObject(obj);
+      var rootSystemType = source.GetType();
+      var rootModelType = GetSourceType(rootSystemType, false);
+      if (rootModelType == null)
+        RegisterEnumerable(source, rootSystemType);
       else
-        RegisterRootObject(source);
+        RegisterRootObject(source, rootModelType);
     }
 
-    private void RegisterRootObject(object obj)
+    private Type GetTypeSafely(object obj)
     {
-      var systemType = obj!=null ? obj.GetType() : null;
-      if (systemType!=null && MappingHelper.IsCollection(systemType))
-        throw new ArgumentException(Strings.ExNestedCollectionIsNotSupported, "obj");
-      var modelType = systemType!=null ? mappingDescription.GetSourceType(systemType) : null;
-      if (modelType==null || modelType.ObjectKind==ObjectKind.Primitive) {
+      return obj!=null ? obj.GetType() : null;
+    }
+
+    private SourceTypeDescription GetSourceType(Type systemType, bool throwIfNotFound)
+    {
+      if (systemType == null)
+        return null;
+      if (throwIfNotFound)
+        return mappingDescription.GetSourceType(systemType);
+      else {
+        SourceTypeDescription result;
+        return mappingDescription.TryGetSourceType(systemType, out result) ? result : null;
+      }
+    }
+
+    private void RegisterEnumerable(object source, Type sourceSystemType)
+    {
+      if (MappingHelper.IsEnumerable(sourceSystemType))
+        foreach (var item in (IEnumerable) source) {
+          var itemSystemType = GetTypeSafely(item);
+          if (itemSystemType!=null && MappingHelper.IsCollection(itemSystemType))
+            throw new ArgumentException(Strings.ExNestedCollectionIsNotSupported, "item");
+          var itemModelType = GetSourceType(itemSystemType, true);
+          RegisterRootObject(item, itemModelType);
+        }
+      else
+        MappingDescription.ThrowTypeHasNotBeenRegistered(sourceSystemType);
+    }
+
+    private void RegisterRootObject(object obj, SourceTypeDescription modelType)
+    {
+      if (obj==null || modelType.ObjectKind==ObjectKind.Primitive) {
         rootObjectKeys.Add(new RootObjectDescriptor(obj, ObjectKind.Primitive));
         return;
       }

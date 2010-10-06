@@ -308,7 +308,7 @@ namespace Xtensive.Core.ObjectMapping
         return foundItem;
       if (property.SystemProperty.PropertyType.IsArray)
         return GenerateArrayCacheItem(property.SystemProperty);
-      if (MappingHelper.IsCollectionCandidate(property.SystemProperty.PropertyType))
+      if (MappingHelper.IsEnumerable(property.SystemProperty.PropertyType))
         return GenerateCollectionCacheItem(property.SystemProperty);
       return null;
     }

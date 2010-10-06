@@ -33,7 +33,7 @@ namespace Xtensive.Core.ObjectMapping
       return TryExtractProperty(expression, paramName, false, out propertyInfo);
     }
 
-    public static bool IsCollectionCandidate(Type type)
+    public static bool IsEnumerable(Type type)
     {
       return typeof (IEnumerable).IsAssignableFrom(type);
     }
@@ -60,7 +60,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       Type interfaceType;
       Type itemType;
-      return IsCollectionCandidate(type) && TryGetCollectionInterface(type, out interfaceType, out itemType);
+      return IsEnumerable(type) && TryGetCollectionInterface(type, out interfaceType, out itemType);
     }
 
     public static bool IsTypePrimitive(Type type)

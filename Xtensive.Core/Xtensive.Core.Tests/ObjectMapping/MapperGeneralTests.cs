@@ -215,6 +215,27 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
+    public void TransformationWhenGraphRootIsEnumerableButNotCollectionTest()
+    {
+      var mapper = GetAuthorBookMapper();
+      var source = new HashSet<Author>();
+      for (int i = 0; i < 5; i++) {
+        var author = GetSourceAuthor();
+        author.Name += i;
+        author.Book.Price += i * 100;
+        author.Book.Title.Text += i;
+        source.Add(author);
+      }
+      var transformedList = (List<object>) mapper.Transform(source.AsQueryable());
+      var target = transformedList.Cast<AuthorDto>().ToList();
+      Assert.AreEqual(source.Count, target.Count);
+      EnumerableExtensions.ForEach(target, ta => Assert.IsTrue(source.Any(sa => sa.Id == ta.Id && sa.Name + "!!!" == ta.Name
+        && sa.Book.ISBN == ta.Book.ISBN && sa.Book.Price == ta.Book.Price
+        && sa.Book.Title.Id == ta.Book.Title.Id && sa.Book.Title.Text == ta.Book.Title.Text
+        && sa.Book.Title.Text == ta.Book.TitleText)));
+    }
+
+    [Test]
     public void ComparisonWhenGraphRootIsCollectionTest()
     {
       var mapper = GetAuthorBookMapper();
