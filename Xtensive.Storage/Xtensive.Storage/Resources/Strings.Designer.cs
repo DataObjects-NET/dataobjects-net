@@ -2007,15 +2007,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Paired field for field &apos;{0}.{1}&apos; should be assignable to type &apos;{2}&apos;..
-        /// </summary>
-        internal static string ExPairedFieldForFieldXYShouldBeAssignableToTypeZ {
-            get {
-                return ResourceManager.GetString("ExPairedFieldForFieldXYShouldBeAssignableToTypeZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Paired field &apos;{0}&apos; has wrong type. A descendant of Entity or EntitySet is expected..
         /// </summary>
         internal static string ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet {
@@ -3314,6 +3305,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}.{1}&apos; field, which is declared as paired to &apos;{2}.{3}&apos; field, should be of type &apos;{4}&apos; but actually it is &apos;{5}&apos;..
+        /// </summary>
+        internal static string ExXYFieldPairedToZAFieldShouldBeBButCurrentIsC {
+            get {
+                return ResourceManager.GetString("ExXYFieldPairedToZAFieldShouldBeBButCurrentIsC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}.{1}&apos; field, which is declared as paired to &apos;{2}.{3}&apos; field, should be &apos;EntitySet&lt;{4}&gt;&apos; but it is &apos;EntitySet&lt;{5}&gt;&apos;..
+        /// </summary>
+        internal static string ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC {
+            get {
+                return ResourceManager.GetString("ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You must either apply or cancel cached changes before changing this property..
         /// </summary>
         internal static string ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty {
@@ -4061,15 +4070,6 @@ namespace Xtensive.Storage.Resources {
         internal static string Operations {
             get {
                 return ResourceManager.GetString("Operations", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Paired field for field &apos;{0}.{1}&apos; should be EntitySet of type assignable to &apos;{2}&apos;..
-        /// </summary>
-        internal static string PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ {
-            get {
-                return ResourceManager.GetString("PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ", resourceCulture);
             }
         }
         

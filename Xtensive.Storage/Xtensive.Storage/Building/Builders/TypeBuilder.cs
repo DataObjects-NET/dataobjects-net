@@ -188,11 +188,22 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessImplementedAssociations(BuildingContext context, TypeInfo typeInfo)
     {
+      // pair integrity escalation and consistency check
       var fields = typeInfo.Fields.Where(f => f.IsDeclared && f.IsInterfaceImplementation && (f.IsEntity || f.IsEntitySet));
       foreach (var fieldInfo in fields) {
         var interfaceField = typeInfo.FieldMap.GetImplementedInterfaceFields(fieldInfo).FirstOrDefault();
         if (interfaceField == null)
           continue;
+        var localField = fieldInfo;
+        var paired = context.PairedAssociations.SingleOrDefault(pa => pa.First == localField.Association);
+        if (paired.First != null && !context.PairedAssociations.Any(pa => pa.First == interfaceField.Association)) {
+          if (!context.Model.Associations.Any(a =>
+              typeInfo.UnderlyingType.IsAssignableFrom(a.TargetType.UnderlyingType) &&
+              a.OwnerField.Name == paired.Second)) {
+            AssociationBuilder.BuildReversedAssociation(paired.First, paired.Second);
+          }
+          continue;
+        }
         context.Model.Associations.Remove(fieldInfo.Association);
         fieldInfo.Association = interfaceField.Association;
       }

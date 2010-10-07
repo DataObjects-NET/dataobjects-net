@@ -43,6 +43,23 @@ namespace Xtensive.Storage.Building.Builders
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, pairTo.Second));
     }
 
+    public static void BuildReversedAssociation(AssociationInfo origin, string fieldName)
+    {
+      var context = BuildingContext.Demand();
+      var owner = origin.TargetType;
+      var field = owner.Fields[fieldName];
+      var multiplicity = origin.Multiplicity;
+      if (origin.Multiplicity == Multiplicity.OneToMany)
+        multiplicity = Multiplicity.ManyToOne;
+      else if (origin.Multiplicity == Multiplicity.ManyToOne)
+        multiplicity = Multiplicity.OneToMany;
+
+      var association = new AssociationInfo(field, origin.OwnerType, multiplicity, origin.OnTargetRemove, origin.OnOwnerRemove);
+      association.Name = context.NameBuilder.BuildAssociationName(association);
+      context.Model.Associations.Add(association);
+      field.Association = association;
+    }
+
     public static void BuildPairedAssociation(AssociationInfo slave, string masterFieldName)
     {
       FieldInfo masterField;
@@ -57,18 +74,27 @@ namespace Xtensive.Storage.Building.Builders
 
       var pairedField = slave.OwnerField;
       var master = masterField.Association;
-      var pairedFieldOwner = pairedField.DeclaringType.UnderlyingType;
+      var pairedFieldOwnerType = pairedField.DeclaringType.UnderlyingType;
 
-      if (masterField.IsEntity && !pairedFieldOwner.IsAssignableFrom(masterField.ValueType))
+      if (masterField.IsEntity && masterField.ValueType != pairedFieldOwnerType)
         throw new DomainBuilderException(string.Format(
-          Strings.ExPairedFieldForFieldXYShouldBeAssignableToTypeZ,
-          pairedField.DeclaringType.UnderlyingType.GetShortName(),
-          pairedField.Name, pairedFieldOwner.GetShortName()));
-      if (masterField.IsEntitySet && !pairedFieldOwner.IsAssignableFrom(masterField.ItemType))
+          Strings.ExXYFieldPairedToZAFieldShouldBeBButCurrentIsC,
+          masterField.ReflectedType.UnderlyingType.GetShortName(),
+          masterField.Name,
+          pairedField.ReflectedType.UnderlyingType.GetShortName(),
+          pairedField.Name,
+          pairedFieldOwnerType.GetShortName(),
+          masterField.ValueType.GetShortName()));
+      
+      if (masterField.IsEntitySet && masterField.ItemType != pairedFieldOwnerType)
         throw new DomainBuilderException(string.Format(
-          Strings.PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ,
-          pairedField.DeclaringType.UnderlyingType.GetShortName(),
-          pairedField.Name, pairedFieldOwner.GetShortName()));
+          Strings.ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC,
+          masterField.ReflectedType.UnderlyingType.GetShortName(),
+          masterField.Name,
+          pairedField.ReflectedType.UnderlyingType.GetShortName(),
+          pairedField.Name,
+          pairedFieldOwnerType.GetShortName(),
+          masterField.ItemType.GetShortName()));
 
       if (master.Reversed!=null) {
         if (master.Reversed!=slave
