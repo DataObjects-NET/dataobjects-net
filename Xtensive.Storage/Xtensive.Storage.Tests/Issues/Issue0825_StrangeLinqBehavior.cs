@@ -148,6 +148,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       return matchGuessObject;
     }
+
   }
 
   public class SevRGas2EPassportCustomerMatchListItem
