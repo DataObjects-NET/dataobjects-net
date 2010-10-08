@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         new BooleanHell { ApocalypseDate = new DateTime(2012, 12, 12), DefaultApocalypseDate = new DateTime(2012, 12, 12)};
         session.SaveChanges();

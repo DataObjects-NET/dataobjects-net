@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ManyToManyTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Person first = new Person {Name = "First"};
           Person second = new Person {Name = "Second"};
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void OneToOneTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Person first = new Person {Name = "First"};
           Person second = new Person {Name = "Second"};

@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      using (var s = Session.Open(domain)) {
+      using (var s = Domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var e = new TestEntity(Guid.NewGuid()) {
             Date = DateTime.Now, 
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       var ds = new DisconnectedState(); 
 
       // Adding few items to DisconnectedState
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
           using (var tx = Transaction.Open()) {
             TestEntity doc;
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       DisconnectedState dsBackup;
 
       // Removing one old and one new item
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         dsBackup = ds.Clone(); // Needs active Session to work properly
 
         using (ds.Attach(session)) {
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       ds = dsBackup;
 
       // Modifying B and C instances and rollback the local transaction
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
           using (var tx = Transaction.Open()) {
             using (ds.Connect()) {
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       }
 
       // Testing if above block has successfully completed
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
           using (var tx = Transaction.Open()) {
             using (ds.Connect()) {
@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       }
 
       // Really modifying B and C instances
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
           using (var tx = Transaction.Open()) {
             using (ds.Connect()) {
@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       }
 
       // Testing if above block has successfully completed
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
           using (var tx = Transaction.Open()) {
             using (ds.Connect()) {
@@ -198,12 +198,12 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       }
 
       // Applying all the changes
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         ds.ApplyChanges(session);
       }
 
       // Testing if above block has successfully completed
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidB).Name, "b2");
           Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidC).Name, "c2");
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
     public void PartialSelectTest()
     {
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var tx = Transaction.Open()) {
             using (state.Connect()) {
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
     {
       var state = new DisconnectedState();
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var tx = Transaction.Open()) {
             using (state.Connect()) {
@@ -268,7 +268,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         }
       }
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var tx = Transaction.Open()) {
             using (state.Connect()) {

@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var isUpgradeRunning = UpgradeContext.Current != null;
 
-      using (var session = isUpgradeRunning ? null : Session.Open(handlers.Domain, SessionType.KeyGenerator))
+      using (var session = isUpgradeRunning ? null : handlers.Domain.OpenSession(SessionType.KeyGenerator))
       using (var t = Transaction.Open()) {
         var handler = (session ?? Session.Current).Handler;
         var queryExecutor = handler.GetService<IQueryExecutor>(true);

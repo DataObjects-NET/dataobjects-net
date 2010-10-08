@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
     {
       var domain = GetDomain();
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         Person alex;
         VersionInfo alexVersion;
         Person dmitri;
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
     {
       var domain = GetDomain();
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         var versions = new VersionSet();
 
         Person alex;

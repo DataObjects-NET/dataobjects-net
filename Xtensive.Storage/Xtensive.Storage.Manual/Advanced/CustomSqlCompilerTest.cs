@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
     {
       var domain = GetDomain();
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var thirdChars = Query.All<Person>()
             .Select(p => p.Name.GetThirdChar())
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
     {
       var domain = GetDomain();
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var addresses = Query.All<Person>()
             .Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
     {
       var domain = GetDomain();
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var hashCodes = Query.All<Person>()
             .OrderBy(p => p.Id)
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         config.Types.Register(typeof (CustomSqlCompilerContainer));
         var domain = Domain.Build(config);
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           using (var transactionScope = Transaction.Open(session)) {
             // Creating initial content
             new Person {

@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Tests.Storage
       var defaultInheritorTypeInfo = domain.Model.Types[typeof(DefaultInheritor)];
       Assert.AreEqual(3, defaultTypeInfo.GetVersionColumns().Count);
       Assert.AreEqual(4, defaultInheritorTypeInfo.GetVersionColumns().Count);
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
         Default @default;
@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       var allVersions = new VersionSet();
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (VersionCapturer.Attach(allVersions))
       using (VersionValidator.Attach(allVersions)) {
         Default @default;
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Tests.Storage
       Assert.AreEqual(2, anotherManualTypeInfo.GetVersionColumns().Count);
       Assert.AreEqual(1, manualInheritorTypeInfo.GetVersionColumns().Count);
       Assert.AreEqual(2, anotherManualInheritorTypeInfo.GetVersionColumns().Count);
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
         Manual manual;
@@ -324,7 +324,7 @@ namespace Xtensive.Storage.Tests.Storage
       var autoInheritorTypeInfo = domain.Model.Types[typeof(AutoInheritor)];
       Assert.AreEqual(1, autoTypeInfo.GetVersionColumns().Count);
       Assert.AreEqual(2, autoInheritorTypeInfo.GetVersionColumns().Count);
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
         Auto auto;
@@ -360,7 +360,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       var allVersions = new VersionSet();
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (VersionCapturer.Attach(allVersions))
       using (VersionValidator.Attach(allVersions)) {
         Auto auto;
@@ -403,7 +403,7 @@ namespace Xtensive.Storage.Tests.Storage
       Assert.AreEqual(2, skipTypeInfo.GetVersionColumns().Count);
       Assert.AreEqual(2, hasVersionTypeInfo.GetVersionColumns().Count);
       Assert.AreEqual(2, hasSkipVersionTypeInfo.GetVersionColumns().Count);
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
         Skip skip;
@@ -442,7 +442,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       var allVersions = new VersionSet();
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (VersionCapturer.Attach(allVersions))
       using (VersionValidator.Attach(allVersions)) {
         Skip skip;

@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var p = new Person();
           var pi = new PersonInfo(p);
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Issues
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Assert.IsNotNull(Query.All<PersonInfo>().First());
         }

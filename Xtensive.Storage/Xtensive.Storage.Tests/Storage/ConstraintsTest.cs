@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NotNullableViolationTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           var book = new Book();
 
@@ -40,10 +40,10 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SessionBoundaryViolationTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           Author author = new Author();
-          using (Session.Open(Domain)) {
+          using (Domain.OpenSession()) {
             using (Transaction.Open()) {
               Book book = new Book();
 

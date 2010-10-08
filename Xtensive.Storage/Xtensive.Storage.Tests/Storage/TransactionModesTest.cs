@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Storage
       var sessionConfiguration = new SessionConfiguration();
       short reorderLevel;
       Key productKey;
-      using (Session.Open(Domain, sessionConfiguration))
+      using (Domain.OpenSession(sessionConfiguration))
       using (var tx = Transaction.Open()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.All<Product>().First();
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Storage
         tx.Complete();
       }
 
-      using (Session.Open(Domain, sessionConfiguration))
+      using (Domain.OpenSession(sessionConfiguration))
       using (var tx = Transaction.Open()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.Single<Product>(productKey);
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void NotActivatedTransactionTest()
     {
       var sessionConfiguration = new SessionConfiguration();
-      using (Session.Open(Domain, sessionConfiguration))
+      using (Domain.OpenSession(sessionConfiguration))
       using (var tx = Transaction.Open()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         tx.Complete();
@@ -68,12 +68,12 @@ namespace Xtensive.Storage.Tests.Storage
       var sessionConfiguration = new SessionConfiguration();
       short reorderLevel;
       Key productKey;
-      using (Session.Open(Domain, sessionConfiguration))
+      using (Domain.OpenSession(sessionConfiguration))
       using (var tx = Transaction.Open()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
       }
 
-      using (Session.Open(Domain, sessionConfiguration))
+      using (Domain.OpenSession(sessionConfiguration))
       using (var tx = Transaction.Open()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.All<Product>().First();
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Storage
         productKey = product.Key;
       }
 
-      using (Session.Open(Domain, sessionConfiguration))
+      using (Domain.OpenSession(sessionConfiguration))
       using (var tx = Transaction.Open()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.Single<Product>(productKey);
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var sessionConfiguration = new SessionConfiguration();
-      using (Session.Open(Domain, sessionConfiguration)) {
+      using (Domain.OpenSession(sessionConfiguration)) {
         using (var outer = Transaction.Open(TransactionOpenMode.New)) {
           Assert.IsFalse(outer.Transaction.IsActuallyStarted);
           using (var mid = Transaction.Open(TransactionOpenMode.New)) {
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain, sessionConfiguration)) {
+      using (Domain.OpenSession(sessionConfiguration)) {
         using (var outer = Transaction.Open(TransactionOpenMode.New)) {
           Assert.IsFalse(outer.Transaction.IsActuallyStarted);
           using (var inner = Transaction.Open(TransactionOpenMode.New)) {

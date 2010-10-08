@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Manual.FutureQueries
       config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       var domain = Domain.Build(config);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var employee = new Person {Name = "Employee"};
         var manager  = new Person {Name = "Manager"};

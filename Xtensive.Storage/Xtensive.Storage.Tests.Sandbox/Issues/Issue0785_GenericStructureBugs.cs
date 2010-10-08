@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void StandardTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open(session)) {
         var book = new Book() { Title = "Book" };
         var bookRef = new RefHolder<Book>();

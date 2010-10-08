@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       // And finally building the domain
       var domain = Domain.Build(config);
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           var person = new Person();
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       var domain = Domain.Build(config);
 
       int personId;
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           personId = new Person().Id;
 
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
         }
       }
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           var newPerson = new Person();
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
 
       #endregion
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           var person = new Person();
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       Assert.AreEqual(sessionConfigTwo.CacheSize, sessionCongfigOne.CacheSize);
       Assert.AreEqual(sessionConfigTwo.Options, sessionCongfigOne.Options);
 
-      using (Session.Open(domain, sessionConfigTwo)) {
+      using (domain.OpenSession(sessionConfigTwo)) {
         // ...
       }
     }

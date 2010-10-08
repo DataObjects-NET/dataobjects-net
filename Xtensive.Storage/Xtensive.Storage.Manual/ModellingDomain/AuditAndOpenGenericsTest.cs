@@ -334,7 +334,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Cat tom;
       Cat musya;
       Person alex;
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           tom = new Cat {Name = "Tom"};
           new Dog {Name = "Sharik"};
@@ -362,7 +362,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
         // Another session & transaction
         using (Session.Deactivate()) // Blocks session switching check
-        using (Session.Open(domain)) {
+        using (domain.OpenSession()) {
           using (var tx = Transaction.Open()) {
             alex = new Person {Name = "Alex"};
             tx.Complete();

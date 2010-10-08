@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Interfaces
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
       var domain = GetClassTableDomain(config);
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var t = Transaction.Open()) {
         var d = new D();
         d.Title = "A";
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Interfaces
         d.Tag = "C";
         t.Complete();
       }
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var t = Transaction.Open()) {
         var d = Query.All<D>().Single();
         Assert.IsNotNull(d);
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Interfaces
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
       var domain = generator(config);
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var t = Transaction.Open()) {
         new A() {Name = "A"};
         new B() {Name = "B"};

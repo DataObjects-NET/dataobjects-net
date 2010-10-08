@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       var domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Model.Person() {
           FirstName = "Alex", 
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       using (Upgrader.Enable())
         domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(2, count);

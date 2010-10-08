@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Manual.Services
     {
       var domain = BuildDomain(true);
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         var directSql = session.Services.Demand<DirectSqlAccessor>();
         if (!directSql.IsAvailable) {
           Console.WriteLine("DirectSqlAccessor is not available - ");

@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           new Descendant {StringField = "1",};
           new Descendant {StringField = "2",};

@@ -366,7 +366,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
       cmd.CommandText = "Select * from [dbo].[Categories]";
       var reader = cmd.ExecuteReader();
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var tr = Transaction.Open()) {
         #region  Categories
 

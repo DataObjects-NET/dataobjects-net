@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SessionActivationTest()
     {
-      var session = Session.Open(Domain);
+      var session = Domain.OpenSession();
 
       Author author;
 
@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void SimpleEntitySetPrefetchTest()
     {
       Key key;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var a = new Author();
           key = a.Key;
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var a = Query.Single<Author>(key);
           a.Books.ToList();
@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void AddNewEntityToEntitySetTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Author a;
         using (var t = Transaction.Open()) {
           a = new Author();
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void PairedEntitySetTest()
     {
       Author author;
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           author = new Author();
           for (int i = 0; i < 100; i++) {
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NonPairedEntitySetTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var publisher = new Publisher();
         for (int i = 0; i < 100; i++) {
@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void OneToManyTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var categories = Query.All<Category>();
         Assert.AreSame(categories.First().Products, categories.First().Products);
@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ManyToManyTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var employees = Query.All<Employee>();
         var territories = Query.All<Territory>();
@@ -227,7 +227,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void NewObjectTest()
     {
       const int bookCount = 10;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var author = new Author();
         for (int i = 0; i < bookCount; i++)
@@ -252,7 +252,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void PersistentObjectTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var category = Query.All<Category>().First();
           var prodsuctCount = category.Products.Count;
@@ -293,7 +293,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SetOperationsTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var customer = new Customer("QQQ77");
         var orders1 = GenerateOrders(2);
@@ -331,7 +331,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key author1Key;
       CreateTwoAuthorsAndTheirBooksSet(out author0Key, out author1Key);
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var author0 = Query.Single<Author>(author0Key);
         LoadEntitySetThenRemoveOwnerAndEnumerateIt(author0, author0.Books);
@@ -348,7 +348,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key author1Key;
       CreateTwoAuthorsAndTheirBooksSet(out author0Key, out author1Key);
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var author0 = Query.Single<Author>(author0Key);
         RemoveOwnerAndEnumerateEntitySet(author0, author0.Books);
@@ -365,7 +365,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key author1Key;
       CreateTwoAuthorsAndTheirBooksSet(out author0Key, out author1Key);
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var author0 = Query.Single<Author>(author0Key);
         var books0 = author0.Books;
@@ -386,7 +386,7 @@ namespace Xtensive.Storage.Tests.Storage
         for (var i = 0; i < count; i++)
           a.Books.Add(new Book());
       };
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var bigAuthor = new Author();
         bigKey = bigAuthor.Key;
@@ -405,7 +405,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private void TestAdd(Key key, int itemCount, Xtensive.Storage.Model.FieldInfo booksField)
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var author = Query.Single<Author>(key);
         FetchEntitySet(author.Books);
@@ -423,7 +423,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private void TestRemove(Key key, int itemCount, Xtensive.Storage.Model.FieldInfo booksField)
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var author = Query.Single<Author>(key);
         FetchEntitySet(author.Books);
@@ -444,7 +444,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private void TestSmallEntitySet(Key key, int itemCount, Xtensive.Storage.Model.FieldInfo booksField)
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var author = Query.Single<Author>(key);
         FetchEntitySet(author.Books);
@@ -471,7 +471,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private void CreateTwoAuthorsAndTheirBooksSet(out Key author0Key, out Key author1Key)
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         Action<Author, int> bookGenerator = (author, count) => {
           for (var i = 0; i < count; i++)

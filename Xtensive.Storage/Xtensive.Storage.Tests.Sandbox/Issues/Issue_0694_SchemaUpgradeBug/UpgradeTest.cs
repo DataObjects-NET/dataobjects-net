@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
     public void SetUp()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var status = new M1.Status() {Title = "Status"};
           var media = new M1.Media() {Title = "Media", Data = "Data"};
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       {
         using (Transaction.Open())
         {
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
     public void UpgradeToVersion3Test()
     {
       BuildDomain("3", DomainUpgradeMode.Perform);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (Transaction.Open()) {
           // No version-to-version hints, so all the types are removed
           var status = Query.All<M3.Status>().FirstOrDefault();

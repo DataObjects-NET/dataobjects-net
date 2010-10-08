@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void AnotherTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var m = new MyEntity();
           m.Name = "Name";

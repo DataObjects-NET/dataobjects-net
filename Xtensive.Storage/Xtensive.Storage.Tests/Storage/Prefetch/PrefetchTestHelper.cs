@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
     public static void FillDataBase(Domain domain)
     {
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         FillDataBase(session);
         transactionScope.Complete();
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public static void CreateOfferContainer(Domain domain, out Key contaierKey, out Key book0Key,
       out Key bookShop0Key, out Key book1Key, out Key bookShop1Key)
     {
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var book0 = new Book {Category = "abc", Title = new Title {Text = "title"}};
         book0Key = book0.Key;

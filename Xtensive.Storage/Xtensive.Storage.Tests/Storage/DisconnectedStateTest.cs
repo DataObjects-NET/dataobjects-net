@@ -430,7 +430,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void TransactionsTest()
     {
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var simple = new Simple {
             VersionId = 1,
@@ -439,7 +439,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
 
         var sessionHandler = session.Handler;
 
@@ -468,7 +468,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var disconnectedState = new DisconnectedState();
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (disconnectedState.Attach(session))
       using (disconnectedState.Connect())
       using (Transaction.Open()) {
@@ -490,7 +490,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NestedCommitTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           new Customer {
             Name = "1",
@@ -502,7 +502,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         var disconnectedState = new DisconnectedState();
         using (disconnectedState.Attach(session))
         using (disconnectedState.Connect()) {
@@ -527,7 +527,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key key;
 
       // Create instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var simple = new Simple {
             VersionId = 1,
@@ -541,7 +541,7 @@ namespace Xtensive.Storage.Tests.Storage
       var state = new DisconnectedState();
 
       // Fetch instance to cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
@@ -558,7 +558,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       // Change instance in DB
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var simple = Query.Single<Simple>(key);
           simple.Value = "new value";
@@ -566,7 +566,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       // Look for instance in cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var simple = Query.Single<Simple>(key);
@@ -581,7 +581,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void InvalidChangesTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           new Author {
             Name = "Peter"
@@ -590,7 +590,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         var disconnectedState = new DisconnectedState();
         using (disconnectedState.Attach(session))
         using (disconnectedState.Connect()) {
@@ -649,7 +649,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Key key;
       // Create instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var simple = new Simple {VersionId = 1, Value = "some value"};
           key = simple.Key;
@@ -660,7 +660,7 @@ namespace Xtensive.Storage.Tests.Storage
       var state = new DisconnectedState();
       state.MergeMode = MergeMode.PreferOriginal;
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
@@ -673,7 +673,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       // Change instance in DB
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var simple = Query.Single<Simple>(key);
           simple.Value = "new value";
@@ -681,7 +681,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       // Look instance from cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(Session.Current)) {
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
@@ -701,7 +701,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void QueryWithRemovedTest()
     {
       // Create instances
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var simple1 = new Simple {VersionId = 1, Value = "Simple1"};
           var simple2 = new Simple {VersionId = 1, Value = "Simple2"};
@@ -710,7 +710,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       // Fetch all instances to cache and remove one instance
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
@@ -724,7 +724,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       // Query instances from cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
@@ -747,7 +747,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key insertedKey;
 
       // Create instances
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transacton = Transaction.Open()) {
           var simple1 = new Simple {VersionId = 1, Value = "Value1"};
           var simple2 = new Simple {VersionId = 1, Value = "Value2"};
@@ -758,7 +758,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       // Fetch instances to cache
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using(state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
@@ -778,7 +778,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       // Check instances in cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var simple = Query.Single<Simple>(updatedKey);
@@ -802,7 +802,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key newCustomerKey;
 
       // Modify data
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         Order order1;
         using (var tx = Transaction.Open(session)) {
           order1 = Query.All<Order>().First(order => order.Number == 1);
@@ -849,7 +849,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Save data to storage
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           var keyMapping = state.ApplyChanges();
           order1Key = keyMapping.TryRemapKey(order1Key);
@@ -859,7 +859,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Check saved data
       
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Order order1 = Query.Single<Order>(order1Key);
           var details = order1.Details.ToList();
@@ -879,7 +879,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key order1Key = null;
 
       // Modify data
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
@@ -906,7 +906,7 @@ namespace Xtensive.Storage.Tests.Storage
           state.ApplyChanges();
         }
       }
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var order1 = Query.Single<Order>(order1Key);
@@ -923,7 +923,7 @@ namespace Xtensive.Storage.Tests.Storage
 
 
       // Check saved data
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Order order1 = Query.Single<Order>(order1Key);
           Assert.AreEqual(1000, order1.Number);
@@ -941,7 +941,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var state = new DisconnectedState();
       Key supplierKey;
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (state.Attach(session))
       using (var transactionScope = Transaction.Open()) {
         var supplier = new Supplier();
@@ -951,7 +951,7 @@ namespace Xtensive.Storage.Tests.Storage
         transactionScope.Complete();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (state.Attach(session))
       using (Transaction.Open()) {
         var supplier = Query.Single<Supplier>(supplierKey);
@@ -975,7 +975,7 @@ namespace Xtensive.Storage.Tests.Storage
       List<Product> products = null;
 
       // Modify data step 1 (differences must be cached)
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
@@ -1008,7 +1008,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Modify data step 2 (differences must be cached)
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
 
@@ -1040,7 +1040,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Save changes to storage
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           var keyMapping = state.ApplyChanges();
           newProduct1Key = keyMapping.TryRemapKey(newProduct1Key);
@@ -1052,7 +1052,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Check changes
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var newProduct1 = Query.SingleOrDefault<Product>(newProduct1Key);
           var newProduct2 = Query.SingleOrDefault<Product>(newProduct2Key);
@@ -1081,7 +1081,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key newSupplierKey;
 
       // Modify data and commit transaction
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             Supplier supplier1 = null;
@@ -1098,7 +1098,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Modify data and rollback transaction
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
 
@@ -1116,7 +1116,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Check data in cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
 
@@ -1138,7 +1138,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key orderKey;
 
       // nested transactions in connected mode
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (disconnectedState.Attach(session))
       using (disconnectedState.Connect())
       using (var outer = Transaction.Open()) {
@@ -1159,7 +1159,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // verifying changes
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (disconnectedState.Attach(session))
       using (Transaction.Open()) {
         var customer = Query.Single<Customer>(customerKey);
@@ -1168,7 +1168,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       
       // nested transactions in disconnected mode
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (disconnectedState.Attach(session))
       using (var outer = Transaction.Open()) {
         var customer = Query.Single<Customer>(customerKey);
@@ -1186,7 +1186,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // verifying changes
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (disconnectedState.Attach(session))
       using (Transaction.Open()) {
         var customer = Query.Single<Customer>(customerKey);
@@ -1199,7 +1199,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var orderType = Domain.Model.Types[typeof (Order)];
       Key orderKey;
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           orderKey = Query.All<Order>().OrderBy(c => c.Id).First().Key;
           transactionScope.Complete();
@@ -1207,7 +1207,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
@@ -1231,7 +1231,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key order1Key;
       Key order2Key;
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
@@ -1280,7 +1280,7 @@ namespace Xtensive.Storage.Tests.Storage
       List<Author> authors = null;
       List<Book> books = null;
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
@@ -1323,7 +1323,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       var log = new OperationLog(OperationLogType.OutermostOperationLog);
       // Modify data
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (OperationCapturer.Attach(session, log))
         using (var transactionScope = Transaction.Open()) {
           var orders = Query.All<Order>()
@@ -1360,7 +1360,7 @@ namespace Xtensive.Storage.Tests.Storage
 
  
       // Save data to storage
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open(session)) {
           var logCopy = Cloner.Default.Clone(log);
           logCopy.Replay(session);
@@ -1370,7 +1370,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Check saved data
       
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Order order1 = Query.Single<Order>(order1Key);
           var details = order1.Details.ToList();
@@ -1392,7 +1392,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key newCustomerKey;
 
       // Modify data
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
@@ -1435,13 +1435,13 @@ namespace Xtensive.Storage.Tests.Storage
       }
       
       // Serialize, deserialize
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         state = LegacyBinarySerializer.Instance.Clone(state) as DisconnectedState;
         Assert.IsNotNull(state);
       }
       
       // Check data in cache and save to DB
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var order1 = Query.Single<Order>(order1Key);
@@ -1458,7 +1458,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Check data in DB
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var order1 = Query.Single<Order>(order1Key);
           var details = order1.Details.ToList();
@@ -1477,7 +1477,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key customer1Key = null;
 
       // Fetch instance to cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
@@ -1490,7 +1490,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Modify instance in storage
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var customer1 = Query.Single<Customer>(customer1Key);
           customer1.Name = "NewName1";
@@ -1500,11 +1500,11 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Clone DisconnectedState
       DisconnectedState stateClone;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
         stateClone = (DisconnectedState) LegacyBinarySerializer.Instance.Clone(state);
 
       // Modify instance in cache and check version
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var customer1 = Query.Single<Customer>(customer1Key);
@@ -1516,7 +1516,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Set the cached instance's field value equal to the field value of instance in the storage
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (stateClone.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var customer1 = Query.Single<Customer>(customer1Key);
@@ -1537,7 +1537,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key supplierKey = null;
       var state = new DisconnectedState();
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var supplier = new Supplier();
@@ -1557,7 +1557,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key itemKey = null;
       
       // With existing instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var container = new Container();
           var item = new Item();
@@ -1582,7 +1582,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       
       // With new instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var newContainer = new Container();
@@ -1615,7 +1615,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key itemKey = null;
       
       // With existing instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var container = new Container();
           var item = new Item();
@@ -1641,7 +1641,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       
       // With new instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var newContainer = new Container();
@@ -1674,7 +1674,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key itemKey = null;
       
       // With existing instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var container = new Container();
           var item = new Item();
@@ -1701,7 +1701,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       
       // With new instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             var newContainer = new Container();
@@ -1732,7 +1732,7 @@ namespace Xtensive.Storage.Tests.Storage
       var state = new DisconnectedState();
 
       // With existing instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             Author author1 = null;
@@ -1752,7 +1752,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       
       // With new instance
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           Key customerKey = null;
           using (var transactionScope = Transaction.Open()) {
@@ -1784,7 +1784,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void FetchInstanceWithExisitingKeyTest()
     {
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
@@ -1795,7 +1795,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
         }
       }
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Customer> customers;
@@ -1812,7 +1812,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void ApplyRemoveOperationTest()
     {
       // Create data
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           var a = new A();
@@ -1829,7 +1829,7 @@ namespace Xtensive.Storage.Tests.Storage
       var state = new DisconnectedState();
 
       // Remove A instance in cache
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             A a = null;
@@ -1846,7 +1846,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Add references to A in DB
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var a = Query.All<A>().First();
           var b3 = new B();
@@ -1856,14 +1856,14 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Save changes to DB
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
           state.ApplyChanges();
         }
       }
 
       // Check data
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Assert.IsNull(Query.All<A>().FirstOrDefault());
           Assert.IsTrue(Query.All<B>().All(item => item.Root==null));
@@ -1878,7 +1878,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key key;
 
       // Create instances
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var simple = new Simple {
             VersionId = 1,
@@ -1892,7 +1892,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Target state
       var state2 = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state2.Attach(session)) {
           // Load data
           using (var transactionScope = Transaction.Open()) {
@@ -1905,7 +1905,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Source state
       var state1 = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state1.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state1.Connect()) {
@@ -1921,7 +1921,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       
       // Merge and check
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (state2.Attach(session)) {
 //          using (var tx = Transaction.Open(session)) {
             AssertEx.Throws<VersionConflictException>(() => state2.Merge(state1, MergeMode.Strict));
@@ -1944,7 +1944,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key localCompositeKey;
       KeyMapping keyMapping;
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (state.Attach(session)) {
         using (var transactionScope = Transaction.Open()) {
           var firstElement = new KeyElementFirst();
@@ -1958,7 +1958,7 @@ namespace Xtensive.Storage.Tests.Storage
         keyMapping = state.ApplyChanges();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var composite = Query.Single<CompositeKeyExample>(keyMapping.Map[localCompositeKey]);
         Assert.AreEqual(keyMapping.Map[localFirstKey], composite.First.Key);
@@ -1975,7 +1975,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key localSimpleKey;
       KeyMapping keyMapping;
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (state.Attach(session)) {
         using (var transactionScope = Transaction.Open()) {
           var simple = new Simple {Value = "Value0"};
@@ -1987,7 +1987,7 @@ namespace Xtensive.Storage.Tests.Storage
         keyMapping = state.ApplyChanges();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var entity = Query.Single<EntityIdentifiedByEntity>(keyMapping.Map[localKey]);
         Assert.AreEqual(keyMapping.Map[localSimpleKey], entity.Id.Key);
@@ -2002,7 +2002,7 @@ namespace Xtensive.Storage.Tests.Storage
       int value;
       KeyMapping keyMapping;
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (state.Attach(session)) {
         using (var transactionScope = Transaction.Open()) {
           value = int.MaxValue - 1;
@@ -2013,7 +2013,7 @@ namespace Xtensive.Storage.Tests.Storage
         keyMapping = state.ApplyChanges();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var entity = Query.Single<EntityIdentifiedByPrimitiveValue>(key);
         Assert.AreEqual(value, entity.Id);
@@ -2030,7 +2030,7 @@ namespace Xtensive.Storage.Tests.Storage
       Guid valueSecond;
       KeyMapping keyMapping;
       var state = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (state.Attach(session)) {
         using (var transactionScope = Transaction.Open()) {
           valueFirst = int.MaxValue - 2;
@@ -2042,7 +2042,7 @@ namespace Xtensive.Storage.Tests.Storage
         keyMapping = state.ApplyChanges();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var entity = Query.Single<CompositePrimitiveKeyExample>(key);
         Assert.AreEqual(valueFirst, entity.IdFirst);
@@ -2060,21 +2060,21 @@ namespace Xtensive.Storage.Tests.Storage
 
       Key childKey;
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var child = new ChangeSet {Parent = new ChangeSet()};
         childKey = child.Key;
         transactionScope.Complete();
       }
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (serverData.Attach())
       using (serverData.Connect())
       using (var transactionScope = Transaction.Open()) {
         Query.Single<ChangeSet>(childKey);
       }
       
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (clientData.Attach()) {
         clientData.Merge(serverData);
       }
@@ -2084,7 +2084,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void AutoTransactionsTest()
     {
       var dState = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (dState.Attach(session)) {
         var customer = new Customer {Name = "Yet another customer"};
         using (dState.Connect()) {
@@ -2100,7 +2100,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private void FillDataBase()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           var customer1 = new Customer {Name = "Customer1"};

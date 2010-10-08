@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CombinedTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Base();
         new Derived() {Name = "Derived"};

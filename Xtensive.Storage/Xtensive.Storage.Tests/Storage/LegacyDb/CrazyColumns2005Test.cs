@@ -47,14 +47,14 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     {
       var now = DateTime.Now;
       var theDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var ts = Transaction.Open()) {
           var crazy = new Crazy {SmallDateTime = theDate};
           ts.Complete();
         }
       }
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open()) {
         foreach (var item in Query.All<Crazy>())
           Console.WriteLine(item.SmallDateTime);

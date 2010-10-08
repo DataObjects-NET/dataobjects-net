@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
     [Test]
     public void TransactionalAspectTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         BusinessObject obj;
         using (Transaction.Open()) {
           obj = new BusinessObject();
@@ -129,11 +129,11 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
     [Test]
     public void AspectsPriorityTest()
     {            
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           var obj = new BusinessObject();
 
-          using (Session.Open(Domain)) {
+          using (Domain.OpenSession()) {
             var session2 = Session.Current;
             Assert.AreNotEqual(obj.Session, session2);
 
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
     [Test]
     public void MasterSlave()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var tran = Transaction.Open()) {
           var master = new MasterEntity();
           var slave1 = new SlaveEntity();

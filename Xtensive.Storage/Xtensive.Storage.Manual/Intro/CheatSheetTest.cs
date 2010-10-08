@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
       string dmitriKeyString;
 
       // Opening Session
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
 
         // Opening transaction
         using (var transactionScope = Transaction.Open()) {

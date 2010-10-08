@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Issues.UpgradeTestTemplate
     public void SetUp()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var person = new M1.Person();
           tx.Complete();
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Issues.UpgradeTestTemplate
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (Transaction.Open()) {
           Assert.AreEqual(1, Query.All<M2.Person>().Count());
         }

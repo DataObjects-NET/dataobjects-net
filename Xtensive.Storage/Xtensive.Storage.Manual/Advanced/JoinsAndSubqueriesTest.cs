@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
     public void QueryForInheritedEntityTest()
     {
       var domain = GetDomain();
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var employees = Query.All<Employee>();
           employees.ToList();
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
     public void SubQueryForInheritedEntityTest()
     {
       var domain = GetDomain();
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var query = Query.All<Person>().Select(employee => 
             new {
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
         config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
         var domain = Domain.Build(config);
 
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           using (var transactionScope = Transaction.Open(session)) {
             // Creating initial content
             new Person {Name = "John"};

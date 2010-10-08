@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Test()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open()) {
         var company = new Company();
         var skill = new Skill("Programmer");

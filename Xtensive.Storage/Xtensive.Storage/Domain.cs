@@ -187,6 +187,72 @@ namespace Xtensive.Storage
 
     #region OpenSession method
 
+    /// <summary>
+    /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
+    /// </summary>
+    /// <returns>
+    /// New <see cref="Session"/> object.
+    /// </returns>
+    /// <sample><code>
+    /// using (var session = Domain.OpenSession()) {
+    /// // work with persistent objects here.
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public Session OpenSession()
+    {
+      var configuration = Configuration.Sessions.Default;
+      return OpenSession(configuration);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/>.
+    /// </summary>
+    /// <param name="type">The type of session.</param>
+    /// <returns>
+    /// New <see cref="Session"/> object.
+    /// </returns>
+    /// <sample><code>
+    /// using (var session = domain.OpenSession(sessionType)) {
+    /// // work with persistent objects here.
+    /// }
+    /// </code></sample>
+    public Session OpenSession(SessionType type)
+    {
+      switch (type) {
+        case SessionType.User:
+          return OpenSession(Configuration.Sessions.Default);
+        case SessionType.System:
+          return OpenSession(Configuration.Sessions.System);
+        case SessionType.KeyGenerator:
+          return OpenSession(Configuration.Sessions.KeyGenerator);
+        case SessionType.Service:
+          return OpenSession(Configuration.Sessions.Service);
+        default:
+          throw new ArgumentOutOfRangeException("type");
+      }
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
+    /// </summary>
+    /// <param name="configuration">The session configuration.</param>
+    /// <returns>
+    /// New <see cref="Session"/> object.
+    /// </returns>
+    /// <sample><code>
+    /// using (var session = domain.OpenSession(configuration)) {
+    /// // work with persistent objects here
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public Session OpenSession(SessionConfiguration configuration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+
+      return OpenSession(configuration, (configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation);
+    }
+
     internal Session OpenSession(SessionConfiguration configuration, bool activate)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");

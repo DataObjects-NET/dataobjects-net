@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void BuildTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var s1 = new Speciality {
             Title = "Speciality1"
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void QueryTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var speciality = Query.Single<Speciality>(1);
           var list =

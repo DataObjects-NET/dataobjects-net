@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       var today = DateTime.Now;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
 
           var query =
@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void SimplifiedTest()
     {
       var today = DateTime.Now;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
 
           var query =

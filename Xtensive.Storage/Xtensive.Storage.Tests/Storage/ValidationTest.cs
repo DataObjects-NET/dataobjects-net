@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     { 
       int mouseId;
       validationCallsCount = 0;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           using (var region = Xtensive.Storage.Validation.Disable()) {
             var mouse = new Mouse {
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       Assert.AreEqual(1, validationCallsCount);
 
       validationCallsCount = 0;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           var mouse = Query.All<Mouse>().Where(m => m.ID==mouseId).First();
         }
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     {
       validationCallsCount = 0;
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Mouse mouse;
 
         using (var tx = Transaction.Open()) {
@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void EntityValidation()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
 
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
@@ -263,7 +263,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void StructureValidation()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Mouse mouse;
 
         using (var transactionScope = Transaction.Open()) {
@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void TransactionsValidation()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
 
         // Inconsistent region can not be opened without transaction.
         AssertEx.ThrowsInvalidOperationException(() =>
@@ -333,7 +333,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void ValidationInConstructor()
     {
-      using (Session.Open(Domain)) 
+      using (Domain.OpenSession()) 
       using (Transaction.Open()) {
         AssertEx.Throws<Exception>(() => {
           var reference1 = new Reference();

@@ -324,7 +324,7 @@ ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Sla
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         Animal animal = new Animal();
         animal.Name = "Elephant";
@@ -340,7 +340,7 @@ ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Sla
         var catClinic = new CatClinic {Name = "Cat healer.", Address = "Address 2"};
         t.Complete();
       }
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var animals = Query.All<Animal>().ToList();
         var dogs = Query.All<Dog>().ToList();

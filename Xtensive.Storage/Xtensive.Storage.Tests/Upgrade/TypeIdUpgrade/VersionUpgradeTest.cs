@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       var domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Model.Person() {
           FirstName = "Alex", 
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
         t.Complete();
       }
 
-      using (var session = Session.Open(domain, SessionType.System)) 
+      using (var session = domain.OpenSession(SessionType.System)) 
       using (var t = Transaction.Open()) {
         var handler = (SessionHandler) session.Handler;
         var connection = handler.Connection;
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(3, count);
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Person));
       var domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Model.Person() {
           FirstName = "Alex", 
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
         t.Complete();
       }
 
-      using (var session = Session.Open(domain, SessionType.System)) 
+      using (var session = domain.OpenSession(SessionType.System)) 
       using (var t = Transaction.Open()) {
         var handler = (SessionHandler) session.Handler;
         var connection = handler.Connection;
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(2, count);
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       var domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Model.Person() {
           FirstName = "Alex", 
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
         t.Complete();
       }
 
-      using (var session = Session.Open(domain, SessionType.System)) 
+      using (var session = domain.OpenSession(SessionType.System)) 
       using (var t = Transaction.Open()) {
         var handler = (SessionHandler) session.Handler;
         var connection = handler.Connection;
@@ -189,7 +189,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       using (Upgrader.Enable())
         domain = Domain.Build(configuration);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var t = Transaction.Open()) {
         var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(2, count);

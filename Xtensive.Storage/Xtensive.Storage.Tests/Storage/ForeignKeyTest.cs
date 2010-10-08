@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertDescendant()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertSelfReference()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open()) {
         var u1 = new User {Name = "U1"};
         u1.Boss = u1;
@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertInTypeSequence()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertInTypeLoop()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertMultyTypeSequence()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertMultyTypeLoop()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateSelfReference()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateSequence()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var c1 = new Company { Name = "C1" };
@@ -214,7 +214,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateLoop()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var c1 = new Company { Name = "C1" };
@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateToInserted()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var c1 = new Company { Name = "C1" };
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateToDeleted()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var c1 = new Company { Name = "C1" };
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void DeleteSelfReference()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };
@@ -276,7 +276,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertIntermediateEntity()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
       {
         var u1 = new User { Name = "U1" };

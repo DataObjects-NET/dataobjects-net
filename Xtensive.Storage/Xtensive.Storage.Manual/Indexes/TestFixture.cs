@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Manual.Indexes
       config.Types.Register(typeof (Pet).Assembly, typeof (Pet).Namespace);
       var domain = Domain.Build(config);
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           // ...
         }

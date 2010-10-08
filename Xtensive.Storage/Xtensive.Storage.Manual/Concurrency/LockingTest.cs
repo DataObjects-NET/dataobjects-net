@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
 
     private void Run(string remark)
     {
-      using (var session = Session.Open(GetDomain()))
+      using (var session = GetDomain().OpenSession())
       using (var tx = Transaction.Open()) {
         Counter counter;
         if (counterKey==null) {
@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
       ThreadPool.QueueUserWorkItem(TestThread, 333);
       WaitForCompletion();
 
-      using (var session = Session.Open(GetDomain()))
+      using (var session = GetDomain().OpenSession())
       using (var tx = Transaction.Open()) {
         var counter = Query.Single<Counter>(counterKey);
         Console.WriteLine("Final counter.Value = {0}", counter.Value);
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
       var threadNumber = Interlocked.Increment(ref threadCount);
       try {
         string threadName = "Thread {0}".FormatWith(threadNumber).Indent(2 + (int) (threadNumber-1)*5);
-        using (var session = Session.Open(GetDomain())) {
+        using (var session = GetDomain().OpenSession()) {
           while ((DateTime.UtcNow - startTime).TotalMilliseconds < TestTime) {
             try {
               Console.WriteLine("{0}: beginning of transaction", threadName);

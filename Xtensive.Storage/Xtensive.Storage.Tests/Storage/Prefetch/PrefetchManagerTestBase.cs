@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       where T : Entity
     {
       Key result;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var tx = Transaction.Open())
         result = Query.All<T>().OrderBy(o => o.Key).First().Key;
       return result;

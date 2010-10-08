@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DisableAllTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var victim = new Victim();
         var count = session.Query.All<Victim>().Count();
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Storage
     [ExpectedException(typeof(InvalidOperationException))]
     public void DisableAllCommitTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var victim = new Victim();
         var count = session.Query.All<Victim>().Count();
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SimplePinTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var butcher = new Killer();
         var firstVictim = new Victim();
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       try {
         allTrees = new List<Node>();
-        using (var session = Session.Open(Domain))
+        using (var session = Domain.OpenSession())
         using (Transaction.Open()) {
           var node = T(T(), T(), T(T()));
           using (session.DisableSaveChanges(node)) {
@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NestedPinTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim))
@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void PinRemovedEntityTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var victim = new Victim();
         victim.Remove();
@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CommittingWithPinnedEntityTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim)) {
@@ -252,7 +252,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void OpenNestedTransactionWithPinnedEntityTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim))

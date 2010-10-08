@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           // Creating new persistent object
           // Creating new persistent object

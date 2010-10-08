@@ -41,11 +41,11 @@ namespace Xtensive.Storage.Manual.Intro.HelloWorld
       // And finally building the domain
       var domain = Domain.Build(config);
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         Debug.Assert(session==Session.Current);
       }
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var helloWorld = new MyEntity {
             Text = "Hello World!"
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Manual.Intro.HelloWorld
       }
 
       // Reading all persisted objects from another Session
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           foreach (var myEntity in Query.All<MyEntity>())
             Console.WriteLine(myEntity.Text);

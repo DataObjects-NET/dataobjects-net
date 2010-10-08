@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     public void PersistOnAttachTest()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var author = new Author {Title = "Author"};
           using (ds.Attach(session))
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     public void EntityRemoveTest()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var author = new Author {Title = "Author"};
           using (ds.Attach(session))
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
         return;
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
         return;
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     [Test]
     public void EntitySetCountBugTest_Regular()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         var author = new Author {Title = "Author"};
         using (var tx = Transaction.Open()) {
           var book = new Book {Title = "Book"};
@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     [Test]
     public void EntitySetCountBugTest_RegularWithPersist()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var author = new Author {Title = "Author"};
           session.SaveChanges();
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     public void EntitySetCountBugTest_Disconnected()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           var author = new Author {Title = "Author"};
@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     public void EntitySetCountBugTest_DisconnectedWithPersist()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           using (var tx = Transaction.Open()) {
@@ -235,7 +235,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     [Test]
     public void EntitySetCountBugTest2()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         var author = new Author {Title = "Author"};
         var book1 = new Book {Title = "Book 1"};
         var book2 = new Book {Title = "Book 2"};

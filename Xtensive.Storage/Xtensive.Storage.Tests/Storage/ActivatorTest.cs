@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TestFieldInitializer()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       {
         using (var t = Transaction.Open())
         {
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
       }
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       {
         using (var t = Transaction.Open())
         {
@@ -95,14 +95,14 @@ namespace Xtensive.Storage.Tests.Storage
     public void Test()
     {
       Key key;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var descendant = new Descendant();
           key = descendant.Key;          
           t.Complete();
         }        
       }
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           var ancestor = Query.SingleOrDefault<Ancestor>(key);
           Assert.IsNotNull(ancestor);

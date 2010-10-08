@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void MainTest()
     {
       BuildDomain(DomainUpgradeMode.Recreate);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transaction = Transaction.Open()) {
           new A() {X = "1", Y = "1"};
           new B();
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         new IgnoreHint("Tables/A/Columns/X"), new IgnoreHint("Tables/B"))) {
         BuildDomain(DomainUpgradeMode.Perform);
       }
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transaction = Transaction.Open()) {
           Assert.AreEqual(1, Query.All<A>().Count());
           Assert.AreEqual("1", Query.All<A>().First().Y);
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
 
       BuildDomain(DomainUpgradeMode.Validate);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transaction = Transaction.Open()) {
           Assert.AreEqual(1, Query.All<A>().Count());
           Assert.AreEqual("1", Query.All<A>().First().X);

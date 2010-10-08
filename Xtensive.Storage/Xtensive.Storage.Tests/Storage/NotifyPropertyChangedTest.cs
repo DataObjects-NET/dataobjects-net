@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Ray ray = new Ray();
           Reset();

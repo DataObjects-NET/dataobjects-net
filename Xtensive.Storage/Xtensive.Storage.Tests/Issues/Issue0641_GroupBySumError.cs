@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       {
         using (TransactionScope transactionScope = Transaction.Open())
         {
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Issues
       }
 
       // Reading all persisted objects from another Session
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       {
         using (var transactionScope = Transaction.Open()) {
           var query = from l in Query.All<MyEntity>().First().Lines

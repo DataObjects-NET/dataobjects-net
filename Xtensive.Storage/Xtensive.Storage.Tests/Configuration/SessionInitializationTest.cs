@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Configuration
     public void TestCacheType(DomainConfiguration config, Type expectedType)
     {
       var d = Domain.Build(config);
-      using (var s = Session.Open(d)) {
+      using (var s = d.OpenSession()) {
         var cacheType = s.EntityStateCache.GetType();
         Log.Debug("Session CacheType: {0}", cacheType.Name);
         Assert.IsTrue(cacheType.IsOfGenericType(expectedType));

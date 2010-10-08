@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var item = new Item() {Tag = 10};
         var countSimple = Query.All<Item>().Count(i => i.Tag == 10);

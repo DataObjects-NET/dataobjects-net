@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
 
         session.Events.TransactionOpening += (sender, e) => transactionOpenArgs = e;
 

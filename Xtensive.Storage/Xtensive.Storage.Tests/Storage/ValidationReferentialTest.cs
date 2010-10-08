@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Company company;
           Contact contact;

@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Tests.Issues
     protected override Domain  BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      using (var session = Session.Open(domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         new Unit() { Title = "Unit" };
         tx.Complete();
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void CombinedTest()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (ds.Attach(session)) {
         using (var tx = Transaction.Open()) {
           using (ds.Connect()) {

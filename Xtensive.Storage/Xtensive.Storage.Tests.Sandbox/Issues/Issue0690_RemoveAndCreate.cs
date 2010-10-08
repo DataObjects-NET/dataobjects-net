@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void EntitySetTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var ts = Transaction.Open()) {
         var book = new Book();
         var review = new Review();
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void EntityWithCustomKeyTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var ts = Transaction.Open()) {
         var id = Guid.NewGuid().ToString();
         var message = new Message(id);
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void RemoveCreateTest()
     {
       var id = Guid.NewGuid().ToString();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var message = new Message(id) {Name = "Alfa"};
           t.Complete();
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void CreateRemoveTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var id = Guid.NewGuid().ToString();
         var message = new Message(id) { Name = "Alfa" };
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void CreateRemoveCreateTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open())
       {
         var id = Guid.NewGuid().ToString();
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void RemoveCreateRemoveTest()
     {
       var id = Guid.NewGuid().ToString();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var message = new Message(id) {Name = "Alfa"};
           t.Complete();

@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void Test()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var webSite = new WebSite();
           webSite.Title = "Title";

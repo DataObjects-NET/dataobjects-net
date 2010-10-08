@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var msk = new City() {Name = "Moscow"};
         var ekb = new City() {Name = "Yekaterinburg"};

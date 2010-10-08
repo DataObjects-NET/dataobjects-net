@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       randomProvider = new Random(seed);
       actions = new List<Action> {AddNode, RemoveNode, TransferNode, AddTree};
       nodesData = new List<Pair<Key, int>>();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open(IsolationLevel.ReadCommitted)) {
         isSettingUp = true;
         for (int i = 0; i < initialTreeCount; i++)
@@ -63,11 +63,11 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     public void CombinedTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
         for (int i = 0; i < iterationCount; i++)
           GetAction().Invoke();
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open()) {
         var trees = Query.All<Tree>().ToList();
         long totalCount = 0;

@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open()) {
         new X {FNInt = 5};
         new X();

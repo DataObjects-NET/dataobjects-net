@@ -189,7 +189,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CreateInstanceTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           accessor.CreateEntity(typeof (MyEntity));
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SetFieldTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           var myEntity = (MyEntity) accessor.CreateEntity(typeof (MyEntity));
@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
@@ -236,7 +236,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void EntitySetTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var pa = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity container = (MyEntity)pa.CreateEntity(typeof (MyEntity));

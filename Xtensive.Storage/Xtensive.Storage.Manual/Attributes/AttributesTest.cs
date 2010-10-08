@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Manual.Attributes
       config.Types.Register(typeof (Author).Assembly, typeof (Author).Namespace);
       var domain = Domain.Build(config);
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (var transactionScope = Transaction.Open(session)) {
 
           var author = new Author();

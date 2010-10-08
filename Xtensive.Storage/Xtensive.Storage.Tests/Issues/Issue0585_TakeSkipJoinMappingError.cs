@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Issues
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Fill();
           t.Complete();
@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           int pageIndex = 1;
           int pageSize = 1;

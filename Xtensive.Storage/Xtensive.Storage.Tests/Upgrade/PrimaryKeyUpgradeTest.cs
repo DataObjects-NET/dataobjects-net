@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void PerformTest()
     {
       BuildDomain("Version2Perform", DomainUpgradeMode.Perform);
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var t = Transaction.Open()) {
         var authorCount = Query.All<PrimaryKeyModel.Version2Perform.Author>().Count(a => a.Name == "Jack London");
         var bookCount = Query.All<PrimaryKeyModel.Version2Perform.Book>().Count();
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void PerformSafelyTest()
     {
       BuildDomain("Version2PerformSafely", DomainUpgradeMode.PerformSafely);
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var t = Transaction.Open()) {
         var authorCount = Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().Count(a => a.Name == "Jack London");
         var bookCount = Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().Count();
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void FillData()
     {
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Book() {
           Author = new Author() { Name = "Jack London"},

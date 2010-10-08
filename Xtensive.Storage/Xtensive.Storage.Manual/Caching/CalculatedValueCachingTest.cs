@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Manual.Caching
       config.Types.Register(typeof(CustomLinqCompilerContainer));
       var domain = Domain.Build(config);
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var apple  = new Product {Name = "Apple", Price = 2.0};
           var appleOrder = new Order {Product = apple, Quantity = 1};

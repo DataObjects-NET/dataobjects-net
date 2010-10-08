@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SetTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           
           var container = new Container();
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void CastTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           
           var container = new Container();
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ValidTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           
           var container = new Container();

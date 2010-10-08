@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var alex = new Person() { Name = "Alex" };
         var query = Query.All<Person>()
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var person5 = new Person() {Name = "John", Tag = 5, BudgetType = BudgetType.Regional};
         var personEmpty = new Person() {Name = "John"};
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EnumTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         BudgetType budgetType = BudgetType.Regional;
         BudgetType budgetTypeNotNullable = BudgetType.Regional;
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectNullableTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var manager1 = new Manager() {Name = "M0"};
         var manager2 = new Manager() {Name = "M0"};
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Person() {Name = "A", BudgetType = BudgetType.Default};
         new Person() {Name = "B", BudgetType = BudgetType.Default};
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MethodProjectionTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Person() { Name = "A", BudgetType = BudgetType.Default };
         new Person() { Name = "B", BudgetType = BudgetType.Default };
@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void FirstOrDefaultTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var manager = new Manager() {
           Name = "Manager"

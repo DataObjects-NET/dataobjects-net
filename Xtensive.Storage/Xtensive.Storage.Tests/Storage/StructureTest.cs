@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void PointTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           Point p1 = new Point();
           p1.X = 1;
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NotificationTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var ray = new Ray();
         ray.Vertex = new Point(10,20);
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TransactionalTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Ray ray;
         using (var transactionScope = Transaction.Open()) {
           ray = new Ray { Vertex = new Point {X = 1, Y = 2}};
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RayTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           // Creating new Ray entity from Point. Values should be copied from "p".
           Point p1 = new Point(1, 2);

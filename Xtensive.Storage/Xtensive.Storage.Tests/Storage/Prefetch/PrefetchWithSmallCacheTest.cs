@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         for (int i = 0; i < 111; i++)
           PrefetchTestHelper.FillDataBase(session);
@@ -45,13 +45,13 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void SimpleTest()
     {
       List<Key> keys;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         keys = Query.All<Order>().Select(p => p.Key).ToList();
         Assert.Greater(keys.Count, 0);
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Employee);
         var orderType = typeof (Order).GetTypeInfo();
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void UsingDelayedElementsTest()
     {
       List<Key> keys;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         keys = Query.All<Person>().Take(221).AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value))
           .ToList();
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         Assert.Greater(keys.Count, 0);
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var prefetcher = keys.Prefetch<Person, Key>(key => key)/*.Prefetch(p => p.Name)*/
           .PrefetchSingle(p => new Customer {Name = p.Name}, customer => {
@@ -103,14 +103,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void PrefetchEntitySetTest()
     {
       List<Key> keys;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         keys = Query.All<Order>().Take(221).AsEnumerable().Select(p => Key.Create<Order>(p.Key.Value))
           .ToList();
         Assert.Greater(keys.Count, 0);
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Details);
         var orderType = typeof (Order).GetTypeInfo();

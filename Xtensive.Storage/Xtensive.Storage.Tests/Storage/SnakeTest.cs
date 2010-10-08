@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       TestFixtureTearDown();
       TestFixtureSetUp();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           new Snake {Name = "Kaa1", Length = 1, Features = Features.None};
           new Snake { Name = "Kaa2", Length = 2, Features = Features.None };
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++)
             new Snake {Name = ("MyKaa" + i), Length = i};
@@ -244,7 +244,7 @@ namespace Xtensive.Storage.Tests.Storage
       int i = (int) Convert.ChangeType("123", typeof (Int32));
 
       Key persistedKey = null;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake snake = new Snake();
           Assert.AreEqual(PersistenceState.New, snake.PersistenceState);
@@ -284,7 +284,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       using (new Measurement("Fetching..."))
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Creature snake = Query.SingleOrDefault<Creature>(persistedKey);
           Assert.AreEqual(PersistenceState.Synchronized, snake.PersistenceState);
@@ -296,7 +296,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       using (new Measurement("Fetching..."))
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake snake = Query.SingleOrDefault<Snake>(persistedKey);
           Assert.IsNotNull(snake);
@@ -312,7 +312,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void UpdateTest()
     {
       Key key;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = new Snake();
           key = s.Key;
@@ -327,7 +327,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = Query.SingleOrDefault<Snake>(key);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
@@ -342,7 +342,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = Query.SingleOrDefault<Snake>(key);
           s.Name = "Snake";
@@ -350,7 +350,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = Query.SingleOrDefault<Snake>(key);
           s.Length = 16;
@@ -358,7 +358,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = Query.SingleOrDefault<Snake>(key);
           s.Name = "Kaa";
@@ -366,7 +366,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = Query.SingleOrDefault<Snake>(key);
           s.Length = 32;
@@ -374,7 +374,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = Query.SingleOrDefault<Snake>(key);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           try {
             Query.SingleOrDefault<Snake>(key);
@@ -410,7 +410,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -472,7 +472,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureSetUp();
 
       if (Domain.Configuration.Name == "memory")
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -525,7 +525,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       TestFixtureTearDown();
       TestFixtureSetUp();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -591,7 +591,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       TestFixtureTearDown();
       TestFixtureSetUp();
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
 
           ClearSnake s = new ClearSnake();
@@ -636,7 +636,7 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -656,7 +656,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordQuery rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordQuery();
@@ -709,7 +709,7 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 10;
       const int lizardsCount = 10;
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
           RecordQuery rsPrimary = type.Indexes.PrimaryIndex.ToRecordQuery();
@@ -719,7 +719,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var session = Session.Current;
           for (int i = 0; i < snakesCount; i++) {
@@ -750,7 +750,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemovalTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < 10; i++) {
             Snake s = new Snake();
@@ -762,7 +762,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var session = Session.Current;
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
@@ -774,7 +774,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Assert.AreEqual(0, Query.All<Snake>().Count());
           t.Complete();
@@ -792,7 +792,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -889,7 +889,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
@@ -949,7 +949,7 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
 
           for (int i = 0; i < snakesCount; i++)
@@ -1000,7 +1000,7 @@ namespace Xtensive.Storage.Tests.Storage
       var snakesDTO = new List<Tuple>();
 
       using (new Measurement("Persisting...", snakesCount))
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             var snake = new Snake {Name = ("Name_" + i), Length = (i % 11 + 2)};
@@ -1011,7 +1011,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       using (new Measurement("Fetching...", snakesCount))
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake persistedSnake = Query.SingleOrDefault<Snake>(snakesDTO[i].GetValue<Key>(0));
@@ -1028,7 +1028,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SetValuePerformance()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           Snake s = new Snake();          
           const int count = 100000;
@@ -1053,7 +1053,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void GetValuePerformance()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           Snake s = new Snake();
           s.Name = "SuperSnake";
@@ -1080,7 +1080,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void AliasAfterCalculateTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var recordSet = Domain.Model.Types[typeof (Creature)].Indexes.PrimaryIndex.ToRecordQuery();
         var column = recordSet.Header.IndexOf("Name");
@@ -1092,7 +1092,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void LinqQueryTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open()) {
         var lizardsDirectly = (
           from lizard in Query.All<Lizard>().AsEnumerable()

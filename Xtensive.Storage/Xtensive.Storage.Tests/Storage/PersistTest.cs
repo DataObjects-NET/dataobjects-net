@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveCreateTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Customer customer;
         using (var t = Transaction.Open()) {
           customer = new Customer("AAAAA");
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void UpdateRemoveTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Customer customer;
         using (var t = Transaction.Open()) {
           customer = new Customer("BBBBB");
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CreateRemoveTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Customer customer;
         using (var t = Transaction.Open()) {
           customer = new Customer("CCCCC");

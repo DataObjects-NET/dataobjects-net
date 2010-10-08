@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void AssignReferenceToRemovedEntityTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customer = new Customer();
         customer.Remove();
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void UseRemovedEntityAsKeyForOtherEntityTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customer = new Customer();
         customer.Remove();
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void AddRemovedEntityToEntitySetTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customer = new Customer();
         var order = new Order();
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveRemovedEntityFromEntitySetTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customer = new Customer();
         var order = new Order();
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CallContainsOnEntitySetForRemovedEntityTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customer = new Customer();
         var order = new Order();

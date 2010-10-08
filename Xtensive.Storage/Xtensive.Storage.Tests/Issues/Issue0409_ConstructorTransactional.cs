@@ -38,14 +38,14 @@ namespace Xtensive.Storage.Tests.Issues
     public void DocumentCreatedInSeparateTransactionTest()
     {
       Key key;
-      using (var s = Session.Open(Domain)) {
+      using (var s = Domain.OpenSession()) {
         using (var t = Transaction.Open(s)) {
           var document = new Document();
           key = document.Key;
           t.Complete();
         }
       }
-      using (var s = Session.Open(Domain)) {
+      using (var s = Domain.OpenSession()) {
         var document = Query.Single<Document>(key);
       }
     }
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void DocumentCreatedInAutoTransactionTest()
     {
-      using (var s = Session.Open(Domain)) {
+      using (var s = Domain.OpenSession()) {
         var document = new Document();
       }
     }

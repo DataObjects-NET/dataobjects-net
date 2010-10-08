@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Manual.Transactions.NestedTransactions
       // And finally building the domain
       var domain = Domain.Build(config);
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           // Creating user

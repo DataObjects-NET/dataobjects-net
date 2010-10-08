@@ -22,14 +22,14 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
         "AppConfigTest", "DomainWithCustomConnectionInfo");
 
       using (var domain = Domain.Build(configuration)) {
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           Assert.IsNull(session.Configuration.ConnectionInfo);
         }
-        using (var session = Session.Open(domain, configuration.Sessions["constr"])) {
+        using (var session = domain.OpenSession(configuration.Sessions["constr"])) {
           Assert.IsNotNull(session.Configuration.ConnectionInfo);
           Assert.IsNotNull(session.Configuration.ConnectionInfo.ConnectionString);
         }
-        using (var session = Session.Open(domain, configuration.Sessions["conurl"])) {
+        using (var session = domain.OpenSession(configuration.Sessions["conurl"])) {
           Assert.IsNotNull(session.Configuration.ConnectionInfo);
           Assert.IsNotNull(session.Configuration.ConnectionInfo.ConnectionUrl);
         }

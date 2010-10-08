@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CombinedTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var book = new Book();
         var author = new Author();

@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Linq
       int countAfterSkip = 0;
       var secondThread = new Thread(() => {
         try {
-          using (Session.Open(Domain))
+          using (Domain.OpenSession())
           using (Transaction.Open())
             countAfterSkip = Query.All<Customer>().Where(c => c.Key == key)
               .Lock(LockMode.Update, LockBehavior.Skip).ToList().Count;
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Linq
       var secondEvent = new ManualResetEvent(false);
       var firstThread = new Thread(() => {
         try {
-          using (Session.Open(Domain))
+          using (Domain.OpenSession())
           using (Transaction.Open()) {
             Query.All<Customer>().Where(c => c.Key == customerKey)
               .Join(Query.All<Order>().Where(o => o.Key == orderKey), c => c, o => o.Customer, (c, o) => c)
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Linq
       var catchedException = ExecuteQueryAtSeparateThread(() =>
         Query.All<Customer>().Where(c => c == customer).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (Transaction.Open())
         AssertEx.Throws<StorageException>(() =>
           Query.Single<Customer>(customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Tests.Linq
       var secondEvent = new ManualResetEvent(false);
       var firstThread = new Thread(() => {
         try {
-          using (Session.Open(Domain))
+          using (Domain.OpenSession())
           using (Transaction.Open()) {
             Query.All<Customer>().Where(c => c.Key == key).Lock(lockMode0, lockBehavior0).ToList();
             secondEvent.Set();
@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Linq
       Exception result = null;
       var thread = new Thread(() => {
         try {
-          using (Session.Open(Domain))
+          using (Domain.OpenSession())
           using (Transaction.Open()) {
             query.Invoke().ToList();
           }

@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     public virtual void SetUp()
     {
       disposables = new DisposableSet();
-      disposables.Add(Session.Open(Domain));
+      disposables.Add(Domain.OpenSession());
       disposables.Add(Transaction.Open());
     }
 
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
         domain = base.BuildDomain(recreateConfig);
       }
       bool shouldFill = false;
-      using (Session.Open(domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var count = Query.All<Customer>().Count();
         if (count == 0)

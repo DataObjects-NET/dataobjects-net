@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Storage
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      Session.Open(Domain);
+      Domain.OpenSession();
     }
 
     public override void TestFixtureTearDown()

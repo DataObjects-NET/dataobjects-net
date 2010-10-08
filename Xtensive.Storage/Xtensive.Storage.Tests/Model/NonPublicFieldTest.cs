@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Model
     public void MainTest()
     {
       Key key;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
 
           var myEntity = new MyEntity();
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Model
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
 
           var myEntity = Query.Single<MyEntity>(key);

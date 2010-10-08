@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ExecutionTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var ts = Transaction.Open()) {
         var futureSequenceOrder = Query.ExecuteFuture(
           () => Query.All<Order>().Where(o => o.Freight > 10));
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void TransactionChangingTest()
     {
       IEnumerable<Order> futureSequenceOrder;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var ts = Transaction.Open()) {
           futureSequenceOrder = Query.ExecuteFuture(() => Query.All<Order>().Where(o => o.Freight > 10));
           ts.Complete();
@@ -61,14 +61,14 @@ namespace Xtensive.Storage.Tests.Storage
     public void CachingFutureSequenceTest()
     {
       var futureQueryDelegate = (Func<IQueryable<Order>>) GetFutureSequenceQuery;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var ts = Transaction.Open()) {
         var futureSequenceOrder = Query.ExecuteFuture(futureQueryDelegate);
         Assert.Greater(futureSequenceOrder.Count(), 0);
         ts.Complete();
       }
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var ts = Transaction.Open()) {
         var futureSequenceOrder = Query.ExecuteFuture<Order>(futureQueryDelegate.Method,
           GetFutureSequenceQueryFake);
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var cacheKey = new object();
       ProductType searchedType = ProductType.Active;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var ts = Transaction.Open()) {
         var futureScalarUnitPrice = Query.ExecuteFutureScalar(cacheKey,
           () => Query.All<Product>().Where(p => p.ProductType == searchedType).Count());
@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       var t = 0;
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var ts = Transaction.Open()) {
         var futureScalarUnitPrice = Query.ExecuteFutureScalar(cacheKey, () => t);
         Assert.Greater(futureScalarUnitPrice.Value, 0);

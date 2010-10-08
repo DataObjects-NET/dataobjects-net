@@ -57,13 +57,13 @@ namespace Xtensive.Storage.Tests.Storage
       var sc2 = new SessionConfiguration("Second");
       sc1.Options |= SessionOptions.AutoTransactionOpenMode;
       sc2.Options |= SessionOptions.AutoTransactionOpenMode;
-      using (var session1 = Session.Open(Domain, sc1)) {
+      using (var session1 = Domain.OpenSession(sc1)) {
         using (Transaction.Open()) {
           Ray ray1 = new Ray();
           var helper = new TestHelper(Session.Current);
           Session.Current.SaveChanges();
 
-          using (var session2 = Session.Open(Domain, sc2)) {
+          using (var session2 = Domain.OpenSession(sc2)) {
             Assert.IsNull(Transaction.Current);
 
             using (Transaction.Open()) {

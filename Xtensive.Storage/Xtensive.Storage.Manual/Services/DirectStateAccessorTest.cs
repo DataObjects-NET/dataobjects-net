@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Manual.Services
     {
       var domain = BuildDomain();
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         Key entityKey;
         string originalValue;
         using (var tx = Transaction.Open()) {
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Manual.Services
     {
       var domain = BuildDomain();
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         Key entityKey;
         using (var tx = Transaction.Open()) {
           var entity = new Simple {Value = Guid.NewGuid().ToString()};
@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Manual.Services
     {
       var domain = BuildDomain();
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         Key containerKey;
         Key firstContainedKey;
         using (var tx = Transaction.Open()) {

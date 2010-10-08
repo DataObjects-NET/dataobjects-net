@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void StandardTest()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         var tAnimal = session.Domain.Model.Types[typeof (Animal)];
         var fMate = tAnimal.Fields["Mate"];
         Assert.AreEqual(OnRemoveAction.None, fMate.Association.OnOwnerRemove);
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void HasNullEntityTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open(session)) {
         var tPerson = session.Domain.Model.Types[typeof(Person)];
         var fMate = tPerson.Fields["Mate"];

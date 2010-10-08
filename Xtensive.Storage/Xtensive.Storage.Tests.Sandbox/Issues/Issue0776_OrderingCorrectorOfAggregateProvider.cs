@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (TransactionScope transactionScope = Transaction.Open())
       {
         // Creating new persistent object
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Issues
       }
 
       // Reading all persisted objects from another Session
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (TransactionScope transactionScope = Transaction.Open())
       {
         foreach (MyEntity myEntity in Query.All<MyEntity>())

@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RollbackCreationTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Hexagon hexagon;
         using (Transaction.Open()) {
           hexagon = new Hexagon();
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RollbackRemovingTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Hexagon hexagon;
         using (var t = Transaction.Open()) {
           hexagon = new Hexagon {Kwanza = 36};
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void VoidScopesTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
 
         using (var scope = Transaction.Open()) {
           
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RollbackModifyingTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Hexagon hexagon;
 
         using (var t = Transaction.Open()) {
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void TransactionEventsTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (Transaction.Open()) {
         var hexagon = new Hexagon {Kwanza = 1};
 

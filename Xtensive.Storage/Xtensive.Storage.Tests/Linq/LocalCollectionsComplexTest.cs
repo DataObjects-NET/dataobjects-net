@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Linq
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           var entitiesB = Enumerable
             .Range(0, count)
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionEntityTest()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionStructureTest()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Select(b => b.AdditionalInfo).Take(count / 2).ToArray();
@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionFieldTest()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Select(b => b.Name).Take(count / 2).ToArray();
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinEntityDirectTest()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinEntityIndirect2Test()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinEntityIndirect3Test()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
@@ -235,7 +235,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinStructureDirectTest()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localStructure = Query.All<EntityB>().Select(b => b.AdditionalInfo).First();
@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinStructureIndirectTest()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
@@ -268,7 +268,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinEntityPocoTest()
     {
-      using (Session session = Session.Open(Domain)) {
+      using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = Transaction.Open()) {
           session.SaveChanges();
           Poco2[] localItems = GetPocoCollection();

@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           Validatable first = null;
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ForceValidationTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         var transactionScope = Transaction.Open();
 
         AssertEx.Throws<Exception>(() => {
@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TransactionFailTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         var transactionScope = Transaction.Open();
 
         try {

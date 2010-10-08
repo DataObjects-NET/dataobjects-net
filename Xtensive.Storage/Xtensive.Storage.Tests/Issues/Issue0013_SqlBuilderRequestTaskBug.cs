@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         SqlTaskEntity e1;
         using (TransactionScope trs = Transaction.Open()) {
           e1 = new SqlTaskEntity();

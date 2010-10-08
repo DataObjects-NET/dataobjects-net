@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Issues
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Fill();
           t.Complete();
@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void TakeTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var result = Query.All<Article>().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           var expected = Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SkipTakeTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var result = Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           var expected = Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SkipTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var result = Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           var expected = Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SelectCategoryTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var result = Query.All<Article>().Select(p => p.Category);
           foreach (var category in result) {
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void QuerySingleTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var a1 = Query.All<Article>().First();
         var id = a1.Id;
@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void QuerySingleOrDefaultTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var url = "http://localhost/page_1.htm";
         var result = Query.All<BlogPost>().Where(p => p.SitePage.Url == url).SingleOrDefault();

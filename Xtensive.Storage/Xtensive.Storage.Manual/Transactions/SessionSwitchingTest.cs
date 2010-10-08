@@ -38,9 +38,9 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
       var domain = GetDomain();
 
       var sessionCfg = new SessionConfiguration();
-      using (var sessionA = Session.Open(domain, sessionCfg)) { // Open & activate
+      using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
         var personA = Query.All<Person>().First();
-        using (var sessionB = Session.Open(domain, sessionCfg)) { // Open & activate
+        using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
           // Session switching (from sessionB to sessionA) will be detected here, 
           // but allowed, since there is no running transaction
           string name = personA.Name;
@@ -66,9 +66,9 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
 
       var sessionCfg = new SessionConfiguration();
       sessionCfg.Options |= SessionOptions.AllowSwitching;
-      using (var sessionA = Session.Open(domain, sessionCfg)) { // Open & activate
+      using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
         var personA = Query.All<Person>().First();
-        using (var sessionB = Session.Open(domain, sessionCfg)) { // Open & activate
+        using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
           // Session switching (from sessionB to sessionA) will be detected here, but allowed
           using (var tx = Transaction.Open()) {
             var name = personA.Name;
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
         };
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         var domain = Domain.Build(config);
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           using (var transactionScope = Transaction.Open(session)) {
             // Creating initial content
             new Person {Name = "Tereza"};

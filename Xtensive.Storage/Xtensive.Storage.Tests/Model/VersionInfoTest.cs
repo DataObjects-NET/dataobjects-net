@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Tests.Model
       Key key;
       VersionInfo version;
 
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var instance = new Simple();
           instance.NonLazyField1 = "Value";

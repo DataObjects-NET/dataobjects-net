@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Storage.IoC
     [Test]
     public void ContainerTest()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (Transaction.Open()) {
 
           // Domain-level singleton service
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Storage.IoC
           var sessionSingleton2 = session.Services.Get<IMyService>();
           Assert.AreSame(sessionSingleton1, sessionSingleton2);
 
-          using (Session.Open(Domain)) {
+          using (Domain.OpenSession()) {
             using (Transaction.Open()) {
               // Session-level singleton service from another session
               var sessionSingleton3 = Session.Current.Services.Get<IMyService>();
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Storage.IoC
     public void PerformanceTest()
     {
       const int iterationCount = 100000;
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (Transaction.Open()) {
           using (new Measurement("Getting domain-level singleton service.", iterationCount))
             for (int i = 0; i < iterationCount; i++)

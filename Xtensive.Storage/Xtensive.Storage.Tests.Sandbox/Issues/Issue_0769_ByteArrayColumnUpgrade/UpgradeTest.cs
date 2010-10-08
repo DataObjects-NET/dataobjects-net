@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
     public void SetUp()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var tx = Transaction.Open()) {
           var person = new M1.Person() {
             Name = "Person",
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (Transaction.Open()) {
           var person = Query.All<M2.Person>().Single();
           AssertEx.AreEqual("Person", person.Name);

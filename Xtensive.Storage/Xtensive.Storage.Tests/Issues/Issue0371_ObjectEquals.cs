@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ObjectEqualsTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Issues
     [ExpectedException(typeof(QueryTranslationException))]
     public void ItemEquals1Test()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ItemEquals2Test()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ClassEqualsTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void StringEqualsTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();

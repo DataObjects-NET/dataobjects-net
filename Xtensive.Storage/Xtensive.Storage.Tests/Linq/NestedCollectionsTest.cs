@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       base.TestFixtureSetUp();
 
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         numberOfCustomers = Query.All<Customer>().Count();
         numberOfOrders = Query.All<Order>().Count();

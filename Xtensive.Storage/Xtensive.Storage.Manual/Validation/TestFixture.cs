@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Manual.Validation
       config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
       var domain = Domain.Build(config);
 
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         try {
           using (var transactionScope = Transaction.Open()) {
             using (var inconsistencyRegion = Storage.Validation.Disable()) {

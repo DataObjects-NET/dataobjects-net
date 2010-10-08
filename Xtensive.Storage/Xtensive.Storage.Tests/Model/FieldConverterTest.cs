@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Key key = null;
         var dateTime = new DateTime(2000, 01, 07);
         using (var t = Transaction.Open()) {

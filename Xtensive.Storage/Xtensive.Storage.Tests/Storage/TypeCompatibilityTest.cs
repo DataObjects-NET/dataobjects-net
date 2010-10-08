@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DefaultValuesTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Key key;
         using (var t = Transaction.Open()) {
           X x = new X();
@@ -347,7 +347,7 @@ namespace Xtensive.Storage.Tests.Storage
       // TODO: Expand the test (precision: 1-38, scale: 0-28)
       const decimal d34_19 = 304861306900020.0000000000000000000m;
       const decimal d25_0 = 7200200000000000000000000m;
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Key key;
         using (var transactionScope = Transaction.Open()) {
           var container = new DecimalContainer() {

@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Issues
       configuration1.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain1 = Domain.Build(configuration1))
-      using (Session.Open(domain1))
+      using (domain1.OpenSession())
       using (var ts = Transaction.Open()) {
         new InconsistentDefaultDateTimeValuesModel1.MyEntity();
         ts.Complete();
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Issues
       configuration2.UpgradeMode = DomainUpgradeMode.Perform;
 
       using (var domain2 = Domain.Build(configuration2))
-      using (Session.Open(domain2))
+      using (domain2.OpenSession())
       using (var ts = Transaction.Open()) {
         Query.All<InconsistentDefaultDateTimeValuesModel2.MyEntity>().First(entity => entity.Value==DateTime.MinValue);
         ts.Complete();

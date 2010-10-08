@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Fill();
           var expected1 = Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AssignmentCurrentTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         new Assignment() {Active = true, Start = new DateTime(2009, 11, 23), End = null};
         new Assignment() {Active = false, Start = new DateTime(2009, 10, 3), End = null};

@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Infrastructure]
     public static IList<object> GetWork(string key, Domain domain)
     {
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       {
         QueueProcessor queueProcessor = null;
         using (TransactionScope transactionScope = Transaction.Open())
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Infrastructure]
     public static void Execute(string key, object workUnit, Domain domain)
     {
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       {
         QueueProcessor queueProcessor = null;
         using (TransactionScope transactionScope = Transaction.Open())

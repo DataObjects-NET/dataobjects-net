@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SerializationOfComplexReferencesTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
         }
       }
@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage
       string companyName = "Xtensive LLC";
       int companyId;
       
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Company company = new Company {Name = companyName};
           companyId = company.Id;
@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Tests.Storage
           // Can'not resolve deserialized entity - it's not commited in original session.
           AssertEx.Throws<TargetInvocationException>(
             delegate {
-              using (Session.Open(Domain)) {
+              using (Domain.OpenSession()) {
                 using (Transaction.Open()) {
                   stream.Position = 0;
                   formatter.Deserialize(stream);
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           stream.Position = 0;
           Company company = (Company) Query.SingleOrDefault(Key.Create(typeof (Company), companyId));// Query.All<Company>().First();
@@ -175,7 +175,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           stream.Position = 0;
           Company company = (Company) formatter.Deserialize(stream);
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Storage
     {       
       Stream stream = new MemoryStream();
 
-      using (Session.Open(Domain)) {  
+      using (Domain.OpenSession()) {  
 
         Country russia;
         
@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           
           var deserializationContext = new DeserializationContext();
@@ -272,7 +272,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       int firstCompanyId;
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Company company = new Company {Name = "OpenTransaction lines"};
           firstCompanyId = company.Id;
@@ -280,7 +280,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
 
           object[] array;
@@ -309,7 +309,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
 
           object[] array;

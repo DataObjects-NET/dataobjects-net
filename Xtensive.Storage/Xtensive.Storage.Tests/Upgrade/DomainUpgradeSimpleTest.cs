@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void FillData()
     {
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       {
         using (var transactionScope = Transaction.Open())
         {

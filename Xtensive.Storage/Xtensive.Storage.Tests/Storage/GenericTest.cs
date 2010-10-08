@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Storage
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(PropertyVersion<decimal?>));
       domain = Domain.Build(configuration);
-      using (Session.Open(domain)) {
+      using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var v = new PropertyVersion<decimal?>() {PropertyValue = 123};
           t.Complete();

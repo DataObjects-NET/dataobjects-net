@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     public void MainTest()
     {
       var domain = GetDomain();
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         Assert.IsNotNull(Session.Current);
         Assert.IsNull(Transaction.Current);
         
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         };
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         var domain = Domain.Build(config);
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           using (var transactionScope = Transaction.Open(session)) {
             // Creating initial content
             var alex   = new Person {Name = "Alex", Surname = "Yakunin"};

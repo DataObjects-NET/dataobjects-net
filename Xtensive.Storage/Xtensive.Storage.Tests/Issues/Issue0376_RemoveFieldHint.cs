@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Issues
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      using (var session = Session.Open(domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var son = new M1.Son {FirstName = "FirstName", LastName = "LastName", NickName = "NickName"};
           transactionScope.Complete();
@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (M2.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-      using (var session = Session.Open(domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           var son = Query.All<M2.Son>().Single();
           Assert.AreEqual("FirstName", son.FirstName);
@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (M3.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-      using (var session = Session.Open(domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           Assert.IsTrue(Query.All<M3.Father>().Count()==0);
           transactionScope.Complete();

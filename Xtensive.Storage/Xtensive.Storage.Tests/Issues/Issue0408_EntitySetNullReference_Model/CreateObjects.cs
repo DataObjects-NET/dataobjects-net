@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
 
       string key = null;
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       {
         using (var transactionScope = Transaction.Open())
         {

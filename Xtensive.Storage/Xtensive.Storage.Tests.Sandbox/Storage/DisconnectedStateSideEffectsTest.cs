@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      using (var session = Session.Open(domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         new Book() { Title = "Book" };
         tx.Complete();
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public void FiltersTest()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         Book book;
         using (ds.Attach(session))
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public void SequentialApplyChangesTest()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       var ds = new DisconnectedState();
       ds.OperationLogType = OperationLogType.OutermostOperationLog;
       ds.VersionsProviderType = VersionsProviderType.DisconnectedState;
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public void OverridenOnInitializeTest()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (ds.Attach(session))
       using (ds.Connect()) {
         var author = new Author("Author");
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public void CreateNewEntitiesAsSetFieldSideEffectTest()
     {
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     {
       Author testAuthor;
       var ds = new DisconnectedState();
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
@@ -274,7 +274,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     [Test]
     public void NotDisconnectedNewEntitySideEffectTest()
     {
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var testAuthor = new Author("Author 1");
         AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));

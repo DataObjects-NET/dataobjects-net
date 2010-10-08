@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void InvalidCommitTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         
         var transactionScope = Transaction.Open();
 
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ValidCommitTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using(var transactionScope = Transaction.Open()) {
 
           var entity = new Validatable {IsValid = false};
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void EnforceValidationTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         var transactionScope = Transaction.Open();
 
         var entity = new Validatable {IsValid = false};

@@ -379,7 +379,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       var domain = BuildDomain();
 
       UserDto userDto;
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var user = new User();
         var firstPost = new BlogPost {Title = "First post"};
@@ -416,7 +416,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         Key = Guid.NewGuid().ToString(), Title = "Third post", Author = userDto
       };
 
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var mapper = new Mapper(mapping);
         // Compare original and modified graphs
@@ -456,7 +456,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       var mapper = new Mapper(mapping);
 
       // Validate version before applying changes
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var comparisonResult = mapper.Compare(originalAuthorDto, authorDto))
       using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider))
       using (var tx = Transaction.Open()) {
@@ -469,7 +469,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       staleAuthorDto.Name = "Eugene";
       
       // Trying to use the stale object
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var comparisonResult = mapper.Compare(originalAuthorDto, staleAuthorDto))
       using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider)) {
         var wasThrown = false;
@@ -513,7 +513,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         Building = 10, Office = orderDto.Customer.Address.Office
       };
 
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDto, orderDto))
@@ -544,7 +544,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       var domain = BuildDomain();
 
       List<object> orderDtos;
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customer = new Customer {
           FirstName = "First", LastName = "Customer", Address = new Address {
@@ -578,7 +578,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       };
       Assert.AreSame(orderDto0.Customer, orderDto1.Customer);
 
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDtos, orderDtos)) {
@@ -623,7 +623,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       };
 
       IDictionary<object,object> newObjectKeys;
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open(session)) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(null, branchDto)) {
@@ -648,7 +648,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     private static AuthorDto GetAuthorDto(Domain domain, MappingDescription mapping)
     {
       AuthorDto result;
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var author = new Author {Name = "Jack"};
         author.Books.Add(new Book {Title = "The greatest book"});
@@ -665,7 +665,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     private static OrderDto GetOrderDto(MappingDescription mapping, Domain domain)
     {
       OrderDto orderDto;
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customer = new Customer {
           FirstName = "John", LastName = "Smith", Address = new Address {
@@ -684,7 +684,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
 
     private static void ValidateMainTest(Domain domain, UserDto userDto, UserDto newFreindDto)
     {
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var user = Query.Single<User>(Key.Parse(domain, userDto.Key));
         Assert.AreEqual(userDto.PersonalPage.Title, user.PersonalPage.Title);
@@ -702,7 +702,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
 
     private static void ValidateOptimisticOfflineLockTest(Domain domain, AuthorDto authorDto)
     {
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var author = Query.Single<Author>(Key.Parse(authorDto.Key));
         Assert.AreEqual(authorDto.Name, author.Name);
@@ -720,7 +720,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
 
     private static void ValidateStructureTest(OrderDto orderDto, Domain domain)
     {
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var order = Query.Single<Order>(Key.Parse(orderDto.Key));
         Assert.AreEqual(orderDto.Priority, order.Priority);
@@ -746,7 +746,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     private static void ValidateCustomKeyGenerationTest(BranchDto branchDto,
       IDictionary<object, object> newObjectKeys, Domain domain)
     {
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var tx = Transaction.Open(session)) {
         var branch = Query.Single<Branch>(Key.Parse((string) newObjectKeys[branchDto.Key]));
         Assert.AreEqual(Key.Parse((string) newObjectKeys[branchDto.Trunk.Key]), branch.Trunk.Key);

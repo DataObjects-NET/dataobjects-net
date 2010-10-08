@@ -46,7 +46,7 @@ namespace Xtensive.Storage
   /// </para>
   /// <para>
   /// Sessions are opened (and, optionally, activated) by 
-  /// <see cref="Open(Xtensive.Storage.Domain)">Session.Open(domain)</see> method. 
+  /// <see cref="Domain.OpenSession()">Domain.OpenSession()</see> method. 
   /// Existing session can be activated by <see cref="Activate"/> method.
   /// </para>
   /// </remarks>

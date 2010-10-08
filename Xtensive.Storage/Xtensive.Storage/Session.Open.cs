@@ -20,18 +20,19 @@ namespace Xtensive.Storage
     /// New <see cref="Session"/> object.
     /// </returns>
     /// <sample><code>
-    /// using (var session = Session.Open(domain)) {
+    /// using (var session = Domain.OpenSession()) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property when <see cref="SessionOptions.AutoActivation"/> flag is set for <see cref="SessionConfiguration.Options"/>, 
     /// // or the session is activate explicitely through <see cref="Session.Activate()"/>.
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
+    [Obsolete("Use Domain.OpenSession() method instead")]
     public static Session Open(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      var configuration = domain.Configuration.Sessions.Default;
-      return Open(domain, configuration);
+
+      return domain.OpenSession();
     }
 
     /// <summary>
@@ -43,7 +44,7 @@ namespace Xtensive.Storage
     /// New <see cref="Session"/> object.
     /// </returns>
     /// <sample><code>
-    /// using (var session = Session.Open(domain, false)) {
+    /// using (var session = domain.OpenSession(false)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property when <see cref="SessionOptions.AutoActivation"/> flag is set for <see cref="SessionConfiguration.Options"/>, 
     /// // or the session is activate explicitely through <see cref="Session.Activate()"/>.
@@ -66,28 +67,18 @@ namespace Xtensive.Storage
     /// New <see cref="Session"/> object.
     /// </returns>
     /// <sample><code>
-    /// using (var session = Session.Open(domain, sessionType)) {
+    /// using (var session = domain.OpenSession(sessionType)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property when <see cref="SessionOptions.AutoActivation"/> flag is set for <see cref="SessionConfiguration.Options"/>, 
     /// // or the session is activate explicitely through <see cref="Session.Activate()"/>.
     /// }
     /// </code></sample>
+    [Obsolete("Use Domain.OpenSession(SessionType type) method instead")]
     public static Session Open(Domain domain, SessionType type)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
 
-      switch (type) {
-        case SessionType.User:
-          return Open(domain, domain.Configuration.Sessions.Default);
-        case SessionType.System:
-          return Open(domain, domain.Configuration.Sessions.System);
-        case SessionType.KeyGenerator:
-          return Open(domain, domain.Configuration.Sessions.KeyGenerator);
-        case SessionType.Service:
-          return Open(domain, domain.Configuration.Sessions.Service);
-        default:
-          throw new ArgumentOutOfRangeException("type");
-      }
+      return domain.OpenSession(type);
     }
 
     /// <summary>
@@ -100,7 +91,7 @@ namespace Xtensive.Storage
     /// New <see cref="Session"/> object.
     /// </returns>
     /// <sample><code>
-    /// using (Session.Open(domain, sessionType, true)) {
+    /// using (domain.OpenSession(sessionType, true)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property
     /// }
@@ -133,19 +124,20 @@ namespace Xtensive.Storage
     /// New <see cref="Session"/> object.
     /// </returns>
     /// <sample><code>
-    /// using (var session = Session.Open(domain, configuration)) {
+    /// using (var session = domain.OpenSession(configuration)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property when <see cref="SessionOptions.AutoActivation"/> flag is set for <see cref="SessionConfiguration.Options"/>, 
     /// // or the session is activate explicitely through <see cref="Session.Activate()"/>.
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
+    [Obsolete("Use Domain.OpenSession(SessionConfiguration configuration) method instead")]
     public static Session Open(Domain domain, SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      return domain.OpenSession(configuration, (configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation);
+      return domain.OpenSession(configuration);
     }
 
     /// <summary>
@@ -158,7 +150,7 @@ namespace Xtensive.Storage
     /// New <see cref="Session"/> object.
     /// </returns>
     /// <sample><code>
-    /// using (Session.Open(domain, sessionConfiguration, false)) {
+    /// using (domain.OpenSession(sessionConfiguration, false)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property
     /// }

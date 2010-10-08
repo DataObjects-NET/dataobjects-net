@@ -53,14 +53,14 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         Position = newEmployeePosition, Key = Guid.NewGuid().ToString()
       };
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var modificationSet = mapper.Compare(productDto, modifiedProductDto).Operations;
         modificationSet.Replay();
         tx.Complete();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var product = Query.All<PersonalProduct>().Single();
         Assert.AreEqual(1, Query.All<Employee>().Count());
@@ -90,14 +90,14 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       Assert.AreEqual(1, modifiedPublisherDto.Distributors.RemoveWhere(b => b.Key==removedBookShop.Key));
       Assert.IsNotNull(modifiedPublisherDto);
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var modifications = mapper.Compare(publisherDto, modifiedPublisherDto).Operations;
         modifications.Replay();
         tx.Complete();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var publisher = Query.All<Publisher>().Single();
         Assert.AreEqual(4, Query.All<BookShop>().Count());
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       modifiedBookShopDto.Suppliers = newSuppliers;
       modifiedBookShopDto.Suppliers[3] = newPublisherDto;
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var operations = mapper.Compare(bookShopDto, modifiedBookShopDto).Operations;
         operations.Replay();
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         City = currentAddress.City + "Modified1", Country = currentAddress.Country,
         Office = currentAddress.Office, Street = currentAddress.Street};
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var operations = mapper.Compare(new[] {originalApartmentDto0, originalApartmentDto1},
           new[] {modifiedApartmentDto1, modifiedApartmentDto0}).Operations;
@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       var personDto3 = new SimplePersonDto {Key = Guid.NewGuid().ToString(), Name = "Person3"};
       modified.Add(personDto3);
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var comparisonResult = mapper.Compare(original, modified);
         var keyMapping = comparisonResult.KeyMapping;
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
           dto => new object[] {dto.Id}).TrackChanges(cp => cp.Id, false).Build();
       var mapper = new Mapper(mapping);
       List<object> originalPersonDtos;
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var customPerson0 = new CustomPerson(rnd.Next()) {AuxString = "Auxiliary0", Name = "Name0"};
         var customPerson1 = new CustomPerson(rnd.Next()) {AuxString = "Auxiliary1", Name = "Name1"};
@@ -263,7 +263,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       };
       modifiedPersonDtos.Add(newPersonDto);
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var result = mapper.Compare(originalPersonDtos, modifiedPersonDtos);
         result.Operations.Replay();
@@ -321,7 +321,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       };
 
       ReadOnlyDictionary<object, object> keyMapping;
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open(session)) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(null, target)) {
@@ -331,7 +331,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         tx.Complete();
       }
 
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open(session)) {
         var root = Query.Single<CompositeKeyRoot>(Key.Parse((string) keyMapping[target.Key]));
         Assert.AreEqual(target.Aux, root.Aux);
@@ -366,7 +366,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       product.Name = productNewName;
       var newProductDto = new PersonWithVersionDto {Key = Guid.NewGuid().ToString(), Name = "New Employee"};
       modifiedProductDto[1] = newProductDto;
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var comparisonResult = mapper.Compare(productDto, modifiedProductDto);
         Assert.IsFalse(comparisonResult.Operations.Count==0);
@@ -425,7 +425,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         .Inherit<IdentifiableDto, PersonalProduct, PersonalProductDto>()
         .Inherit<IdentifiableDto, Employee, EmployeeDto>().Build();
       mapper = new Mapper(mapping);
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var employee = new Employee {Age = 25, Name = "A", Position = "B"};
         var product = new PersonalProduct {Employee = employee, Name = "C"};
@@ -442,7 +442,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
         .MapType<BookShop, BookShopDto, string>(b => b.Key.Format(), b => b.Key).Build();
       mapper = new Mapper(mapping);
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var bookShop0 = new BookShop {Name = "B0"};
         var bookShop1 = new BookShop {Name = "B1"};
@@ -466,7 +466,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         .IgnoreProperty(p => p.Distributors).Build();
       mapper = new Mapper(mapping);
       BookShopDto bookShopDto;
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         foreach (var publisher in Query.All<Publisher>())
           publisher.Remove();
@@ -491,7 +491,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         .MapStructure<Address, AddressDto>()
         .MapStructure<ApartmentDescription, ApartmentDescriptionDto>().Build();
       mapper = new Mapper(mapping);
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var person0 = new SimplePerson {Name = "Name0"};
         var address0 = new Address {
@@ -522,7 +522,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         .MapType<SimplePerson, SimplePersonDto, string>(sp => sp.Key.Format(), sp => sp.Key).Build();
       mapper = new Mapper(mapping);
       List<object> original;
-      using (var session = Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       using (var tx = Transaction.Open()) {
         var person0 = new SimplePerson {Name = "Person0"};
         var person1 = new SimplePerson {Name = "Person1"};
@@ -549,7 +549,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
           .MapProperty(p => serializer.Invoke(p.VersionInfo), p => p.Version).Build();
         mapper = new Mapper(mapping);
         List<object> original;
-        using (var session = Session.Open(Domain))
+        using (var session = Domain.OpenSession())
         using (var tx = Transaction.Open()) {
           var person0 = new SimplePerson {Name = "Person0"};
           var person1 = new SimplePerson {Name = "Person1"};
@@ -570,7 +570,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
     private void ServerApplyChanges(List<object> original, List<object> modified, Mapper mapper)
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var result = mapper.Compare(original, modified))
         using (VersionValidator.Attach(session, result.VersionInfoProvider))
         using (var tx = Transaction.Open()) {
@@ -581,7 +581,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
       // Validation of the stale object.
       ((PersonWithVersionDto) modified[0]).Name += "ModifiedAgain";
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var result = mapper.Compare(original, modified))
         using (VersionValidator.Attach(session, result.VersionInfoProvider)) {
           AssertEx.Throws<VersionConflictException>(() => {

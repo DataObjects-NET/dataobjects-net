@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
+      using (Domain.OpenSession())
       {
         using (var t = Transaction.Open())
         {

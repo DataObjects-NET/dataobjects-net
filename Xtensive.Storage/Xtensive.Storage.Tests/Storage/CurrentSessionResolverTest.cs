@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var config = DomainConfigurationFactory.Create();
       var domain = Domain.Build(config);
-      var session = Session.Open(domain);
+      var session = domain.OpenSession();
 
       bool isSessionActive = false;
       int resolveCount = 0;

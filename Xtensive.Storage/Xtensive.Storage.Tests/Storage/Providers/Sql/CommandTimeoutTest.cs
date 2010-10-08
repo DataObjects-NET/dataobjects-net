@@ -33,11 +33,11 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       systemSessionConfig.DefaultCommandTimeout = 6000; // 100 min.
 
       using (var domain = Domain.Build(domainConfiguration)) {
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           Assert.AreEqual(100, session.CommandTimeout);
         }
         var sessionConfiguration = new SessionConfiguration {DefaultCommandTimeout = 100};
-        using (var session = Session.Open(domain, sessionConfiguration)) {
+        using (var session = domain.OpenSession(sessionConfiguration)) {
           Assert.AreEqual(100, session.CommandTimeout);
         }
       }
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void OverrideTest()
     {
       using (var domain = Domain.Build(DomainConfigurationFactory.Create())) {
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           var oldValue = session.CommandTimeout;
           const int newValue = 50;
           const int newValue2 = 100;

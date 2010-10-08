@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Building.Builders
           BuildModel();
           CreateKeyGenerators();
 
-          using (var session = Session.Open(context.Domain, SessionType.System))
+          using (var session = context.Domain.OpenSession(SessionType.System))
           using (session.Activate()) {
             context.SystemSessionHandler = session.Handler;
             try {

@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           A a = new A();
           a.B = new B();
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveWithException()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         A a;
         C c;
         using (var t = Transaction.Open()) {
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletedEntityAddToReference()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           A a = new A();
           B b = new B();
@@ -205,7 +205,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletedEntityChangeFields()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           A a = new A();
           a.Remove();
@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeepCascadeRemoveTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var c = new Container();
           c.Package1 = new Package();
@@ -238,7 +238,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CascadeRemoveTest()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var c = new Container();
           c.Package1 = new Package();
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       const int containersCount = 100;
       const int itemCount = 100;
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < containersCount; i++) {
             var c = new Container {Package1 = new Package(), Package2 = new Package()};
@@ -295,7 +295,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       const int containersCount = 100;
       const int itemCount = 100;
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < containersCount; i++) {
             var c = new Container {Package1 = new Package(), Package2 = new Package()};

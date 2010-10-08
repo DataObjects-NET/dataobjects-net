@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Manual.Prefetch
       config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       var domain = Domain.Build(config);
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
 
         var employee = new Person {Name = "Employee", Photo = new byte[] {8, 0}};
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Manual.Prefetch
         transactionScope.Complete();
       }
   
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var persons = Query.All<Person>();
         var prefetchedPersons = persons
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Manual.Prefetch
         transactionScope.Complete();
       }
 
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var personIds = Query.All<Person>().Select(p => p.Id);
         var prefetchedPersons = personIds.Prefetch<Person, int>(id => Key.Create<Person>(id))
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Manual.Prefetch
         transactionScope.Complete();
       }
 
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var persons = Query.All<Person>();
         var prefetchedPersons = persons
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Manual.Prefetch
 
       int count = 1000;
 
-      using (Session.Open(domain))
+      using (domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var random = new Random(10);
         for (int i = 0; i < count; i++)
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Manual.Prefetch
         transactionScope.Complete();
       }
 
-      using (var session = Session.Open(domain))
+      using (var session = domain.OpenSession())
       using (var transactionScope = Transaction.Open()) {
         var persons =
           from person in Query.All<Person>()

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Query1Test()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var query = from item in Query.All<Item>()
                       where item.State.In(new[] {ItemState.Registering})
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Query2Test()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var itemStates = Query.Store(new[] {ItemState.Registering});
           var query = from item in Query.All<Item>()
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Query3Test()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var itemStates = Query.Store(new[] {ItemState.Registering});
 

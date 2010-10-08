@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
     public void PropertyTest()
     {
       var domain = GetDomain();
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var expectedFullNames = Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
     public void Property2Test()
     {
       var domain = GetDomain();
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var expectedFullNames = Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
     public void MethodTest()
     {
       var domain = GetDomain();
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var expectedStrings = Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
@@ -159,7 +159,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
     public void Method2Test()
     {
       var domain = GetDomain();
-      using (var session = Session.Open(domain)) {
+      using (var session = domain.OpenSession()) {
         using (Transaction.Open(session)) {
           var expectedStrings = Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
         config.Types.Register(typeof (CustomLinqCompilerContainer));
 
         var domain = Domain.Build(config);
-        using (var session = Session.Open(domain)) {
+        using (var session = domain.OpenSession()) {
           using (var transactionScope = Transaction.Open(session)) {
             // Creating initial content
             new Person {FirstName = "Ivan", LastName = "Semenov"};
