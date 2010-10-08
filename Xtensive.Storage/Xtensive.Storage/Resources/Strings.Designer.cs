@@ -1204,6 +1204,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}.{1}&apos; is already paired with &apos;{2}.{3}&apos;. Please remove [Association] attribute at &apos;{4}.{5}&apos;..
+        /// </summary>
+        internal static string ExFieldXYIsAlreadyPairedWithABRemoveCD {
+            get {
+                return ResourceManager.GetString("ExFieldXYIsAlreadyPairedWithABRemoveCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}.{1}&apos; is not found..
         /// </summary>
         internal static string ExFieldXYIsNotFound {
@@ -1750,15 +1759,6 @@ namespace Xtensive.Storage.Resources {
         internal static string ExLockDoesNotSupportQueryProviderOfTypeX {
             get {
                 return ResourceManager.GetString("ExLockDoesNotSupportQueryProviderOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Master association &apos;{0}&apos; is already paired with &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExMasterAssociationIsAlreadyPaired {
-            get {
-                return ResourceManager.GetString("ExMasterAssociationIsAlreadyPaired", resourceCulture);
             }
         }
         

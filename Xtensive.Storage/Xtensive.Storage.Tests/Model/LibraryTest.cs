@@ -606,7 +606,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsFalse(typeInfo.Fields["Author"].IsStructure);
       Assert.IsTrue(typeInfo.Fields["Author"].IsEntity);
       Assert.IsFalse(typeInfo.Fields["Author"].IsEntitySet);
-      Assert.AreEqual(OnRemoveAction.Deny, typeInfo.Fields["Author"].Association.OnTargetRemove);
+      Assert.AreEqual(OnRemoveAction.Deny, typeInfo.Fields["Author"].Associations.Last().OnTargetRemove);
 
       // Indexes
       Assert.AreEqual(6, typeInfo.Indexes.Count);
@@ -644,11 +644,11 @@ namespace Xtensive.Storage.Tests.Model
       // Fields
       Assert.IsNotNull(typeInfo.Fields["Book"]);
       Assert.AreEqual("Book", typeInfo.Fields["Book"].Name);
-      Assert.AreEqual(OnRemoveAction.Cascade, typeInfo.Fields["Book"].Association.OnTargetRemove);
+      Assert.AreEqual(OnRemoveAction.Cascade, typeInfo.Fields["Book"].Associations.Last().OnTargetRemove);
 
       Assert.IsNotNull(typeInfo.Fields["Reviewer"]);
       Assert.AreEqual("Reviewer", typeInfo.Fields["Reviewer"].Name);
-      Assert.AreEqual(OnRemoveAction.Clear, typeInfo.Fields["Reviewer"].Association.OnTargetRemove);
+      Assert.AreEqual(OnRemoveAction.Clear, typeInfo.Fields["Reviewer"].Associations.Last().OnTargetRemove);
 
       Assert.IsNotNull(typeInfo.Fields["Text"]);
       Assert.AreEqual("Text", typeInfo.Fields["Text"].Name);

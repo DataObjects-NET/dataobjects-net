@@ -65,7 +65,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       var records = reader.Read(itemsQueryTask.Result, RecordSet.Header);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       List<Pair<Key, Tuple>> auxEntities = null;
-      if (ReferencingField.Association.AuxiliaryType!=null)
+      var association = ReferencingField.Associations.Last();
+      if (association.AuxiliaryType!=null)
         auxEntities = new List<Pair<Key, Tuple>>(itemsQueryTask.Result.Count);
       foreach (var record in records) {
         for (int i = 0; i < record.Count; i++) {
@@ -75,7 +76,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           var tuple = record.GetTuple(i);
           if (tuple==null)
             continue;
-          if (ReferencingField.Association.AuxiliaryType!=null)
+          if (association.AuxiliaryType!=null)
             if (i==0)
               auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
             else {
@@ -149,11 +150,12 @@ namespace Xtensive.Storage.Internals.Prefetch
     private static RecordSet CreateRecordSetLoadingItems(object cachingKey)
     {
       var pair = (Pair<object, EntitySetTask>) cachingKey;
-      var primaryTargetIndex = pair.Second.ReferencingField.Association.TargetType.Indexes.PrimaryIndex;
+      var association = pair.Second.ReferencingField.Associations.Last();
+      var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
       ParameterExpression tupleParameter;
       RecordSet result;
-      if (pair.Second.ReferencingField.Association.AuxiliaryType == null)
+      if (association.AuxiliaryType == null)
         result = CreateQueryForDirectAssociation(pair, primaryTargetIndex, resultColumns);
       else
         result = CreateQueryForAssociationViaAuxType(pair, primaryTargetIndex, resultColumns);
@@ -165,9 +167,10 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private static RecordSet CreateQueryForAssociationViaAuxType(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
-      var associationIndex = pair.Second.ReferencingField.Association.UnderlyingIndex;
+      var association = pair.Second.ReferencingField.Associations.Last();
+      var associationIndex = association.UnderlyingIndex;
       var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
-        pair.Second.ReferencingField.Association.AuxiliaryType != null);
+        association.AuxiliaryType != null);
       AddResultColumnIndexes(resultColumns, associationIndex, 0);
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, resultColumns.Count);
       var firstKeyColumnIndex = associationIndex.Columns.IndexOf(associationIndex.KeyColumns[0].Key);
@@ -186,7 +189,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     private static RecordSet CreateQueryForDirectAssociation(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
-      var field = pair.Second.ReferencingField.Association.Reversed.OwnerField;
+      var association = pair.Second.ReferencingField.Associations.Last();
+      var field = association.Reversed.OwnerField;
       var keyColumnTypes = field.Columns.Select(column => column.ValueType).ToList();
       return primaryTargetIndex
         .ToRecordSet()

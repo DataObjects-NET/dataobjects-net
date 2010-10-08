@@ -426,8 +426,8 @@
   <data name="ExAssociationMultiplicityIsNotValidForField" xml:space="preserve">
     <value>Association multiplicity '{0}' is not valid for field '{1}'.</value>
   </data>
-  <data name="ExMasterAssociationIsAlreadyPaired" xml:space="preserve">
-    <value>Master association '{0}' is already paired with '{1}'.</value>
+  <data name="ExFieldXYIsAlreadyPairedWithABRemoveCD" xml:space="preserve">
+    <value>Field '{0}.{1}' is already paired with '{2}.{3}'. Please remove [Association] attribute at '{4}.{5}'.</value>
   </data>
   <data name="ExUnableToActivateEntitySetWithoutAssociation" xml:space="preserve">
     <value>Unable to activate EntitySet for '{0}' field because it does not has association.</value>

@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Linq
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, Log.Instance);
 
       var elementType = field.ItemType;
-      var association = field.Association;
+      var association = field.Associations.Last();
       if (association.Multiplicity == Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
         var whereExpression = Expression.Equal(
