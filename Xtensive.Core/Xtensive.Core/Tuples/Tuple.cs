@@ -106,7 +106,7 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region GetValue<T>(int,out TupleFieldState), GetValue<T>, SetValue<T> methods
+    #region GetValue<T>(int, out TupleFieldState), GetValue<T>, SetValue<T> methods
 
     /// <summary>
     /// Gets the value field value by its index, if it is available;
