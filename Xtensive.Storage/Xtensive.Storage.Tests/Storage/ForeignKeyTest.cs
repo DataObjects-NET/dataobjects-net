@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   {
     private int seed = 1;
 
-    public override Tuple Next(bool temporaryKey)
+    public override Tuple TryGenerateKey(bool temporaryKey)
     {
       return Tuple.Create(KeyInfo.TupleDescriptor, seed++, seed++);
     }

@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Serialization
 
       var keyGenerator = domain.KeyGenerators[typeInfo.Key];
       var keyValue = keyGenerator!=null 
-        ? keyGenerator.DemandNext(session.IsDisconnected) 
+        ? keyGenerator.GenerateKey(session.IsDisconnected) 
         : DeserializeKeyFields(typeInfo, info, context);
       var key = Key.Create(domain, typeInfo, TypeReferenceAccuracy.ExactType, keyValue);
 
