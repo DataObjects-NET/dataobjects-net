@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Building
   {
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
     internal HashSet<TypeInfo> TypesWithProcessedInheritedAssociations { get; private set; }
-    internal Dictionary<TypeInfo,Pair<AssociationInfo, string>> PairedAssociationsToReverse { get; private set; }
+    internal Dictionary<TypeInfo,List<Pair<AssociationInfo, string>>> PairedAssociationsToReverse { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Building
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       Configuration = configuration;
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
-      PairedAssociationsToReverse = new Dictionary<TypeInfo, Pair<AssociationInfo, string>>();
+      PairedAssociationsToReverse = new Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>>();
       TypesWithProcessedInheritedAssociations = new HashSet<TypeInfo>();
       DiscardedAssociations = new HashSet<  AssociationInfo>();
       SystemTypeIds = new Dictionary<Type, int>();
