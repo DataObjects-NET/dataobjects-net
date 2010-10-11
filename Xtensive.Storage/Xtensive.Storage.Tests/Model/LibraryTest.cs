@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   {
     private int counter;
 
-    public override Tuple Next(bool temporaryKey)
+    public override Tuple TryGenerateKey(bool temporaryKey)
     {
       var result = Tuple.Create(counter.ToString());
       counter++;

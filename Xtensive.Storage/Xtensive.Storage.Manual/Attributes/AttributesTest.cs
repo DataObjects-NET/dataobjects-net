@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Manual.Attributes
   {
     private int counter;
 
-    public override Tuple Next(bool temporaryKey)
+    public override Tuple TryGenerateKey(bool temporaryKey)
     {
       return Tuple.Create(counter++);
     }

@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
 
     [Field, Version] 
     // If HandleVersionInfoUpdate() isn't implemented, default implementation
-    // (relying on VersionGenerator.Next(...) method) is used.
+    // (relying on VersionGenerator.GenerateNextVersion(...) method) is used.
     public int Version { get; private set; }
 
     [Field]
