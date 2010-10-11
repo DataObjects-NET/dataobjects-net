@@ -1052,7 +1052,7 @@ namespace Xtensive.Storage.Linq
     {
       using (state.CreateScope()) {
         state.BuildingProjection = true;
-        state.CalculateExpressions = true;
+        state.CalculateExpressions = !state.IsTailMethod;
         var itemProjector = (ItemProjectorExpression) VisitLambda(le);
         return new ProjectionExpression(
           typeof (IQueryable<>).MakeGenericType(le.Body.Type),
