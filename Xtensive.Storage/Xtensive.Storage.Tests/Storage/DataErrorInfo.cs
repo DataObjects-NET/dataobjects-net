@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var tx = session.OpenTransaction()) {
           using (var region = Xtensive.Storage.Validation.Disable()) {
 
             var person = new Person();

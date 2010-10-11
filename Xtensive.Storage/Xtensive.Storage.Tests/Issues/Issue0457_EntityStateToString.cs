@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           Query.SingleOrDefault<BuggyEntity>(1001);
           var entityState = session.EntityStateCache.FirstOrDefault();

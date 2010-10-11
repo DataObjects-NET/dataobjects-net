@@ -68,8 +68,8 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void CombinedTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         Expression<Func<B, bool>> predicate = b => b.HierarchyField.GreaterThan("Random String 1")
           && b.ClassField < int.MinValue + 100000
             || b.HierarchyField.LessThanOrEqual("Random String 2") && b.ClassField > int.MinValue;
@@ -93,8 +93,8 @@ namespace Xtensive.Storage.Tests.Rse
       var random = RandomManager.CreateRandom();
       var stringGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<string>();
       var intGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<Int32>();
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           for (int i = 0; i < count; i++) {
             new A {HierarchyField = stringGenerator.GetInstance(random)};
             var b1 = new B

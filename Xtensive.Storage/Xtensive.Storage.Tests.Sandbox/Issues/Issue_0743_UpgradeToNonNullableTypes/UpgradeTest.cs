@@ -31,8 +31,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
     public void SetUp()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var tx = session.OpenTransaction()) {
           var person1 = new M1.Person {
             Name = "Person",
             Age = 30,
@@ -50,8 +50,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           var persons = (
             from p in Query.All<M2.Person>()
             orderby p.Name

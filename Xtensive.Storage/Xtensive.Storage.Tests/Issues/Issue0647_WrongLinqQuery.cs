@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var r1 = new Role(globalId1) { Name = "1" };
         var r2 = new Role(globalId2) { Name = "2" };
 
@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Tests.Issues
       }
 
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         Assert.IsFalse(FunctionalPermission.CanRead("Control", new string[] { }));
         Assert.IsTrue(FunctionalPermission.CanRead("Control", new[] { "1" }));
         Assert.IsFalse(FunctionalPermission.CanControl("Control", new[] { "1" }));

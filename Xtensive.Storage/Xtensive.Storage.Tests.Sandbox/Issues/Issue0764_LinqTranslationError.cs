@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var source = new MyEntity() { Text = "Source" };
         var destination = new MyEntity() { Text = "Destination" };
         var link = new Link() {LinkSource = source, LinkDestination = destination};

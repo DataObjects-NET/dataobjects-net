@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       actions = new List<Action> {AddNode, RemoveNode, TransferNode, AddTree};
       nodesData = new List<Pair<Key, int>>();
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open(IsolationLevel.ReadCommitted)) {
+      using (var tx = session.OpenTransaction(IsolationLevel.ReadCommitted)) {
         isSettingUp = true;
         for (int i = 0; i < initialTreeCount; i++)
           AddTree();
@@ -63,12 +63,12 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     public void CombinedTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
         for (int i = 0; i < iterationCount; i++)
           GetAction().Invoke();
 
-      using (Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
         var trees = Query.All<Tree>().ToList();
         long totalCount = 0;
         foreach (var tree in trees)
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       Key newNodeKey;
       Key parentNodeKey;
       try {
-        using (var tx = isSettingUp ? null : Transaction.Open()) {
+        using (var tx = isSettingUp ? null : Session.Demand().OpenTransaction()) {
           parentNodeKey = nodesData[GetNodeIndex()].First;
           var parentNode = Query.Single<TreeNode>(parentNodeKey);
           var newNode = new TreeNode();
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       long removedNodeChildCount;
       int removedNodeIndex;
       try {
-        using (var tx = Transaction.Open()) {
+        using (var tx = Session.Demand().OpenTransaction()) {
           removedNodeIndex = GetNodeIndex();
           removedNodeKey = nodesData[removedNodeIndex].First;
           var removedNode = Query.Single<TreeNode>(removedNodeKey);
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       Key oldParentKey;
       Key newParentKey;
       try {
-        using (var tx = Transaction.Open()) {
+        using (var tx = Session.Demand().OpenTransaction()) {
           var treeCount = Query.All<Tree>().Count();
           if (nodesData.Count == 1 || treeCount == 1)
             return;
@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     {
       Key key;
       try {
-        using (var tx = isSettingUp ? null : Transaction.Open()) {
+        using (var tx = isSettingUp ? null : Session.Demand().OpenTransaction()) {
           var tree = new Tree();
           tree.Root = new TreeNode {Tree = tree};
           key = tree.Root.Key;
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     {
       var treeNodeKeys = new List<Key>();
       try {
-        using (var tx = Transaction.Open()) {
+        using (var tx = Session.Demand().OpenTransaction()) {
           if (Query.All<Tree>().Count()==1)
             return;
           var nodeIndex = GetNodeIndex();

@@ -51,8 +51,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void EqualToNullTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company();
           var company2 = new Company();
           var person11 = new Person {Company = company1};
@@ -74,8 +74,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void NotEqualToNullTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company();
           var company2 = new Company();
           var person11 = new Person {Company = company1};
@@ -97,8 +97,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void EqualTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company{Name = "Company"};
           var company2 = new Company{Name = "Company"};
 
@@ -122,8 +122,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void NotEqualTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company{Name = "Company"};
           var company2 = new Company{Name = "Company"};
 
@@ -147,8 +147,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ParameterNullTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company {Name = "Company"};
           var company2 = new Company {Name = "Company"};
           EntitySet<Person> nullEntitySet = null;
@@ -166,8 +166,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ClosureEqual1Test()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company {Name = "Company1"};
           var company2 = new Company {Name = "Company2"};
           EntitySet<Person> persons = company1.Persons;
@@ -186,8 +186,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ClosureEqual2Test()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company {Name = "Company1"};
           var company2 = new Company {Name = "Company2"};
           var query =
@@ -205,8 +205,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ClosureNotEqualTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company {Name = "Company1"};
           var company2 = new Company {Name = "Company2"};
           EntitySet<Person> persons = company1.Persons;
@@ -225,8 +225,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ParameterEqualTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var company1 = new Company {Name = "Company1"};
           var company2 = new Company {Name = "Company2"};
           EntitySet<Person> persons = company1.Persons;

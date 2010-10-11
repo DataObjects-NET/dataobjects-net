@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var invoice = new Invoice {
           DocumentId = "test",
           Supplier = "supplier"
@@ -78,8 +78,8 @@ namespace Xtensive.Storage.Tests.Issues
       }
 
       // Reading all persisted objects from another Session
-      using (Domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
         var groupByQuery = Query.All<Invoice>()
             .Join(Query.All<InvoiceExtract>(), i => i, e => e.Owner, (i, e) => new { Invoice = i, Extract = e })
             .GroupBy(c => c.Invoice.DocumentId);

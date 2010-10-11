@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Providers.Sql
         context.TransactionScope.Complete();
         context.TransactionScope.Dispose();
         Execute(translator.NonTransactionalPrologCommands);
-        context.TransactionScope = Transaction.Open(SessionHandler.Session);
+        context.TransactionScope = SessionHandler.Session.OpenTransaction();
       }
 
       Execute(translator.CleanupDataCommands);
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Providers.Sql
         context.TransactionScope.Complete();
         context.TransactionScope.Dispose();
         Execute(translator.NonTransactionalEpilogCommands);
-        context.TransactionScope = Transaction.Open(SessionHandler.Session);
+        context.TransactionScope = SessionHandler.Session.OpenTransaction();
       }
     }
 

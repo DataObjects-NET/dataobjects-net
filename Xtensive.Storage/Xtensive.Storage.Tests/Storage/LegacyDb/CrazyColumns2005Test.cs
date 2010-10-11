@@ -47,15 +47,15 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     {
       var now = DateTime.Now;
       var theDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
-      using (Domain.OpenSession()) {
-        using (var ts = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var ts = session.OpenTransaction()) {
           var crazy = new Crazy {SmallDateTime = theDate};
           ts.Complete();
         }
       }
 
-      using (Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
         foreach (var item in Query.All<Crazy>())
           Console.WriteLine(item.SmallDateTime);
         Assert.AreEqual(1, Query.All<Crazy>().Where(o => o.SmallDateTime==theDate).Count());

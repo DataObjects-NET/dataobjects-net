@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var person3 = new Person {Name = "Person3"};
           var person2 = new Person {Name = "Person2"};
           var person1 = new Person {Name = "Person1"};

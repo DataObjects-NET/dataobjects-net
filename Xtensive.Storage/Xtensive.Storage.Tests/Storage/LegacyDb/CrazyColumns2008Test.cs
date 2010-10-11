@@ -51,15 +51,15 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     {
       var date = new DateTime(2000, 01, 01);
       var time = new DateTime(1,1,1,12, 00,00);
-      using (Domain.OpenSession())
-      using (var ts = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
         var crazy1 = new Crazy {Date = date, Time = DateTime.Now};
         var crazy2 = new Crazy {Date = DateTime.Now, Time = time};
         ts.Complete();
       }
 
-      using (Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
         foreach (var item in Query.All<Crazy>()) {
           Console.WriteLine(item.Date);
           Console.WriteLine(item.Time);

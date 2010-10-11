@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           new Child2
             {
               StringField = "1",
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Issues
 
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var all = Query.All<Child2>();
           foreach (var obj in all) {
             obj.Remove();

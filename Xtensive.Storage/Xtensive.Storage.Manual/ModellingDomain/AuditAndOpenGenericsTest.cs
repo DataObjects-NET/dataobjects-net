@@ -335,12 +335,12 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Cat musya;
       Person alex;
       using (var session = domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           tom = new Cat {Name = "Tom"};
           new Dog {Name = "Sharik"};
           tx.Complete();
         }
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           Assert.AreEqual(1, Query.All<TransactionInfo>().Count());
           Assert.AreEqual(2, Query.All<AuditRecord<Animal>>().Count());
           musya = new Cat();
@@ -348,33 +348,33 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
         }
 
         // Auto transactions
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           musya.Name = "Musya";
           musya.Remove();
           tx.Complete();
         }
 
         // Rollback test
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           tom.Name = "Shushera";
           // tx.Complete();
         }
 
         // Another session & transaction
         using (Session.Deactivate()) // Blocks session switching check
-        using (domain.OpenSession()) {
-          using (var tx = Transaction.Open()) {
+        using (var session2 = domain.OpenSession()) {
+          using (var tx = session2.OpenTransaction()) {
             alex = new Person {Name = "Alex"};
             tx.Complete();
           }
         }
 
-        using (var tx = Transaction.Open())
+        using (var tx = session.OpenTransaction())
         {
           alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
         }
 
-        using (var tx = Transaction.Open())
+        using (var tx = session.OpenTransaction())
         {
           tom.Owner = alex;
           tx.Complete();

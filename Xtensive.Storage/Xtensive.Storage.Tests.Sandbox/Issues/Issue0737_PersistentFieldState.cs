@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var msk = new City() {Name = "Moscow"};
         var ekb = new City() {Name = "Yekaterinburg"};
         for (int i = 0; i < 100; i++) {

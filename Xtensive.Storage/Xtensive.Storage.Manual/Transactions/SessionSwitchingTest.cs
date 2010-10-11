@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
           // but allowed, since there is no running transaction
           string name = personA.Name;
 
-          using (var tx = Transaction.Open()) {
+          using (var tx = Session.Demand().OpenTransaction()) {
             // Session switching (from sessionB to sessionA) will be detected & blocked here
             AssertEx.Throws<InvalidOperationException>(() => {
               name = personA.Name;
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
         var personA = Query.All<Person>().First();
         using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
           // Session switching (from sessionB to sessionA) will be detected here, but allowed
-          using (var tx = Transaction.Open()) {
+          using (var tx = Session.Demand().OpenTransaction()) {
             var name = personA.Name;
           }
         }
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         var domain = Domain.Build(config);
         using (var session = domain.OpenSession()) {
-          using (var transactionScope = Transaction.Open(session)) {
+          using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
             new Person {Name = "Tereza"};
             new Person {Name = "Ivan"};

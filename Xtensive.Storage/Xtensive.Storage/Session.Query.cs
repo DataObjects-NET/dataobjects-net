@@ -137,7 +137,7 @@ namespace Xtensive.Storage
         if (key == null)
           return null;
         Entity result;
-        using (var tx = Transaction.OpenAuto(session)) {
+        using (var tx = session.OpenAutoTransaction()) {
           var cache = session.EntityStateCache;
           var state = cache[key, true];
 

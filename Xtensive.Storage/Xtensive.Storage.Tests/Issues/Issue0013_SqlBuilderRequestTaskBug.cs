@@ -49,9 +49,9 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         SqlTaskEntity e1;
-        using (TransactionScope trs = Transaction.Open()) {
+        using (TransactionScope trs = session.OpenTransaction()) {
           e1 = new SqlTaskEntity();
           //insert
           Session.Current.SaveChanges();
@@ -59,13 +59,13 @@ namespace Xtensive.Storage.Tests.Issues
           //update
           trs.Complete();
         }
-        using (TransactionScope trs = Transaction.Open()) {
+        using (TransactionScope trs = session.OpenTransaction()) {
           e1.Field1 = 1;
           e1.Field3 = 3;
           //update
           trs.Complete();
         }
-        using (TransactionScope trs = Transaction.Open()) {
+        using (TransactionScope trs = session.OpenTransaction()) {
           Assert.AreEqual(1, e1.Field1);
           Assert.AreEqual(3, e1.Field3);
         }

@@ -57,8 +57,8 @@ namespace Xtensive.Storage.Manual.Prefetch
       config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
 
         var employee = new Person {Name = "Employee", Photo = new byte[] {8, 0}};
         var manager  = new Person {Name = "Manager",  Photo = new byte[] {8, 0}};
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Manual.Prefetch
       }
   
       using (var session = domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = session.OpenTransaction()) {
         var persons = Query.All<Person>();
         var prefetchedPersons = persons
           .Prefetch(p => p.Photo) // Lazy load field
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Manual.Prefetch
       }
 
       using (var session = domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = session.OpenTransaction()) {
         var personIds = Query.All<Person>().Select(p => p.Id);
         var prefetchedPersons = personIds.Prefetch<Person, int>(id => Key.Create<Person>(id))
           .Prefetch(p => p.Photo) // Lazy load field
@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Manual.Prefetch
       }
 
       using (var session = domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = session.OpenTransaction()) {
         var persons = Query.All<Person>();
         var prefetchedPersons = persons
           .Prefetch(p => p.Photo) // Lazy load field
@@ -136,8 +136,8 @@ namespace Xtensive.Storage.Manual.Prefetch
 
       int count = 1000;
 
-      using (domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
         var random = new Random(10);
         for (int i = 0; i < count; i++)
           new Person {Name = i.ToString(), Photo = new[] {(byte) (i % 256)}};
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Manual.Prefetch
       }
 
       using (var session = domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = session.OpenTransaction()) {
         var persons =
           from person in Query.All<Person>()
           orderby person.Name

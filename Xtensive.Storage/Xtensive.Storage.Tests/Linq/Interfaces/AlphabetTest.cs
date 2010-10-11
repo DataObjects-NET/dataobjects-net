@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           // ClassTable
           for (int i = 0; i < EachCount; i++)
             new A() {Name = "Name: A" + i};
@@ -109,8 +109,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       var secondaryIndex = Domain.Model.Types[typeof(INamed)].Indexes.GetIndex("Name");
       secondaryIndex.Dump();
 
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var result = Query.All<INamed>().ToList();
         Assert.Greater(result.Count, 0);
         foreach (var iNamed in result) {
@@ -136,8 +136,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       var index = Domain.Model.Types[typeof(ITagged)].Indexes.PrimaryIndex;
       index.Dump();
 
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var result = Query.All<ITagged>().ToList();
         Assert.Greater(result.Count, 0);
         foreach (var iTagged in result) {
@@ -164,8 +164,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       var index = Domain.Model.Types[typeof(IComposite)].Indexes.PrimaryIndex;
       index.Dump();
 
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var result = Query.All<IComposite>().ToList();
         Assert.Greater(result.Count, 0);
         foreach (var iComposite in result) {
@@ -189,8 +189,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void FetchTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var named = Query.Single<INamed>(33L);
         Assert.IsNotNull(named);
         Assert.AreEqual("Name: D'2", named.Name);
@@ -203,8 +203,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       const int totalCount = EachCount * 15;
       var names = new List<string>(totalCount);
 
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         for (long i = 1; i <= totalCount; i++) {
           var key = Key.Create<INamed>(i);
           var named = Query.Single<INamed>(key);
@@ -215,8 +215,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
         t.Complete();
       }
 
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var namedQuery = Query.All<INamed>()
           .Select(i => i.Name)
           .OrderBy(i=>i)

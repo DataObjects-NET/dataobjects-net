@@ -135,8 +135,8 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     { 
       int mouseId;
       validationCallsCount = 0;
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           using (var region = Xtensive.Storage.Validation.Disable()) {
             var mouse = new Mouse {
               ButtonCount = 2,
@@ -154,8 +154,8 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       Assert.AreEqual(1, validationCallsCount);
 
       validationCallsCount = 0;
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           var mouse = Query.All<Mouse>().Where(m => m.ID==mouseId).First();
         }
       }
@@ -168,10 +168,10 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     {
       validationCallsCount = 0;
 
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Mouse mouse;
 
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           using (var region = Xtensive.Storage.Validation.Disable()) {
             mouse = new Mouse {
               ButtonCount = 2,
@@ -201,8 +201,8 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void EntityValidation()
     {
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
 
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
           AssertEx.Throws<AggregateException>(
@@ -213,13 +213,13 @@ namespace Xtensive.Storage.Tests.Storage.Validation
               }
             });
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
 
           // Created, but not modified invalid object.
           AssertEx.Throws<AggregateException>(() =>
             new Mouse());
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
 
           // Invalid modification of existing object.
           AssertEx.Throws<AggregateException>(
@@ -232,7 +232,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
               m.ScrollingCount = 2;
             });
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
 
           Mouse mouse;
           // Valid object - ok.
@@ -263,10 +263,10 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void StructureValidation()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Mouse mouse;
 
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           // Valid mouse is created.
           using (var region = Xtensive.Storage.Validation.Disable()) {
@@ -278,7 +278,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         }
 
         // Structure become invalid.
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           AssertEx.Throws<AggregateException>(
             delegate {
               mouse.Led.Brightness = 2.3;
@@ -287,7 +287,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         }
           
         // Changed structure make entity invalid.
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           AssertEx.Throws<AggregateException>(
             delegate {
               mouse.Led.Brightness = 11;
@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void TransactionsValidation()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
 
         // Inconsistent region can not be opened without transaction.
         AssertEx.ThrowsInvalidOperationException(() =>
@@ -308,13 +308,13 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
         // Transaction can not be committed while validation context is in inconsistent state.
           AssertEx.ThrowsInvalidOperationException(() => {
-          using (var t = Transaction.Open()) {
+          using (var t = session.OpenTransaction()) {
             Xtensive.Storage.Validation.Disable();
             t.Complete();
           }
         });
 
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           try {
             using (var region = Xtensive.Storage.Validation.Disable()) {
               var mouse = new Mouse();
@@ -333,8 +333,8 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void ValidationInConstructor()
     {
-      using (Domain.OpenSession()) 
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) 
+      using (session.OpenTransaction()) {
         AssertEx.Throws<Exception>(() => {
           var reference1 = new Reference();
         });

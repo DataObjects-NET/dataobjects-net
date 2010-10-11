@@ -32,8 +32,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void OriginalTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
           var item2 = new Item {Date = dateTime.AddSeconds(1)};
@@ -61,8 +61,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SimplifiedTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
           var item2 = new Item {Date = dateTime.AddSeconds(1)};
@@ -84,8 +84,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void AnonimousTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
           var item2 = new Item {Date = dateTime.AddSeconds(1)};

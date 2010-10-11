@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Tests.Storage.OperationOrderTest
     {
       using (var session = Domain.OpenSession()) {
         BindEvents(session);
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           Book b;
           using (DisableEvents()) {
             b = new Book();

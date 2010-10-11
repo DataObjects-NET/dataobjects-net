@@ -54,8 +54,8 @@ namespace Xtensive.Storage.Tests.Model
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.CycleReferenceTestModel");
 
       using (var domain = Domain.Build(config))
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         t.Complete();
       }
     }

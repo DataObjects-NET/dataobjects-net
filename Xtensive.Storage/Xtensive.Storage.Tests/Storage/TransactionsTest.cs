@@ -58,12 +58,12 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RollbackCreationTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Hexagon hexagon;
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           hexagon = new Hexagon();
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           Assert.IsTrue(hexagon.IsRemoved);
         }
         AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 15; });
@@ -73,18 +73,18 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RollbackRemovingTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Hexagon hexagon;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           hexagon = new Hexagon {Kwanza = 36};
           t.Complete();
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           hexagon.Remove();
           AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 20; });
           // rolling back removal
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           hexagon.Kwanza = 14;
           Assert.AreEqual(14, hexagon.Kwanza);
         }
@@ -94,19 +94,19 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void VoidScopesTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
 
-        using (var scope = Transaction.Open()) {
+        using (var scope = session.OpenTransaction()) {
           
           Assert.IsFalse(scope.IsVoid);
           Assert.IsNotNull(scope.Transaction);
 
-          using (var scope2 = Transaction.Open()) {
+          using (var scope2 = session.OpenTransaction()) {
             
             Assert.IsTrue(scope2.IsVoid);
             Assert.IsNull(scope2.Transaction);
 
-            using (var scope3 = Transaction.Open()) {
+            using (var scope3 = session.OpenTransaction()) {
               Assert.IsTrue(ReferenceEquals(scope2, scope3));
             }
           }
@@ -118,48 +118,48 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RollbackModifyingTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Hexagon hexagon;
 
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           hexagon = new Hexagon {Kwanza = 3};
           t.Complete();
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           Assert.AreEqual(3, hexagon.Kwanza);
           Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
         }
 
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           hexagon.Kwanza = 11;
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           Assert.AreEqual(3, hexagon.Kwanza);
           Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           hexagon.Babuka = new Hexagon();
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           Assert.IsNull(hexagon.Babuka);
           Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           hexagon.Kwanza = 12;
           Session.Current.SaveChanges();
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           Assert.AreEqual(3, hexagon.Kwanza);
           Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           try {
             hexagon.Wobble(18);
           }
           catch (InvalidOperationException) {
           }
         }
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           Assert.AreEqual(3, hexagon.Kwanza);
         }
       }
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         var hexagon = new Hexagon {Kwanza = 1};
 
         session.Events.TransactionOpened +=
@@ -187,12 +187,12 @@ namespace Xtensive.Storage.Tests.Storage
         session.Events.TransactionRollbacked +=
           (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
 
-        using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+        using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
           hexagon.Kwanza = 2;
           // Rollback
         }
 
-        using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+        using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
           hexagon.Kwanza = 2;
           nestedScope.Complete();
         }

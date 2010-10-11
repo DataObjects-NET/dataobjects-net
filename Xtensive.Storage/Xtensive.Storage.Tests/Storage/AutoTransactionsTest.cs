@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TransactionsTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         var testObject = new MySessionBound();
         testObject.CheckAutoTransactions();
         new MyEntity();
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NonTransactionalSessionBoundTest()
     {
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
       {
         var sb = new NotTransactionalSessionBound();
         sb.Method1();
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void CheckAutoTransactions()
     {
       CheckState(this, TransactionState.None, SessionState.Active);
-      using (Transaction.Open()) {
+      using (Session.OpenTransaction()) {
         CheckState(this, TransactionState.Open, SessionState.Active);
       }
       CheckState(this, TransactionState.None, SessionState.Active);

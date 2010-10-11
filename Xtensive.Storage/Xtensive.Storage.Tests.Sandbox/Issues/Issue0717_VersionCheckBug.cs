@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Issues
         Person person;
         Key key;
         VersionInfo version;
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           person = new Person() {Name = "Name"};
           key = person.Key;
           version = person.VersionInfo;
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Issues
         });
 
       using (VersionValidator.Attach(expectedVersions)) {
-        using (var tx = Transaction.Open()) {
+        using (var tx = Session.Demand().OpenTransaction()) {
           var entity = Query.Single<T>(key);
           using (var ir = Validation.Disable()) {
             updater.Invoke(entity);

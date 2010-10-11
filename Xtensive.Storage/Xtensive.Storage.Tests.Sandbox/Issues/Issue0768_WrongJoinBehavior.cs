@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var ref1 = new Reference(Guid.NewGuid()) { Name = "q", Version = DateTime.Now };
         var node1 = new Node(Guid.NewGuid()) { Name = "w", Ref = ref1, Version = DateTime.Now };
 
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Issues
         t.Complete();
       }
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var list = Query.All<Node>().Select(node => new { Parent = node.Parent.Ref.Name, node.Name }).ToList();
         Assert.AreEqual(3, list.Count());
 

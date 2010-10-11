@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var webSite = new WebSite();
           webSite.WebSite = webSite; // self-refernece
           Session.Current.SaveChanges();
@@ -77,8 +77,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void DualSelfreferenceTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var webSite = new WebSite();
           webSite.WebSite = webSite; // self-refernece 1
           webSite.WebSite2 = webSite; // self-refernece 2
@@ -91,8 +91,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SelfreferenceTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var myEntity = new MyEntity();
           Session.Current.SaveChanges();
           // Rollback

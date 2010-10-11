@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Tests.Model
       VersionInfo version;
 
       using (var session = domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var instance = new Simple();
           instance.NonLazyField1 = "Value";
           instance.NonLazyField2 = 123;

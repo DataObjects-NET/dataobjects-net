@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Manual.Services
           return;
         }
 
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
           session.SaveChanges(); // Ensures changes are flushed
           

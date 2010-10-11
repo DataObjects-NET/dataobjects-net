@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Manual.Attributes
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open(session)) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           var author = new Author();
           var sciFi = new SciFi {Author = author};

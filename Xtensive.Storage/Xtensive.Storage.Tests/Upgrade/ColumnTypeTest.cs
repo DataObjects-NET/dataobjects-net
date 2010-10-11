@@ -34,8 +34,8 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void SetUp()
     {
       BuildDomain(Mode.Recreate);
-      using (domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var x = new X {
             FInt = 1, 
             FInt2 = 12345, 
@@ -226,8 +226,8 @@ namespace Xtensive.Storage.Tests.Upgrade
         BuildDomain(mode);
       }
 
-      using (domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var x = Query.All<X>().First();
           Assert.AreEqual(expectedValue, x[changedFieldName]);
         }

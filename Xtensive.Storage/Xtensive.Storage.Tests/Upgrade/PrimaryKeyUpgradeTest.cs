@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       BuildDomain("Version2Perform", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var authorCount = Query.All<PrimaryKeyModel.Version2Perform.Author>().Count(a => a.Name == "Jack London");
         var bookCount = Query.All<PrimaryKeyModel.Version2Perform.Book>().Count();
         // Nothing is kept, since there is no upgrade handler
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       BuildDomain("Version2PerformSafely", DomainUpgradeMode.PerformSafely);
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var authorCount = Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().Count(a => a.Name == "Jack London");
         var bookCount = Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().Count();
         Assert.AreEqual(1, authorCount);
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     private void FillData()
     {
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         new Book() {
           Author = new Author() { Name = "Jack London"},
           Category = new Category() { Name = "Novels"},

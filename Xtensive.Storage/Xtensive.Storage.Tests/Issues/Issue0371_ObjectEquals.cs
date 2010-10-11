@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ObjectEqualsTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var item1 = new Item();
           var item2 = new Item();
           var result = Query.All<Item>().Where(item => Equals(item, item1));
@@ -75,8 +75,8 @@ namespace Xtensive.Storage.Tests.Issues
     [ExpectedException(typeof(QueryTranslationException))]
     public void ItemEquals1Test()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var item1 = new Item();
           var item2 = new Item();
           var result = Query.All<Item>().Where(item => Item.Equals((object)item, (object)item1));
@@ -89,8 +89,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ItemEquals2Test()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var item1 = new Item();
           var item2 = new Item();
           var result = Query.All<Item>().Where(item => Item.Equals(item, item1));
@@ -103,8 +103,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ClassEqualsTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var item1 = new Item();
           var item2 = new Item();
           var result = Query.All<Item>().Where(item => String.Equals(item.Name, item1.Name));
@@ -117,8 +117,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void StringEqualsTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var item1 = new Item();
           var item2 = new Item();
           var result = Query.All<Item>().Where(item => item.Equals(item1));

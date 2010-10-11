@@ -51,8 +51,8 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       Key key;
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var root1 = new Node("1");
           key = root1.Key;
@@ -78,8 +78,8 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
       }
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var root1 = Query.Single<Node>(key);
           Console.WriteLine("Direct query");

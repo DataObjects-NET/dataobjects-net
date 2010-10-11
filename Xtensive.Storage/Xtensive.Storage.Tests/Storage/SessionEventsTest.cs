@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       throwExceptionOnCommit = true;
       
-      var transactionScope = Transaction.Open();
+      var transactionScope = Session.Demand().OpenTransaction();
       Assert.IsNotNull(transactionOpenArgs);
       Assert.AreSame(Transaction.Current, transactionOpenArgs.Transaction);
 
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       ClearEvents();
 
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = Session.Demand().OpenTransaction()) {
         Assert.IsNotNull(transactionOpenArgs);
         Assert.AreSame(Transaction.Current, transactionOpenArgs.Transaction);
 
@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       ClearEvents();
 
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = Session.Demand().OpenTransaction()) {
         Assert.IsNotNull(transactionOpenArgs);
         Assert.AreSame(Transaction.Current, transactionOpenArgs.Transaction);
 
@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private void EditEntity()
     {
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = Session.Demand().OpenTransaction()) {
 
         ClearEvents();
 

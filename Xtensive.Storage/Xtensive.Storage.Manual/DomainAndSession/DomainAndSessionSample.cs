@@ -55,8 +55,8 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       // And finally building the domain
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           var person = new Person();
           person.Name = "Barack Obama";
@@ -117,8 +117,8 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       var domain = Domain.Build(config);
 
       int personId;
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           personId = new Person().Id;
 
           transactionScope.Complete();
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       }
 
       using (var session = domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           var newPerson = new Person();
           var fetchedPerson = Query.Single<Person>(personId);
@@ -141,8 +141,8 @@ namespace Xtensive.Storage.Manual.DomainAndSession
 
       #endregion
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           var person = new Person();
           person.Name = "Barack Obama";

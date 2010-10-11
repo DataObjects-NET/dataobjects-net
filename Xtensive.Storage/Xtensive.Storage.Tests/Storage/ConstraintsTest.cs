@@ -24,8 +24,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NotNullableViolationTest()
     {
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           var book = new Book();
 
           // Text is nullable so it's OK
@@ -40,11 +40,11 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SessionBoundaryViolationTest()
     {
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           Author author = new Author();
-          using (Domain.OpenSession()) {
-            using (Transaction.Open()) {
+          using (var session2 = Domain.OpenSession()) {
+            using (session2.OpenTransaction()) {
               Book book = new Book();
 
               // Author is bound to another session

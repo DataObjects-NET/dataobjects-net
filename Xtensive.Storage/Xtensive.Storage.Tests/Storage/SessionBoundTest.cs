@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Storage
       sc1.Options |= SessionOptions.AutoTransactionOpenMode;
       sc2.Options |= SessionOptions.AutoTransactionOpenMode;
       using (var session1 = Domain.OpenSession(sc1)) {
-        using (Transaction.Open()) {
+        using (session1.OpenTransaction()) {
           Ray ray1 = new Ray();
           var helper = new TestHelper(Session.Current);
           Session.Current.SaveChanges();
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var session2 = Domain.OpenSession(sc2)) {
             Assert.IsNull(Transaction.Current);
 
-            using (Transaction.Open()) {
+            using (session2.OpenTransaction()) {
               Ray ray2 = new Ray();
               using (Session.Deactivate()) // To allow helper from session1 to activate its session
                 helper.Validate(ray1, ray2, Session.Current);

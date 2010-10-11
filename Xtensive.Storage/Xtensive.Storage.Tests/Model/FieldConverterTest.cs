@@ -49,10 +49,10 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Key key = null;
         var dateTime = new DateTime(2000, 01, 07);
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
 
           var person = new Person();
           key = person.Key;
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Model
           t.Complete();
         }
 
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
 
           var person = Query.Single<Person>(key);
           Assert.AreEqual(dateTime, person.Date);

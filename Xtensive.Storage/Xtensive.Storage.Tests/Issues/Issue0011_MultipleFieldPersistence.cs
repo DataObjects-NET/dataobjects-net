@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var e1 = new MyEntity();
           e1.Field3 = 3;
           Session.Current.SaveChanges();

@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open())
+      using (var t = session.OpenTransaction())
       {
         new Foo() {Name = "foo", Some = 10, Tag = "foo tag"};
         new Bar() {Name = "bar", Some = Guid.NewGuid(), Tag = "bar tag"};

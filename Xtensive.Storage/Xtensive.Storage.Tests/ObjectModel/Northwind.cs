@@ -366,8 +366,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
       cmd.CommandText = "Select * from [dbo].[Categories]";
       var reader = cmd.ExecuteReader();
 
-      using (domain.OpenSession())
-      using (var tr = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var tr = session.OpenTransaction()) {
         #region  Categories
 
         var categories = new Dictionary<object, Category>();

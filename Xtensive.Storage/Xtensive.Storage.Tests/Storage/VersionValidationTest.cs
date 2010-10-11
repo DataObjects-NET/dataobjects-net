@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo customerVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Domain.OpenSession()) {
         using (VersionValidator.Attach(session, versionGetter)) {
-          using (var transactionScope = Transaction.Open()) {
+          using (var transactionScope = session.OpenTransaction()) {
             var customer = Query.Single<Customer>(customerKey);
             customer.Name = "Customer3";
             transactionScope.Complete();
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo customerVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Domain.OpenSession()) {
         using (VersionValidator.Attach(session, versionGetter)) {
           AssertEx.Throws<VersionConflictException>(() => {
-            using (var transactionScope = Transaction.Open()) {
+            using (var transactionScope = session.OpenTransaction()) {
               var customer = Query.Single<Customer>(customerKey);
               customer.Name = "Customer3";
               transactionScope.Complete();
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo customerVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Domain.OpenSession()) {
         using (VersionValidator.Attach(session, versionGetter)) {
-          using (var transactionScope = Transaction.Open()) {
+          using (var transactionScope = session.OpenTransaction()) {
             var customer = Query.Single<Customer>(customerKey);
             customer.Remove();
             transactionScope.Complete();
@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo customerVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Domain.OpenSession()) {
         using (VersionValidator.Attach(session, versionGetter)) {
           AssertEx.Throws<VersionConflictException>(() => {
-            using (var transactionScope = Transaction.Open()) {
+            using (var transactionScope = session.OpenTransaction()) {
               var customer = Query.Single<Customer>(customerKey);
               customer.Remove();
               transactionScope.Complete();
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage
     private void RenameCustomer(Key key)
     {
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var customer = Query.Single<Customer>(key);
           customer.Name = "Updated customer";
           transactionScope.Complete();
@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Tests.Storage
     private void RemoveCustomer(Key key)
     {
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var customer = Query.Single<Customer>(key);
           customer.Remove();
           transactionScope.Complete();
@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Key result;
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var customer = new Customer();
           customer.Name = "Customer";
           result = customer.Key;

@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void ExceptionInCtorTest()
     {
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         try {
           new UncreatableEntity(42);
         }

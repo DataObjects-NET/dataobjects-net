@@ -117,8 +117,8 @@ namespace Xtensive.Storage.Tests.Issues
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Fill();
           t.Complete();
         }
@@ -128,8 +128,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void TakeTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var result = Query.All<Article>().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           var expected = Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           Assert.IsTrue(expected.Count>0);
@@ -146,8 +146,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SkipTakeTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var result = Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           var expected = Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           Assert.IsTrue(expected.Count>0);
@@ -164,8 +164,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SkipTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var result = Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           var expected = Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           Assert.AreEqual(expected.Count, result.Count);
@@ -182,8 +182,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SelectCategoryTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var result = Query.All<Article>().Select(p => p.Category);
           foreach (var category in result) {
             Assert.IsNotNull(category);
@@ -195,8 +195,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void QuerySingleTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var a1 = Query.All<Article>().First();
         var id = a1.Id;
 
@@ -208,8 +208,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void QuerySingleOrDefaultTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var url = "http://localhost/page_1.htm";
         var result = Query.All<BlogPost>().Where(p => p.SitePage.Url == url).SingleOrDefault();
         Assert.IsNotNull(result);

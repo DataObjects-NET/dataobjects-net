@@ -39,8 +39,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var person1 = new Person(){IntField = 1};
           var person2 = new Person(){IntField = 2};
           var personNull = new Person(){IntField = null};

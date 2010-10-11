@@ -54,8 +54,8 @@ namespace Xtensive.Storage.Tests.Issues
     {
       Assert.AreEqual(0, new[] {1, 2}.Take(1).Skip(1).Count());
 
-      using (Domain.OpenSession())
-      using (var trs = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var trs = session.OpenTransaction()) {
         var e1 = new MyEntity();
         var e2 = new MyEntity();
         RecordQuery rsMyEntities = Domain.Model.Types[typeof (MyEntity)]

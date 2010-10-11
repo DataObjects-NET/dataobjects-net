@@ -9,6 +9,7 @@ using System.Transactions;
 using Xtensive.Core.Disposing;
 using Xtensive.Core;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Providers;
@@ -27,6 +28,62 @@ namespace Xtensive.Storage
     /// Gets the active transaction.
     /// </summary>    
     public Transaction Transaction { get; private set; }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public TransactionScope OpenTransaction()
+    {
+      return OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false);
+    }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public TransactionScope OpenTransaction(IsolationLevel isolationLevel)
+    {
+      return OpenTransaction(TransactionOpenMode.Default, isolationLevel, false);
+    }
+    
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="mode">The mode.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public TransactionScope OpenTransaction(TransactionOpenMode mode)
+    {
+      return OpenTransaction(mode, IsolationLevel.Unspecified, false);
+    }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="mode">The mode.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
+    {
+      return OpenTransaction(mode, isolationLevel, false);
+    }
 
     internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel, bool isAutomatic)
     {
@@ -49,6 +106,89 @@ namespace Xtensive.Storage
           : CreateOutermostTransaction(isolationLevel, isAutomatic);
       default:
         throw new ArgumentOutOfRangeException("mode");
+      }
+    }
+
+
+    // OpenAuto method group
+
+    /// <summary>
+    /// Opens the automatic transaction, or does nothing - dependently on specified
+    /// behavior and <see cref="SessionOptions"/>.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public TransactionScope OpenAutoTransaction()
+    {
+      return OpenAutoTransaction(TransactionalBehavior.Auto, IsolationLevel.Unspecified);
+    }
+
+    /// <summary>
+    /// Opens the automatic transaction, or does nothing - dependently on specified
+    /// behavior and <see cref="SessionOptions"/>.
+    /// </summary>
+    /// <param name="behavior">The automatic transaction behavior.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public TransactionScope OpenAutoTransaction(TransactionalBehavior behavior)
+    {
+      return OpenAutoTransaction(behavior, IsolationLevel.Unspecified);
+    }
+
+    /// <summary>
+    /// Opens the automatic transaction, or does nothing - dependently on specified
+    /// behavior and <see cref="SessionOptions"/>.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public TransactionScope OpenAutoTransaction(IsolationLevel isolationLevel)
+    {
+      return OpenAutoTransaction(TransactionalBehavior.Auto, isolationLevel);
+    }
+
+    /// <summary>
+    /// Opens the automatic transaction, or does nothing - dependently on specified
+    /// behavior and <see cref="SessionOptions"/>.
+    /// </summary>
+    /// <param name="behavior">The automatic transaction behavior.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    public TransactionScope OpenAutoTransaction(TransactionalBehavior behavior, IsolationLevel isolationLevel)
+    {
+      switch (behavior) {
+        case TransactionalBehavior.Auto:
+          if ((Configuration.Options & SessionOptions.AutoTransactionOpenMode) ==
+              SessionOptions.AutoTransactionOpenMode)
+            goto case TransactionalBehavior.Open;
+          if ((Configuration.Options & SessionOptions.AutoTransactionSuppressMode) ==
+              SessionOptions.AutoTransactionSuppressMode)
+            goto case TransactionalBehavior.Suppress;
+          goto case TransactionalBehavior.Require;
+        case TransactionalBehavior.Require:
+          return TransactionScope.VoidScopeInstance;
+        case TransactionalBehavior.Open:
+          if (IsDisconnected && Transaction!=null && !Transaction.IsDisconnected)
+            goto case TransactionalBehavior.New;
+          return OpenTransaction(TransactionOpenMode.Auto, isolationLevel, true);
+        case TransactionalBehavior.New:
+          return OpenTransaction(TransactionOpenMode.New, isolationLevel, true);
+        case TransactionalBehavior.Suppress:
+          return TransactionScope.VoidScopeInstance;
+        default:
+          throw new ArgumentOutOfRangeException();
       }
     }
 
@@ -143,7 +283,7 @@ namespace Xtensive.Storage
 
     /// <exception cref="InvalidOperationException">Can't create a transaction
     /// with requested isolation level.</exception>
-    private static void EnsureIsolationLevelCompatibility(IsolationLevel current, IsolationLevel requested)
+    private void EnsureIsolationLevelCompatibility(IsolationLevel current, IsolationLevel requested)
     {
       var sdCurrent = IsolationLevelConverter.Convert(current);
       var sdRequested = IsolationLevelConverter.Convert(requested);

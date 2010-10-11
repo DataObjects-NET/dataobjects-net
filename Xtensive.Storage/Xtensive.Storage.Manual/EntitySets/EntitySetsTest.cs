@@ -121,8 +121,8 @@ namespace Xtensive.Storage.Manual.EntitySets
     {
       var domain = BuildDomain();
 
-      using (domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
         var user = new User();
 
         var firstPost = new BlogPost {Title = "First post"};
@@ -145,8 +145,8 @@ namespace Xtensive.Storage.Manual.EntitySets
     public void OneToOneTest()
     {
       var domain = BuildDomain();
-      using (domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
         var user = new User();
         var account = new Account();
         user.Account = account;
@@ -170,8 +170,8 @@ namespace Xtensive.Storage.Manual.EntitySets
     public void EntitySetTest()
     {
       var domain = BuildDomain();
-      using (domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
         var user = new User {Name = "Alex"};
 
         var xtensive = new WebPage {Title = "Xtensive company", Url = "http://www.x-tensive.com"};

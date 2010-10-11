@@ -189,8 +189,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CreateInstanceTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           accessor.CreateEntity(typeof (MyEntity));
           accessor.CreateStructure(typeof (MyStructure));
@@ -202,8 +202,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SetFieldTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           var myEntity = (MyEntity) accessor.CreateEntity(typeof (MyEntity));
           myEntity.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myEntity, myEntity.TypeInfo.Fields["Value"], "Value");
@@ -219,8 +219,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
           Key key = myEntity.Key;
@@ -236,8 +236,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void EntitySetTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var pa = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity container = (MyEntity)pa.CreateEntity(typeof (MyEntity));
           MyEntity item1 = (MyEntity)pa.CreateEntity(typeof (MyEntity));

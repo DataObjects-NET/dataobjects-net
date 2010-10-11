@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
     public void SetUp()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var tx = session.OpenTransaction()) {
           var acticle = new M1.Article();
           tx.Complete();
         }
@@ -41,8 +41,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Validate);
-      using (domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           Assert.AreEqual(1, Query.All<M2.Article>().Count());
         }
       }

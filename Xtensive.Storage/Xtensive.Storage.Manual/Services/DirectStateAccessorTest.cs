@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Manual.Services
       using (var session = domain.OpenSession()) {
         Key entityKey;
         string originalValue;
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var entity = new Simple {
             Value = Guid.NewGuid().ToString()
           };
@@ -90,12 +90,12 @@ namespace Xtensive.Storage.Manual.Services
 
       using (var session = domain.OpenSession()) {
         Key entityKey;
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var entity = new Simple {Value = Guid.NewGuid().ToString()};
           entityKey = entity.Key;
           tx.Complete();
         }
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var entity = Query.Single<Simple>(entityKey);
           var entityState = DirectStateAccessor.Get(entity);
 
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Manual.Services
       using (var session = domain.OpenSession()) {
         Key containerKey;
         Key firstContainedKey;
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var container = new Container();
           containerKey = container.Key;
           container.Entities.Add(new Simple());
@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Manual.Services
           container.Entities.Add(new Simple());
           tx.Complete();
         }
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var container = Query.Single<Container>(containerKey);
           var entitySetState = DirectStateAccessor.Get(container.Entities);
           Assert.IsFalse(entitySetState.IsFullyLoaded);

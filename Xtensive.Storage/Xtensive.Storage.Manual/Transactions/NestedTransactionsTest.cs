@@ -97,8 +97,8 @@ namespace Xtensive.Storage.Manual.Transactions.NestedTransactions
       // And finally building the domain
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           // Creating user
           var dmitri = new User {
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Manual.Transactions.NestedTransactions
           dmitri.Name = "Dmitri Maximov";
 
           // Opening new nested transaction
-          using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+          using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
             // Removing the entity
             dmitri.Remove();
             Assert.IsTrue(dmitri.IsRemoved);

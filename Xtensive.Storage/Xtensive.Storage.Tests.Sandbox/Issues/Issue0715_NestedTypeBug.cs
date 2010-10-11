@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void StandardTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open(session)) {
+      using (var tx = session.OpenTransaction()) {
         new Forest.Animal {Name = "Forest Animal"};
         new Animal {Name = "Animal"};
       }

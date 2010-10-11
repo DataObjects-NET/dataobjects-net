@@ -107,8 +107,8 @@ namespace Xtensive.Storage.Manual.Legacy.CustomKeyGenerators
       // And finally building the domain
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           // Creating two authors
           var joseph = new Author {Name = "Joseph Albahari"};

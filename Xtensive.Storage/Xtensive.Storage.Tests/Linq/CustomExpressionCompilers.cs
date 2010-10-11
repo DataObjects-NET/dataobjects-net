@@ -101,8 +101,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Fill();
           var expected1 = Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
           Assert.Greater(expected1.Count, 0);
@@ -120,8 +120,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AssignmentCurrentTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new Assignment() {Active = true, Start = new DateTime(2009, 11, 23), End = null};
         new Assignment() {Active = false, Start = new DateTime(2009, 10, 3), End = null};
         new Assignment() {Active = false, Start = new DateTime(2020, 01, 10), End = new DateTime(2044, 12, 3)};

@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
 
       string key = null;
 
-      using (domain.OpenSession())
+      using (var session = domain.OpenSession())
       {
-        using (var transactionScope = Transaction.Open())
+        using (var transactionScope = session.OpenTransaction())
         {
           inputContainer = new Container { Name = "DebugInputContainer" };
           inputContainer.CreateDocument<Document>("FirstDocument");
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
         }
 
         // 
-        using (var transactionScope = Transaction.Open())
+        using (var transactionScope = session.OpenTransaction())
         {
           EchoProcessor echoProcessor = new EchoProcessor
           {

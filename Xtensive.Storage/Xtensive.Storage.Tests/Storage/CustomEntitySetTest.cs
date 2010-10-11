@@ -67,8 +67,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void Maintest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Master m = new Master();
           
           m.ManyToMany.Add(new Slave());

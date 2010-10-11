@@ -23,10 +23,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Infrastructure]
     public static IList<object> GetWork(string key, Domain domain)
     {
-      using (domain.OpenSession())
+      using (var session = domain.OpenSession())
       {
         QueueProcessor queueProcessor = null;
-        using (TransactionScope transactionScope = Transaction.Open())
+        using (TransactionScope transactionScope = session.OpenTransaction())
         {
           queueProcessor = GetQueueProcessorByKey(key);
           transactionScope.Complete();
@@ -38,10 +38,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Infrastructure]
     public static void Execute(string key, object workUnit, Domain domain)
     {
-      using (domain.OpenSession())
+      using (var session = domain.OpenSession())
       {
         QueueProcessor queueProcessor = null;
-        using (TransactionScope transactionScope = Transaction.Open())
+        using (TransactionScope transactionScope = session.OpenTransaction())
         {
           queueProcessor = GetQueueProcessorByKey(key);
           queueProcessor.Execute(workUnit);
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
       }
       catch (Exception ex) // yes, general exception type
       {
-        using (TransactionScope transactionScope = Transaction.Open())
+        using (TransactionScope transactionScope = Session.OpenTransaction())
         {
           string message = String.Format("Exception caught in {0}.Execute() : '", this.Name);
           Log.Error(message, ex);

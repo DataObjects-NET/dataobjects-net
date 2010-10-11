@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void BugTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var m = new Master();
 
         session.SaveChanges();
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void EventSequenceTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         AttachSyncEventCheckers(session);
         var m1 = new Master { Name = "m1" };
         var m2 = new Master { Name = "m2" };

@@ -126,8 +126,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SerializationOfComplexReferencesTest()
     {
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
         }
       }
     }
@@ -140,8 +140,8 @@ namespace Xtensive.Storage.Tests.Storage
       string companyName = "Xtensive LLC";
       int companyId;
       
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           Company company = new Company {Name = companyName};
           companyId = company.Id;
 
@@ -152,8 +152,8 @@ namespace Xtensive.Storage.Tests.Storage
           // Can'not resolve deserialized entity - it's not commited in original session.
           AssertEx.Throws<TargetInvocationException>(
             delegate {
-              using (Domain.OpenSession()) {
-                using (Transaction.Open()) {
+              using (var session2 = Domain.OpenSession()) {
+                using (session2.OpenTransaction()) {
                   stream.Position = 0;
                   formatter.Deserialize(stream);
                 }
@@ -164,8 +164,8 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           stream.Position = 0;
           Company company = (Company) Query.SingleOrDefault(Key.Create(typeof (Company), companyId));// Query.All<Company>().First();
 
@@ -175,8 +175,8 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           stream.Position = 0;
           Company company = (Company) formatter.Deserialize(stream);
 
@@ -192,16 +192,16 @@ namespace Xtensive.Storage.Tests.Storage
     {       
       Stream stream = new MemoryStream();
 
-      using (Domain.OpenSession()) {  
+      using (var session = Domain.OpenSession()) {  
 
         Country russia;
         
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           russia = new Country("Russia");
           transactionScope.Complete();
         }
 
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           Country china = new Country("China");
 
           City moscow = new City(russia, "Moscow");
@@ -225,8 +225,8 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           
           var deserializationContext = new DeserializationContext();
 
@@ -272,16 +272,16 @@ namespace Xtensive.Storage.Tests.Storage
 
       int firstCompanyId;
 
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           Company company = new Company {Name = "OpenTransaction lines"};
           firstCompanyId = company.Id;
           transactionScope.Complete();
         }
       }
 
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
 
           object[] array;
           Company existingCompany = (Company) Query.SingleOrDefault(Key.Create(typeof (Company), firstCompanyId)); //Query.All<Company>().First();
@@ -309,8 +309,8 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           object[] array;
           stream.Position = 0;

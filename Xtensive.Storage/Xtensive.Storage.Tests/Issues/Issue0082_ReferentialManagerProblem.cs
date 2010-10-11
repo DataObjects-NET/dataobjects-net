@@ -57,13 +57,13 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           new Descendant {StringField = "1",};
           new Descendant {StringField = "2",};
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var allD = from d in Query.All<Descendant>() select d;
           foreach (var d in allD)
             d.Remove();

@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var controlId = Guid.NewGuid();
         var messageId = Guid.NewGuid();
         var control = new Control(controlId);

@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var domainHandler = (DomainHandler) Domain.Handler;
           var createTableCommandText = "CREATE TABLE " + 
             domainHandler.Schema.Name + ".[TestTable] ([TestColumn] [money])";
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Issues
 
       var domain = BuildDomain(BuildConfiguration());
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var schema = ((DomainHandler) Domain.Handler).Schema;
           Assert.IsNull(schema.Tables.SingleOrDefault(table => table.Name=="TestTable"));
           transactionScope.Complete();

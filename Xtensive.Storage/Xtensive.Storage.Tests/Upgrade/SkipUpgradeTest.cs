@@ -71,8 +71,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (var initialDomain = Domain.Build(initialConfiguration)) {
         typeIdentifiers = initialDomain.Model.Types
           .ToDictionary(type => type.UnderlyingType, type => type.TypeId);
-        using (initialDomain.OpenSession())
-        using (var ts = Transaction.Open()) {
+        using (var session = initialDomain.OpenSession())
+        using (var ts = session.OpenTransaction()) {
           new BuildAgent("Agent Smith")
             .CompatibleConfigurations.Add(new BuildConfiguration("SQL Server"));
           new BuildAgent("Agent Thompson")
@@ -92,8 +92,8 @@ namespace Xtensive.Storage.Tests.Upgrade
           var newTypeId = typeInfo.TypeId;
           Assert.AreEqual(oldTypeId, newTypeId);
         }
-        using (testedDomain.OpenSession())
-        using (var ts = Transaction.Open()) {
+        using (var session = testedDomain.OpenSession())
+        using (var ts = session.OpenTransaction()) {
           var trinity = new BuildAgent("Trinity");
           Assert.AreEqual(4, Query.All<BuildAgent>().Count());
           Assert.AreEqual(3, Query.All<BuildConfiguration>().Count());

@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Tests.Issues
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         new Unit() { Title = "Unit" };
         tx.Complete();
       }
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Domain.OpenSession())
       using (ds.Attach(session)) {
         using (ds.Connect()) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             var unit = new Unit { Title = "Unit 2" };
             tx.Complete(); // Local transaction completed.
           }

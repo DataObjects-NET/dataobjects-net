@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Insert", insertCount)) {
-          using (var ts = Transaction.Open()) {
+          using (var ts = ss.OpenTransaction()) {
             for (int i = 0; i < insertCount; i++)
               new Simplest(i, i);
             ts.Complete();
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         long sum = (long)count*(count-1)/2;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Fetch & GetField", count)) {
             for (int i = 0; i < count; i++) {
@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         //long sum = (long)count*(count-1)/2;
         var i = 0;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           var keys = GetKeys(count).ToList();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Prefetch", count)) {
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         int i = 0;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize", count)) {
             while (i < count)
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         int i = 0;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize anonymous type", count)) {
             while (i < count)
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         long sum = 0;
         int i = 0;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize & GetField", count)) {
             while (i < count)
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         int i = 0;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
@@ -268,7 +268,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         int i = 0;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var message = string.Format("Access to non-paired EntitySet[{0} items]", EntitySetItemCount);
           using (warmup ? null : new Measurement(message, count)) {
@@ -292,7 +292,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         int i = 0;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var message = string.Format("Access to paired EntitySet[{0} items]", EntitySetItemCount);
           using (warmup ? null : new Measurement(message, count)) {
@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         TestHelper.CollectGarbage();
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           SimplestContainer owner = null;
           for (int i = 0; i < insertCount; i++) {
             if (i % EntitySetItemCount == 0) {
@@ -339,7 +339,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss;
         TestHelper.CollectGarbage();
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           var query = Query.Execute(() => Query.All<SimplestContainer>());
           foreach (var o in query)
             o.Remove();
@@ -353,7 +353,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
@@ -374,7 +374,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           var id = 0;
           var query = Query.All<Simplest>().Where(o => o.Id == id);
           TestHelper.CollectGarbage();
@@ -396,7 +396,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           var id = 0;
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Cached query", count)) {
@@ -419,7 +419,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
@@ -445,7 +445,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss;
-        using (var ts = Transaction.Open()) {
+        using (var ts = ss.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var pKey = new Parameter<Tuple>();
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
@@ -473,7 +473,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update", instanceCount)) {
-          using (var ts = Transaction.Open()) {
+          using (var ts = ss.OpenTransaction()) {
             var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query)
               o.Value++;
@@ -490,7 +490,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (no batching)", instanceCount)) {
-          using (var ts = Transaction.Open()) {
+          using (var ts = ss.OpenTransaction()) {
             var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query) {
               o.Value = o.Value++;
@@ -509,7 +509,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (like DML query)", instanceCount)) {
-          using (var ts = Transaction.Open()) {
+          using (var ts = ss.OpenTransaction()) {
             var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query) {
               var value = o.Value;
@@ -529,7 +529,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
-          using (var ts = Transaction.Open()) {
+          using (var ts = ss.OpenTransaction()) {
             var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query)
               o.Remove();

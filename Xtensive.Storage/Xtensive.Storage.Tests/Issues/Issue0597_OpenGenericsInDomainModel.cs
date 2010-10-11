@@ -148,8 +148,8 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       Assert.IsFalse(Domain.Model.Types.Contains(typeof(WrongMediaItemBase<VirtualMedia>)));
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
       }
     }
   }

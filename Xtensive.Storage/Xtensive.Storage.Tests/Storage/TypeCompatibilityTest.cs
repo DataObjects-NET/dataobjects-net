@@ -256,9 +256,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DefaultValuesTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Key key;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           X x = new X();
           key = x.Key;
           t.Complete();
@@ -271,7 +271,7 @@ namespace Xtensive.Storage.Tests.Storage
           var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
           minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           X x = Query.SingleOrDefault<X>(key);
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
@@ -347,9 +347,9 @@ namespace Xtensive.Storage.Tests.Storage
       // TODO: Expand the test (precision: 1-38, scale: 0-28)
       const decimal d34_19 = 304861306900020.0000000000000000000m;
       const decimal d25_0 = 7200200000000000000000000m;
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Key key;
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var container = new DecimalContainer() {
             d34_19 = d34_19,
             d25_0 = d25_0
@@ -357,7 +357,7 @@ namespace Xtensive.Storage.Tests.Storage
           key = container.Key;
           transactionScope.Complete();
         }
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var container = Query.Single<DecimalContainer>(key);
           Assert.AreEqual(d34_19, container.d34_19);
           Assert.AreEqual(d25_0, container.d25_0);

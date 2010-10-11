@@ -24,13 +24,13 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveCreateTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Customer customer;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           customer = new Customer("AAAAA");
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           customer.Remove();
           new Customer("AAAAA");
           t.Complete();
@@ -41,13 +41,13 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void UpdateRemoveTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Customer customer;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           customer = new Customer("BBBBB");
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           customer.CompanyName = "Xtensive";
           customer.Remove();
           t.Complete();
@@ -58,9 +58,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CreateRemoveTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Customer customer;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           customer = new Customer("CCCCC");
           customer.Remove();
           t.Complete();

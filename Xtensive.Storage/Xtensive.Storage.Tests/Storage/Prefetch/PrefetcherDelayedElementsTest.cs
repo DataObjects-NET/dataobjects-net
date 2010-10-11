@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       base.TestFixtureSetUp();
       using (var session = Domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = session.OpenTransaction()) {
         for (int i = 0; i < 111; i++)
           PrefetchTestHelper.FillDataBase(session);
         orderType = typeof (Order).GetTypeInfo();
@@ -48,15 +48,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void SimpleTest()
     {
       List<Key> keys;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         keys = Query.All<Person>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<Person, Key>(key => key);
         var count = 0;
         foreach (var key in prefetcher) {
@@ -77,8 +77,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       List<Key> keys;
       int actualEmployeeCount;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         keys = Query.All<Customer>().Where(c => c.Name == "Customer1").AsEnumerable()
           .Select(p => Key.Create<Person>(p.Key.Value)).ToList();
         actualEmployeeCount = Query.All<Employee>().Where(e => e.Name == "Employee1").Count();
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var ordersField = customerType.Fields["Orders"];
         var employeeField = orderType.Fields["Employee"];
         var employeeType = typeof (Employee).GetTypeInfo();
@@ -133,15 +133,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void PrefetchViaEntityTest()
     {
       List<Key> keys;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         keys = Query.All<Customer>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<Entity, Key>(key => key);
         foreach (var key in prefetcher) {
           var cachedKey = GetCachedKey(key, session);
@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var keys = GetKeys<Person>(20);
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetchCount = session.Handler.PrefetchTaskExecutionCount;
         var prefetcher = keys.Prefetch<AdvancedPerson, Key>(key => key);
         foreach (var key in prefetcher) {
@@ -175,7 +175,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var keys = GetKeys<Person>(120);
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var count = 0;
         foreach (var key in keys.Take(15).Prefetch<AdvancedPerson, Key>(key => key)) {
           count++;
@@ -202,8 +202,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void FullLoadingOfReferencedEntityTest()
     {
       var keys = new List<Key>();
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         for (int i = 0; i < 151; i++) {
           var title = new Title {Text = "abc", Language = "En"};
           keys.Add(new Book {Category = (i % 10).ToString(), Title = title}.Key);
@@ -228,8 +228,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void FullLoadingOfDirectEntitySetItemsTest()
     {
       var keys = new List<Key>();
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         Action<Book, int> titlesGenerator = (b, count) => {
           for (var i = 0; i < count; i++)
             b.TranslationTitles.Add(new Title {Text = i.ToString()});
@@ -245,7 +245,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<Book, Key>(key => key).Prefetch(b => b.TranslationTitles);
         var bookType = typeof (Book).GetTypeInfo();
         var translationTitlesField = bookType.Fields["TranslationTitles"];
@@ -265,8 +265,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var bookShopKeys = new List<Key>();
       TypeInfo publisherType;
       TypeInfo bookShopType;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         publisherType = typeof (Publisher).GetTypeInfo();
         bookShopType = typeof (BookShop).GetTypeInfo();
         Action<Publisher, int> titlesGenerator = (p, count) => {
@@ -285,7 +285,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = publisherKeys.Prefetch<Publisher, Key>(key => key).Prefetch(p => p.Distributors);
         var distributorsField = publisherType.Fields["Distributors"];
         var isOneItemPresentAtLeast = false;
@@ -296,7 +296,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = bookShopKeys.Prefetch<BookShop, Key>(key => key).Prefetch(b => b.Suppliers);
         var suppliersField = bookShopType.Fields["Suppliers"];
         var isOneItemPresentAtLeast = false;
@@ -312,8 +312,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       TypeInfo referenceToSelfType;
       var keys = new List<Key>();
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         referenceToSelfType = typeof (ReferenceToSelf).GetTypeInfo();
         var reference = new ReferenceToSelf {AuxField = 3};
         keys.Add(reference.Key);
@@ -325,7 +325,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<IReferenceToSelf, Key>(key => key).Prefetch(r => r.Reference);
         foreach (var key in prefetcher) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, referenceToSelfType, session,
@@ -347,8 +347,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       where T : Entity
     {
       List<Key> keys;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         keys = Query.All<T>().Take(count).AsEnumerable().Select(p => Key.Create<T>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
@@ -359,7 +359,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     private void TestFullLoadingOfReferencedEntities(IEnumerable<Key> keys)
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<Book, Key>(key => key).Prefetch(b => b.Title);
         var bookType = typeof (Book).GetTypeInfo();
         var titleField = bookType.Fields["Title"];

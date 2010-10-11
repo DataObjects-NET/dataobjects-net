@@ -113,12 +113,12 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Guid key = new Guid("{0AF02FA4-F6C6-4A78-A569-9E5225281E27}");
         Event evt = null;
         Lock evtLock;
 
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           evt = new Event("dep", key, false);
           evtLock = new Lock("dep", key, null);
           evtLock.OwnerObject = evt;

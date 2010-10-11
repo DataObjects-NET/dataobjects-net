@@ -55,9 +55,9 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
       {
-        using (TransactionScope transactionScope = Transaction.Open())
+        using (TransactionScope transactionScope = session.OpenTransaction())
         {
           // Creating new persistent object
           var helloWorld = new MyEntity
@@ -79,9 +79,9 @@ namespace Xtensive.Storage.Tests.Issues
       }
 
       // Reading all persisted objects from another Session
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
       {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var query = from l in Query.All<MyEntity>().First().Lines
                       group l by l.Rate.GetValueOrDefault() into g
                       select new {Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault())};

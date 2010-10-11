@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var person = new Person(Guid.NewGuid()) {Rank = 1};
         var position = new Position(Guid.NewGuid()) {Rank = 1};
 //        session.Persist();

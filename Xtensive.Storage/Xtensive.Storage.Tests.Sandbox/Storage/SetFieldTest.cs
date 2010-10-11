@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Storage.SetFieldTest
     public void CombinedTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         session.Events.EntityFieldValueSetting += (sender, e) => {
           fieldSetCallCount++;
         };
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage.SetFieldTest
     public void NullableEnumSetTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var book = new Book();
         book.NullableDirection = Direction.Positive;
         book.NullableDirection = null;

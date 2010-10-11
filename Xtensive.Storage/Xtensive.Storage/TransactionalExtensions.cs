@@ -27,7 +27,8 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, T argument)
     {
-      using (var transactionScope = Transaction.Open()) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction()) {
         action.Invoke(argument);
         transactionScope.Complete();
       }
@@ -42,7 +43,7 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, Session session, T argument)
     {
-      using (var transactionScope = Transaction.Open(session)) {
+      using (var transactionScope = session.OpenTransaction()) {
         action.Invoke(argument);
         transactionScope.Complete();
       }
@@ -56,7 +57,8 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, IsolationLevel isolationLevel, T argument)
     {
-      using (var transactionScope = Transaction.Open(isolationLevel)) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         action.Invoke(argument);
         transactionScope.Complete();
       }
@@ -72,7 +74,7 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, Session session, IsolationLevel isolationLevel, T argument)
     {
-      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         action.Invoke(argument);
         transactionScope.Complete();
       }
@@ -84,7 +86,8 @@ namespace Xtensive.Storage
     /// <param name="action">The action.</param>
     public static void InvokeTransactionally(this Action action)
     {
-      using (var transactionScope = Transaction.Open()) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction()) {
         action.Invoke();
         transactionScope.Complete();
       }
@@ -97,7 +100,7 @@ namespace Xtensive.Storage
     /// <param name="session">The session.</param>
     public static void InvokeTransactionally(this Action action, Session session)
     {
-      using (var transactionScope = Transaction.Open(session)){
+      using (var transactionScope = session.OpenTransaction()){
         action.Invoke();
         transactionScope.Complete();
       }
@@ -110,7 +113,8 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static void InvokeTransactionally(this Action action, IsolationLevel isolationLevel)
     {
-      using (var transactionScope = Transaction.Open(isolationLevel)) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         action.Invoke();
         transactionScope.Complete();
       }
@@ -124,7 +128,7 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static void InvokeTransactionally(this Action action, Session session, IsolationLevel isolationLevel)
     {
-      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         action.Invoke();
         transactionScope.Complete();
       }
@@ -143,7 +147,8 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, T argument)
     {
-      using (var transactionScope = Transaction.Open()) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction()) {
         var result = function.Invoke(argument);
         transactionScope.Complete();
         return result;
@@ -160,7 +165,7 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, Session session, T argument)
     {
-      using (var transactionScope = Transaction.Open(session)) {
+      using (var transactionScope = session.OpenTransaction()) {
         var result = function.Invoke(argument);
         transactionScope.Complete();
         return result;
@@ -176,7 +181,8 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, IsolationLevel isolationLevel, T argument)
     {
-      using (var transactionScope = Transaction.Open(isolationLevel)) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         var result = function.Invoke(argument);
         transactionScope.Complete();
         return result;
@@ -194,7 +200,7 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, Session session, IsolationLevel isolationLevel, T argument)
     {
-      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         var result = function.Invoke(argument);
         transactionScope.Complete();
         return result;
@@ -208,7 +214,8 @@ namespace Xtensive.Storage
     /// <param name="function">The function.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function)
     {
-      using (var transactionScope = Transaction.Open()) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction()) {
         var result = function.Invoke();
         transactionScope.Complete();
         return result;
@@ -223,7 +230,7 @@ namespace Xtensive.Storage
     /// <param name="session">The session.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, Session session)
     {
-      using (var transactionScope = Transaction.Open(session)) {
+      using (var transactionScope = session.OpenTransaction()) {
         var result = function.Invoke();
         transactionScope.Complete();
         return result;
@@ -238,7 +245,8 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, IsolationLevel isolationLevel)
     {
-      using (var transactionScope = Transaction.Open(isolationLevel)) {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         var result = function.Invoke();
         transactionScope.Complete();
         return result;
@@ -254,7 +262,7 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, Session session, IsolationLevel isolationLevel)
     {
-      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
+      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         var result = function.Invoke();
         transactionScope.Complete();
         return result;
@@ -323,7 +331,7 @@ namespace Xtensive.Storage
     public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, Session session, IsolationLevel isolationLevel)
     {
       using (session.Activate(true))
-      using (var tx = Transaction.OpenAuto(session, isolationLevel)) {
+      using (var tx = session.OpenAutoTransaction(isolationLevel)) {
         foreach (var item in source)
           yield return item;
         tx.Complete();

@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
     {
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
-        using (Transaction.Open(session)) {
+        using (session.OpenTransaction()) {
           var employees = Query.All<Employee>();
           employees.ToList();
         }
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
     {
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
-        using (Transaction.Open(session)) {
+        using (session.OpenTransaction()) {
           var query = Query.All<Person>().Select(employee => 
             new {
               employee, 
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
         var domain = Domain.Build(config);
 
         using (var session = domain.OpenSession()) {
-          using (var transactionScope = Transaction.Open(session)) {
+          using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
             new Person {Name = "John"};
             new Person {Name = "Susan"};

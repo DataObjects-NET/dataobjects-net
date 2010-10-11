@@ -31,8 +31,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      using (var s = Domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+      using (var s = domain.OpenSession()) {
+        using (var tx = s.OpenTransaction()) {
           var e = new TestEntity(Guid.NewGuid()) {
             Date = DateTime.Now, 
             Integer = 1
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       // Adding few items to DisconnectedState
       using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             TestEntity doc;
             using (ds.Connect()) {
               doc = Query.All<TestEntity>().Where(f => f.Integer == 1).Single();
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         dsBackup = ds.Clone(); // Needs active Session to work properly
 
         using (ds.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
               var doc = Query.All<TestEntity>().Where(f => f.Integer == 1).Single();
               // Must throw an exception, since there is no real entity
@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       // Modifying B and C instances and rollback the local transaction
       using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
               var doc = Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       // Testing if above block has successfully completed
       using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
               var doc = Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
@@ -158,7 +158,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       // Really modifying B and C instances
       using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
               var doc = Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       // Testing if above block has successfully completed
       using (var session = Domain.OpenSession()) {
         using (ds.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
               var doc = Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
@@ -204,7 +204,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
 
       // Testing if above block has successfully completed
       using (var session = Domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidB).Name, "b2");
           Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidC).Name, "c2");
           Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidD).Name, "d");
@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       var state = new DisconnectedState();
       using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (state.Connect()) {
               var partialResult = Query.All<TestEntity>().Select(u => new { u.Date }).ToList();
               // Exception here, to be fixed
@@ -244,7 +244,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
 
       using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (state.Connect()) {
               var doc = Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
 
       using (var session = Domain.OpenSession()) {
         using (state.Attach(session)) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             using (state.Connect()) {
               // Exception here
               var doc = Query.All<TestEntity>()

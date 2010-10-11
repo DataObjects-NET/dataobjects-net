@@ -37,12 +37,12 @@ namespace Xtensive.Storage.Tests.Storage
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(PropertyVersion<decimal?>));
       domain = Domain.Build(configuration);
-      using (domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var v = new PropertyVersion<decimal?>() {PropertyValue = 123};
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var count = Query.All<PropertyVersion<decimal?>>().Count();
           Assert.AreEqual(1, count);
           var v = Query.All<PropertyVersion<decimal?>>().FirstOrDefault();

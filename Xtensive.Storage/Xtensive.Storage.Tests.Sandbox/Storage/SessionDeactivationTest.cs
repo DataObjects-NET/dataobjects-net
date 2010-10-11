@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage.SessionDeactivationTest
       AssertEx.Throws<InvalidOperationException>(() => {
         var session = Domain.OpenSession();
         using (session.Activate()) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             var types = Query.All<Metadata.Type>().ToList();
             session.Dispose();
             tx.Complete();
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Storage.SessionDeactivationTest
       {
         var session = Domain.OpenSession();
         using (session.Activate()) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             var types = Query.All<Metadata.Type>().ToList();
             session.Dispose();
             // tx.Complete();

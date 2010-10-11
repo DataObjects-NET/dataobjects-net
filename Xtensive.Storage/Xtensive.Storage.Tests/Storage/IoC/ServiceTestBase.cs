@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Storage.IoC
     public void ContainerTest()
     {
       using (var session = Domain.OpenSession()) {
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
 
           // Domain-level singleton service
           var domainSingleton1 = Domain.Services.Get<IMyService>("singleton");
@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Tests.Storage.IoC
           var sessionSingleton2 = session.Services.Get<IMyService>();
           Assert.AreSame(sessionSingleton1, sessionSingleton2);
 
-          using (Domain.OpenSession()) {
-            using (Transaction.Open()) {
+          using (var session2 = Domain.OpenSession()) {
+            using (session2.OpenTransaction()) {
               // Session-level singleton service from another session
               var sessionSingleton3 = Session.Current.Services.Get<IMyService>();
               Assert.AreNotSame(sessionSingleton1, sessionSingleton3);
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage.IoC
     {
       const int iterationCount = 100000;
       using (var session = Domain.OpenSession()) {
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           using (new Measurement("Getting domain-level singleton service.", iterationCount))
             for (int i = 0; i < iterationCount; i++)
               Domain.Services.Get<IMyService>("singleton");

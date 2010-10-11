@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       const int count = 50000;
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var root = new Node();
           for (int i = 0; i < count-1; i++) {

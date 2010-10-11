@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage
       config.Types.Register(typeof(ComplexTrack));
       var domain = Domain.Build(config);
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         new SimpleTrack(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(10), new SimpleMedia() {Description = "Simple", Foo = 23});
         new ComplexTrack(TimeSpan.FromMinutes(6), TimeSpan.FromMinutes(15), new ComplexMedia() {Description = "Simple", Bar = DateTime.Now});
         var listSimpleMedia = Query.All<Track<SimpleMedia>>().ToList();

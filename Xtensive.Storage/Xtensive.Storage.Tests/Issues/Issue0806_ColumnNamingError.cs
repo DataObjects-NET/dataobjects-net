@@ -121,8 +121,8 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       var today = DateTime.Now;
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var query =
             from kalinaGasObject in Query.All<PipeAbonent>()
@@ -156,8 +156,8 @@ namespace Xtensive.Storage.Tests.Issues
     public void SimplifiedTest()
     {
       var today = DateTime.Now;
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var query =
             from kalinaGasObject in Query.All<PipeAbonent>()

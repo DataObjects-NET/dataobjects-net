@@ -24,6 +24,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open()
     {
       var session = Session.Demand();
@@ -39,6 +40,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
@@ -54,6 +56,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(TransactionOpenMode mode)
     {
       var session = Session.Demand();
@@ -70,6 +73,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
@@ -84,6 +88,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
@@ -99,6 +104,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
@@ -114,6 +120,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, TransactionOpenMode mode)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
@@ -130,6 +137,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
@@ -148,6 +156,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto()
     {
       var session = Session.Demand();
@@ -164,6 +173,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(TransactionalBehavior behavior)
     {
       var session = Session.Demand();
@@ -180,6 +190,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
@@ -197,6 +208,7 @@ namespace Xtensive.Storage
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(TransactionalBehavior behavior, IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
@@ -212,6 +224,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session)
     {
       return OpenAuto(session, TransactionalBehavior.Auto, IsolationLevel.Unspecified);
@@ -227,6 +240,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session, TransactionalBehavior behavior)
     {
       return OpenAuto(session, behavior, IsolationLevel.Unspecified);
@@ -242,6 +256,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session, IsolationLevel isolationLevel)
     {
       return OpenAuto(session, TransactionalBehavior.Auto, isolationLevel);
@@ -258,6 +273,7 @@ namespace Xtensive.Storage
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
+    [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session, TransactionalBehavior behavior, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");

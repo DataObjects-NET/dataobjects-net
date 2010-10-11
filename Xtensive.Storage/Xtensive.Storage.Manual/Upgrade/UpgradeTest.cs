@@ -46,8 +46,8 @@ namespace Xtensive.Storage.Manual.Upgrade
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       var domain = Domain.Build(domainConfig);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           var mMorder = 
             new Model_1.Order { ProductName = "Cheese",  Quantity = 10 };
@@ -66,8 +66,8 @@ namespace Xtensive.Storage.Manual.Upgrade
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var domain = Domain.Build(domainConfig);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           var cheeseOrder = Query.All<Model_2.Order>().FirstOrDefault(o => o.ProductName == "Cheese");
 
@@ -93,8 +93,8 @@ namespace Xtensive.Storage.Manual.Upgrade
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var domain = Domain.Build(domainConfig);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           var cheeseOrder = Query.All<Model_3.Order>().FirstOrDefault(o => o.ProductName == "Cheese");
 
@@ -114,8 +114,8 @@ namespace Xtensive.Storage.Manual.Upgrade
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var domain = Domain.Build(domainConfig);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           int productCount = Query.All<Model_4.Product>().Count();
           Assert.AreEqual(2, productCount);

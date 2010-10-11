@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       Key key;
       using (var s = Domain.OpenSession()) {
-        using (var t = Transaction.Open(s)) {
+        using (var t = s.OpenTransaction()) {
           var document = new Document();
           key = document.Key;
           t.Complete();

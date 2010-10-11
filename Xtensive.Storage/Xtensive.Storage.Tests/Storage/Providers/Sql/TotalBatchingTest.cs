@@ -39,8 +39,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void PersistTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         Initialize();
         CreateEntities(2 * BatchSize + 5);
         ValidateEntities(2 * BatchSize + 5);
@@ -50,8 +50,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void QueryTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         Initialize();
         CreateEntities(3);
         session.SaveChanges();
@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void PersistQueryTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         Initialize();
         CreateEntities(5);
         CreateQueries(5);
@@ -78,8 +78,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void PersistQuerySelectTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         Initialize();
         CreateEntities(2);
         CreateQueries(2);

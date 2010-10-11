@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var result1 = 
           from c in Query.All<Customer>()
           from o in Query.All<Order>().Where(o => o.Customer == c).Take(1).DefaultIfEmpty()

@@ -31,8 +31,8 @@ namespace Xtensive.Storage.Tests.Storage
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         for (int i = 0; i < 20; i++) {
           new Article() {
             Title = "Title " + i,
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Require.ProviderIs(StorageProvider.Index);
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var directSql = session.Services.Demand<DirectSqlAccessor>();
           Assert.IsFalse(directSql.IsAvailable);
           t.Complete();
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.IsTrue(directSql.IsAvailable);
         Assert.IsNull(directSql.Transaction);
         
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
           session.SaveChanges();
           

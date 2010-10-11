@@ -106,8 +106,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Key k1 = Key.Create<Apple>("1");
           Key k2 = Key.Create<Apple>("1");
           Assert.AreEqual(k1, k2);
@@ -124,9 +124,9 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void ResolveKeyTest()
     {
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
       {
-        using (var t = Transaction.Open())
+        using (var t = session.OpenTransaction())
         {
           var descriptor = Domain.Model.Types[typeof (Test)].Hierarchy.Key.TupleDescriptor;
 
@@ -150,8 +150,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void ResolveNotExistingKeyTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Key key = Key.Create(typeof (Fruit), "NotExistingFruit");
           var entity = Query.SingleOrDefault(key);
           var entity2 = Query.SingleOrDefault<Fruit>("NotExistingFruit");
@@ -164,8 +164,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void StoreKeyTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var a = new Apple("1");
           var b = new Banana("2");
@@ -202,13 +202,13 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Ignore("Erroneous behavior")]
     public void CombinedTest()
     {
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           Apple myApple = new Apple("My fruit");
           Key appleKey = myApple.Key;
 
-          using (Domain.OpenSession()) {
-            using (Transaction.Open()) {
+          using (var session2 = Domain.OpenSession()) {
+            using (session2.OpenTransaction()) {
               Key bananaKey = new Banana("My fruit").Key;
               Assert.AreEqual(typeof (Banana), bananaKey.Type.UnderlyingType);
             }

@@ -55,9 +55,9 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void FillData()
     {
-      using (domain.OpenSession())
+      using (var session = domain.OpenSession())
       {
-        using (var transactionScope = Transaction.Open())
+        using (var transactionScope = session.OpenTransaction())
         {
           // BusinessContacts
           var helen = new SimpleVersion1.BusinessContact

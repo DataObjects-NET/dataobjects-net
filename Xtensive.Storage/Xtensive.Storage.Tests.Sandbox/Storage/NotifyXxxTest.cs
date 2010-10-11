@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Storage.NotifyXxxTests
     public void StandardTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var sessionStateAccessor = DirectStateAccessor.Get(session);
         var book1 = new Book() {Title = "Book 1"};
         var book2 = new Book() {Title = "Book"};
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Storage.NotifyXxxTests
     public void EventKeyRemappingTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var sessionStateAccessor = DirectStateAccessor.Get(session);
         Book book1;
         Book book2;

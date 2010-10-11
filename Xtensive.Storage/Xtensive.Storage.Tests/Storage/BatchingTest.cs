@@ -54,19 +54,19 @@ namespace Xtensive.Storage.Tests.Storage
 
     private void RunTest(int batchSize)
     {
-      using (Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize})) {
+      using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize})) {
         Key key;
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var hexagon = new Hexagon();
           key = hexagon.Key;
           transactionScope.Complete();
         }
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var hexagon = Query.Single<Hexagon>(key);
           hexagon.IncreaseKwanza();
           transactionScope.Complete();
         }
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var hexagon = Query.Single<Hexagon>(key);
           hexagon.Remove();
           transactionScope.Complete();

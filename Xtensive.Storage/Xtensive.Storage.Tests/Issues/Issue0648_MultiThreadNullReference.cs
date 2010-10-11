@@ -36,8 +36,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           new Simple();
           new Simple();
           new Simple();
@@ -46,8 +46,8 @@ namespace Xtensive.Storage.Tests.Issues
 
           for (int i = 0; i < 10; i++) {
             ThreadPool.QueueUserWorkItem(state => {
-                                             using (var session = Domain.OpenSession())
-                                             using (var t = Transaction.Open()) {
+                                             using (var session2 = Domain.OpenSession())
+                                             using (var t = session2.OpenTransaction()) {
                                                var count = Query.All<Simple>().Count();
                                              }
                                            });

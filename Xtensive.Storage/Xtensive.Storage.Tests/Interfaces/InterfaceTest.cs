@@ -116,8 +116,8 @@ namespace Xtensive.Storage.Tests.Interfaces
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           IPerson p = new Person1();
           p.Pets.Add(new Animal1());

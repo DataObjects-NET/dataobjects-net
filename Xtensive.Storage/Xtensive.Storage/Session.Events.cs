@@ -53,7 +53,7 @@ namespace Xtensive.Storage
     public void NotifyChanged(NotifyChangedOptions options)
     {
       using (Activate()) 
-      using (var tx = Transaction.OpenAuto(this)) {
+      using (var tx = OpenAutoTransaction()) {
         var entitySubscribers    = EntityEvents.GetSubscribers(EntityEventBroker.PropertyChangedEventKey).ToList();
         var entitySetSubscribers = EntityEvents.GetSubscribers(EntityEventBroker.CollectionChangedEventKey).ToList();
 

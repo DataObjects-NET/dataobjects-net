@@ -103,7 +103,7 @@ namespace Xtensive.Storage
         : (session.Configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation;
       if (activate)
         sessionScope = session.Activate(true);
-      var tx = Transaction.OpenAuto(session, Mode);
+      var tx = session.OpenAutoTransaction(Mode);
       args.MethodExecutionTag = tx.IsVoid
         ? sessionScope
         : (sessionScope == null ? (IDisposable) tx : tx.Join(sessionScope));

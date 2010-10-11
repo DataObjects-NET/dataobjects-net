@@ -63,8 +63,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Test1()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var points = Query.All<Range>().Select(r => r.Left).Where(p => p == new Point(10, 1));
         var list = points.ToList();
       }
@@ -73,8 +73,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Test2()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var filter = new Point(10, 1);
         var points = Query.All<Range>().Where(r => r.Left == filter).Select(r => r.Left);
         var list = points.ToList();

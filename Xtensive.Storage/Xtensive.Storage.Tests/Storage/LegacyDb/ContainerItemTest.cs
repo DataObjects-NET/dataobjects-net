@@ -148,8 +148,8 @@ ALTER TABLE [dbo].[ItemOption] CHECK CONSTRAINT [FK_ItemOption_Item]
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var c = new Container();
         var item = new Item(c);
         c.Items.Add(item);
@@ -164,18 +164,18 @@ ALTER TABLE [dbo].[ItemOption] CHECK CONSTRAINT [FK_ItemOption_Item]
     [Test]
     public void SequentialTransactionsTest()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         Container c;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           c = new Container();
           t.Complete();
         }
         Item i;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           i = new Item(c);
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           i.Remove();
           t.Complete();
         }

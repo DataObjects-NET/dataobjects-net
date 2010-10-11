@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
     {
       BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A));
       using (var s = domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = s.OpenTransaction()) {
           Assert.AreEqual(1, Query.All<M1.A>().Count());
         }
       }
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
     {
       BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A), typeof (M1.B));
       using (var s = domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = s.OpenTransaction()) {
           Assert.AreEqual(2, Query.All<M1.A>().Count());
         }
       }
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var s = domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = s.OpenTransaction()) {
           Assert.AreEqual(4, Query.All<M2.A>().Count());
           var firstD = Query.All<M2.D>().First();
           Assert.AreEqual(2, firstD.RefA.Count());
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
     private void FillData()
     {
       using (var s = domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = s.OpenTransaction()) {
           var a1 = new M1.A();
           var b1 = new M1.B();
           var c1 = new M1.C();

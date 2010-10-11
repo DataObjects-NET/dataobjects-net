@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           Assert.AreEqual(4, Query.All<M2.Person>().Count());
           Assert.AreEqual(2, Query.All<M2.Employee>().Count());
           Assert.AreEqual(2, Query.All<M2.Customer>().Count());
@@ -75,8 +75,8 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
 
     private void FillData()
     {
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           // BusinessContacts
           var helen = new M1.Customer() {
             Address = "Cowes, UK",

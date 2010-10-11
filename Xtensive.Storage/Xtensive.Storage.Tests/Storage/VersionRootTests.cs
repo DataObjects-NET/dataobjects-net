@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo orderItemVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var order = new Order {Number = 1};
           var orderItem = new OrderItem {Product = "Product", Quantity = 10, Order = order};
           orderKey = order.Key;
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var order = Query.Single<Order>(orderKey);
           var orderItem = Query.Single<OrderItem>(orderItemKey);
           Assert.IsTrue(orderVersion==order.VersionInfo);
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo orderItemVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var order = new AdvancedOrder() {Number = 1, CustomerName = "Customer1"};
           var orderItem = new AdvancedOrderItem() {
             Product = "Product", Quantity = 10, Order = order, SupplierName = "Supplier1"
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var order = Query.Single<Order>(orderKey);
           var orderItem = Query.Single<AdvancedOrderItem>(orderItemKey);
           Assert.IsTrue(orderVersion==order.VersionInfo);
@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo itemVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var owner1 = new Owner1();
           var owner2 = new Owner2();
           var item = new Item {Value = "Value"};
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var owner1 = Query.Single<Owner1>(owner1Key);
           var owner2 = Query.Single<Owner2>(owner2Key);
           var item = Query.Single<Item>(itemKey);
@@ -246,7 +246,7 @@ namespace Xtensive.Storage.Tests.Storage
       VersionInfo itemVersion;
       
       using (var session = Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var owner1 = new Owner1();
           var owner2 = new Owner2();
           var item = new Item {Value = "Value"};

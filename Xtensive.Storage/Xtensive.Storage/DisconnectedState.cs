@@ -295,7 +295,7 @@ namespace Xtensive.Storage
             ? VersionValidator.Attach(targetSession, key => originalVersions[key])
             : null;
           using (versionValidator)
-          using (var tx = Transaction.Open()) {
+          using (var tx = Session.Demand().OpenTransaction()) {
             var replayFilter = OperationLogReplayFilter ?? (log => log);
             var operations = state.Operations;
             var operationsToApply = new OperationLog(operationLogType, replayFilter.Invoke(operations));

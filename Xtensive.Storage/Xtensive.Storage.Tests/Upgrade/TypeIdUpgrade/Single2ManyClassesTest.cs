@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Person));
       var domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var person = new Model.Person() {
                        FirstName = "Alex", LastName = "Kochetov"
                      };
@@ -40,8 +40,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var person = new Model.Person() {
                        FirstName = "Alex", LastName = "Gamzov"
                      };

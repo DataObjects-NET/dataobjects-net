@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Tests.Issues
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Fill();
           t.Complete();
         }
@@ -66,8 +66,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           int pageIndex = 1;
           int pageSize = 1;
           var usersQuery = Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);

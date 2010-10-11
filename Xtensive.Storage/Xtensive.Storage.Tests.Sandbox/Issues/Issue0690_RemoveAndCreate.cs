@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void EntitySetTest()
     {
       using (var session = Domain.OpenSession())
-      using (var ts = Transaction.Open()) {
+      using (var ts = session.OpenTransaction()) {
         var book = new Book();
         var review = new Review();
         book.Reviews.Add(review);
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void EntityWithCustomKeyTest()
     {
       using (var session = Domain.OpenSession())
-      using (var ts = Transaction.Open()) {
+      using (var ts = session.OpenTransaction()) {
         var id = Guid.NewGuid().ToString();
         var message = new Message(id);
         message.Remove();
@@ -89,11 +89,11 @@ namespace Xtensive.Storage.Tests.Issues
     {
       var id = Guid.NewGuid().ToString();
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var message = new Message(id) {Name = "Alfa"};
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var message = Query.Single<Message>(id);
           message.Remove();
           message = new Message(id) {Name = "Beta"};
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void CreateRemoveTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var id = Guid.NewGuid().ToString();
         var message = new Message(id) { Name = "Alfa" };
         message.Remove();
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void CreateRemoveCreateTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open())
+      using (var t = session.OpenTransaction())
       {
         var id = Guid.NewGuid().ToString();
         var message = new Message(id) { Name = "Alfa" };
@@ -133,11 +133,11 @@ namespace Xtensive.Storage.Tests.Issues
     {
       var id = Guid.NewGuid().ToString();
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var message = new Message(id) {Name = "Alfa"};
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var message = Query.Single<Message>(id);
           message.Remove();
           message = new Message(id) {Name = "Beta"};

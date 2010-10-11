@@ -1286,7 +1286,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model1.Document();
         new Model1.Item() { Document = document };
         new Model1.Item() { Document = document };
@@ -1310,7 +1310,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model2.Document();
         new Model2.Item() { Document = document };
         new Model2.Item() { Document = document };
@@ -1334,7 +1334,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model3.Document();
         new Model3.Item() { Document = document };
         new Model3.Item() { Document = document };
@@ -1358,7 +1358,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model4.Document();
         new Model4.Item() { Document = document };
         new Model4.Item() { Document = document };
@@ -1382,7 +1382,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model5.Document();
         new Model5.Item() { Document = document };
         new Model5.Item() { Document = document };
@@ -1406,7 +1406,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model6.Document();
         new Model6.Item() { Document = document };
         new Model6.Item() { Document = document };
@@ -1430,7 +1430,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model7.Document();
         new Model7.Item() { Document = document };
         new Model7.Item() { Document = document };
@@ -1454,7 +1454,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model8.Document();
         new Model8.Item() { Document = document };
         new Model8.Item() { Document = document };
@@ -1478,7 +1478,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model9.Document();
         new Model9.Item() { Document = document };
         new Model9.Item() { Document = document };
@@ -1502,7 +1502,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model10.Document();
         new Model10.Item() { Document = document };
         new Model10.Item() { Document = document };
@@ -1526,7 +1526,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model11.Document();
         new Model11.Item() { Document = document };
         new Model11.Item() { Document = document };
@@ -1550,7 +1550,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model12.Document();
         new Model12.Item() { Document = document };
         new Model12.Item() { Document = document };
@@ -1574,7 +1574,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model13.Document();
         new Model13.Item() { Document = document };
         new Model13.Item() { Document = document };
@@ -1598,7 +1598,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model14.Document();
         new Model14.Item() { Document = document };
         new Model14.Item() { Document = document };
@@ -1622,7 +1622,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model15.Document();
         new Model15.Item() { Document = document };
         new Model15.Item() { Document = document };
@@ -1646,7 +1646,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model16.Document();
         new Model16.Item() { Document = document };
         new Model16.Item() { Document = document };
@@ -1670,7 +1670,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model17.Document();
         new Model17.Item() { Document = document };
         new Model17.Item() { Document = document };
@@ -1694,7 +1694,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model18.Document();
         new Model18.Item() { Document = document };
         new Model18.Item() { Document = document };
@@ -1718,7 +1718,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model19.Document();
         new Model19.Item() { Document = document };
         new Model19.Item() { Document = document };
@@ -1742,7 +1742,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model20.Document();
         new Model20.Item() { Document = document };
         new Model20.Item() { Document = document };
@@ -1766,7 +1766,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model21.Document();
         new Model21.Item() { Document = document };
         new Model21.Item() { Document = document };
@@ -1790,7 +1790,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model22.Document();
         new Model22.Item() { Document = document };
         new Model22.Item() { Document = document };
@@ -1814,7 +1814,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model23.Document();
         new Model23.Item() { Document = document };
         new Model23.Item() { Document = document };
@@ -1838,7 +1838,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model24.Document();
         new Model24.Item() { Document = document };
         new Model24.Item() { Document = document };
@@ -1862,7 +1862,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model25.Document();
         new Model25.Item() { Document = document };
         new Model25.Item() { Document = document };
@@ -1886,7 +1886,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model26.Document();
         new Model26.Item() { Document = document };
         new Model26.Item() { Document = document };
@@ -1910,7 +1910,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model27.Document();
         new Model27.Item() { Document = document };
         new Model27.Item() { Document = document };
@@ -1934,7 +1934,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model28.Document();
         new Model28.Item() { Document = document };
         new Model28.Item() { Document = document };
@@ -1958,7 +1958,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model29.Document();
         new Model29.Item() { Document = document };
         new Model29.Item() { Document = document };
@@ -1982,7 +1982,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model30.Document();
         new Model30.Item() { Document = document };
         new Model30.Item() { Document = document };
@@ -2006,7 +2006,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model31.Document();
         new Model31.Item() { Document = document };
         new Model31.Item() { Document = document };
@@ -2030,7 +2030,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model32.Document();
         new Model32.Item() { Document = document };
         new Model32.Item() { Document = document };
@@ -2054,7 +2054,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model33.Document();
         new Model33.Item() { Document = document };
         new Model33.Item() { Document = document };
@@ -2078,7 +2078,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model34.Document();
         new Model34.Item() { Document = document };
         new Model34.Item() { Document = document };
@@ -2102,7 +2102,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model35.Document();
         new Model35.Item() { Document = document };
         new Model35.Item() { Document = document };
@@ -2126,7 +2126,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model36.Document();
         new Model36.Item() { Document = document };
         new Model36.Item() { Document = document };

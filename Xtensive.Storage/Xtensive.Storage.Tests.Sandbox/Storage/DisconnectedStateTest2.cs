@@ -69,8 +69,8 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     protected override Domain  BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         new Book() { Title = "Book" };
         tx.Complete();
       }
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     {
       var ds = new DisconnectedState();
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           var book = Query.All<Book>().SingleOrDefault();
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       Book book = null;
       Book book2 = null;
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           book = Query.All<Book>().SingleOrDefault();
@@ -130,10 +130,10 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       using (var session = Domain.OpenSession())
       using (ds.Attach(session))
       using (ds.Connect())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         Key bookKey1;
         Key bookKey2;
-        using (var tx2 = Transaction.Open(TransactionOpenMode.New)) {
+        using (var tx2 = session.OpenTransaction(TransactionOpenMode.New)) {
           var book1 = Query.All<Book>().SingleOrDefault();
           bookKey1 = book1.Key;
           var book2 = new Book() {Title = "Book2"};
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     {
       var ds = new DisconnectedState();
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           var book = new Book() {Title = NewBookTitle};
@@ -189,7 +189,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     {
       var ds = new DisconnectedState();
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           var book = Query.All<Book>().First();
@@ -209,10 +209,10 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       Book book;
       Key bookKey;
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session)) {
           using (ds.Connect())
-          using (var tx2 = Transaction.Open(TransactionOpenMode.New)) {
+          using (var tx2 = session.OpenTransaction(TransactionOpenMode.New)) {
             book = new Book() {Title = NewBookTitle};
             bookKey = book.Key;
             tx2.Complete();
@@ -235,7 +235,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       Book book;
       Key bookKey;
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session)) {
           using (ds.Connect()) {
             book = new Book() {Title = NewBookTitle};
@@ -286,10 +286,10 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       GuidBook book;
       Key bookKey;
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session)) {
           using (ds.Connect())
-          using (var tx2 = Transaction.Open(TransactionOpenMode.New)) {
+          using (var tx2 = session.OpenTransaction(TransactionOpenMode.New)) {
             book = new GuidBook() {Title = NewBookTitle};
             bookKey = book.Key;
             tx2.Complete();
@@ -312,7 +312,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       GuidBook book;
       Key bookKey;
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session)) {
           using (ds.Connect()) {
             book = new GuidBook() {Title = NewBookTitle};

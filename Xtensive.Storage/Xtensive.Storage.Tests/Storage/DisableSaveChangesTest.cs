@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void DisableAllTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var victim = new Victim();
         var count = session.Query.All<Victim>().Count();
         using (session.DisableSaveChanges()) {
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void DisableAllCommitTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var victim = new Victim();
         var count = session.Query.All<Victim>().Count();
         session.DisableSaveChanges();
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void SimplePinTest()
     {
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         var butcher = new Killer();
         var firstVictim = new Victim();
         // "Killers" who have not killed yet should not be considered as killers
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Tests.Storage
       try {
         allTrees = new List<Node>();
         using (var session = Domain.OpenSession())
-        using (Transaction.Open()) {
+        using (session.OpenTransaction()) {
           var node = T(T(), T(), T(T()));
           using (session.DisableSaveChanges(node)) {
             AssertNumberOfNodesInDatabaseIs(0);
@@ -218,7 +218,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void NestedPinTest()
     {
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim))
           Assert.IsNull(session.DisableSaveChanges(victim));
@@ -229,7 +229,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void PinRemovedEntityTest()
     {
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         var victim = new Victim();
         victim.Remove();
         AssertEx.ThrowsInvalidOperationException(() => session.DisableSaveChanges(victim));
@@ -240,7 +240,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void CommittingWithPinnedEntityTest()
     {
       using (var session = Domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = session.OpenTransaction()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim)) {
           transactionScope.Complete();
@@ -253,10 +253,10 @@ namespace Xtensive.Storage.Tests.Storage
     public void OpenNestedTransactionWithPinnedEntityTest()
     {
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim))
-          AssertEx.ThrowsInvalidOperationException(() => Transaction.Open(TransactionOpenMode.New));
+          AssertEx.ThrowsInvalidOperationException(() => session.OpenTransaction(TransactionOpenMode.New));
       }
     }
     

@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       base.TestFixtureSetUp();
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           var entitiesB = Enumerable
             .Range(0, count)
             .Select(i => new EntityB {
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void UnionEntityTest()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
           var union = Query.All<EntityB>().Union(localItems);
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void UnionStructureTest()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Select(b => b.AdditionalInfo).Take(count / 2).ToArray();
           var union = Query.All<EntityB>().Select(b => b.AdditionalInfo).Union(localItems);
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void UnionFieldTest()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Select(b => b.Name).Take(count / 2).ToArray();
           var union = Query.All<EntityB>().Select(b => b.Name).Union(localItems);
@@ -193,7 +193,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinEntityDirectTest()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
           var join = Query.All<EntityB>().Join(localItems, b => b, l => l, (b, l) => new {b, l});
@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinEntityIndirect2Test()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
           var join = Query.All<EntityB>().Join(localItems, b => b.AdditionalInfo.A, l => l.AdditionalInfo.A, (b, l) => new {b, l});
@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinEntityIndirect3Test()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
           var join = Query.All<EntityA>().Join(localItems, a => a, l => l.AdditionalInfo.A, (a, l) => new {a, l});
@@ -236,7 +236,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinStructureDirectTest()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localStructure = Query.All<EntityB>().Select(b => b.AdditionalInfo).First();
           var array = Query.All<EntityB>().Where(b => b.AdditionalInfo==localStructure).ToArray();
@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinStructureIndirectTest()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
           var join = Query.All<EntityB>().Join(localItems, b => b.AdditionalInfo, l => l.AdditionalInfo, (b, l) => new {b, l});
@@ -269,7 +269,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinEntityPocoTest()
     {
       using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = Transaction.Open()) {
+        using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
           Poco2[] localItems = GetPocoCollection();
           var join = Query.All<EntityB>().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A}).ToList();

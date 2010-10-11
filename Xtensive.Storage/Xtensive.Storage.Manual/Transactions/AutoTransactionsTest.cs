@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         }
         
         // Manual transaction
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           alex.TransactionalMethodRequiringNewTransaction(tx.Transaction);
           alex.NonTransactionalMethod(tx.Transaction);
           alex.InfrastructureMethod(session, tx.Transaction);
@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         var domain = Domain.Build(config);
         using (var session = domain.OpenSession()) {
-          using (var transactionScope = Transaction.Open(session)) {
+          using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
             var alex   = new Person {Name = "Alex", Surname = "Yakunin"};
             var dmitri = new Person {Name = "Dmitri", Surname = "Maximov"};

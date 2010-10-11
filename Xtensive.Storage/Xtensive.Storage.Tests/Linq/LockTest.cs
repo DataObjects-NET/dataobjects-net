@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Tests.Linq
       int countAfterSkip = 0;
       var secondThread = new Thread(() => {
         try {
-          using (Domain.OpenSession())
-          using (Transaction.Open())
+          using (var session = Domain.OpenSession())
+          using (session.OpenTransaction())
             countAfterSkip = Query.All<Customer>().Where(c => c.Key == key)
               .Lock(LockMode.Update, LockBehavior.Skip).ToList().Count;
         }
@@ -99,8 +99,8 @@ namespace Xtensive.Storage.Tests.Linq
       var secondEvent = new ManualResetEvent(false);
       var firstThread = new Thread(() => {
         try {
-          using (Domain.OpenSession())
-          using (Transaction.Open()) {
+          using (var session = Domain.OpenSession())
+          using (session.OpenTransaction()) {
             Query.All<Customer>().Where(c => c.Key == customerKey)
               .Join(Query.All<Order>().Where(o => o.Key == orderKey), c => c, o => o.Customer, (c, o) => c)
               .Lock(LockMode.Update, LockBehavior.Wait).ToList();
@@ -137,8 +137,8 @@ namespace Xtensive.Storage.Tests.Linq
       var catchedException = ExecuteQueryAtSeparateThread(() =>
         Query.All<Customer>().Where(c => c == customer).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
         AssertEx.Throws<StorageException>(() =>
           Query.Single<Customer>(customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
     }
@@ -153,8 +153,8 @@ namespace Xtensive.Storage.Tests.Linq
       var secondEvent = new ManualResetEvent(false);
       var firstThread = new Thread(() => {
         try {
-          using (Domain.OpenSession())
-          using (Transaction.Open()) {
+          using (var session = Domain.OpenSession())
+          using (session.OpenTransaction()) {
             Query.All<Customer>().Where(c => c.Key == key).Lock(lockMode0, lockBehavior0).ToList();
             secondEvent.Set();
             firstEvent.WaitOne();
@@ -182,8 +182,8 @@ namespace Xtensive.Storage.Tests.Linq
       Exception result = null;
       var thread = new Thread(() => {
         try {
-          using (Domain.OpenSession())
-          using (Transaction.Open()) {
+          using (var session = Domain.OpenSession())
+          using (session.OpenTransaction()) {
             query.Invoke().ToList();
           }
         }

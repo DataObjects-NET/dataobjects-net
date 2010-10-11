@@ -108,8 +108,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertDescendant()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         Session.Current.SaveChanges();
@@ -119,8 +119,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertSelfReference()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
         var u1 = new User {Name = "U1"};
         u1.Boss = u1;
         Session.Current.SaveChanges();
@@ -130,8 +130,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertInTypeSequence()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         var u2 = new User { Name = "U2" };
@@ -143,8 +143,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertInTypeLoop()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         var u2 = new User { Name = "U2" };
@@ -157,8 +157,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertMultyTypeSequence()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         var c1 = new Company { Name = "C1" };
@@ -170,8 +170,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertMultyTypeLoop()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         var c1 = new Company { Name = "C1" };
@@ -187,8 +187,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateSelfReference()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         Session.Current.SaveChanges();
@@ -201,8 +201,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateSequence()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var c1 = new Company { Name = "C1" };
         var u1 = new User { Name = "U1" };
@@ -214,8 +214,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateLoop()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var c1 = new Company { Name = "C1" };
         var u1 = new User { Name = "U1" };
@@ -228,8 +228,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateToInserted()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var c1 = new Company { Name = "C1" };
         Session.Current.SaveChanges();
@@ -242,8 +242,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void UpdateToDeleted()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var c1 = new Company { Name = "C1" };
         var u1 = new User { Name = "U1" };
@@ -260,8 +260,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void DeleteSelfReference()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         u1.Boss = u1;
@@ -276,8 +276,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Test]
     public void InsertIntermediateEntity()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open())
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
       {
         var u1 = new User { Name = "U1" };
         var p1 = new Project { Name = "P1" };

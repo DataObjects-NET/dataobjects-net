@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     {
       var ds = new DisconnectedState();
       using (var session = Domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var author = new Author {Title = "Author"};
           using (ds.Attach(session))
           using (ds.Connect()) {
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     {
       var ds = new DisconnectedState();
       using (var session = Domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var author = new Author {Title = "Author"};
           using (ds.Attach(session))
           using (ds.Connect()) {
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           var author = new Author {Title = "Author"};
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
           var author = new Author {Title = "Author"};
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     {
       using (var session = Domain.OpenSession()) {
         var author = new Author {Title = "Author"};
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var book = new Book {Title = "Book"};
           book.Author = author;
           Assert.AreEqual(1, author.Books.Count);
@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
     public void EntitySetCountBugTest_RegularWithPersist()
     {
       using (var session = Domain.OpenSession()) {
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var author = new Author {Title = "Author"};
           session.SaveChanges();
           var book = new Book {Title = "Book"};
@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
         using (ds.Attach(session))
         using (ds.Connect()) {
           var author = new Author {Title = "Author"};
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             var book = new Book {Title = "Book"};
             book.Author = author;
             Assert.AreEqual(1, author.Books.Count);
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
       using (var session = Domain.OpenSession()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             var author = new Author {Title = "Author"};
             session.SaveChanges();
             var book = new Book {Title = "Book"};
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
         book1.Author = author;
         book2.Author = author;
         try {
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             bool firstTime = true;
             author.Books.CollectionChanged += (s, a) => {
               if (firstTime)

@@ -58,8 +58,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           // Creating new persistent object
           // Creating new persistent object
           var helloWorld = new MyEntity
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Tests.Issues
           transactionScope.Complete();
         }
 
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var c = Query.All<MyEntity>()
             .Select(a => new ValObj {Id = a.Id, Text = a.Text})
             .ToList();

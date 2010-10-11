@@ -89,7 +89,7 @@ for(int i = 1; i <= count; i++){
       var domain = Domain.Build(config);
 
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var document = new Model<#=i#>.Document();
         new Model<#=i#>.Item() { Document = document };
         new Model<#=i#>.Item() { Document = document };

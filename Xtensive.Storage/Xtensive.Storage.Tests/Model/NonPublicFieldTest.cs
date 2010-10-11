@@ -59,8 +59,8 @@ namespace Xtensive.Storage.Tests.Model
     public void MainTest()
     {
       Key key;
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var myEntity = new MyEntity();
           key = myEntity.Key;
@@ -70,8 +70,8 @@ namespace Xtensive.Storage.Tests.Model
         }
       }
 
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var myEntity = Query.Single<MyEntity>(key);
           Assert.IsTrue(myEntity.ValidateState());

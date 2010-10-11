@@ -45,8 +45,8 @@ namespace Xtensive.Storage.Manual.Intro.HelloWorld
         Debug.Assert(session==Session.Current);
       }
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var helloWorld = new MyEntity {
             Text = "Hello World!"
           };
@@ -56,8 +56,8 @@ namespace Xtensive.Storage.Manual.Intro.HelloWorld
       }
 
       // Reading all persisted objects from another Session
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           foreach (var myEntity in Query.All<MyEntity>())
             Console.WriteLine(myEntity.Text);
           transactionScope.Complete();

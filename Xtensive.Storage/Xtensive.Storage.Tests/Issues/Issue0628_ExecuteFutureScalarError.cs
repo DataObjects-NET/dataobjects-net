@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var item = new Item() {Tag = 10};
         var countSimple = Query.All<Item>().Count(i => i.Tag == 10);
         var countFuture1 = Query.ExecuteFutureScalar(() => (Query.All<Item>() as IQueryable).Count());

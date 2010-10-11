@@ -117,8 +117,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           A a = new A();
           a.B = new B();
           a.C = new C();
@@ -174,10 +174,10 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveWithException()
     {
-      using (Domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         A a;
         C c;
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           a = new A();
           c = new C();
           a.C = c;
@@ -192,8 +192,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletedEntityAddToReference()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           A a = new A();
           B b = new B();
           b.Remove();
@@ -205,8 +205,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletedEntityChangeFields()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           A a = new A();
           a.Remove();
           AssertEx.ThrowsInvalidOperationException(() => a.Name = "newName");
@@ -217,8 +217,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeepCascadeRemoveTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var c = new Container();
           c.Package1 = new Package();
           c.Package2 = new Package();
@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void CascadeRemoveTest()
     {
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var c = new Container();
           c.Package1 = new Package();
           var item = new PackageItem();
@@ -261,7 +261,7 @@ namespace Xtensive.Storage.Tests.Storage
       const int containersCount = 100;
       const int itemCount = 100;
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           for (int i = 0; i < containersCount; i++) {
             var c = new Container {Package1 = new Package(), Package2 = new Package()};
             for (int j = 0; j < itemCount; j++) {
@@ -272,7 +272,7 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
 
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           const int operationCount = containersCount*3 + containersCount*itemCount*2;
           using (new Measurement("Remove...", operationCount)) {
             var containers = Query.All<Container>();
@@ -296,7 +296,7 @@ namespace Xtensive.Storage.Tests.Storage
       const int containersCount = 100;
       const int itemCount = 100;
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           for (int i = 0; i < containersCount; i++) {
             var c = new Container {Package1 = new Package(), Package2 = new Package()};
             for (int j = 0; j < itemCount; j++) {
@@ -307,7 +307,7 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
 
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           const int operationCount = containersCount*3 + containersCount*itemCount*2;
           using (new Measurement("Remove...", operationCount)) {
             Query.All<Container>().Remove();

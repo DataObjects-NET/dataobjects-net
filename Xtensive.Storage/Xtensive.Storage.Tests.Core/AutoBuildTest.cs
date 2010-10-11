@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests
         disposables = new DisposableSet();
         var session = Domain.OpenSession();
         disposables.Add(session);
-        var transaction = Transaction.Open(session);
+        var transaction = session.OpenTransaction();
         disposables.Add(transaction);
       }
       catch {

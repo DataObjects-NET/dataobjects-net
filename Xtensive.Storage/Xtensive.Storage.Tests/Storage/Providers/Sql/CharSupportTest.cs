@@ -52,8 +52,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
       charColumn = Domain.Model.Types[typeof(MyEntity)].Fields["Char"].Column.Name;
 
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new MyEntity {Char = 'X'};
         new MyEntity {Char = 'Y'};
         new MyEntity {Char = 'Z'};
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void SelectCharTest()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = Transaction.Open()) {
+      using (var transaction = session.OpenTransaction()) {
         var rs = GetRecordQuery<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
@@ -83,8 +83,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void CharParameterTest()
     {
-      using (Domain.OpenSession())
-      using (var transaction = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
         var y = 'Y';
         var rs = GetRecordQuery<MyEntity>();
         var result = rs
@@ -102,8 +102,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void CharConstantTest()
     {
-      using (Domain.OpenSession())
-      using (var transaction = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
         var rs = GetRecordQuery<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))

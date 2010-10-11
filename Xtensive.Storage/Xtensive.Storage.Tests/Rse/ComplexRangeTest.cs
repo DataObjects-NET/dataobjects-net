@@ -368,8 +368,8 @@ namespace Xtensive.Storage.Tests.Rse
 
     private void TestRange(RecordQuery recordQuery, Range<Entire<Tuple>> range, int testCount)
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var parameter = new Parameter<Range<Entire<Tuple>>>();
           RecordQuery result = recordQuery
             .Range(() => parameter.Value)
@@ -390,8 +390,8 @@ namespace Xtensive.Storage.Tests.Rse
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         for (int i = 1; i <= CatCount; i++)
           new Cat { Name = i };
         for (int i = 1; i <= DogCount; i++)

@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var address = new Address {City = "Moscow", Street = "Lomonosova"};
           var nullStrucutre = new User();
           var notNullStructure = new User {Address = address};

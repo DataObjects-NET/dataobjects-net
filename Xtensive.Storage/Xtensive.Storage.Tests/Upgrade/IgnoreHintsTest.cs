@@ -32,8 +32,8 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void MainTest()
     {
       BuildDomain(DomainUpgradeMode.Recreate);
-      using (domain.OpenSession()) {
-        using (var transaction = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           new A() {X = "1", Y = "1"};
           new B();
           transaction.Complete();
@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Tests.Upgrade
         new IgnoreHint("Tables/A/Columns/X"), new IgnoreHint("Tables/B"))) {
         BuildDomain(DomainUpgradeMode.Perform);
       }
-      using (domain.OpenSession()) {
-        using (var transaction = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           Assert.AreEqual(1, Query.All<A>().Count());
           Assert.AreEqual("1", Query.All<A>().First().Y);
           transaction.Complete();
@@ -53,8 +53,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
 
       BuildDomain(DomainUpgradeMode.Validate);
-      using (domain.OpenSession()) {
-        using (var transaction = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           Assert.AreEqual(1, Query.All<A>().Count());
           Assert.AreEqual("1", Query.All<A>().First().X);
           Assert.AreEqual("1", Query.All<A>().First().Y);

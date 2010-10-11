@@ -39,8 +39,8 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           Assert.AreEqual(1, Query.All<M2.Employee>().Count());
           var emp = Query.All<M2.Employee>().FirstOrDefault();
           Assert.AreEqual("Sales", emp.DepartmentName);
@@ -73,8 +73,8 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
 
     private void FillData()
     {
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var e1 =new M1.Employee {
             FirstName = "Andrew",
             LastName = "Fuller",

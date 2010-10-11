@@ -70,18 +70,18 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TestFieldInitializer()
     {
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
       {
-        using (var t = Transaction.Open())
+        using (var t = session.OpenTransaction())
         {
           var obj1 = new  InitializebleClass();
           Assert.IsNotNull(obj1.syncRoot);
           t.Complete();
         }
       }
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
       {
-        using (var t = Transaction.Open())
+        using (var t = session.OpenTransaction())
         {
           var obj1 = Query.All<InitializebleClass>().First();
           Assert.IsNotNull(obj1);
@@ -95,15 +95,15 @@ namespace Xtensive.Storage.Tests.Storage
     public void Test()
     {
       Key key;
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var descendant = new Descendant();
           key = descendant.Key;          
           t.Complete();
         }        
       }
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           var ancestor = Query.SingleOrDefault<Ancestor>(key);
           Assert.IsNotNull(ancestor);
 

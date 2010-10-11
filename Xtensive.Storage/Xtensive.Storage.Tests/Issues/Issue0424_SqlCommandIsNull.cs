@@ -50,8 +50,8 @@ namespace Xtensive.Storage.Tests.Issues
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new TheParent {Child = new TheChild()};
         t.Complete();
       }
@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var parent = Query.All<TheParent>().Single();
         var result = Query.All<TheChild>().Single(child => child.Value==parent.Child.Value);
         t.Complete();

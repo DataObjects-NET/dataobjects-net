@@ -95,10 +95,10 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
       string dmitriKeyString;
 
       // Opening Session
-      using (domain.OpenSession()) {
+      using (var session = domain.OpenSession()) {
 
         // Opening transaction
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
 
           // Creating user
           var dmitri = new User {
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
         }
 
         // Opening another transaction
-        using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = session.OpenTransaction()) {
           // Parses the serialized key
           var anotherDimtriKey = Key.Parse(Domain.Current, dmitriKeyString);
           // Keys are equal
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
           dmitri.Name = "Dmitri Maximov";
 
           // Opening new nested transaction
-          using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+          using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
             // Removing the entity
             dmitri.Remove();
             Assert.IsTrue(dmitri.IsRemoved);
@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
           Assert.IsFalse(dmitri.FavoritePages.Contains(subsonicPage));
 
           // Opening new nested transaction
-          using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+          using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
             // Clearing the EntitySet
             dmitri.FavoritePages.Clear();
             Assert.IsFalse(dmitri.FavoritePages.Contains(xtensiveWebPage));

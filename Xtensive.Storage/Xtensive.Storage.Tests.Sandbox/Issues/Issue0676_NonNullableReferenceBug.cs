@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Issues
 
         Animal a,b;
         Key aKey;
-        using (var tx = Transaction.Open())
+        using (var tx = session.OpenTransaction())
         {
           a = new Animal("A");
           b = new Animal("B") {Mate = a, MateDenyRemove = a};
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Tests.Issues
           tx.Complete();
         }
 
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           var dpa = session.Services.Demand<DirectPersistentAccessor>();
           Assert.AreEqual(aKey, dpa.GetReferenceKey(b, fMate));
           tx.Complete();
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void HasNullEntityTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open(session)) {
+      using (var tx = session.OpenTransaction()) {
         var tPerson = session.Domain.Model.Types[typeof(Person)];
         var fMate = tPerson.Fields["Mate"];
         Assert.AreEqual(OnRemoveAction.None, fMate.Association.OnOwnerRemove);

@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       base.TestFixtureSetUp();
       using (var session = Domain.OpenSession())
-      using (var transactionScope = Transaction.Open()) {
+      using (var transactionScope = session.OpenTransaction()) {
         for (int i = 0; i < 111; i++)
           PrefetchTestHelper.FillDataBase(session);
         transactionScope.Complete();
@@ -45,14 +45,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void SimpleTest()
     {
       List<Key> keys;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         keys = Query.All<Order>().Select(p => p.Key).ToList();
         Assert.Greater(keys.Count, 0);
       }
 
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Employee);
         var orderType = typeof (Order).GetTypeInfo();
         var employeeType = typeof (Employee).GetTypeInfo();
@@ -75,8 +75,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void UsingDelayedElementsTest()
     {
       List<Key> keys;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         keys = Query.All<Person>().Take(221).AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value))
           .ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
 
       using (var session = Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<Person, Key>(key => key)/*.Prefetch(p => p.Name)*/
           .PrefetchSingle(p => new Customer {Name = p.Name}, customer => {
             customer.First().Remove();
@@ -103,15 +103,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public void PrefetchEntitySetTest()
     {
       List<Key> keys;
-      using (Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         keys = Query.All<Order>().Take(221).AsEnumerable().Select(p => Key.Create<Order>(p.Key.Value))
           .ToList();
         Assert.Greater(keys.Count, 0);
       }
 
       using (var session = Domain.OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Details);
         var orderType = typeof (Order).GetTypeInfo();
         var detailsField = orderType.Fields["Details"];

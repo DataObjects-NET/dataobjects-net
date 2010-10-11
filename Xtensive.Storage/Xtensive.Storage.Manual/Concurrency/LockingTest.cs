@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
     private void Run(string remark)
     {
       using (var session = GetDomain().OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         Counter counter;
         if (counterKey==null) {
           counter = new Counter(LockingTestName);
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
       WaitForCompletion();
 
       using (var session = GetDomain().OpenSession())
-      using (var tx = Transaction.Open()) {
+      using (var tx = session.OpenTransaction()) {
         var counter = Query.Single<Counter>(counterKey);
         Console.WriteLine("Final counter.Value = {0}", counter.Value);
         tx.Complete();
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
           while ((DateTime.UtcNow - startTime).TotalMilliseconds < TestTime) {
             try {
               Console.WriteLine("{0}: beginning of transaction", threadName);
-              using (var tx = Transaction.Open(isolationLevel)) {
+              using (var tx = session.OpenTransaction(isolationLevel)) {
                 Counter counter;
                 if (lockingMode!=LockingMode.QueryLock) {
                   Console.WriteLine("{0}:   reading shared counter", threadName);

@@ -24,8 +24,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession())
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
         new X {FNInt = 5};
         new X();
         var sum1 = Query.All<X>().Sum(x => x.FNInt.GetValueOrDefault());

@@ -56,8 +56,8 @@ namespace Xtensive.Storage.Tests.Storage
       base.TestFixtureSetUp();
 
       // Creating a book
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Book b = new Book();
           key = b.Key;
           b.Title = TITLE;
@@ -77,8 +77,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Book b = Query.SingleOrDefault<Book>(key);
           Tuple tuple = b.Tuple;
 

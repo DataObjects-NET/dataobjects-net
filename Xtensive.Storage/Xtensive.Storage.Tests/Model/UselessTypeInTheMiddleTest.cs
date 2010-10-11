@@ -55,8 +55,8 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void QueryTest()
     {
-      using (Domain.OpenSession())
-      using (var ts = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
         var three = new Three();
         var twos = Query.All<Two>().ToList();
         Assert.AreEqual(1, twos.Count);
@@ -67,8 +67,8 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void CreateTest()
     {
-      using (Domain.OpenSession())
-      using (var ts = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
         new Referencer {Reference = new Three()};
         Session.Current.SaveChanges();
       }

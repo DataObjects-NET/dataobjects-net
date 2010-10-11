@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       var domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new Model.Person() {
           FirstName = "Alex", 
           LastName = "Kochetov"
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       }
 
       using (var session = domain.OpenSession(SessionType.System)) 
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var handler = (SessionHandler) session.Handler;
         var connection = handler.Connection;
         var command = connection.CreateCommand(string.Format(
@@ -69,8 +69,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(3, count);
         var list = Query.All<Model.Person>().ToList();
@@ -89,8 +89,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Person));
       var domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new Model.Person() {
           FirstName = "Alex", 
           LastName = "Kochetov"
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       }
 
       using (var session = domain.OpenSession(SessionType.System)) 
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var handler = (SessionHandler) session.Handler;
         var connection = handler.Connection;
         var command = connection.CreateCommand(string.Format(
@@ -127,8 +127,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(2, count);
         var list = Query.All<Model.Person>().ToList();
@@ -148,8 +148,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration.Types.Register(typeof(Model.Employee));
       var domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new Model.Person() {
           FirstName = "Alex", 
           LastName = "Kochetov"
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       }
 
       using (var session = domain.OpenSession(SessionType.System)) 
-      using (var t = Transaction.Open()) {
+      using (var t = session.OpenTransaction()) {
         var handler = (SessionHandler) session.Handler;
         var connection = handler.Connection;
         var command = connection.CreateCommand(string.Format(
@@ -189,8 +189,8 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       using (Upgrader.Enable())
         domain = Domain.Build(configuration);
 
-      using (domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(2, count);
         var list = Query.All<Model.Person>().ToList();

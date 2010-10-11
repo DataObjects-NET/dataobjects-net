@@ -30,17 +30,16 @@ namespace Xtensive.Storage.Tests.Rse
     public void MainTest()
     {
       Key key;
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           Book book = new Book {Title = "Title", Text = "Text"};
           key = book.Key;
           Session.Current.SaveChanges();
           t.Complete();
         }
       }
-      using (Domain.OpenSession()) {
-        Session session = Session.Current;
-        using (Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (session.OpenTransaction()) {
           EntityState state = Session.Current.EntityStateCache[key, true];
           Assert.IsNull(state);
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;

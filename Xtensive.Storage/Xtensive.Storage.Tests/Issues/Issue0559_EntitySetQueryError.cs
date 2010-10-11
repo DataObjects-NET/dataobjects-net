@@ -67,8 +67,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var topicName = "Name";
         var ApplicationName = "Name";
         var defaultTopic = new Topic() { Name = topicName };

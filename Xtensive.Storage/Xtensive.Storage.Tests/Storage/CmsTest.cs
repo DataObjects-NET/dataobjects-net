@@ -25,13 +25,13 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void Test()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var webSite = new WebSite();
           webSite.Title = "Title";
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = session.OpenTransaction()) {
           var webSite = Query.All<WebSite>().First();
           var result = Query.All<ContentReference>()
             .Where(

@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Storage.Modules
     {
       using (var domain0 = Domain.Build(BuildConfiguration0())) {
         using (var session = domain0.OpenSession())
-        using (var tx = Transaction.Open()){
+        using (var tx = session.OpenTransaction()){
           Activator.CreateInstance(domain0.Configuration.Types.Single(t => t.Name=="Simple0"));
           tx.Complete();
         }

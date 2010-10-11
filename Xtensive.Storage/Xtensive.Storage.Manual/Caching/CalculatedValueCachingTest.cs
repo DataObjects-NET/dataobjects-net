@@ -142,8 +142,8 @@ namespace Xtensive.Storage.Manual.Caching
       config.Types.Register(typeof(CustomLinqCompilerContainer));
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var apple  = new Product {Name = "Apple", Price = 2.0};
           var appleOrder = new Order {Product = apple, Quantity = 1};
           // var banana = new Product {Name = "Banana", Price = 1.0};
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Manual.Caching
           var expiringPrice = appleOrder.TotalPriceExpiring;
           Assert.AreEqual(appleOrder.TotalPrice, expiringPrice);
 
-          using (Transaction.Open(TransactionOpenMode.New)) {
+          using (session.OpenTransaction(TransactionOpenMode.New)) {
             appleOrder.Quantity = 3;
             apple.Price = 3;
             // Automatic update

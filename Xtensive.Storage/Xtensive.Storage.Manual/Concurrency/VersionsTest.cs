@@ -119,14 +119,14 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
     {
       var domain = GetDomain();
 
-      using (domain.OpenSession()) {
+      using (var session = domain.OpenSession()) {
         Person alex;
         VersionInfo alexVersion;
         Person dmitri;
         VersionInfo dmitriVersion;
         Company xtensive;
         VersionInfo xtensiveVersion;
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           alex = new Person("Yakunin, Alex");
           alexVersion = alex.VersionInfo;
           Dump(alex);
@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
           tx.Complete();
         }
 
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           string newName = "Xtensive";
           Console.WriteLine("Changing {0} name to {1}", xtensive.Name, newName);
           xtensive.Name = newName; 
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
         }
 
         int xtensiveVersionFieldValue;
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
         Console.WriteLine("Dmitri.Company = Xtensive");
           dmitri.Company = xtensive;
           Dump(xtensive);
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
           tx.Complete();
         }
 
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           xtensive.Employees.Remove(alex);
           // Xtensive version is changed
           var newXtensiveVersionInsideTransaction = xtensive.VersionInfo;
@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
 
         Console.WriteLine("Transaction rollback test, after:");
 
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           Dump(xtensive);
 
           // Let's check if everything is rolled back
@@ -220,19 +220,19 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
     {
       var domain = GetDomain();
 
-      using (domain.OpenSession()) {
+      using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
 
         Person alex;
         Person dmitri;
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           alex = new Person("Yakunin, Alex");
           dmitri = new Person("Maximov, Dmitri");
           tx.Complete();
         }
 
         using (VersionCapturer.Attach(versions))
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           // Simulating entity displaying @ web page
           // By default this leads to their addition to VersionSet
           Dump(alex);
@@ -246,7 +246,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
         Dump(versions);
 
         using (VersionValidator.Attach(versions))
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           alex.Name = "Edited Alex"; // Passes
           alex.Name = "Edited again"; // Passes, because this is not the very first modification
           tx.Complete();
@@ -254,18 +254,18 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
 
         AssertEx.Throws<VersionConflictException>(() => {
           using (VersionValidator.Attach(versions))
-          using (var tx = Transaction.Open()) {
+          using (var tx = session.OpenTransaction()) {
             alex.Name = "And again"; 
             tx.Complete(); 
           } // Version check fails on Session.Persist() here
         });
 
-        using (var tx = Transaction.Open())
+        using (var tx = session.OpenTransaction())
           versions.Add(alex, true); // Overwriting versions
         Dump(versions);
 
         using (VersionValidator.Attach(versions))
-        using (var tx = Transaction.Open()) {
+        using (var tx = session.OpenTransaction()) {
           alex.Name = "Edited again"; // Passes now
           tx.Complete();
         }

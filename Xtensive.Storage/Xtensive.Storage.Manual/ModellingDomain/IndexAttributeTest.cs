@@ -48,8 +48,8 @@ namespace Xtensive.Storage.Manual.ModellingDomain.IndexAttribute_
       config.Types.Register(typeof(Person));
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var transactionScope = session.OpenTransaction()) {
           var alex = new Person { FirstName = "Alex", LastName = "Kofman", Age = 26};
           var ivan = new Person { FirstName = "Ivan", LastName = "Galkin", Age = 28};
 
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.IndexAttribute_
         }
 
         AssertEx.Throws<StorageException>(() => {
-          using (var transactionScope = Transaction.Open()) {
+          using (var transactionScope = session.OpenTransaction()) {
             new Person {FirstName = "Alex", LastName = "Kofman", Age = 0};
             transactionScope.Complete();
           }
