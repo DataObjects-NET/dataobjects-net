@@ -246,7 +246,7 @@ namespace Xtensive.Storage.Upgrade
         if (association.OwnerField.Columns.Count==0)
           return null;
 
-        IndexingModel.TableInfo referencingTable = GetTable(association.OwnerType);
+        IndexingModel.TableInfo referencingTable = GetTable(association.OwnerField.DeclaringType);
         IndexingModel.TableInfo referencedTable = GetTable(association.TargetType);
         if (referencedTable==null || referencingTable==null)
           return null;

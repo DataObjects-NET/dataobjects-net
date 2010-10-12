@@ -241,12 +241,19 @@ namespace Xtensive.Storage.Building.Builders
 
         var fieldCopy = refField;
         context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
-        var associationsToKeep = refField.Associations
-          .Where(a => !a.OwnerType.IsInterface || context.PairedAssociations
-            .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
-              && pa.Second == a.OwnerField.Name
-              && a.OwnerType == pa.First.TargetType))
-          .ToList();
+        Func<AssociationInfo, bool> associationFilter = a => context.PairedAssociations
+          .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
+            && pa.Second == a.OwnerField.Name
+            && a.OwnerType == pa.First.TargetType);
+        var associationsToKeep = refField.IsInterfaceImplementation
+          ? refField.Associations
+              .Where(associationFilter)
+              .ToList()
+          : refField.Associations.Count > 1
+            ? refField.Associations
+                .Where(associationFilter)
+                .ToList()
+            : refField.Associations.ToList();
         var associationsToRemove = refField.Associations
           .Except(associationsToKeep)
           .ToList();

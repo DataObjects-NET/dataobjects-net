@@ -446,7 +446,7 @@ namespace Xtensive.Storage.Model
         IsPrimaryKey = value.IsPrimaryKey;
         if (value.IsEntity)
           IsNullable = value.IsNullable;
-        associations = value.associations;
+//        associations = value.associations;
         itemType = value.itemType;
       }
     }
@@ -707,9 +707,9 @@ namespace Xtensive.Storage.Model
           scale = scale,
           precision = precision,
           defaultValue = defaultValue,
-          associations = associations,
           DeclaringField = DeclaringField
         };
+      clone.Associations.AddRange(associations);
       return clone;
     }
 

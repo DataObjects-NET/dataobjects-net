@@ -36,6 +36,11 @@ namespace Xtensive.Storage.Building.Builders
       var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnOwnerRemove, origin.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
+      var associationsToRemove = field.Associations
+        .Where(a => a.TargetType == association.TargetType)
+        .ToList();
+      foreach (var toRemove in associationsToRemove)
+        field.Associations.Remove(toRemove);
       field.Associations.Add(association);
 
       var pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
@@ -53,6 +58,14 @@ namespace Xtensive.Storage.Building.Builders
         multiplicity = Multiplicity.ManyToOne;
       else if (origin.Multiplicity == Multiplicity.ManyToOne)
         multiplicity = Multiplicity.OneToMany;
+      else if (origin.Multiplicity == Multiplicity.ZeroToMany)
+        multiplicity = field.IsEntity 
+          ? Multiplicity.ZeroToOne
+          : Multiplicity.ZeroToMany;
+      else if (origin.Multiplicity == Multiplicity.ZeroToOne)
+        multiplicity = field.IsEntity
+          ? Multiplicity.ZeroToOne
+          : Multiplicity.ZeroToMany;
 
       var association = new AssociationInfo(field, origin.OwnerType, multiplicity, origin.OnTargetRemove, origin.OnOwnerRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
@@ -83,8 +96,8 @@ namespace Xtensive.Storage.Building.Builders
         if ( master == null
           || master.TargetType != slave.OwnerType 
           || master.OwnerType != slave.TargetType
-          || !masterField.ValueType.IsAssignableFrom(pairedFieldOwnerType)
-          || !pairedFieldOwnerType.IsAssignableFrom(masterField.ValueType))
+          || !masterField.ValueType.IsAssignableFrom(pairedFieldOwnerType))
+//          || !pairedFieldOwnerType.IsAssignableFrom(masterField.ValueType))
           throw new DomainBuilderException(string.Format(
             Strings.ExXYFieldPairedToZAFieldShouldBeBButCurrentIsC,
             masterField.ReflectedType.UnderlyingType.GetShortName(),
@@ -98,8 +111,8 @@ namespace Xtensive.Storage.Building.Builders
         if (master == null
           || master.TargetType != slave.OwnerType 
           || master.OwnerType != slave.TargetType 
-          || !masterField.ItemType.IsAssignableFrom(pairedFieldOwnerType) 
-          || !pairedFieldOwnerType.IsAssignableFrom(masterField.ItemType))
+          || !masterField.ItemType.IsAssignableFrom(pairedFieldOwnerType))
+//          || !pairedFieldOwnerType.IsAssignableFrom(masterField.ItemType))
           throw new DomainBuilderException(string.Format(
             Strings.ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC,
             masterField.ReflectedType.UnderlyingType.GetShortName(),

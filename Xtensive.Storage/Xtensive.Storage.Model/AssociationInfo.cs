@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public TypeInfo OwnerType
     {
-      get { return OwnerField.DeclaringType; }
+      get { return OwnerField.ReflectedType; }
     }
 
     /// <summary>
@@ -203,7 +203,8 @@ namespace Xtensive.Storage.Model
             foreignKeyExtractor = OwnerField.valueExtractor;
           break;
         case Multiplicity.OneToMany:
-          UnderlyingIndex = Reversed.OwnerType.Indexes.GetIndex(Reversed.OwnerField.Name);
+//          UnderlyingIndex = Reversed.OwnerType.Indexes.GetIndex(Reversed.OwnerField.Name);
+          UnderlyingIndex = Reversed.OwnerField.DeclaringType.Indexes.GetIndex(Reversed.OwnerField.Name);
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.ManyToMany:

@@ -79,9 +79,6 @@ namespace Xtensive.Storage.Linq
       }
 
       var connectorType = association.AuxiliaryType.UnderlyingType;
-      var referencedType = association.IsMaster
-        ? association.OwnerType
-        : association.TargetType;
       var referencingField = association.IsMaster
         ? association.AuxiliaryType.Fields[WellKnown.SlaveFieldName]
         : association.AuxiliaryType.Fields[WellKnown.MasterFieldName];

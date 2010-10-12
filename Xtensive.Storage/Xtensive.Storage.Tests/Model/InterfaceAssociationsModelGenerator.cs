@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using Xtensive.Storage;
 
 namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
 {
@@ -1423,6 +1424,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest07()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1447,6 +1449,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest08()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1519,6 +1522,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest11()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1543,6 +1547,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest12()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1591,6 +1596,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest14()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1687,6 +1693,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest18()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1711,6 +1718,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest19()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1735,6 +1743,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest20()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1807,6 +1816,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest23()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1831,6 +1841,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest24()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1879,6 +1890,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest26()
     {
       var config = DomainConfigurationFactory.Create();
@@ -1975,6 +1987,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest30()
     {
       var config = DomainConfigurationFactory.Create();
@@ -2023,6 +2036,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest32()
     {
       var config = DomainConfigurationFactory.Create();
@@ -2119,6 +2133,7 @@ namespace Xtensive.Storage.Tests.Model.InterfaceAssociation
       }
     }
     [Test]
+    [ExpectedException(typeof(DomainBuilderException))]
     public void CombinedTest36()
     {
       var config = DomainConfigurationFactory.Create();
