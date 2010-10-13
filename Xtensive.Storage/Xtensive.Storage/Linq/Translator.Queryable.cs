@@ -1251,10 +1251,19 @@ namespace Xtensive.Storage.Linq
         throw Exceptions.InternalError(String.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), Log.Instance);
       ParameterExpression lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
+      var dataSource = oldResult.ItemProjector.DataSource;
 
-      var applyParameter = context.GetApplyParameter(oldResult);
-      int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
-      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(
+      // Process calculable columns
+      if (state.CalculatedColumns.Count>0) {
+        dataSource = oldResult.ItemProjector.DataSource.Calculate(
+          !state.BuildingProjection,
+          state.CalculatedColumns.ToArray());
+        state.CalculatedColumns.Clear();
+      }
+
+      var applyParameter = context.GetApplyParameter(oldResult.ItemProjector.DataSource);
+      int columnIndex = dataSource.Header.Length;
+      var newRecordSet = dataSource.Apply(
         applyParameter,
         subquery,
         !state.BuildingProjection,
@@ -1266,6 +1275,7 @@ namespace Xtensive.Storage.Linq
 
       return ColumnExpression.Create(columnType, columnIndex);
     }
+
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private ProjectionExpression VisitSequence(Expression sequenceExpression)
