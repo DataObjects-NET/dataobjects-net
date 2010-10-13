@@ -191,7 +191,6 @@ namespace Xtensive.Storage.Building.Builders
       // pair integrity escalation and consistency check
       context.TypesWithProcessedInheritedAssociations.Add(typeInfo);
       var refFields = typeInfo.Fields.Where(f => f.IsEntity || f.IsEntitySet).ToList();
-//      var interfaceFields = typeInfo.Fields.Where(f => f.IsInterfaceImplementation);
       // check for interface fields
       foreach (var refField in refFields) {
         var parentIsPaired = false;
@@ -240,7 +239,8 @@ namespace Xtensive.Storage.Building.Builders
         }
 
         var fieldCopy = refField;
-        context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
+        if (!parentIsPaired)
+          context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
         Func<AssociationInfo, bool> associationFilter = a => context.PairedAssociations
           .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
             && pa.Second == a.OwnerField.Name

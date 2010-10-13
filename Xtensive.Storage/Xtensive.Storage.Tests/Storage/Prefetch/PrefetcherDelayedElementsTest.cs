@@ -231,8 +231,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         Action<Book, int> titlesGenerator = (b, count) => {
-          for (var i = 0; i < count; i++)
+          var subcount = count / 2;
+          var countleft = count - subcount;
+          for (var i = 0; i < subcount; i++)
             b.TranslationTitles.Add(new Title {Text = i.ToString()});
+          for (var i = 0; i < countleft; i++)
+            b.TranslationTitles.Add(new AnotherTitle { Text = "A_"+i.ToString() });
         };
         for (var i = 0; i < 155; i++) {
           var book = new Book {
@@ -388,8 +392,17 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Assert.IsTrue(setState.IsFullyLoaded);
       foreach (var itemKey in setState) {
         isOneItemPresentAtLeast = true;
+        var fieldSelector = referencingField.IsEntitySet && referencingField.ItemType.IsInterface
+          ? (Func<FieldInfo, bool>)(fi => {
+            var rt = fi.ReflectedType;
+            var implemented = rt.FieldMap.GetImplementedInterfaceFields(fi).ToList();
+            if (implemented.Count > 0)
+              return implemented.Any(i => i.ReflectedType.UnderlyingType == referencingField.ItemType);
+            return false;
+          })
+          : PrefetchTestHelper.IsFieldToBeLoadedByDefault;
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.Type, session,
-          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+          fieldSelector);
       }
     }
   }
