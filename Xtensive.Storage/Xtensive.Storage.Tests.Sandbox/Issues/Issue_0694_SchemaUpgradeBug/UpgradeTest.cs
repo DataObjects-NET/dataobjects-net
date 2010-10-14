@@ -48,13 +48,13 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
       {
         using (session.OpenTransaction())
         {
-          var status = Query.All<M2.Status>().SingleOrDefault();
-          var newMedia = Query.All<M2.NewMedia>().SingleOrDefault();
-          var newMediaTricky = Query.All<M2.Content>().Where(c => c.Title == "Media").SingleOrDefault();
+          var status = session.Query.All<M2.Status>().SingleOrDefault();
+          var newMedia = session.Query.All<M2.NewMedia>().SingleOrDefault();
+          var newMediaTricky = session.Query.All<M2.Content>().Where(c => c.Title == "Media").SingleOrDefault();
 
-          int statusCount = Query.All<M2.Status>().Count();
+          int statusCount = session.Query.All<M2.Status>().Count();
           int statusAssociationCount = status != null ? status.AssociatedContent.Count() : 0;
-          int newMediaCount = Query.All<M2.NewMedia>().Count();
+          int newMediaCount = session.Query.All<M2.NewMedia>().Count();
 
           Assert.IsNotNull(status);
           Assert.IsNull(newMedia);
@@ -73,13 +73,13 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
           // No version-to-version hints, so all the types are removed
-          var status = Query.All<M3.Status>().FirstOrDefault();
-          var newMedia = Query.All<M3.NewMedia>().FirstOrDefault();
-          var newMediaTricky = Query.All<M3.Content>().FirstOrDefault();
+          var status = session.Query.All<M3.Status>().FirstOrDefault();
+          var newMedia = session.Query.All<M3.NewMedia>().FirstOrDefault();
+          var newMediaTricky = session.Query.All<M3.Content>().FirstOrDefault();
 
-          int statusCount = Query.All<M3.Status>().Count();
+          int statusCount = session.Query.All<M3.Status>().Count();
           int statusAssociationCount = status!=null ? status.AssociatedContent.Count() : 0;
-          int newMediaCount = Query.All<M3.NewMedia>().Count();
+          int newMediaCount = session.Query.All<M3.NewMedia>().Count();
 
           Assert.IsNull(status);
           Assert.IsNull(newMedia);

@@ -20,9 +20,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void InheritanceCountTest()
     {
-      var productCount = Query.All<Product>().Count();
-      var discontinuedProductCount = Query.All<DiscontinuedProduct>().Count();
-      var activeProductCount = Query.All<ActiveProduct>().Count();
+      var productCount = Session.Query.All<Product>().Count();
+      var discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
+      var activeProductCount = Session.Query.All<ActiveProduct>().Count();
       Assert.IsTrue(productCount > 0);
       Assert.IsTrue(discontinuedProductCount > 0);
       Assert.IsTrue(activeProductCount > 0);
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IsSimpleTest()
     {
-      var result = Query.All<Product>().Where(p => p is DiscontinuedProduct);
+      var result = Session.Query.All<Product>().Where(p => p is DiscontinuedProduct);
       QueryDumper.Dump(result);
     }
 
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void IsSameTypeTest()
     {
 #pragma warning disable 183
-      var result = Query.All<Product>().Where(p => p is Product);
+      var result = Session.Query.All<Product>().Where(p => p is Product);
 #pragma warning restore 183
       QueryDumper.Dump(result);
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void IsSubTypeTest()
     {
 #pragma warning disable 183
-      var result = Query.All<DiscontinuedProduct>().Where(p => p is Product);
+      var result = Session.Query.All<DiscontinuedProduct>().Where(p => p is Product);
 #pragma warning restore 183
       QueryDumper.Dump(result);
     }
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void IsIntermediateTest()
     {
-      Query.All<Product>()
+      Session.Query.All<Product>()
         .Where(p => p is IntermediateProduct)
         .Select(product => (IntermediateProduct) product)
         .Count();
@@ -68,10 +68,10 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void IsCountTest()
     {
-      int productCount = Query.All<Product>().Count();
-      int intermediateProductCount = Query.All<IntermediateProduct>().Count();
-      int discontinuedProductCount = Query.All<DiscontinuedProduct>().Count();
-      int activeProductCount = Query.All<ActiveProduct>().Count();
+      int productCount = Session.Query.All<Product>().Count();
+      int intermediateProductCount = Session.Query.All<IntermediateProduct>().Count();
+      int discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
+      int activeProductCount = Session.Query.All<ActiveProduct>().Count();
 
       Assert.Greater(productCount, 0);
       Assert.Greater(intermediateProductCount, 0);
@@ -84,21 +84,21 @@ namespace Xtensive.Storage.Tests.Linq
 
       Assert.AreEqual(
         intermediateProductCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .Where(p => p is IntermediateProduct)
           .Select(product => (IntermediateProduct) product)
           .Count());
 
       Assert.AreEqual(
         discontinuedProductCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .Where(p => p is DiscontinuedProduct)
           .Select(product => (DiscontinuedProduct) product)
           .Count());
 
       Assert.AreEqual(
         activeProductCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .Where(p => p is ActiveProduct)
           .Select(product => (ActiveProduct) product)
           .Count());
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Linq
 #pragma warning disable 183
       Assert.AreEqual(
         productCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .Where(p => p is Product)
           .Count());
 #pragma warning restore 183
@@ -115,28 +115,28 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OfTypeSimpleTest()
     {
-      var result = Query.All<Product>().OfType<DiscontinuedProduct>();
+      var result = Session.Query.All<Product>().OfType<DiscontinuedProduct>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OfTypeSameTypeTest()
     {
-      var result = Query.All<Product>().OfType<Product>();
+      var result = Session.Query.All<Product>().OfType<Product>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OfTypeSubTypeTest()
     {
-      var result = Query.All<DiscontinuedProduct>().OfType<Product>();
+      var result = Session.Query.All<DiscontinuedProduct>().OfType<Product>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OfTypeIntermediateTest()
     {
-      Query.All<Product>()
+      Session.Query.All<Product>()
         .OfType<IntermediateProduct>()
         .Count();
     }
@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OfTypeWithFieldAccessTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .OfType<ActiveProduct>()
         .Select(ip=>ip.QuantityPerUnit);
       QueryDumper.Dump(result);
@@ -153,10 +153,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OfTypeCountTest()
     {
-      int productCount = Query.All<Product>().Count();
-      int intermediateProductCount = Query.All<IntermediateProduct>().Count();
-      int discontinuedProductCount = Query.All<DiscontinuedProduct>().Count();
-      int activeProductCount = Query.All<ActiveProduct>().Count();
+      int productCount = Session.Query.All<Product>().Count();
+      int intermediateProductCount = Session.Query.All<IntermediateProduct>().Count();
+      int discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
+      int activeProductCount = Session.Query.All<ActiveProduct>().Count();
 
       Assert.Greater(productCount, 0);
       Assert.Greater(intermediateProductCount, 0);
@@ -169,25 +169,25 @@ namespace Xtensive.Storage.Tests.Linq
 
       Assert.AreEqual(
         intermediateProductCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .OfType<IntermediateProduct>()
           .Count());
 
       Assert.AreEqual(
         discontinuedProductCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .OfType<DiscontinuedProduct>()
           .Count());
 
       Assert.AreEqual(
         activeProductCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .OfType<ActiveProduct>()
           .Count());
 
       Assert.AreEqual(
         productCount,
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .OfType<Product>()
           .Count());
     }
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CastSimpleTest()
     {
-      var discontinuedProducts = Query.All<DiscontinuedProduct>().Cast<Product>();
+      var discontinuedProducts = Session.Query.All<DiscontinuedProduct>().Cast<Product>();
       var list = discontinuedProducts.ToList();
       Assert.Greater(list.Count, 0);
     }
@@ -204,23 +204,23 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CastCountTest()
     {
-      var discontinuedProductCount1 = Query.All<DiscontinuedProduct>().Count();
-      var discontinuedProductCount2 = Query.All<DiscontinuedProduct>().Cast<Product>().Where(product => product!=null).Count();
+      var discontinuedProductCount1 = Session.Query.All<DiscontinuedProduct>().Count();
+      var discontinuedProductCount2 = Session.Query.All<DiscontinuedProduct>().Cast<Product>().Where(product => product!=null).Count();
       Assert.AreEqual(discontinuedProductCount1, discontinuedProductCount2);
 
-      var activeProductCount1 = Query.All<ActiveProduct>().Count();
-      var activeProductCount2 = Query.All<ActiveProduct>().Cast<Product>().Where(product => product!=null).Count();
+      var activeProductCount1 = Session.Query.All<ActiveProduct>().Count();
+      var activeProductCount2 = Session.Query.All<ActiveProduct>().Cast<Product>().Where(product => product!=null).Count();
       Assert.AreEqual(activeProductCount1, activeProductCount2);
 
-      var productCount1 = Query.All<Product>().Count();
-      var productCount2 = Query.All<Product>().Cast<Product>().Count();
+      var productCount1 = Session.Query.All<Product>().Count();
+      var productCount2 = Session.Query.All<Product>().Cast<Product>().Count();
       Assert.AreEqual(productCount1, productCount2);
     }
 
     [Test]
     public void OfTypeGetFieldTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .OfType<DiscontinuedProduct>()
         .Select(dp => dp.QuantityPerUnit);
       QueryDumper.Dump(result);
@@ -230,7 +230,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void IsGetParentFieldTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Where(p => p is DiscontinuedProduct)
         .Select(x => (DiscontinuedProduct) x)
         .Select(dp => dp.ProductName);
@@ -241,7 +241,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void IsGetChildFieldTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Where(p => p is DiscontinuedProduct)
         .Select(x => (DiscontinuedProduct) x)
         .Select(dp => dp.QuantityPerUnit);
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CastToBaseTest()
     {
-      var result = Query.All<DiscontinuedProduct>()
+      var result = Session.Query.All<DiscontinuedProduct>()
         .Select(x => (Product) x);
       QueryDumper.Dump(result);
     }
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IsBoolResultTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(x => x is DiscontinuedProduct
           ? x
           : null);
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousCastTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(x =>
           new
           {
@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoChildrenCastTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(x =>
           new
           {
@@ -297,7 +297,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void ComplexIsCastTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(x =>
           new
           {
@@ -324,7 +324,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexAsCastTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(product =>
           new
           {
@@ -346,7 +346,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexAsCast2Test()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(product =>
           new
           {
@@ -364,7 +364,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AsDowncastTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(product => product as DiscontinuedProduct);
       QueryDumper.Dump(result);
     }
@@ -372,7 +372,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AsDowncastWithFieldSelectTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(product => product as DiscontinuedProduct)
         .Select(discontinuedProduct => 
           discontinuedProduct == null 
@@ -384,7 +384,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AsUpcastTest()
     {
-      var result = Query.All<DiscontinuedProduct>()
+      var result = Session.Query.All<DiscontinuedProduct>()
         .Select(discontinuedProduct => discontinuedProduct as Product);
       QueryDumper.Dump(result);
     }
@@ -392,7 +392,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AsUpcastWithFieldSelectTest()
     {
-      var result = Query.All<DiscontinuedProduct>()
+      var result = Session.Query.All<DiscontinuedProduct>()
         .Select(discontinuedProduct => discontinuedProduct as Product)
         .Select(product => 
           product == null 
@@ -404,7 +404,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AsUpcastWithConditionalTest()
     {
-      var result = Query.All<DiscontinuedProduct>()
+      var result = Session.Query.All<DiscontinuedProduct>()
         .Select(discontinuedProduct => discontinuedProduct as Product)
         .Select(product => 
           product == null 
@@ -416,7 +416,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WrongCastTest()
     {
-      var result = Query.All<DiscontinuedProduct>()
+      var result = Session.Query.All<DiscontinuedProduct>()
         .Select(discontinuedProduct => discontinuedProduct as Product)
         .Select(product => product as ActiveProduct);
       QueryDumper.Dump(result);
@@ -425,7 +425,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceAsSimpleTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Select(orderDetails => orderDetails.Product as ActiveProduct);
       QueryDumper.Dump(result);
     }
@@ -433,7 +433,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceIsSimpleTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Where(orderDetails => orderDetails.Product is ActiveProduct);
       QueryDumper.Dump(result);
     }
@@ -441,7 +441,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceOfTypeSimpleTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Select(orderDetails => orderDetails.Product)
         .OfType<DiscontinuedProduct>();
       QueryDumper.Dump(result);
@@ -450,7 +450,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceOfTypeWithFieldTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Select(orderDetails => orderDetails.Product)
         .OfType<DiscontinuedProduct>()
         .Select(dp=>dp.QuantityPerUnit);
@@ -460,7 +460,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceAsAnonymousTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Select(orderDetails => new {Product = orderDetails.Product as ActiveProduct});
       QueryDumper.Dump(result);
     }
@@ -468,7 +468,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceIsAnonymousTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Where(orderDetails => orderDetails.Product is ActiveProduct);
       QueryDumper.Dump(result);
     }
@@ -476,7 +476,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceOfTypeAnonymousTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Select(orderDetails => new{orderDetails.Product})
         .Select(p=>p.Product)
         .OfType<ActiveProduct>();
@@ -486,7 +486,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReferenceOfTypeAnonymousWithFieldAccessTest()
     {
-      var result = Query.All<OrderDetails>()
+      var result = Session.Query.All<OrderDetails>()
         .Select(orderDetails => new{orderDetails.Product})
         .Select(p=>p.Product)
         .OfType<ActiveProduct>()
@@ -498,8 +498,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void ImplicitNumericTest()
     {
       long value = 0;
-      var customer = Query.All<Customer>().OrderBy(c => c.CompanyName).First();
-      var result = Query.All<Customer>()
+      var customer = Session.Query.All<Customer>().OrderBy(c => c.CompanyName).First();
+      var result = Session.Query.All<Customer>()
         .Where(c => c==customer)
         .Select(c => c.CompanyName.Length + value)
         .First();

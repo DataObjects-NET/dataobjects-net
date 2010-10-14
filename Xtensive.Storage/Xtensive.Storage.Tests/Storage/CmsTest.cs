@@ -32,11 +32,11 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
-          var webSite = Query.All<WebSite>().First();
-          var result = Query.All<ContentReference>()
+          var webSite = session.Query.All<WebSite>().First();
+          var result = session.Query.All<ContentReference>()
             .Where(
             r => r.ReferenceType == ContentReferenceType.Embedded &&
-              r.ContentID.In(Query.All<NewsList>().Where(nl => nl.WebSite == webSite).Select(nl => nl.Id)));
+              r.ContentID.In(session.Query.All<NewsList>().Where(nl => nl.WebSite == webSite).Select(nl => nl.Id)));
           var list = result.ToList();
           t.Complete();
         }

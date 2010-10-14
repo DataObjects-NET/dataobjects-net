@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          Book b = Query.SingleOrDefault<Book>(key);
+          Book b = session.Query.SingleOrDefault<Book>(key);
           Tuple tuple = b.Tuple;
 
           Assert.IsTrue(tuple.GetFieldState(2).IsAvailable());

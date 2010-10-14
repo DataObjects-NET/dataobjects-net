@@ -40,7 +40,7 @@ namespace Xtensive.Storage
     /// Gets the referenced entity (resolves the reference).
     /// </summary>
     public T Value {
-      get { return Query.Single<T>(key); }
+      get { return Session.Demand().Query.Single<T>(key); }
     }
 
     #region Equality members

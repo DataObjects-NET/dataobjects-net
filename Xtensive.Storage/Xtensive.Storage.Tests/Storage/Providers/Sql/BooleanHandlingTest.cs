@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var value = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         select value
         );
     }
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void SelectFieldTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         select o.Flag
         );
     }
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void SelectNotFieldTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         select !o.Flag
         );
     }
@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void SelectCalculatedTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         select new { value = o.Name.StartsWith("Yes") }
         );
     }
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag.Value
         select o
         );
@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereNotColumnTest()
     {
       TestQuery(() => 
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where !o.Flag.Value
         select o
         );
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnAndColumnTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag.Value && o.HasStupidName
         select o
         );
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnOrColumnTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag.Value || o.HasStupidName
         select o
         );
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnEqualsColumnTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag==o.HasStupidName
         select o
         );
@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnNotEqualsColumnTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag!=o.HasStupidName
         select o
         );
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnOrExpressionTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag.Value || (o.Id > 6)
         select o
         );
@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnAndExpressionTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag.Value && o.Name.StartsWith("Yes")
         select o
         );
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnEqualsExpressionTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag == (o.Id == 5)
         select o
         );
@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereColumnNotEqualsExpressionTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Flag != o.Name.StartsWith("No")
         select o
         );
@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereExpressionEqualsExpressionTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Name.StartsWith("Yes")==(o.Id==5)
         select o
         );
@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void WhereExpressionNotEqualsExpressionTest()
     {
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where o.Name.StartsWith("Yes")!=(o.Id < 5)
         select o
         );
@@ -227,7 +227,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter
         select o
         );
@@ -238,7 +238,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where !parameter
         select o
         );
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter || o.Flag.Value
         select o
         );
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter && o.HasStupidName
         select o
         );
@@ -271,7 +271,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter==o.Flag
         select o
         );
@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter!=o.Flag
         select o
         );
@@ -293,7 +293,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter || o.Name.EndsWith("Yes")
         select o
         );
@@ -304,7 +304,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter && o.Name.EndsWith("No")
         select o
         );
@@ -315,7 +315,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter==o.Name.EndsWith("Yes")
         select o
         );
@@ -326,7 +326,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       var parameter = true;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where parameter!=o.Name.StartsWith("No")
         select o
         );
@@ -336,7 +336,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void IifTest()
     {
       TestQuery(() =>
-        from it in Query.All<MyEntity>()
+        from it in Session.Demand().Query.All<MyEntity>()
         where
           (it.Name==null ? null : (bool?) it.Name.StartsWith("Y"))==null
             ? false
@@ -349,7 +349,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void CoalesceTest()
     {
       TestQuery(() =>
-        from it in Query.All<MyEntity>()
+        from it in Session.Demand().Query.All<MyEntity>()
         select it.Flag ?? it.HasStupidName
         );
     }
@@ -360,7 +360,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       var parameter1 = true;
       var parameter2 = false;
       TestQuery(() =>
-        from o in Query.All<MyEntity>()
+        from o in Session.Demand().Query.All<MyEntity>()
         where (!o.Flag.Value && o.Name.StartsWith("No") || parameter1) && (o.HasStupidName || !parameter2)
         select new {value = o.Id % 10 < 5, flag = o.Flag, notflag = !o.Flag}
         );
@@ -373,7 +373,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       using (new ParameterContext().Activate()) {
         parameter.Value = Tuple.Create(false);
         TestQuery(() =>
-          from o in Query.All<MyEntity>()
+          from o in Session.Demand().Query.All<MyEntity>()
           where o.HasStupidName==parameter.Value.GetValueOrDefault<bool>(0)
           select o
           );

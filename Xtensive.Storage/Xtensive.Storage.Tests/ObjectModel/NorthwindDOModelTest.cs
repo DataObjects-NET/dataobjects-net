@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
   public abstract class NorthwindDOModelTest : AutoBuildTest
   {
     private DisposableSet disposables;
+    protected Session Session;
 
     private List<Customer> customers;
     private List<Order> orders;
@@ -29,7 +30,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Customer> Customers {
       get {
         if (customers==null)
-          customers = Query.All<Customer>().ToList();
+          customers = Session.session.Query.All<Customer>().ToList();
         return customers;
       }
     }
@@ -37,7 +38,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Order> Orders {
       get {
         if (orders==null)
-          orders = Query.All<Order>().ToList();
+          orders = Session.session.Query.All<Order>().ToList();
         return orders;
       }
     }
@@ -45,7 +46,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Employee> Employees {
       get {
         if (employees==null)
-          employees = Query.All<Employee>().ToList();
+          employees = Session.session.Query.All<Employee>().ToList();
         return employees;
       }
     }
@@ -53,7 +54,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Product> Products {
       get {
         if (products==null)
-          products = Query.All<Product>().ToList();
+          products = Session.session.Query.All<Product>().ToList();
         return products;
       }
     }
@@ -61,7 +62,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Supplier> Suppliers {
       get {
         if (suppliers==null)
-          suppliers = Query.All<Supplier>().ToList();
+          suppliers = Session.session.Query.All<Supplier>().ToList();
         return suppliers;
       }
     }
@@ -70,9 +71,9 @@ namespace Xtensive.Storage.Tests.ObjectModel
     public virtual void SetUp()
     {
       disposables = new DisposableSet();
-      var session = Domain.OpenSession();
-      disposables.Add(session);
-      disposables.Add(session.OpenTransaction());
+      Session = Domain.OpenSession();
+      disposables.Add(Session);
+      disposables.Add(Session.OpenTransaction());
     }
 
     [TearDown]
@@ -110,7 +111,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
       bool shouldFill = false;
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var count = Query.All<Customer>().Count();
+        var count = session.Query.All<Customer>().Count();
         if (count == 0)
           shouldFill = true;
       }

@@ -24,13 +24,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     protected abstract DomainConfiguration CreateConfiguration();
 
-    protected sealed override DomainConfiguration BuildConfiguration()
+    protected override sealed DomainConfiguration BuildConfiguration()
     {
       var config = CreateConfiguration();
       config.Sessions.Add(new SessionConfiguration("Default"));
       // config.Sessions.Default.CacheSize = BaseCount;
       config.Sessions.Default.CacheType = SessionCacheType.Infinite;
-      config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
+      config.Types.Register(typeof (Simplest).Assembly, typeof (Simplest).Namespace);
       return config;
     }
 
@@ -84,19 +84,19 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       MaterializeAnonymousTypeTest(baseCount);
       MaterializeGetFieldTest(baseCount);
       ManualMaterializeTest(baseCount);
-      
+
       CreateSimplestContainer(insertCount);
       AccessToNonPairedEntitySetTest(collectionCount);
       AccessToPairedEntitySetTest(collectionCount);
       DeleteSimplestContainer();
 
-      FetchTest(baseCount / 2);
-      PrefetchTest(baseCount / 2);
-      QueryTest(baseCount / 5);
-      SameQueryExpressionTest(baseCount / 5);
-      CachedQueryTest(baseCount / 2);
-      RseQueryTest(baseCount / 5);
-      CachedRseQueryTest(baseCount / 5);
+      FetchTest(baseCount/2);
+      PrefetchTest(baseCount/2);
+      QueryTest(baseCount/5);
+      SameQueryExpressionTest(baseCount/5);
+      CachedQueryTest(baseCount/2);
+      RseQueryTest(baseCount/5);
+      CachedRseQueryTest(baseCount/5);
       UpdateTest();
       UpdateNoBatchingTest();
       SingleStatementLikeUpdateTest();
@@ -105,12 +105,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void InsertTest(int insertCount)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Insert", insertCount)) {
-          using (var ts = ss.OpenTransaction()) {
+          using (var ts = session.OpenTransaction()) {
             for (int i = 0; i < insertCount; i++)
               new Simplest(i, i);
             ts.Complete();
@@ -122,40 +120,36 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void FetchTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
-        long sum = (long)count*(count-1)/2;
-        using (var ts = ss.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        long sum = (long) count*(count - 1)/2;
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Fetch & GetField", count)) {
             for (int i = 0; i < count; i++) {
-              var key = Key.Create<Simplest>((long) i % instanceCount);
-              var o = Query.SingleOrDefault<Simplest>(key);
+              var key = Key.Create<Simplest>((long) i%instanceCount);
+              var o = session.Query.SingleOrDefault<Simplest>(key);
               sum -= o.Id;
             }
             ts.Complete();
           }
         }
-        if (count<=instanceCount)
+        if (count <= instanceCount)
           Assert.AreEqual(0, sum);
       }
     }
 
     private void PrefetchTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         //long sum = (long)count*(count-1)/2;
         var i = 0;
-        using (var ts = ss.OpenTransaction()) {
+        using (var ts = session.OpenTransaction()) {
           var keys = GetKeys(count).ToList();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Prefetch", count)) {
             foreach (var key in keys.Prefetch<Simplest, Key>(key => key)) {
               i++;
-              //var o = Query.SingleOrDefault<Simplest>(key);
+              //var o = session.Query.SingleOrDefault<Simplest>(key);
               //sum -= o.Id;
             }
             ts.Complete();
@@ -163,27 +157,25 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         }
         Assert.AreEqual(count, i);
         //if (count<=instanceCount)
-          //Assert.AreEqual(0, sum);
+        //Assert.AreEqual(0, sum);
       }
     }
 
     private IEnumerable<Key> GetKeys(int count)
     {
       for (int i = 0; i < count; i++)
-        yield return Key.Create<Simplest>((long) i % instanceCount);
+        yield return Key.Create<Simplest>((long) i%instanceCount);
     }
 
     private void MaterializeTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         int i = 0;
-        using (var ts = ss.OpenTransaction()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize", count)) {
             while (i < count)
-              foreach (var o in Query.Execute(() => Query.All<Simplest>())) {
+              foreach (var o in session.Query.Execute(() => session.Query.All<Simplest>())) {
                 if (++i >= count)
                   break;
               }
@@ -195,15 +187,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void MaterializeAnonymousTypeTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         int i = 0;
-        using (var ts = ss.OpenTransaction()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize anonymous type", count)) {
             while (i < count)
-              foreach (var o in Query.Execute(() => Query.All<Simplest>().Select(t => new {t.Id, t.Value}))) {
+              foreach (var o in session.Query.Execute(() => session.Query.All<Simplest>().Select(t => new {t.Id, t.Value}))) {
                 if (++i >= count)
                   break;
               }
@@ -215,16 +205,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void MaterializeGetFieldTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         long sum = 0;
         int i = 0;
-        using (var ts = ss.OpenTransaction()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize & GetField", count)) {
             while (i < count)
-              foreach (var o in Query.Execute(() => Query.All<Simplest>())) {
+              foreach (var o in session.Query.Execute(() => session.Query.All<Simplest>())) {
                 sum += o.Id;
                 if (++i >= count)
                   break;
@@ -232,26 +220,25 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             ts.Complete();
           }
         }
-        Assert.AreEqual((long)count*(count-1)/2, sum);
+        Assert.AreEqual((long) count*(count - 1)/2, sum);
       }
     }
 
     private void ManualMaterializeTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         int i = 0;
-        using (var ts = ss.OpenTransaction()) {
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
+        using (var ts = session.OpenTransaction()) {
+          var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
-              foreach (var tuple in rs.ToRecordSet(s)) {
-                var o = new SqlClientCrudModel.Simplest  {
-                  Id = tuple.GetValueOrDefault<long>(0), 
-                  Value = tuple.GetValueOrDefault<long>(2)
-                };
+              foreach (var tuple in rs.ToRecordSet(session)) {
+                var o = new SqlClientCrudModel.Simplest
+                          {
+                            Id = tuple.GetValueOrDefault<long>(0),
+                            Value = tuple.GetValueOrDefault<long>(2)
+                          };
                 if (++i >= count)
                   break;
               }
@@ -264,17 +251,15 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void AccessToNonPairedEntitySetTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         int i = 0;
-        using (var ts = ss.OpenTransaction()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var message = string.Format("Access to non-paired EntitySet[{0} items]", EntitySetItemCount);
           using (warmup ? null : new Measurement(message, count)) {
             NonPairedSimplestContainerItem t = null;
             while (i < count)
-              foreach (var o in Query.Execute(() => Query.All<SimplestContainer>())) {
+              foreach (var o in session.Query.Execute(() => session.Query.All<SimplestContainer>())) {
                 t = ((IEnumerable<NonPairedSimplestContainerItem>) o.DistantItems).First();
                 if (++i >= count)
                   break;
@@ -288,17 +273,15 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void AccessToPairedEntitySetTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         int i = 0;
-        using (var ts = ss.OpenTransaction()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var message = string.Format("Access to paired EntitySet[{0} items]", EntitySetItemCount);
           using (warmup ? null : new Measurement(message, count)) {
             PairedSimplestContainerItem t = null;
             while (i < count)
-              foreach (var o in Query.Execute(() => Query.All<SimplestContainer>())) {
+              foreach (var o in session.Query.Execute(() => session.Query.All<SimplestContainer>())) {
                 t = ((IEnumerable<PairedSimplestContainerItem>) o.Items).First();
                 if (++i >= count)
                   break;
@@ -312,15 +295,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void CreateSimplestContainer(int insertCount)
     {
-      var d = Domain;
       int count = 0;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         TestHelper.CollectGarbage();
-        using (var ts = ss.OpenTransaction()) {
+        using (var ts = session.OpenTransaction()) {
           SimplestContainer owner = null;
           for (int i = 0; i < insertCount; i++) {
-            if (i % EntitySetItemCount == 0) {
+            if (i%EntitySetItemCount == 0) {
               owner = new SimplestContainer();
               count++;
             }
@@ -335,12 +316,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void DeleteSimplestContainer()
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         TestHelper.CollectGarbage();
-        using (var ts = ss.OpenTransaction()) {
-          var query = Query.Execute(() => Query.All<SimplestContainer>());
+        using (var ts = session.OpenTransaction()) {
+          var query = session.Query.Execute(() => session.Query.All<SimplestContainer>());
           foreach (var o in query)
             o.Remove();
           ts.Complete();
@@ -350,15 +329,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void QueryTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
-        using (var ts = ss.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
-              var id = i % instanceCount;
-              var query = Query.All<Simplest>().Where(o => o.Id == id);
+              var id = i%instanceCount;
+              var query = session.Query.All<Simplest>().Where(o => o.Id == id);
               foreach (var simplest in query) {
                 // Doing nothing, just enumerate
               }
@@ -371,16 +348,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void SameQueryExpressionTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
-        using (var ts = ss.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        using (var ts = session.OpenTransaction()) {
           var id = 0;
-          var query = Query.All<Simplest>().Where(o => o.Id == id);
+          var query = session.Query.All<Simplest>().Where(o => o.Id == id);
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Single query expression", count)) {
             for (int i = 0; i < count; i++) {
-              id = i % instanceCount;
+              id = i%instanceCount;
               foreach (var simplest in query) {
                 // Doing nothing, just enumerate
               }
@@ -393,17 +368,15 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void CachedQueryTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
-        using (var ts = ss.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        using (var ts = session.OpenTransaction()) {
           var id = 0;
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Cached query", count)) {
             for (int i = 0; i < count; i++) {
-              id = i % instanceCount;
-              var query = Query.Execute(() => Query.All<Simplest>()
-                .Where(o => o.Id == id));
+              id = i%instanceCount;
+              var query = session.Query.Execute(() => session.Query.All<Simplest>()
+                                                .Where(o => o.Id == id));
               foreach (var simplest in query) {
                 // Doing nothing, just enumerate
               }
@@ -416,19 +389,17 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void RseQueryTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
-        using (var ts = ss.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
-              var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
+              var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterContext().Activate()) {
-                pKey.Value = Tuple.Create((long)(i % instanceCount));
-                var es = rs.ToRecordSet(s).ToEntities<Simplest>(0);
+                pKey.Value = Tuple.Create((long) (i%instanceCount));
+                var es = rs.ToRecordSet(session).ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }
@@ -442,19 +413,17 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void CachedRseQueryTest(int count)
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
-        using (var ts = ss.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var pKey = new Parameter<Tuple>();
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
+          var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
           rs = rs.Seek(() => pKey.Value);
           using (new ParameterContext().Activate()) {
             using (warmup ? null : new Measurement("Cached RSE query", count)) {
               for (int i = 0; i < count; i++) {
-                pKey.Value = Tuple.Create((long)(i % instanceCount));
-                var es = rs.ToRecordSet(s).ToEntities<Simplest>(0);
+                pKey.Value = Tuple.Create((long) (i%instanceCount));
+                var es = rs.ToRecordSet(session).ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }
@@ -468,13 +437,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void UpdateTest()
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update", instanceCount)) {
-          using (var ts = ss.OpenTransaction()) {
-            var query = Query.Execute(() => Query.All<Simplest>());
+          using (var ts = session.OpenTransaction()) {
+            var query = session.Query.Execute(() => session.Query.All<Simplest>());
             foreach (var o in query)
               o.Value++;
             ts.Complete();
@@ -485,16 +452,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void UpdateNoBatchingTest()
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (no batching)", instanceCount)) {
-          using (var ts = ss.OpenTransaction()) {
-            var query = Query.Execute(() => Query.All<Simplest>());
+          using (var ts = session.OpenTransaction()) {
+            var query = session.Query.Execute(() => session.Query.All<Simplest>());
             foreach (var o in query) {
               o.Value = o.Value++;
-              s.SaveChanges();
+              session.SaveChanges();
             }
             ts.Complete();
           }
@@ -504,16 +469,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void SingleStatementLikeUpdateTest()
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (like DML query)", instanceCount)) {
-          using (var ts = ss.OpenTransaction()) {
-            var query = Query.Execute(() => Query.All<Simplest>());
+          using (var ts = session.OpenTransaction()) {
+            var query = session.Query.Execute(() => session.Query.All<Simplest>());
             foreach (var o in query) {
               var value = o.Value;
-              if (value>=0)
+              if (value >= 0)
                 o.Value = -value;
             }
             ts.Complete();
@@ -524,13 +487,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void RemoveTest()
     {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss;
+      using (var session = Domain.OpenSession()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
-          using (var ts = ss.OpenTransaction()) {
-            var query = Query.Execute(() => Query.All<Simplest>());
+          using (var ts = session.OpenTransaction()) {
+            var query = session.Query.Execute(() => session.Query.All<Simplest>());
             foreach (var o in query)
               o.Remove();
             ts.Complete();

@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Tests.Issues
       private static readonly Expression<Func<Share, string>> PduRegNumberExpression = e =>
         e.FinTool == null
           ? null
-          : Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person) != null
-              ? Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person).PduRegNumber
+          : session.Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person) != null
+              ? session.Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person).PduRegNumber
               : null;
 
       private static readonly Func<Share, string> PduRegNumberExpressionCompiled = PduRegNumberExpression.Compile();
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var query = Query.All<Share>().Select(s => new {s.Id, s.FinTool, s.PduRegNumber});
+        var query = session.Query.All<Share>().Select(s => new {s.Id, s.FinTool, s.PduRegNumber});
         var list = query.ToList();
 
       }

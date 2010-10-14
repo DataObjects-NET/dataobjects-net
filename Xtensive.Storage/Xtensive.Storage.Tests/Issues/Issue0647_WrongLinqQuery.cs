@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Tests.Issues
       {
         var effectiveEntity = entity;
 
-        var q = from perm in Query.All<FunctionalPermission>()
+        var q = from perm in session.Query.All<FunctionalPermission>()
                 where perm.Role.Name.In(roles) && perm.Entity.SysName == effectiveEntity
                 select perm;
 
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Issues
         Assert.IsTrue(FunctionalPermission.CanDelete("Control", new[] { "1", "2" }));
 
         var roles = new[] { "1", "2" };
-        var q = from perm in Query.All<RowLevelPermission>()
+        var q = from perm in session.Query.All<RowLevelPermission>()
                 where perm.Role.Name.In(roles) && perm.Fields.Any(m => m.Linked.SysName == "Control")
                 select perm;
         var result = q.ToList();

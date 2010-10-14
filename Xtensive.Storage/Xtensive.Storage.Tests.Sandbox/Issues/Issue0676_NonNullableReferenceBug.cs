@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
 
     public static Person Null { 
       get {
-        return Query.Single<Person>(NullKey);
+        return Session.Demand().Query.Single<Person>(NullKey);
       }
     }
 
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
           lock (@lock) {
             keyExtension = extensions.Get<KeyExtension>();
             if (keyExtension==null) {
-              var nullPerson = Query.All<Person>().Where(p => p.Name==NullName).SingleOrDefault();
+              var nullPerson = Session.Demand().Query.All<Person>().Where(p => p.Name==NullName).SingleOrDefault();
               if (nullPerson!=null) {
                 keyExtension = new KeyExtension {Key = nullPerson.Key};
                 extensions.Set(keyExtension);

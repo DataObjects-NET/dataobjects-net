@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NewIntArrayTest()
     {
-      var result = Query.All<Customer>().Select(x => new[] {1, 2});
+      var result = Session.Query.All<Customer>().Select(x => new[] {1, 2});
       foreach (var array in result) {
         Assert.AreEqual(2, array.Length);
         Assert.AreEqual(1, array[0]);
@@ -36,8 +36,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NewByteArrayTest()
     {
-      var result = Query.All<Customer>().Select(x => new byte[] {1, 2});
-      var expected = Query.All<Customer>().ToList().Select(x => new byte[] {1, 2});
+      var result = Session.Query.All<Customer>().Select(x => new byte[] {1, 2});
+      var expected = Session.Query.All<Customer>().ToList().Select(x => new byte[] {1, 2});
       var comparer = AdvancedComparer<byte[]>.Default.EqualityComparerImplementation;
       Assert.AreEqual(0, expected.Except(result, comparer).Count());
       QueryDumper.Dump(result);
@@ -46,12 +46,12 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NewStringArrayTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select(customer => new[] {
           customer.CompanyName,
           customer.ContactTitle
         });
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .ToList()
         .Select(customer => new[] {
           customer.CompanyName,
@@ -66,12 +66,12 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NewByteArrayAnonymousTest()
     {
-      var result = Query.All<Product>()
+      var result = Session.Query.All<Product>()
         .Select(p => new {
           Value = new byte[] {1, 2, 3},
           p.ProductName
         });
-      var expected = Query.All<Product>()
+      var expected = Session.Query.All<Product>()
         .ToList()
         .Select(p => new {
           Value = new byte[] {1, 2, 3},
@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Tests.Linq
       var method = MethodInfo.GetCurrentMethod().Name;
       var result =
         from r in
-          from p in Query.All<Product>()
+          from p in Session.Query.All<Product>()
           select new {
             Value = new byte[] {1, 2, 3},
             Method = method,
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.AreEqual(method, i.Method);
       var expected =
         from r in
-          from p in Query.All<Product>().ToList()
+          from p in Session.Query.All<Product>().ToList()
           select new {
             Value = new byte[] {1, 2, 3},
             Method = method,
@@ -131,13 +131,13 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ArrayMemberAccessTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select(customer => new[] {
           customer.CompanyName,
           customer.ContactTitle
         })
         .Select(a => a[0]);
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .ToList()
         .Select(customer => new[] {
           customer.CompanyName,
@@ -152,11 +152,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Ignore("Not supported")]
     public void ArrayAggregateAccessTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select(x => new byte[] {1, 2})
         .Select(a => a[0])
         .Sum(b => b);
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .ToList()
         .Select(x => new byte[] {1, 2})
         .Select(a => a[0])
@@ -170,9 +170,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void ArrayExpressionIndexAccessTest()
     {
       var bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
-      var result = Query.All<Category>()
+      var result = Session.Query.All<Category>()
         .Select(category => bytes[category.Id]);
-      var expected = Query.All<Category>()
+      var expected = Session.Query.All<Category>()
         .ToList()
         .Select(category => bytes[category.Id]);
       Assert.AreEqual(0, expected.Except(result).Count());

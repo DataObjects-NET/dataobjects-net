@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var query = from item in Query.All<Item>()
+          var query = from item in session.Query.All<Item>()
                       where item.State.In(new[] {ItemState.Registering})
                       select item;
           var result = query.ToList();
@@ -54,8 +54,8 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var itemStates = Query.Store(new[] {ItemState.Registering});
-          var query = from item in Query.All<Item>()
+          var itemStates = session.Query.Store(new[] {ItemState.Registering});
+          var query = from item in session.Query.All<Item>()
                       where item.State.In(itemStates)
                       select item;
           var result = query.ToList();
@@ -68,9 +68,9 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var itemStates = Query.Store(new[] {ItemState.Registering});
+          var itemStates = session.Query.Store(new[] {ItemState.Registering});
 
-          var query = from item in Query.All<Item>()
+          var query = from item in session.Query.All<Item>()
                       where itemStates.Contains(item.State)
                       select item;
           var result = query.ToList();

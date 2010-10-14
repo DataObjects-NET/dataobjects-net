@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
 
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var count = Query.All<Model.Person>().Count();
+        var count = session.Query.All<Model.Person>().Count();
         Assert.AreEqual(2, count);
-        var list = Query.All<Model.Person>().ToList();
+        var list = session.Query.All<Model.Person>().ToList();
         Assert.AreEqual(2, list.Count);
         foreach (var item in list)
           Assert.IsNotNull(item);

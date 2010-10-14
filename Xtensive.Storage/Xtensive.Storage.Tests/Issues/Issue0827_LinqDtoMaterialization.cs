@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Issues
           var numeratorsDict = new Dictionary<int, List<NumeratorInfo>>();
           var fieldsDict = new Dictionary<int, List<DocFieldInfo>>();
           var query =
-                Query.All<DocEntity>().Select(
+                session.Query.All<DocEntity>().Select(
                     q =>
                     new DocEntityInfo()
                         {

@@ -28,13 +28,13 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       var query =
-        from o in Query.All<Order>()
-        join od in Query.All<OrderDetails>() on o equals od.Order
+        from o in Session.Query.All<Order>()
+        join od in Session.Query.All<OrderDetails>() on o equals od.Order
         where o.Freight > 0.1m
         select new DTO {Id = o.Id, Freight = o.Freight, ProductId = od.Product.Id, Amount = od.UnitPrice*od.Quantity};
       var list = query.ToList();
       var secondQuery =
-        from od in Query.All<OrderDetails>()
+        from od in Session.Query.All<OrderDetails>()
         select new DTO() {Id = od.Order.Id, Freight = null, ProductId = od.Product.Id, Amount = 1234};
       var secondList = secondQuery.ToList();
       var result = query
@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Tests.Issues
       var resultList = result.ToList();
 
     }
-    /*var innerEx = from b in Query.All<RegBalance>()
-                          join p in Query.All<RegCalculatedPrice>() on new { b.FinTool, b.AuthDate } equals
+    /*var innerEx = from b in Session.Query.All<RegBalance>()
+                          join p in Session.Query.All<RegCalculatedPrice>() on new { b.FinTool, b.AuthDate } equals
                               new { p.FinTool, AuthDate = (DateTime?)p.ActualizationDate }
                           where b.ActualVolume > 0
                           select
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Issues
                                       VolumeDelta = (decimal?)b.VolumeDelta,
                                       Price = (decimal?)null
                                   };
-            var balEx = from b in Query.All<RegBalance>()
+            var balEx = from b in Session.Query.All<RegBalance>()
                         select
                             new AnonymousClass
                                 {
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Issues
                                     Price = (decimal?)null
                                 };
 
-            var unionPrice = from p in Query.All<RegCalculatedPrice>()
+            var unionPrice = from p in Session.Query.All<RegCalculatedPrice>()
                              select
                                  new AnonymousClass
                                      {

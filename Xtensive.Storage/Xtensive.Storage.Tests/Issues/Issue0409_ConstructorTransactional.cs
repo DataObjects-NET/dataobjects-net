@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Issues
         }
       }
       using (var s = Domain.OpenSession()) {
-        var document = Query.Single<Document>(key);
+        var document = s.Query.Single<Document>(key);
       }
     }
 

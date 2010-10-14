@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
 
     public IEnumerable<Entity> GetVersionRoots()
     {
-      return Query.All<Owner1>().ToList().Cast<Entity>().Concat(Query.All<Owner2>().ToList().Cast<Entity>());
+      return session.Query.All<Owner1>().ToList().Cast<Entity>().Concat(session.Query.All<Owner2>().ToList().Cast<Entity>());
     }
   }
 }
@@ -152,8 +152,8 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var order = Query.Single<Order>(orderKey);
-          var orderItem = Query.Single<OrderItem>(orderItemKey);
+          var order = session.Query.Single<Order>(orderKey);
+          var orderItem = session.Query.Single<OrderItem>(orderItemKey);
           Assert.IsTrue(orderVersion==order.VersionInfo);
           Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
           orderItem.Quantity = 20;
@@ -187,8 +187,8 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var order = Query.Single<Order>(orderKey);
-          var orderItem = Query.Single<AdvancedOrderItem>(orderItemKey);
+          var order = session.Query.Single<Order>(orderKey);
+          var orderItem = session.Query.Single<AdvancedOrderItem>(orderItemKey);
           Assert.IsTrue(orderVersion==order.VersionInfo);
           Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
           orderItem.SupplierName = "Supplier2";
@@ -225,9 +225,9 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var owner1 = Query.Single<Owner1>(owner1Key);
-          var owner2 = Query.Single<Owner2>(owner2Key);
-          var item = Query.Single<Item>(itemKey);
+          var owner1 = session.Query.Single<Owner1>(owner1Key);
+          var owner2 = session.Query.Single<Owner2>(owner2Key);
+          var item = session.Query.Single<Item>(itemKey);
           Assert.IsTrue(owner1Version==owner1.VersionInfo);
           Assert.IsTrue(owner2Version==owner2.VersionInfo);
           Assert.IsTrue(itemVersion==item.VersionInfo);

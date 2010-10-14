@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (var domain2 = Domain.Build(configuration2))
       using (var session = domain2.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        Query.All<InconsistentDefaultDateTimeValuesModel2.MyEntity>().First(entity => entity.Value==DateTime.MinValue);
+        session.Query.All<InconsistentDefaultDateTimeValuesModel2.MyEntity>().First(entity => entity.Value==DateTime.MinValue);
         ts.Complete();
       }
     }

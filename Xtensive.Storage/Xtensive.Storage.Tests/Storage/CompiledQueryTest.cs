@@ -20,24 +20,24 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = Query.Execute(() => Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
+      var result = Session.Query.Execute(() => Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
     }
 
     [Test]
     public void CachedSubquerySequenceTest()
     {
-      var categoryNames = Query.All<Category>()
+      var categoryNames = Session.Query.All<Category>()
         .Select(c => c.CategoryName)
         .ToList();
-      var expectedItems = Query.All<Category>()
+      var expectedItems = Session.Query.All<Category>()
         .Select(c => new {Category = c, ProductsCount = c.Products.Count})
         .ToDictionary(a => a.Category.CategoryName);
       foreach (var categoryName in categoryNames) {
-        var result = Query.Execute(() => Query.All<Category>()
+        var result = Session.Query.Execute(() => Session.Query.All<Category>()
           .Where(c => c.CategoryName == categoryName)
           .Select(c => new {
             Category = c, 
-            Products = Query.All<Product>().Where(p => p.Category.CategoryName == categoryName)})
+            Products = Session.Query.All<Product>().Where(p => p.Category.CategoryName == categoryName)})
           ).ToList();
         var expected = expectedItems[categoryName];
         Assert.AreSame(expected.Category, result.Single().Category);          
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount();
+      var result = Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount();
     }
 
     [Test]
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = Query.Execute(() => Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
+      var result = Session.Query.Execute(() => Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
     }
 
     [Test]
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = Query.Execute(() => Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
+      var result = Session.Query.Execute(() => Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
     }
   }
 }

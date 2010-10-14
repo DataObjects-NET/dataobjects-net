@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Storage.SessionDeactivationTest
         var session = Domain.OpenSession();
         using (session.Activate()) {
           using (var tx = session.OpenTransaction()) {
-            var types = Query.All<Metadata.Type>().ToList();
+            var types = session.Query.All<Metadata.Type>().ToList();
             session.Dispose();
             tx.Complete();
           } // Error, since Dispose is allowed to throw an exception in this case
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Storage.SessionDeactivationTest
         var session = Domain.OpenSession();
         using (session.Activate()) {
           using (var tx = session.OpenTransaction()) {
-            var types = Query.All<Metadata.Type>().ToList();
+            var types = session.Query.All<Metadata.Type>().ToList();
             session.Dispose();
             // tx.Complete();
           } // No error, since Dispose must be silent in this case

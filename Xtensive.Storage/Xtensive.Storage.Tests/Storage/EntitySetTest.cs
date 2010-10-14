@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          var a = Query.Single<Author>(key);
+          var a = session.Query.Single<Author>(key);
           a.Books.ToList();
           var b = new Book();
           a.Books.Add(b);
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
-          var publisher = Query.All<Publisher>().First();
+          var publisher = session.Query.All<Publisher>().First();
           var list = publisher.Books.ToList();
           foreach (var book in list) {
             Assert.IsNotNull(book);
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var categories = Query.All<Category>();
+        var categories = session.Query.All<Category>();
         Assert.AreSame(categories.First().Products, categories.First().Products);
         var resultCount = categories.First().Products.Count();
         var set = categories.First().Products;
@@ -213,8 +213,8 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var employees = Query.All<Employee>();
-        var territories = Query.All<Territory>();
+        var employees = session.Query.All<Employee>();
+        var territories = session.Query.All<Territory>();
         var resultCount = employees.First().Territories.Count();
         var queryResult = employees.First().Territories.ToList().Count();
         Assert.AreEqual(queryResult, resultCount);
@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var category = Query.All<Category>().First();
+          var category = session.Query.All<Category>().First();
           var prodsuctCount = category.Products.Count;
           var product = new ActiveProduct();
           category.Products.Add(product);
@@ -276,7 +276,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
 
         using (var t = session.OpenTransaction()) {
-          var category = Query.All<Category>().First();
+          var category = session.Query.All<Category>().First();
           Assert.AreEqual(category.Products.Count, 0);
           var product = new ActiveProduct();
           category.Products.Add(product);
@@ -285,7 +285,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
 
         using (var t = session.OpenTransaction()) {
-          var category = Query.All<Category>().First();
+          var category = session.Query.All<Category>().First();
           Assert.AreEqual(category.Products.Count, 1);
           t.Complete();
         }
@@ -335,10 +335,10 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var author0 = Query.Single<Author>(author0Key);
+        var author0 = session.Query.Single<Author>(author0Key);
         LoadEntitySetThenRemoveOwnerAndEnumerateIt(author0, author0.Books);
 
-        var author1 = Query.Single<Author>(author1Key);
+        var author1 = session.Query.Single<Author>(author1Key);
         LoadEntitySetThenRemoveOwnerAndEnumerateIt(author1, author1.Books);
       }
     }
@@ -352,10 +352,10 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var author0 = Query.Single<Author>(author0Key);
+        var author0 = session.Query.Single<Author>(author0Key);
         RemoveOwnerAndEnumerateEntitySet(author0, author0.Books);
 
-        var author1 = Query.Single<Author>(author1Key);
+        var author1 = session.Query.Single<Author>(author1Key);
         RemoveOwnerAndEnumerateEntitySet(author1, author1.Books);
       }
     }
@@ -369,11 +369,11 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var author0 = Query.Single<Author>(author0Key);
+        var author0 = session.Query.Single<Author>(author0Key);
         var books0 = author0.Books;
         author0.Remove();
         AssertEx.Throws<InvalidOperationException>(() =>
-          Query.ExecuteFuture(() => books0.Where(b => b.Name==0)));
+          session.Query.ExecuteFuture(() => books0.Where(b => b.Name==0)));
       }
     }
 
@@ -409,7 +409,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var author = Query.Single<Author>(key);
+        var author = session.Query.Single<Author>(key);
         FetchEntitySet(author.Books);
         author.Books.Add(new Book());
         EntitySetState setState;
@@ -427,9 +427,9 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var author = Query.Single<Author>(key);
+        var author = session.Query.Single<Author>(key);
         FetchEntitySet(author.Books);
-        var booksToBeRemoved = Query.All<Book>().Where(b => b.Author.Key == key).Take(2).ToList();
+        var booksToBeRemoved = session.Query.All<Book>().Where(b => b.Author.Key == key).Take(2).ToList();
         var bookToBeRemoved0 = booksToBeRemoved[0];
         var bookToBeRemoved1 = booksToBeRemoved[1];
         author.Books.Remove(bookToBeRemoved0);
@@ -448,7 +448,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var author = Query.Single<Author>(key);
+        var author = session.Query.Single<Author>(key);
         FetchEntitySet(author.Books);
         author.Books.Add(new Book());
         EntitySetState setState;

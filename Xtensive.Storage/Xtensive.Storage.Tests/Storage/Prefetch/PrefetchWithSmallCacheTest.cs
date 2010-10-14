@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<Order>().Select(p => p.Key).ToList();
+        keys = session.Query.All<Order>().Select(p => p.Key).ToList();
         Assert.Greater(keys.Count, 0);
       }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<Person>().Take(221).AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value))
+        keys = session.Query.All<Person>().Take(221).AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value))
           .ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<Order>().Take(221).AsEnumerable().Select(p => Key.Create<Order>(p.Key.Value))
+        keys = session.Query.All<Order>().Take(221).AsEnumerable().Select(p => Key.Create<Order>(p.Key.Value))
           .ToList();
         Assert.Greater(keys.Count, 0);
       }

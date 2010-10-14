@@ -62,18 +62,18 @@ namespace Xtensive.Storage.Manual.FutureQueries
         var manager  = new Person {Name = "Manager"};
         manager.Employees.Add(employee);
 
-        var simpleCompiledQuery = Query.Execute(() =>
-          from person in Query.All<Person>()
+        var simpleCompiledQuery = session.Query.Execute(() =>
+          from person in session.Query.All<Person>()
           orderby person.Name
           select person
           );
-        var managedPersonCount = Query.ExecuteFutureScalar(() => (
-          from person in Query.All<Person>()
+        var managedPersonCount = session.Query.ExecuteFutureScalar(() => (
+          from person in session.Query.All<Person>()
           where person.Manager!=null
           select person
           ).Count());
-        var personsWithEmployees = Query.ExecuteFuture(() =>
-          from person in Query.All<Person>()
+        var personsWithEmployees = session.Query.ExecuteFuture(() =>
+          from person in session.Query.All<Person>()
           where person.Employees.Count!=0
           select person
           );

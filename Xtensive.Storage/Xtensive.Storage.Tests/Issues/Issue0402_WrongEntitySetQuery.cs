@@ -81,12 +81,12 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
 
-          var root1 = Query.Single<Node>(key);
+          var root1 = session.Query.Single<Node>(key);
           Console.WriteLine("Direct query");
-          var directQuery = Query
+          var directQuery = session.Query
             .All<Node>()
             .Where(node => root1.Children.Contains(node.Parent));
-          var enumerable = Query
+          var enumerable = session.Query
             .All<Node>()
             .AsEnumerable();
           var directQueryExpected = enumerable
@@ -98,10 +98,10 @@ namespace Xtensive.Storage.Tests.Issues
 
           Console.WriteLine("Query through EntitySet");
           var entitySet = root1.Children;
-          var entitySetQuery = Query
+          var entitySetQuery = session.Query
             .All<Node>()
             .Where(node => entitySet.Contains(node.Parent));
-          var entitySetQueryExpected = Query
+          var entitySetQueryExpected = session.Query
             .All<Node>()
             .AsEnumerable()
             .Where(node => entitySet.AsEnumerable().Contains(node.Parent));

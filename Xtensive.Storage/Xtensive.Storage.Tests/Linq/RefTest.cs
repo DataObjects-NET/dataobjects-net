@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GetEntityTest()
     {
-      var xs = Query.All<Order>().OrderBy(o => o.Id).Take(10).Select((order, index) =>
+      var xs = Session.Query.All<Order>().OrderBy(o => o.Id).Take(10).Select((order, index) =>
         new X {
           OrderRef = (Ref<Order>) order.Key,
           SomeInt = index
@@ -33,13 +33,13 @@ namespace Xtensive.Storage.Tests.Linq
         .ToList();
 
       var query =
-        from o in Query.All<Order>()
-        from x in Query.Store(xs)
+        from o in Session.Query.All<Order>()
+        from x in Session.Query.Store(xs)
         where o==x.OrderRef.Value
         select o;
 
       var expected = 
-        from o in Query.All<Order>().AsEnumerable()
+        from o in Session.Query.All<Order>().AsEnumerable()
         from x in xs
         where o==x.OrderRef.Value
         select o;
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GetEntity2Test()
     {
-      var xs = Query.All<Order>().OrderBy(o => o.Id).Take(10).Select((order, index) =>
+      var xs = Session.Query.All<Order>().OrderBy(o => o.Id).Take(10).Select((order, index) =>
         new X {
           OrderRef = (Ref<Order>) order.Key,
           SomeInt = index
@@ -58,13 +58,13 @@ namespace Xtensive.Storage.Tests.Linq
         .ToList();
 
       var query =
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         from x in xs
         where o==x.OrderRef.Value
         select o;
 
       var expected = 
-        from o in Query.All<Order>().AsEnumerable()
+        from o in Session.Query.All<Order>().AsEnumerable()
         from x in xs
         where o==x.OrderRef.Value
         select o;
@@ -75,11 +75,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void KeyTest()
     {
-      var refs = Query.All<Order>().Take(10).Select(order => (Ref<Order>) order).ToList();
-      var query = Query.All<Order>()
+      var refs = Session.Query.All<Order>().Take(10).Select(order => (Ref<Order>) order).ToList();
+      var query = Session.Query.All<Order>()
         .Join(refs, order => order.Key, @ref => @ref.Key, (order, key) => new {order, key});
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable()
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable()
         .Join(refs, order => order.Key, @ref => @ref.Key, (order, key) => new {order, key});
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }

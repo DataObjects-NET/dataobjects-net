@@ -21,8 +21,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleConcatTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var customers = Query.All<Customer>();;
-      var result = customers.Where(c => c.Orders.Count <= 1).Concat(Query.All<Customer>().Where(c => c.Orders.Count > 1));
+      var customers = Session.Query.All<Customer>();;
+      var result = customers.Where(c => c.Orders.Count <= 1).Concat(Session.Query.All<Customer>().Where(c => c.Orders.Count > 1));
       QueryDumper.Dump(result);
       Assert.AreEqual(customers.Count(), result.Count());
     }
@@ -30,8 +30,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleUnionTest()
     {
-      var products = Query.All<Product>();
-      var customers = Query.All<Customer>();
+      var products = Session.Query.All<Product>();
+      var customers = Session.Query.All<Customer>();
       var productFirstChars =
           from p in products
           select p.ProductName.Substring(0, 1);
@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntersectTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var products = Query.All<Product>();
-      var customers = Query.All<Customer>();
+      var products = Session.Query.All<Product>();
+      var customers = Session.Query.All<Customer>();
       var productFirstChars =
           from p in products
           select p.ProductName.Substring(0, 1);
@@ -64,9 +64,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleIntersectTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var query = Query.All<Order>()
+      var query = Session.Query.All<Order>()
         .Select(o => o.Employee)
-        .Intersect(Query.All<Order>().Select(o => o.Employee));
+        .Intersect(Session.Query.All<Order>().Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }
@@ -75,8 +75,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleExceptTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var products = Query.All<Product>();
-      var customers = Query.All<Customer>();
+      var products = Session.Query.All<Product>();
+      var customers = Session.Query.All<Customer>();
       var productFirstChars =
           from p in products
           select p.ProductName.Substring(0, 1);
@@ -90,8 +90,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConcatDifferentTest()
     {
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = (
                from c in customers
                select c.Phone
@@ -108,8 +108,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConcatDifferentTest2()
     {
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = (
                from c in customers
                select new { Name = c.CompanyName, c.Phone }
@@ -123,8 +123,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionDifferentTest()
     {
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = (
                from c in customers
                select c.Address.Country
@@ -139,8 +139,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntersectDifferentTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = (
                from c in customers
                select c.Address.Country
@@ -155,8 +155,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void ExceptDifferentTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = (
                from c in customers
                select c.Address.Country
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymousTest()
     {
-      var customers = Query.All<Customer>();
+      var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName})
         .Take(10)
         .Union(customers.Select(c => new {c.CompanyName, c.ContactName}));
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymous2Test()
     {
-      var customers = Query.All<Customer>();
+      var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new { c.CompanyName, c.ContactName, c.Address })
         .Where(c => c.Address.StreetAddress.Length < 10)
         .Select(c => new {c.CompanyName, c.Address.City})
@@ -192,8 +192,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymous3Test()
     {
-      var customers = Query.All<Customer>();
-      var shipper = Query.All<Shipper>();
+      var customers = Session.Query.All<Customer>();
+      var shipper = Session.Query.All<Shipper>();
       var result = customers.Select(c => new { c.CompanyName, c.ContactName, c.Address })
         .Where(c => c.Address.StreetAddress.Length < 15)
         .Select(c => new { Name = c.CompanyName, Address = c.Address.City })
@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionStructureTest()
     {
-      var customers = Query.All<Customer>();
+      var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => c.Address)
         .Where(c => c.StreetAddress.Length > 0)
         .Union(customers.Select(c => c.Address))
@@ -218,12 +218,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntersectWithoutOneOfSelect()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      var actual = from c in Query.All<Customer>()
+      var actual = from c in Session.Query.All<Customer>()
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)
       orderby r
       select r;
-      var expected = from c in Query.All<Customer>().ToList()
+      var expected = from c in Session.Query.All<Customer>().ToList()
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)
       orderby r

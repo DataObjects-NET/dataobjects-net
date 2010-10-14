@@ -39,17 +39,17 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          Assert.AreEqual(4, Query.All<M2.Person>().Count());
-          Assert.AreEqual(2, Query.All<M2.Employee>().Count());
-          Assert.AreEqual(2, Query.All<M2.Customer>().Count());
+          Assert.AreEqual(4, session.Query.All<M2.Person>().Count());
+          Assert.AreEqual(2, session.Query.All<M2.Employee>().Count());
+          Assert.AreEqual(2, session.Query.All<M2.Customer>().Count());
 
-          Assert.AreEqual("Island Trading", Query.All<M2.Employee>()
+          Assert.AreEqual("Island Trading", session.Query.All<M2.Employee>()
             .First(employee => employee.Name=="Nancy Davolio").CompanyName);
-          Assert.AreEqual("Cowes, UK", Query.All<M2.Customer>()
+          Assert.AreEqual("Cowes, UK", session.Query.All<M2.Customer>()
             .First(customer => customer.Name=="Helen Bennett").Address);
           
-          Assert.AreEqual(4, Query.All<M2.Order>().Count());
-          Assert.AreEqual("Maxilaku", Query.All<M2.Order>().First(order =>
+          Assert.AreEqual(4, session.Query.All<M2.Order>().Count());
+          Assert.AreEqual("Maxilaku", session.Query.All<M2.Order>().First(order =>
             order.Employee.Name=="Michael Suyama" && order.Customer.Name=="Helen Bennett")
             .ProductName);
         }

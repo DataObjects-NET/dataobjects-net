@@ -95,9 +95,9 @@ namespace Xtensive.Storage.Tests.Upgrade
         using (var session = testedDomain.OpenSession())
         using (var ts = session.OpenTransaction()) {
           var trinity = new BuildAgent("Trinity");
-          Assert.AreEqual(4, Query.All<BuildAgent>().Count());
-          Assert.AreEqual(3, Query.All<BuildConfiguration>().Count());
-          foreach (var agent in Query.All<BuildAgent>().Where(a => a!=trinity).ToList())
+          Assert.AreEqual(4, session.Query.All<BuildAgent>().Count());
+          Assert.AreEqual(3, session.Query.All<BuildConfiguration>().Count());
+          foreach (var agent in session.Query.All<BuildAgent>().Where(a => a!=trinity).ToList())
             foreach (var configuration in agent.CompatibleConfigurations.ToList()) {
               agent.CompatibleConfigurations.Remove(configuration);
               trinity.CompatibleConfigurations.Add(configuration);

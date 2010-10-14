@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Issues
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
           var item2 = new Item {Date = dateTime.AddSeconds(1)};
-          var query = Query.All<Item>().Select(c => new PipeAbonentDocumentReportItemDto {
+          var query = session.Query.All<Item>().Select(c => new PipeAbonentDocumentReportItemDto {
             Year = (c.Date!=((Nullable<DateTime>) null))
               ? ((Nullable<Int32>) c.Date.Value.Year)
               : null
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Issues
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
           var item2 = new Item {Date = dateTime.AddSeconds(1)};
-          var query = Query.All<Item>().Select(c => new PipeAbonentDocumentReportItemDto {
+          var query = session.Query.All<Item>().Select(c => new PipeAbonentDocumentReportItemDto {
             Year = (c.Date!=((DateTime?) null))
               ? ((int?) c.Date.Value.Year)
               : null
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Issues
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
           var item2 = new Item {Date = dateTime.AddSeconds(1)};
-          var query = Query.All<Item>().Select(c => new PipeAbonentDocumentReportItemDto {
+          var query = session.Query.All<Item>().Select(c => new PipeAbonentDocumentReportItemDto {
             Year = (c.Date!=((DateTime?) null))
               ? ((int?) c.Date.Value.Year)
               : null

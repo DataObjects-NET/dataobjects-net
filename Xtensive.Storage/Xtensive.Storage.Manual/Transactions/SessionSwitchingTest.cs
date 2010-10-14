@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
 
       var sessionCfg = new SessionConfiguration();
       using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
-        var personA = Query.All<Person>().First();
+        var personA = sessionA.Query.All<Person>().First();
         using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
           // Session switching (from sessionB to sessionA) will be detected here, 
           // but allowed, since there is no running transaction
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
       var sessionCfg = new SessionConfiguration();
       sessionCfg.Options |= SessionOptions.AllowSwitching;
       using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
-        var personA = Query.All<Person>().First();
+        var personA = sessionA.Query.All<Person>().First();
         using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
           // Session switching (from sessionB to sessionA) will be detected here, but allowed
           using (var tx = Session.Demand().OpenTransaction()) {

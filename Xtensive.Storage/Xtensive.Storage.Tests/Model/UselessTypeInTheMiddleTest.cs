@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Model
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
         var three = new Three();
-        var twos = Query.All<Two>().ToList();
+        var twos = session.Query.All<Two>().ToList();
         Assert.AreEqual(1, twos.Count);
         Assert.AreEqual(three, twos[0]);
       }

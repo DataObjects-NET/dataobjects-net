@@ -63,8 +63,8 @@ namespace Xtensive.Storage.Tests.Linq
         from c in context.Customers
         from o in context.Orders
         select new {c, o};
-      var expected = from c in Query.All<Customer>().AsEnumerable()
-      from o in Query.All<Order>().AsEnumerable()
+      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      from o in Session.Query.All<Order>().AsEnumerable()
       select new {c, o};
       Assert.AreEqual(0, expected.Except(result).Count());
     }

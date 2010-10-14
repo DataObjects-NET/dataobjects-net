@@ -22,8 +22,8 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var result1 = 
-          from c in Query.All<Customer>()
-          from o in Query.All<Order>().Where(o => o.Customer == c).Take(1).DefaultIfEmpty()
+          from c in session.Query.All<Customer>()
+          from o in session.Query.All<Order>().Where(o => o.Customer == c).Take(1).DefaultIfEmpty()
           where o != null
           select
             new {
@@ -34,8 +34,8 @@ namespace Xtensive.Storage.Tests.Issues
         var list1 = result1.ToList();
 
         var result2 =
-          from c in Query.All<Customer>()
-          from o in Query.All<Order>().Where(o => o.Customer == c).DefaultIfEmpty()
+          from c in session.Query.All<Customer>()
+          from o in session.Query.All<Order>().Where(o => o.Customer == c).DefaultIfEmpty()
           where o != null
           select
             new

@@ -75,14 +75,14 @@ namespace Xtensive.Storage.Tests.Issues
         }
 
         using (var transactionScope = session.OpenTransaction()) {
-          var c = Query.All<MyEntity>()
+          var c = session.Query.All<MyEntity>()
             .Select(a => new ValObj {Id = a.Id, Text = a.Text})
             .ToList();
-          var d = Query.All<MyEntity2>()
+          var d = session.Query.All<MyEntity2>()
             .Select(a => new ValObj { Id = a.Id, Text = a.Text })
             .ToList();
-          var a11 = new ArrayList() {Query.All<MyEntity>().Select("new(Id,Text)")};
-          var b12 = new ArrayList() {Query.All<MyEntity2>().Select("new(Id,Text)")};
+          var a11 = new ArrayList() {session.Query.All<MyEntity>().Select("new(Id,Text)")};
+          var b12 = new ArrayList() {session.Query.All<MyEntity2>().Select("new(Id,Text)")};
         }
       }
     }

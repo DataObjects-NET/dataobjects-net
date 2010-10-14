@@ -91,8 +91,8 @@ namespace Xtensive.Storage.Tests.Storage
       using (var t = session.OpenTransaction()) {
         new SimpleTrack(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(10), new SimpleMedia() {Description = "Simple", Foo = 23});
         new ComplexTrack(TimeSpan.FromMinutes(6), TimeSpan.FromMinutes(15), new ComplexMedia() {Description = "Simple", Bar = DateTime.Now});
-        var listSimpleMedia = Query.All<Track<SimpleMedia>>().ToList();
-        var listComplexMedia = Query.All<Track<ComplexMedia>>().ToList();
+        var listSimpleMedia = session.Query.All<Track<SimpleMedia>>().ToList();
+        var listComplexMedia = session.Query.All<Track<ComplexMedia>>().ToList();
         Assert.AreEqual(1,listSimpleMedia.Count);
         Assert.AreEqual(1,listComplexMedia.Count);
       }

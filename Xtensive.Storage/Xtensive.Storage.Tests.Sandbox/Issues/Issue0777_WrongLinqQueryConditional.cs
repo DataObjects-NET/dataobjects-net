@@ -50,10 +50,10 @@ namespace Xtensive.Storage.Tests.Issues
         new BooleanHell { ApocalypseDate = new DateTime(2012, 12, 12), DefaultApocalypseDate = new DateTime(2012, 12, 12)};
         session.SaveChanges();
 
-        var firstHell = Query.All<BooleanHell>()
+        var firstHell = session.Query.All<BooleanHell>()
           .Where(hell => hell.ApocalypseDate >= (apocalypseNow.HasValue ? apocalypseNow.Value : hell.DefaultApocalypseDate))
           .ToList();
-        var defaultHell = Query.All<BooleanHell>()
+        var defaultHell = session.Query.All<BooleanHell>()
           .Where(hell => hell.ApocalypseDate >= (apocalypseNever.HasValue ? apocalypseNever.Value : hell.DefaultApocalypseDate))
           .ToList();
 

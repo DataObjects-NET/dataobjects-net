@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void CompareWithEmptyStringParameterTest()
     {
       var value = string.Empty;
-      var result = Query.All<X>().Where(x => x.FString==value).ToList();
+      var result = Session.Demand().Query.All<X>().Where(x => x.FString==value).ToList();
       if (emptyStringIsNull)
         CheckIsNull(result, 2);
       else
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void CompareWithNullStringParameterTest()
     {
       string value = null;
-      var result = Query.All<X>().Where(x => x.FString==value).ToList();
+      var result = Session.Demand().Query.All<X>().Where(x => x.FString==value).ToList();
       CheckIsNull(result, emptyStringIsNull ? 2 : 1);
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void CompareWithEmptyStringConstantTest()
     {
       // NOTE: string.Empty should not be used here, because it is translated via string parameter
-      var result = Query.All<X>().Where(x => x.FString=="").ToList();
+      var result = Session.Demand().Query.All<X>().Where(x => x.FString=="").ToList();
       if (emptyStringIsNull)
         CheckIsNull(result, 2);
       else
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void CompareWithNullStringConstantTest()
     {
-      var result = Query.All<X>().Where(x => x.FString==null).ToList();
+      var result = Session.Demand().Query.All<X>().Where(x => x.FString==null).ToList();
       CheckIsNull(result, emptyStringIsNull ? 2 : 1);
     }
 
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void SelectNullStringParameter()
     {
       string value = null;
-      var result = Query.All<X>().Select(x => new {x.Id, Value = value}).ToList();
+      var result = Session.Demand().Query.All<X>().Select(x => new {x.Id, Value = value}).ToList();
       foreach (var item in result)
         Assert.IsNull(item.Value);
     }

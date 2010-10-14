@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Expression<Func<Order, bool>> predicate = order => order.OrderDate > new DateTime(1997, 11, 1)
         && order.OrderDate < new DateTime(1997, 11, 30);
-      var expected = Query.All<Order>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
-      var query = Query.All<Order>().Where(predicate).OrderBy(o => o.Id);
+      var expected = Session.Query.All<Order>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+      var query = Session.Query.All<Order>().Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
         IndexOptimizerTestHelper.GetIndexForField<Order>("OrderDate", Domain.Model));
@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Expression<Func<Order, bool>> predicate = order => order.OrderDate > new DateTime(1997, 11, 1)
         && order.Freight > 0 || order.OrderDate > new DateTime(1997, 11, 1) && order.Employee.Id == 125;
-      var expected = Query.All<Order>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
-      var query = Query.All<Order>().Where(predicate).OrderBy(o => o.Id);
+      var expected = Session.Query.All<Order>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+      var query = Session.Query.All<Order>().Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
         IndexOptimizerTestHelper.GetIndexForField<Order>("OrderDate", Domain.Model),
@@ -78,8 +78,8 @@ namespace Xtensive.Storage.Tests.Rse
         && employee.FirstName.GreaterThan("S")
         && employee.BirthDate < new DateTime(1960, 1, 1) || employee.Title.GreaterThan("Vice")
         && employee.BirthDate > new DateTime(1950, 1, 1) && employee.BirthDate < new DateTime(1960, 1, 1);
-      var expected = Query.All<Employee>().ToList().Where(predicate.CachingCompile()).OrderBy(empl => empl.Id);
-      var query = Query.All<Employee>().Where(predicate).OrderBy(empl => empl.Id);
+      var expected = Session.Query.All<Employee>().ToList().Where(predicate.CachingCompile()).OrderBy(empl => empl.Id);
+      var query = Session.Query.All<Employee>().Where(predicate).OrderBy(empl => empl.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
         IndexOptimizerTestHelper.GetIndexForField<Employee>("FirstName", Domain.Model),
@@ -90,11 +90,11 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void PrimaryIndexIsSelectedTest()
     {
-      var firstEmployee = Query.All<Employee>().ToList().First();
+      var firstEmployee = Session.Query.All<Employee>().ToList().First();
       Expression<Func<Employee, bool>> predicate = employee => employee.Key == firstEmployee.Key
         && employee.BirthDate < new DateTime(1960, 1, 1);
-      var expected = Query.All<Employee>().ToList().Where(predicate.CachingCompile()).OrderBy(empl => empl.Id);
-      var query = Query.All<Employee>().Where(predicate).OrderBy(empl => empl.Id);
+      var expected = Session.Query.All<Employee>().ToList().Where(predicate.CachingCompile()).OrderBy(empl => empl.Id);
+      var query = Session.Query.All<Employee>().Where(predicate).OrderBy(empl => empl.Id);
       var actual = query.ToList();
       var optimizedProvider = IndexOptimizerTestHelper.GetOptimizedProvider(query);
       var secondaryIndexes = new List<IndexInfo>();
@@ -107,15 +107,15 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void MultiColumnIndexTest()
     {
-      var targetSupplier = Query.All<Supplier>().Where(supplier => supplier.CompanyName=="Pavlova, Ltd.")
+      var targetSupplier = Session.Query.All<Supplier>().Where(supplier => supplier.CompanyName=="Pavlova, Ltd.")
         .Single();
-      var targetCategory = Query.All<Category>().Where(cat => cat.CategoryName=="Confections").Single();
+      var targetCategory = Session.Query.All<Category>().Where(cat => cat.CategoryName=="Confections").Single();
       Expression<Func<Product, bool>> predicate = product => product.UnitPrice > 10m
         && product.Supplier.Key == targetSupplier.Key && product.Category.Key == targetCategory.Key
         && product.ProductName.GreaterThan("a")
         || product.UnitPrice > 10m && product.ProductName.GreaterThan("S");
-      var expected = Query.All<Product>().ToList().Where(predicate.CachingCompile()).OrderBy(p => p.Id);
-      var query = Query.All<Product>().Where(predicate).OrderBy(p => p.Id);
+      var expected = Session.Query.All<Product>().ToList().Where(predicate.CachingCompile()).OrderBy(p => p.Id);
+      var query = Session.Query.All<Product>().Where(predicate).OrderBy(p => p.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
         GetMultiColumnIndex<Product>("Category", "Supplier", "UnitPrice"),
@@ -129,12 +129,12 @@ namespace Xtensive.Storage.Tests.Rse
       Expression<Func<Order, bool>> orderPredicate = order => order.OrderDate > new DateTime(1997, 11, 1)
         && order.OrderDate < new DateTime(1997, 11, 30);
       Expression<Func<Employee, bool>> employeePredicate = employee => employee.Title.GreaterThan("Sales");
-      var expected = Query.All<Order>().ToList().Where(orderPredicate.CachingCompile())
-        .Join(Query.All<Employee>().Where(employeePredicate.CachingCompile()),
+      var expected = Session.Query.All<Order>().ToList().Where(orderPredicate.CachingCompile())
+        .Join(Session.Query.All<Employee>().Where(employeePredicate.CachingCompile()),
           order => order.Employee.Key, empl => empl.Key,
           (order, empl) => new Pair<Order, Employee>(order, empl));
-      var query = Query.All<Order>().Where(orderPredicate)
-        .Join(Query.All<Employee>().Where(employeePredicate),
+      var query = Session.Query.All<Order>().Where(orderPredicate)
+        .Join(Session.Query.All<Employee>().Where(employeePredicate),
           order => order.Employee.Key, empl => empl.Key,
           (order, empl) => new {order, empl});
       var actual = query.ToList()
@@ -170,8 +170,8 @@ namespace Xtensive.Storage.Tests.Rse
         BuildCnfPredicate<Employee>(41, employee => employee.FirstName.GreaterThan("B"));
       var normalizer = new DisjunctiveNormalizer(100);
       AssertEx.ThrowsInvalidOperationException(() => normalizer.Normalize(predicate));
-      var expected = Query.All<Employee>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
-      var query = Query.All<Employee>().Where(predicate).OrderBy(o => o.Id);
+      var expected = Session.Query.All<Employee>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+      var query = Session.Query.All<Employee>().Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
         IndexOptimizerTestHelper.GetIndexForField<Employee>("FirstName", Domain.Model));
@@ -189,8 +189,8 @@ namespace Xtensive.Storage.Tests.Rse
         Expression<Func<Order, bool>> predicate = order => order.OrderDate > orderDateParam.Value
           && order.ShipName.LessThan("K") || order.ShipName.GreaterThan("W")
             && order.Freight < freightParam.Value;
-        var expected = Query.All<Order>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
-        var query = Query.All<Order>().Where(predicate).OrderBy(o => o.Id);
+        var expected = Session.Query.All<Order>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+        var query = Session.Query.All<Order>().Where(predicate).OrderBy(o => o.Id);
         var actual = query.ToList();
         IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
           IndexOptimizerTestHelper.GetIndexForField<Order>("OrderDate", Domain.Model),

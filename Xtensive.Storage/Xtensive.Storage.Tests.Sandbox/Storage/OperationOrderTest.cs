@@ -122,16 +122,16 @@ namespace Xtensive.Storage.Tests.Storage.OperationOrderTest
       object target = null;
       if (ea.Operation is EntitySetOperation) {
         var eso = (EntitySetOperation) ea.Operation;
-        var entity = Query.Single(eso.Key);
+        var entity = Session.Demand().Query.Single(eso.Key);
         target = entity.GetProperty<object>(eso.Field.Name);
       }
       else if (ea.Operation is EntityOperation) {
         var eo = (EntityOperation) ea.Operation;
-        target = Query.Single(eo.Key);
+        target = Session.Demand().Query.Single(eo.Key);
       }
       else if (ea.Operation is EntitiesRemoveOperation) {
         var ero = (EntitiesRemoveOperation) ea.Operation;
-        target = Query.Single(ero.Keys.Single());
+        target = Session.Demand().Query.Single(ero.Keys.Single());
       }
       else
         return;

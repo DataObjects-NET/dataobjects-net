@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<Order>().Select(o => o.Key).ToList();
+        keys = session.Query.All<Order>().Select(o => o.Key).ToList();
         Assert.Greater(keys.Count, 0);
       }
 
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = Query.All<Order>().Prefetch(o => o.ProcessingTime).Prefetch(o => o.OrderDetails);
+        var prefetcher = session.Query.All<Order>().Prefetch(o => o.ProcessingTime).Prefetch(o => o.OrderDetails);
         var orderDetailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
         foreach (var order in prefetcher) {
           EntitySetState entitySetState;
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var expected = Query.All<Order>().ToList();
+        var expected = session.Query.All<Order>().ToList();
         var actual = expected.Prefetch(o => o.ProcessingTime).Prefetch(o => o.OrderDetails).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
         Assert.IsTrue(expected.SequenceEqual(actual));
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var employeesField = typeof (Territory).GetTypeInfo().Fields["Employees"];
         var ordersField = typeof (Employee).GetTypeInfo().Fields["Orders"];
-        var prefetcher = Query.All<Territory>().Prefetch(t => t.Employees,
+        var prefetcher = session.Query.All<Territory>().Prefetch(t => t.Employees,
           employees => employees.Prefetch(e => e.Orders));
         foreach (var territory in prefetcher) {
           var entitySetState = GetFullyLoadedEntitySet(session, territory.Key, employeesField);
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var detailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
         var productField = typeof (OrderDetails).GetTypeInfo().Fields["Product"];
-        var prefetcher = Query.All<Order>().Take(500).Prefetch(o => o.OrderDetails)
+        var prefetcher = session.Query.All<Order>().Take(500).Prefetch(o => o.OrderDetails)
           .PrefetchMany(o => o.OrderDetails,
           details => details.Prefetch(d => d.Product));
         foreach (var order in prefetcher) {
@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction())
-        keys = Query.All<Order>().Select(o => o.Key).ToList();
+        keys = session.Query.All<Order>().Select(o => o.Key).ToList();
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var expected = Query.All<Territory>().ToList();
+        var expected = session.Query.All<Territory>().ToList();
         var actual = expected./*Prefetch(t => t.Employees).*/PrefetchMany(t => t.Employees,
           employees => employees.Prefetch(e => e.Orders)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var expected = Query.All<Order>().ToList();
+        var expected = session.Query.All<Order>().ToList();
         var actual = expected./*Prefetch(o => o.OrderDetails).*/PrefetchMany(o => o.OrderDetails,
           details => details.Prefetch(d => d.Product)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var expected = Query.All<Order>().Take(53).ToList();
+        var expected = session.Query.All<Order>().Take(53).ToList();
         var actual = expected./*Prefetch(o => o.Employee).*/PrefetchSingle(o => o.Employee,
           employee => employee.Prefetch(e => e.Orders)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
@@ -212,7 +212,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var expected = Query.All<Order>().ToList();
+        var expected = session.Query.All<Order>().ToList();
         var actual = expected./*Prefetch(o => o.Employee).*/PrefetchSingle(o => o.Employee,
           employee => employee.Prefetch(e => e.Orders)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
@@ -225,9 +225,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        AssertEx.Throws<ArgumentException>(() => Query.All<Territory>().Prefetch(t => new {t.Id, t.Region}));
-        AssertEx.Throws<ArgumentException>(() => Query.All<Territory>().Prefetch(t => t.Region.RegionDescription));
-        AssertEx.Throws<ArgumentException>(() => Query.All<Territory>().Prefetch(t => t.PersistenceState));
+        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>().Prefetch(t => new {t.Id, t.Region}));
+        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>().Prefetch(t => t.Region.RegionDescription));
+        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>().Prefetch(t => t.PersistenceState));
         AssertEx.Throws<ArgumentException>(() => EnumerableUtils
           .One(Key.Create<Model.OfferContainer>(Domain, 1))
           .Prefetch<Model.OfferContainer, Key>(key => key)
@@ -240,7 +240,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var source = Query.All<Order>().ToList();
+        var source = session.Query.All<Order>().ToList();
         var prefetcher = source.Prefetch(o => o.OrderDetails);
         using (var enumerator0 = prefetcher.GetEnumerator()) {
           enumerator0.MoveNext();
@@ -265,7 +265,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var prefetcher = Query.All<Model.Book>().AsEnumerable()
+          var prefetcher = session.Query.All<Model.Book>().AsEnumerable()
             .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title);
           var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
           var titleType = typeof (Model.Title).GetTypeInfo();
@@ -293,7 +293,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var prefetcher = Query.All<Model.Book>().Prefetch(b => b.Title)
+          var prefetcher = session.Query.All<Model.Book>().Prefetch(b => b.Title)
             .PrefetchSingle(b => b.Title, ts => ts.Prefetch(t => t.Book));
           var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
           var titleType = typeof (Model.Title).GetTypeInfo();
@@ -316,7 +316,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var prefetcher = Query.All<Model.Book>().AsEnumerable()
+          var prefetcher = session.Query.All<Model.Book>().AsEnumerable()
             .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title)
             .PrefetchSingle(b => b.Title, ts => ts.Prefetch(t => t.Book));
           var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
@@ -384,7 +384,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        foreach (var book in Query.All<Model.Book>())
+        foreach (var book in session.Query.All<Model.Book>())
           book.Remove();
         tx.Complete();
       }

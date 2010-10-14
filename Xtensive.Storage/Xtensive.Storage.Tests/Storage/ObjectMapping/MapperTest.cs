@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var product = Query.All<PersonalProduct>().Single();
-        Assert.AreEqual(1, Query.All<Employee>().Count());
+        var product = session.Query.All<PersonalProduct>().Single();
+        Assert.AreEqual(1, session.Query.All<Employee>().Count());
         Assert.AreEqual(productNewName, product.Name);
         Assert.AreNotEqual(productDto.Employee.Key, product.Employee.Key.Format());
         Assert.AreEqual(newEmployeeAge, product.Employee.Age);
@@ -99,8 +99,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var publisher = Query.All<Publisher>().Single();
-        Assert.AreEqual(4, Query.All<BookShop>().Count());
+        var publisher = session.Query.All<Publisher>().Single();
+        Assert.AreEqual(4, session.Query.All<BookShop>().Count());
         Assert.AreEqual(modifiedPublisherDto.Key, publisher.Key.Format());
         Assert.AreEqual(modifiedPublisherDto.Country, publisher.Country);
         var expectedBookShops = modifiedPublisherDto.Distributors.ToDictionary(d => d.Name, d => d);
@@ -140,9 +140,9 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var tx = session.OpenTransaction()) {
         var operations = mapper.Compare(bookShopDto, modifiedBookShopDto).Operations;
         operations.Replay();
-        var newPublisher = Query.All<Publisher>().Where(p => p.Trademark==newPublisherDto.Trademark).Single();
+        var newPublisher = session.Query.All<Publisher>().Where(p => p.Trademark==newPublisherDto.Trademark).Single();
         Assert.AreEqual("D", newPublisher.Trademark);
-        var bookShop = Query.All<AnotherBookShop>().Single();
+        var bookShop = session.Query.All<AnotherBookShop>().Single();
         Assert.AreEqual(4, bookShop.Suppliers.Count());
         tx.Complete();
       }
@@ -179,13 +179,13 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         var operations = mapper.Compare(new[] {originalApartmentDto0, originalApartmentDto1},
           new[] {modifiedApartmentDto1, modifiedApartmentDto0}).Operations;
         operations.Replay();
-        var apartment0 = Query.Single<Apartment>(apartment0Key);
+        var apartment0 = session.Query.Single<Apartment>(apartment0Key);
         ValidateApartment(modifiedApartmentDto0, apartment0);
         Assert.AreEqual(modifiedApartmentDto0.Description.Manager.Key,
           apartment0.Description.Manager.Key.Format());
         Assert.AreEqual(modifiedApartmentDto0.Description.Manager.Name,
           apartment0.Description.Manager.Name);
-        var apartment1 = Query.Single<Apartment>(apartment1Key);
+        var apartment1 = session.Query.Single<Apartment>(apartment1Key);
         ValidateApartment(modifiedApartmentDto1, apartment1);
       }
     }
@@ -211,8 +211,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         var person2RealKey = Key.Parse(Domain, (string) keyMapping[personDto2.Key]);
         var person3RealKey = Key.Parse(Domain, (string) keyMapping[personDto3.Key]);
         comparisonResult.Operations.Replay();
-        Query.Single<SimplePerson>(person2RealKey);
-        Query.Single<SimplePerson>(person3RealKey);
+        session.Query.Single<SimplePerson>(person2RealKey);
+        session.Query.Single<SimplePerson>(person3RealKey);
         modified.RemoveAt(2);
         modified.RemoveAt(2);
         var personDto4 = new SimplePersonDto {Key = Guid.NewGuid().ToString(), Name = "Person4"};
@@ -222,9 +222,9 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         Assert.AreEqual(1, keyMapping.Count);
         var person4RealKey = Key.Parse(Domain, (string) keyMapping[personDto4.Key]);
         comparisonResult.Operations.Replay();
-        Query.Single<SimplePerson>(person4RealKey);
-        Query.Single<SimplePerson>(person2RealKey);
-        Query.Single<SimplePerson>(person3RealKey);
+        session.Query.Single<SimplePerson>(person4RealKey);
+        session.Query.Single<SimplePerson>(person2RealKey);
+        session.Query.Single<SimplePerson>(person3RealKey);
         tx.Complete();
       }
     }
@@ -276,11 +276,11 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         };
         var personDto0 = (CustomPersonDto) originalPersonDtos[0];
         var personDto1 = (CustomPersonDto) originalPersonDtos[1];
-        var person0 = Query.Single<CustomPerson>(personDto0.Id);
+        var person0 = session.Query.Single<CustomPerson>(personDto0.Id);
         validator.Invoke(personDto0, person0);
-        var person1 = Query.Single<CustomPerson>(personDto1.Id);
+        var person1 = session.Query.Single<CustomPerson>(personDto1.Id);
         validator.Invoke(personDto1, person1);
-        var newPerson = Query.Single<CustomPerson>(newPersonDto.Id);
+        var newPerson = session.Query.Single<CustomPerson>(newPersonDto.Id);
         validator.Invoke(newPersonDto, newPerson);
         tx.Complete();
       }
@@ -333,7 +333,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var root = Query.Single<CompositeKeyRoot>(Key.Parse((string) keyMapping[target.Key]));
+        var root = session.Query.Single<CompositeKeyRoot>(Key.Parse((string) keyMapping[target.Key]));
         Assert.AreEqual(target.Aux, root.Aux);
         Assert.AreEqual(Key.Parse((string) keyMapping[target.FirstId.Key]), root.FirstId.Key);
         Assert.AreEqual(Key.Parse((string) keyMapping[target.SecondId.Key]), root.SecondId.Key);
@@ -468,9 +468,9 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       BookShopDto bookShopDto;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        foreach (var publisher in Query.All<Publisher>())
+        foreach (var publisher in session.Query.All<Publisher>())
           publisher.Remove();
-        foreach (var bookShop in Query.All<BookShop>())
+        foreach (var bookShop in session.Query.All<BookShop>())
           bookShop.Remove();
         var anotherBookShop = new AnotherBookShop();
         anotherBookShop.Suppliers.Add(new Publisher {Trademark = "A"});

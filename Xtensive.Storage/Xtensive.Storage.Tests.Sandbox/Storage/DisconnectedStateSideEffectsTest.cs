@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     protected override void OnInitialize()
     {
       base.OnInitialize();
-      var book = Query.All<Book>().FirstOrDefault();
+      var book = Session.Query.All<Book>().FirstOrDefault();
     }
 
     public override string ToString()
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
         Book book;
         using (ds.Attach(session))
         using (ds.Connect()) {
-          book = Query.All<Book>().First();
+          book = session.Query.All<Book>().First();
           book.Title = "Change1";
           book.Title = "Change2";
           ds.OperationLogReplayFilter = log => log.Skip(1);
@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          var book = Query.All<Book>().First();
+          var book = session.Query.All<Book>().First();
           book.Title += " Changed";
           ds.ApplyChanges();
           book.Title += " Changed";
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          var book = Query.All<Book>().First();
+          var book = session.Query.All<Book>().First();
           book.Title += " Changed";
           ds.ApplyChanges();
           book.Title += " Changed";
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          var vol2 = Query.All<Book>().First();
+          var vol2 = session.Query.All<Book>().First();
           vol2.Title = DataObjectsNetManual + Book.Volume2Suffix;
           var vol1 = ds.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume1Suffix)).Single();
           var vol3 = ds.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume3Suffix)).Single();
@@ -233,9 +233,9 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
           ds.ApplyChanges();
         }
         {
-          var vol1 = Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume1Suffix + "+")).SingleOrDefault();
-          var vol2 = Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume2Suffix)).SingleOrDefault();
-          var vol3 = Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume3Suffix)).SingleOrDefault();
+          var vol1 = session.Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume1Suffix + "+")).SingleOrDefault();
+          var vol2 = session.Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume2Suffix)).SingleOrDefault();
+          var vol3 = session.Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume3Suffix)).SingleOrDefault();
           Assert.IsNotNull(vol1);
           Assert.IsNotNull(vol2);
           Assert.IsNull(vol3);
@@ -258,10 +258,10 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
           new Author("Author 3 ({0})".FormatWith(Author.Famous));
           ds.ApplyChanges();
         }
-        var author1 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
-        var author2 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
-        var author3 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
-        var author3book = Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
+        var author1 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
+        var author2 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
+        var author3 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
+        var author3book = session.Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
         Assert.IsNotNull(author1);
         Assert.IsNull(author2);
         Assert.IsNotNull(author3);
@@ -281,10 +281,10 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
         new Author("Author 3 ({0})".FormatWith(Author.Famous));
         session.SaveChanges();
 
-        var author1 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
-        var author2 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
-        var author3 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
-        var author3book = Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
+        var author1 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
+        var author2 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
+        var author3 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
+        var author3book = session.Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
         Assert.IsNotNull(author1);
         Assert.IsNull(author2);
         Assert.IsNotNull(author3);

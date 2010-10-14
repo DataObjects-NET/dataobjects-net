@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Issues
       var domain = Domain.Build(config);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var list = Query.All<A>().ToList();
+        var list = session.Query.All<A>().ToList();
       }
     }
 
@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Tests.Issues
       var domain = Domain.Build(config);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var listA = Query.All<A>().ToList();
-        var listB = Query.All<B>().ToList();
+        var listA = session.Query.All<A>().ToList();
+        var listB = session.Query.All<B>().ToList();
       }
     }
 
@@ -81,11 +81,11 @@ namespace Xtensive.Storage.Tests.Issues
       var domain = Domain.Build(config);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var listA = Query.All<A>().ToList();
-        var listB = Query.All<B>().ToList();
-        var listC = Query.All<C>().ToList();
-        var listD = Query.All<D>().ToList();
-        var listE = Query.All<E>().ToList();
+        var listA = session.Query.All<A>().ToList();
+        var listB = session.Query.All<B>().ToList();
+        var listC = session.Query.All<C>().ToList();
+        var listD = session.Query.All<D>().ToList();
+        var listE = session.Query.All<E>().ToList();
       }
     }
   }

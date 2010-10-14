@@ -26,14 +26,14 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureSequenceOrder = Query.ExecuteFuture(
-          () => Query.All<Order>().Where(o => o.Freight > 10));
-        var futureScalarUnitPrice = Query.ExecuteFutureScalar(
-          () => Query.All<Product>().Where(p => p.ProductType == ProductType.Active).Count());
-        var futureSequenceProduct = Query.ExecuteFuture(
-          () => Query.All<Product>().Where(p => p.ProductName.GreaterThan("c")));
-        var futureScalarFreight = Query.ExecuteFutureScalar(
-          () => Query.All<Order>().Average(o => o.Freight));
+        var futureSequenceOrder = session.Query.ExecuteFuture(
+          () => session.Query.All<Order>().Where(o => o.Freight > 10));
+        var futureScalarUnitPrice = session.Query.ExecuteFutureScalar(
+          () => session.Query.All<Product>().Where(p => p.ProductType == ProductType.Active).Count());
+        var futureSequenceProduct = session.Query.ExecuteFuture(
+          () => session.Query.All<Product>().Where(p => p.ProductName.GreaterThan("c")));
+        var futureScalarFreight = session.Query.ExecuteFutureScalar(
+          () => session.Query.All<Order>().Average(o => o.Freight));
         Assert.Greater(futureSequenceOrder.Count(), 0); // Count() here is IEnumerable.Count()
         Assert.Greater(futureScalarUnitPrice.Value, 0);
         Assert.Greater(futureSequenceProduct.Count(), 0); // Count() here is IEnumerable.Count()
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage
       IEnumerable<Order> futureSequenceOrder;
       using (var session = Domain.OpenSession()) {
         using (var ts = session.OpenTransaction()) {
-          futureSequenceOrder = Query.ExecuteFuture(() => Query.All<Order>().Where(o => o.Freight > 10));
+          futureSequenceOrder = session.Query.ExecuteFuture(() => session.Query.All<Order>().Where(o => o.Freight > 10));
           ts.Complete();
         }
         AssertEx.Throws<InvalidOperationException>(() => futureSequenceOrder.GetEnumerator());
@@ -63,14 +63,14 @@ namespace Xtensive.Storage.Tests.Storage
       var futureQueryDelegate = (Func<IQueryable<Order>>) GetFutureSequenceQuery;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureSequenceOrder = Query.ExecuteFuture(futureQueryDelegate);
+        var futureSequenceOrder = session.Query.ExecuteFuture(futureQueryDelegate);
         Assert.Greater(futureSequenceOrder.Count(), 0);
         ts.Complete();
       }
 
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureSequenceOrder = Query.ExecuteFuture<Order>(futureQueryDelegate.Method,
+        var futureSequenceOrder = session.Query.ExecuteFuture<Order>(futureQueryDelegate.Method,
           GetFutureSequenceQueryFake);
         Assert.Greater(futureSequenceOrder.Count(), 0);
         ts.Complete();
@@ -84,8 +84,8 @@ namespace Xtensive.Storage.Tests.Storage
       ProductType searchedType = ProductType.Active;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureScalarUnitPrice = Query.ExecuteFutureScalar(cacheKey,
-          () => Query.All<Product>().Where(p => p.ProductType == searchedType).Count());
+        var futureScalarUnitPrice = session.Query.ExecuteFutureScalar(cacheKey,
+          () => session.Query.All<Product>().Where(p => p.ProductType == searchedType).Count());
         Assert.Greater(futureScalarUnitPrice.Value, 0);
         ts.Complete();
       }
@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Tests.Storage
       var t = 0;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureScalarUnitPrice = Query.ExecuteFutureScalar(cacheKey, () => t);
+        var futureScalarUnitPrice = session.Query.ExecuteFutureScalar(cacheKey, () => t);
         Assert.Greater(futureScalarUnitPrice.Value, 0);
         ts.Complete();
       }
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private IQueryable<Order> GetFutureSequenceQuery()
     {
-      return Query.All<Order>().Where(o => o.Freight > searchedFreight);
+      return Session.Demand().Query.All<Order>().Where(o => o.Freight > searchedFreight);
     }
 
     private IQueryable<Order> GetFutureSequenceQueryFake()

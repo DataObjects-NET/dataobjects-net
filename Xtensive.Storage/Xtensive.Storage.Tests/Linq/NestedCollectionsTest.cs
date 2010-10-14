@@ -27,9 +27,9 @@ namespace Xtensive.Storage.Tests.Linq
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        numberOfCustomers = Query.All<Customer>().Count();
-        numberOfOrders = Query.All<Order>().Count();
-        numberOfEmployees = Query.All<Employee>().Count();
+        numberOfCustomers = Session.Query.All<Customer>().Count();
+        numberOfOrders = Session.Query.All<Order>().Count();
+        numberOfEmployees = Session.Query.All<Employee>().Count();
         t.Complete();
       }
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryTest()
     {
       var result =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select new {
           Customer = c,
           Orders = c.Orders
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryWithThisTest()
     {
-      var shipper = Query.All<Shipper>().First();
+      var shipper = Session.Query.All<Shipper>().First();
       var orders = shipper.Orders;
       QueryDumper.Dump(orders);
       var firstOrder = shipper.FirstOrder;
@@ -63,15 +63,15 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectOtherParameterTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Customer>().Take(5).Select(c => Query.All<Order>().Select(o => c.Orders.Count()));
+      var result = Session.Query.All<Customer>().Take(5).Select(c => Session.Query.All<Order>().Select(o => c.Orders.Count()));
       result.ToList();
     }
 
     [Test]
     public void SelectNestedTest()
     {
-      var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>())
+      var result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Order>())
         .Select(os => os);
       Assert.AreEqual(numberOfCustomers * numberOfOrders, Count(result));
     }
@@ -79,11 +79,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectDoubleNestedTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Take(2)
-        .Select(c => Query.All<Order>()
+        .Select(c => Session.Query.All<Order>()
           .Take(2)
-          .Select(o => Query.All<Employee>().Take(2)))
+          .Select(o => Session.Query.All<Employee>().Take(2)))
         .Select(os => os);
       QueryDumper.Dump(result);
     }
@@ -92,10 +92,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void ComplexSubqueryTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Take(2)
-        .Select(c => Query.All<Order>()
-          .Select(o => Query.All<Employee>()
+        .Select(c => Session.Query.All<Order>()
+          .Select(o => Session.Query.All<Employee>()
             .Take(2)
             .Where(e => e.Orders.Contains(o)))
           .Where(o => o.Count() > 0))
@@ -106,8 +106,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectNestedWithCorrelationTest()
     {
-      var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>().Where(o => o.Customer==c))
+      var result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Order>().Where(o => o.Customer==c))
         .Select(os => os);
       Assert.AreEqual(numberOfOrders, Count(result));
     }
@@ -116,25 +116,25 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectNestedWithAggregateTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>().Where(o => o.Customer==c).Count());
+      var result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Order>().Where(o => o.Customer==c).Count());
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SelectAnonymousTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Take(10)
-        .Select(c => new {Orders = Query.All<Order>().Take(10)});
+        .Select(c => new {Orders = Session.Query.All<Order>().Take(10)});
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubqueryAsQuerySourceTest()
     {
-      var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>().Where(o => o.Customer==c));
+      var result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Order>().Where(o => o.Customer==c));
       foreach (var orders in result) {
         var subQueryCount = orders.Count();
       }
@@ -143,10 +143,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectTwoCollectionsTest()
     {
-      var result = Query.All<Order>()
+      var result = Session.Query.All<Order>()
         .Select(o => new {
-          Customers = Query.All<Customer>().Where(c => c==o.Customer),
-          Employees = Query.All<Employee>().Where(e => e==o.Employee)
+          Customers = Session.Query.All<Customer>().Where(c => c==o.Customer),
+          Employees = Session.Query.All<Employee>().Where(e => e==o.Employee)
         })
         .Select(os => os);
       var list = result.ToList();
@@ -162,8 +162,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectNestedSelectManyTest()
     {
-      var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>())
+      var result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Order>())
         .SelectMany(i => i);
       Assert.AreEqual(numberOfCustomers * numberOfOrders, Count(result));
     }
@@ -171,11 +171,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectDoubleNestedSelectManyTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Take(10)
-        .Select(c => Query.All<Order>()
+        .Select(c => Session.Query.All<Order>()
           .Take(10)
-          .Select(o => Query.All<Employee>()))
+          .Select(o => Session.Query.All<Employee>()))
         .SelectMany(i => i)
         .SelectMany(i => i);
       QueryDumper.Dump(result);
@@ -184,8 +184,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectNestedWithCorrelationSelectManyTest()
     {
-      var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>().Where(o => o.Customer==c))
+      var result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Order>().Where(o => o.Customer==c))
         .SelectMany(i => i);
       Assert.AreEqual(numberOfOrders, Count(result));
     }
@@ -193,8 +193,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectNestedWithCorrelationSelectMany2Test()
     {
-      var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>().Where(o => o.Customer==c))
+      var result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Order>().Where(o => o.Customer==c))
         .SelectMany(i => i.Select(x => x));
       Assert.AreEqual(numberOfOrders, Count(result));
     }
@@ -203,8 +203,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousSelectMany1Test()
     {
-      var result = Query.All<Customer>()
-        .Select(c => new {Customer = c, Orders = Query.All<Order>().Where(o => o.Customer==c)})
+      var result = Session.Query.All<Customer>()
+        .Select(c => new {Customer = c, Orders = Session.Query.All<Order>().Where(o => o.Customer==c)})
         .SelectMany(i => i.Orders);
       Assert.AreEqual(numberOfOrders, result.ToList().Count);
     }
@@ -212,8 +212,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousSelectMany2Test()
     {
-      var result = Query.All<Customer>()
-        .Select(c => new {Orders = Query.All<Order>().Take(10)})
+      var result = Session.Query.All<Customer>()
+        .Select(c => new {Orders = Session.Query.All<Order>().Take(10)})
         .SelectMany(i => i.Orders);
       QueryDumper.Dump(result);
     }
@@ -221,8 +221,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousSubqueryTest()
     {
-      var result = Query.All<Customer>()
-        .Select(c => new {Customer = c, Orders = Query.All<Order>()})
+      var result = Session.Query.All<Customer>()
+        .Select(c => new {Customer = c, Orders = Session.Query.All<Order>()})
         .Select(i => i.Customer.Orders);
       QueryDumper.Dump(result);
     }
@@ -230,8 +230,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousSelectMany3Test()
     {
-      IQueryable<Customer> result = Query.All<Customer>()
-        .Select(c => new {Customer = c, Orders = Query.All<Order>().Where(o => o.Customer==c)})
+      IQueryable<Customer> result = Session.Query.All<Customer>()
+        .Select(c => new {Customer = c, Orders = Session.Query.All<Order>().Where(o => o.Customer==c)})
         .SelectMany(i => i.Orders.Select(o => i.Customer));
       QueryDumper.Dump(result);
     }
@@ -239,8 +239,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousSelectMany4Test()
     {
-      var result = Query.All<Customer>()
-        .Select(c => new {Customer = c, Orders = Query.All<Order>().Where(o => o.Customer==c)})
+      var result = Session.Query.All<Customer>()
+        .Select(c => new {Customer = c, Orders = Session.Query.All<Order>().Where(o => o.Customer==c)})
         .SelectMany(i => i.Orders.Select(o => new {i.Customer, Order = o}));
       Assert.AreEqual(numberOfOrders, result.ToList().Count);
     }
@@ -248,8 +248,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousSelectMany5Test()
     {
-      var result = Query.All<Customer>()
-        .Select(c => new {Customer = c, Orders = Query.All<Order>().Where(o => o.Customer==c)})
+      var result = Session.Query.All<Customer>()
+        .Select(c => new {Customer = c, Orders = Session.Query.All<Order>().Where(o => o.Customer==c)})
         .SelectMany(i => i.Orders.Select(o => i.Customer.CompanyName));
       QueryDumper.Dump(result);
     }
@@ -257,8 +257,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySimpleTest()
     {
-      var result = Query.All<Product>()
-        .Select(p => Query.All<Category>());
+      var result = Session.Query.All<Product>()
+        .Select(p => Session.Query.All<Category>());
       foreach (IQueryable<Category> queryable in result) {
         QueryDumper.Dump(queryable);
       }
@@ -267,8 +267,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryWhereTest()
     {
-      var result = Query.All<Product>()
-        .Select(p => Query.All<Category>().Where(c => c==p.Category));
+      var result = Session.Query.All<Product>()
+        .Select(p => Session.Query.All<Category>().Where(c => c==p.Category));
       foreach (IQueryable<Category> queryable in result) {
         QueryDumper.Dump(queryable);
       }
@@ -277,8 +277,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryParametrizedFieldTest()
     {
-      var result = Query.All<Product>()
-        .Select(p => Query.All<Category>().Select(c => p.UnitPrice));
+      var result = Session.Query.All<Product>()
+        .Select(p => Session.Query.All<Category>().Select(c => p.UnitPrice));
 
       foreach (var queryable in result) {
         QueryDumper.Dump(queryable);
@@ -288,8 +288,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryWithSelectTest()
     {
-      var result = Query.All<Product>()
-        .Select(p => Query.All<Category>().Where(c => c==p.Category))
+      var result = Session.Query.All<Product>()
+        .Select(p => Session.Query.All<Category>().Where(c => c==p.Category))
         .Select(q => q);
       foreach (IQueryable<Category> queryable in result) {
         QueryDumper.Dump(queryable);
@@ -300,8 +300,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryScalarTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Product>()
-        .Select(p => Query.All<Category>().Count());
+      var result = Session.Query.All<Product>()
+        .Select(p => Session.Query.All<Category>().Count());
       QueryDumper.Dump(result);
     }
 
@@ -309,7 +309,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryWhereEntitySetTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Category>()
+      var result = Session.Query.All<Category>()
         .Where(c => c.Products.Count > 0);
       QueryDumper.Dump(result);
     }

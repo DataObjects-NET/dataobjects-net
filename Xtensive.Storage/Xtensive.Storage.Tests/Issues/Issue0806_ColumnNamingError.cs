@@ -125,15 +125,15 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = session.OpenTransaction()) {
 
           var query =
-            from kalinaGasObject in Query.All<PipeAbonent>()
-            let matchGuess = Query.All<Kalina2RngGasObjectMatchGuess>().Where(g => g.KalinaPipeAbonentID==kalinaGasObject.Id).FirstOrDefault()
-            let matchGuessObject = Query.All<GasObject>().Where(go => go.Id==matchGuess.RngGasObjectID).FirstOrDefault()
-            let owner = Query.All<PipeAbonentOwnershipInfo>().Where(
+            from kalinaGasObject in session.Query.All<PipeAbonent>()
+            let matchGuess = session.Query.All<Kalina2RngGasObjectMatchGuess>().Where(g => g.KalinaPipeAbonentID==kalinaGasObject.Id).FirstOrDefault()
+            let matchGuessObject = session.Query.All<GasObject>().Where(go => go.Id==matchGuess.RngGasObjectID).FirstOrDefault()
+            let owner = session.Query.All<PipeAbonentOwnershipInfo>().Where(
               ao =>
                 ao.Abonent==kalinaGasObject &&
                   (ao.BeginDate==null || ao.BeginDate <= today) &&
                     (ao.EndDate==null || ao.EndDate >= today)).FirstOrDefault()
-            let unifiedGasObject = Query.All<UnifiedGasObject>().Where(
+            let unifiedGasObject = session.Query.All<UnifiedGasObject>().Where(
               ua => ua.KalinaGasObject==kalinaGasObject && ua.RngGasObject!=null).FirstOrDefault()
             orderby matchGuess.Rank ?? 0 descending
             select new Kalina2RngGasObjectMatchListItem {
@@ -160,9 +160,9 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = session.OpenTransaction()) {
 
           var query =
-            from kalinaGasObject in Query.All<PipeAbonent>()
-            let matchGuess = Query.All<Kalina2RngGasObjectMatchGuess>().FirstOrDefault()
-            let owner = Query.All<PipeAbonentOwnershipInfo>().FirstOrDefault()
+            from kalinaGasObject in session.Query.All<PipeAbonent>()
+            let matchGuess = session.Query.All<Kalina2RngGasObjectMatchGuess>().FirstOrDefault()
+            let owner = session.Query.All<PipeAbonentOwnershipInfo>().FirstOrDefault()
             orderby matchGuess.Rank ?? 0 descending
             select matchGuess;
 

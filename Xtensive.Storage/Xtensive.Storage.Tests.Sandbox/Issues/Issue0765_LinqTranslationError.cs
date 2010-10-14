@@ -80,8 +80,8 @@ namespace Xtensive.Storage.Tests.Issues
       // Reading all persisted objects from another Session
       using (var session = Domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var groupByQuery = Query.All<Invoice>()
-            .Join(Query.All<InvoiceExtract>(), i => i, e => e.Owner, (i, e) => new { Invoice = i, Extract = e })
+        var groupByQuery = session.Query.All<Invoice>()
+            .Join(session.Query.All<InvoiceExtract>(), i => i, e => e.Owner, (i, e) => new { Invoice = i, Extract = e })
             .GroupBy(c => c.Invoice.DocumentId);
         var result = groupByQuery.ToList();
       }

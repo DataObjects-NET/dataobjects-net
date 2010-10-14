@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq1()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.Address.City=="London"
         select c;
       QueryDumper.Dump(q);
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq2()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.HireDate >= new DateTime(1994, 1, 1)
         select e;
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq3()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         where p.UnitsInStock <= p.ReorderLevel && !(p is DiscontinuedProduct)
         select p;
 
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq4()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         where p.UnitPrice > 10m || (p is DiscontinuedProduct)
         select p;
 
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq5()
     {
       var q =
-        Query.All<Product>().Where(p => p.UnitPrice > 10m).Where(p => (p is DiscontinuedProduct));
+        Session.Query.All<Product>().Where(p => p.UnitPrice > 10m).Where(p => (p is DiscontinuedProduct));
 
       QueryDumper.Dump(q);
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses First to select the first Shipper in the table.")]
     public void DLinq6()
     {
-      Shipper shipper = Query.All<Shipper>().First();
+      Shipper shipper = Session.Query.All<Shipper>().First();
       QueryDumper.Dump(shipper);
     }
 
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses First to select the single Customer with Id 'BONAP'.")]
     public void DLinq7()
     {
-      Customer cust = Query.All<Customer>().First(c => c.Id=="BONAP");
+      Customer cust = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
       QueryDumper.Dump(cust);
     }
 
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses First to select an Order with freight greater than 10.00.")]
     public void DLinq8()
     {
-      Order ord = Query.All<Order>().First(o => o.Freight > 10.00M);
+      Order ord = Session.Query.All<Order>().First(o => o.Freight > 10.00M);
       QueryDumper.Dump(ord);
     }
 
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq9()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select c.ContactName;
 
       QueryDumper.Dump(q);
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq10()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select new {c.ContactName, c.Phone};
 
       QueryDumper.Dump(q);
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq11()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select new {Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone};
 
       QueryDumper.Dump(q);
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq12()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         select new {p.Id, HalfPrice = p.UnitPrice / 2};
       QueryDumper.Dump(q);
     }
@@ -175,7 +175,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq13()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         select new {p.ProductName, Availability = p.UnitsInStock - p.UnitsOnOrder < 0 ? "Out Of Stock" : "In Stock"};
 
       QueryDumper.Dump(q);
@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq14()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select new Name {FirstName = e.FirstName, LastName = e.LastName};
 
       QueryDumper.Dump(q);
@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq15()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.Address.City=="London"
         select c.ContactName;
 
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq16()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select new {
           c.Id,
           CompanyInfo = new {c.CompanyName, c.Address.City, c.Address.Country},
@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq17()
     {
       var q =
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         select new {
           o.Id,
           DiscountedProducts =
@@ -259,7 +259,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq18()
     {
       var q = (
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select c.Address.City)
         .Distinct();
 
@@ -271,7 +271,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Count to find the number of Customers in the database.")]
     public void DLinq19()
     {
-      var q = Query.All<Customer>().Count();
+      var q = Session.Query.All<Customer>().Count();
       Console.WriteLine(q);
     }
 
@@ -281,7 +281,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       "that are not discontinued.")]
     public void DLinq20()
     {
-      var q = Query.All<Product>().Count(p => !(p is DiscontinuedProduct));
+      var q = Session.Query.All<Product>().Count(p => !(p is DiscontinuedProduct));
       Console.WriteLine(q);
     }
 
@@ -290,7 +290,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Sum to find the total freight over all Orders.")]
     public void DLinq21()
     {
-      var q = Query.All<Order>().Select(o => o.Freight).Sum();
+      var q = Session.Query.All<Order>().Select(o => o.Freight).Sum();
       Console.WriteLine(q);
     }
 
@@ -299,7 +299,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Sum to find the total number of units on order over all Products.")]
     public void DLinq22()
     {
-      var q = Query.All<Product>().Sum(p => p.UnitsOnOrder);
+      var q = Session.Query.All<Product>().Sum(p => p.UnitsOnOrder);
       Console.WriteLine(q);
     }
 
@@ -308,7 +308,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Min to find the lowest unit price of any Product.")]
     public void DLinq23()
     {
-      var q = Query.All<Product>().Select(p => p.UnitPrice).Min();
+      var q = Session.Query.All<Product>().Select(p => p.UnitPrice).Min();
       Console.WriteLine(q);
     }
 
@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Min to find the lowest freight of any Order.")]
     public void DLinq24()
     {
-      var q = Query.All<Order>().Min(o => o.Freight);
+      var q = Session.Query.All<Order>().Min(o => o.Freight);
       Console.WriteLine(q);
     }
 
@@ -328,7 +328,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq25()
     {
       var categories =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -347,7 +347,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Max to find the latest hire date of any Employee.")]
     public void DLinq26()
     {
-      var q = Query.All<Employee>().Select(e => e.HireDate).Max();
+      var q = Session.Query.All<Employee>().Select(e => e.HireDate).Max();
       Console.WriteLine(q);
     }
 
@@ -356,7 +356,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Max to find the most units in stock of any Product.")]
     public void DLinq27()
     {
-      var q = Query.All<Product>().Max(p => p.UnitsInStock);
+      var q = Session.Query.All<Product>().Max(p => p.UnitsInStock);
       Console.WriteLine(q);
     }
 
@@ -367,7 +367,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq28()
     {
       var categories =
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .GroupBy(p => p.Id)
           .Select(g => new {
             g.Key,
@@ -382,7 +382,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Average to find the average freight of all Orders.")]
     public void DLinq29()
     {
-      var q = Query.All<Order>().Select(o => o.Freight).Average();
+      var q = Session.Query.All<Order>().Select(o => o.Freight).Average();
       Console.WriteLine(q);
     }
 
@@ -391,7 +391,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Average to find the average unit price of all Products.")]
     public void DLinq30()
     {
-      var q = Query.All<Product>().Average(p => p.UnitPrice);
+      var q = Session.Query.All<Product>().Average(p => p.UnitPrice);
       Console.WriteLine(q);
     }
 
@@ -402,7 +402,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq31()
     {
       var categories =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -424,7 +424,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin1()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         from o in c.Orders
         where c.Address.City=="London"
         select o;
@@ -440,7 +440,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin2()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         where p.Supplier.Address.Country=="USA" && p.UnitsInStock==0
         select p;
 
@@ -455,7 +455,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin3()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         from et in e.Territories
         where e.Address.City=="Seattle"
         select new {e.FirstName, e.LastName, et.TerritoryDescription};
@@ -472,7 +472,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin4()
     {
       var q =
-        from e1 in Query.All<Employee>()
+        from e1 in Session.Query.All<Employee>()
         from e2 in e1.ReportingEmployees
         where e1.Address.City==e2.Address.City
         select new {
@@ -491,8 +491,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q =
-        from c in Query.All<Customer>()
-        join o in Query.All<Order>() on c.Id equals o.Customer.Id into orders
+        from c in Session.Query.All<Customer>()
+        join o in Session.Query.All<Order>() on c.Id equals o.Customer.Id into orders
         select new {c.ContactName, OrderCount = orders.Count()};
 
       QueryDumper.Dump(q);
@@ -505,9 +505,9 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q =
-        from c in Query.All<Customer>()
-        join o in Query.All<Order>() on c.Id equals o.Customer.Id into ords
-        join e in Query.All<Employee>() on c.Address.City equals e.Address.City into emps
+        from c in Session.Query.All<Customer>()
+        join o in Session.Query.All<Order>() on c.Id equals o.Customer.Id into ords
+        join e in Session.Query.All<Employee>() on c.Address.City equals e.Address.City into emps
         select new {c.ContactName, ords = ords.Count(), emps = emps.Count()};
 
       QueryDumper.Dump(q);
@@ -519,8 +519,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin7()
     {
       var query =
-        from employee in Query.All<Employee>()
-        join order in Query.All<Order>() on employee equals order.Employee into orderJoins
+        from employee in Session.Query.All<Employee>()
+        join order in Session.Query.All<Order>() on employee equals order.Employee into orderJoins
         from orderJoin in orderJoins.DefaultIfEmpty()
         select new {employee.FirstName, employee.LastName, Order = orderJoin};
 
@@ -533,8 +533,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin8()
     {
       var q =
-        from c in Query.All<Customer>()
-        join o in Query.All<Order>() on c.Id equals o.Customer.Id into ords
+        from c in Session.Query.All<Customer>()
+        join o in Session.Query.All<Order>() on c.Id equals o.Customer.Id into ords
         let z = c.Address.City + c.Address.Country
         from o in ords
         select new {c.ContactName, o.Id, z};
@@ -549,9 +549,9 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin9()
     {
       var q =
-        from o in Query.All<Order>()
-        from p in Query.All<Product>()
-        join d in Query.All<OrderDetails>()
+        from o in Session.Query.All<Order>()
+        from p in Session.Query.All<Product>()
+        join d in Session.Query.All<OrderDetails>()
           on new {OrderId = o.Id, ProductId = p.Id} equals new {OrderId = d.Order.Id, ProductId = d.Product.Id}
           into details
         from d in details
@@ -566,8 +566,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinqJoin10()
     {
       var q =
-        from o in Query.All<Order>()
-        join e in Query.All<Employee>()
+        from o in Session.Query.All<Order>()
+        join e in Session.Query.All<Employee>()
           on o.Id equals (int?) e.Id into emps
         from e in emps
         select new {o.Id, e.FirstName};
@@ -582,7 +582,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq36()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         orderby e.HireDate
         select e;
 
@@ -596,7 +596,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq37()
     {
       var q =
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         where o.ShippingAddress.City=="London"
         orderby o.Freight
         select o;
@@ -611,7 +611,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq38()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         orderby p.UnitPrice descending
         select p;
 
@@ -625,7 +625,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq39()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         orderby c.Address.City , c.ContactName
         select c;
 
@@ -639,7 +639,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq40()
     {
       var q =
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         where o.Id==1
         orderby o.ShippingAddress.Country , o.Freight descending
         select o;
@@ -656,7 +656,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var categories =
-        Query.All<Product>()
+        Session.Query.All<Product>()
           .GroupBy(p => p.Id)
           .OrderBy(g => g.Key)
           .Select(g => new {
@@ -675,7 +675,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq42()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select g;
@@ -690,7 +690,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq43()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -708,7 +708,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq44()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -726,7 +726,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq45()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -744,7 +744,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq46()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -762,7 +762,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq47()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -781,7 +781,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq48()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           select new {
@@ -800,7 +800,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by p.Id
         into g
           where g.Count() >= 10
@@ -818,7 +818,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq50()
     {
       var categories =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by new {p.Id, SupplierId = p.Supplier.Id}
         into g
           select new {g.Key, g};
@@ -835,7 +835,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq51()
     {
       var categories =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         group p by new {Criterion = p.UnitPrice > 10}
         into g
           select g;
@@ -849,7 +849,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq52()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where !c.Orders.Any()
         select c;
 
@@ -863,7 +863,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq53()
     {
       var q =
-        from c in Query.All<Category>()
+        from c in Session.Query.All<Category>()
         where c.Products.Any(p => (p is DiscontinuedProduct))
         select c;
 
@@ -877,7 +877,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq54()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.Orders.All(o => o.ShippingAddress.City==c.Address.City)
         select c;
 
@@ -891,13 +891,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq55()
     {
       var q = (
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select c.Phone
         ).Concat(
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select c.Fax
         ).Concat(
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select e.HomePhone
         );
 
@@ -911,10 +911,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq56()
     {
       var q = (
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select new {Name = c.CompanyName, c.Phone}
         ).Concat(
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select new {Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone}
         );
 
@@ -928,10 +928,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq57()
     {
       var q = (
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select c.Address.Country
         ).Union(
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select e.Address.Country
         );
 
@@ -946,10 +946,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q = (
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select c.Address.Country
         ).Intersect(
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select e.Address.Country
         );
 
@@ -964,10 +964,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q = (
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select c.Address.Country
         ).Except(
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select e.Address.Country
         );
 
@@ -980,7 +980,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq60()
     {
       var q = (
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         orderby e.HireDate
         select e)
         .Take(5);
@@ -995,7 +995,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var q = (
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         orderby p.UnitPrice descending
         select p)
         .Skip(10);
@@ -1012,7 +1012,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var q = (
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         orderby c.ContactName
         select c)
         .Skip(50)
@@ -1031,7 +1031,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq63()
     {
       var q = (
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         where p.Id > 50
         orderby p.Id
         select p)
@@ -1048,7 +1048,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq75()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.ReportsTo==null
         select e;
 
@@ -1062,7 +1062,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq76()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where !e.BirthDate.HasValue
         select e;
 
@@ -1078,7 +1078,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq77()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.BirthDate.HasValue
         select new {e.FirstName, e.LastName, BirthDate = e.BirthDate.Value};
 
@@ -1093,7 +1093,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq78()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select new {c.Id, Location = c.Address.City + ", " + c.Address.Country};
 
       QueryDumper.Dump(q);
@@ -1106,7 +1106,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq79()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         where p.ProductName.Length < 10
         select p;
 
@@ -1120,7 +1120,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq80()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.ContactName.Contains("Anders")
         select c;
 
@@ -1134,7 +1134,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq81()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         select new {c.ContactName, SpacePos = c.ContactName.IndexOf(" ")};
 
       QueryDumper.Dump(q);
@@ -1147,7 +1147,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq82()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.ContactName.StartsWith("Maria")
         select c;
 
@@ -1161,7 +1161,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq83()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.ContactName.EndsWith("Anders")
         select c;
 
@@ -1175,7 +1175,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq84()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         select p.ProductName.Substring(3);
 
       QueryDumper.Dump(q);
@@ -1188,7 +1188,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq85()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.HomePhone.Substring(6, 3)=="555"
         select e;
 
@@ -1202,7 +1202,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq86()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select new {LastName = e.LastName.ToUpper(), e.FirstName};
 
       QueryDumper.Dump(q);
@@ -1215,7 +1215,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq87()
     {
       var q =
-        from c in Query.All<Category>()
+        from c in Session.Query.All<Category>()
         select c.CategoryName.ToLower();
 
       QueryDumper.Dump(q);
@@ -1229,7 +1229,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq88()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         select e.HomePhone.Substring(0, 5).Trim();
 
       QueryDumper.Dump(q);
@@ -1243,7 +1243,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq89()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.HomePhone.Substring(4, 1)==")"
         select e.HomePhone.Insert(5, ":");
 
@@ -1258,7 +1258,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq90()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.HomePhone.Substring(4, 1)==")"
         select e.HomePhone.Remove(9);
 
@@ -1273,7 +1273,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq91()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.HomePhone.Substring(4, 1)==")"
         select e.HomePhone.Remove(0, 6);
 
@@ -1289,7 +1289,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq92()
     {
       var q =
-        from s in Query.All<Supplier>()
+        from s in Session.Query.All<Supplier>()
         select new {
           s.CompanyName,
           Country = s.Address.Country.Replace("UK", "United Kingdom")
@@ -1306,7 +1306,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq93()
     {
       var q =
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         where o.OrderDate.Value.Year==1997
         select o;
 
@@ -1320,7 +1320,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq94()
     {
       var q =
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         where o.OrderDate.Value.Month==12
         select o;
 
@@ -1334,7 +1334,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq95()
     {
       var q =
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         where o.OrderDate.Value.Day==31
         select o;
 
@@ -1347,8 +1347,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       "you will receive a reference to the same object in memory each time.")]
     public void DLinq96()
     {
-      Customer cust1 = Query.All<Customer>().First(c => c.Id=="BONAP");
-      Customer cust2 = Query.All<Customer>().First(c => c.Id=="BONAP");
+      Customer cust1 = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
+      Customer cust2 = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
 
       Console.WriteLine("cust1 and cust2 refer to the same object in memory: {0}",
         Object.ReferenceEquals(cust1, cust2));
@@ -1361,9 +1361,9 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         "reference to the same object in memory each time.")]
     public void DLinq97()
     {
-      Customer cust1 = Query.All<Customer>().First(c => c.Id=="BONAP");
+      Customer cust1 = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
       Customer cust2 = (
-        from o in Query.All<Order>()
+        from o in Session.Query.All<Order>()
         where o.Customer.Id=="BONAP"
         select o)
         .First()
@@ -1381,7 +1381,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq98()
     {
       var custs =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.Address.City=="Sao Paulo"
         select c;
 
@@ -1404,7 +1404,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         "if the data was not requested by the original query.")]
     public void DLinq102()
     {
-      var emps = from e in Query.All<Employee>()
+      var emps = from e in Session.Query.All<Employee>()
       select e;
 
       foreach (var emp in emps) {
@@ -1422,7 +1422,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     //             "the retrieved objects.")]
     //public void DLinq103() {
     //    var emps = (
-    //        from e in Query.All<Employee>()
+    //        from e in Session.Query.All<Employee>()
     //        select e)
     //        .Including(e => e.Employees);
 
@@ -1443,7 +1443,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         "if the data type is Link.")]
     public void DLinq104()
     {
-      var emps = from c in Query.All<Employee>()
+      var emps = from c in Session.Query.All<Employee>()
       select c;
 
       foreach (Employee emp in emps) {
@@ -1463,7 +1463,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq105()
     {
       var q =
-        from p in Query.All<Product>().ToList()
+        from p in Session.Query.All<Product>().ToList()
         where isValidProduct(p)
         select p;
 
@@ -1477,7 +1477,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq106()
     {
       var q =
-        from c in Query.All<Customer>()
+        from c in Session.Query.All<Customer>()
         where c.Address.City=="London"
         select c;
 
@@ -1491,7 +1491,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq107()
     {
       var q =
-        from e in Query.All<Employee>()
+        from e in Session.Query.All<Employee>()
         where e.HireDate >= new DateTime(1994, 1, 1)
         select e;
 
@@ -1506,7 +1506,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq108()
     {
       var q =
-        from p in Query.All<Product>()
+        from p in Session.Query.All<Product>()
         where p.UnitsInStock <= p.ReorderLevel && !(p is DiscontinuedProduct)
         select p;
 
@@ -1534,7 +1534,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 //        [Description("This sample uses a stored procedure to return the Id, ContactName, CompanyName" +
 //        " and City of customers who are in London.")]
 //        public void DLinq114() {
-//            IEnumerable<CustomersByCityResult> result = Query.All<Customer>()ByCity("London");
+//            IEnumerable<CustomersByCityResult> result = Session.Query.All<Customer>()ByCity("London");
 //
 //            QueryDumper.Dump(result);
 //        }
@@ -1606,7 +1606,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 //        [Test(Description = "Scalar Function - Where")]
 //        [Description("This sample demonstrates using a scalar user-defined function in a where clause.")]
 //        public void DLinq118() {
-//            var q = from p in Query.All<Product>()
+//            var q = from p in Session.Query.All<Product>()
 //                    where p.UnitPrice == db.MinUnitPriceByCategory(p.Id)
 //                    select p;
 //
@@ -1617,7 +1617,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 //        [Test(Description = "Table-Valued Function")]
 //        [Description("This sample demonstrates selecting from a table-valued user-defined function.")]
 //        public void DLinq119() {
-//            var q = from p in Query.All<Product>()UnderThisUnitPrice(10.25M)
+//            var q = from p in Session.Query.All<Product>()UnderThisUnitPrice(10.25M)
 //                    where !(p is DiscontinuedProduct)
 //                    select p;
 //
@@ -1629,7 +1629,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 //        [Description("This sample demonstrates joining to the results of a table-valued user-defined function.")]
 //        public void DLinq151() {
 //            var q = from c in db.Categories
-//                    join p in Query.All<Product>()UnderThisUnitPrice(8.50M) on c.Id equals p.Id into prods
+//                    join p in Session.Query.All<Product>()UnderThisUnitPrice(8.50M) on c.Id equals p.Id into prods
 //                    from p in prods
 //                    select new {c.Id, c.CategoryName, p.ProductName, p.UnitPrice};
 //
@@ -1643,7 +1643,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       "discontinued products of the top 10 most expensive products.")]
     public void DLinq131()
     {
-      var prods = from p in Query.All<Product>().OrderByDescending(p => p.UnitPrice).Take(10)
+      var prods = from p in Session.Query.All<Product>().OrderByDescending(p => p.UnitPrice).Take(10)
       where p is DiscontinuedProduct
       select p;
 
@@ -1657,7 +1657,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample returns all contacts where the city is London.")]
     public void DLinq135()
     {
-      var cons = from c in Query.All<BusinessContact>()
+      var cons = from c in Session.Query.All<BusinessContact>()
       select c;
 
       foreach (var con in cons) {
@@ -1674,7 +1674,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [ExpectedException(typeof (QueryTranslationException))]
     public void DLinq136()
     {
-      var cons = from c in Query.All<Person>().OfType<Customer>()
+      var cons = from c in Session.Query.All<Person>().OfType<Customer>()
       select c;
 
       QueryDumper.Dump(cons);
@@ -1686,7 +1686,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses IS to return all shipper contacts.")]
     public void DLinq137()
     {
-      var cons = from c in Query.All<Person>()
+      var cons = from c in Session.Query.All<Person>()
       where c is Customer
       select c;
 
@@ -1699,7 +1699,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses AS to return FullContact or null.")]
     public void DLinq138()
     {
-      var cons = from c in Query.All<Person>()
+      var cons = from c in Session.Query.All<Person>()
       select c as BusinessContact;
 
       QueryDumper.Dump(cons);
@@ -1711,7 +1711,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses a cast to retrieve customer contacts who work in 'Around the Horn'.")]
     public void DLinq139()
     {
-      var cons = from c in Query.All<Person>()
+      var cons = from c in Session.Query.All<Person>()
       where c is Customer && ((Customer) c).CompanyName=="Around the Horn"
       select c;
 

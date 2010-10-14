@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       validationCallsCount = 0;
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var mouse = Query.All<Mouse>().Where(m => m.ID==mouseId).First();
+          var mouse = session.Query.All<Mouse>().Where(m => m.ID==mouseId).First();
         }
       }
       // No validation calls on meterialization

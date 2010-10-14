@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Upgrade
     private void UpdateDomainModel()
     {
       var domainModel = Domain.Demand().Model;
-      var modelHolder = Query.All<Extension>()
+      var modelHolder = Session.Demand().Query.All<Extension>()
         .SingleOrDefault(extension => extension.Name==WellKnown.DomainModelExtensionName);
       if (modelHolder == null)
         modelHolder = new Extension(WellKnown.DomainModelExtensionName);
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext;
 
-      var oldAssemblies = Query.All<M.Assembly>().ToArray();
+      var oldAssemblies = Session.Demand().Query.All<M.Assembly>().ToArray();
       var oldAssemblyByName = new Dictionary<string, M.Assembly>();
       foreach (var oldAssembly in oldAssemblies)
         oldAssemblyByName.Add(oldAssembly.Name, oldAssembly);
@@ -194,11 +194,11 @@ namespace Xtensive.Storage.Upgrade
     private void ExtractDomainModel(bool typeIdsOnly)
     {
       var context = UpgradeContext;
-      context.ExtractedTypeMap = Query.All<Type>().ToDictionary(t => t.Name, t => t.Id);
+      context.ExtractedTypeMap = Session.Demand().Query.All<Type>().ToDictionary(t => t.Name, t => t.Id);
       if (typeIdsOnly)
         return;
 
-      var modelHolder = Query.All<Extension>()
+      var modelHolder = Session.Demand().Query.All<Extension>()
         .SingleOrDefault(e => e.Name==WellKnown.DomainModelExtensionName);
       if (modelHolder == null) {
         Log.Info(Strings.LogDomainModelIsNotFoundInStorage);

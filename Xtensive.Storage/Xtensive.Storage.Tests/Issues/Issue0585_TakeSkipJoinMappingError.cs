@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Tests.Issues
 
       public static UserActivity GetOrCreate(User user)
       {
-        var activity = Query.All<UserActivity>().Where(ua => ua.User==user).FirstOrDefault();
+        var activity = session.Query.All<UserActivity>().Where(ua => ua.User==user).FirstOrDefault();
         if (activity==null)
           activity = new UserActivity {User = user};
         return activity;
@@ -176,10 +176,10 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = session.OpenTransaction()) {
           int pageIndex = 1;
           int pageSize = 1;
-          IQueryable<User> usersQuery = Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
+          IQueryable<User> usersQuery = session.Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
           var query =
             from user in usersQuery
-            from activity in Query.All<UserActivity>().Where(a => a.User==user).DefaultIfEmpty()
+            from activity in session.Query.All<UserActivity>().Where(a => a.User==user).DefaultIfEmpty()
             select new {
               user.Name,
               user.UniqueIndentifier,

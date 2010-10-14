@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Model
 
         using (var t = session.OpenTransaction()) {
 
-          var person = Query.Single<Person>(key);
+          var person = session.Query.Single<Person>(key);
           Assert.AreEqual(dateTime, person.Date);
 
           t.Complete();

@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     {
       get
       {
-        return Query.All<Order>().Where(o => o.ShipVia==this);
+        return Session.Query.All<Order>().Where(o => o.ShipVia==this);
       }
     }
 
@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     {
       get
       {
-        return Query.All<Order>().Where(o => o.ShipVia==this).FirstOrDefault();
+        return Session.Query.All<Order>().Where(o => o.ShipVia==this).FirstOrDefault();
       }
     }
   }

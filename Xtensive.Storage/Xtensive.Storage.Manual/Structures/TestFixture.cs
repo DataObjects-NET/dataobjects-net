@@ -84,9 +84,9 @@ namespace Xtensive.Storage.Manual.Structures
           Assert.AreEqual(range.Right.Y, range.Left.Y);
 
           // Example 3
-          var points = Query.All<Range>().Select(r => r.Left);
+          var points = session.Query.All<Range>().Select(r => r.Left);
           // or
-          var ranges = Query.All<Range>().Where(r => r.Left == new Point(0, 10));
+          var ranges = session.Query.All<Range>().Where(r => r.Left == new Point(0, 10));
         }
       }
     }

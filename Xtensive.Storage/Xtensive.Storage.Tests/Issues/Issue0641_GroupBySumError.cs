@@ -82,11 +82,11 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Domain.OpenSession())
       {
         using (var transactionScope = session.OpenTransaction()) {
-          var query = from l in Query.All<MyEntity>().First().Lines
+          var query = from l in session.Query.All<MyEntity>().First().Lines
                       group l by l.Rate.GetValueOrDefault() into g
                       select new {Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault())};
           var actual = query.ToList().Single();
-          var expected = (from l in Query.All<MyEntity>().First().Lines.ToList()
+          var expected = (from l in session.Query.All<MyEntity>().First().Lines.ToList()
                          group l by l.Rate.GetValueOrDefault()
                          into g
                          select new {Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault())})

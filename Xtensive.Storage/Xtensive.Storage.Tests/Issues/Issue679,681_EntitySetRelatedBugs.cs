@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var speciality = Query.Single<Speciality>(1);
+          var speciality = session.Query.Single<Speciality>(1);
           var list =
             from doctor in speciality.Doctors
             select new {

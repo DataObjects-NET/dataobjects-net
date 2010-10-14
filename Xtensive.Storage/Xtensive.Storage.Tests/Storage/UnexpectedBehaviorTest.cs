@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
         catch {
         }
-        var wtf = Query.SingleOrDefault<UncreatableEntity>(42);
+        var wtf = session.Query.SingleOrDefault<UncreatableEntity>(42);
         Assert.IsNull(wtf);
       }
     }

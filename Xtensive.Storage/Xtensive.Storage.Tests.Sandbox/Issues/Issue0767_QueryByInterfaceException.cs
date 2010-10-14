@@ -84,13 +84,13 @@ namespace Xtensive.Storage.Tests.Issues
         new Foo() {Name = "foo", Some = 10, Tag = "foo tag"};
         new Bar() {Name = "bar", Some = Guid.NewGuid(), Tag = "bar tag"};
 
-        var all = Query.All<IBusinessEntity>().ToList();
+        var all = session.Query.All<IBusinessEntity>().ToList();
         Assert.AreEqual(2, all.Count);
-        var hasNames = Query.All<IHasName>().ToList();
+        var hasNames = session.Query.All<IHasName>().ToList();
         Assert.AreEqual(2, hasNames.Count);
-        var foos = Query.All<IHasName>().Where(i => i.Name == "foo").ToList();
+        var foos = session.Query.All<IHasName>().Where(i => i.Name == "foo").ToList();
         Assert.AreEqual(1, foos.Count);
-        var bars = Query.All<IHasName>().Where(i => i.Name == "bar").ToList();
+        var bars = session.Query.All<IHasName>().Where(i => i.Name == "bar").ToList();
         Assert.AreEqual(1, bars.Count);
 
         t.Complete();

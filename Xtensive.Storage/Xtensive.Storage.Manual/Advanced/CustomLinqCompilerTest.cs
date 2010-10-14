@@ -108,11 +108,11 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var expectedFullNames = Query.All<Person>().AsEnumerable()
+          var expectedFullNames = session.Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName);
           Assert.Greater(expectedFullNames.Count(), 0);
-          var fullNames = Query.All<Person>()
+          var fullNames = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName);
           Assert.IsTrue(expectedFullNames.SequenceEqual(fullNames));
@@ -126,11 +126,11 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var expectedFullNames = Query.All<Person>().AsEnumerable()
+          var expectedFullNames = session.Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName2);
           Assert.Greater(expectedFullNames.Count(), 0);
-          var fullNames = Query.All<Person>()
+          var fullNames = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName2);
           Assert.IsTrue(expectedFullNames.SequenceEqual(fullNames));
@@ -144,10 +144,10 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var expectedStrings = Query.All<Person>().AsEnumerable()
+          var expectedStrings = session.Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
             .Select(p => p.AddPrefix("Mr. "));
-          var resultStrings = Query.All<Person>()
+          var resultStrings = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.AddPrefix("Mr. "));
           Assert.IsTrue(expectedStrings.SequenceEqual(resultStrings));
@@ -161,10 +161,10 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var expectedStrings = Query.All<Person>().AsEnumerable()
+          var expectedStrings = session.Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
             .Select(p => p.AddPrefix(p.Id.ToString()));
-          var resultStrings = Query.All<Person>()
+          var resultStrings = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.AddPrefix(p.Id.ToString()));
           Assert.IsTrue(expectedStrings.SequenceEqual(resultStrings));

@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Interfaces
       }
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var d = Query.All<D>().Single();
+        var d = session.Query.All<D>().Single();
         Assert.IsNotNull(d);
         t.Complete();
       }
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Interfaces
         new A() {Name = "A"};
         new B() {Name = "B"};
         new C() {Name = "C"};
-        var hasNames = Query.All<IHasName>().ToList();
+        var hasNames = session.Query.All<IHasName>().ToList();
         Assert.AreEqual(2, hasNames.Count);
         t.Complete();
       }

@@ -74,10 +74,10 @@ namespace Xtensive.Storage.Tests.Issues
         var position = new Position(Guid.NewGuid()) {Rank = 1};
 //        session.Persist();
 
-        var rank = Query.All<Position>().Where(r => r.Rank == 1).Single().Rank; // Ok here
+        var rank = session.Query.All<Position>().Where(r => r.Rank == 1).Single().Rank; // Ok here
         Assert.AreEqual(1, rank);
-        var people = Query.All<Person>()
-          .Where(p => p.Rank == Query.All<Position>().Where(r => r.Rank == 1).Single().Rank)
+        var people = session.Query.All<Person>()
+          .Where(p => p.Rank == session.Query.All<Position>().Where(r => r.Rank == 1).Single().Rank)
           .ToList(); //Exception
         Assert.AreEqual(1, people.Count);
         t.Complete();

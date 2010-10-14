@@ -42,31 +42,31 @@ namespace Xtensive.Storage.Tests.Linq
     {
       public IQueryable<Order> Orders
       {
-        get { return Query.All<Order>(); }
+        get { return Session.Demand().Query.All<Order>(); }
       }
 
       public IQueryable<Customer> Customers
       {
-        get { return Query.All<Customer>(); }
+        get { return Session.Demand().Query.All<Customer>(); }
       }
     }
 
     [Test]
     public void IndexerSimpleFieldTest()
     {
-      var result = Query
+      var result = Session.Query
         .All<Customer>()
         .OrderBy(customer => customer.Id)
         .Select(customer => customer["Phone"])
         .AsEnumerable();
-      var expected = Query
+      var expected = Session.Query
         .All<Customer>()
         .AsEnumerable()
         .OrderBy(customer => customer.Id)
         .Select(customer => customer["Phone"]);
       Assert.IsTrue(expected.SequenceEqual(result));
 
-      var qr = Query.All<Customer>();
+      var qr = Session.Query.All<Customer>();
 
       var filter = new Dictionary<string, object> {{"Phone", "Test 718"}};
 
@@ -81,12 +81,12 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IndexerEntityTest()
     {
-      var result = Query
+      var result = Session.Query
         .All<Order>()
         .OrderBy(order => order.Id)
         .Select(order => order["Customer"])
         .AsEnumerable();
-      var expected = Query
+      var expected = Session.Query
         .All<Order>()
         .AsEnumerable()
         .OrderBy(order => order.Id)
@@ -97,12 +97,12 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IndexerStructureTest()
     {
-      var result = Query
+      var result = Session.Query
         .All<Customer>()
         .OrderBy(customer => customer.Id)
         .Select(customer => customer["Address"])
         .AsEnumerable();
-      var expected = Query
+      var expected = Session.Query
         .All<Customer>()
         .AsEnumerable()
         .OrderBy(customer => customer.Id)
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void IndexerError1Test()
     {
-      var result = Query
+      var result = Session.Query
         .All<Customer>()
         .Select(customer => customer["Ph1one"])
         .ToList();
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void IndexerError2Test()
     {
-      var result = Query
+      var result = Session.Query
         .All<Order>()
         .Where(order => order["Freight"]==order["Id"])
         .ToList();
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StaticPropertyTest()
     {
-      var customers = Query.All<Customer>()
+      var customers = Session.Query.All<Customer>()
         .Where(cutomer =>
           cutomer
             .Orders
@@ -146,21 +146,21 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectEmployeeTest()
     {
-      var result = Query.All<Employee>();
+      var result = Session.Query.All<Employee>();
       var list = result.ToList();
     }
 
     [Test]
     public void SelectForeignKeyTest()
     {
-      var result = Query.All<Product>().Select(p => p.Category.Id);
+      var result = Session.Query.All<Product>().Select(p => p.Category.Id);
       var list = result.ToList();
     }
 
     [Test]
     public void SelectForeignFieldTest()
     {
-      var result = Query.All<Product>().Select(p => p.Category.CategoryName);
+      var result = Session.Query.All<Product>().Select(p => p.Category.CategoryName);
       var list = result.ToList();
     }
 
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectUsingContextTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var expectedCount = Query.All<Order>().Count();
+      var expectedCount = Session.Query.All<Order>().Count();
       var context = new Context();
       var actualCount = context.Orders.Count();
       var list = context.Orders.ToList();
@@ -182,10 +182,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NullJoinTest()
     {
-      Query.All<Territory>().First().Region = null; // Set one region reference to NULL
+      Session.Query.All<Territory>().First().Region = null; // Set one region reference to NULL
       Session.Current.SaveChanges();
 
-      var territories = Query.All<Territory>();
+      var territories = Session.Query.All<Territory>();
 
       var result = territories.Select(t => t.Region.Id);
 
@@ -197,7 +197,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousEntityTest()
     {
-      var result = Query.All<Category>()
+      var result = Session.Query.All<Category>()
         .Select(category => new {Category = category})
         .Select(a => a.Category);
       QueryDumper.Dump(result);
@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousEntityKeyTest()
     {
-      var result = Query.All<Category>()
+      var result = Session.Query.All<Category>()
         .Select(category => new {Category = category})
         .Select(a => a.Category.Key);
       QueryDumper.Dump(result);
@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousEntityFieldTest()
     {
-      var result = Query.All<Category>()
+      var result = Session.Query.All<Category>()
         .Select(category => new {Category = category})
         .Select(a => a.Category.CategoryName);
       QueryDumper.Dump(result);
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousEntityKeyFieldTest()
     {
-      var result = Query.All<Category>()
+      var result = Session.Query.All<Category>()
         .Select(category => new {Category = category})
         .Select(a => a.Category.Id);
       QueryDumper.Dump(result);
@@ -234,20 +234,20 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void OutOfHierarchy()
     {
-      Assert.Greater(Query.All<Person>().Count(), 0);
+      Assert.Greater(Session.Query.All<Person>().Count(), 0);
     }
 
     [Test]
     public void SimpleSelectTest()
     {
-      var result = Query.All<Order>();
+      var result = Session.Query.All<Order>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SimpleConstantTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from p in products
         select 0;
@@ -259,14 +259,14 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousColumn()
     {
-      var products = Query.All<Product>().Select(p => new {p.ProductName}.ProductName);
+      var products = Session.Query.All<Product>().Select(p => new {p.ProductName}.ProductName);
       var list = products.ToList();
     }
 
     [Test]
     public void AnonymousWithCalculatedColumnsTest()
     {
-      var result = Query.All<Customer>().Select(c =>
+      var result = Session.Query.All<Customer>().Select(c =>
         new {
           n1 = c.ContactTitle.Length + c.ContactName.Length,
           n2 = c.ContactName.Length + c.ContactTitle.Length
@@ -279,7 +279,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnonymousParameterColumn()
     {
       var param = new {ProductName = "name"};
-      var products = Query.All<Product>().Select(p => param.ProductName);
+      var products = Session.Query.All<Product>().Select(p => param.ProductName);
       QueryDumper.Dump(products);
     }
 
@@ -288,7 +288,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void NewPairTest()
     {
       var method = MethodInfo.GetCurrentMethod().Name;
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -308,7 +308,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConstantTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -323,7 +323,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConstantNullStringTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from p in products
       select (string) null;
       var list = result.ToList();
@@ -335,7 +335,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void LocalTest()
     {
       int x = 10;
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -355,7 +355,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ColumnTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -370,7 +370,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CalculatedColumnTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from r in
         from p in products
         select p.UnitsInStock * p.UnitPrice
@@ -384,7 +384,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void KeyTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = products
         .Select(p => p.Key)
         .Where(r => r!=null);
@@ -392,7 +392,7 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.Greater(list.Count, 0);
       foreach (var k in list) {
         Assert.IsNotNull(k);
-        var p = Query.SingleOrDefault<Product>(k);
+        var p = Session.Query.SingleOrDefault<Product>(k);
         Assert.IsNotNull(p);
       }
     }
@@ -401,7 +401,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void KeySimpleTest()
     {
-      var result = Query
+      var result = Session.Query
         .All<Product>()
         .Select(p => p.Key);
       QueryDumper.Dump(result);
@@ -410,7 +410,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from p in products
       select new {p.ProductName, p.UnitPrice, p.UnitsInStock};
       var list = result.ToList();
@@ -420,7 +420,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousEmptyTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from p in products
       select new {};
       var list = result.ToList();
@@ -430,7 +430,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousCalculatedTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -444,7 +444,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinedEntityColumnTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from p in products
       select p.Supplier.CompanyName;
       var list = result.ToList();
@@ -455,7 +455,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinedEntityTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -469,7 +469,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StructureColumnTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from p in products
       select p.Supplier.Address;
       var list = result.ToList();
@@ -479,7 +479,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StructureTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from a in (
         from p in products
         select p.Supplier.Address)
@@ -492,7 +492,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetTest()
     {
-      var suppliers = Query.All<Supplier>();
+      var suppliers = Session.Query.All<Supplier>();
       var result = from s in suppliers
       select s.Products;
       var list = result.ToList();
@@ -501,7 +501,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousWithEntityTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -516,7 +516,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousNestedTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from r in
           from p in products
@@ -530,7 +530,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NestedQueryTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from pd in
         from p in products
         select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
@@ -543,7 +543,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NestedQueryWithStructuresTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result =
         from a in
           from pd in
@@ -558,7 +558,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NestedQueryWithEntitiesTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from pd in
         from p in products
         select new {ProductKey = p.Key, Product = p}
@@ -570,7 +570,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NestedQueryWithAnonymousTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var result = from pd in
         from p in products
         select new {ProductKey = p.Key, Product = new {Entity = new {p}, Name = p.ProductName}}
@@ -582,21 +582,21 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectEnumTest()
     {
-      var result = from o in Query.All<Order>() select o.OrderDate.Value.DayOfWeek;
+      var result = from o in Session.Query.All<Order>() select o.OrderDate.Value.DayOfWeek;
       result.ToList();
     }
 
     [Test]
     public void SelectAnonymousEnumTest()
     {
-      var result = from o in Query.All<Order>() select new {o.OrderDate.Value.DayOfWeek};
+      var result = from o in Session.Query.All<Order>() select new {o.OrderDate.Value.DayOfWeek};
       result.ToList();
     }
 
     [Test]
     public void SelectEnumFieldTest()
     {
-      var result = from p in Query.All<ActiveProduct>() select p.ProductType;
+      var result = from p in Session.Query.All<ActiveProduct>() select p.ProductType;
       foreach (var p in result)
         Assert.AreEqual(p, ProductType.Active);
     }
@@ -604,7 +604,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousEnumFieldTest()
     {
-      var result = from p in Query.All<ActiveProduct>() select new {p.ProductType};
+      var result = from p in Session.Query.All<ActiveProduct>() select new {p.ProductType};
       foreach (var p in result)
         Assert.AreEqual(p.ProductType, ProductType.Active);
     }
@@ -612,14 +612,14 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectCharTest()
     {
-      var result = from c in Query.All<Customer>() select c.CompanyName[0];
+      var result = from c in Session.Query.All<Customer>() select c.CompanyName[0];
       var list = result.ToList();
     }
 
     [Test]
     public void SelectByteArrayLengthTest()
     {
-      var categories = Query.All<Category>();
+      var categories = Session.Query.All<Category>();
       var result = from c in categories select c.Picture.Length;
       var list = result.ToList();
     }
@@ -627,7 +627,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectEqualsTest()
     {
-      var customers = Query.All<Customer>();
+      var customers = Session.Query.All<Customer>();
       var result = from c in customers select c.CompanyName.Equals("lalala");
       var list = result.ToList();
     }
@@ -635,7 +635,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DoubleSelectEntitySet1Test()
     {
-      IQueryable<EntitySet<Order>> query = Query.All<Customer>().Select(c => c.Orders).Select(c => c);
+      IQueryable<EntitySet<Order>> query = Session.Query.All<Customer>().Select(c => c.Orders).Select(c => c);
       foreach (var order in query)
         QueryDumper.Dump(order);
     }
@@ -643,7 +643,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DoubleSelectEntitySet2Test()
     {
-      IQueryable<EntitySet<Order>> query = Query.All<Customer>().Select(c => c).Select(c => c.Orders);
+      IQueryable<EntitySet<Order>> query = Session.Query.All<Customer>().Select(c => c).Select(c => c.Orders);
       foreach (var order in query)
         QueryDumper.Dump(order);
     }
@@ -651,8 +651,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DoubleSelectEntitySet3Test()
     {
-      var query = Query.All<Customer>().Select(c => c.Orders.Select(o => o));
-//          var query = Query.All<Customer>().Select(c => c.Orders);
+      var query = Session.Query.All<Customer>().Select(c => c.Orders.Select(o => o));
+//          var query = Session.Query.All<Customer>().Select(c => c.Orders);
 
       foreach (var order in query)
         QueryDumper.Dump(order);
@@ -661,7 +661,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NestedAnonymousTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select(c => new {c})
         .Select(a1 => new {a1})
         .Select(a2 => a2.a1.c.CompanyName);
@@ -671,7 +671,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntityWithLazyLoadFieldTest()
     {
-      var category = Query.All<Category>().Where(c => c.Picture!=null).First();
+      var category = Session.Query.All<Category>().Where(c => c.Picture!=null).First();
       int columnIndex = Domain.Model.Types[typeof (Category)].Fields["Picture"].MappingInfo.Offset;
       Assert.IsFalse(category.State.Tuple.GetFieldState(columnIndex).IsAvailable());
     }
@@ -679,7 +679,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousSelectTest()
     {
-      var result = Query.All<Order>()
+      var result = Session.Query.All<Order>()
         .Select(o => new {o.OrderDate, o.Freight})
         .Select(g => g.OrderDate);
       QueryDumper.Dump(result);
@@ -688,7 +688,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectJustOuterParameterTest()
     {
-      var result = Query.All<Customer>().Select(c => Query.All<Supplier>().Select(s => c));
+      var result = Session.Query.All<Customer>().Select(c => Session.Query.All<Supplier>().Select(s => c));
       foreach (var i in result)
         i.ToList();
     }
@@ -697,7 +697,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void NonPersistentFieldTest()
     {
-      var result = from e in Query.All<Employee>() select e.FullName;
+      var result = from e in Session.Query.All<Employee>() select e.FullName;
       result.ToList();
     }
 
@@ -705,7 +705,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectBigMulTest()
     {
       var result =
-        from order in Query.All<Order>()
+        from order in Session.Query.All<Order>()
         select Math.BigMul(order.Id, order.Employee.Id);
       result.ToList();
     }
@@ -714,7 +714,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectSignTest()
     {
       var result =
-        from order in Query.All<Order>()
+        from order in Session.Query.All<Order>()
         where order.Id > 0 && order.Id < 50
         let values = new {
           Byte = (sbyte) order.Id,
@@ -749,7 +749,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectStringIndexerTest()
     {
       var result =
-        Query.All<Customer>()
+        Session.Query.All<Customer>()
           .Select(c => new {
             String = c.Id,
             Char0 = c.Id[0],
@@ -762,7 +762,7 @@ namespace Xtensive.Storage.Tests.Linq
           .OrderBy(item => item.String)
           .ToArray();
       var expected =
-        Query.All<Customer>()
+        Session.Query.All<Customer>()
           .ToArray()
           .Select(c => new {
             String = c.Id,
@@ -790,7 +790,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       char _char = 'A';
       var result =
-        Query.All<Customer>()
+        Session.Query.All<Customer>()
           .Select(c => new {
             String = c.Id,
             IndexOfChar = c.Id.IndexOf(_char),
@@ -804,7 +804,7 @@ namespace Xtensive.Storage.Tests.Linq
           .OrderBy(item => item.String)
           .ToArray();
       var expected =
-        Query.All<Customer>()
+        Session.Query.All<Customer>()
           .ToArray()
           .Select(c => new {
             String = c.Id,
@@ -833,12 +833,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectStringContainsTest()
     {
       var result =
-        Query.All<Customer>()
+        Session.Query.All<Customer>()
           .Where(c => c.Id.Contains('C'))
           .OrderBy(c => c.Id)
           .ToArray();
       var expected =
-        Query.All<Customer>()
+        Session.Query.All<Customer>()
           .ToList()
           .Where(c => c.Id.Contains('C'))
           .OrderBy(c => c.Id)
@@ -852,7 +852,7 @@ namespace Xtensive.Storage.Tests.Linq
       var dateTime = new DateTime(2001, 1, 1, 1, 1, 1);
       var timeSpan = new TimeSpan(1, 1, 1, 1);
 
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select(c => new {
           CustomerId = c.Id,
           DateTime = dateTime,
@@ -919,7 +919,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectSubstringTest()
     {
-      var result = Query.All<Customer>().Select(c => new {
+      var result = Session.Query.All<Customer>().Select(c => new {
         String = c.Id,
         FromTwo = c.Id.Substring(2),
         FromThreeTakeOne = c.Id.Substring(3, 1),
@@ -933,15 +933,15 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExternalPropertyCall()
     {
-      var query = Query.All<Customer>().Select(c => Customers.Single(c2 => c2==c)).ToList();
+      var query = Session.Query.All<Customer>().Select(c => Customers.Single(c2 => c2==c)).ToList();
     }
 
     [Test]
     public void ExternalMethodCall()
     {
-      var query = Query.All<Customer>()
+      var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers().Single(c2 => c2==c));
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .AsEnumerable()
         .Select(c => GetCustomers().AsEnumerable().Single(c2 => c2==c));
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -950,9 +950,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExternalMethodWithCorrectParams1Call()
     {
-      var query = Query.All<Customer>()
+      var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers(1).Single(c2 => c2==c));
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .AsEnumerable()
         .Select(c => GetCustomers(1).AsEnumerable().Single(c2 => c2==c));
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -962,9 +962,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void ExternalMethodWithCorrectParams2Call()
     {
       int count = 1;
-      var query = Query.All<Customer>()
+      var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers(count).Single(c2 => c2==c));
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .AsEnumerable()
         .Select(c => GetCustomers(count).AsEnumerable().Single(c2 => c2==c));
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -974,17 +974,17 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void ExternalMethodWithIncorrectParamsCall()
     {
-      var query = Query.All<Customer>().Select(c => GetCustomers(c.Orders.Count()).Single(c2 => c2==c)).ToList();
+      var query = Session.Query.All<Customer>().Select(c => GetCustomers(c.Orders.Count()).Single(c2 => c2==c)).ToList();
     }
 
     public IQueryable<Customer> GetCustomers()
     {
-      return Query.All<Customer>();
+      return Session.Query.All<Customer>();
     }
 
     public IQueryable<Customer> GetCustomers(int count)
     {
-      return Query.All<Customer>();
+      return Session.Query.All<Customer>();
     }
   }
 }

@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
           var persons = (
-            from p in Query.All<M2.Person>()
+            from p in session.Query.All<M2.Person>()
             orderby p.Name
             select p
             ).ToList();

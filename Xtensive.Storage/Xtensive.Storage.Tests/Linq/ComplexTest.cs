@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Linq
   {
     private static IQueryable<Customer> GetQuery(string filter)
     {
-      var customers = Query.All<Customer>().Where(cn => cn.CompanyName.StartsWith(filter));
+      var customers = Session.Demand().Query.All<Customer>().Where(cn => cn.CompanyName.StartsWith(filter));
       return customers;
     }
 
@@ -33,9 +33,9 @@ namespace Xtensive.Storage.Tests.Linq
         var builtQuery = GetQuery(firstChar);
         var query = builtQuery
           .Select(customer => customer.ContactName);
-        var cachedQuery = Query
+        var cachedQuery = Session.Query
           .Execute(() => GetQuery(firstChar).Select(customer => customer.ContactName));
-        var fullQuery = Query.All<Customer>()
+        var fullQuery = Session.Query.All<Customer>()
           .Where(cn => cn.CompanyName.StartsWith(firstChar))
           .Select(customer => customer.ContactName);
         Assert.IsTrue(query.ToList().SequenceEqual(fullQuery.ToList()));
@@ -50,18 +50,18 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySimpleTest()
     {
-      var result = Query.All<Product>()
-        .Select(p => Query.All<Supplier>());
+      var result = Session.Query.All<Product>()
+        .Select(p => Session.Query.All<Supplier>());
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubqueryMutiple1Test()
     {
-      var result = Query.All<Supplier>()
+      var result = Session.Query.All<Supplier>()
         .Select(supplier => 
-          Query.All<Product>()
-          .Select(product=> Query.All<Product>()
+          Session.Query.All<Product>()
+          .Select(product=> Session.Query.All<Product>()
             .Where(p=>p==product)));
       QueryDumper.Dump(result);
     }
@@ -69,10 +69,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryMultiple2Test()
     {
-      var result = Query.All<Supplier>()
+      var result = Session.Query.All<Supplier>()
         .Select(supplier => 
-          Query.All<Product>()
-          .Select(product=> Query.All<Product>()
+          Session.Query.All<Product>()
+          .Select(product=> Session.Query.All<Product>()
             .Where(p=>p.Supplier==supplier)));
       QueryDumper.Dump(result);
     }
@@ -80,10 +80,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryMultiple3Test()
     {
-      var result = Query.All<Supplier>()
+      var result = Session.Query.All<Supplier>()
         .Select(supplier => 
-          Query.All<Product>()
-          .Select(product=> Query.All<Product>()
+          Session.Query.All<Product>()
+          .Select(product=> Session.Query.All<Product>()
             .Where(p=>p==product && p.Supplier==supplier)));
       QueryDumper.Dump(result);
     }
@@ -92,8 +92,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryCalculableFieldTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Supplier>()
-        .Select(supplier => Query.All<Product>()
+      var result = Session.Query.All<Supplier>()
+        .Select(supplier => Session.Query.All<Product>()
           .Where(p=>p.Supplier == supplier)
           .First()
           .UnitPrice);
@@ -104,13 +104,13 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryCalculableColumnTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Supplier>()
-        .Select(supplier => Query.All<Product>()
+      var result = Session.Query.All<Supplier>()
+        .Select(supplier => Session.Query.All<Product>()
           .Where(p=>p.Supplier == supplier)
           .Count());
-      var expectedResult = Query.All<Supplier>()
+      var expectedResult = Session.Query.All<Supplier>()
         .ToList()
-        .Select(supplier => Query.All<Product>()
+        .Select(supplier => Session.Query.All<Product>()
           .ToList()
           .Where(p=>p.Supplier == supplier)
           .Count());
@@ -121,8 +121,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CorrelatedQueryTest()
     {
-      var products = Query.All<Product>();
-      var suppliers = Query.All<Supplier>();
+      var products = Session.Query.All<Product>();
+      var suppliers = Session.Query.All<Supplier>();
       var result = from p in products
       select new {
         Product = p,
@@ -142,12 +142,12 @@ namespace Xtensive.Storage.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result =
-        from c in Query.All<Customer>()
-        orderby Query.All<Order>().Where(o => o.Customer==c).Count() , c.Id
+        from c in Session.Query.All<Customer>()
+        orderby Session.Query.All<Order>().Where(o => o.Customer==c).Count() , c.Id
         select c;
       var expected =
-        from c in Query.All<Customer>().ToList()
-        orderby Query.All<Order>().ToList().Where(o => o.Customer==c).Count() , c.Id
+        from c in Session.Query.All<Customer>().ToList()
+        orderby Session.Query.All<Order>().ToList().Where(o => o.Customer==c).Count() , c.Id
         select c;
       var resultList = result.ToList();
       var expectedList = expected.ToList();
@@ -160,10 +160,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void NestedCorrelationTest()
     {
       var result =
-        from c in Query.All<Customer>()
-        where Query.All<Order>()
+        from c in Session.Query.All<Customer>()
+        where Session.Query.All<Order>()
           .Where(o => o.Customer==c)
-          .All(o => Query.All<Employee>()
+          .All(o => Session.Query.All<Employee>()
             .Where(e => o.Employee==e
             ).Any(e => e.FirstName.StartsWith("A")))
         select c;
@@ -174,11 +174,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithSelectorSelectManyTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .GroupBy(c => c.Address.Country,
           (country, customers) => customers.Where(k => k.CompanyName.Substring(0, 1)==country.Substring(0, 1)))
         .SelectMany(k => k);
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .ToList()
         .GroupBy(c => c.Address.Country,
           (country, customers) => customers.Where(k => k.CompanyName.Substring(0, 1)==country.Substring(0, 1)))
@@ -191,14 +191,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void ParameterScopeTest()
     {
       using (new ParameterContext().Activate()) {
-        Query.All<Customer>().ToList();
+        Session.Query.All<Customer>().ToList();
       }
     }
 
     [Test]
     public void AsEnumerableSelectDistinctTest()
     {
-      var result = Query.All<Order>().ToList().Select(o => o.Employee).Distinct();
+      var result = Session.Query.All<Order>().ToList().Select(o => o.Employee).Distinct();
       Assert.IsNotNull(result.First());
       Assert.Greater(result.Count(), 2);
     }
@@ -206,8 +206,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ModifiedClosuresTest()
     {
-      var result = from order in Query.All<Order>()
-                      join customer in Query.All<Customer>() on order.Customer equals customer into oc
+      var result = from order in Session.Query.All<Order>()
+                      join customer in Session.Query.All<Customer>() on order.Customer equals customer into oc
                       from joinedCustomer in oc.DefaultIfEmpty()
                       select new {
                         CustomerId = joinedCustomer.Id, 

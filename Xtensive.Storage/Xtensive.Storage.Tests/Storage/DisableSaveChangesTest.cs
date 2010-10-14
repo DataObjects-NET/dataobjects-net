@@ -260,9 +260,9 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
     
-    private void AssertNumberOfNodesInDatabaseIs(int expected)
+    private static void AssertNumberOfNodesInDatabaseIs(int expected)
     {
-      var actual = Query.All<Node>().Count();
+      var actual = Session.Demand().Query.All<Node>().Count();
       Assert.AreEqual(expected, actual);
     }
 

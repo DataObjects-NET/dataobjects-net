@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
-          var message = Query.Single<Message>(id);
+          var message = session.Query.Single<Message>(id);
           message.Remove();
           message = new Message(id) {Name = "Beta"};
           t.Complete();
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
-          var message = Query.Single<Message>(id);
+          var message = session.Query.Single<Message>(id);
           message.Remove();
           message = new Message(id) {Name = "Beta"};
           message.Remove();

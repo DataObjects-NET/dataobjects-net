@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage
       {
         using (var t = session.OpenTransaction())
         {
-          var obj1 = Query.All<InitializebleClass>().First();
+          var obj1 = session.Query.All<InitializebleClass>().First();
           Assert.IsNotNull(obj1);
           Assert.IsNotNull(obj1.syncRoot);
           t.Complete();
@@ -104,10 +104,10 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var ancestor = Query.SingleOrDefault<Ancestor>(key);
+          var ancestor = session.Query.SingleOrDefault<Ancestor>(key);
           Assert.IsNotNull(ancestor);
 
-          var descendant = Query.SingleOrDefault<Descendant>(key);
+          var descendant = session.Query.SingleOrDefault<Descendant>(key);
           Assert.IsNotNull(descendant);
         }        
       }

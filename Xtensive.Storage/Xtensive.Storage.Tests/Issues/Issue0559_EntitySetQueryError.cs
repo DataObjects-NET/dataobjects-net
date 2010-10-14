@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Issues
         defaultTopic.Subscriptions.Add(subscription);
 
         
-        var subTopic = (from topic in Query.All<Topic>() where topic.Name == topicName select topic).SingleOrDefault<Topic>();
+        var subTopic = (from topic in session.Query.All<Topic>() where topic.Name == topicName select topic).SingleOrDefault<Topic>();
         var subscriptions = subTopic.Subscriptions;
         var result = from sub in subscriptions where sub.ApplicationName == ApplicationName select sub;
         var list = result.ToList();

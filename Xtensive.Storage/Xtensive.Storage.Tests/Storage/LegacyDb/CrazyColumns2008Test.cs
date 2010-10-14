@@ -60,12 +60,12 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        foreach (var item in Query.All<Crazy>()) {
+        foreach (var item in session.Query.All<Crazy>()) {
           Console.WriteLine(item.Date);
           Console.WriteLine(item.Time);
         }
-        Assert.AreEqual(1, Query.All<Crazy>().Where(o => o.Date==date).Count());
-        Assert.AreEqual(1, Query.All<Crazy>().Where(o => o.Time==time).Count());
+        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Date==date).Count());
+        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Time==time).Count());
       }
     }
 

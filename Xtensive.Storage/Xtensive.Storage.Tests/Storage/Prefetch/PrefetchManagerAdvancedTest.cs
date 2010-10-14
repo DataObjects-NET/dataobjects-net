@@ -80,8 +80,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key employee1Key;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var order0 = Query.All<Order>().OrderBy(o => o.Id).First();
-        var order1 = Query.All<Order>().OrderBy(o => o.Id).Skip(1).First();
+        var order0 = session.Query.All<Order>().OrderBy(o => o.Id).First();
+        var order1 = session.Query.All<Order>().OrderBy(o => o.Id).Skip(1).First();
         order0Key = order0.Key;
         employee0Key = order0.Employee.Key;
         order1Key = order1.Key;
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key orderKey;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var order = Query.All<Order>().OrderBy(o => o.Id).First();
+        var order = session.Query.All<Order>().OrderBy(o => o.Id).First();
         var newOrder = new Order {Employee = null, Customer = order.Customer};
         orderKey = newOrder.Key;
         tx.Complete();
@@ -345,8 +345,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key customer1Key;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        customer0Key = Query.All<Customer>().OrderBy(c => c.Id).First().Key;
-        customer1Key = Query.All<Customer>().OrderBy(c => c.Id).Skip(1).First().Key;
+        customer0Key = session.Query.All<Customer>().OrderBy(c => c.Id).First().Key;
+        customer1Key = session.Query.All<Customer>().OrderBy(c => c.Id).Skip(1).First().Key;
       }
 
       using (var session = Domain.OpenSession())
@@ -481,7 +481,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction())
-          Query.Single<Order>(orderKey);
+          session.Query.Single<Order>(orderKey);
 
         using (session.OpenTransaction()) {
           session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
@@ -503,7 +503,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var order = Query.Single<Order>(orderKey);
+        var order = session.Query.Single<Order>(orderKey);
         using (var nestedSession = Domain.OpenSession()) {
           using (session.OpenTransaction()) {
             var count = 0;
@@ -532,7 +532,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction())
-          Query.Single<Order>(orderKey);
+          session.Query.Single<Order>(orderKey);
         
         AssertEx.Throws<InvalidOperationException>(() => {
           session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
@@ -547,7 +547,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction())
-          Query.Single<Order>(orderKey);
+          session.Query.Single<Order>(orderKey);
 
         using (session.OpenTransaction()) {
           session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
@@ -563,7 +563,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction())
-          Query.Single<Order>(orderKey);
+          session.Query.Single<Order>(orderKey);
 
         AssertEx.Throws<InvalidOperationException>(() => {
           session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
@@ -578,7 +578,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction())
-          Query.Single<Order>(orderKey);
+          session.Query.Single<Order>(orderKey);
 
         using (session.OpenTransaction()) {
           session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
@@ -691,7 +691,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.IsNotNull(Query.Single<LazyClass>(key));
+        Assert.IsNotNull(session.Query.Single<LazyClass>(key));
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, IsFieldKeyOrSystem);
       }
     }
@@ -709,7 +709,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.IsNotNull(Query.Single<IdOnly>(key));
+        Assert.IsNotNull(session.Query.Single<IdOnly>(key));
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, IsFieldKeyOrSystem);
       }
     }
@@ -725,12 +725,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key order1Key;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        customer0Key = Query.All<Customer>().OrderBy(c => c.Id).First().Key;
-        customer1Key = Query.All<Customer>().OrderBy(c => c.Id).Skip(1).First().Key;
+        customer0Key = session.Query.All<Customer>().OrderBy(c => c.Id).First().Key;
+        customer1Key = session.Query.All<Customer>().OrderBy(c => c.Id).Skip(1).First().Key;
         var customer = new Customer {Age = 25, City = "A", Name = "B"};
         customer2Key = customer.Key;
-        order0Key = Query.All<Order>().OrderBy(o => o.Id).First().Key;
-        order1Key = Query.All<Order>().OrderBy(o => o.Id).Skip(1).First().Key;
+        order0Key = session.Query.All<Order>().OrderBy(o => o.Id).First().Key;
+        order1Key = session.Query.All<Order>().OrderBy(o => o.Id).Skip(1).First().Key;
         tx.Complete();
       }
 

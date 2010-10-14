@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
       BuildDomain("2", DomainUpgradeMode.Validate);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          Assert.AreEqual(1, Query.All<M2.Article>().Count());
+          Assert.AreEqual(1, session.Query.All<M2.Article>().Count());
         }
       }
     }
