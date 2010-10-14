@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Web.UI;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
@@ -117,27 +118,13 @@ namespace Xtensive.Storage.Linq
       using (state.CreateLambdaScope(le)) {
         Expression body = Visit(le.Body);
         ParameterExpression parameter = le.Parameters[0];
-        ProjectionExpression projection = context.Bindings[parameter];
         if (body.NodeType!=ExpressionType.New
           && body.NodeType!=ExpressionType.MemberInit
             && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection))
           body = body.IsProjection()
             ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
             : ProcessProjectionElement(body);
-        if (state.CalculatedColumns.Count > 0) {
-          RecordSet dataSource = projection.ItemProjector.DataSource.Calculate(
-            !state.BuildingProjection,
-            state.CalculatedColumns.ToArray());
-          var itemProjector = new ItemProjectorExpression(body, dataSource, context);
-          context.Bindings.ReplaceBound(parameter, new ProjectionExpression(
-            projection.Type,
-            state.BuildingProjection
-              ? itemProjector
-              : projection.ItemProjector.Remap(dataSource, 0),
-            projection.TupleParameterBindings,
-            projection.ResultType));
-          return itemProjector;
-        }
+        ProjectionExpression projection = context.Bindings[parameter];
         return new ItemProjectorExpression(body, projection.ItemProjector.DataSource, context);
       }
     }
@@ -775,11 +762,32 @@ namespace Xtensive.Storage.Linq
         var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
         var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type,
           (Expression<Func<Tuple, object>>) calculator);
-        state.CalculatedColumns.Add(ccd);
-        var parameter = state.Parameters[0];
-        var position = context.Bindings[parameter].ItemProjector.DataSource.Header.Length +
-          state.CalculatedColumns.Count - 1;
-        body = ColumnExpression.Create(originalBodyType, position);
+
+        ParameterExpression lambdaParameter = state.Parameters[0];
+        var oldResult = context.Bindings[lambdaParameter];
+        var isInlined = !state.BuildingProjection;
+
+        RecordSet dataSource = oldResult.ItemProjector.DataSource;
+        var columns = new List<CalculatedColumnDescriptor>();
+        if (!state.AddedCalculableColumn && dataSource.Provider is CalculateProvider && isInlined==((CalculateProvider) dataSource.Provider).IsInlined) {
+          var calculateProvider = ((CalculateProvider) dataSource.Provider);
+          var presentColumns = calculateProvider
+            .CalculatedColumns
+            .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression));
+          columns.AddRange(presentColumns);
+          dataSource = calculateProvider.Source.Result;
+        }
+        columns.Add(ccd);
+        dataSource = dataSource.Calculate(
+          !state.BuildingProjection,
+          columns.ToArray());
+
+        ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
+        var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
+        context.Bindings.ReplaceBound(lambdaParameter, newResult);
+
+        body = ColumnExpression.Create(originalBodyType, dataSource.Header.Length - 1);
+        state.AddedCalculableColumn = true;
       }
       return body;
     }
