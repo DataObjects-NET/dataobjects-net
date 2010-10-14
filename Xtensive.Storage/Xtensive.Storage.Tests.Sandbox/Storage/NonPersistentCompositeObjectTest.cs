@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage.NonPersistentCompositeObjectTestModel
   internal static class CustomLinqCompilerContainer
   {
     [Compiler(typeof (Container), "CompositeObject", TargetKind.PropertyGet)]
-    public static Expression FullName(Expression containerExpression)
+    public static Expression CompositeObject(Expression containerExpression)
     {
       Expression<Func<Container, CompositeObjectHandler>> ex = container => container.CompositeObjectHandler;
       return ex.BindParameters(containerExpression);
