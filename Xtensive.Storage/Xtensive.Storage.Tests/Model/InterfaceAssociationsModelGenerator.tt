@@ -2,6 +2,7 @@
 <#@ assembly name="System.Core.dll" #>
 <#@ import namespace="System.Linq" #>
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage;
 
@@ -96,10 +97,11 @@ if (shouldFail.Contains(i))	{
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(Model<#=i#>.Item).Assembly, typeof(Model<#=i#>.Item).Namespace);
       var domain = Domain.Build(config);
-
+      var key = (Key)null;
       using (var session = Session.Open(domain))
       using (var t = Transaction.Open()) {
         var document = new Model<#=i#>.Document();
+        key = document.Key;
         new Model<#=i#>.Item() { Document = document };
         new Model<#=i#>.Item() { Document = document };
         new Model<#=i#>.Item() { Document = document };
@@ -108,10 +110,52 @@ if (shouldFail.Contains(i))	{
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
-	      Assert.IsNotNull(item);
+          Assert.IsNotNull(item);
 	      itemCount++;
         }
         Assert.AreEqual(5, itemCount);
+        t.Complete();
+      }
+	  
+      using (var session = Session.Open(domain))
+      using (var t = Transaction.Open()) {
+        var document = Query.Single<Model<#=i#>.Document>(key);
+        var itemCount = 0;
+        Assert.AreEqual(5, document.Items.Count);
+        foreach (var item in document.Items) {
+          Assert.IsNotNull(item);
+          itemCount++;
+        }
+        Assert.AreEqual(5, itemCount);
+		
+        var some = document.Items.First();
+        some.Document = null;
+        itemCount = 0;
+        Assert.AreEqual(4, document.Items.Count);
+        foreach (var item in document.Items) {
+          Assert.IsNotNull(item);
+          itemCount++;
+        }
+        Assert.AreEqual(4, itemCount);
+        t.Complete();
+      }
+	  
+      using (var session = Session.Open(domain))
+      using (var t = Transaction.Open()) {
+        var document = Query.Single<Model<#=i#>.Document>(key);
+        var itemCount = 0;
+        Assert.AreEqual(4, document.Items.Count);
+        foreach (var item in document.Items) {
+          Assert.IsNotNull(item);
+          itemCount++;
+        }
+        Assert.AreEqual(4, itemCount);
+        
+        document.Remove();
+        var items = Query.All<Model<#=i#>.Item>().ToList();
+        Assert.AreEqual(1, items.Count);
+        
+        t.Complete();
       }
     }
 <#}#>

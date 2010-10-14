@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Model
   {
     private Multiplicity                multiplicity;
     private AssociationInfo             reversed;
+    private NodeCollection<AssociationInfo> ancestors;
     private TypeInfo                    auxiliaryType;
     private bool                        isMaster = true;
     private OnRemoveAction?             onTargetRemove;
@@ -59,6 +60,15 @@ namespace Xtensive.Storage.Model
         this.EnsureNotLocked();
         auxiliaryType = value;
       }
+    }
+
+    /// <summary>
+    /// Gets or sets ancestor association.
+    /// </summary>
+    /// <value>The ancestor.</value>
+    public NodeCollection<AssociationInfo> Ancestors
+    {
+      get { return ancestors; }
     }
 
     /// <summary>
@@ -203,7 +213,6 @@ namespace Xtensive.Storage.Model
             foreignKeyExtractor = OwnerField.valueExtractor;
           break;
         case Multiplicity.OneToMany:
-//          UnderlyingIndex = Reversed.OwnerType.Indexes.GetIndex(Reversed.OwnerField.Name);
           UnderlyingIndex = Reversed.OwnerField.DeclaringType.Indexes.GetIndex(Reversed.OwnerField.Name);
           break;
         case Multiplicity.ZeroToMany:
@@ -239,6 +248,7 @@ namespace Xtensive.Storage.Model
       Multiplicity = multiplicity;
       OnOwnerRemove = onOwnerRemove;
       OnTargetRemove = onTargetRemove;
+      ancestors = new NodeCollection<AssociationInfo>(this, "Ancestors");
     }
   }
 }

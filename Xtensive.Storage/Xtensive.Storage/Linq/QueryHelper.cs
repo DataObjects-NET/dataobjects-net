@@ -66,10 +66,10 @@ namespace Xtensive.Storage.Linq
         var whereExpression = Expression.Equal(
           Expression.Property(
             Expression.Property(whereParameter, association.Reversed.OwnerField.Name),
-            WellKnown.KeyFieldName),
+            WellKnownMembers.IEntityKey),
           Expression.Property(
             ownerEntity,
-            WellKnown.KeyFieldName)
+            WellKnownMembers.IEntityKey)
           );
         return Expression.Call(
           WellKnownMembers.Queryable.Where.MakeGenericMethod(elementType),

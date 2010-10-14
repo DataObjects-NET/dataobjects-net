@@ -223,6 +223,7 @@ namespace Xtensive.Storage.Building.Builders
             .ToList();
           if (pairedAssociations.Count > 0) {
             foreach (var paired in pairedAssociations) {
+              paired.First.Ancestors.AddRange(interfaceAssociations);
               if (paired.First.TargetType.IsInterface || context.TypesWithProcessedInheritedAssociations.Contains(paired.First.TargetType))
                 AssociationBuilder.BuildReversedAssociation(paired.First, paired.Second);
               else {
@@ -261,6 +262,14 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var association in associationsToRemove) {
           context.Model.Associations.Remove(association);
           refField.Associations.Remove(association);
+        }
+        foreach (var association in associationsToKeep) {
+          var interfaceAssociationsToRemove = interfaceAssociations
+            .Where(ia => ia.OwnerType != association.OwnerType)
+            .ToList();
+          association.Ancestors.AddRange(interfaceAssociationsToRemove);
+          foreach (var interfaceAssociation in interfaceAssociationsToRemove)
+            interfaceAssociations.Remove(interfaceAssociation);
         }
         refField.Associations.AddRange(interfaceAssociations);
       }

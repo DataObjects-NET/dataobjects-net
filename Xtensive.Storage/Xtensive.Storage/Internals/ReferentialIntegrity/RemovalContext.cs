@@ -17,7 +17,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private readonly RemovalProcessor processor;
     private readonly HashSet<Entity> processedEntities = new HashSet<Entity>();
     private readonly Queue<TypeInfo> types = new Queue<TypeInfo>();
-    private readonly Dictionary<TypeInfo, List<Entity>> queue = new Dictionary<TypeInfo, List<Entity>>();
+    private readonly Dictionary<TypeInfo, HashSet<Entity>> queue = new Dictionary<TypeInfo, HashSet<Entity>>();
     private readonly RemovalContext parent;
     private readonly List<Action> finalizers = new List<Action>();
 
@@ -29,6 +29,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
     public bool Contains(Entity entity)
     {
       if (processedEntities.Contains(entity))
+        return true;
+      HashSet<Entity> set;
+      if (queue.TryGetValue(entity.TypeInfo, out set) && set.Contains(entity))
         return true;
       return parent != null && parent.Contains(entity);
     }
@@ -63,12 +66,12 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
       else
         types.Enqueue(type);
-      List<Entity> list;
-      if (queue.TryGetValue(type, out list))
-        list.Add(entity);
+      HashSet<Entity> set;
+      if (queue.TryGetValue(type, out set))
+        set.Add(entity);
       else {
-        list = new List<Entity> {entity};
-        queue.Add(type, list);
+        set = new HashSet<Entity> {entity};
+        queue.Add(type, set);
       }
     }
 
@@ -82,12 +85,13 @@ namespace Xtensive.Storage.ReferentialIntegrity
         }
         else
           types.Enqueue(type);
-        List<Entity> list;
-        if (queue.TryGetValue(type, out list))
-          list.AddRange(group);
+        HashSet<Entity> set;
+        if (queue.TryGetValue(type, out set))
+          foreach (var entity in group)
+            set.Add(entity);
         else {
-          list = new List<Entity>(group);
-          queue.Add(type, list);
+          set = new HashSet<Entity>(group);
+          queue.Add(type, set);
         }
       }
     }

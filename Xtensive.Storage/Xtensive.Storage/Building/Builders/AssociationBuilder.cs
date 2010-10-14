@@ -72,6 +72,7 @@ namespace Xtensive.Storage.Building.Builders
       AssociationInfo existing;
       if (!context.Model.Associations.TryGetValue(association.Name, out existing)) {
         context.Model.Associations.Add(association);
+        association.Ancestors.AddRange(field.Associations);
         field.Associations.Add(association);
       }
     }
