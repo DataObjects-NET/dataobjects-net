@@ -116,6 +116,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       using (state.CreateLambdaScope(le)) {
+        state.AddedCalculableColumn = false;
         Expression body = Visit(le.Body);
         ParameterExpression parameter = le.Parameters[0];
         if (body.NodeType!=ExpressionType.New
