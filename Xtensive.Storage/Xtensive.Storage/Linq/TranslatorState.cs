@@ -17,68 +17,26 @@ namespace Xtensive.Storage.Linq
   internal sealed class TranslatorState
   {
       private readonly Translator translator;
-      private List<CalculatedColumnDescriptor> calculatedColumns;
-      private ParameterExpression[] parameters;
-      private ParameterExpression[] outerParameters;
-      private bool buildingProjection;
-      private bool calculateExpressions;
-      private LambdaExpression currentLambda;
-      private bool joinLocalCollectionEntity;
-      private IncludeAlgorithm includeAlgorithm = IncludeAlgorithm.Auto;
-    private bool setOperationProjection;
 
-    public IncludeAlgorithm IncludeAlgorithm
-      {
-        get { return includeAlgorithm; }
-        set { includeAlgorithm = value; }
-      }
+    public IncludeAlgorithm IncludeAlgorithm { get; set; }
 
-      public bool JoinLocalCollectionEntity
-      {
-        get { return joinLocalCollectionEntity; }
-        set { joinLocalCollectionEntity = value; }
-      }
+    public bool JoinLocalCollectionEntity { get; set; }
 
-      public List<CalculatedColumnDescriptor> CalculatedColumns
-      {
-        get { return calculatedColumns; }
-      }
+    public List<CalculatedColumnDescriptor> CalculatedColumns { get; private set; }
 
-      public ParameterExpression[] Parameters
-      {
-        get { return parameters; }
-        set { parameters = value; }
-      }
+    public ParameterExpression[] Parameters { get; set; }
 
-      public ParameterExpression[] OuterParameters
-      {
-        get { return outerParameters; }
-        set { outerParameters = value; }
-      }
+    public ParameterExpression[] OuterParameters { get; set; }
 
-      public bool BuildingProjection
-      {
-        get { return buildingProjection; }
-        set { buildingProjection = value; }
-      }
+    public bool BuildingProjection { get; set; }
 
-      public bool CalculateExpressions
-      {
-        get { return calculateExpressions; }
-        set { calculateExpressions = value; }
-      }
+    public bool CalculateExpressions { get; set; }
 
-      public LambdaExpression CurrentLambda
-      {
-        get { return currentLambda; }
-        set { currentLambda = value; }
-      }
+    public LambdaExpression CurrentLambda { get; set; }
 
-      public bool SetOperationProjection
-      {
-        get { return setOperationProjection; }
-        set { setOperationProjection = value; }
-      }
+    public bool SetOperationProjection { get; set; }
+
+    public bool IsTailMethod { get; set; }
 
     public IDisposable CreateScope()
       {
@@ -92,11 +50,12 @@ namespace Xtensive.Storage.Linq
       {
         var currentState = translator.state;
         var newState = new TranslatorState(currentState);
-        newState.outerParameters = newState.outerParameters.Concat(newState.parameters).ToArray();
-        newState.parameters = Enumerable.ToArray(le.Parameters);
-        newState.calculatedColumns = new List<CalculatedColumnDescriptor>();
-        newState.currentLambda = le;
-        newState.includeAlgorithm = includeAlgorithm;
+        newState.OuterParameters = newState.OuterParameters.Concat(newState.Parameters).ToArray();
+        newState.Parameters = Enumerable.ToArray(le.Parameters);
+        newState.CalculatedColumns = new List<CalculatedColumnDescriptor>();
+        newState.CurrentLambda = le;
+        newState.IncludeAlgorithm = IncludeAlgorithm;
+        newState.IsTailMethod = IsTailMethod;
         translator.state = newState;
         return new Disposable(_ => translator.state = currentState);
       }
@@ -106,24 +65,27 @@ namespace Xtensive.Storage.Linq
 
       public TranslatorState(Translator translator)
       {
+        IncludeAlgorithm = IncludeAlgorithm.Auto;
         this.translator = translator;
-        buildingProjection = true;
-        outerParameters = parameters = ArrayUtils<ParameterExpression>.EmptyArray;
-        calculatedColumns = new List<CalculatedColumnDescriptor>();
+        BuildingProjection = true;
+        IsTailMethod = true;
+        OuterParameters = Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
+        CalculatedColumns = new List<CalculatedColumnDescriptor>();
       }
 
       private TranslatorState(TranslatorState currentState)
       {
         translator = currentState.translator;
-        calculatedColumns = currentState.calculatedColumns;
-        parameters = currentState.parameters;
-        outerParameters = currentState.outerParameters;
-        calculateExpressions = currentState.calculateExpressions;
-        buildingProjection = currentState.buildingProjection;
-        currentLambda = currentState.currentLambda;
-        joinLocalCollectionEntity = currentState.joinLocalCollectionEntity;
-        includeAlgorithm = currentState.includeAlgorithm;
-        setOperationProjection = currentState.setOperationProjection;
+        CalculatedColumns = currentState.CalculatedColumns;
+        Parameters = currentState.Parameters;
+        OuterParameters = currentState.OuterParameters;
+        CalculateExpressions = currentState.CalculateExpressions;
+        BuildingProjection = currentState.BuildingProjection;
+        CurrentLambda = currentState.CurrentLambda;
+        JoinLocalCollectionEntity = currentState.JoinLocalCollectionEntity;
+        IncludeAlgorithm = currentState.IncludeAlgorithm;
+        IsTailMethod = currentState.IsTailMethod;
+        SetOperationProjection = currentState.SetOperationProjection;
       }
   }
 }

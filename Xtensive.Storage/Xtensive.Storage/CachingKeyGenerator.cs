@@ -40,12 +40,12 @@ namespace Xtensive.Storage
     protected Queue<TKeyType> CachedKeys { get; private set; }
 
     /// <inheritdoc/>
-    public override Tuple Next(bool temporaryKey)
+    public override Tuple TryGenerateKey(bool temporaryKey)
     {
       if (temporaryKey)
-        return base.Next(true);
+        return base.TryGenerateKey(true);
       if (!WellKnown.SupportedIntegerTypes.Contains(typeof(TKeyType)))
-        return base.Next(false);
+        return base.TryGenerateKey(false);
       var result = TuplePrototype.CreateNew();
       lock (SyncRoot) {
         if (CachedKeys.Count==0) {
