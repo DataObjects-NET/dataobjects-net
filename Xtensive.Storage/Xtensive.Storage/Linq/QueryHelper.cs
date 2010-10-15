@@ -60,16 +60,16 @@ namespace Xtensive.Storage.Linq
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, Log.Instance);
 
       var elementType = field.ItemType;
-      var association = field.Association;
+      var association = field.Associations.Last();
       if (association.Multiplicity == Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
         var whereExpression = Expression.Equal(
           Expression.Property(
             Expression.Property(whereParameter, association.Reversed.OwnerField.Name),
-            WellKnown.KeyFieldName),
+            WellKnownMembers.IEntityKey),
           Expression.Property(
             ownerEntity,
-            WellKnown.KeyFieldName)
+            WellKnownMembers.IEntityKey)
           );
         return Expression.Call(
           WellKnownMembers.Queryable.Where.MakeGenericMethod(elementType),
@@ -79,9 +79,6 @@ namespace Xtensive.Storage.Linq
       }
 
       var connectorType = association.AuxiliaryType.UnderlyingType;
-      var referencedType = association.IsMaster
-        ? association.OwnerType
-        : association.TargetType;
       var referencingField = association.IsMaster
         ? association.AuxiliaryType.Fields[WellKnown.SlaveFieldName]
         : association.AuxiliaryType.Fields[WellKnown.MasterFieldName];

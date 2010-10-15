@@ -475,9 +475,10 @@ namespace Xtensive.Storage
           SystemBeforeAdd(item);
 
           int? index = null;
+          var association = Field.GetAssociation(item.TypeInfo);
           Action finalizer = () => {
-            var auxiliaryType = Field.Association.AuxiliaryType;
-            if (auxiliaryType!=null && Field.Association.IsMaster) {
+            var auxiliaryType = association.AuxiliaryType;
+            if (auxiliaryType!=null && association.IsMaster) {
               var combinedTuple = auxilaryTypeKeyTransform.Apply(
                 TupleTransformType.Tuple,
                 Owner.Key.Value,
@@ -498,9 +499,9 @@ namespace Xtensive.Storage
           };
           
           operations.NotifyOperationStarting();
-          if (Field.Association.IsPaired)
+          if (association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(syncContext, removalContext, 
-              OperationType.Add, Field.Association, Owner, item, finalizer);
+              OperationType.Add, association, Owner, item, finalizer);
           else
             finalizer.Invoke();
 
@@ -542,9 +543,10 @@ namespace Xtensive.Storage
           SystemBeforeRemove(item);
 
           int? index = null;
+          var association = Field.GetAssociation(item.TypeInfo);
           Action finalizer = () => {
-            var auxiliaryType = Field.Association.AuxiliaryType;
-            if (auxiliaryType != null && Field.Association.IsMaster) {
+            var auxiliaryType = association.AuxiliaryType;
+            if (auxiliaryType != null && association.IsMaster) {
               var combinedTuple = auxilaryTypeKeyTransform.Apply(
                 TupleTransformType.Tuple,
                 Owner.Key.Value,
@@ -565,9 +567,9 @@ namespace Xtensive.Storage
           };
 
           operations.NotifyOperationStarting();
-          if (Field.Association.IsPaired)
+          if (association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
-              OperationType.Remove, Field.Association, Owner, item, finalizer);
+              OperationType.Remove, association, Owner, item, finalizer);
           else
             finalizer.Invoke();
 
@@ -769,7 +771,7 @@ namespace Xtensive.Storage
 
       // association check
       if (item != null) {
-        var association = Field.Association;
+        var association = Field.GetAssociation(item.TypeInfo);
         if (association.IsPaired && association.Multiplicity.In(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
           var candidate = (IEntity)item.GetFieldValue(association.Reversed.OwnerField);
           return candidate == Owner;
@@ -816,12 +818,13 @@ namespace Xtensive.Storage
     {
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
-      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
-      var ownerDescriptor = field.Association.OwnerType.Key.TupleDescriptor;
-      var targetDescriptor = field.Association.TargetType.Key.TupleDescriptor;
+      var association = field.Associations.Last();
+      var seek = association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
+      var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
+      var targetDescriptor = association.TargetType.Key.TupleDescriptor;
 
-      var itemColumnOffsets = field.Association.AuxiliaryType == null
-        ? field.Association.UnderlyingIndex.ValueColumns
+      var itemColumnOffsets = association.AuxiliaryType == null
+        ? association.UnderlyingIndex.ValueColumns
             .Where(ci => ci.IsPrimaryKey)
             .Select(ci => ci.Field.MappingInfo.Offset)
             .ToList()
@@ -836,9 +839,9 @@ namespace Xtensive.Storage
         .ToArray();
       var seekTransform = new MapTransform(true, keyDescriptor, map);
       Func<Tuple, Entity> itemCtor = null;
-      if (field.Association.AuxiliaryType!=null)
+      if (association.AuxiliaryType!=null)
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
-          field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
+          association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
           ArrayUtils<Type>.EmptyArray);
       return new EntitySetTypeState(seek, seekTransform, itemCtor,entitySet.GetItemCountQueryDelegate(field));
     }
@@ -906,7 +909,8 @@ namespace Xtensive.Storage
       this.owner = owner;
       Field = field;
       State = new EntitySetState(this);
-      if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+      var association = Field.Associations.Last();
+      if (association.AuxiliaryType != null && association.IsMaster) {
         var itemType =  Field.ItemType.GetTypeInfo(Session.Domain);
         auxilaryTypeKeyTransform = new CombineTransform(
           false, 

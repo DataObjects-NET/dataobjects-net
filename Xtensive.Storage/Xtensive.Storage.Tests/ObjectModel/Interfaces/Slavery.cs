@@ -37,14 +37,14 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
 
   [Serializable]
   [HierarchyRoot]
-  public class Slave : Entity, ISlave<Master>
+  public class Slave : Entity, ISlave<IMaster<Slave>>
   {
     [Field,Key]
     public long Id { get; private set; }
 
     public IMaster Master { get; set;}
 
-    public Master XMaster { get; set;}
+    public IMaster<Slave> XMaster { get; set;}
    
   }
 

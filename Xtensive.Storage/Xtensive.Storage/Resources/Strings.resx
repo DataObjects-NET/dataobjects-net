@@ -426,8 +426,8 @@
   <data name="ExAssociationMultiplicityIsNotValidForField" xml:space="preserve">
     <value>Association multiplicity '{0}' is not valid for field '{1}'.</value>
   </data>
-  <data name="ExMasterAssociationIsAlreadyPaired" xml:space="preserve">
-    <value>Master association '{0}' is already paired with '{1}'.</value>
+  <data name="ExFieldXYIsAlreadyPairedWithABRemoveCD" xml:space="preserve">
+    <value>Field '{0}.{1}' is already paired with '{2}.{3}'. Please remove [Association] attribute at '{4}.{5}'.</value>
   </data>
   <data name="ExUnableToActivateEntitySetWithoutAssociation" xml:space="preserve">
     <value>Unable to activate EntitySet for '{0}' field because it does not has association.</value>
@@ -1423,11 +1423,11 @@ SessionOptions.AllowSwitching flag to avoid this exception, if this is intention
   <data name="LogSkippingSchemaSynchronization" xml:space="preserve">
     <value>Skipping schema synchronization.</value>
   </data>
-  <data name="ExPairedFieldForFieldXYShouldBeAssignableToTypeZ" xml:space="preserve">
-    <value>Paired field for field '{0}.{1}' should be assignable to type '{2}'.</value>
+  <data name="ExXYFieldPairedToZAFieldShouldBeBButCurrentIsC" xml:space="preserve">
+    <value>'{0}.{1}' field, which is declared as paired to '{2}.{3}' field, should be of type '{4}' but actually it is '{5}'.</value>
   </data>
-  <data name="PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ" xml:space="preserve">
-    <value>Paired field for field '{0}.{1}' should be EntitySet of type assignable to '{2}'.</value>
+  <data name="ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC" xml:space="preserve">
+    <value>'{0}.{1}' field, which is declared as paired to '{2}.{3}' field, should be 'EntitySet&lt;{4}&gt;' but it is 'EntitySet&lt;{5}&gt;'.</value>
   </data>
   <data name="ExConnectionInfoIsMissing" xml:space="preserve">
     <value>ConnectionInfo is missing. If you are using configuration file you should specify either 'connectionUrl' element or 'connectionString' and 'provider' elements</value>

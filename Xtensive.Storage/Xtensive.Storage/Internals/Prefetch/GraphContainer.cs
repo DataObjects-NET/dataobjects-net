@@ -153,16 +153,17 @@ namespace Xtensive.Storage.Internals.Prefetch
     private void RegisterFetchByKnownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor,
       EntityState ownerState)
     {
-      var referencedKeyTuple = referencingFieldDescriptor.Field.Association
+      var association = referencingFieldDescriptor.Field.Associations.Last();
+      var referencedKeyTuple = association
         .ExtractForeignKey(ownerState.Type, ownerState.Tuple);
       var referencedKeyTupleState = referencedKeyTuple.GetFieldStateMap(TupleFieldState.Null);
       for (var i = 0; i < referencedKeyTupleState.Length; i++)
         if (referencedKeyTupleState[i])
           return;
       var referencedKey = Key.Create(manager.Owner.Session.Domain,
-        referencingFieldDescriptor.Field.Association.TargetType, TypeReferenceAccuracy.BaseType,
+        association.TargetType, TypeReferenceAccuracy.BaseType,
         referencedKeyTuple);
-      var targetType = referencingFieldDescriptor.Field.Association.TargetType;
+      var targetType = association.TargetType;
       var areToNotifyOwner = true;
       TypeInfo exactReferencedType;
       var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(referencedKey, manager,
