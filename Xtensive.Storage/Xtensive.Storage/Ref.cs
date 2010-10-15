@@ -168,7 +168,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="key">The formatted key of entity this reference points to.</param>
+    /// <param name="formattedKey">The formatted key of entity this reference points to.</param>
     public Ref(string formattedKey)
     {
       keyOrString = formattedKey;
@@ -177,7 +177,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="key">The entity this reference points to.</param>
+    /// <param name="entity">The entity this reference points to.</param>
     public Ref(T entity)
     {
       if (entity==null)
