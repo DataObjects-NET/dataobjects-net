@@ -5,11 +5,14 @@
 // Created:    2007.09.10
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Sorting;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 
@@ -35,24 +38,24 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public const int MinFieldId = 1;
 
-    private PropertyInfo                  underlyingProperty;
-    private Type                          valueType;
-    private int?                          length;
-    private int?                          scale;
-    private int?                          precision;
-    private object                        defaultValue;
-    private TypeInfo                      reflectedType;
-    private TypeInfo                      declaringType;
-    private FieldInfo                     parent;
-    private ColumnInfo                    column;
-    private AssociationInfo               association;
-    private Type                          itemType;
-    private string                        originalName;
-    internal SegmentTransform             valueExtractor;
-    private int                           adapterIndex = -1;
-    private ColumnInfoCollection          columns;
-    private int                           fieldId;
-    private int?                          cachedHashCode;
+    private PropertyInfo                    underlyingProperty;
+    private Type                            valueType;
+    private int?                            length;
+    private int?                            scale;
+    private int?                            precision;
+    private object                          defaultValue;
+    private TypeInfo                        reflectedType;
+    private TypeInfo                        declaringType;
+    private FieldInfo                       parent;
+    private ColumnInfo                      column;
+    private NodeCollection<AssociationInfo> associations;
+    private Type                            itemType;
+    private string                          originalName;
+    internal SegmentTransform               valueExtractor;
+    private int                             adapterIndex = -1;
+    private ColumnInfoCollection            columns;
+    private int                             fieldId;
+    private int?                            cachedHashCode;
     
     #region IsXxx properties
 
@@ -443,7 +446,7 @@ namespace Xtensive.Storage.Model
         IsPrimaryKey = value.IsPrimaryKey;
         if (value.IsEntity)
           IsNullable = value.IsNullable;
-        association = value.association;
+//        associations = value.associations;
         itemType = value.itemType;
       }
     }
@@ -495,14 +498,32 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets the field association.
     /// </summary>
-    public AssociationInfo Association {
-      [DebuggerStepThrough]
-      get { return association; }
-      [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked();
-        association = value;
-      }
+    /// <param name="targetType"></param>
+    public AssociationInfo GetAssociation(TypeInfo targetType)
+    {
+      if (associations.Count == 0)
+        return null;
+
+      if (associations.Count == 1)
+        return associations[0];
+
+      var ordered = IsLocked
+        ? associations
+        : ReorderAssociations(associations);
+
+      return ordered.FirstOrDefault(
+        a => a.TargetType.UnderlyingType.IsAssignableFrom(targetType.UnderlyingType));
+    }
+
+    private static IEnumerable<AssociationInfo> ReorderAssociations(IEnumerable<AssociationInfo> origin)
+    {
+      return TopologicalSorter.Sort(origin,
+        (f, s) => s.TargetType != f.TargetType && s.TargetType.UnderlyingType.IsAssignableFrom(f.TargetType.UnderlyingType));
+    }
+
+    public NodeCollection<AssociationInfo> Associations
+    {
+      get { return associations; }
     }
 
     /// <summary>
@@ -576,6 +597,12 @@ namespace Xtensive.Storage.Model
       Fields.Lock(true);
       if (column!=null) 
         column.Lock(true);
+      if (associations.Count > 1) {
+        var sorted = ReorderAssociations(associations);
+        associations = new NodeCollection<AssociationInfo>(associations.Owner, associations.Name);
+        associations.AddRange(sorted);
+      }
+      associations.Lock(false);
     }
 
     private void CreateMappingInfo()
@@ -680,9 +707,9 @@ namespace Xtensive.Storage.Model
           scale = scale,
           precision = precision,
           defaultValue = defaultValue,
-          association = association,
           DeclaringField = DeclaringField
         };
+      clone.Associations.AddRange(associations);
       return clone;
     }
 
@@ -710,6 +737,7 @@ namespace Xtensive.Storage.Model
       Fields = IsEntity || IsStructure 
         ? new FieldInfoCollection(this, "Fields") 
         : FieldInfoCollection.Empty;
+      associations = new NodeCollection<AssociationInfo>(this, "Associations");
     }
   }
 }

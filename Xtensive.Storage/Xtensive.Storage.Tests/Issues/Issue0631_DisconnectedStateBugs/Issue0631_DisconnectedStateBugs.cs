@@ -89,15 +89,11 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
             using (ds.Connect()) {
               var doc = session.Query.All<TestEntity>().Where(f => f.Integer == 1).Single();
               // Must throw an exception, since there is no real entity
-              AssertEx.Throws<InvalidOperationException>(() => {
-                doc.OwnedItems.Single(a => a.Id==guidD);
-              });
+              AssertEx.Throws<InvalidOperationException>(() => doc.OwnedItems.Single(a => a.Id==guidD));
               
               var dItem = doc.OwnedItems.ToList().Single(a => a.Id == guidD);
               // Must throw an exception, because OnRemoveAction on TestEntity.OwnedItems is Deny (default)
-              AssertEx.Throws<ReferentialIntegrityException>(() => {
-                dItem.Remove();
-              });
+              AssertEx.Throws<ReferentialIntegrityException>(dItem.Remove);
               doc.OwnedItems.Remove(dItem);
               dItem.Remove();
               
@@ -142,9 +138,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
                 .Single();
 
               // Must throw an exception, since there is no real entity
-              AssertEx.Throws<InvalidOperationException>(() => {
-                session.Query.All<OwnedEntity>().Single(a => a.Id==guidC);
-              });
+                Query.All<OwnedEntity>().Single(a => a.Id==guidC);
 
               // But it esxists in EntitySet
               Assert.AreEqual(session.Query.Single<OwnedEntity>(guidB).Name, "b");

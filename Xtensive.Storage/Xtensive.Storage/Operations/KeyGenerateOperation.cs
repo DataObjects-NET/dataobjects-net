@@ -5,6 +5,7 @@
 // Created:    2010.02.15
 
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
@@ -64,10 +65,10 @@ namespace Xtensive.Storage.Operations
           columnIndex++;
         }
         else {
-          var componentKeyValue = Tuple
-            .Create(keyField.Association.TargetType.Key.TupleDescriptor);
+          var association = keyField.Associations.Last();
+          var componentKeyValue = Tuple.Create(association.TargetType.Key.TupleDescriptor);
           sourceTuple.CopyTo(componentKeyValue, columnIndex, keyField.MappingInfo.Length);
-          var componentKey = Key.Create(domain, keyField.Association.TargetType.UnderlyingType,
+          var componentKey = Key.Create(domain, association.TargetType.UnderlyingType,
             componentKeyValue);
           var componentKeyLength = componentKey.Value.Count;
           Key mappedKey;

@@ -87,8 +87,9 @@ namespace Xtensive.Storage.Building.Builders
       ProcessIndexed(fieldDef, attribute);
     }
 
-    public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
+    public static void Process(FieldDef fieldDef, AssociationAttribute[] attributes)
     {
+      var attribute = attributes[0];
       if (fieldDef.IsPrimitive || fieldDef.IsStructure) {
         if (!attribute.PairTo.IsNullOrEmpty())
           throw new DomainBuilderException(

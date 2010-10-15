@@ -1252,15 +1252,6 @@ namespace Xtensive.Storage.Linq
       ParameterExpression lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var dataSource = oldResult.ItemProjector.DataSource;
-
-      // Process calculable columns
-      if (state.CalculatedColumns.Count>0) {
-        dataSource = oldResult.ItemProjector.DataSource.Calculate(
-          !state.BuildingProjection,
-          state.CalculatedColumns.ToArray());
-        state.CalculatedColumns.Clear();
-      }
-
       var applyParameter = context.GetApplyParameter(oldResult.ItemProjector.DataSource);
       int columnIndex = dataSource.Header.Length;
       var newRecordSet = dataSource.Apply(

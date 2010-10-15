@@ -185,9 +185,10 @@ namespace Xtensive.Storage.Tests.Issues
     private EventHandler<EntityFieldValueSetEventArgs> CreateEntityFieldSetHandler(string description, Direction direction)
     {
       return (sender, e) => {
-        if (e.Field.Association == null)
+        var association = e.Field.Associations.LastOrDefault();
+        if (association == null)
           return;
-        CheckDirection(e.Field.Association, e.Entity, (Entity)e.NewValue, direction, 
+        CheckDirection(association, e.Entity, (Entity)e.NewValue, direction, 
           "{0}, Field = {1}, Entity = {2}, Value = {3}".FormatWith(description,
             e.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.NewValue));
       };
@@ -196,9 +197,10 @@ namespace Xtensive.Storage.Tests.Issues
     private EventHandler<EntityFieldValueEventArgs> CreateEntityFieldSettingHandler(string description, Direction direction)
     {
       return (sender, e) => {
-        if (e.Field.Association==null)
+        var association = e.Field.Associations.LastOrDefault();
+        if (association==null)
           return;
-        CheckDirection(e.Field.Association, e.Entity, (Entity)e.Value, direction, 
+        CheckDirection(association, e.Entity, (Entity)e.Value, direction, 
           "{0}, Field = {1}, Entity = {2}, Value = {3}".FormatWith(description,
             e.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.Value));
       };
@@ -207,9 +209,9 @@ namespace Xtensive.Storage.Tests.Issues
     private EventHandler<EntitySetItemEventArgs> CreateEntitySetItemHandler(string description, Direction direction)
     {
       return (sender, e) => {
-        if (e.Field.Association == null)
+        if (e.Field.Associations.LastOrDefault() == null)
           return;
-        CheckDirection(e.EntitySet.Field.Association, e.Entity, e.Item, direction,
+        CheckDirection(e.EntitySet.Field.GetAssociation(e.Item.TypeInfo), e.Entity, e.Item, direction,
           "{0}, Field = {1}, Owner = {2}, Item = {3}".FormatWith(description, 
             e.EntitySet.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.Item));
       };

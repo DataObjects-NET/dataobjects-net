@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
@@ -66,7 +67,8 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private Tuple ExtractForeignKeyTuple(EntityState ownerState)
     {
-      var result = ReferencingField.Association.ExtractForeignKey(ownerState.Type, ownerState.Tuple);
+      var association = ReferencingField.Associations.Last();
+      var result = association.ExtractForeignKey(ownerState.Type, ownerState.Tuple);
       var tupleState = result.GetFieldStateMap(TupleFieldState.Null);
       for (int i = 0; i < result.Count; i++) {
         if (!result.GetFieldState(i).IsAvailable())
@@ -117,7 +119,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public ReferencedEntityContainer(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
       bool isOwnerTypeKnown, PrefetchManager manager)
-      : base(null, referencingFieldDescriptor.Field.Association.TargetType, true, manager)
+      : base(null, referencingFieldDescriptor.Field.Associations.Last().TargetType, true, manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");

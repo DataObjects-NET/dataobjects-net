@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Linq
 
     public bool JoinLocalCollectionEntity { get; set; }
 
-    public List<CalculatedColumnDescriptor> CalculatedColumns { get; private set; }
+    public bool AddedCalculableColumn { get; set; }
 
     public ParameterExpression[] Parameters { get; set; }
 
@@ -51,8 +51,7 @@ namespace Xtensive.Storage.Linq
         var currentState = translator.state;
         var newState = new TranslatorState(currentState);
         newState.OuterParameters = newState.OuterParameters.Concat(newState.Parameters).ToArray();
-        newState.Parameters = Enumerable.ToArray(le.Parameters);
-        newState.CalculatedColumns = new List<CalculatedColumnDescriptor>();
+        newState.Parameters = le.Parameters.ToArray();
         newState.CurrentLambda = le;
         newState.IncludeAlgorithm = IncludeAlgorithm;
         newState.IsTailMethod = IsTailMethod;
@@ -70,19 +69,18 @@ namespace Xtensive.Storage.Linq
         BuildingProjection = true;
         IsTailMethod = true;
         OuterParameters = Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
-        CalculatedColumns = new List<CalculatedColumnDescriptor>();
       }
 
       private TranslatorState(TranslatorState currentState)
       {
         translator = currentState.translator;
-        CalculatedColumns = currentState.CalculatedColumns;
         Parameters = currentState.Parameters;
         OuterParameters = currentState.OuterParameters;
         CalculateExpressions = currentState.CalculateExpressions;
         BuildingProjection = currentState.BuildingProjection;
         CurrentLambda = currentState.CurrentLambda;
         JoinLocalCollectionEntity = currentState.JoinLocalCollectionEntity;
+        AddedCalculableColumn = currentState.AddedCalculableColumn;
         IncludeAlgorithm = currentState.IncludeAlgorithm;
         IsTailMethod = currentState.IsTailMethod;
         SetOperationProjection = currentState.SetOperationProjection;
