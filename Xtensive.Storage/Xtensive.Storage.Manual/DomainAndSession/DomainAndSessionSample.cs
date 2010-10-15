@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
         using (var transactionScope = session.OpenTransaction()) {
 
           var newPerson = new Person();
-          var fetchedPerson = Query.Single<Person>(personId);
+          var fetchedPerson = session.Query.Single<Person>(personId);
 
           Console.WriteLine("Our session is current: {0}", Session.Current==session);
           Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);

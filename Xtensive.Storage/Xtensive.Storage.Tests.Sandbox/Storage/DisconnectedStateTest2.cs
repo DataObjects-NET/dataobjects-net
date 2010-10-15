@@ -85,13 +85,13 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          var book = Query.All<Book>().SingleOrDefault();
+          var book = session.Query.All<Book>().SingleOrDefault();
           var book2 = new Book() { Title = "Book2" };
           Assert.IsNotNull(book);
           Assert.IsNotNull(book2);
           ds.ApplyChanges();
         }
-        Assert.AreEqual(2, Query.All<Book>().Count());
+        Assert.AreEqual(2, session.Query.All<Book>().Count());
         // tx.Complete();
       }
     }
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          book = Query.All<Book>().SingleOrDefault();
+          book = session.Query.All<Book>().SingleOrDefault();
           book2 = new Book() { Title = "Book2" };
           book.BookRef.Book = book2;
           Assert.AreEqual(book2, book.BookRef.Book);
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           Assert.AreEqual(book, book.BookRef.Book);
           ds.ApplyChanges();
         }
-        Assert.AreEqual(2, Query.All<Book>().Count());
+        Assert.AreEqual(2, session.Query.All<Book>().Count());
         Assert.AreEqual(book, book.BookRef.Book);
         // tx.Complete();
       }
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
         Key bookKey1;
         Key bookKey2;
         using (var tx2 = session.OpenTransaction(TransactionOpenMode.New)) {
-          var book1 = Query.All<Book>().SingleOrDefault();
+          var book1 = session.Query.All<Book>().SingleOrDefault();
           bookKey1 = book1.Key;
           var book2 = new Book() {Title = "Book2"};
           bookKey2 = book2.Key;
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           // tx2.Complete(); // Rollback
         }
 
-        Assert.IsNull(Query.SingleOrDefault(bookKey2));
+        Assert.IsNull(session.Query.SingleOrDefault(bookKey2));
         Assert.AreEqual(1, ds.Versions.Count);
         Assert.AreEqual(1, ds.AllPersistenceStates().Count());
         Assert.AreEqual(1, ds.All<Book>().Count());
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       using (var tx = session.OpenTransaction()) {
         using (ds.Attach(session))
         using (ds.Connect()) {
-          var book = Query.All<Book>().First();
+          var book = session.Query.All<Book>().First();
           book.Title += " Changed";
           ds.ApplyChanges();
           book.Title += " Changed";
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
         Assert.AreEqual(bookKey, book.Key);
         Assert.AreEqual(book.Title, NewBookTitle);
         Assert.IsFalse(book.IsRemoved);
-        Assert.AreSame(book, Query.Single(bookKey));
+        Assert.AreSame(book, session.Query.Single(bookKey));
         // tx.Complete();
       }
     }
@@ -247,7 +247,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
             Assert.AreEqual(bookKey, book.Key);
             Assert.AreEqual(book.Title, NewBookTitle);
             Assert.IsFalse(book.IsRemoved);
-            Assert.AreSame(book, Query.Single(bookKey));
+            Assert.AreSame(book, session.Query.Single(bookKey));
           }
         }
         // tx.Complete();
@@ -272,7 +272,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           Assert.AreEqual(bookKey, book.Key);
           Assert.AreEqual(book.Title, NewBookTitle);
           Assert.IsFalse(book.IsRemoved);
-          Assert.AreSame(book, Query.Single(bookKey));
+          Assert.AreSame(book, session.Query.Single(bookKey));
         }
         TransactionalExtensions.InvokeTransactionally(() => book.Remove(), session);
       }
@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
         Assert.AreEqual(bookKey, book.Key);
         Assert.AreEqual(book.Title, NewBookTitle);
         Assert.IsFalse(book.IsRemoved);
-        Assert.AreSame(book, Query.Single(bookKey));
+        Assert.AreSame(book, session.Query.Single(bookKey));
         // tx.Complete();
       }
     }
@@ -324,7 +324,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
             Assert.AreEqual(bookKey, book.Key);
             Assert.AreEqual(book.Title, NewBookTitle);
             Assert.IsFalse(book.IsRemoved);
-            Assert.AreSame(book, Query.Single(bookKey));
+            Assert.AreSame(book, session.Query.Single(bookKey));
           }
         }
         // tx.Complete();
@@ -349,7 +349,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           Assert.AreEqual(bookKey, book.Key);
           Assert.AreEqual(book.Title, NewBookTitle);
           Assert.IsFalse(book.IsRemoved);
-          Assert.AreSame(book, Query.Single(bookKey));
+          Assert.AreSame(book, session.Query.Single(bookKey));
         }
         TransactionalExtensions.InvokeTransactionally(() => book.Remove(), session);
       }

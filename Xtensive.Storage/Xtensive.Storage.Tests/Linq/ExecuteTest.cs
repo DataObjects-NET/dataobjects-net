@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NonGenericTest()
     {
-      var query = Query.All<Order>().Where(o => o.Freight > 5);
+      var query = Session.Query.All<Order>().Where(o => o.Freight > 5);
       var nonGenericQuery = (IQueryable) query;
       foreach (var item in nonGenericQuery) {
         Assert.IsNotNull(item);
@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.IsNotNull(order);
       }
 
-      query = Query.All<Order>();
+      query = Session.Query.All<Order>();
       nonGenericQuery = query;
       foreach (var item in nonGenericQuery) {
         Assert.IsNotNull(item);
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.IsNotNull(order);
       }
 
-      query = Query.All<Order>().Where(o => o.Freight > 5);
+      query = Session.Query.All<Order>().Where(o => o.Freight > 5);
       nonGenericQuery = (IQueryable) query;
       result = provider.Execute(nonGenericQuery.Expression);
       enumerable = (IEnumerable) result;

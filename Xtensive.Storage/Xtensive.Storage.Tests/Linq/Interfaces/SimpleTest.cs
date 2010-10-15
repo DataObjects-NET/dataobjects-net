@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void QueryTest()
     {
-      var result = Query.All<IHasFreight>();
+      var result = Session.Query.All<IHasFreight>();
       var list = result.ToList();
       Assert.AreEqual(830, list.Count);
       Assert.IsTrue(list.All(i => i != null));
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     public void QueryUnknownTypeDynamicTest()
     {
       var type = typeof (Order);
-      var queryable = Query.All(type);
+      var queryable = Session.Query.All(type);
       var result = new List<DTO>();
       var anonyms = queryable.Select("new(Freight as Freight)");
       foreach (dynamic anonym in anonyms)
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     public void QueryOfUnknownTypeCastTest()
     {
       var type = typeof(Order);
-      var queryable = Query.All(type);
+      var queryable = Session.Query.All(type);
       var result = queryable.Cast<IHasFreight>()
         .Select(i => new DTO() {Freight = i.Freight})
         .ToList();
@@ -62,12 +62,12 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     public void ComplexQueryOfUnknownTypeTest()
     {
       var type = typeof(Order);
-      var queryable = Query.All(type);
+      var queryable = Session.Query.All(type);
       var result = queryable.Cast<IHasFreight>()
         .Select(i => new {
           i, 
           c1 = queryable.Count(),
-          c2 = Query.All(type).Count()
+          c2 = Session.Query.All(type).Count()
         })
         .ToList();
 
@@ -82,8 +82,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void QueryByInterfaceTest()
     {
-      var actual = Query.All<IHasFreight>().ToList();
-      var expected = Query.All<Order>().ToList();
+      var actual = Session.Query.All<IHasFreight>().ToList();
+      var expected = Session.Query.All<Order>().ToList();
       Assert.AreEqual(0, expected.Except(actual.Cast<Order>()).Count());
     }
   }

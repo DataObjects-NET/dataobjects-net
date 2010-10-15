@@ -113,8 +113,7 @@ namespace Xtensive.Storage.Linq.Expressions
         .Select(c => FieldExpression.CreateField(c.Field, offset))
         .ToList()
         .AsReadOnly();
-      return new KeyExpression(entityType, fields, mapping,
-                               entityType.UnderlyingType.GetProperty(WellKnown.KeyFieldName, typeof(Key)), null, false);
+      return new KeyExpression(entityType, fields, mapping,WellKnownMembers.IEntityKey, null, false);
     }
 
 

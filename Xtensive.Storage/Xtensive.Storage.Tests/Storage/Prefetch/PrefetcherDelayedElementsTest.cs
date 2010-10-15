@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<Person>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
+        keys = session.Query.All<Person>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -79,9 +79,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       int actualEmployeeCount;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<Customer>().Where(c => c.Name == "Customer1").AsEnumerable()
+        keys = session.Query.All<Customer>().Where(c => c.Name == "Customer1").AsEnumerable()
           .Select(p => Key.Create<Person>(p.Key.Value)).ToList();
-        actualEmployeeCount = Query.All<Employee>().Where(e => e.Name == "Employee1").Count();
+        actualEmployeeCount = session.Query.All<Employee>().Where(e => e.Name == "Employee1").Count();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             Assert.IsNotNull(orderState);
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
-            var employeeKey = Key.Create<Person>(employeeField.Association
+            var employeeKey = Key.Create<Person>(employeeField.Associations.Last()
               .ExtractForeignKey(orderState.Type, orderState.Tuple));
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<Customer>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
+        keys = session.Query.All<Customer>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -231,8 +231,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         Action<Book, int> titlesGenerator = (b, count) => {
-          for (var i = 0; i < count; i++)
+          var subcount = count / 2;
+          var countleft = count - subcount;
+          for (var i = 0; i < subcount; i++)
             b.TranslationTitles.Add(new Title {Text = i.ToString()});
+          for (var i = 0; i < countleft; i++)
+            b.TranslationTitles.Add(new AnotherTitle { Text = "A_"+i.ToString() });
         };
         for (var i = 0; i < 155; i++) {
           var book = new Book {
@@ -349,7 +353,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = Query.All<T>().Take(count).AsEnumerable().Select(p => Key.Create<T>(p.Key.Value)).ToList();
+        keys = session.Query.All<T>().Take(count).AsEnumerable().Select(p => Key.Create<T>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -368,7 +372,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, bookType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           var ownerState = session.EntityStateCache[key, true];
-          var titleKeyValue = titleField.Association.ExtractForeignKey(ownerState.Type, ownerState.Tuple);
+          var titleKeyValue = titleField.Associations.Last().ExtractForeignKey(ownerState.Type, ownerState.Tuple);
           if ((titleKeyValue.GetFieldState(0) & TupleFieldState.Null) == TupleFieldState.Null)
             continue;
           var titleKey = Key.Create(Domain, typeof (Title), titleKeyValue);
@@ -388,8 +392,17 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Assert.IsTrue(setState.IsFullyLoaded);
       foreach (var itemKey in setState) {
         isOneItemPresentAtLeast = true;
+        var fieldSelector = referencingField.IsEntitySet && referencingField.ItemType.IsInterface
+          ? (Func<FieldInfo, bool>)(fi => {
+            var rt = fi.ReflectedType;
+            var implemented = rt.FieldMap.GetImplementedInterfaceFields(fi).ToList();
+            if (implemented.Count > 0)
+              return implemented.Any(i => i.ReflectedType.UnderlyingType == referencingField.ItemType);
+            return false;
+          })
+          : PrefetchTestHelper.IsFieldToBeLoadedByDefault;
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.Type, session,
-          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+          fieldSelector);
       }
     }
   }

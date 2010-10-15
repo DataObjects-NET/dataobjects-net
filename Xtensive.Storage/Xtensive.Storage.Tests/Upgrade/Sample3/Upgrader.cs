@@ -60,10 +60,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
     public override void OnUpgrade()
     {
 #pragma warning disable 612,618
-      var deps = Query.All<Employee>().ToList();
+      var deps = Session.Demand().Query.All<Employee>().ToList();
       foreach (var employee in deps)
         employee.DepartmentName = employee.RcDepartment;
-      foreach (var order in Query.All<Order>())
+      foreach (var order in Session.Demand().Query.All<Order>())
         order.Items.Add(new OrderItem(order) {
           Amount = order.Amount,
           ProductName = order.ProductName

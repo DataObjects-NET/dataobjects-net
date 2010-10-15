@@ -72,8 +72,8 @@ namespace Xtensive.Storage.Tests.Issues
           Assert.IsTrue(ds.IsConnected);
           Assert.AreEqual(0, ds.Operations.Count);
           
-          var oldUnit = Query.All<Unit>().Where(u => u.Title=="Unit").Single();
-          int unitCount = Query.All<Unit>().Count();
+          var oldUnit = session.Query.All<Unit>().Where(u => u.Title=="Unit").Single();
+          int unitCount = session.Query.All<Unit>().Count();
           Assert.AreEqual("Unit", oldUnit.Title);
           Assert.AreEqual(2, unitCount);
         }

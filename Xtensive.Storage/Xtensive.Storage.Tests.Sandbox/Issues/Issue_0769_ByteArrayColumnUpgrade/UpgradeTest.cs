@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var person = Query.All<M2.Person>().Single();
+          var person = session.Query.All<M2.Person>().Single();
           AssertEx.AreEqual("Person", person.Name);
           AssertEx.AreEqual(new byte[] {1, 2, 3}, person.Bytes);
 

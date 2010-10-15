@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     /// </summary>
     public List<Document> FindHeadsFromGroupsIBelongTo()
     {
-      var heads = from link in Query.All<DocumentLink>()
+      var heads = from link in Session.Demand().Query.All<DocumentLink>()
                   where link.LinkSemantic == LinkSemantic.GroupHeadToDocumentInGroup
                   where link.LinkDestination == this
                   orderby link.LinkSource.Id descending
@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     /// <returns>empty list if none</returns>
     public List<Document> FindDocumentsInGroup()
     {
-      var documents = from link in Query.All<DocumentLink>()
+      var documents = from link in Session.Demand().Query.All<DocumentLink>()
                  where link.LinkSemantic == LinkSemantic.GroupHeadToDocumentInGroup
                  where link.LinkSource == this
                  select link.LinkDestination;
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
       {
         // Select DocumentLinks from head with the desired DocumentType :
 
-        var qr = from link in Query.All<DocumentLink>()
+        var qr = from link in Session.Demand().Query.All<DocumentLink>()
                  where link.LinkSemantic == LinkSemantic.GroupHeadToDocumentInGroup
                  where link.LinkSource == head
                  where link.LinkDestination.DocumentType == documentType

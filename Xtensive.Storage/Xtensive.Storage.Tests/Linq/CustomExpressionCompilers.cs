@@ -104,13 +104,13 @@ namespace Xtensive.Storage.Tests.Linq
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           Fill();
-          var expected1 = Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+          var expected1 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
           Assert.Greater(expected1.Count, 0);
-          var fullNames1 = Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+          var fullNames1 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
           Assert.IsTrue(expected1.SequenceEqual(fullNames1));
 
-          var expected2 = Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-          var fullNames2 = Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+          var expected2 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+          var fullNames2 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
           Assert.IsTrue(expected2.SequenceEqual(fullNames2));
           // Rollback
         }
@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Linq
         new Assignment() {Active = true, Start = new DateTime(2026, 01, 10), End = new DateTime(2045, 11, 3)};
         new Assignment() {Active = true, Start = new DateTime(2010, 01, 10), End = new DateTime(2035, 11, 3)};
 
-        var currentCount = Query.All<Assignment>().Count(a => a.Current);
+        var currentCount = session.Query.All<Assignment>().Count(a => a.Current);
         Assert.AreEqual(2, currentCount);
         // Rollback
       }

@@ -43,9 +43,9 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
-          var count = Query.All<PropertyVersion<decimal?>>().Count();
+          var count = session.Query.All<PropertyVersion<decimal?>>().Count();
           Assert.AreEqual(1, count);
-          var v = Query.All<PropertyVersion<decimal?>>().FirstOrDefault();
+          var v = session.Query.All<PropertyVersion<decimal?>>().FirstOrDefault();
           Assert.IsNotNull(v);
           Assert.AreEqual(123, v.PropertyValue);
           t.Complete();

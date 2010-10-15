@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key result;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction())
-        result = Query.All<T>().OrderBy(o => o.Key).First().Key;
+        result = session.Query.All<T>().OrderBy(o => o.Key).First().Key;
       return result;
     }
 

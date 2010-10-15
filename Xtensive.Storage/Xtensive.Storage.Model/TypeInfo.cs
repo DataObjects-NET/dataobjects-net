@@ -62,6 +62,7 @@ namespace Xtensive.Storage.Model
     private Dictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
     private Tuple                              tuplePrototype;
     private MapTransform                       versionExtractor;
+    private List<AssociationInfo>              overridenAssociations;
 
 
     #region IsXxx properties
@@ -579,12 +580,28 @@ namespace Xtensive.Storage.Model
       }
         
       // Selecting master parts from paired associations & single associations
-      var associations = model.Associations.Find(this).Where(a => a.IsMaster).ToList();
+      var associations = model.Associations.Find(this)
+        .Where(a => a.IsMaster)
+        .ToList();
 
       if (associations.Count == 0) {
         removalSequence = ReadOnlyList<AssociationInfo>.Empty;
         return;
       }
+
+      overridenAssociations = associations
+        .Where(a => 
+          (a.Ancestors.Count > 0 && ((a.OwnerType == this && a.Ancestors.All(an => an.OwnerType != this) || (a.TargetType == this && a.Ancestors.All(an => an.TargetType != this))))) ||
+          (a.Reversed != null && (a.Reversed.Ancestors.Count > 0 && ((a.Reversed.OwnerType == this && a.Reversed.Ancestors.All(an => an.OwnerType != this) || (a.Reversed.TargetType == this && a.Reversed.Ancestors.All(an => an.TargetType != this)))))))
+        .SelectMany(a => a.Ancestors.Concat(a.Reversed == null ? Enumerable.Empty<AssociationInfo>(): a.Reversed.Ancestors))
+        .ToList();
+      var ancestor = GetAncestor();
+      if (ancestor != null && ancestor.overridenAssociations != null)
+        overridenAssociations.AddRange(ancestor.overridenAssociations);
+
+      foreach (var ancestorAssociation in overridenAssociations)
+        associations.Remove(ancestorAssociation);
+
 
       var sequence = new List<AssociationInfo>(associations.Count);
       sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Deny    && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
@@ -593,8 +610,13 @@ namespace Xtensive.Storage.Model
       sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear   && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
       sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
       sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-
-      removalSequence = new ReadOnlyList<AssociationInfo>(sequence);
+      var first = sequence.Where(a => a.Ancestors.Count > 0).ToList();
+      if (first.Count == 0)
+        removalSequence = new ReadOnlyList<AssociationInfo>(sequence);
+      else {
+        var second = sequence.Where(a => a.Ancestors.Count == 0).ToList();
+        removalSequence = new ReadOnlyList<AssociationInfo>(first.Concat(second).ToList());
+      }
     }
 
     /// <inheritdoc/>

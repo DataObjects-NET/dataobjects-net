@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
-          var all = Query.All<Child2>();
+          var all = session.Query.All<Child2>();
           foreach (var obj in all) {
             obj.Remove();
           }

@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var alex = new Person() { Name = "Alex" };
-        var query = Query.All<Person>()
+        var query = session.Query.All<Person>()
           .Select(p => new PersonDto {Name = p.Name})
           .Where(personDto => personDto.Name == "Alex");
         var result = query.ToList();
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Linq
         var person5 = new Person() {Name = "John", Tag = 5, BudgetType = BudgetType.Regional};
         var personEmpty = new Person() {Name = "John"};
 
-        var count = Query.All<Person>()
+        var count = session.Query.All<Person>()
           .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Tag = p.Tag, BudgetType = p.BudgetType})
           .Where(x => x.Tag == 5 && x.BudgetType == BudgetType.Regional).OrderBy(dto => dto.Id).Count();
         Assert.AreEqual(1, count);
@@ -131,8 +131,8 @@ namespace Xtensive.Storage.Tests.Linq
         Expression<Func<Person, bool>> customFilterExpression = Expression.Lambda<Func<Person, bool>>(
           Expression.Equal(body, valueExpression),
           propertyExpression.Parameters);
-        var persons = Query.All<Person>().Where(filterExpression).ToList();
-        var customPersons = Query.All<Person>().Where(customFilterExpression).ToList();
+        var persons = session.Query.All<Person>().Where(filterExpression).ToList();
+        var customPersons = session.Query.All<Person>().Where(customFilterExpression).ToList();
         var func = customFilterExpression.Compile();
         func(new Person() {BudgetType = BudgetType.Regional});
       }
@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Tests.Linq
         new Person() { Name = "E" };
         new Person() { Name = "F" };
         
-        var query = Query.All<Person>()
+        var query = session.Query.All<Person>()
           .Select(p => new PersonDto {
             Id = p.Id, 
             Name = p.Name, 
@@ -174,19 +174,19 @@ namespace Xtensive.Storage.Tests.Linq
         new Person() {Name = "E"};
         new Person() {Name = "F"};
 
-        var types = Query.All<Person>()
+        var types = session.Query.All<Person>()
           .Select(p => p.BudgetType)
           .Distinct()
           .ToList();
         Assert.AreEqual(4, types.Count);
 
-        var groups = Query.All<Person>()
+        var groups = session.Query.All<Person>()
           .GroupBy(p => p.BudgetType)
           .Select(g => new {g.Key, Count = g.Count()})
           .ToList();
         Assert.AreEqual(4, groups.Count);
 
-        var arrays = Query.All<Person>()
+        var arrays = session.Query.All<Person>()
           .Select(p => new PersonDto(){Id = p.Id, Name = p.Name, BudgetType = p.BudgetType})
           .GroupBy(c => c.BudgetType)
           .OrderBy(g => g.Key)
@@ -210,12 +210,12 @@ namespace Xtensive.Storage.Tests.Linq
         new Person() { Name = null };
         new Person() { Name = null };
 
-        var selectedMethod = Query.All<Person>()
+        var selectedMethod = session.Query.All<Person>()
           .Select(p => new PersonDto() {Id = p.Id, Name = p.Name, Description = GetDescription(p)})
           .OrderBy(x => x.Name)
           .ToList();
 
-        var selectedMethod2 = Query.All<Person>()
+        var selectedMethod2 = session.Query.All<Person>()
          .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Description = p.Name ?? GetDescription(p) })
          .Where(x => x.Name == null)
          .ToList();
@@ -240,7 +240,7 @@ namespace Xtensive.Storage.Tests.Linq
         new Person() { Name = "E" };
         new Person() { Name = "F" };
 
-        var list = Query.All<Manager>()
+        var list = session.Query.All<Manager>()
           .Select(m => new { Entity = m, FirstPerson = m.Persons.FirstOrDefault() })
           .Select(g => new ManagerDto() {
               Id = g.Entity.Id,

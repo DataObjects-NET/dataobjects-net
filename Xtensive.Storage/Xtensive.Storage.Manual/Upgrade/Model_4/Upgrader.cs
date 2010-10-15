@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_4
 
     public override void OnUpgrade()
     {
-      foreach (var order in Query.All<Order>()) {
-        var product = Query.All<Product>()
+      foreach (var order in Session.Demand().Query.All<Order>()) {
+        var product = Session.Demand().Query.All<Product>()
 #pragma warning disable 612,618
           .SingleOrDefault(p => p.Name==order.ProductName);
 #pragma warning restore 612,618

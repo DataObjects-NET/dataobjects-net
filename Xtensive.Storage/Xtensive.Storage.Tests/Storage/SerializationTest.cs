@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           stream.Position = 0;
-          Company company = (Company) Query.SingleOrDefault(Key.Create(typeof (Company), companyId));// Query.All<Company>().First();
+          Company company = (Company) session.Query.SingleOrDefault(Key.Create(typeof (Company), companyId));// session.Query.All<Company>().First();
 
           Company deserializedCompany = (Company) formatter.Deserialize(stream);
 
@@ -284,7 +284,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (session.OpenTransaction()) {
 
           object[] array;
-          Company existingCompany = (Company) Query.SingleOrDefault(Key.Create(typeof (Company), firstCompanyId)); //Query.All<Company>().First();
+          Company existingCompany = (Company) session.Query.SingleOrDefault(Key.Create(typeof (Company), firstCompanyId)); //session.Query.All<Company>().First();
 
           using (var region = Xtensive.Storage.Validation.Disable()) {
 

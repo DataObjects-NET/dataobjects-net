@@ -56,9 +56,9 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        foreach (var item in Query.All<Crazy>())
+        foreach (var item in session.Query.All<Crazy>())
           Console.WriteLine(item.SmallDateTime);
-        Assert.AreEqual(1, Query.All<Crazy>().Where(o => o.SmallDateTime==theDate).Count());
+        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.SmallDateTime==theDate).Count());
       }
     }
 

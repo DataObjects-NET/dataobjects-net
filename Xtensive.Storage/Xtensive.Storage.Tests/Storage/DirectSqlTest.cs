@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Tests.Storage
           session.SaveChanges();
 
           AssertEx.ThrowsInvalidOperationException(() => Assert.IsNotNull(article.Content));
-          Assert.AreEqual(1, Query.All<Article>().Count());
+          Assert.AreEqual(1, session.Query.All<Article>().Count());
           Assert.IsNotNull(anotherArticle.Content);
           t.Complete();
         }

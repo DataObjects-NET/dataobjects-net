@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.Issues
 
       using (VersionValidator.Attach(expectedVersions)) {
         using (var tx = Session.Demand().OpenTransaction()) {
-          var entity = Query.Single<T>(key);
+          var entity = Session.Demand().Query.Single<T>(key);
           using (var ir = Validation.Disable()) {
             updater.Invoke(entity);
             ir.Complete();

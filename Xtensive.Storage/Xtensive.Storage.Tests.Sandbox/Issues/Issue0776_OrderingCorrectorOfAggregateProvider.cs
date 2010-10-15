@@ -98,11 +98,11 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Domain.OpenSession())
       using (TransactionScope transactionScope = session.OpenTransaction())
       {
-        foreach (MyEntity myEntity in Query.All<MyEntity>())
+        foreach (MyEntity myEntity in session.Query.All<MyEntity>())
           Console.WriteLine(myEntity.Text);
 
 
-        var query = Query.All<Another>().Where(a => a.MyEntText.Contains("e")).Select(a => new {a.Id, a.MyEntText});
+        var query = session.Query.All<Another>().Where(a => a.MyEntText.Contains("e")).Select(a => new {a.Id, a.MyEntText});
         foreach (var item in query)
           // OK
           Console.WriteLine(item);
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Issues
         // Exception!
         var nowCount = aggregate.FirstOrDefault();
 
-        var futureCount = Query.ExecuteFutureScalar(() => aggregate.FirstOrDefault());
+        var futureCount = session.Query.ExecuteFutureScalar(() => aggregate.FirstOrDefault());
 
         transactionScope.Complete();
       }

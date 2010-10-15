@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var parent = Query.All<TheParent>().Single();
-        var result = Query.All<TheChild>().Single(child => child.Value==parent.Child.Value);
+        var parent = session.Query.All<TheParent>().Single();
+        var result = session.Query.All<TheChild>().Single(child => child.Value==parent.Child.Value);
         t.Complete();
       }
     }

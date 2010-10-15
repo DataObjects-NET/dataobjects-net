@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var tx = session.OpenTransaction()) {
           using (ds.Connect()) {
             var appointment = new Appointment() {Title = "Appointment"};
-            var unit = Query.All<Unit>().FirstOrDefault();
+            var unit = session.Query.All<Unit>().FirstOrDefault();
             appointment.Relationships.Add(
               new AppointmentUnitRelationship(appointment, unit));
           }

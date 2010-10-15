@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
           counterKey = counter.Key;
         }
         else
-          counter = Query.Single<Counter>(counterKey);
+          counter = session.Query.Single<Counter>(counterKey);
         counter.Value = 0;
         tx.Complete();
       }
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
 
       using (var session = GetDomain().OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var counter = Query.Single<Counter>(counterKey);
+        var counter = session.Query.Single<Counter>(counterKey);
         Console.WriteLine("Final counter.Value = {0}", counter.Value);
         tx.Complete();
       }
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
                 Counter counter;
                 if (lockingMode!=LockingMode.QueryLock) {
                   Console.WriteLine("{0}:   reading shared counter", threadName);
-                  counter = Query.Single<Counter>(counterKey);
+                  counter = session.Query.Single<Counter>(counterKey);
                   if (lockingMode==LockingMode.EntityLock) {
                     Console.WriteLine("{0}:   locking counter", threadName);
                     counter.Lock(LockMode.Exclusive, LockBehavior.Wait);
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
                 }
                 else {
                   Console.WriteLine("{0}:   reading & locking shared counter", threadName);
-                  counter = Query.All<Counter>()
+                  counter = session.Query.All<Counter>()
                     .Where(c => c.Key==counterKey)
                     .Lock(LockMode.Exclusive, LockBehavior.Wait)
                     .Single();

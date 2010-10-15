@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Manual.Prefetch
   
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var persons = Query.All<Person>();
+        var persons = session.Query.All<Person>();
         var prefetchedPersons = persons
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees, // EntitySet Employees
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Manual.Prefetch
 
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var personIds = Query.All<Person>().Select(p => p.Id);
+        var personIds = session.Query.All<Person>().Select(p => p.Id);
         var prefetchedPersons = personIds.Prefetch<Person, int>(id => Key.Create<Person>(id))
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees, // EntitySet Employees
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Manual.Prefetch
 
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var persons = Query.All<Person>();
+        var persons = session.Query.All<Person>();
         var prefetchedPersons = persons
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees, // EntitySet Employees
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Manual.Prefetch
         var random = new Random(10);
         for (int i = 0; i < count; i++)
           new Person {Name = i.ToString(), Photo = new[] {(byte) (i % 256)}};
-        var persons = Query.All<Person>().OrderBy(p => p.Id).ToArray();
+        var persons = session.Query.All<Person>().OrderBy(p => p.Id).ToArray();
         for (int i = 0; i<count; i++) {
           var person = persons[i];
           if (random.Next(5)>0)
@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Manual.Prefetch
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
         var persons =
-          from person in Query.All<Person>()
+          from person in session.Query.All<Person>()
           orderby person.Name
           select person;
         var prefetchedPersons = persons.Take(100)

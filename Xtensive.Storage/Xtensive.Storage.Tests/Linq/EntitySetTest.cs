@@ -21,9 +21,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetAnonymousTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select(c => new {OrdersFiled = c.Orders});
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .ToList()
         .Select(c => new {OrdersFiled = c.Orders});
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -33,10 +33,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSelectManyAnonymousTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select(c => new {OrdersFiled = c.Orders})
         .SelectMany(i => i.OrdersFiled);
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .ToList()
         .Select(c => new {OrdersFiled = c.Orders})
         .SelectMany(i => i.OrdersFiled);
@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSelectTest()
     {
-      var result = Query.All<Customer>().OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
-      var expected = Query.All<Customer>().AsEnumerable().OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
+      var result = Session.Query.All<Customer>().OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
+      var expected = Session.Query.All<Customer>().AsEnumerable().OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
       Assert.Greater(result.Count, 0);
       Assert.AreEqual(expected.Count, result.Count);
       for (int i = 0; i < result.Count; i++)
@@ -76,16 +76,16 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnsupportedMethodsTest()
     {
-      AssertEx.Throws<QueryTranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Add(null)).ToList());
-      AssertEx.Throws<QueryTranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Remove(null)).ToList());
+      AssertEx.Throws<QueryTranslationException>(() => Session.Query.All<Customer>().Where(c => c.Orders.Add(null)).ToList());
+      AssertEx.Throws<QueryTranslationException>(() => Session.Query.All<Customer>().Where(c => c.Orders.Remove(null)).ToList());
     }
 
     [Test]
     public void CountTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var expected = Query.All<Order>().Count();
-      var count = Query.All<Customer>()
+      var expected = Session.Query.All<Order>().Count();
+      var count = Session.Query.All<Customer>()
         .Select(c => c.Orders.Count)
         .ToList()
         .Sum();
@@ -95,10 +95,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ContainsTest()
     {
-      var bestOrder = Query.All<Order>()
+      var bestOrder = Session.Query.All<Order>()
         .OrderBy(o => o.Freight)
         .First();
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Where(c => c.Orders.Contains(bestOrder));
       Assert.AreEqual(bestOrder.Customer.Id, result.ToList().Single().Id);
     }
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void OuterEntitySetTest()
     {
       var customer = GetCustomer();
-      var result = Query.All<Order>().Where(o => customer.Orders.Contains(o));
+      var result = Session.Query.All<Order>().Where(o => customer.Orders.Contains(o));
       Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
     }
 
@@ -117,14 +117,14 @@ namespace Xtensive.Storage.Tests.Linq
       var customer = GetCustomer();
       var result =
         from o in customer.Orders
-        join e in Query.All<Employee>() on o.Employee equals e
+        join e in Session.Query.All<Employee>() on o.Employee equals e
         select e;
       Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
     }
 
     private static Customer GetCustomer()
     {
-      return Query.All<Customer>().Where(c => c.Id=="LACOR").Single();
+      return Session.Query.All<Customer>().Where(c => c.Id=="LACOR").Single();
     }
   }
 }

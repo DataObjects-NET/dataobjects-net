@@ -123,12 +123,12 @@ namespace Xtensive.Storage.Tests.Issues
           };
 
           var query =
-            from customer in Query.All<SevRGasCustomer>()
-            let matchGuess = Query.All<SevRGas2EPassportCustomerMatchGuess>().Where(
+            from customer in session.Query.All<SevRGasCustomer>()
+            let matchGuess = session.Query.All<SevRGas2EPassportCustomerMatchGuess>().Where(
               g => g.SevRGasCustomerID==customer.Id).FirstOrDefault()
-            let matchGuessObject = Query.All<EPassportAgent>().Where(
+            let matchGuessObject = session.Query.All<EPassportAgent>().Where(
               go => go.Id==matchGuess.EPassportCustomerID).FirstOrDefault()
-            let unifiedCustomer = Query.All<DataUnitCustomer>().Where(
+            let unifiedCustomer = session.Query.All<DataUnitCustomer>().Where(
               ua => ua.SevRGasCustomer==customer && ua.EPassportAgent!=null).FirstOrDefault()
             select new SevRGas2EPassportCustomerMatchListItem {
               LeftID = customer.Id,

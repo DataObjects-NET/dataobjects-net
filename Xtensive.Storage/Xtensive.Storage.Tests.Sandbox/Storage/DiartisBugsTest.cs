@@ -127,8 +127,8 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
 
           ds.ApplyChanges();
         }
-        Assert.AreEqual(2, Query.All<Author>().Count());
-        Assert.AreEqual(1, Query.All<Book>().Count());
+        Assert.AreEqual(2, session.Query.All<Author>().Count());
+        Assert.AreEqual(1, session.Query.All<Book>().Count());
         // tx.Complete();
       }
     }
@@ -159,8 +159,8 @@ namespace Xtensive.Storage.Tests.Storage.DiartisBugsTest
 
           ds.ApplyChanges();
         }
-        Assert.AreEqual(2, Query.All<Author>().Count());
-        Assert.AreEqual(0, Query.All<Book>().Count());
+        Assert.AreEqual(2, session.Query.All<Author>().Count());
+        Assert.AreEqual(0, session.Query.All<Book>().Count());
         // tx.Complete();
       }
     }

@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Test1()
     {
-      var result = Query.FreeText<Category>(() => "Dessert candy and coffee seafood").ToList();
+      var result = Session.Query.FreeText<Category>(() => "Dessert candy and coffee seafood").ToList();
       Assert.AreEqual(3, result.Count);
       foreach (var document in result) {
         Assert.IsNotNull(document);
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Test2()
     {
-      var result = from c in Query.FreeText<Category>("Dessert candy and coffee seafood") select c.Rank;
+      var result = from c in Session.Query.FreeText<Category>("Dessert candy and coffee seafood") select c.Rank;
       Assert.AreEqual(3, result.ToList().Count);
     }
 
@@ -71,8 +71,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinProductsTest()
     {
       var result = 
-        from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
-        join p in Query.All<Product>() on c.Entity.Key equals p.Category.Key 
+        from c in Session.Query.FreeText<Category>(() => "Dessert candy and coffee")
+        join p in Session.Query.All<Product>() on c.Entity.Key equals p.Category.Key 
         select p;
       var list = result.ToList();
       Assert.AreEqual(25, list.Count);
@@ -86,8 +86,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinProducts2Test()
     {
       var result = 
-        from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
-        join p in Query.All<Product>() on c.Entity equals p.Category 
+        from c in Session.Query.FreeText<Category>(() => "Dessert candy and coffee")
+        join p in Session.Query.All<Product>() on c.Entity equals p.Category 
         select p;
       var list = result.ToList();
       Assert.AreEqual(25, list.Count);
@@ -102,9 +102,9 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var keywords = "lager";
       var result =
-        from p in Query.FreeText<Product>(keywords)
+        from p in Session.Query.FreeText<Product>(keywords)
         where p.Entity.ProductName != typeof (Product).Name
-        join c in Query.All<Category>() on p.Entity.Category.Id equals c.Id
+        join c in Session.Query.All<Category>() on p.Entity.Category.Id equals c.Id
         orderby p.Rank
         select new {Id = c.Id, Name = c.CategoryName, Rank = p.Rank, Descr = GetProductDescription(p.Entity)};
       var list = result.ToList();
@@ -114,9 +114,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinCategory2Test()
     {
       var keywords = "lager";
-      var result = Query.FreeText<Product>(keywords)
+      var result = Session.Query.FreeText<Product>(keywords)
         .Where(p => p.Entity.ProductName!=typeof (Product).Name)
-        .Join(Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c})
+        .Join(Session.Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c})
         .OrderBy(@t => @t.Rank)
         .Select(@t => new {Id = @t.c.Id, Name = @t.c.CategoryName, Rank = @t.Rank});
       var list = result.ToList();
@@ -127,12 +127,12 @@ namespace Xtensive.Storage.Tests.Linq
     {
 
       /*[23.07.2010 13:56:17] Alexander Ustinov:         (from ftx in (
-                            from ft in Query.FreeText<Data.Common.FullTextRecord>(() => "мегаполис тюмень центральный горького корп")
+                            from ft in Session.Query.FreeText<Data.Common.FullTextRecord>(() => "мегаполис тюмень центральный горького корп")
                             where ft.Entity.ObjectType==typeof (Data.Rng.Customer).FullName
                             select new {ft.Rank, ft.Entity}
                           )
-              join customer in Query.All<Data.Rng.Customer>() on ftx.Entity.ObjectId equals customer.Id
-              from gasObject in Query.All<Data.Rng.GasObject>().Where(go => go.Customer==customer).DefaultIfEmpty()
+              join customer in Session.Query.All<Data.Rng.Customer>() on ftx.Entity.ObjectId equals customer.Id
+              from gasObject in Session.Query.All<Data.Rng.GasObject>().Where(go => go.Customer==customer).DefaultIfEmpty()
               select new RngCustomerBriefInfo {
                 ID = customer.Id,
                 Rank = ftx.Rank,
@@ -142,14 +142,14 @@ namespace Xtensive.Storage.Tests.Linq
               }).Take(100).OrderByDescending(i => i.Rank).OrderByDescending(i => i.ID);*/
       var keywords = "lager";
       var result = (
-          from ft in Query.FreeText<Product>(keywords)
+          from ft in Session.Query.FreeText<Product>(keywords)
           where ft.Entity.ProductName != typeof(Product).Name
-          join c in Query.All<Category>() on ft.Entity.Category equals c
+          join c in Session.Query.All<Category>() on ft.Entity.Category equals c
           select new {ID = c.Id, Rank = ft.Rank, Name = ft.Entity.ProductName}
         ).Take(100).OrderByDescending(i => i.Rank).ThenByDescending(i => i.ID);
-//      var result = Query.FreeText<Product>(keywords)
+//      var result = Session.Query.FreeText<Product>(keywords)
 //        .Where(p => p.Entity.ProductName != typeof(Product).Name)
-//        .Join(Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new { p.Rank, c })
+//        .Join(Session.Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new { p.Rank, c })
 //        .OrderBy(@t => @t.Rank)
 //        .Select(@t => new { Id = @t.c.Id, Name = @t.c.CategoryName, Rank = @t.Rank });
       var list = result.ToList();
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinProductsWithRanks1Test()
     {
       var result =
-        (from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
+        (from c in Session.Query.FreeText<Category>(() => "Dessert candy and coffee")
         orderby c.Rank
         select new {c.Entity, c.Rank});
       var list = result.ToList();
@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinProductsWithRanks2Test()
     {
-      var result = Query.FreeText<Category>(() => "Dessert candy and coffee")
+      var result = Session.Query.FreeText<Category>(() => "Dessert candy and coffee")
         .OrderBy(c => c.Rank)
         .Select(x => x.Entity);
       var list = result.ToList();
@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderByTest()
     {
-      var result = from ft in Query.FreeText<Product>(() => "lager")
+      var result = from ft in Session.Query.FreeText<Product>(() => "lager")
                    where ft.Entity.Id > 0 && ft.Entity.UnitPrice > 10
                    orderby ft.Entity.Category.CategoryName , ft.Entity.ReorderLevel
                    select new {Product = ft.Entity, ft.Entity.Category};
@@ -200,12 +200,12 @@ namespace Xtensive.Storage.Tests.Linq
 
     private IEnumerable<FullTextMatch<Category>> TakeMatchesIncorrect(string searchCriteria)
     {
-      return Query.Execute(() => Query.FreeText<Category>(searchCriteria));
+      return Session.Query.Execute(() => Session.Query.FreeText<Category>(searchCriteria));
     }
 
     private IEnumerable<FullTextMatch<Category>> TakeMatchesCorrect(string searchCriteria)
     {
-      return Query.Execute(() => Query.FreeText<Category>(() => searchCriteria));
+      return Session.Query.Execute(() => Session.Query.FreeText<Category>(() => searchCriteria));
     }
   }
 }

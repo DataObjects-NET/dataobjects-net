@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Manual.Caching
       Assert.AreEqual(totalPrice, order.TotalPriceCached);
       // Checking the value in LINQ query
       Assert.AreEqual(totalPrice,
-        Query.All<Order>()
+        Session.Demand().Query.All<Order>()
         .Where(o => o==order)
         .Select(o => o.TotalPrice)
         .Single());

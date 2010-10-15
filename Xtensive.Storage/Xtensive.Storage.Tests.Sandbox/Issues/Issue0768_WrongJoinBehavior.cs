@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Issues
       }
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var list = Query.All<Node>().Select(node => new { Parent = node.Parent.Ref.Name, node.Name }).ToList();
+        var list = session.Query.All<Node>().Select(node => new { Parent = node.Parent.Ref.Name, node.Name }).ToList();
         Assert.AreEqual(3, list.Count());
 
         // Current wrong way

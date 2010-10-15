@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void MainTest()
     {
       var query =
-        (from customer in Query.All<Customer>()
-        join order in Query.All<Order>() on customer equals order.Customer into orderJoins
+        (from customer in Session.Query.All<Customer>()
+        join order in Session.Query.All<Order>() on customer equals order.Customer into orderJoins
         from orderJoin in orderJoins.DefaultIfEmpty()
         select new {customer.Address, Order = orderJoin})
           .GroupBy(x => x.Address.City)
@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Tests.Linq
       var query =
         from grouping in
           from customerOrderJoin in
-            from customer in Query.All<Customer>()
-            join order in Query.All<Order>()
+            from customer in Session.Query.All<Customer>()
+            join order in Session.Query.All<Order>()
               on customer equals order.Customer into orderJoins
             from orderJoin in orderJoins.DefaultIfEmpty()
             select new {customer.Address, Order = orderJoin}
@@ -66,8 +66,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MakePropertyAccessSwitchingToGeneric()
     {
-      IQueryable queryable = Query.All<Customer>();
-      var expected = Query.All<Customer>().Select(c => c.ContactName).ToList();
+      IQueryable queryable = Session.Query.All<Customer>();
+      var expected = Session.Query.All<Customer>().Select(c => c.ContactName).ToList();
       var result1 = ((IQueryable<string>)SelectPropertySwitchingToGeneric(queryable, "ContactName")).ToList();
       var result2 = ((IQueryable<string>)SelectPropertyBuildingExpression(queryable, "ContactName")).ToList();
       Assert.AreEqual(expected.Count, result1.Count);

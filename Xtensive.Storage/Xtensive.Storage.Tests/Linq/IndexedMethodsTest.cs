@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectIndexedTest()
     {
-      var result = Query.All<Order>().OrderBy(order=>order.Id).Select((order, index) => new {order, index}).ToList();
-      var expected = Query.All<Order>().AsEnumerable().OrderBy(order=>order.Id).Select((order, index) => new {order, index}).ToList();
+      var result = Session.Query.All<Order>().OrderBy(order=>order.Id).Select((order, index) => new {order, index}).ToList();
+      var expected = Session.Query.All<Order>().AsEnumerable().OrderBy(order=>order.Id).Select((order, index) => new {order, index}).ToList();
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -35,11 +35,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectManyIndexedTest()
     {
-      var count = Query.All<Customer>().Count();
-      var result = Query.All<Customer>()
+      var count = Session.Query.All<Customer>().Count();
+      var result = Session.Query.All<Customer>()
         .OrderBy(customer=>customer.Id)
         .SelectMany((customer, index) => customer.Orders.OrderBy(order=>order.Id).Select(order=>new {index, order.Freight}));
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .AsEnumerable()
         .OrderBy(customer=>customer.Id)
         .SelectMany((customer, index) => customer.Orders.OrderBy(order=>order.Id).Select(order=>new {index, order.Freight}));
@@ -50,10 +50,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectManyIndexedResultSelectorTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .OrderBy(customer=>customer.Id)
         .SelectMany((customer, index) => customer.Orders.OrderBy(order=>order.Id).Select(order=>new {index, order.Freight}), (customer, takenOrders)=>new {customer, takenOrders});
-      var expected = Query.All<Customer>()
+      var expected = Session.Query.All<Customer>()
         .AsEnumerable()
         .OrderBy(customer=>customer.Id)
         .SelectMany((customer, index) => customer.Orders.OrderBy(order=>order.Id).Select(order=>new {index, order.Freight}), (customer, takenOrders)=>new {customer, takenOrders});
@@ -63,9 +63,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereIndexedTest()
     {
-      var avgFreight = Query.All<Order>().Select(order => order.Freight).Average();
-      var result = Query.All<Order>().OrderBy(order=>order.Id).Where((order, index) =>index > 10 || order.Freight > avgFreight);
-      var expected = Query.All<Order>().AsEnumerable().OrderBy(order=>order.Id).Where((order, index) =>index > 10 || order.Freight > avgFreight);
+      var avgFreight = Session.Query.All<Order>().Select(order => order.Freight).Average();
+      var result = Session.Query.All<Order>().OrderBy(order=>order.Id).Where((order, index) =>index > 10 || order.Freight > avgFreight);
+      var expected = Session.Query.All<Order>().AsEnumerable().OrderBy(order=>order.Id).Where((order, index) =>index > 10 || order.Freight > avgFreight);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 

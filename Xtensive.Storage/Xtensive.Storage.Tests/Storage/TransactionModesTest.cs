@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-        var product = Query.All<Product>().First();
+        var product = session.Query.All<Product>().First();
         product.ReorderLevel++;
         Session.Current.SaveChanges();
         var dbTransaction = StorageTestHelper.GetNativeTransaction();
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-        var product = Query.Single<Product>(productKey);
+        var product = session.Query.Single<Product>(productKey);
         Assert.AreEqual(reorderLevel, product.ReorderLevel);
       }
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-        var product = Query.All<Product>().First();
+        var product = session.Query.All<Product>().First();
         reorderLevel = product.ReorderLevel;
         product.ReorderLevel++;
         productKey = product.Key;
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-        var product = Query.Single<Product>(productKey);
+        var product = session.Query.Single<Product>(productKey);
         Assert.AreEqual(reorderLevel, product.ReorderLevel);
       }
     }
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var outer = session.OpenTransaction(TransactionOpenMode.New)) {
           Assert.IsFalse(outer.Transaction.IsActuallyStarted);
           using (var inner = session.OpenTransaction(TransactionOpenMode.New)) {
-            var lacor = Query.Single<Customer>("LACOR");
+            var lacor = session.Query.Single<Customer>("LACOR");
             Assert.IsTrue(outer.Transaction.IsActuallyStarted);
             Assert.IsTrue(inner.Transaction.IsActuallyStarted);
           }

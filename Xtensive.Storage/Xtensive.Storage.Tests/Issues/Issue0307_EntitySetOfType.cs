@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Tests.Issues
         var employee = new Employee(company, "Joe", "Smith");
         var consultant = new Consultant(company, "George", "Carlson", skill);
 
-        var consultants = from comp in Query.All<Company>()
+        var consultants = from comp in session.Query.All<Company>()
                           from cons in comp.Employees.OfType<Consultant>()
                           select cons;
         foreach (var c in consultants)

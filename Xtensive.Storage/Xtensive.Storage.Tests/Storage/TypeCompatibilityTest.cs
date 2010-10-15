@@ -272,7 +272,7 @@ namespace Xtensive.Storage.Tests.Storage
           minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
         }
         using (var t = session.OpenTransaction()) {
-          X x = Query.SingleOrDefault<X>(key);
+          X x = session.Query.SingleOrDefault<X>(key);
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);
@@ -358,7 +358,7 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
         using (var transactionScope = session.OpenTransaction()) {
-          var container = Query.Single<DecimalContainer>(key);
+          var container = session.Query.Single<DecimalContainer>(key);
           Assert.AreEqual(d34_19, container.d34_19);
           Assert.AreEqual(d25_0, container.d25_0);
           transactionScope.Complete();

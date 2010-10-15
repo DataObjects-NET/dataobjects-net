@@ -41,10 +41,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          Assert.AreEqual(1, Query.All<M2.Employee>().Count());
-          var emp = Query.All<M2.Employee>().FirstOrDefault();
+          Assert.AreEqual(1, session.Query.All<M2.Employee>().Count());
+          var emp = session.Query.All<M2.Employee>().FirstOrDefault();
           Assert.AreEqual("Sales", emp.DepartmentName);
-          var order = Query.All<M2.Order>().FirstOrDefault();
+          var order = session.Query.All<M2.Order>().FirstOrDefault();
           var productNames = order.Items.Select(item => item.ProductName).ToCommaDelimitedString();
           Console.WriteLine(string.Format("Order {{\tSeller = {0}\n\tProducts = {1}\n}}",
             order.Seller.FullName, productNames));

@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Issues
           new Person() {Name = "Ivan " + i, City = ekb};
         }
 
-        var list = Query.All<Person>()
+        var list = session.Query.All<Person>()
           .OrderBy(p => p.City.Name)
           .Take(10)
           .ToList();

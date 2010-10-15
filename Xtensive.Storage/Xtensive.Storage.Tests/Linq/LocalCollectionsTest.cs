@@ -168,9 +168,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinWithLazyLoadFieldTest()
     {
       // Category.Picture is LazyLoad field.
-      var categories = Query.All<Category>().Take(10).ToList();
+      var categories = Session.Query.All<Category>().Take(10).ToList();
       var result =
-        (from c1 in Query.All<Product>().Select(p=>p.Category)
+        (from c1 in Session.Query.All<Product>().Select(p=>p.Category)
         join c2 in categories on c1 equals c2
         select new {c1, c2})
           .Take(10);
@@ -181,10 +181,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void ListContainsTest()
     {
       var list = new List<string>(){"FISSA", "PARIS"};
-      var query = from c in Query.All<Customer>()   
+      var query = from c in Session.Query.All<Customer>()   
            where !list.Contains(c.Id)   
            select c.Orders;    
-      var expected = from c in Query.All<Customer>().AsEnumerable()   
+      var expected = from c in Session.Query.All<Customer>().AsEnumerable()   
            where !list.Contains(c.Id)   
            select c.Orders;    
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -208,8 +208,8 @@ namespace Xtensive.Storage.Tests.Linq
 
     private IEnumerable<Order> GetOrders(IEnumerable<int> ids)
     {
-      return Query.Execute(() =>
-        from order in Query.All<Order>()
+      return Session.Query.Execute(() =>
+        from order in Session.Query.All<Order>()
         where ids.Contains(order.Id)
         select order);
     }
@@ -217,11 +217,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void PairTest()
     {
-      var pairs = Query.All<Customer>()
+      var pairs = Session.Query.All<Customer>()
         .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
         .ToList();
-      var query = Query.All<Customer>().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => new {customer, pair.Second});
-      var expected = Query.All<Customer>().AsEnumerable().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => new {customer, pair.Second});
+      var query = Session.Query.All<Customer>().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => new {customer, pair.Second});
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => new {customer, pair.Second});
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
@@ -229,11 +229,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Pair2Test()
     {
-      var pairs = Query.All<Customer>()
+      var pairs = Session.Query.All<Customer>()
         .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
         .ToList();
-      var query = Query.All<Customer>().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => pair.Second);
-      var expected = Query.All<Customer>().AsEnumerable().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => pair.Second);
+      var query = Session.Query.All<Customer>().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => pair.Second);
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => pair.Second);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
@@ -242,11 +242,11 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void Poco1Test()
     {
-      var pocos = Query.All<Customer>()
+      var pocos = Session.Query.All<Customer>()
         .Select(customer => new Poco<string>(){Value = customer.Id})
         .ToList();
-      var query = Query.All<Customer>().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
-      var expected = Query.All<Customer>().AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
+      var query = Session.Query.All<Customer>().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
@@ -254,11 +254,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Poco2Test()
     {
-      var pocos = Query.All<Customer>()
+      var pocos = Session.Query.All<Customer>()
         .Select(customer => new Poco<string, string>(){Value1 = customer.Id, Value2 = customer.Id})
         .ToList();
-      var query = Query.All<Customer>().Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
-      var expected = Query.All<Customer>().AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
+      var query = Session.Query.All<Customer>().Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
@@ -266,10 +266,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Poco3Test()
     {
-      var query = Query.All<Customer>()
+      var query = Session.Query.All<Customer>()
         .Select(customer => new Poco<string, string>{Value1 = customer.Id, Value2 = customer.Id})
         .Select(poco=>new {poco.Value1, poco.Value2});
-      var expected =  Query.All<Customer>()
+      var expected =  Session.Query.All<Customer>()
         .AsEnumerable()
         .Select(customer => new Poco<string, string>{Value1 = customer.Id, Value2 = customer.Id})
         .Select(poco=>new {poco.Value1, poco.Value2});
@@ -280,10 +280,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Poco4Test()
     {
-      var query = Query.All<Customer>()
+      var query = Session.Query.All<Customer>()
         .Select(customer => new Poco<string, string>(customer.Id, customer.Id))
         .Select(poco=>new {poco.Value1, poco.Value2});
-      var expected =  Query.All<Customer>()
+      var expected =  Session.Query.All<Customer>()
         .AsEnumerable()
         .Select(customer => new Poco<string, string>{Value1 = customer.Id, Value2 = customer.Id})
         .Select(poco=>new {poco.Value1, poco.Value2});
@@ -295,10 +295,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void ArrayContainsTest()
     {
       var list = new [] { "FISSA", "PARIS" };
-      var query = from c in Query.All<Customer>()
+      var query = from c in Session.Query.All<Customer>()
                   where !list.Contains(c.Id)
                   select c.Orders;
-      var expected = from c in Query.All<Customer>().AsEnumerable()
+      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
                      where !list.Contains(c.Id)
                      select c.Orders;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -309,10 +309,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void IListContainsTest()
     {
       var list = (IList<string>)new List<string> { "FISSA", "PARIS" };
-      var query = from c in Query.All<Customer>()
+      var query = from c in Session.Query.All<Customer>()
                   where !list.Contains(c.Id)
                   select c.Orders;
-      var expected = from c in Query.All<Customer>().AsEnumerable()
+      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
                      where !list.Contains(c.Id)
                      select c.Orders;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -322,7 +322,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ListNewContainsTest()
     {
-      var q = from c in Query.All<Customer>()   
+      var q = from c in Session.Query.All<Customer>()   
            where !new List<string> {"FISSA", "PARIS"}.Contains(c.Id)   
            select c.Orders;    
       QueryDumper.Dump(q);
@@ -333,89 +333,89 @@ namespace Xtensive.Storage.Tests.Linq
     public void TypeLoop1Test()
     {
       var nodes = new Node[10];
-      var query = Query.All<Order>().Join(nodes, order => order.Customer.Address.City, node=>node.Name, (order,node)=> new{order, node});
+      var query = Session.Query.All<Order>().Join(nodes, order => order.Customer.Address.City, node=>node.Name, (order,node)=> new{order, node});
       QueryDumper.Dump(query);
     }
 
     [Test]
     public void ContainsTest()
     {
-      var localOrderFreights = Query.All<Order>().Select(order => order.Freight).Take(5).ToList();
-      var query = Query.All<Order>().Where(order => localOrderFreights.Contains(order.Freight));
+      var localOrderFreights = Session.Query.All<Order>().Select(order => order.Freight).Take(5).ToList();
+      var query = Session.Query.All<Order>().Where(order => localOrderFreights.Contains(order.Freight));
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Where(order => localOrderFreights.Contains(order.Freight));
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Where(order => localOrderFreights.Contains(order.Freight));
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
     [Test]
     public void AnyTest()
     {
-      var localOrderFreights = Query.All<Order>().Select(order => order.Freight).Take(5).ToList();
-      var query = Query.All<Order>().Where(order => localOrderFreights.Any(freight=>freight==order.Freight));
+      var localOrderFreights = Session.Query.All<Order>().Select(order => order.Freight).Take(5).ToList();
+      var query = Session.Query.All<Order>().Where(order => localOrderFreights.Any(freight=>freight==order.Freight));
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Where(order => localOrderFreights.Any(freight => freight == order.Freight));
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Where(order => localOrderFreights.Any(freight => freight == order.Freight));
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
     [Test]
     public void AllTest()
     {
-      var localOrderFreights = Query.All<Order>().Select(order => order.Freight).Take(5).ToList();
-      var query = Query.All<Order>().Where(order => localOrderFreights.All(freight=>freight==order.Freight));
+      var localOrderFreights = Session.Query.All<Order>().Select(order => order.Freight).Take(5).ToList();
+      var query = Session.Query.All<Order>().Where(order => localOrderFreights.All(freight=>freight==order.Freight));
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Where(order => localOrderFreights.All(freight => freight == order.Freight));
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Where(order => localOrderFreights.All(freight => freight == order.Freight));
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
     [Test]
     [ExpectedException(typeof(QueryTranslationException))]
     public void KeyTest()
     {
-      var keys = Query.All<Order>().Take(10).Select(order => order.Key).ToList();
-      var query = Query.All<Order>().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      var keys = Session.Query.All<Order>().Take(10).Select(order => order.Key).ToList();
+      var query = Session.Query.All<Order>().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
     [Test]
     public void JoinEntityTest()
     {
-      var localOrders = Query.All<Order>().Take(5).ToList();
-      var query = Query.All<Order>().Join(localOrders, order => order, localOrder => localOrder, (order, localOrder) => new {order, localOrder});
+      var localOrders = Session.Query.All<Order>().Take(5).ToList();
+      var query = Session.Query.All<Order>().Join(localOrders, order => order, localOrder => localOrder, (order, localOrder) => new {order, localOrder});
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Join(localOrders, order => order, localOrder => localOrder, (order, localOrder) => new {order, localOrder});
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Join(localOrders, order => order, localOrder => localOrder, (order, localOrder) => new {order, localOrder});
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
     [Test]
     public void JoinEntityFieldTest()
     {
-      var localOrders = Query.All<Order>().Take(5).ToList();
-      var query = Query.All<Order>().Join(localOrders, order => order.Freight, localOrder => localOrder.Freight, (order, localOrder) => new {order, localOrder});
+      var localOrders = Session.Query.All<Order>().Take(5).ToList();
+      var query = Session.Query.All<Order>().Join(localOrders, order => order.Freight, localOrder => localOrder.Freight, (order, localOrder) => new {order, localOrder});
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Join(localOrders, order => order.Freight, localOrder => localOrder.Freight, (order, localOrder) => new {order, localOrder});
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Join(localOrders, order => order.Freight, localOrder => localOrder.Freight, (order, localOrder) => new {order, localOrder});
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
     [Test]
     public void JoinEntityField2Test()
     {
-      var localFreights = Query.All<Order>().Take(5).Select(order => order.Freight).ToList();
-      var query = Query.All<Order>().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight});
+      var localFreights = Session.Query.All<Order>().Take(5).Select(order => order.Freight).ToList();
+      var query = Session.Query.All<Order>().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight});
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight});
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight});
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
     [Test]
     public void JoinEntityField2MaterializeTest()
     {
-      var localFreights = Query.All<Order>().Take(5).Select(order => order.Freight).ToList();
-      var query = Query.All<Order>().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x => x.freight);
+      var localFreights = Session.Query.All<Order>().Take(5).Select(order => order.Freight).ToList();
+      var query = Session.Query.All<Order>().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x => x.freight);
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x => x.freight);
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x => x.freight);
+      Assert.AreEqual(0, expectedSession.Query.Except(query).Count());
     }
 
 
@@ -423,8 +423,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleConcatTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var customers = Query.All<Customer>();
-      var result = customers.Where(c => c.Orders.Count <= 1).Concat(Query.All<Customer>().ToList().Where(c => c.Orders.Count > 1));
+      var customers = Session.Query.All<Customer>();
+      var result = customers.Where(c => c.Orders.Count <= 1).Concat(Session.Query.All<Customer>().ToList().Where(c => c.Orders.Count > 1));
       QueryDumper.Dump(result);
       Assert.AreEqual(customers.Count(), result.Count());
     }
@@ -432,8 +432,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleUnionTest()
     {
-      var products = Query.All<Product>();
-      var customers = Query.All<Customer>();
+      var products = Session.Query.All<Product>();
+      var customers = Session.Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
       var customerFirstChars = customers.Select(c => c.CompanyName.Substring(0, 1)).ToList();
       var uniqueFirstChars = productFirstChars.Union(customerFirstChars);
@@ -444,8 +444,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntersectTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var products = Query.All<Product>();
-      var customers = Query.All<Customer>();
+      var products = Session.Query.All<Product>();
+      var customers = Session.Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
       var customerFirstChars = customers.Select(c => c.CompanyName.Substring(0, 1)).ToList();
       var commonFirstChars = productFirstChars.Intersect(customerFirstChars);
@@ -456,14 +456,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleIntersectTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var query = Query.All<Order>()
+      var query = Session.Query.All<Order>()
         .Select(o => o.Employee.BirthDate)
-        .Intersect(Query.All<Order>().ToList().Select(o => o.Employee.BirthDate));
+        .Intersect(Session.Query.All<Order>().ToList().Select(o => o.Employee.BirthDate));
 
-      var expected = Query.All<Order>()
+      var expected = Session.Query.All<Order>()
         .AsEnumerable()
         .Select(o => o.Employee.BirthDate)
-        .Intersect(Query.All<Order>().ToList().Select(o => o.Employee.BirthDate));
+        .Intersect(Session.Query.All<Order>().ToList().Select(o => o.Employee.BirthDate));
 
       Assert.AreEqual(0, expected.Except(query).Count());
     }
@@ -472,14 +472,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleIntersectEntityTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var query = Query.All<Order>()
+      var query = Session.Query.All<Order>()
         .Select(o => o.Employee)
-        .Intersect(Query.All<Order>().ToList().Select(o => o.Employee));
+        .Intersect(Session.Query.All<Order>().ToList().Select(o => o.Employee));
 
-      var expected = Query.All<Order>()
+      var expected = Session.Query.All<Order>()
         .AsEnumerable()
         .Select(o => o.Employee)
-        .Intersect(Query.All<Order>().ToList().Select(o => o.Employee));
+        .Intersect(Session.Query.All<Order>().ToList().Select(o => o.Employee));
 
       Assert.AreEqual(0, expected.Except(query).Count());
     }
@@ -488,8 +488,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleExceptTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var products = Query.All<Product>();
-      var customers = Query.All<Customer>();
+      var products = Session.Query.All<Product>();
+      var customers = Session.Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
       var customerFirstChars = customers.Select(c => c.CompanyName.Substring(0, 1)).ToList();
       var productOnlyFirstChars = productFirstChars.Except(customerFirstChars);
@@ -499,8 +499,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConcatDifferentTest()
     {
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = customers
         .Select(c => c.Phone)
         .Concat(customers.ToList().Select(c => c.Fax))
@@ -511,8 +511,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConcatDifferentTest2()
     {
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = customers
         .Select(c => new {Name = c.CompanyName, c.Phone})
         .Concat(employees.ToList().Select(e => new {Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone}));
@@ -522,7 +522,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionDifferentTest()
     {
-      var employees = Query.All<Employee>();
+      var employees = Session.Query.All<Employee>();
       var result = employees
         .Select(c => c.Id)
         .Union(employees.ToList().Select(e => e.Id));
@@ -532,8 +532,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionCollationsTest()
     {
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = customers
         .Select(c => c.Address.Country)
         .Union(employees.ToList().Select(e => e.Address.Country));
@@ -544,8 +544,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntersectDifferentTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = customers
         .Select(c => c.Address.Country)
         .Intersect(employees.ToList().Select(e => e.Address.Country));
@@ -556,8 +556,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void ExceptDifferentTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var customers = Query.All<Customer>();
-      var employees = Query.All<Employee>();
+      var customers = Session.Query.All<Customer>();
+      var employees = Session.Query.All<Employee>();
       var result = customers
         .Select(c => c.Address.Country)
         .Except(employees.ToList().Select(e => e.Address.Country));
@@ -567,7 +567,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymousTest()
     {
-      var customers = Query.All<Order>();
+      var customers = Session.Query.All<Order>();
       var result = customers.Select(c => new {c.Freight, c.OrderDate})
         .Union(customers.ToList().Select(c => new {Freight = c.Freight+10, c.OrderDate}));
       var expected = customers.AsEnumerable().Select(c => new {c.Freight, c.OrderDate})
@@ -578,7 +578,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymousCollationsTest()
     {
-      var customers = Query.All<Customer>();
+      var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName})
         .Take(10)
         .Union(customers.ToList().Select(c => new {c.CompanyName, c.ContactName}));
@@ -588,7 +588,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymous2Test()
     {
-      var customers = Query.All<Customer>();
+      var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})
         .Where(c => c.Address.StreetAddress.Length < 10)
         .Select(c => new {c.CompanyName, c.Address.City})
@@ -600,8 +600,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymous3Test()
     {
-      var customers = Query.All<Customer>();
-      var shipper = Query.All<Shipper>();
+      var customers = Session.Query.All<Customer>();
+      var shipper = Session.Query.All<Shipper>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})
         .Where(c => c.Address.StreetAddress.Length < 15)
         .Select(c => new {Name = c.CompanyName, Address = c.Address.City})
@@ -615,7 +615,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void Grouping1Test()
     {
       var localItems = GetLocalItems(10);
-      var queryable = Query.Store(localItems);
+      var queryable = Session.Session.Query.Store(localItems);
       var result = queryable.GroupBy(keySelector => keySelector.Value3.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expected = localItems.GroupBy(keySelector => keySelector.Value3.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expectedList = expected.ToList();
@@ -632,7 +632,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void Grouping2Test()
     {
       var localItems = GetLocalItems(10);
-      var queryable = Query.Store(localItems);
+      var queryable = Session.Session.Query.Store(localItems);
       var result = queryable.GroupBy(keySelector => keySelector.Value3[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expected = localItems.GroupBy(keySelector => keySelector.Value3[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expectedList = expected.ToList();
@@ -649,9 +649,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void Subquery1Test()
     {
       var localItems = GetLocalItems(10);
-      var queryable = Query.Store(localItems);
-      var result = queryable.Select(poco=> Query.All<Order>().Where(order=>order.Freight > poco.Value1)).AsEnumerable().Cast<IEnumerable<Order>>();
-      var expected = localItems.Select(poco=> Query.All<Order>().AsEnumerable().Where(order=>order.Freight > poco.Value1));
+      var queryable = Session.Session.Query.Store(localItems);
+      var result = queryable.Select(poco=> Session.Query.All<Order>().Where(order=>order.Freight > poco.Value1)).AsEnumerable().Cast<IEnumerable<Order>>();
+      var expected = localItems.Select(poco=> Session.Query.All<Order>().AsEnumerable().Where(order=>order.Freight > poco.Value1));
       var expectedList = expected.ToList();
       var resultList = result.ToList();
       Assert.AreEqual(resultList.Count, expectedList.Count);
@@ -667,7 +667,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void Subquery2Test()
     {
       var localItems = GetLocalItems(10);
-      var queryable = Query.Store(localItems);
+      var queryable = Session.Session.Query.Store(localItems);
       var result = queryable.Select(poco=> queryable.Where(poco2=>poco2.Value2 > poco.Value2).Select(p=>p.Value3)).AsEnumerable().Cast<IEnumerable<string>>();
       var expected = localItems.Select(poco=> localItems.Where(poco2=>poco2.Value2 > poco.Value2).Select(p=>p.Value3));
       var expectedList = expected.ToList();
@@ -683,7 +683,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void Aggregate1Test()
     {
       var localItems = GetLocalItems(100);
-      var queryable = Query.Store(localItems);
+      var queryable = Session.Session.Query.Store(localItems);
       var result = queryable.Average(selector => selector.Value1);
       var expected = localItems.Average(selector => selector.Value1);
       Assert.AreEqual(result, expected);
@@ -695,9 +695,9 @@ namespace Xtensive.Storage.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var localItems = GetLocalItems(100);
-      var queryable = Query.Store(localItems);
-      var result = Query.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1));
-      var expected = Query.All<Order>().AsEnumerable().Where(order => order.Freight > localItems.Max(poco=>poco.Value1));
+      var queryable = Session.Session.Query.Store(localItems);
+      var result = Session.Query.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1));
+      var expected = Session.Query.All<Order>().AsEnumerable().Where(order => order.Freight > localItems.Max(poco=>poco.Value1));
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
@@ -707,8 +707,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void ClosureCacheTest()
     {
       var localItems = GetLocalItems(100);
-      var queryable = Query.Store(localItems);
-      var result = Query.Execute(()=>Query.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1)));
+      var queryable = Session.Session.Query.Store(localItems);
+      var result = Session.Query.Execute(()=>Session.Query.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1)));
       QueryDumper.Dump(result);
     }
 
@@ -717,7 +717,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void VeryLongTest()
     {
       var localItems = GetLocalItems(1000000);
-      var result = Query.All<Order>().Join(localItems, order=>order.Freight, localItem=>localItem.Value1, (order, item) => new {order.Employee, item.Value2});
+      var result = Session.Query.All<Order>().Join(localItems, order=>order.Freight, localItem=>localItem.Value1, (order, item) => new {order.Employee, item.Value2});
       QueryDumper.Dump(result);
     }
 

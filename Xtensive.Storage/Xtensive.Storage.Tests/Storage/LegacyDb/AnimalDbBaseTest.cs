@@ -342,15 +342,15 @@ ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Sla
       }
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var animals = Query.All<Animal>().ToList();
-        var dogs = Query.All<Dog>().ToList();
-        var cats = Query.All<Cat>().ToList();
-        var persons = Query.All<Person>().ToList();
-        var dogLovers = Query.All<DogLover>().ToList();
-        var catLovers = Query.All<CatLover>().ToList();
-        var clinics = Query.All<VetClinic>().ToList();
-        var dogClinics = Query.All<DogClinic>().ToList();
-        var catClinics = Query.All<CatClinic>().ToList();
+        var animals = session.Query.All<Animal>().ToList();
+        var dogs = session.Query.All<Dog>().ToList();
+        var cats = session.Query.All<Cat>().ToList();
+        var persons = session.Query.All<Person>().ToList();
+        var dogLovers = session.Query.All<DogLover>().ToList();
+        var catLovers = session.Query.All<CatLover>().ToList();
+        var clinics = session.Query.All<VetClinic>().ToList();
+        var dogClinics = session.Query.All<DogClinic>().ToList();
+        var catClinics = session.Query.All<CatClinic>().ToList();
 
         Assert.AreEqual(3, animals.Count);
         Assert.AreEqual(1, dogs.Count);

@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Storage
         testObject.CheckAutoTransactions();
         new MyEntity();
         try {
-          foreach (var myEntity in Query.All<MyEntity>()) {
+          foreach (var myEntity in session.Query.All<MyEntity>()) {
             throw new InvalidOperationException();
           }
         }

@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Manual.Services
 
           // Entity is really removed:
           Assert.IsTrue(article.IsRemoved);
-          Assert.IsNull(Query.SingleOrDefault(article.Key));
+          Assert.IsNull(session.Query.SingleOrDefault(article.Key));
 
           t.Complete();
         }

@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         Assert.IsNotNull(Session.Current);
         Assert.IsNull(Transaction.Current);
         
-        var alex = Query.Single<Person>(personKeys["Alex"]);
+        var alex = session.Query.Single<Person>(personKeys["Alex"]);
         Assert.IsNull(Transaction.Current);
 
         alex.TransactionalMethodRequiringNewTransaction(null);
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         Console.WriteLine("All persons:");
         var two = 2;
         foreach (var item in 
-          from person in Query.All<Person>()
+          from person in session.Query.All<Person>()
           select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()}) {
           // Transaction is not null while enumeration is still in process; otherwise is null (committed)
           // Assert.IsNotNull(Transaction.Current);
@@ -142,15 +142,15 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         Assert.IsNull(Transaction.Current);
 
         // Auto transactions on scalar queries
-        var count         = Query.All<Person>().Count();
-        var compiledCount = Query.Execute(()  => Query.All<Person>().Count());
+        var count         = session.Query.All<Person>().Count();
+        var compiledCount = session.Query.Execute(()  => session.Query.All<Person>().Count());
         Assert.AreEqual(count, compiledCount);
         Assert.IsNull(Transaction.Current);
 
         // Auto transactions on compiled query enumeration
         Console.WriteLine("All persons (compiled query):");
-        foreach (var item in Query.Execute(() => 
-          from person in Query.All<Person>()
+        foreach (var item in session.Query.Execute(() => 
+          from person in session.Query.All<Person>()
           select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()})) {
           // Transaction is not null while enumeration is still in process; otherwise is null (committed)
           // Assert.IsNotNull(Transaction.Current);
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
             alex.Friends.Add(ivan);
             dmitri.Friends.Add(ivan);
             // All are frieds of all now
-            foreach (var person in Query.All<Person>())
+            foreach (var person in session.Query.All<Person>())
               personKeys[person.Name] = person.Key;
 
             transactionScope.Complete();

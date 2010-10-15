@@ -62,12 +62,12 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
         using (var transactionScope = session.OpenTransaction()) {
-          var hexagon = Query.Single<Hexagon>(key);
+          var hexagon = session.Query.Single<Hexagon>(key);
           hexagon.IncreaseKwanza();
           transactionScope.Complete();
         }
         using (var transactionScope = session.OpenTransaction()) {
-          var hexagon = Query.Single<Hexagon>(key);
+          var hexagon = session.Query.Single<Hexagon>(key);
           hexagon.Remove();
           transactionScope.Complete();
         }

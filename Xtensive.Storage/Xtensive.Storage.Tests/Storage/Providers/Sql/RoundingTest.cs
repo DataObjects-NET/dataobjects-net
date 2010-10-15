@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void TruncCeilFloorTest()
     {
-      var results = Query.All<X>()
+      var results = Session.Demand().Query.All<X>()
         .Select(x => new {
           Double = x.FDouble,
           DoubleTrunc = Math.Truncate(x.FDouble),
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void RoundDefaultTest()
     {
-      var results = Query.All<X>()
+      var results = Session.Demand().Query.All<X>()
         .Select(x => new {
           Double = x.FDouble,
           DoubleRound = Math.Round(x.FDouble),
@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void RoundToEvenTest()
     {
-      var results = Query.All<X>()
+      var results = Session.Demand().Query.All<X>()
         .Select(x => new {
           Double = x.FDouble,
           DoubleRound = Math.Round(x.FDouble, MidpointRounding.ToEven),
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void RoundAwayFromZeroTest()
     {
-      var results = Query.All<X>()
+      var results = Session.Demand().Query.All<X>()
         .Select(x => new {
           Double = x.FDouble,
           DoubleRound = Math.Round(x.FDouble, MidpointRounding.AwayFromZero),

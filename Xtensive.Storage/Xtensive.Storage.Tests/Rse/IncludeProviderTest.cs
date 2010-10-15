@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void SimpleTest()
     {
-      var suppliers = Query.All<Supplier>().Take(10).ToList();
+      var suppliers = Session.Demand().Query.All<Supplier>().Take(10).ToList();
       var ids = suppliers.Select(supplier => (Tuple)Tuple.Create(supplier.Id));
 
       var supplierRs = Domain.Model.Types[typeof (Supplier)].Indexes.PrimaryIndex.ToRecordQuery();

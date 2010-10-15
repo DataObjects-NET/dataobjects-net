@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var employees = Query.All<Employee>();
+          var employees = session.Query.All<Employee>();
           employees.ToList();
         }
       }
@@ -56,10 +56,10 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var query = Query.All<Person>().Select(employee => 
+          var query = session.Query.All<Person>().Select(employee => 
             new {
               employee, 
-              Namesakes = Query.All<Person>()
+              Namesakes = session.Query.All<Person>()
                 .Where(person => person.Name == employee.Name)
             });
 

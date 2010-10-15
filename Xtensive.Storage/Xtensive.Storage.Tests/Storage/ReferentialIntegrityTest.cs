@@ -123,25 +123,25 @@ namespace Xtensive.Storage.Tests.Storage
           a.B = new B();
           a.C = new C();
           Session.Current.SaveChanges();
-          Assert.AreEqual(1, Query.All<A>().Count());
-          Assert.AreEqual(1, Query.All<B>().Count());
-          Assert.AreEqual(1, Query.All<C>().Count());
+          Assert.AreEqual(1, session.Query.All<A>().Count());
+          Assert.AreEqual(1, session.Query.All<B>().Count());
+          Assert.AreEqual(1, session.Query.All<C>().Count());
 
           a.B.Remove();
           Assert.AreEqual(null, a.B);
           AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
           a.Remove();
           // Session.Current.Persist();
-          Assert.AreEqual(0, Query.All<A>().Count());
-          Assert.AreEqual(0, Query.All<B>().Count());
-          Assert.AreEqual(0, Query.All<C>().Count());
+          Assert.AreEqual(0, session.Query.All<A>().Count());
+          Assert.AreEqual(0, session.Query.All<B>().Count());
+          Assert.AreEqual(0, session.Query.All<C>().Count());
 
           Master m = new Master();
           m.OneToMany.Add(new Slave());
           m.OneToMany.Add(new Slave());
           m.OneToMany.Add(new Slave());
           Assert.AreEqual(3, m.OneToMany.Count);
-          Assert.AreEqual(3, ReferenceFinder.GetReferencesTo(m, m.TypeInfo.Fields["OneToMany"].Association.Reversed).Count());
+          Assert.AreEqual(3, ReferenceFinder.GetReferencesTo(m, m.TypeInfo.Fields["OneToMany"].Associations.Last().Reversed).Count());
           m.OneToMany.First().Remove();
           Assert.AreEqual(2, m.OneToMany.Count);
 
@@ -228,9 +228,9 @@ namespace Xtensive.Storage.Tests.Storage
 
           c.Remove();
 
-          Assert.AreEqual(0, Query.All<Container>().Count());
-          Assert.AreEqual(0, Query.All<Package>().Count());
-          Assert.AreEqual(0, Query.All<PackageItem>().Count());
+          Assert.AreEqual(0, session.Query.All<Container>().Count());
+          Assert.AreEqual(0, session.Query.All<Package>().Count());
+          Assert.AreEqual(0, session.Query.All<PackageItem>().Count());
         }
       }
     }
@@ -247,9 +247,9 @@ namespace Xtensive.Storage.Tests.Storage
 
           c.Remove();
 
-          Assert.AreEqual(0, Query.All<Container>().Count());
-          Assert.AreEqual(0, Query.All<Package>().Count());
-          Assert.AreEqual(0, Query.All<PackageItem>().Count());
+          Assert.AreEqual(0, session.Query.All<Container>().Count());
+          Assert.AreEqual(0, session.Query.All<Package>().Count());
+          Assert.AreEqual(0, session.Query.All<PackageItem>().Count());
         }
       }
     }
@@ -275,15 +275,15 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = session.OpenTransaction()) {
           const int operationCount = containersCount*3 + containersCount*itemCount*2;
           using (new Measurement("Remove...", operationCount)) {
-            var containers = Query.All<Container>();
+            var containers = session.Query.All<Container>();
             foreach (var container in containers)
               container.Remove();
             session.SaveChanges();
           }
 
-          Assert.AreEqual(0, Query.All<Container>().Count());
-          Assert.AreEqual(0, Query.All<Package>().Count());
-          Assert.AreEqual(0, Query.All<PackageItem>().Count());
+          Assert.AreEqual(0, session.Query.All<Container>().Count());
+          Assert.AreEqual(0, session.Query.All<Package>().Count());
+          Assert.AreEqual(0, session.Query.All<PackageItem>().Count());
           t.Complete();
         }
       }
@@ -310,13 +310,13 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = session.OpenTransaction()) {
           const int operationCount = containersCount*3 + containersCount*itemCount*2;
           using (new Measurement("Remove...", operationCount)) {
-            Query.All<Container>().Remove();
+            session.Query.All<Container>().Remove();
             session.SaveChanges();
           }
 
-          Assert.AreEqual(0, Query.All<Container>().Count());
-          Assert.AreEqual(0, Query.All<Package>().Count());
-          Assert.AreEqual(0, Query.All<PackageItem>().Count());
+          Assert.AreEqual(0, session.Query.All<Container>().Count());
+          Assert.AreEqual(0, session.Query.All<Package>().Count());
+          Assert.AreEqual(0, session.Query.All<PackageItem>().Count());
           t.Complete();
         }
       }

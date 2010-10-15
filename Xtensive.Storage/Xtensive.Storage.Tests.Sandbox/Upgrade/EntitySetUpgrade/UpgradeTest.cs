@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Upgrade.EntitySetUpgradeTest
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          Assert.AreEqual(1, Query.All<M2.Person>().Count());
+          Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
         }
       }
     }

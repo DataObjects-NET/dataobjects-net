@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
         // Upgrading Person.Friend
         var none = new M2.Person {Name = "None"};
         none.Friend = none;
-        ( from p in Query.All<M2.Person>()
+        ( from p in Session.Demand().Query.All<M2.Person>()
           where p.Friend==null
           select p
         ).ForEach(p => { p.Friend = none; });

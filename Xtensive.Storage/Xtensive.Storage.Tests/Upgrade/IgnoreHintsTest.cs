@@ -46,8 +46,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.AreEqual(1, Query.All<A>().Count());
-          Assert.AreEqual("1", Query.All<A>().First().Y);
+          Assert.AreEqual(1, session.Query.All<A>().Count());
+          Assert.AreEqual("1", session.Query.All<A>().First().Y);
           transaction.Complete();
         }
       }
@@ -55,10 +55,10 @@ namespace Xtensive.Storage.Tests.Upgrade
       BuildDomain(DomainUpgradeMode.Validate);
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.AreEqual(1, Query.All<A>().Count());
-          Assert.AreEqual("1", Query.All<A>().First().X);
-          Assert.AreEqual("1", Query.All<A>().First().Y);
-          Assert.AreEqual(1, Query.All<B>().Count());
+          Assert.AreEqual(1, session.Query.All<A>().Count());
+          Assert.AreEqual("1", session.Query.All<A>().First().X);
+          Assert.AreEqual("1", session.Query.All<A>().First().Y);
+          Assert.AreEqual(1, session.Query.All<B>().Count());
           transaction.Complete();
         }
       }

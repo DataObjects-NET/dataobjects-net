@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
       BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A));
       using (var s = domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
-          Assert.AreEqual(1, Query.All<M1.A>().Count());
+          Assert.AreEqual(1, s.Query.All<M1.A>().Count());
         }
       }
     }
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
       BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A), typeof (M1.B));
       using (var s = domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
-          Assert.AreEqual(2, Query.All<M1.A>().Count());
+          Assert.AreEqual(2, s.Query.All<M1.A>().Count());
         }
       }
     }
@@ -66,8 +66,8 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var s = domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
-          Assert.AreEqual(4, Query.All<M2.A>().Count());
-          var firstD = Query.All<M2.D>().First();
+          Assert.AreEqual(4, s.Query.All<M2.A>().Count());
+          var firstD = s.Query.All<M2.D>().First();
           Assert.AreEqual(2, firstD.RefA.Count());
         }
       }

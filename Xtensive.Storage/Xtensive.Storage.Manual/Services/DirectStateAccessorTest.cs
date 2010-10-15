@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Manual.Services
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var entity = Query.Single<Simple>(entityKey);
+          var entity = session.Query.Single<Simple>(entityKey);
           var entityState = DirectStateAccessor.Get(entity);
 
           var valueFieldState = entityState.GetFieldState("Value");
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Manual.Services
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var container = Query.Single<Container>(containerKey);
+          var container = session.Query.Single<Container>(containerKey);
           var entitySetState = DirectStateAccessor.Get(container.Entities);
           Assert.IsFalse(entitySetState.IsFullyLoaded);
           foreach (var simple in container.Entities) {

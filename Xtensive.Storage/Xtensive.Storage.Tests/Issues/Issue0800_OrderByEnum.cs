@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Issues
           var person1 = new Person(){IntField = 1};
           var person2 = new Person(){IntField = 2};
           var personNull = new Person(){IntField = null};
-          var query = from person in Query.All<Person>()
+          var query = from person in session.Query.All<Person>()
                       select new {Status = person.IntField == null ? Status.Married : Status.Single};
           var result = query.ToList();
           Assert.AreEqual(3, result.Count);

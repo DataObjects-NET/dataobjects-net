@@ -120,11 +120,11 @@ namespace Xtensive.Storage.Manual.Legacy.CustomKeyGenerators
           book.Authors.Add(ben);
 
           // Testing ProxyKeyGenerator
-          Assert.AreSame(joseph, Query.SingleOrDefault(joseph.Key));
-          Assert.AreSame(ben, Query.SingleOrDefault(ben.Key));
+          Assert.AreSame(joseph, session.Query.SingleOrDefault(joseph.Key));
+          Assert.AreSame(ben, session.Query.SingleOrDefault(ben.Key));
           // Must fail, if [KeyGenerator(typeof(ProxyKeyGenerator<Book, Author>))]
           // line is commented
-          Assert.AreSame(book, Query.SingleOrDefault(book.Key));
+          Assert.AreSame(book, session.Query.SingleOrDefault(book.Key));
 
           // Let's finally print the Book 
           Console.WriteLine(book);

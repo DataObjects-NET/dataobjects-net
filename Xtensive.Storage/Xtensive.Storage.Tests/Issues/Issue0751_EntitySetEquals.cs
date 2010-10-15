@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests.Issues
           var person21 = new Person {Company = company2};
           var person22 = new Person {Company = company2};
           var person23 = new Person {Company = company2};
-          var query = from company in Query.All<Company>()
+          var query = from company in session.Query.All<Company>()
                       where null==company.Persons
                       select company;
           var result = query.ToList();
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Issues
           var person21 = new Person {Company = company2};
           var person22 = new Person {Company = company2};
           var person23 = new Person {Company = company2};
-          var query = from company in Query.All<Company>()
+          var query = from company in session.Query.All<Company>()
                       where company.Persons!=null
                       select company;
           var result = query.ToList();
@@ -104,8 +104,8 @@ namespace Xtensive.Storage.Tests.Issues
 
           var query =
             from x in
-              from c1 in Query.All<Company>()
-              join c2 in Query.All<Company>()
+              from c1 in session.Query.All<Company>()
+              join c2 in session.Query.All<Company>()
                 on c1.Name equals c2.Name
               select new {Company1 = c1, Company2 = c2}
             where x.Company1.Persons==x.Company2.Persons
@@ -129,8 +129,8 @@ namespace Xtensive.Storage.Tests.Issues
 
           var query =
             from x in
-              from c1 in Query.All<Company>()
-              join c2 in Query.All<Company>()
+              from c1 in session.Query.All<Company>()
+              join c2 in session.Query.All<Company>()
                 on c1.Name equals c2.Name
               select new {Company1 = c1, Company2 = c2}
             where x.Company1.Persons!=x.Company2.Persons
@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Tests.Issues
           var company2 = new Company {Name = "Company"};
           EntitySet<Person> nullEntitySet = null;
           var query =
-            from c in Query.All<Company>()
+            from c in session.Query.All<Company>()
             where c.Persons==nullEntitySet
             select c;
           var result = query.ToList();
@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Tests.Issues
           var company2 = new Company {Name = "Company2"};
           EntitySet<Person> persons = company1.Persons;
           var query =
-            from c in Query.All<Company>()
+            from c in session.Query.All<Company>()
             where c.Persons==persons
             select c;
           var result = query.ToList();
@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Tests.Issues
           var company1 = new Company {Name = "Company1"};
           var company2 = new Company {Name = "Company2"};
           var query =
-            from c in Query.All<Company>()
+            from c in session.Query.All<Company>()
             where c.Persons==company1.Persons
             select c;
           var result = query.ToList();
@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Tests.Issues
           var company2 = new Company {Name = "Company2"};
           EntitySet<Person> persons = company1.Persons;
           var query =
-            from c in Query.All<Company>()
+            from c in session.Query.All<Company>()
             where c.Persons!=persons
             select c;
           var result = query.ToList();
@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Tests.Issues
     private void ParameterEqual(Company company1, EntitySet<Person> persons)
     {
       var query =
-        from c in Query.All<Company>()
+        from c in Session.Demand().Query.All<Company>()
         where c.Persons==persons
         select c;
       var result = query.ToList();

@@ -425,7 +425,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
           comparisonResult.Operations.Replay();
           // The property KeyMapping provides the mapping from simulated keys of 
           // new objects in the graph to real keys of these objects in the storage
-          var newFreind = Query.Single<User>(Key.Parse((string) comparisonResult.KeyMapping[newFriendDto.Key]));
+          var newFreind = session.Query.Single<User>(Key.Parse((string) comparisonResult.KeyMapping[newFriendDto.Key]));
         }
         tx.Complete();
       }
@@ -583,13 +583,13 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDtos, orderDtos)) {
           comparisonResult.Operations.Replay();
-          var order0 = Query.Single<Order>(Key.Parse(orderDto0.Key));
+          var order0 = session.Query.Single<Order>(Key.Parse(orderDto0.Key));
           Assert.AreEqual(orderDto0.Priority, order0.Priority);
           Assert.AreNotEqual(orderDto0.Customer.FirstName, order0.Customer.FirstName);
           Assert.AreEqual("First", order0.Customer.FirstName);
           Assert.AreEqual(orderDto0.Customer.LastName, order0.Customer.LastName);
           Assert.AreEqual(2, order0.Items.Count);
-          var order1 = Query.Single<Order>(Key.Parse(orderDto1.Key));
+          var order1 = session.Query.Single<Order>(Key.Parse(orderDto1.Key));
           Assert.AreEqual(orderDto1.Priority, order1.Priority);
           Assert.AreEqual(orderDto1.Customer.Key, order0.Customer.Key.Format());
           Assert.AreEqual(2, order0.Items.Count);
@@ -686,7 +686,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var user = Query.Single<User>(Key.Parse(domain, userDto.Key));
+        var user = session.Query.Single<User>(Key.Parse(domain, userDto.Key));
         Assert.AreEqual(userDto.PersonalPage.Title, user.PersonalPage.Title);
         var friend = user.Friends.Single();
         Assert.AreEqual(newFreindDto.Name, friend.Name);
@@ -704,7 +704,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var author = Query.Single<Author>(Key.Parse(authorDto.Key));
+        var author = session.Query.Single<Author>(Key.Parse(authorDto.Key));
         Assert.AreEqual(authorDto.Name, author.Name);
         Assert.AreEqual(2, author.Books.Count);
         var firstBookDto = authorDto.Books[0];
@@ -722,7 +722,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var order = Query.Single<Order>(Key.Parse(orderDto.Key));
+        var order = session.Query.Single<Order>(Key.Parse(orderDto.Key));
         Assert.AreEqual(orderDto.Priority, order.Priority);
         var orderItemDto = orderDto.Items.Single();
         var orderItem = order.Items.Single();
@@ -748,7 +748,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var branch = Query.Single<Branch>(Key.Parse((string) newObjectKeys[branchDto.Key]));
+        var branch = session.Query.Single<Branch>(Key.Parse((string) newObjectKeys[branchDto.Key]));
         Assert.AreEqual(Key.Parse((string) newObjectKeys[branchDto.Trunk.Key]), branch.Trunk.Key);
         Assert.AreEqual(branchDto.Id, branch.Id);
         Assert.AreEqual(branchDto.CreationDate.ToString(), branch.CreationDate.ToString());

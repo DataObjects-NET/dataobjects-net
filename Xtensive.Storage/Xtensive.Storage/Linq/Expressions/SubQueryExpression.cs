@@ -31,14 +31,11 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      // TODO: Aleksey Kochetov, fix it!
       return this;
-      // throw new NotSupportedException();
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      // TODO: Aleksey Kochetov, fix it!
       return this;
     }
 

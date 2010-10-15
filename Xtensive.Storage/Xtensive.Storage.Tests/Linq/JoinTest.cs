@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinWrongKeysTest()
     {
       var result = 
-        from c in Query.All<Category>()
-        join p in Query.All<Product>() on c.Key equals p.Key // Wrong join
+        from c in Session.Query.All<Category>()
+        join p in Session.Query.All<Product>() on c.Key equals p.Key // Wrong join
         select p;
       var list = result.ToList();
     }
@@ -35,25 +35,25 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntityJoinWithNullTest()
     {
-      var id = Query.All<Product>().First().Id;
-      var result = Query.All<Product>()
+      var id = Session.Query.All<Product>().First().Id;
+      var result = Session.Query.All<Product>()
         .Select(p=>p.Id==id ? null : p)
         .Select(p=>p==null ? null : p.Category)
         .ToList();
-      var expected = Query.All<Product>().ToList().Select(p=>p.Id==id ? null : p).Select(p=>p==null ? null : p.Category).ToList();
+      var expected = Session.Query.All<Product>().ToList().Select(p=>p.Id==id ? null : p).Select(p=>p==null ? null : p.Category).ToList();
       Assert.AreEqual(result.Count, expected.Count);
     }
 
     [Test]
     public void EntityJoinWithNullModifiedTest()
     {
-      var id = Query.All<Product>().First().Id;
-      var result = Query.All<Product>()
+      var id = Session.Query.All<Product>().First().Id;
+      var result = Session.Query.All<Product>()
         .Select(p=>(p.Id==id) && (p==null) ? null : 
           (p.Id==id) && (p!=null) ? p.Category /*exception*/ :
           (p.Id!=id) && (p==null) ? null : p.Category)
         .ToList();
-      var expected = Query.All<Product>().ToList()
+      var expected = Session.Query.All<Product>().ToList()
         .Select(p=>p.Id==id ? null : p)
         .Select(p=>p==null ? null : p.Category)
         .ToList();
@@ -66,15 +66,15 @@ namespace Xtensive.Storage.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result =
-        from c in Query.All<Customer>()
-        join o in Query.All<Order>() on c equals o.Customer into ords
-        join e in Query.All<Employee>() on c.Address.City equals e.Address.City into emps
+        from c in Session.Query.All<Customer>()
+        join o in Session.Query.All<Order>() on c equals o.Customer into ords
+        join e in Session.Query.All<Employee>() on c.Address.City equals e.Address.City into emps
         select new {ords = ords.Count(), emps = emps.Count()};
       var list = result.ToList();
       var expected =
-        Query.All<Customer>().Select(c => new {
+        Session.Query.All<Customer>().Select(c => new {
           ords = (int) c.Orders.Count,
-          emps = Query.All<Employee>().Where(e => c.Address.City==e.Address.City).Count()
+          emps = Session.Query.All<Employee>().Where(e => c.Address.City==e.Address.City).Count()
         }).ToList();
 
       Assert.IsTrue(expected.Except(list).Count()==0);
@@ -84,12 +84,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupJoinAggregate2Test()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Query.All<Customer>()
-        .GroupJoin(Query.All<Order>(),
+      var result = Session.Query.All<Customer>()
+        .GroupJoin(Session.Query.All<Order>(),
           customer => customer.Id,
           order => order.Customer.Id,
           (customer, orders) => new {customer, orders})
-        .GroupJoin(Query.All<Employee>(),
+        .GroupJoin(Session.Query.All<Employee>(),
           customerOrders => customerOrders.customer.Address.City,
           employee => employee.Address.City,
           (customerOrders, employees) => new {
@@ -99,12 +99,12 @@ namespace Xtensive.Storage.Tests.Linq
           }).OrderBy(t => t.emps).ThenBy(t => t.ords).ThenBy(t => t.sum);
 
       var list = result.ToList();
-      var expected = Query.All<Customer>().AsEnumerable()
-        .GroupJoin(Query.All<Order>().AsEnumerable(),
+      var expected = Session.Query.All<Customer>().AsEnumerable()
+        .GroupJoin(Session.Query.All<Order>().AsEnumerable(),
           customer => customer.Id,
           order => order.Customer.Id,
           (customer, orders) => new {customer, orders})
-        .GroupJoin(Query.All<Employee>().AsEnumerable(),
+        .GroupJoin(Session.Query.All<Employee>().AsEnumerable(),
           customerOrders => customerOrders.customer.Address.City,
           employee => employee.Address.City,
           (customerOrders, employees) => new {
@@ -122,10 +122,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleJoinTest()
     {
-      var productsCount = Query.All<Product>().Count();
+      var productsCount = Session.Query.All<Product>().Count();
       var result =
-        from product in Query.All<Product>()
-        join supplier in Query.All<Supplier>() on product.Supplier.Id equals supplier.Id
+        from product in Session.Query.All<Product>()
+        join supplier in Session.Query.All<Supplier>() on product.Supplier.Id equals supplier.Id
         select new {product.ProductName, supplier.ContactName, supplier.Phone};
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
@@ -134,9 +134,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleLeftTest()
     {
-      var productsCount = Query.All<Product>().Count();
-      var result = Query.All<Product>()
-        .LeftJoin(Query.All<Supplier>(),
+      var productsCount = Session.Query.All<Product>().Count();
+      var result = Session.Query.All<Product>()
+        .LeftJoin(Session.Query.All<Supplier>(),
           product => product.Supplier.Id,
           supplier => supplier.Id,
           (product, supplier) => new {product.ProductName, supplier.ContactName, supplier.Phone});
@@ -147,10 +147,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void LeftJoin1Test()
     {
-      Query.All<Territory>().First().Region = null;
+      Session.Query.All<Territory>().First().Region = null;
       Session.Current.SaveChanges();
-      var territories = Query.All<Territory>();
-      var regions = Query.All<Region>();
+      var territories = Session.Query.All<Territory>();
+      var regions = Session.Query.All<Region>();
       var result = territories.LeftJoin(
         regions,
         territory => territory.Region,
@@ -166,10 +166,10 @@ namespace Xtensive.Storage.Tests.Linq
 
     public void LeftJoin2Test()
     {
-      Query.All<Territory>().First().Region = null;
+      Session.Query.All<Territory>().First().Region = null;
       Session.Current.SaveChanges();
-      var territories = Query.All<Territory>();
-      var regions = Query.All<Region>();
+      var territories = Session.Query.All<Territory>();
+      var regions = Session.Query.All<Region>();
       var result = territories.LeftJoin(
         regions,
         territory => territory.Region.Id,
@@ -183,10 +183,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SeveralTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var productsCount = products.Count();
-      var suppliers = Query.All<Supplier>();
-      var categories = Query.All<Category>();
+      var suppliers = Session.Query.All<Supplier>();
+      var categories = Session.Query.All<Category>();
       var result = from p in products
       join s in suppliers on p.Supplier.Id equals s.Id
       join c in categories on p.Category.Id equals c.Id
@@ -198,9 +198,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OneToManyTest()
     {
-      var products = Query.All<Product>();
+      var products = Session.Query.All<Product>();
       var productsCount = products.Count();
-      var suppliers = Query.All<Supplier>();
+      var suppliers = Session.Query.All<Supplier>();
       var result = from s in suppliers
       join p in products on s.Id equals p.Supplier.Id
       select new {p.ProductName, s.ContactName};
@@ -212,8 +212,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void EntityJoinTest()
     {
       var result =
-        from c in Query.All<Customer>()
-        join o in Query.All<Order>() on c equals o.Customer
+        from c in Session.Query.All<Customer>()
+        join o in Session.Query.All<Order>() on c equals o.Customer
         select new {c.ContactName, o.OrderDate};
       var list = result.ToList();
     }
@@ -222,8 +222,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnonymousEntityJoinTest()
     {
       var result =
-        from c in Query.All<Customer>()
-        join o in Query.All<Order>()
+        from c in Session.Query.All<Customer>()
+        join o in Session.Query.All<Order>()
           on new {Customer = c, Name = c.ContactName} equals new {o.Customer, Name = o.Customer.ContactName}
         select new {c.ContactName, o.OrderDate};
       var list = result.ToList();
@@ -232,7 +232,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinByCalculatedColumnTest()
     {
-      var customers = Query.All<Customer>();
+      var customers = Session.Query.All<Customer>();
       var localCustomers = customers.ToList();
       var expected =
         from c1 in localCustomers
@@ -251,17 +251,17 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinTest()
     {
-      var categoryCount = Query.All<Category>().Count();
+      var categoryCount = Session.Query.All<Category>().Count();
       var result =
-        from category in Query.All<Category>()
-        join product in Query.All<Product>()
+        from category in Session.Query.All<Category>()
+        join product in Session.Query.All<Product>()
           on category equals product.Category
           into groups
         select groups;
 
       var expected =
-        from category in Query.All<Category>().AsEnumerable()
-        join product in Query.All<Product>().AsEnumerable()
+        from category in Session.Query.All<Category>().AsEnumerable()
+        join product in Session.Query.All<Product>().AsEnumerable()
           on category equals product.Category
           into groups
         select groups;
@@ -273,8 +273,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinWithComparerTest()
     {
-      var categories = Query.All<Category>();
-      var products = Query.All<Product>();
+      var categories = Session.Query.All<Category>();
+      var products = Session.Query.All<Product>();
       var result =
         categories.GroupJoin(
           products,
@@ -288,8 +288,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinNestedTest()
     {
-      var categories = Query.All<Category>();
-      var products = Query.All<Product>();
+      var categories = Session.Query.All<Category>();
+      var products = Session.Query.All<Product>();
       var categoryCount = categories.Count();
       var result =
         categories.OrderBy(c => c.CategoryName)
@@ -307,8 +307,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var categories = Query.All<Category>();
-        var products = Query.All<Product>();
+        var categories = Session.Query.All<Category>();
+        var products = Session.Query.All<Product>();
         var result = categories
           .OrderBy(c => c.CategoryName)
           .GroupJoin(
@@ -329,8 +329,8 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void DefaultIfEmptyTest()
     {
-      var categories = Query.All<Category>();
-      var products = Query.All<Product>();
+      var categories = Session.Query.All<Category>();
+      var products = Session.Query.All<Product>();
       var categoryCount = categories.Count();
       var result = categories.GroupJoin(
         products,
@@ -345,8 +345,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void LeftOuterTest()
     {
-      var categories = Query.All<Category>();
-      var products = Query.All<Product>();
+      var categories = Session.Query.All<Category>();
+      var products = Session.Query.All<Product>();
       var productsCount = products.Count();
       var result = categories.GroupJoin(
         products,
@@ -362,8 +362,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinAnonymousTest()
     {
-      var query = Query.All<Supplier>()
-        .GroupJoin(Query.All<Product>(), s => s, p => p.Supplier, (s, products) => new {
+      var query = Session.Query.All<Supplier>()
+        .GroupJoin(Session.Query.All<Product>(), s => s, p => p.Supplier, (s, products) => new {
           s.CompanyName,
           s.ContactName,
           s.Phone,

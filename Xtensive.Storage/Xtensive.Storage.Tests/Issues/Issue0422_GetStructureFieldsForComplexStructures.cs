@@ -108,10 +108,10 @@ namespace Xtensive.Storage.Tests.Issues
 
           // Query
           session.SaveChanges();
-          var structures = Query.All<EntityB>().Select(b => b.ComplexStructure).Skip(83).Take(1);
+          var structures = session.Query.All<EntityB>().Select(b => b.ComplexStructure).Skip(83).Take(1);
           var str = structures.Single();
-          var testEntities = Query.All<EntityB>().Where(b => b.ComplexStructure==str).ToArray();
-          var actualEntities = Query.All<EntityB>().AsEnumerable().Where(b => b.ComplexStructure==str).ToArray();
+          var testEntities = session.Query.All<EntityB>().Where(b => b.ComplexStructure==str).ToArray();
+          var actualEntities = session.Query.All<EntityB>().AsEnumerable().Where(b => b.ComplexStructure==str).ToArray();
           Assert.AreEqual(0, actualEntities.Except(testEntities).Count());
 
           // Rollback

@@ -85,13 +85,13 @@ namespace Xtensive.Storage.Tests.Issues
         session.SaveChanges();
 
         var ids = new[] { controlId, messageId };
-        var itemsX = Query.All<Control>().Where(a => a.Messages.Select(b => b.Id).Any(id => ids.Contains(id))).ToList();
+        var itemsX = session.Query.All<Control>().Where(a => a.Messages.Select(b => b.Id).Any(id => ids.Contains(id))).ToList();
         Assert.AreEqual(1, itemsX.Count);
         Assert.AreSame(control, itemsX[0]);
-        var itemsA = Query.All<Control>().Where(a => ids.Any(id => a.Messages.Select(b => b.Id).Contains(id))).ToList();
+        var itemsA = session.Query.All<Control>().Where(a => ids.Any(id => a.Messages.Select(b => b.Id).Contains(id))).ToList();
         Assert.AreEqual(1, itemsA.Count);
         Assert.AreSame(control, itemsA[0]);
-        var itemsB = Query.All<Control>().Where(a => ids.ContainsAny(a.Messages.Select(b => b.Id))).ToList();
+        var itemsB = session.Query.All<Control>().Where(a => ids.ContainsAny(a.Messages.Select(b => b.Id))).ToList();
         Assert.AreEqual(1, itemsB.Count);
         Assert.AreSame(control, itemsB[0]);
         t.Complete();

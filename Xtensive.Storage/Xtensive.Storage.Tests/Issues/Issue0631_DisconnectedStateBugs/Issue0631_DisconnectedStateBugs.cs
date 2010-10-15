@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
           using (var tx = session.OpenTransaction()) {
             TestEntity doc;
             using (ds.Connect()) {
-              doc = Query.All<TestEntity>().Where(f => f.Integer == 1).Single();
+              doc = session.Query.All<TestEntity>().Where(f => f.Integer == 1).Single();
               doc.OwnedItems.Add(new OwnedEntity(guidC) { Name = "c" }); // Not a real Add
               doc.OwnedItems.Add(new OwnedEntity(guidD) { Name = "d" }); // Not a real Add
             }
@@ -87,21 +87,17 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         using (ds.Attach(session)) {
           using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
-              var doc = Query.All<TestEntity>().Where(f => f.Integer == 1).Single();
+              var doc = session.Query.All<TestEntity>().Where(f => f.Integer == 1).Single();
               // Must throw an exception, since there is no real entity
-              AssertEx.Throws<InvalidOperationException>(() => {
-                doc.OwnedItems.Single(a => a.Id==guidD);
-              });
+              AssertEx.Throws<InvalidOperationException>(() => doc.OwnedItems.Single(a => a.Id==guidD));
               
               var dItem = doc.OwnedItems.ToList().Single(a => a.Id == guidD);
               // Must throw an exception, because OnRemoveAction on TestEntity.OwnedItems is Deny (default)
-              AssertEx.Throws<ReferentialIntegrityException>(() => {
-                dItem.Remove();
-              });
+              AssertEx.Throws<ReferentialIntegrityException>(dItem.Remove);
               doc.OwnedItems.Remove(dItem);
               dItem.Remove();
               
-              var aItem = Query.All<OwnedEntity>().Single(a => a.Id == guidA);
+              var aItem = session.Query.All<OwnedEntity>().Single(a => a.Id == guidA);
               doc.OwnedItems.Remove(aItem);
               aItem.Remove();
             }
@@ -118,13 +114,13 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         using (ds.Attach(session)) {
           using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
-              var doc = Query.All<TestEntity>()
+              var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
                 .Prefetch(s => s.OwnedItems) // Must not affect here
                 .Single();
-              var anotherEntities = Query.All<OwnedEntity>().ToArray();
-              Query.Single<OwnedEntity>(guidB).Name = "b2";
-              Query.Single<OwnedEntity>(guidC).Name = "c2";
+              var anotherEntities = session.Query.All<OwnedEntity>().ToArray();
+              session.Query.Single<OwnedEntity>(guidB).Name = "b2";
+              session.Query.Single<OwnedEntity>(guidC).Name = "c2";
             }
             // tx.Complete();
           }
@@ -136,20 +132,18 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         using (ds.Attach(session)) {
           using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
-              var doc = Query.All<TestEntity>()
+              var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
                 .Prefetch(s => s.OwnedItems) // Must not affect here
                 .Single();
 
               // Must throw an exception, since there is no real entity
-              AssertEx.Throws<InvalidOperationException>(() => {
                 Query.All<OwnedEntity>().Single(a => a.Id==guidC);
-              });
 
               // But it esxists in EntitySet
-              Assert.AreEqual(Query.Single<OwnedEntity>(guidB).Name, "b");
+              Assert.AreEqual(session.Query.Single<OwnedEntity>(guidB).Name, "b");
               // And this one is in database
-              Assert.AreEqual(Query.All<OwnedEntity>().Single(a => a.Id == guidB).Name, "b");
+              Assert.AreEqual(session.Query.All<OwnedEntity>().Single(a => a.Id == guidB).Name, "b");
             }
           }
         }
@@ -160,14 +154,14 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         using (ds.Attach(session)) {
           using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
-              var doc = Query.All<TestEntity>()
+              var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
                 .Prefetch(s => s.OwnedItems) // Must not affect here
                 .Single(); 
-              Query.Single<OwnedEntity>(guidB).Name = "b2";
-              Query.Single<OwnedEntity>(guidC).Name = "c2";
+              session.Query.Single<OwnedEntity>(guidB).Name = "b2";
+              session.Query.Single<OwnedEntity>(guidC).Name = "c2";
 
-              var aItem = Query.All<OwnedEntity>().Single(a => a.Id == guidA);
+              var aItem = session.Query.All<OwnedEntity>().Single(a => a.Id == guidA);
               doc.OwnedItems.Remove(aItem);
               aItem.Remove();
             }
@@ -181,15 +175,15 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         using (ds.Attach(session)) {
           using (var tx = session.OpenTransaction()) {
             using (ds.Connect()) {
-              var doc = Query.All<TestEntity>()
+              var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
                 .Prefetch(s => s.OwnedItems) // Must not affect here
                 .Single();
 
-              Assert.AreEqual(Query.Single<OwnedEntity>(guidC).Name, "c2");
-              Assert.AreEqual(Query.Single<OwnedEntity>(guidB).Name, "b2");
+              Assert.AreEqual(session.Query.Single<OwnedEntity>(guidC).Name, "c2");
+              Assert.AreEqual(session.Query.Single<OwnedEntity>(guidB).Name, "b2");
 
-              Assert.IsNull(Query.SingleOrDefault<OwnedEntity>(guidA));
+              Assert.IsNull(session.Query.SingleOrDefault<OwnedEntity>(guidA));
               var ownedItems = doc.OwnedItems.ToList();
               Assert.IsFalse(ownedItems.Any(i => i.Id == guidA));
             }
@@ -205,12 +199,12 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
       // Testing if above block has successfully completed
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidB).Name, "b2");
-          Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidC).Name, "c2");
-          Assert.AreEqual(Query.All<OwnedEntity>().Single(i => i.Id == guidD).Name, "d");
+          Assert.AreEqual(session.Query.All<OwnedEntity>().Single(i => i.Id == guidB).Name, "b2");
+          Assert.AreEqual(session.Query.All<OwnedEntity>().Single(i => i.Id == guidC).Name, "c2");
+          Assert.AreEqual(session.Query.All<OwnedEntity>().Single(i => i.Id == guidD).Name, "d");
 
-          Assert.IsNull(Query.All<OwnedEntity>().SingleOrDefault(i => i.Id == guidA));
-          var doc = Query.All<TestEntity>()
+          Assert.IsNull(session.Query.All<OwnedEntity>().SingleOrDefault(i => i.Id == guidA));
+          var doc = session.Query.All<TestEntity>()
             .Where(f => f.Integer == 1)
             .Prefetch(s => s.OwnedItems) // Must not affect here
             .Single();
@@ -227,9 +221,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         using (state.Attach(session)) {
           using (var tx = session.OpenTransaction()) {
             using (state.Connect()) {
-              var partialResult = Query.All<TestEntity>().Select(u => new { u.Date }).ToList();
+              var partialResult = session.Query.All<TestEntity>().Select(u => new { u.Date }).ToList();
               // Exception here, to be fixed
-              var fullResult = Query.All<TestEntity>().ToList();
+              var fullResult = session.Query.All<TestEntity>().ToList();
             }
             tx.Complete();
           }
@@ -246,7 +240,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
         using (state.Attach(session)) {
           using (var tx = session.OpenTransaction()) {
             using (state.Connect()) {
-              var doc = Query.All<TestEntity>()
+              var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
                 .Prefetch(s => s.OwnedItems)
                 .Single();
@@ -273,7 +267,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
           using (var tx = session.OpenTransaction()) {
             using (state.Connect()) {
               // Exception here
-              var doc = Query.All<TestEntity>()
+              var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
                 .Prefetch(s => s.OwnedItems)
                 .Single();

@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Issues
             ThreadPool.QueueUserWorkItem(state => {
                                              using (var session2 = Domain.OpenSession())
                                              using (var t = session2.OpenTransaction()) {
-                                               var count = Query.All<Simple>().Count();
+                                               var count = session.Query.All<Simple>().Count();
                                              }
                                            });
           }

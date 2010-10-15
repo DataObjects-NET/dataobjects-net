@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
 
     public static Person Null { 
       get {
-        return Query.Single<Person>(NullKey);
+        return Session.Demand().Query.Single<Person>(NullKey);
       }
     }
 
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
           lock (@lock) {
             keyExtension = extensions.Get<KeyExtension>();
             if (keyExtension==null) {
-              var nullPerson = Query.All<Person>().Where(p => p.Name==NullName).SingleOrDefault();
+              var nullPerson = Session.Demand().Query.All<Person>().Where(p => p.Name==NullName).SingleOrDefault();
               if (nullPerson!=null) {
                 keyExtension = new KeyExtension {Key = nullPerson.Key};
                 extensions.Set(keyExtension);
@@ -142,11 +142,11 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Domain.OpenSession()) {
         var tAnimal = session.Domain.Model.Types[typeof (Animal)];
         var fMate = tAnimal.Fields["Mate"];
-        Assert.AreEqual(OnRemoveAction.None, fMate.Association.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.None, fMate.Association.OnTargetRemove);
+        Assert.AreEqual(OnRemoveAction.None, fMate.GetAssociation(tAnimal).OnOwnerRemove);
+        Assert.AreEqual(OnRemoveAction.None, fMate.GetAssociation(tAnimal).OnTargetRemove);
         var fMateDenyRemove = tAnimal.Fields["MateDenyRemove"];
-        Assert.AreEqual(OnRemoveAction.None, fMateDenyRemove.Association.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Deny, fMateDenyRemove.Association.OnTargetRemove);
+        Assert.AreEqual(OnRemoveAction.None, fMateDenyRemove.GetAssociation(tAnimal).OnOwnerRemove);
+        Assert.AreEqual(OnRemoveAction.Deny, fMateDenyRemove.GetAssociation(tAnimal).OnTargetRemove);
 
         Animal a,b;
         Key aKey;
@@ -177,8 +177,8 @@ namespace Xtensive.Storage.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var tPerson = session.Domain.Model.Types[typeof(Person)];
         var fMate = tPerson.Fields["Mate"];
-        Assert.AreEqual(OnRemoveAction.None, fMate.Association.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Clear, fMate.Association.OnTargetRemove);
+        Assert.AreEqual(OnRemoveAction.None, fMate.GetAssociation(tPerson).OnOwnerRemove);
+        Assert.AreEqual(OnRemoveAction.Clear, fMate.GetAssociation(tPerson).OnTargetRemove);
 
         var nullPerson = new Person(Person.NullName);
         Assert.AreSame(nullPerson, Person.Null);

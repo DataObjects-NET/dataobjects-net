@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Issues
       }
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var son = Query.All<M2.Son>().Single();
+          var son = session.Query.All<M2.Son>().Single();
           Assert.AreEqual("FirstName", son.FirstName);
           Assert.AreEqual("LastName", son.LastName);
           Assert.AreEqual("NickName", son.NickName);
@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Tests.Issues
       }
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          Assert.IsTrue(Query.All<M3.Father>().Count()==0);
+          Assert.IsTrue(session.Query.All<M3.Father>().Count()==0);
           transactionScope.Complete();
         }
       }

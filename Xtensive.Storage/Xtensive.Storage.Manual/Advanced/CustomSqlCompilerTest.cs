@@ -81,13 +81,6 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
     {
       return SqlDml.Concat(countryExpression, SqlDml.Literal(", "), streetExpression, SqlDml.Literal("-"), buildingExpression);
     }
-
-    [Compiler(typeof(string), "GetHashCode", TargetKind.Method)]
-    public static SqlExpression GetHashCode(SqlExpression _this)
-    {
-      // return string length as hashcode.
-      return SqlDml.CharLength(_this);
-    }
   }
 
   #endregion
@@ -104,7 +97,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
 
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var thirdChars = Query.All<Person>()
+          var thirdChars = session.Query.All<Person>()
             .Select(p => p.Name.GetThirdChar())
             .OrderBy(thirdChar => thirdChar)
             .ToList();
@@ -120,37 +113,16 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
 
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var addresses = Query.All<Person>()
+          var addresses = session.Query.All<Person>()
             .Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(
               p.Address.Country, p.Address.City, p.Address.Building))
             .OrderBy(a => a)
             .ToList();
-          var expectedAddresses = Query.All<Person>().AsEnumerable()
+          var expectedAddresses = session.Query.All<Person>().AsEnumerable()
             .Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(
               p.Address.Country, p.Address.City, p.Address.Building))
             .OrderBy(a=>a);
           Assert.IsTrue(addresses.SequenceEqual(expectedAddresses));
-        }
-      }
-    }
-
-    [Test]
-    public void CustomGetHashCodeTest()
-    {
-      var domain = GetDomain();
-
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          var hashCodes = Query.All<Person>()
-            .OrderBy(p => p.Id)
-            .Select(p => p.Address.Country.GetHashCode())
-            .ToList();
-          var expectedHashCodes = Query.All<Person>()
-            .OrderBy(p => p.Id)
-            .Select(p => p.Address.Country)
-            .ToList()
-            .Select(country => country.Length);
-          Assert.IsTrue(hashCodes.SequenceEqual(expectedHashCodes));
         }
       }
     }

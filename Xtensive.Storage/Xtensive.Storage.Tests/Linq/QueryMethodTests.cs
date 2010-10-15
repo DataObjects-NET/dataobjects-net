@@ -17,9 +17,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SingleParameterTest()
     {
-      var key = Query.All<Customer>().First().Key;
-      var query = Query.All<Customer>().Where(c => c==Query.Single(key));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.Single(key));
+      var key = Session.Query.All<Customer>().First().Key;
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.Single(key));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single(key));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
@@ -27,16 +27,16 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void SingleSubqueryNonGenericTest()
     {
-      var query = Query.All<Customer>().Where(c => c==Query.Single(Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.Single(Query.All<Customer>().FirstOrDefault().Key));
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
     [Test]
     public void SingleSubqueryKeyTest()
     {
-      var query = Query.All<Customer>().Where(c => c==Query.Single<Customer>(Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.Single<Customer>(Query.All<Customer>().FirstOrDefault().Key));
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
@@ -44,17 +44,17 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void SingleSubqueryTupleTest()
     {
-      var query = Query.All<Customer>().Where(c => c==Query.Single<Customer>(Query.All<Customer>().FirstOrDefault().Id));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.Single<Customer>(Query.All<Customer>().FirstOrDefault().Id));
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
     [Test]
     public void SingleOrDefaultParameterTest()
     {
-      var key = Query.All<Customer>().First().Key;
-      var query = Query.All<Customer>().Where(c => c==Query.SingleOrDefault(key));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.SingleOrDefault(key));
+      var key = Session.Query.All<Customer>().First().Key;
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.SingleOrDefault(key));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.SingleOrDefault(key));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
@@ -62,16 +62,16 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void SingleOrDefaultSubqueryNonGenericTest()
     {
-      var query = Query.All<Customer>().Where(c => c==Query.SingleOrDefault(Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.SingleOrDefault(Query.All<Customer>().FirstOrDefault().Key));
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.SingleOrDefault(Session.Query.All<Customer>().FirstOrDefault().Key));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.SingleOrDefault(Session.Query.All<Customer>().FirstOrDefault().Key));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
     [Test]
     public void SingleOrDefaultSubqueryKeyTest()
     {
-      var query = Query.All<Customer>().Where(c => c==Query.SingleOrDefault<Customer>(Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.SingleOrDefault<Customer>(Query.All<Customer>().FirstOrDefault().Key));
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
@@ -79,25 +79,25 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(QueryTranslationException))]
     public void SingleOrDefaultSubqueryTupleTest()
     {
-      var query = Query.All<Customer>().Where(c => c==Query.SingleOrDefault<Customer>(Query.All<Customer>().FirstOrDefault().Id));
-      var expected = Query.All<Customer>().AsEnumerable().Where(c => c==Query.SingleOrDefault<Customer>(Query.All<Customer>().FirstOrDefault().Id));
+      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
     [Test]
     public void Store1Test()
     {
-      var localCustomers = Query.All<Customer>().Take(10).ToList();
-      var query = Query.All<Customer>().Join(Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
-      var expected = Query.All<Customer>().AsEnumerable().Join(Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var localCustomers = Session.Query.All<Customer>().Take(10).ToList();
+      var query = Session.Query.All<Customer>().Join(Session.Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
     [Test]
     public void Store2Test()
     {
-      var query = Query.All<Customer>().Join(Query.Store(Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
-      var expected = Query.All<Customer>().AsEnumerable().Join(Query.Store(Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var query = Session.Query.All<Customer>().Join(Session.Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
       Assert.AreEqual(0, expected.Except(query).Count());
     }
   }

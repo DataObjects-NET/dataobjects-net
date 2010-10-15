@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Issues
         var link = new Link() {LinkSource = source, LinkDestination = destination};
 
         var query = 
-          from l in Query.All<Link>()
+          from l in session.Query.All<Link>()
           where l.LinkSource == source && l.LinkDestination.Text == "Destination"
           select l.LinkDestination;
 

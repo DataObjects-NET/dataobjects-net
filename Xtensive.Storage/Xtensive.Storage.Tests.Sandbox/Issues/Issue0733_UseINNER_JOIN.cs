@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (var t = session.OpenTransaction()) {
         var derived = new Derived() {State = "new"};
 
-        var list = Query.All<Derived>()
+        var list = session.Query.All<Derived>()
           .Where(d => d.State == "new")
           .ToList();
       }

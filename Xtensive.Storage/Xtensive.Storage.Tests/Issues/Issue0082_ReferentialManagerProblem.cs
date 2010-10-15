@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
-          var allD = from d in Query.All<Descendant>() select d;
+          var allD = from d in session.Query.All<Descendant>() select d;
           foreach (var d in allD)
             d.Remove();
           t.Complete();

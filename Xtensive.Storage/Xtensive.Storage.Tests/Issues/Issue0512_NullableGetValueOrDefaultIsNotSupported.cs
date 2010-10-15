@@ -28,9 +28,9 @@ namespace Xtensive.Storage.Tests.Issues
       using (session.OpenTransaction()) {
         new X {FNInt = 5};
         new X();
-        var sum1 = Query.All<X>().Sum(x => x.FNInt.GetValueOrDefault());
+        var sum1 = session.Query.All<X>().Sum(x => x.FNInt.GetValueOrDefault());
         Assert.AreEqual(5, sum1);
-        var sum2 = Query.All<X>().Sum(x => x.FNInt.GetValueOrDefault(1));
+        var sum2 = session.Query.All<X>().Sum(x => x.FNInt.GetValueOrDefault(1));
         Assert.AreEqual(6, sum2);
       }
     }

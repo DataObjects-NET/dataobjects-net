@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Issues
             Date = DateTime.Now,
             Text = "Text"
           };
-          var query = Query.All<MyEntity>()
+          var query = session.Query.All<MyEntity>()
             .Select(e => new {
               MyEntity = e,
               Year = (int?) e.Date.Value.Year,

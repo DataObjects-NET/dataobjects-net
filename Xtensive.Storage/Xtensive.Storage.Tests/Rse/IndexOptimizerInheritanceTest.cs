@@ -116,8 +116,8 @@ namespace Xtensive.Storage.Tests.Rse
 
       Expression<Func<T, bool>> predicate = product => product.UnitPrice > 10 && product.UnitPrice < 70 
         || product.ProductName.GreaterThan("e") && product.ProductName.GreaterThan("t");
-      var expected = Query.All<T>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
-      var query = Query.All<T>().Where(predicate).OrderBy(o => o.Id);
+      var expected = Session.Demand().Query.All<T>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+      var query = Session.Demand().Query.All<T>().Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       var primaryIndex = Domain.Model.Types[typeof (T)].Indexes.PrimaryIndex;
       primaryIndexValidator(primaryIndex);

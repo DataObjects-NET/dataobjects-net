@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void MultipleTakeSkipRandomTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      IQueryable<Customer> query = Query.All<Customer>().OrderBy(customer=>customer.Id);
+      IQueryable<Customer> query = Session.Query.All<Customer>().OrderBy(customer=>customer.Id);
       int count = query.Count();
       var expected = query.AsEnumerable();
       var randomManager = RandomManager.CreateRandom();
@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseSkipTest()
     {
-      var totalCount = Query.All<Customer>().Count();
+      var totalCount = Session.Query.All<Customer>().Count();
       var result1 = SkipCustomersIncorrect(1).Count();
       Assert.AreEqual(totalCount - 1, result1);
       var result2 = SkipCustomersIncorrect(2).Count();
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void ReuseSkip2Test()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var totalCount = Query.All<Customer>().Count();
+      var totalCount = Session.Query.All<Customer>().Count();
       var result1 = SkipCustomersCorrect(1).Count();
       Assert.AreEqual(totalCount - 1, result1);
       var result2 = SkipCustomersCorrect(2).Count();
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseElementAtTest()
     {
-      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = 0; i < customers.Count; i++)
         Assert.AreEqual(customers[i], ElementAtIncorrect(i));
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void ReuseElementAt2Test()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++)
         if (i < 0) {
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void ReuseElementAtOrDefaultTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseElementAtOrDefault2Test()
     {
-      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
@@ -170,13 +170,13 @@ namespace Xtensive.Storage.Tests.Linq
     public void ElementAtOrDefaultIsNotRootTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
-          Assert.IsNull(Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
+          Assert.IsNull(Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
         else
-          Assert.AreEqual(customers[i], Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
+          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
       }
     }
 
@@ -184,13 +184,13 @@ namespace Xtensive.Storage.Tests.Linq
     public void ElementAtOrDefaultIsRootTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var customers = Query.All<Customer>().ToList();
+      var customers = Session.Query.All<Customer>().ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
-          Assert.IsNull(Query.All<Customer>().ElementAtOrDefault(i));
+          Assert.IsNull(Session.Query.All<Customer>().ElementAtOrDefault(i));
         else
-          Assert.AreEqual(customers[i], Query.All<Customer>().ElementAtOrDefault(i));
+          Assert.AreEqual(customers[i], Session.Query.All<Customer>().ElementAtOrDefault(i));
       }
     }
 
@@ -198,19 +198,19 @@ namespace Xtensive.Storage.Tests.Linq
     public void ElementAtIsNotRootTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {
           int index = i;
-          AssertEx.ThrowsArgumentOutOfRangeException(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+          AssertEx.ThrowsArgumentOutOfRangeException(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
         }
         else if (i >= customers.Count) {
           int index = i;
-          AssertEx.ThrowsInvalidOperationException(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+          AssertEx.ThrowsInvalidOperationException(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
         }
         else
-          Assert.AreEqual(customers[i], Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(i));
+          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(i));
       }
     }
 
@@ -218,60 +218,60 @@ namespace Xtensive.Storage.Tests.Linq
     public void ElementAtIsRootTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var customers = Query.All<Customer>().ToList();
+      var customers = Session.Query.All<Customer>().ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {
           int index = i;
-          AssertEx.ThrowsArgumentOutOfRangeException(() => Query.All<Customer>().ElementAt(index));
+          AssertEx.ThrowsArgumentOutOfRangeException(() => Session.Query.All<Customer>().ElementAt(index));
         }
         else if (i >= customers.Count) {
           int index = i;
-          AssertEx.ThrowsInvalidOperationException(() => Query.All<Customer>().ElementAt(index));
+          AssertEx.ThrowsInvalidOperationException(() => Session.Query.All<Customer>().ElementAt(index));
         }
         else
-          Assert.AreEqual(customers[i], Query.All<Customer>().ElementAt(i));
+          Assert.AreEqual(customers[i], Session.Query.All<Customer>().ElementAt(i));
       }
     }
 
     private IEnumerable<Customer> TakeCustomersIncorrect(int amount)
     {
-      return Query.Execute(() => Query.All<Customer>().Take(amount));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().Take(amount));
     }
 
     private IEnumerable<Customer> TakeCustomersCorrect(int amount)
     {
-      return Query.Execute(() => Query.All<Customer>().Take(() => amount));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().Take(() => amount));
     }
 
     private IEnumerable<Customer> SkipCustomersIncorrect(int skip)
     {
-      return Query.Execute(() => Query.All<Customer>().Skip(skip));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().Skip(skip));
     }
 
     private IEnumerable<Customer> SkipCustomersCorrect(int skip)
     {
-      return Query.Execute(() => Query.All<Customer>().Skip(() => skip));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().Skip(() => skip));
     }
 
     private Customer ElementAtIncorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
     }
 
     private Customer ElementAtCorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(() => index));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(() => index));
     }
 
     private Customer ElementAtOrDefaultIncorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(index));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(index));
     }
 
     private Customer ElementAtOrDefaultCorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(() => index));
+      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(() => index));
     }
   }
 }

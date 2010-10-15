@@ -56,8 +56,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       {
 #pragma warning disable 612,618
         var authorMap = new Dictionary<Guid, Author2>();
-        var rcAuthors = Query.All<RcAuthor>();
-        var books = Query.All<Book2>();
+        var rcAuthors = Session.Demand().Query.All<RcAuthor>();
+        var books = Session.Demand().Query.All<Book2>();
         foreach (var rcAuthor in rcAuthors) {
           var author = new Author2() { Name = rcAuthor.Name };
           authorMap.Add(rcAuthor.Id, author);
@@ -94,13 +94,13 @@ namespace Xtensive.Storage.Tests.Upgrade
       BuildDomain("Version2Perform", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var authorCount = Query.All<PrimaryKeyModel.Version2Perform.Author>().Count(a => a.Name == "Jack London");
-        var bookCount = Query.All<PrimaryKeyModel.Version2Perform.Book>().Count();
+        var authorCount = session.Query.All<PrimaryKeyModel.Version2Perform.Author>().Count(a => a.Name == "Jack London");
+        var bookCount = session.Query.All<PrimaryKeyModel.Version2Perform.Book>().Count();
         // Nothing is kept, since there is no upgrade handler
         Assert.AreEqual(0, authorCount);
         Assert.AreEqual(0, bookCount);
-        var author = Query.All<PrimaryKeyModel.Version2Perform.Author>().FirstOrDefault(a => a.Name == "Jack London");
-        var book = Query.All<PrimaryKeyModel.Version2Perform.Book>().FirstOrDefault();
+        var author = session.Query.All<PrimaryKeyModel.Version2Perform.Author>().FirstOrDefault(a => a.Name == "Jack London");
+        var book = session.Query.All<PrimaryKeyModel.Version2Perform.Book>().FirstOrDefault();
         Assert.IsNull(author);
         Assert.IsNull(book);
         t.Complete();
@@ -113,12 +113,12 @@ namespace Xtensive.Storage.Tests.Upgrade
       BuildDomain("Version2PerformSafely", DomainUpgradeMode.PerformSafely);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var authorCount = Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().Count(a => a.Name == "Jack London");
-        var bookCount = Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().Count();
+        var authorCount = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().Count(a => a.Name == "Jack London");
+        var bookCount = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().Count();
         Assert.AreEqual(1, authorCount);
         Assert.AreEqual(1, bookCount);
-        var author = Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().FirstOrDefault(a => a.Name == "Jack London");
-        var book = Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().FirstOrDefault();
+        var author = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().FirstOrDefault(a => a.Name == "Jack London");
+        var book = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().FirstOrDefault();
         Assert.IsNotNull(author);
         Assert.IsNotNull(book);
         Assert.AreSame(author, book.Author);

@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Serialization
     private EntityReference(SerializationInfo info, StreamingContext context)
     {
       Key key = Key.Parse(info.GetString(KeyValueName));
-      entity = Query.SingleOrDefault(key);
+      entity = Session.Demand().Query.SingleOrDefault(key);
 
       if (entity==null)
         throw new InvalidOperationException(

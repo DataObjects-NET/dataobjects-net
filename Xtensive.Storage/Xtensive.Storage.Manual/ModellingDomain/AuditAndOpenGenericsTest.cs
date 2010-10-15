@@ -266,7 +266,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
           .Prefetch<AuditRecord, Key>(key => key)
           .Run();
         foreach (var key in changedEntities) {
-          var entity = Query.SingleOrDefault(key);
+          var entity = session.Query.SingleOrDefault(key);
           bool isRemoved = entity.IsRemoved();
           bool isCreated = info.CreatedEntities.Contains(key);
           if (isRemoved && isCreated)
@@ -341,8 +341,8 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          Assert.AreEqual(1, Query.All<TransactionInfo>().Count());
-          Assert.AreEqual(2, Query.All<AuditRecord<Animal>>().Count());
+          Assert.AreEqual(1, session.Query.All<TransactionInfo>().Count());
+          Assert.AreEqual(2, session.Query.All<AuditRecord<Animal>>().Count());
           musya = new Cat();
           tx.Complete();
         }
@@ -371,7 +371,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
         using (var tx = session.OpenTransaction())
         {
-          alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
+          alex = session.Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
         }
 
         using (var tx = session.OpenTransaction())
@@ -409,7 +409,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
     {
       Console.WriteLine("Audit log:");
       var auditTable =
-        from record in Query.All<AuditRecord>()
+        from record in Session.Demand().Query.All<AuditRecord>()
         let transaction = record.Transaction
         orderby transaction.Id , record.EntityKey
         select new {Record = record, Transaction = transaction};

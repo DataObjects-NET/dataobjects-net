@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.IndexAttribute_
     {
       // Filtering and ordering uses secondary index
       return
-        from person in Query.All<Person>()
+        from person in Session.Demand().Query.All<Person>()
         where person.Age > age
         orderby person.Age
         select person;
@@ -83,9 +83,9 @@ namespace Xtensive.Storage.Manual.ModellingDomain.IndexAttribute_
 
     public Person GetPersonByName(string firstName, string lastName)
     {
-      // Filtering uses unique secondery index
+      // Filtering uses unique secondary index
       return (
-        from person in Query.All<Person>()
+        from person in Session.Demand().Query.All<Person>()
         where person.FirstName==firstName && person.LastName==lastName
         select person
         ).FirstOrDefault();
