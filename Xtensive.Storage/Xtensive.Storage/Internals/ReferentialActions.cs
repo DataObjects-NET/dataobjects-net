@@ -36,7 +36,12 @@ namespace Xtensive.Storage.Internals
     {
       var nullIsEntity = owner as IHasNullEntity;
       var nullValue = nullIsEntity==null ? null : nullIsEntity.NullEntity;
-      ((Entity) owner).SetFieldValue(association.OwnerField, nullValue, syncContext, removalContext);
+      if (nullValue!=null || association.OwnerField.IsNullable)
+        // If field is non-nullable & null value is real null, we should avoid assigning it,
+        // since this will lead to an error on persist in almost any case;
+        // but if we won't assign it, it will either fail with ref. constraint violation later,
+        // or will succeed, if both target and owner will be removed.
+        ((Entity) owner).SetFieldValue(association.OwnerField, nullValue, syncContext, removalContext);
     }
 
     private static void OnSetReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
