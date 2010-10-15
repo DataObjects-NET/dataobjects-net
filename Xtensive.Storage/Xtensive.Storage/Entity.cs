@@ -818,13 +818,13 @@ namespace Xtensive.Storage
         using (operations.BeginRegistration(OperationType.System)) {
           if (operations.CanRegisterOperation)
             operations.RegisterOperation(new EntityInitializeOperation(key), true);
-          var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
+          var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Associations.Any(a => a.IsPaired)).ToList();
           if (references.Count > 0) {
             using (Session.Pin(this)) {
               foreach (var referenceField in references) {
                 var referenceValue = (Entity) GetFieldValue(referenceField);
                 Session.PairSyncManager.ProcessRecursively(null, null,
-                  PairIntegrity.OperationType.Set, referenceField.Association, this, referenceValue, null);
+                  PairIntegrity.OperationType.Set, referenceField.GetAssociation(referenceValue.TypeInfo), this, referenceValue, null);
               }
             }
           }

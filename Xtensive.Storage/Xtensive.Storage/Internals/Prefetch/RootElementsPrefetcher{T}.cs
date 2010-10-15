@@ -202,9 +202,13 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private void HandleReferencedKeyExtraction(Key ownerKey, FieldInfo referencingField, Key referencedKey)
     {
-      var type = referencingField.IsEntitySet
-        ? sessionHandler.Session.Domain.Model.Types[referencingField.ItemType]
-        : referencingField.Association.TargetType;
+      TypeInfo type;
+      if (referencedKey.HasExactType)
+        type = referencedKey.Type;
+      else
+        type = referencingField.IsEntitySet
+          ? sessionHandler.Session.Domain.Model.Types[referencingField.ItemType]
+          : referencingField.Associations.Last().TargetType;
       GetReferencedKeysList(ownerKey).AddLast(new Pair<Key, TypeInfo>(referencedKey, type));
     }
 

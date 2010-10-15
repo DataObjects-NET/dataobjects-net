@@ -409,8 +409,10 @@ namespace Xtensive.Storage
           {
             SystemBeforeSetValue(field, value);
             operations.NotifyOperationStarting(false);
-            var structure = value as Structure;
-            var association = field.Association;
+            AssociationInfo association = null;
+            var entity = value as Entity ?? oldValue as Entity;
+            if (entity != null)
+              association = field.GetAssociation(entity.TypeInfo);
             if (association!=null && association.IsPaired) {
               Key currentKey = GetReferenceKey(field);
               Key newKey = null;

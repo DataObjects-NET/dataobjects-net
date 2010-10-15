@@ -88,7 +88,7 @@ namespace Xtensive.Storage
       if (result != null) {
         if (result.PersistenceState==PersistenceState.Removed)
           return;
-        result.Entity.Remove();
+        result.Entity.RemoveLater();
         return;
       }
 

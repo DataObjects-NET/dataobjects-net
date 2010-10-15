@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Building.Builders
       var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnOwnerRemove, fieldDef.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
-      field.Association = association;
+      field.Associations.Add(association);
 
       if (!fieldDef.PairTo.IsNullOrEmpty())
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
@@ -36,11 +36,45 @@ namespace Xtensive.Storage.Building.Builders
       var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnOwnerRemove, origin.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
-      field.Association = association;
+      var associationsToRemove = field.Associations
+        .Where(a => a.TargetType == association.TargetType)
+        .ToList();
+      foreach (var toRemove in associationsToRemove)
+        field.Associations.Remove(toRemove);
+      field.Associations.Add(association);
 
       var pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
       if (pairTo.First!=null)
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, pairTo.Second));
+    }
+
+    public static void BuildReversedAssociation(AssociationInfo origin, string fieldName)
+    {
+      var context = BuildingContext.Demand();
+      var owner = origin.TargetType;
+      var field = owner.Fields[fieldName];
+      var multiplicity = origin.Multiplicity;
+      if (origin.Multiplicity == Multiplicity.OneToMany)
+        multiplicity = Multiplicity.ManyToOne;
+      else if (origin.Multiplicity == Multiplicity.ManyToOne)
+        multiplicity = Multiplicity.OneToMany;
+      else if (origin.Multiplicity == Multiplicity.ZeroToMany)
+        multiplicity = field.IsEntity 
+          ? Multiplicity.ZeroToOne
+          : Multiplicity.ZeroToMany;
+      else if (origin.Multiplicity == Multiplicity.ZeroToOne)
+        multiplicity = field.IsEntity
+          ? Multiplicity.ZeroToOne
+          : Multiplicity.ZeroToMany;
+
+      var association = new AssociationInfo(field, origin.OwnerType, multiplicity, origin.OnTargetRemove, origin.OnOwnerRemove);
+      association.Name = context.NameBuilder.BuildAssociationName(association);
+      AssociationInfo existing;
+      if (!context.Model.Associations.TryGetValue(association.Name, out existing)) {
+        context.Model.Associations.Add(association);
+        association.Ancestors.AddRange(field.Associations);
+        field.Associations.Add(association);
+      }
     }
 
     public static void BuildPairedAssociation(AssociationInfo slave, string masterFieldName)
@@ -56,26 +90,51 @@ namespace Xtensive.Storage.Building.Builders
           string.Format(Strings.ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
 
       var pairedField = slave.OwnerField;
-      var master = masterField.Association;
-      var pairedFieldOwner = pairedField.DeclaringType.UnderlyingType;
+      var master = masterField.GetAssociation(slave.OwnerType);
+      var pairedFieldOwnerType = pairedField.DeclaringType.UnderlyingType;
 
-      if (masterField.IsEntity && !pairedFieldOwner.IsAssignableFrom(masterField.ValueType))
-        throw new DomainBuilderException(string.Format(
-          Strings.ExPairedFieldForFieldXYShouldBeAssignableToTypeZ,
-          pairedField.DeclaringType.UnderlyingType.GetShortName(),
-          pairedField.Name, pairedFieldOwner.GetShortName()));
-      if (masterField.IsEntitySet && !pairedFieldOwner.IsAssignableFrom(masterField.ItemType))
-        throw new DomainBuilderException(string.Format(
-          Strings.PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ,
-          pairedField.DeclaringType.UnderlyingType.GetShortName(),
-          pairedField.Name, pairedFieldOwner.GetShortName()));
+      if (masterField.IsEntity)
+        if ( master == null
+          || master.TargetType != slave.OwnerType 
+          || master.OwnerType != slave.TargetType
+          || !masterField.ValueType.IsAssignableFrom(pairedFieldOwnerType))
+//          || !pairedFieldOwnerType.IsAssignableFrom(masterField.ValueType))
+          throw new DomainBuilderException(string.Format(
+            Strings.ExXYFieldPairedToZAFieldShouldBeBButCurrentIsC,
+            masterField.ReflectedType.UnderlyingType.GetShortName(),
+            masterField.Name,
+            pairedField.ReflectedType.UnderlyingType.GetShortName(),
+            pairedField.Name,
+            pairedFieldOwnerType.GetShortName(),
+            masterField.ValueType.GetShortName()));
+
+      if (masterField.IsEntitySet)
+        if (master == null
+          || master.TargetType != slave.OwnerType 
+          || master.OwnerType != slave.TargetType 
+          || !masterField.ItemType.IsAssignableFrom(pairedFieldOwnerType))
+//          || !pairedFieldOwnerType.IsAssignableFrom(masterField.ItemType))
+          throw new DomainBuilderException(string.Format(
+            Strings.ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC,
+            masterField.ReflectedType.UnderlyingType.GetShortName(),
+            masterField.Name,
+            pairedField.ReflectedType.UnderlyingType.GetShortName(),
+            pairedField.Name,
+            pairedFieldOwnerType.GetShortName(),
+            masterField.ItemType.GetShortName()));
 
       if (master.Reversed!=null) {
         if (master.Reversed!=slave
           || (masterField.IsEntitySet && pairedField.IsEntitySet) // Unclear which side is virtual
           || (masterField.IsEntity    && pairedField.IsEntity))   // Unclear which side is virtual
           throw new InvalidOperationException(String.Format(
-            Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
+            Strings.ExFieldXYIsAlreadyPairedWithABRemoveCD,
+            master.OwnerType.UnderlyingType.GetShortName(),
+            master.OwnerField.Name,
+            master.TargetType.UnderlyingType.GetShortName(),
+            master.Reversed.OwnerField.Name,
+            slave.OwnerType.UnderlyingType.GetShortName(), 
+            slave.OwnerField.Name));
       }
 
       slave.IsMaster = false;

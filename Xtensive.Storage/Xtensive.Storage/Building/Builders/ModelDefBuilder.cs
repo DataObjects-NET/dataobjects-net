@@ -268,9 +268,9 @@ namespace Xtensive.Storage.Building.Builders
       if (fieldAttributes.Length!=0) {
         var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>() ?? fieldAttributes.First();
         AttributeProcessor.Process(fieldDef, fieldAttribute);
-        var associationAttribute = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
-        if (associationAttribute!=null)
-          AttributeProcessor.Process(fieldDef, associationAttribute);
+        var associationAttributes = propertyInfo.GetAttributes<AssociationAttribute>(AttributeSearchOptions.InheritAll);
+        if (associationAttributes.Length != 0)
+          AttributeProcessor.Process(fieldDef, associationAttributes);
         var mappingAttributes = propertyInfo.GetAttributes<FieldMappingAttribute>(AttributeSearchOptions.InheritAll);
         foreach (var fieldMappingAttribute in mappingAttributes)
           AttributeProcessor.Process(fieldDef, fieldMappingAttribute);
