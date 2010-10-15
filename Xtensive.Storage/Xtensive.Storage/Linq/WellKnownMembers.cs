@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Linq
 
       static Query()
       {
+#pragma warning disable 612,618
         All = typeof(Storage.Query).GetMethod("All", ArrayUtils<Type>.EmptyArray);
         FreeTextString = typeof (Storage.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (string));
         FreeTextExpression = typeof (Storage.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>));
@@ -43,6 +44,7 @@ namespace Xtensive.Storage.Linq
         var singleOrDefaultMethods = typeof (Storage.Query).GetMethods().Where(m => m.Name=="SingleOrDefault" && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Storage.Key));
         SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
+#pragma warning restore 612,618
       }
     }
 
