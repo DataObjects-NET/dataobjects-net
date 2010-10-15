@@ -13,15 +13,12 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {
-      if (context.Contains(target))
-        return;
-
       switch (association.Multiplicity) {
-      case Multiplicity.ZeroToMany:
-      case Multiplicity.OneToMany:
-      case Multiplicity.ManyToMany:
-        ReferentialActions.RemoveReference(association, referencingObject, referencedObject, null, context);
-        break;
+        case Multiplicity.ZeroToMany:
+        case Multiplicity.OneToMany:
+        case Multiplicity.ManyToMany:
+          ReferentialActions.RemoveReference(association, referencingObject, referencedObject, null, context);
+          break;
       }
       target.RemoveLater();
     }
