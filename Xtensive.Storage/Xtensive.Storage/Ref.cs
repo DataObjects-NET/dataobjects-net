@@ -27,20 +27,42 @@ namespace Xtensive.Storage
     ISerializable
     where T : class, IEntity
   {
-    private readonly Key key;
+    private object keyOrString;
 
     /// <summary>
     /// Gets the key of the referenced entity.
     /// </summary>
     public Key Key {
-      get { return key; }
+      get {
+        if (keyOrString==null)
+          return null;
+        var key = keyOrString as Key;
+        if (key==null) {
+          key = Key.Parse((string) keyOrString);
+          keyOrString = key;
+        }
+        return key;
+      }
+    }
+
+    /// <summary>
+    /// Gets the formatted key of the referenced entity.
+    /// Formatted key is the string produced with <see cref="Storage.Key.Format"/>.
+    /// </summary>
+    public string FormattedKey {
+      get {
+        if (keyOrString==null)
+          return null;
+        var key = keyOrString as Key;
+        return key!=null ? key.Format() : (string) keyOrString;
+      }
     }
 
     /// <summary>
     /// Gets the referenced entity (resolves the reference).
     /// </summary>
     public T Value {
-      get { return Session.Demand().Query.Single<T>(key); }
+      get { return Session.Demand().Query.Single<T>(Key); }
     }
 
     #region Equality members
@@ -81,9 +103,10 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
+      var key = Key;
       return string.Format(Strings.RefFormat,
         typeof (T).GetShortName(),
-        key==null ? Strings.Null : key.ToString());
+        key==null ? Strings.Null : Key.ToString());
     }
 
     #region Cast operators
@@ -133,17 +156,34 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    private Ref(Key key)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="key">The key of entity this reference points to.</param>
+    public Ref(Key key)
     {
-      this.key = key;
+      keyOrString = key;
     }
 
-    private Ref(T entity)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="key">The formatted key of entity this reference points to.</param>
+    public Ref(string formattedKey)
+    {
+      keyOrString = formattedKey;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="key">The entity this reference points to.</param>
+    public Ref(T entity)
     {
       if (entity==null)
-        key = null;
+        keyOrString = null;
       else
-        key = entity.Key;
+        keyOrString = entity.Key;
     }
 
     #region ISerializable members
@@ -151,7 +191,7 @@ namespace Xtensive.Storage
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     private Ref(SerializationInfo info, StreamingContext context)
     {
-      key = Key.Parse(info.GetString("Key"));
+      keyOrString = info.GetString("FormattedKey");
     }
 
     /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
@@ -162,7 +202,7 @@ namespace Xtensive.Storage
     #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("Key", key.Format());
+      info.AddValue("FormattedKey", FormattedKey);
     }
 
     #endregion

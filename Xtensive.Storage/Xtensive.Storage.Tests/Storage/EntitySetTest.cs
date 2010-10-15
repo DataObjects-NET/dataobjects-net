@@ -468,7 +468,7 @@ namespace Xtensive.Storage.Tests.Storage
       var expectedCount = entitySet.Count;
       owner.Remove();
       var actualCount = 0;
-      AssertEx.Throws<InvalidOperationException>(() => entitySet.GetEnumerator().MoveNext());
+      entitySet.GetEnumerator().MoveNext();
     }
 
     private void CreateTwoAuthorsAndTheirBooksSet(out Key author0Key, out Key author1Key)
