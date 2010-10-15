@@ -9,9 +9,9 @@ using Xtensive.Storage;
 [assembly: AssemblyTitle("Xtensive.Storage.Manual")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Xtensive LLC")]
 [assembly: AssemblyProduct("Xtensive.Storage.Manual")]
-[assembly: AssemblyCopyright("Copyright ©  2009")]
+[assembly: AssemblyCopyright("Copyright © X-tensive.com 2003-2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

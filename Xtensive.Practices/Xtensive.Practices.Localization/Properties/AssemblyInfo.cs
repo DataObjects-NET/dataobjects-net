@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Xtensive.Practices.Localization")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Xtensive")]
+[assembly: AssemblyCompany("Xtensive LLC")]
 [assembly: AssemblyProduct("Xtensive.Practices")]
-[assembly: AssemblyCopyright("Copyright © Xtensive 2009")]
+[assembly: AssemblyCopyright("Copyright © X-tensive.com 2003-2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

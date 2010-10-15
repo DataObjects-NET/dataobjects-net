@@ -16,7 +16,7 @@ using System.Security.Permissions;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
 [assembly: AssemblyProduct("Xtensive.Storage.Tests.Sandbox")]
-[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2010")]
+[assembly: AssemblyCopyright("Copyright © X-tensive.com 2003-2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

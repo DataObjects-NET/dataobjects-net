@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("X-tensive")]
 [assembly: AssemblyProduct("Xtensive.Practices")]
-[assembly: AssemblyCopyright("Copyright © Xtensive 2010")]
+[assembly: AssemblyCopyright("Copyright © X-tensive.com 2003-2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

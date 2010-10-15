@@ -16,7 +16,7 @@ using Xtensive.Core.Aspects;
 [assembly: AssemblyTitle("Xtensive.Storage.Providers.Sql")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Xtensive LLC")]
 [assembly: AssemblyProduct("Xtensive.Storage.Providers.Sql")]
 
 [assembly: AssemblyTrademark("")]
