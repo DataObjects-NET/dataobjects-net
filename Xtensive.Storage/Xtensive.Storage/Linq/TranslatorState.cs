@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Linq
         var currentState = translator.state;
         var newState = new TranslatorState(currentState);
         newState.OuterParameters = newState.OuterParameters.Concat(newState.Parameters).ToArray();
-        newState.Parameters = Enumerable.ToArray(le.Parameters);
+        newState.Parameters = le.Parameters.ToArray();
         newState.CurrentLambda = le;
         newState.IncludeAlgorithm = IncludeAlgorithm;
         newState.IsTailMethod = IsTailMethod;
