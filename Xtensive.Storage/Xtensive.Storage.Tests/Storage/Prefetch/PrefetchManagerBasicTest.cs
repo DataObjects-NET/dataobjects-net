@@ -362,7 +362,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           .Concat(EmployeeField.Columns.Select(column => orderPrimaryIndex.Columns.IndexOf(column))).ToArray();
         var orderQuery = OrderType.Indexes.PrimaryIndex.ToRecordQuery()
           .Filter(t => t.GetValue<int>(0)==orderKey.Value.GetValue<int>(0)).Select(selectedColumns);
-        ordersession.Query.ToRecordSet(session).ToEntities(0).Single();
+        orderQuery.ToRecordSet(session).ToEntities(0).Single();
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
@@ -933,7 +933,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     private Key GetFirstKeyInCurrentSession<T>()
       where T : Entity
     {
-      return session.Query.All<T>().OrderBy(o => o.Key).First().Key;
+      return Session.Demand().Query.All<T>().OrderBy(o => o.Key).First().Key;
     }
 
     private static void CreatePublishersAndBookShops(out Key publisherKey0, out Key bookShopKey0,

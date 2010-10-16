@@ -763,11 +763,11 @@ namespace Xtensive.Storage.Linq
         var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type,
           (Expression<Func<Tuple, object>>) calculator);
 
-        ParameterExpression lambdaParameter = state.Parameters[0];
+        var lambdaParameter = state.Parameters[0];
         var oldResult = context.Bindings[lambdaParameter];
         var isInlined = !state.BuildingProjection;
 
-        RecordSet dataSource = oldResult.ItemProjector.DataSource;
+        var dataSource = oldResult.ItemProjector.DataSource;
         var columns = new List<CalculatedColumnDescriptor>();
         if (!state.AddedCalculableColumn && dataSource.Provider is CalculateProvider && isInlined==((CalculateProvider) dataSource.Provider).IsInlined) {
           var calculateProvider = ((CalculateProvider) dataSource.Provider);
@@ -782,7 +782,7 @@ namespace Xtensive.Storage.Linq
           !state.BuildingProjection,
           columns.ToArray());
 
-        ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
+        var newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
         var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
         context.Bindings.ReplaceBound(lambdaParameter, newResult);
 

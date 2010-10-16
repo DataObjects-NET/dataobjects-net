@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Tests.Issues
 
       public static UserActivity GetOrCreate(User user)
       {
-        var activity = session.Query.All<UserActivity>().Where(ua => ua.User==user).FirstOrDefault();
+        var activity = user.Session.Query.All<UserActivity>().Where(ua => ua.User==user).FirstOrDefault();
         if (activity==null)
           activity = new UserActivity {User = user};
         return activity;

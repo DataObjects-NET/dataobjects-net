@@ -290,7 +290,7 @@ namespace Xtensive.Storage.Tests.Linq
 
     private static IEnumerable<Customer> GetCustomers(params string[] customerIds)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().Where(customer => customer.Id.In(customerIds)));
+      return Session.Demand().Query.Execute(() => Session.Demand().Query.All<Customer>().Where(customer => customer.Id.In(customerIds)));
     }
   }
 }

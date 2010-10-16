@@ -819,7 +819,7 @@ namespace Xtensive.Storage
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
       var association = field.Associations.Last();
-      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
+      var seek = entitySet.Session.CompilationService.Compile(association.UnderlyingIndex.ToRecordQuery().Seek(() => keyParameter.Value).Provider);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
 
@@ -843,7 +843,7 @@ namespace Xtensive.Storage
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
           association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
           ArrayUtils<Type>.EmptyArray);
-      return new EntitySetTypeState(seekProvider, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
+      return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
     }
     
     private int? GetItemIndex(EntitySetState state, Key key)

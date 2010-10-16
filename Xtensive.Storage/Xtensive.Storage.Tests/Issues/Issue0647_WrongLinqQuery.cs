@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Tests.Issues
       {
         var effectiveEntity = entity;
 
-        var q = from perm in session.Query.All<FunctionalPermission>()
+        var q = from perm in Session.Demand().Query.All<FunctionalPermission>()
                 where perm.Role.Name.In(roles) && perm.Entity.SysName == effectiveEntity
                 select perm;
 

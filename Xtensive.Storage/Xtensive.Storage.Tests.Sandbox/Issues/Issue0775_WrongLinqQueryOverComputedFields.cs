@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Tests.Issues
       private static readonly Expression<Func<Share, string>> PduRegNumberExpression = e =>
         e.FinTool == null
           ? null
-          : session.Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person) != null
-              ? session.Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person).PduRegNumber
+          : e.Session.Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person) != null
+              ? e.Session.Query.All<Fund>().FirstOrDefault(f => f.Person == e.FinTool.Person).PduRegNumber
               : null;
 
       private static readonly Func<Share, string> PduRegNumberExpressionCompiled = PduRegNumberExpression.Compile();

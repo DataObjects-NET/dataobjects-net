@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
 
     public IEnumerable<Entity> GetVersionRoots()
     {
-      return session.Query.All<Owner1>().ToList().Cast<Entity>().Concat(session.Query.All<Owner2>().ToList().Cast<Entity>());
+      return Session.Query.All<Owner1>().ToList().Cast<Entity>().Concat(Session.Query.All<Owner2>().ToList().Cast<Entity>());
     }
   }
 }

@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Customer> Customers {
       get {
         if (customers==null)
-          customers = Session.session.Query.All<Customer>().ToList();
+          customers = Session.Query.All<Customer>().ToList();
         return customers;
       }
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Order> Orders {
       get {
         if (orders==null)
-          orders = Session.session.Query.All<Order>().ToList();
+          orders = Session.Query.All<Order>().ToList();
         return orders;
       }
     }
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Employee> Employees {
       get {
         if (employees==null)
-          employees = Session.session.Query.All<Employee>().ToList();
+          employees = Session.Query.All<Employee>().ToList();
         return employees;
       }
     }
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Product> Products {
       get {
         if (products==null)
-          products = Session.session.Query.All<Product>().ToList();
+          products = Session.Query.All<Product>().ToList();
         return products;
       }
     }
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Supplier> Suppliers {
       get {
         if (suppliers==null)
-          suppliers = Session.session.Query.All<Supplier>().ToList();
+          suppliers = Session.Query.All<Supplier>().ToList();
         return suppliers;
       }
     }

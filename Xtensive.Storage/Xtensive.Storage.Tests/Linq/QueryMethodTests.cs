@@ -88,16 +88,16 @@ namespace Xtensive.Storage.Tests.Linq
     public void Store1Test()
     {
       var localCustomers = Session.Query.All<Customer>().Take(10).ToList();
-      var query = Session.Query.All<Customer>().Join(Session.Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
-      var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var query = Session.Query.All<Customer>().Join(Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
       Assert.AreEqual(0, expected.Except(query).Count());
     }
 
     [Test]
     public void Store2Test()
     {
-      var query = Session.Query.All<Customer>().Join(Session.Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
-      var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var query = Session.Query.All<Customer>().Join(Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
+      var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
       Assert.AreEqual(0, expected.Except(query).Count());
     }
   }
