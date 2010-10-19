@@ -7,8 +7,8 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// Describes expiring <see cref="CachedValueBase{TValue,TActualizationInfo}.Value"/>.

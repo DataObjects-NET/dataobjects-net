@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Aspects
+namespace Xtensive.Aspects
 {
   /// <summary>
   /// Marks a method or property as infrastructure method or property.

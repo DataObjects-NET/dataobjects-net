@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Allows to track changes in object by its <see cref="Version"/>.

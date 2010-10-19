@@ -5,8 +5,8 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Disposing;
 using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage

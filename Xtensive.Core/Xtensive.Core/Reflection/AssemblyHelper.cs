@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// <see cref="Assembly"/> related helper \ extension methods.

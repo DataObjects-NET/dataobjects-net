@@ -7,12 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Helpers;
+using Xtensive.Reflection;
+using Xtensive.Helpers;
 
 namespace Xtensive.Modelling.Comparison
 {

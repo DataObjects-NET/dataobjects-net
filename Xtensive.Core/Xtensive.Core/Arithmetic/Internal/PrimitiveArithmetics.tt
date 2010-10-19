@@ -1,4 +1,4 @@
-<#@ template language="C#" #>
+﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 // Copyright (C) 2008 Xtensive LLC.
@@ -8,9 +8,10 @@
 // Created:    2008.01.22
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Arithmetic;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
 <#
 var types = new[] { 

@@ -5,9 +5,9 @@
 // Created:    2009.02.10
 
 using System.Reflection;
-using Xtensive.Core.Linq;
+using Xtensive.Linq;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
   partial class MemberCompilerProviderTest
   {

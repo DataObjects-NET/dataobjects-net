@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Expressions

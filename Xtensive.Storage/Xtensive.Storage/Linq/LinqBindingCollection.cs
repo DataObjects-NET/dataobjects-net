@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
+using Xtensive.Collections;
+using Xtensive.Disposing;
 using Xtensive.Storage.Linq.Expressions;
 using System.Linq;
 

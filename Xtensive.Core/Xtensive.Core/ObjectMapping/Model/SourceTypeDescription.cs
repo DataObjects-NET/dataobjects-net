@@ -6,11 +6,11 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.ObjectMapping.Model
+namespace Xtensive.ObjectMapping.Model
 {
   /// <summary>
   /// Description of source mapped type.

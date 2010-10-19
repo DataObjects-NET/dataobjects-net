@@ -4,7 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.12
 
-using Xtensive.Core.Caching;
+using Xtensive.Caching;
 
 namespace Xtensive.Storage.Configuration
 {

@@ -9,10 +9,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Linq;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Rse.VirtualAndRealIndexesModel;
 

@@ -5,7 +5,7 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.IndexingModel

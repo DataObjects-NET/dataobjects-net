@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Reflection;
+using Xtensive.Collections;
 using Xtensive.Modelling.Resources;
 using System.Linq;
 

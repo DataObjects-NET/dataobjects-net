@@ -5,7 +5,7 @@
 // Created:    2009.11.12
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 

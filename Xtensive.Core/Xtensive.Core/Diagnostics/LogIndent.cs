@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Resources;
+using Xtensive.IoC;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Used internally by <see cref="LogIndentScope"/>.

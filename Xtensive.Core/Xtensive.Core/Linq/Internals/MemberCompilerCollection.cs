@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   internal sealed class MemberCompilerCollection : Dictionary<MemberInfo, Pair<Delegate, MethodInfo>>
   {

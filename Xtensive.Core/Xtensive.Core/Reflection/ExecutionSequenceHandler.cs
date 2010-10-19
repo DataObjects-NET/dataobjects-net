@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.09
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// Execution sequence handler - a delegate that can be passed to 

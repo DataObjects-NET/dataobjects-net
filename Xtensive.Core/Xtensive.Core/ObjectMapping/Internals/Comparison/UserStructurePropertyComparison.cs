@@ -4,9 +4,9 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.01.22
 
-using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping.Comparison
+namespace Xtensive.ObjectMapping.Comparison
 {
   internal sealed class UserStructurePropertyComparison : ComparerStateBase
   {

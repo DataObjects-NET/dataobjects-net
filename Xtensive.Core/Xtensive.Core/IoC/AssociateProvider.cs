@@ -11,14 +11,14 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
+using Xtensive.Resources;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Implements base functionality for associate provider.

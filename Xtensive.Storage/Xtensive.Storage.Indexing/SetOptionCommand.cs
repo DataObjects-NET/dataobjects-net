@@ -5,8 +5,8 @@
 // Created:    2009.03.31
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Indexing.Resources;
 
 namespace Xtensive.Storage.Indexing

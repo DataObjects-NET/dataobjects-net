@@ -8,14 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Storage.Providers.Sql
 {

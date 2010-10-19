@@ -5,7 +5,7 @@
 // Created:    2010.08.05
 
 using System;
-using Xtensive.Core.Disposing;
+using Xtensive.Disposing;
 
 namespace Xtensive.Storage.Operations
 {

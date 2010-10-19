@@ -6,7 +6,7 @@
 
 using System.Configuration;
 
-namespace Xtensive.Core.Configuration
+namespace Xtensive.Configuration
 {
   /// <summary>
   /// Abstract base class for a configuration element within a configuration file

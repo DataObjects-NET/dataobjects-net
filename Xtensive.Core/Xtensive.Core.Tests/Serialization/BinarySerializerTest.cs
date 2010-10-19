@@ -12,14 +12,14 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Serialization;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Testing;
+using Xtensive.Comparison;
 using System.Linq;
+using Xtensive.Diagnostics;
+using Xtensive.Serialization;
+using Xtensive.Serialization.Binary;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Serialization
+namespace Xtensive.Tests.Serialization
 {
   #region Test classes
 

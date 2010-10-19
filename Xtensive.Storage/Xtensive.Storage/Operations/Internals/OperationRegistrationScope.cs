@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Disposing;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Operations

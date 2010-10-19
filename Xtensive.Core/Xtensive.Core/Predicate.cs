@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   // public delegate bool Predicate(); // Disabled, because leads to confusion with other Predicates
 

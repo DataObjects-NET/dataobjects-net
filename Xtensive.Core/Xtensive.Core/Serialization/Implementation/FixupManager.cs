@@ -7,9 +7,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// <see cref="IFixup"/> manager - a queue of <see cref="IFixup"/>s.

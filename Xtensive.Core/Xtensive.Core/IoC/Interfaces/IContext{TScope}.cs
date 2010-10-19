@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Context contract.

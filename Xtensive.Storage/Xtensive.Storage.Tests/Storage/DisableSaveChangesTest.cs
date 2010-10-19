@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using System;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.DisableSaveChangesTestModel;
 

@@ -5,9 +5,9 @@
 // Created:    2009.02.09
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Attribute for specifying method which acts as compiler

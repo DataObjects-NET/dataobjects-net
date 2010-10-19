@@ -6,7 +6,7 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Core.Tests
+namespace Xtensive.Tests
 {
   [TestFixture]
   public class UrlInfoTest

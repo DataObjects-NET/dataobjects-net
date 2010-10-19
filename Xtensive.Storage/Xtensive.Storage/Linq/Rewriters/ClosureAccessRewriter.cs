@@ -9,10 +9,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Linq;
+using Xtensive.Reflection;
 using Xtensive.Storage.Internals;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {

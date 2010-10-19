@@ -4,8 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.25
 
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql

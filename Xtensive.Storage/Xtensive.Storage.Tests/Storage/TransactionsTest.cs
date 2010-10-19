@@ -6,7 +6,7 @@
 
 using NUnit.Framework;
 using System;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.TransactionsTestModel;

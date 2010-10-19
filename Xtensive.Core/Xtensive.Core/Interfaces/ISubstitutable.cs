@@ -4,7 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.01
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   public interface ISubstitutable<T>
   {

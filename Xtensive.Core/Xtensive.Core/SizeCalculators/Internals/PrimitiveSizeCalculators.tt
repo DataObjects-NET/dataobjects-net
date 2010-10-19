@@ -1,4 +1,4 @@
-<#@ template language="C#" #>
+﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 // Copyright (C) 2008 Xtensive LLC.
@@ -9,7 +9,7 @@
 
 using System;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
 <#
 var types = new[] { 

@@ -9,7 +9,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Services;
 

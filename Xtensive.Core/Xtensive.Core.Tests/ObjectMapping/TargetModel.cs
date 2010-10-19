@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
+namespace Xtensive.Tests.ObjectMapping.TargetModel
 {
   [Serializable]
   public class PersonDto : ICloneable

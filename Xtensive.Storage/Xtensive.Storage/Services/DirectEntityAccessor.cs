@@ -5,8 +5,8 @@
 // Created:    2008.11.02
 
 using System;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.IoC;
+using Xtensive.Aspects;
+using Xtensive.IoC;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Services

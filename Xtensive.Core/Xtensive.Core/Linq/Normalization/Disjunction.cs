@@ -8,7 +8,7 @@ using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Linq.Normalization
+namespace Xtensive.Linq.Normalization
 {
   /// <summary>
   /// A disjunction ("or") of multiple operands.

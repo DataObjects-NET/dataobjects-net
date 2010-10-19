@@ -7,12 +7,12 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Services;
 using Xtensive.Storage.Tests.Issues.Issue0676.Model;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
 {

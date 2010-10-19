@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// Search options for <see cref="AttributeHelper"/> methods.

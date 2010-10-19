@@ -9,11 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 using Xtensive.Storage.Rse;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq
 {

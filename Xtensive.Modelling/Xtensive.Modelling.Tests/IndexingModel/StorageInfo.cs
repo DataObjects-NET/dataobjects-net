@@ -5,7 +5,7 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 

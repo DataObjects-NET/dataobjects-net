@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Internals.Prefetch
 {

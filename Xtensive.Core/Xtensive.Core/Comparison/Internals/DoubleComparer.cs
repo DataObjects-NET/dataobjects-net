@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class DoubleComparer : ValueTypeComparer<double>

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;

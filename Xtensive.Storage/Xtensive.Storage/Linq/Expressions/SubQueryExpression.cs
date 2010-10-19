@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Linq.Expressions
 {

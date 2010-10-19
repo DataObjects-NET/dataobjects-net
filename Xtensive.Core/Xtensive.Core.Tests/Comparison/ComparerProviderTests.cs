@@ -7,12 +7,12 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Testing;
+using Xtensive.Comparison;
+using Xtensive.Diagnostics;
+using Xtensive.Serialization.Binary;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Comparison
+namespace Xtensive.Tests.Comparison
 {
   [TestFixture]
   public class ComparerProviderTests

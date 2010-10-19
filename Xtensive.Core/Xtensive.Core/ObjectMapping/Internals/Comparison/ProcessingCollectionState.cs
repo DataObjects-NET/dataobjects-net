@@ -6,9 +6,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping.Comparison
+namespace Xtensive.ObjectMapping.Comparison
 {
   internal abstract class ProcessingCollectionState : ComparerStateBase
   {

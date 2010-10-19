@@ -5,9 +5,9 @@
 // Created:    2008.05.30
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Tuples;
+using Xtensive.Tuples;
 
 namespace Xtensive.Storage.Internals.FieldAccessors
 {

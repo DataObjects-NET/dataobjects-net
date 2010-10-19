@@ -6,12 +6,12 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;
 using System.Linq;
 
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Rse
         if (Order.Count==0)
           return null;
         if (orderTupleDescriptor==null) lock(this) if (orderTupleDescriptor==null)
-          orderTupleDescriptor = Core.Tuples.TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
+          orderTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
         return orderTupleDescriptor;
       }
     }
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Rse
         columnsMap[oldIndex] = newIndex;
       }
 
-      var resultTupleDescriptor = Core.Tuples.TupleDescriptor.Create(columns.Select(i => TupleDescriptor[i]));
+      var resultTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(columns.Select(i => TupleDescriptor[i]));
       var resultOrder = new DirectionCollection<int>(
         Order
           .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))

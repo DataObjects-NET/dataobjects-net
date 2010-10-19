@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Disposing
+namespace Xtensive.Disposing
 {
   /// <summary>
   /// A <see cref="CompletableScope"/> implementation allowing to use delegates

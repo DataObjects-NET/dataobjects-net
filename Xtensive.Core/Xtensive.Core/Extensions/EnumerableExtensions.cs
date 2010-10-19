@@ -9,11 +9,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Resources;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="IEnumerable{T}"/> related extension methods.

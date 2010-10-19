@@ -7,8 +7,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Testing;
 using Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes.Model.Version2;
 using M1 = Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes.Model.Version2;

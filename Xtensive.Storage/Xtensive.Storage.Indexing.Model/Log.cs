@@ -5,7 +5,7 @@
 // Created:    2009.03.18
 
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
 namespace Xtensive.Storage.Indexing.Model
 {

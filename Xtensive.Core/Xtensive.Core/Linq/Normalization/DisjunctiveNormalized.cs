@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.Normalization
+namespace Xtensive.Linq.Normalization
 {
   /// <summary>
   /// A disjunctive normalized expression 

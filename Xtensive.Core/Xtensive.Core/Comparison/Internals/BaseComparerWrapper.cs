@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal class BaseComparerWrapper<T, TBase>: WrappingComparer<T, TBase>

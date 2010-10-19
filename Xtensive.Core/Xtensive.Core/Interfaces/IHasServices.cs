@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Service provider contract.

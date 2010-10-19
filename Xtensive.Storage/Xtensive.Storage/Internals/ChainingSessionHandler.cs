@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Providers;
 

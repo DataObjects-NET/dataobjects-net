@@ -7,9 +7,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Base type for log providers.

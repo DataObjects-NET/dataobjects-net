@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   internal sealed class ParameterCollection
   {

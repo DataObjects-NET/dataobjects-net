@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.SelfContainedStructureModel;
 

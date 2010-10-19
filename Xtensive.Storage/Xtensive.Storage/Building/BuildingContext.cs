@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;

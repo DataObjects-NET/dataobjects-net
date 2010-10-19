@@ -8,11 +8,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Notifications;
+using Xtensive.Notifications;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Temporarily binds values of type <typeparamref name="TValue"/> to their keys

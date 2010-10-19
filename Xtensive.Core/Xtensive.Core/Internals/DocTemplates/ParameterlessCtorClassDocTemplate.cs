@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.22
 
-namespace Xtensive.Core.Internals.DocTemplates
+namespace Xtensive.Internals.DocTemplates
 {
   /// <summary>
   /// A class with required parameterless constructor documentation template.

@@ -5,9 +5,9 @@
 // Created:    2009.10.14
 
 using System.Configuration;
-using Xtensive.Core.Configuration;
+using Xtensive.Configuration;
 
-namespace Xtensive.Core.Diagnostics.Configuration
+namespace Xtensive.Diagnostics.Configuration
 {
   /// <summary>
   /// A root element of diagnostics configuration section within a configuration file.
@@ -16,9 +16,9 @@ namespace Xtensive.Core.Diagnostics.Configuration
   {
     /// <summary>
     /// Gets default section name for diagnostics configuration.
-    /// Value is "Xtensive.Core.Diagnostics".
+    /// Value is "Xtensive.Diagnostics".
     /// </summary>
-    public static readonly string DefaultSectionName = "Xtensive.Core.Diagnostics";
+    public static readonly string DefaultSectionName = "Xtensive.Diagnostics";
     
     private const string LogCollectionElementName = "logs";
 

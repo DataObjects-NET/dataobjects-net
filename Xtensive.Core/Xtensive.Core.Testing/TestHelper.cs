@@ -8,11 +8,11 @@ using System;
 using System.IO;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Testing.Resources;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Testing.Resources;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Test helper class.

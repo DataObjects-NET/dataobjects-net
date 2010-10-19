@@ -7,12 +7,12 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 using ReflectionInterfaceMapping=System.Reflection.InterfaceMapping;
 using System.Linq;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// Faster <see cref="ReflectionInterfaceMapping"/> analogue.

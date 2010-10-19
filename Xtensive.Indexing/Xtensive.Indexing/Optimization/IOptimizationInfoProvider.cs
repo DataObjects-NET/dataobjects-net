@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.13
 
-using Xtensive.Core.Comparison;
+using Xtensive.Comparison;
 
 namespace Xtensive.Indexing.Optimization
 {

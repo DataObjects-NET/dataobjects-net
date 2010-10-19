@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Sorting;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.IoC;
+using Xtensive.Linq;
+using Xtensive.Sorting;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Resources;

@@ -6,8 +6,8 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Disposing;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage

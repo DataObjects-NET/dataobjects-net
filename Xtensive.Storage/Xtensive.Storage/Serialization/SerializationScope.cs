@@ -4,9 +4,9 @@
 // Created by: Alex Kofman
 // Created:    2009.03.18
 
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
 namespace Xtensive.Storage.Serialization
 {

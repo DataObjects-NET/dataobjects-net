@@ -6,8 +6,8 @@
 
 using System.Collections;
 using System.Linq;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
+using Xtensive.Collections;
+using Xtensive;
 using Xtensive.Storage.Upgrade;
 using System;
 

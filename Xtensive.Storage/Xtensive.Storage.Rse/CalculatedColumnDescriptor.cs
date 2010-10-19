@@ -6,12 +6,12 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Linq;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Storage.Rse
 {

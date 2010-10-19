@@ -5,8 +5,8 @@
 // Created:    2009.10.06
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Reflection;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals

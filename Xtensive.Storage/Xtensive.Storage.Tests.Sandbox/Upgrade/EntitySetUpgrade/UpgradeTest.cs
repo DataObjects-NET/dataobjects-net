@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
+using Xtensive;
 using M1 = Xtensive.Storage.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.EntitySetUpgradeTest.Model.Version2;
 using NUnit.Framework;

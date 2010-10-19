@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.07
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Type of modification detected in an object graph.

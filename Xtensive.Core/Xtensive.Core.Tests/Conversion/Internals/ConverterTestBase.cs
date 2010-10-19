@@ -7,10 +7,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Conversion;
-using Xtensive.Core.Reflection;
+using Xtensive.Conversion;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Tests.Conversion
+namespace Xtensive.Tests.Conversion
 {
   public class ConverterTestBase
   {

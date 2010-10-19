@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.06.24
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Describes a factory object that is capable of creating 

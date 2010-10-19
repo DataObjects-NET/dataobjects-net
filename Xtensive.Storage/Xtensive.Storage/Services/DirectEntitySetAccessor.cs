@@ -5,10 +5,10 @@
 // Created:    2008.11.06
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 

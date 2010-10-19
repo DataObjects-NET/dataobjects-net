@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Intro.CheatSheet

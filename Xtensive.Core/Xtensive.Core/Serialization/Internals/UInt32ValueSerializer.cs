@@ -7,7 +7,7 @@
 using System;
 using System.IO;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   [Serializable]
   internal sealed class UInt32ValueSerializer : ValueSerializerBase<uint>

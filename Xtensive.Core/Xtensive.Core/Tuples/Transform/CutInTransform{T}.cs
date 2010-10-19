@@ -7,14 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Tuples.Transform;
-using Xtensive.Core.Tuples.Transform.Internals;
+using Xtensive.Collections;
+using Xtensive.Reflection;
+using Xtensive.Tuples.Transform;
+using Xtensive.Tuples.Transform.Internals;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Tuples.Transform
+namespace Xtensive.Tuples.Transform
 {
   /// <summary>
   /// Cuts in specified value to the <see cref="Tuple"/>.

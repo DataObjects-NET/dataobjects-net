@@ -5,8 +5,8 @@
 // Created:    2008.09.23
 
 using System;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
 {

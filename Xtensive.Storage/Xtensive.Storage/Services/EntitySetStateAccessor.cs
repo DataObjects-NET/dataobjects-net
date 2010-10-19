@@ -7,7 +7,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Services
 {

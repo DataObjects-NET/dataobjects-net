@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.20
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   internal class TypeBasedDictionaryItem<TKey, TValue, TVariator>
   {

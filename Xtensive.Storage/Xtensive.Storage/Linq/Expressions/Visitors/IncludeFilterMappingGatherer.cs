@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq;
+using Xtensive.Linq;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {

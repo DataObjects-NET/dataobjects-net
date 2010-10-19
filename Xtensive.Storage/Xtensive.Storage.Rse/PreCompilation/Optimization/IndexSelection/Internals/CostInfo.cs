@@ -5,7 +5,7 @@
 // Created:    2009.04.06
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Various well-known constants related to this namespace.

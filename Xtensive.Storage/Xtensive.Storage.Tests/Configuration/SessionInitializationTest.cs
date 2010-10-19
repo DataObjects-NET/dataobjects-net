@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Caching;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
+using Xtensive.Caching;
+using Xtensive;
+using Xtensive.Reflection;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Configuration

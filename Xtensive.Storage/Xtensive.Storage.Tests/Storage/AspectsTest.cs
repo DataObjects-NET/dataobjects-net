@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Aspects;
+using Xtensive.Aspects;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage;
 

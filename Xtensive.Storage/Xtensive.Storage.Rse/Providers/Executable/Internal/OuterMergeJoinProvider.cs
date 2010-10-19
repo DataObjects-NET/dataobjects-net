@@ -7,10 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples.Transform;
 using Xtensive.Indexing;
 
 namespace Xtensive.Storage.Rse.Providers.Executable

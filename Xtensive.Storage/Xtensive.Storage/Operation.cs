@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage

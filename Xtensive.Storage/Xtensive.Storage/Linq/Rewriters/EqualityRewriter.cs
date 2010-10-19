@@ -6,9 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using Xtensive.Linq;
+using Xtensive.Reflection;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Linq.Rewriters
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Method.Name != Core.Reflection.WellKnown.Object.Equals)
+      if (mc.Method.Name != Xtensive.Reflection.WellKnown.Object.Equals)
         return base.VisitMethodCall(mc);
 
       var declaringType = mc.Method.DeclaringType;

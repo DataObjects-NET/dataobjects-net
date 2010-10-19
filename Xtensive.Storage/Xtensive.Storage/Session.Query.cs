@@ -10,14 +10,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Parameters;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Parameters;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Activator = System.Activator;
 
 namespace Xtensive.Storage

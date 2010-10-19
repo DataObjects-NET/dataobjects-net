@@ -5,9 +5,9 @@
 // Created:    2008.01.14
 
 using System;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Helps to manipulate hashes.

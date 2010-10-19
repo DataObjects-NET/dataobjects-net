@@ -7,10 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Disposing;
-using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Disposing;
+using Xtensive;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Providers.Sql.Resources;

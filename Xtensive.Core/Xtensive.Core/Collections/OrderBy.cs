@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// A helper static type to use in conjunction with <see cref="OrderBy{T}"/>.

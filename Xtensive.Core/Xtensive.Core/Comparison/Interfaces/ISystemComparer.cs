@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.20
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Tagging interface specifying that comparer overrides

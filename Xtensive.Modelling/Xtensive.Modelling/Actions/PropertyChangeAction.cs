@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 using System.Linq;
 
 namespace Xtensive.Modelling.Actions

@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.IoC;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;

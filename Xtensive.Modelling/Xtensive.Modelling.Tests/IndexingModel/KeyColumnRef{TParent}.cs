@@ -5,9 +5,9 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
 
@@ -39,7 +39,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
 
     /// <inheritdoc/>
     /// <exception cref="ValidationException">Invalid <see cref="Direction"/> value 
-    /// (<see cref="Core.Direction.None"/>).</exception>
+    /// (<see cref="Xtensive.Direction.None"/>).</exception>
     protected override void ValidateState()
     {
       using (var ea = new ExceptionAggregator()) {

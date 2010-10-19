@@ -6,9 +6,9 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;

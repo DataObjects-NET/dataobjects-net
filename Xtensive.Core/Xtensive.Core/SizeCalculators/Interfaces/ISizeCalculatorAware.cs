@@ -4,9 +4,9 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.22
 
-using Xtensive.Core.SizeCalculators;
+using Xtensive.SizeCalculators;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// Describes an object that is aware of <see cref="ISizeCalculator{T}"/>.

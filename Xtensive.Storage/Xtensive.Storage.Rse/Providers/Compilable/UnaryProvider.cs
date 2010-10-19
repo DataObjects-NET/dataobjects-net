@@ -4,9 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.22
 
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {

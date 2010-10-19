@@ -4,8 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.29
 
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
 namespace Xtensive.Storage
 {

@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Resources;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.ObjectMapping.Model
+namespace Xtensive.ObjectMapping.Model
 {
   /// <summary>
   /// Description of a mapping.

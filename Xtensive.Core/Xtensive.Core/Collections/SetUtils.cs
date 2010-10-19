@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.05.26
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// <see cref="ISet"/> related utilities.

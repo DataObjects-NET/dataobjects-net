@@ -10,8 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Reflection;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq

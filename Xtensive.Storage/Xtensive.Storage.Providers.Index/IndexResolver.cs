@@ -5,10 +5,10 @@
 // Created:    2009.12.03
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;

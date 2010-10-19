@@ -6,8 +6,8 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Linq;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 

@@ -11,9 +11,9 @@ using System.Text;
 using System.Xml;
 using log4net;
 using log4net.Config;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.IoC;
-using ILog=Xtensive.Core.Diagnostics.ILog;
+using Xtensive.Diagnostics;
+using Xtensive.IoC;
+using ILog=Xtensive.Diagnostics.ILog;
 
 namespace Xtensive.Adapters.log4net
 {
@@ -25,7 +25,7 @@ namespace Xtensive.Adapters.log4net
   public sealed class LogProviderImplementation: LogProviderImplementationBase
   {
     /// <summary>
-    /// Gets the <see cref="Core.Diagnostics.ILog"/> instance.
+    /// Gets the <see cref="Xtensive.Diagnostics.ILog"/> instance.
     /// </summary>
     /// <param name="realLog">The real log.</param>
     /// <returns></returns>

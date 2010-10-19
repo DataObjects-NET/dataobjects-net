@@ -5,9 +5,9 @@
 // Created:    2008.06.04
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples.Transform.Internals
+namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
   /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).

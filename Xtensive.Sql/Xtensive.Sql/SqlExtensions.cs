@@ -5,8 +5,8 @@
 // Created:    2009.07.30
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql

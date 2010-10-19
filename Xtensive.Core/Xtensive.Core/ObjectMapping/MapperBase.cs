@@ -5,10 +5,10 @@
 // Created:    2009.12.09
 
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// A base class for O2O-mapper implementations.

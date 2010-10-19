@@ -5,9 +5,9 @@
 // Created:    2007.10.10
 
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// Log for this namespace.

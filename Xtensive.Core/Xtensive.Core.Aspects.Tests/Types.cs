@@ -1,4 +1,4 @@
-namespace Xtensive.Core.Aspects.Tests
+namespace Xtensive.Aspects.Tests
 {
   public class Argument
   {

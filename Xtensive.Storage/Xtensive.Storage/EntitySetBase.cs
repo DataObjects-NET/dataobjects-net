@@ -11,14 +11,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Parameters;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Xtensive.Tuples.Transform;
 using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -29,7 +29,7 @@ using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Storage
 {

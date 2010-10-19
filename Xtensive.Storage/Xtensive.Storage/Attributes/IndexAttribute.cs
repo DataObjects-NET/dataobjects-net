@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {

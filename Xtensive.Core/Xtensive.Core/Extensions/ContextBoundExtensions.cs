@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="IContextBound{TContext}"/> related extension methods.

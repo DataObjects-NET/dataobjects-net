@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Describes a class that automatically collects the garbage inside it.

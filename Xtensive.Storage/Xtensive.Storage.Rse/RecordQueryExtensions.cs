@@ -9,13 +9,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Tuples;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Tuples;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
 

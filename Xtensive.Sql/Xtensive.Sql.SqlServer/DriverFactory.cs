@@ -7,7 +7,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.SqlServer.Resources;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;

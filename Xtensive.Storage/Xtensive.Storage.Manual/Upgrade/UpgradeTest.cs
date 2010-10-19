@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Upgrade

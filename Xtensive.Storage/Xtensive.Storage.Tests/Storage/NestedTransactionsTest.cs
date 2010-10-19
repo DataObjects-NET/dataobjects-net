@@ -6,9 +6,9 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Disposing;
-using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive.Disposing;
+using Xtensive;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.TransactionsTestModel;

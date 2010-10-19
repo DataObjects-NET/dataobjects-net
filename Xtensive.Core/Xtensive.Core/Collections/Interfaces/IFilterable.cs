@@ -4,9 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.11.13
 
-using Xtensive.Core;
+using Xtensive;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Defines contract for a filterable collection of <typeparamref name="TItem"/>s.

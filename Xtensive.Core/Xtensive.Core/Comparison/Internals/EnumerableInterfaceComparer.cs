@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class EnumerableInterfaceComparer<TEnumerable, T>: WrappingComparer<TEnumerable, T>,

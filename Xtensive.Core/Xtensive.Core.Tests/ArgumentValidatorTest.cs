@@ -5,9 +5,9 @@
 // Created:    2009.06.15
 
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests
+namespace Xtensive.Tests
 {
   [TestFixture]
   public class ArgumentValidatorTest

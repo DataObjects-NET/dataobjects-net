@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Diagnostics
+namespace Xtensive.Tests.Diagnostics
 {
   [TestFixture]
   public class StringLogTest

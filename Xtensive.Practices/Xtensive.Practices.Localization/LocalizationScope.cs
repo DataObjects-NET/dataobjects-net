@@ -5,8 +5,8 @@
 // Created:    2009.12.01
 
 using System.Globalization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
 namespace Xtensive.Practices.Localization
 {

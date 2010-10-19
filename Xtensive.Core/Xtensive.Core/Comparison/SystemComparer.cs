@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// <see cref="IAdvancedComparer{T}"/> wrapper for system comparers.

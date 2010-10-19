@@ -5,7 +5,7 @@
 // Created:    2008.08.08
 
 using System.Linq;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Tuples.Transform;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals

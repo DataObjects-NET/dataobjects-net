@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// "Debug only" console log implementation.

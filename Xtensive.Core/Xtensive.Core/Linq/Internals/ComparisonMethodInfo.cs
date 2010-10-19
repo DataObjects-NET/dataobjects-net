@@ -7,9 +7,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   [Serializable]
   internal class ComparisonMethodInfo

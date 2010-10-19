@@ -7,15 +7,15 @@
 using System;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Helpers;
+using Xtensive.Reflection;
+using Xtensive.Helpers;
 using System.Linq;
 
 namespace Xtensive.Storage

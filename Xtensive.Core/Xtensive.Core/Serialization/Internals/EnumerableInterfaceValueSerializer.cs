@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   [Serializable]
   internal sealed class EnumerableInterfaceValueSerializer<TEnumerable, T> : WrappingValueSerializer<TEnumerable, T, long>

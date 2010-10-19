@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Resources;
 

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Tests.Storage.VersionBehavior.Model;
 using Version = Xtensive.Storage.Tests.Storage.VersionBehavior.Model.Version;
 

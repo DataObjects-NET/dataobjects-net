@@ -7,17 +7,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Notifications;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Sorting;
-using Xtensive.Core.Threading;
+using Xtensive;
+using Xtensive.Notifications;
+using Xtensive.Reflection;
+using Xtensive.Sorting;
+using Xtensive.Threading;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
-using TypeHelper=Xtensive.Core.Reflection.TypeHelper;
+using TypeHelper=Xtensive.Reflection.TypeHelper;
 
 namespace Xtensive.Storage.Building.Builders
 {

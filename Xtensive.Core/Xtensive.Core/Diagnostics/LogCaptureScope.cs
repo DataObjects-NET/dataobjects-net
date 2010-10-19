@@ -1,8 +1,8 @@
 using System;
-using Xtensive.Core.Collections;
-using Xtensive.Core.IoC;
+using Xtensive.Collections;
+using Xtensive.IoC;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Log capture scope.

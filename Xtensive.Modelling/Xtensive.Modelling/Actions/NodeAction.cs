@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling.Actions

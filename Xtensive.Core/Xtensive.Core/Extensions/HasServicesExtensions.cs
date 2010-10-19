@@ -5,10 +5,10 @@
 // Created:    2008.07.15
 
 using System;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Reflection;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="IHasServices"/> related extension methods.

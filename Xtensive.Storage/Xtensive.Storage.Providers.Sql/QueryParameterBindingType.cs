@@ -4,8 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.05
 
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Storage.Providers.Sql
 {

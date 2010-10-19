@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Serialization.Binary;
 using Xtensive.Storage.Configuration;
 using System.Linq;
 using M=Xtensive.Storage.Model;

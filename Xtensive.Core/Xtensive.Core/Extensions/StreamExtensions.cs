@@ -6,9 +6,9 @@
 
 using System;
 using System.IO;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Helper class providing a set of useful stream operations.

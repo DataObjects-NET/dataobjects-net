@@ -10,11 +10,11 @@ using System.Reflection;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Aspects.Helpers;
+using Xtensive.Disposing;
+using Xtensive.Reflection;
 using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Aspects

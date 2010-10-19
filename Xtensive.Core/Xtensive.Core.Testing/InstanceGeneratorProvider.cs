@@ -6,12 +6,12 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Default <see cref="IInstanceGenerator{T}"/> provider. 

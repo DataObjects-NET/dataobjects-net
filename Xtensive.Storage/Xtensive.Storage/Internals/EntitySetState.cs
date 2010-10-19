@@ -6,9 +6,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Caching;
-using KeyCache = Xtensive.Core.Caching.ICache<Xtensive.Storage.Key, Xtensive.Storage.Key>;
+using Xtensive.Aspects;
+using Xtensive.Caching;
+using KeyCache = Xtensive.Caching.ICache<Xtensive.Storage.Key, Xtensive.Storage.Key>;
 
 namespace Xtensive.Storage.Internals
 {

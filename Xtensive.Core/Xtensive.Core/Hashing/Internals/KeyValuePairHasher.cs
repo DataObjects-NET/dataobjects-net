@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class KeyValuePairHasher<TKey, TValue> : WrappingHasher<KeyValuePair<TKey, TValue>, TKey, TValue>

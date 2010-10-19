@@ -14,9 +14,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Tests.Linq
 {

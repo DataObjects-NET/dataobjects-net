@@ -11,11 +11,11 @@ using System.Reflection;
 using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Aspects.Helpers;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Aspects
+namespace Xtensive.Aspects
 {
   /// <summary>
   /// Injects epilogue method calls into the constructor.

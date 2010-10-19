@@ -6,11 +6,11 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Thrown by <see cref="HighResolutionTime.Now"/> method when it

@@ -5,9 +5,9 @@
 // Created:    2008.11.05
 
 using System;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.IoC;
+using Xtensive.Aspects;
+using Xtensive.Disposing;
+using Xtensive.IoC;
 using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Services

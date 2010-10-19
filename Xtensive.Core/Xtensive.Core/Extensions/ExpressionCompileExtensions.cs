@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,10 +6,10 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Linq;
+using Xtensive;
+using Xtensive.Linq;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Extension methods for compiling strictly typed lambda expressions.

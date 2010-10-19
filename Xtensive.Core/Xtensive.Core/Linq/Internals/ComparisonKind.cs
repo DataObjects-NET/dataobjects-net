@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.02
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   internal enum ComparisonKind
   {

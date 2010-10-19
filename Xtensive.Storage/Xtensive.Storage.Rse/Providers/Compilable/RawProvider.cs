@@ -7,12 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Collections;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Linq;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable

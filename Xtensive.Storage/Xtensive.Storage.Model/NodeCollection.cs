@@ -7,10 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Notifications;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Notifications;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model

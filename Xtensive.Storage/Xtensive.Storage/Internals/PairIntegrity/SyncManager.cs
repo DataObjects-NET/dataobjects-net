@@ -5,8 +5,8 @@
 // Created:    2008.10.08
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
+using Xtensive;
+using Xtensive.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.ReferentialIntegrity;

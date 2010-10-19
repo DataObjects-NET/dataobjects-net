@@ -8,9 +8,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="ICollection{T}"/> related extension methods.

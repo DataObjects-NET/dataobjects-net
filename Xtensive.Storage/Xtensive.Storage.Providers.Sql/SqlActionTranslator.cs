@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Sorting;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
+using Xtensive.Sorting;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
@@ -755,10 +755,10 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       // Sort actions topologicaly according with foreign keys
-      var nodes = new List<Core.Sorting.Node<TableInfo, ForeignKeyInfo>>();
+      var nodes = new List<Xtensive.Sorting.Node<TableInfo, ForeignKeyInfo>>();
       var foreignKeys = sourceModel.Tables.SelectMany(table => table.ForeignKeys).ToList();
       foreach (var pair in deleteActions)
-        nodes.Add(new Core.Sorting.Node<TableInfo, ForeignKeyInfo>(pair.Key));
+        nodes.Add(new Xtensive.Sorting.Node<TableInfo, ForeignKeyInfo>(pair.Key));
       foreach (var foreignKey in foreignKeys) {
         ForeignKeyInfo foreignKeyInfo = foreignKey;
         var referencedNode = nodes.FirstOrDefault(node => node.Item==foreignKeyInfo.PrimaryKey.Parent);

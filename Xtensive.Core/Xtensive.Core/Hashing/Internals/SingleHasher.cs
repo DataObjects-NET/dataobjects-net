@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class SingleHasher : WrappingHasher<float, ulong>

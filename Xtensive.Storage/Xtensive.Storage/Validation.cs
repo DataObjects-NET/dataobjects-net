@@ -5,7 +5,7 @@
 // Created:    2009.07.14
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Storage

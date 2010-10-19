@@ -10,11 +10,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Tuples;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Disposing;
+using Xtensive.IoC;
+using Xtensive.Tuples;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage;
 using Xtensive.Storage.Internals;
@@ -24,9 +24,9 @@ using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
-using AggregateException = Xtensive.Core.AggregateException;
+using AggregateException = Xtensive.AggregateException;
 using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Storage
 {

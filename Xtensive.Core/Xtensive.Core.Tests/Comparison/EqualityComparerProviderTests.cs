@@ -7,10 +7,10 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Testing;
+using Xtensive.Comparison;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Comparison
+namespace Xtensive.Tests.Comparison
 {
   [TestFixture]
   public class EqualityComparerProviderTests

@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
+using Xtensive;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing.Model;

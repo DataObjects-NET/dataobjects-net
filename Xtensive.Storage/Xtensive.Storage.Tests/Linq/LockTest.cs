@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Linq
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction())
-            countAfterSkip = Session.Query.All<Customer>().Where(c => c.Key == key)
+            countAfterSkip = session.Query.All<Customer>().Where(c => c.Key == key)
               .Lock(LockMode.Update, LockBehavior.Skip).ToList().Count;
         }
         catch(Exception e) {
@@ -101,8 +101,8 @@ namespace Xtensive.Storage.Tests.Linq
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction()) {
-            Session.Query.All<Customer>().Where(c => c.Key == customerKey)
-              .Join(Session.Query.All<Order>().Where(o => o.Key == orderKey), c => c, o => o.Customer, (c, o) => c)
+            session.Query.All<Customer>().Where(c => c.Key == customerKey)
+              .Join(session.Query.All<Order>().Where(o => o.Key == orderKey), c => c, o => o.Customer, (c, o) => c)
               .Lock(LockMode.Update, LockBehavior.Wait).ToList();
             secondEvent.Set();
             firstEvent.WaitOne();
@@ -116,10 +116,10 @@ namespace Xtensive.Storage.Tests.Linq
       });
       firstThread.Start();
       secondEvent.WaitOne();
-      var secondException = ExecuteQueryAtSeparateThread(() => Session.Query.All<Customer>()
+      var secondException = ExecuteQueryAtSeparateThread(s => s.Query.All<Customer>()
         .Where(c => c.Key==customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), secondException.GetType());
-      var thirdException = ExecuteQueryAtSeparateThread(() => Session.Query.All<Order>()
+      var thirdException = ExecuteQueryAtSeparateThread(s => s.Query.All<Order>()
         .Where(o => o.Key==orderKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), thirdException.GetType());
       firstEvent.Set();
@@ -134,13 +134,13 @@ namespace Xtensive.Storage.Tests.Linq
       var customer = Session.Query.All<Customer>().First();
       var customerKey = customer.Key;
       customer.Lock(LockMode.Update, LockBehavior.Wait);
-      var catchedException = ExecuteQueryAtSeparateThread(() =>
-        Session.Query.All<Customer>().Where(c => c == customer).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+      var catchedException = ExecuteQueryAtSeparateThread(s =>
+        s.Query.All<Customer>().Where(c => c == customer).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction())
         AssertEx.Throws<StorageException>(() =>
-          Session.Query.Single<Customer>(customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+          session.Query.Single<Customer>(customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
     }
     
     private Exception ExecuteConcurrentQueries(LockMode lockMode0, LockBehavior lockBehavior0,
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Tests.Linq
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction()) {
-            Session.Query.All<Customer>().Where(c => c.Key == key).Lock(lockMode0, lockBehavior0).ToList();
+            session.Query.All<Customer>().Where(c => c.Key == key).Lock(lockMode0, lockBehavior0).ToList();
             secondEvent.Set();
             firstEvent.WaitOne();
           }
@@ -170,21 +170,21 @@ namespace Xtensive.Storage.Tests.Linq
       secondEvent.WaitOne();
       if (firstThreadException != null)
         throw firstThreadException;
-      result = ExecuteQueryAtSeparateThread(() => Session.Query.All<Customer>()
+      result = ExecuteQueryAtSeparateThread(s => s.Query.All<Customer>()
         .Where(c => c.Key == key).Lock(lockMode1, lockBehavior1));
       firstEvent.Set();
       firstThread.Join();
       return result;
     }
 
-    private Exception ExecuteQueryAtSeparateThread<T>(Func<IQueryable<T>> query)
+    private Exception ExecuteQueryAtSeparateThread<T>(Func<Session,IQueryable<T>> query)
     {
       Exception result = null;
       var thread = new Thread(() => {
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction()) {
-            query.Invoke().ToList();
+            query.Invoke(session).ToList();
           }
         }
         catch(Exception e) {

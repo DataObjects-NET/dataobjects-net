@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Indexing.BloomFilter;
 
 namespace Xtensive.Indexing.Implementation

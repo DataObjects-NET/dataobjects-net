@@ -6,9 +6,9 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Serialization

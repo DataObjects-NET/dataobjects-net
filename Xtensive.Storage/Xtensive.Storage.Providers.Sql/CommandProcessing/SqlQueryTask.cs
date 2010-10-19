@@ -5,10 +5,10 @@
 // Created:    2009.08.21
 
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Parameters;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Storage.Providers.Sql
 {

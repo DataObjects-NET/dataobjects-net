@@ -11,7 +11,7 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0725.Model;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0725.Model
 {

@@ -5,9 +5,9 @@
 // Created:    2007.11.23
 
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class DirectionCollectionTest

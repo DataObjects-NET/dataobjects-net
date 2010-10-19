@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Aspects;
+using Xtensive.Aspects;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Operations;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {

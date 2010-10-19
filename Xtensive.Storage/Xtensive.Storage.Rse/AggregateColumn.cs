@@ -5,8 +5,8 @@
 // Created:    2008.09.11
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Helpers;
 using Xtensive.Storage.Rse;
 
 

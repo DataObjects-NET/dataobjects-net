@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals

@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 
-namespace Xtensive.Core.Internals.DocTemplates
+namespace Xtensive.Internals.DocTemplates
 {
   /// <summary>
   /// Serializable type documentation template.

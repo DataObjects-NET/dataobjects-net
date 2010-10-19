@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Threading;
 
 namespace Xtensive.Integrity.Aspects
 {

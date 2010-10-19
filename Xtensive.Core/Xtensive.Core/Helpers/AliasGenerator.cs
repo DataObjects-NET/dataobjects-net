@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Helpers
+namespace Xtensive.Helpers
 {
   /// <summary>
   /// Universal alias generator.

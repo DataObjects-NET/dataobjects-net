@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0717.Model;
-using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Testing;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0717.Model
 {

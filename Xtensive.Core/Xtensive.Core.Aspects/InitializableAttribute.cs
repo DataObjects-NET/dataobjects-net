@@ -13,11 +13,11 @@ using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
+using Xtensive.Aspects.Helpers;
+using Xtensive.Collections;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Aspects
+namespace Xtensive.Aspects
 {
   /// <summary>
   /// Injects "initializable" aspect by modifying constructors so that

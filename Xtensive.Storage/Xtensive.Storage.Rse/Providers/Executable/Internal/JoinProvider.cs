@@ -5,10 +5,10 @@
 // Created:    2008.05.23
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using System.Linq;
 

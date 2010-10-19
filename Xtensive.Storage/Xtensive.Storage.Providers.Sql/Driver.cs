@@ -5,8 +5,8 @@
 // Created:    2009.08.14
 
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
+using Xtensive;
+using Xtensive.Diagnostics;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;

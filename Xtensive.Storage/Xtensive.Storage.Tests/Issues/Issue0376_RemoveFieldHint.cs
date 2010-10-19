@@ -6,8 +6,8 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
+using Xtensive.Collections;
+using Xtensive.Disposing;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Upgrade;

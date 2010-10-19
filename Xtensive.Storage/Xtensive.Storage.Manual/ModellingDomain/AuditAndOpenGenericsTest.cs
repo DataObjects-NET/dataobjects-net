@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.IoC;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 {

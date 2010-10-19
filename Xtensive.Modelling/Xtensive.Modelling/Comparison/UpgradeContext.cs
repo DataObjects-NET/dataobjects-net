@@ -5,8 +5,8 @@
 // Created:    2009.04.16
 
 using System;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
 

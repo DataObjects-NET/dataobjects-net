@@ -11,8 +11,8 @@ using System.Reflection;
 using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Reflection;
+using Xtensive.Aspects;
+using Xtensive.Reflection;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Storage.Resources;
 

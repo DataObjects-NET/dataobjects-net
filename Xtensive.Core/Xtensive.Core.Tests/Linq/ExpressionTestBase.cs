@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
   [Serializable]
   public class ExpressionTestBase

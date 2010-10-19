@@ -6,7 +6,7 @@
 
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {

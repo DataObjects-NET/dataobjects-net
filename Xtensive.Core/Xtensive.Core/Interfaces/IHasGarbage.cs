@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.09
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Describes a class that might have some "garbage" inside it during the operation.

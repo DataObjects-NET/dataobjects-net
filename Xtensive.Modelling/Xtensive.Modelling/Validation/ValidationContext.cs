@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
 namespace Xtensive.Modelling.Validation
 {

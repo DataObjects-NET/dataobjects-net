@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.01.22
 
-namespace Xtensive.Core.ObjectMapping.Comparison
+namespace Xtensive.ObjectMapping.Comparison
 {
   internal sealed class EntityComparison : ComparerStateBase
   {

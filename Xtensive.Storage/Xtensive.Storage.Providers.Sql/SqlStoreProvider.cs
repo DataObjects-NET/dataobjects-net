@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;

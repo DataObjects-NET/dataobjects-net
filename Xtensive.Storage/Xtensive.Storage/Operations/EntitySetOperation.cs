@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Storage.Model;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Operations

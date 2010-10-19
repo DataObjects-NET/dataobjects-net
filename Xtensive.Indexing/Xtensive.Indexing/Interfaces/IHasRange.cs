@@ -4,8 +4,8 @@
 // Created by: Alexey Kochetov
 // Created:    2007.10.17
 
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
+using Xtensive.Collections;
+using Xtensive.Comparison;
 
 namespace Xtensive.Indexing
 {

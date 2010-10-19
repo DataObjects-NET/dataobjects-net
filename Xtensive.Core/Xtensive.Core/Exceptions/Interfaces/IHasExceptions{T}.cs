@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// An object having <see cref="Exceptions"/> property.

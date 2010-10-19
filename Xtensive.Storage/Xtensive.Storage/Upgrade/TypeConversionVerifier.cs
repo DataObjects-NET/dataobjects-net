@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Reflection;
 using Xtensive.Storage.Indexing.Model;
 
 namespace Xtensive.Storage.Upgrade

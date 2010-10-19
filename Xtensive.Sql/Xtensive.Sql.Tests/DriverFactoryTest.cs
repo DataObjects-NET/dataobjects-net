@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Sql.Tests
 {

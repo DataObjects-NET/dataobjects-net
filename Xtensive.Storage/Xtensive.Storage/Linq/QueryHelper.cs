@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Linq;
+using Xtensive.Parameters;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Linq
 
       var innerQuery = CreateEntityQueryExpression(elementType);
       var joinMethodInfo = typeof (Queryable).GetMethods()
-        .Single(mi => mi.Name == Core.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length == 5)
+        .Single(mi => mi.Name == Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length == 5)
         .MakeGenericMethod(new[] {
           connectorType,
           elementType,

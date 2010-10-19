@@ -6,11 +6,11 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
+using Xtensive.Aspects.Helpers;
+using Xtensive.Collections;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Aspects.Tests
+namespace Xtensive.Aspects.Tests
 {
   [TestFixture]
   public class ImplementConstructorTest

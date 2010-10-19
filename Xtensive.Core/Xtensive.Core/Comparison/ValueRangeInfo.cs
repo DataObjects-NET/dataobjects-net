@@ -5,11 +5,11 @@
 // Created:    2008.01.23
 
 using System;
-using Xtensive.Core.Arithmetic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Arithmetic;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   // Note: This class implements immutable pattern
   /// <summary>

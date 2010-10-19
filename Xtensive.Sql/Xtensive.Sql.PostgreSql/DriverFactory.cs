@@ -7,7 +7,7 @@
 using System;
 using System.Security;
 using Npgsql;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.PostgreSql.Resources;
 

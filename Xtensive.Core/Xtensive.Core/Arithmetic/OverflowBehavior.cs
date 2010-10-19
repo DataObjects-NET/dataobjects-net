@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// Describes arithmetic overflow behavior.   

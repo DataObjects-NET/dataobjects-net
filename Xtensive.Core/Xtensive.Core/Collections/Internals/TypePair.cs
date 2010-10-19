@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   internal struct TypePair : IEquatable<TypePair>
   {

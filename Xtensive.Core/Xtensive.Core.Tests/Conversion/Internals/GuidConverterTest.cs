@@ -7,9 +7,9 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Conversion
+namespace Xtensive.Tests.Conversion
 {
   [TestFixture]
   public class GuidConverterTest : ConverterTestBase

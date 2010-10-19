@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
   [TestFixture]
   public class ExpressionWriterTest

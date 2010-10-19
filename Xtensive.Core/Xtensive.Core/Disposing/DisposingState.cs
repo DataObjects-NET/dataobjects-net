@@ -4,7 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.08.26
 
-namespace Xtensive.Core.Disposing
+namespace Xtensive.Disposing
 {
   /// <summary>
   /// State of disposable object.

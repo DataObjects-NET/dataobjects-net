@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql

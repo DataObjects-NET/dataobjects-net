@@ -8,11 +8,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Provides delegates allowing to call serialization methods faster.

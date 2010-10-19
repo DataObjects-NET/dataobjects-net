@@ -11,8 +11,8 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.IndexingModel

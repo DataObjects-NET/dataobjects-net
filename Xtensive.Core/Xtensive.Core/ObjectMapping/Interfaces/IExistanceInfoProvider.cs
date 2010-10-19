@@ -5,9 +5,9 @@
 // Created:    2009.12.07
 
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   internal interface IExistanceInfoProvider
   {

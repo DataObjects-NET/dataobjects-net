@@ -5,8 +5,8 @@
 // Created:    2010.01.14
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
 
 namespace Xtensive.Sql.Model
 {

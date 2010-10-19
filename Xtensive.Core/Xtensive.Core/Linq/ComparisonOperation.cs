@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.27
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Comparison operation.

@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.10.14
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Enumerates supported log providers.

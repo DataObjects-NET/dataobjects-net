@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 using Xtensive.Storage.Model;
 using System.Linq;
 using Xtensive.Storage.Resources;

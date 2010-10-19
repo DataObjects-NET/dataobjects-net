@@ -6,10 +6,10 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 using System.Linq;
 using Xtensive.Modelling.Comparison.Hints;
 

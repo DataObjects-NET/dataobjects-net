@@ -7,8 +7,8 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;

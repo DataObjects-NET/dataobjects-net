@@ -6,9 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using Xtensive.Linq;
+using Xtensive.Reflection;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {

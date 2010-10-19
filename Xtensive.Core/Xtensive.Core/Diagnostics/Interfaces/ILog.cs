@@ -5,9 +5,9 @@
 // Created:    2007.10.10
 
 using System;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Log implementation.

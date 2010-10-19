@@ -6,14 +6,14 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Comparison;
+using Xtensive.Tuples;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
+using Xtensive.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples.Transform
+namespace Xtensive.Tests.Tuples.Transform
 {
   [TestFixture]
   public class ReadOnlyTransformTest
@@ -23,10 +23,10 @@ namespace Xtensive.Core.Tests.Tuples.Transform
     [Test]
     public void BaseTest()
     {
-      Tuple t  = Tuple.Create(1, "2", 3);
+      Xtensive.Tuples.Tuple t  = Xtensive.Tuples.Tuple.Create(1, "2", 3);
       Log.Info("Original: {0}", t);
 
-      Tuple rt = t.ToReadOnly(TupleTransformType.TransformedTuple);
+      Xtensive.Tuples.Tuple rt = t.ToReadOnly(TupleTransformType.TransformedTuple);
       Log.Info("Wrapper:  {0}", rt);
       Assert.AreEqual(t, rt);
       t.SetValue(0, 2);
@@ -36,7 +36,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
         rt.SetValue(0, 2);
       });
 
-      Tuple ct = t.ToReadOnly(TupleTransformType.Tuple);
+      Xtensive.Tuples.Tuple ct = t.ToReadOnly(TupleTransformType.Tuple);
       Log.Info("Copy:     {0}", ct);
       Assert.AreEqual(t, ct);
       t.SetValue(0, 2);
@@ -52,11 +52,11 @@ namespace Xtensive.Core.Tests.Tuples.Transform
     [Category("Performance")]
     public void PerformanceTest()
     {
-      AdvancedComparerStruct<Tuple> comparer = AdvancedComparerStruct<Tuple>.Default;
-      Tuple t   = Tuple.Create(1, 2);
-      Tuple ct  = t.ToRegular();
-      Tuple wt  = t.ToReadOnly(TupleTransformType.TransformedTuple);
-      Tuple wtc = t.ToReadOnly(TupleTransformType.TransformedTuple);
+      AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
+      Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1, 2);
+      Xtensive.Tuples.Tuple ct  = t.ToRegular();
+      Xtensive.Tuples.Tuple wt  = t.ToReadOnly(TupleTransformType.TransformedTuple);
+      Xtensive.Tuples.Tuple wtc = t.ToReadOnly(TupleTransformType.TransformedTuple);
       int count = IterationCount;
 
       comparer.Compare(t, ct);

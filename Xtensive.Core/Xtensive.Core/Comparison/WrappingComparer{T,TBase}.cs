@@ -5,10 +5,10 @@
 // Created:    2008.01.21
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Base class for any wrapping <see cref="IAdvancedComparer{T}"/>s.

@@ -5,7 +5,7 @@
 // Created:    2008.07.16
 
 using System;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Serialization.Binary;
 using Xtensive.Indexing.Implementation;
 
 namespace Xtensive.Indexing.Implementation

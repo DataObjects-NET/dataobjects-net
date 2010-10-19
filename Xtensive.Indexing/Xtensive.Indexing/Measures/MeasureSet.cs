@@ -5,8 +5,8 @@
 // Created:    2008.02.14
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Configuration;
+using Xtensive;
+using Xtensive.Configuration;
 
 namespace Xtensive.Indexing.Measures
 {

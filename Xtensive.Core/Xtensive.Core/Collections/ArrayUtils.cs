@@ -7,11 +7,11 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Comparison;
+using Xtensive.Reflection;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// <see cref="Array"/> related utilities.

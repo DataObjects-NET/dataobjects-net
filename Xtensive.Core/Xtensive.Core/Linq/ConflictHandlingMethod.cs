@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.09
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Possible ways of handling conflicts (i.e. multiple compilers for same method)

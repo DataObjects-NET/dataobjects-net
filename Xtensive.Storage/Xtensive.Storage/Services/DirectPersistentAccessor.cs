@@ -5,11 +5,11 @@
 // Created:    2008.11.02
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.IoC;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Activator=Xtensive.Storage.Internals.Activator;

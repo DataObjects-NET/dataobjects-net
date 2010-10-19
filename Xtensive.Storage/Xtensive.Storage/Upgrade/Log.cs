@@ -5,7 +5,7 @@
 // Created:    2007.11.13
 
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
 namespace Xtensive.Storage.Upgrade
 {

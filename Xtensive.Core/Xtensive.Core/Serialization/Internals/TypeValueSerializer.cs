@@ -8,9 +8,9 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   [Serializable]
   internal sealed class TypeValueSerializer : WrappingValueSerializer<Type, string, string>

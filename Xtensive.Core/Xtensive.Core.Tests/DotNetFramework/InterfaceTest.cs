@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 
-namespace Xtensive.Core.Tests.DotNetFramework
+namespace Xtensive.Tests.DotNetFramework
 {
   internal interface IComposite
   {

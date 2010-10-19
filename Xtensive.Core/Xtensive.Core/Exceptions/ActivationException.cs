@@ -6,10 +6,10 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Thrown by <see cref="ServiceContainerBase"/> on activation errors.

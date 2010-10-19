@@ -6,12 +6,12 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Indexing.Model.Resources;
 
 namespace Xtensive.Storage.Indexing.Model

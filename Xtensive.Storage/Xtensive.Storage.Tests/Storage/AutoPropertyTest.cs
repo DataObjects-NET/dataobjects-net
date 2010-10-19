@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Aspects;
+using Xtensive.Aspects;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
 

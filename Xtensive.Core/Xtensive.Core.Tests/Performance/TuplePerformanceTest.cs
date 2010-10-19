@@ -6,12 +6,12 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Reflection;
+using Xtensive.Diagnostics;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Tests.Performance
+namespace Xtensive.Tests.Performance
 {
   [TestFixture]
   public class TuplePerformanceTest
@@ -39,14 +39,14 @@ namespace Xtensive.Core.Tests.Performance
 
     private void CombinedTest(int count)
     {
-      Tuple t = Tuple.Create(1, 2L, 3, "4", (object)null);
+      Xtensive.Tuples.Tuple t = Xtensive.Tuples.Tuple.Create(1, 2L, 3, "4", (object)null);
       TupleTest(t, count);
       t = t.ToFastReadOnly();
       TupleTest(t, count);
 
 }
 
-    private void TupleTest(Tuple t, int count)
+    private void TupleTest(Xtensive.Tuples.Tuple t, int count)
     {
       using (Log.InfoRegion("Testing {0}", t.GetType().GetShortName())) {
         using (warmup ? null : new Measurement("GetAllValues", count * t.Count))
@@ -61,7 +61,7 @@ namespace Xtensive.Core.Tests.Performance
       }
     }
 
-    private void GetAllValuesTest(Tuple t, int count)
+    private void GetAllValuesTest(Xtensive.Tuples.Tuple t, int count)
     {
       int fieldCount = t.Count;
       for (int i = 0; i < count; i++)
@@ -71,7 +71,7 @@ namespace Xtensive.Core.Tests.Performance
         }
     }
 
-    private void GetValueTest(Tuple t, int count, int index)
+    private void GetValueTest(Xtensive.Tuples.Tuple t, int count, int index)
     {
       for (int i = 0; i < count; i++) {
         TupleFieldState state;
@@ -79,7 +79,7 @@ namespace Xtensive.Core.Tests.Performance
       }
     }
 
-    private void ToFastReadOnlyTest(Tuple t, int count)
+    private void ToFastReadOnlyTest(Xtensive.Tuples.Tuple t, int count)
     {
       for (int i = 0; i < count; i++)
         t.ToFastReadOnly();

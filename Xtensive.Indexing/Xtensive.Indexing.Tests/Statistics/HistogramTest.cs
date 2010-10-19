@@ -7,10 +7,10 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Comparison;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing.Tests.Statistics

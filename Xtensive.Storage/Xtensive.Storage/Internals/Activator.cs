@@ -5,10 +5,10 @@
 // Created:    2008.11.01
 
 using System;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Reflection;
+using Xtensive.Threading;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Internals

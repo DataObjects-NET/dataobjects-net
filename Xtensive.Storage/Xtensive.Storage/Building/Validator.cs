@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Resources;
 using FieldAttributes = Xtensive.Storage.Model.FieldAttributes;

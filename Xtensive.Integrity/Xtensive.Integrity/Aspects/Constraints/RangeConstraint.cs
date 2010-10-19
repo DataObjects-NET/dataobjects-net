@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using PostSharp.Aspects.Dependencies;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Threading;
+using Xtensive.Aspects;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Threading;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Aspects.Constraints

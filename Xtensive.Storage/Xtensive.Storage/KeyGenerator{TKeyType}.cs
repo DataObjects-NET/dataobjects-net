@@ -5,11 +5,11 @@
 // Created:    2009.11.18
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Arithmetic;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Arithmetic;
+using Xtensive.Comparison;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;

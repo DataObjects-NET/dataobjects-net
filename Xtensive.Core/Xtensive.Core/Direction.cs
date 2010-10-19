@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Possible directions of iteration through the enumerable.

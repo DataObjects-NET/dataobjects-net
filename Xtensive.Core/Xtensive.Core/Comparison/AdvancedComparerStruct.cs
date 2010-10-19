@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// A struct providing faster access for key <see cref="AdvancedComparer{T}"/> delegates.

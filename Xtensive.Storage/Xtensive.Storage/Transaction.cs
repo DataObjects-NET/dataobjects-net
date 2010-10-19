@@ -6,9 +6,9 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Disposing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Resources;

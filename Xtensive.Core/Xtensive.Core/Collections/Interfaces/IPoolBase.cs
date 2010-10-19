@@ -5,9 +5,9 @@
 // Created:    2007.06.13
 
 using System;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Base interface for pools.

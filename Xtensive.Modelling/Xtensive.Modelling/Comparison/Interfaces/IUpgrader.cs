@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.20
 
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 

@@ -5,8 +5,8 @@
 // Created:    2008.03.17
 
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Comparison;
+using Xtensive;
+using Xtensive.Comparison;
 
 namespace Xtensive.Storage.Model.Internals
 {

@@ -6,10 +6,10 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Linq;
+using Xtensive;
+using Xtensive.Linq;
 using Xtensive.Storage;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Practices.Localization.Internals
 {

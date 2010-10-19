@@ -5,9 +5,9 @@
 // Created:    2008.02.06
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// Base class for any wrapping <see cref="IArithmetic{T}"/>s.

@@ -6,8 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 

@@ -8,14 +8,14 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Helpers;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples.Transform;
 using Xtensive.Indexing;
 
 namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal

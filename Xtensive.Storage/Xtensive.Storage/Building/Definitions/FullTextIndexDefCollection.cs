@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Building.Definitions
 {

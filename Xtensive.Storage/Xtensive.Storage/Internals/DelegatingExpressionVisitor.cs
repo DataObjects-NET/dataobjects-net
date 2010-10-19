@@ -6,9 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Linq;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using Xtensive;
+using Xtensive.Linq;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Internals
 {

@@ -6,11 +6,11 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Caching;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Activator=Xtensive.Storage.Internals.Activator;

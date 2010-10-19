@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Parameters;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Parameters;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 

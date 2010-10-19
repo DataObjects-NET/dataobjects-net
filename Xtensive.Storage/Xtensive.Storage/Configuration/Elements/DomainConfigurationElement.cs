@@ -6,9 +6,9 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Core;
-using Xtensive.Core.Collections.Configuration;
-using Xtensive.Core.Configuration;
+using Xtensive;
+using Xtensive.Collections.Configuration;
+using Xtensive.Configuration;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration.Elements

@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Provides various debugging related information.

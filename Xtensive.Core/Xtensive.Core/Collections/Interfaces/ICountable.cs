@@ -6,7 +6,7 @@
 
 using System.Collections;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Exposes the a number of elements and the enumerator over a collection of a specified type.

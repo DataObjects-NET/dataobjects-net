@@ -6,10 +6,10 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
 using System.Linq;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Linq.Normalization
+namespace Xtensive.Linq.Normalization
 {
   /// <summary>
   /// Transforms <see cref="Expression"/> to disjunctive normal form.

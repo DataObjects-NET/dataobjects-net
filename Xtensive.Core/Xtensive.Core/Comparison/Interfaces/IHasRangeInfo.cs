@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.01.23
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// "An object providing <see cref="ValueRangeInfo"/>" contract.

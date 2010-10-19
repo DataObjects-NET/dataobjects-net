@@ -7,8 +7,8 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Testing;
+using Xtensive.Collections;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.RegistryModel1;

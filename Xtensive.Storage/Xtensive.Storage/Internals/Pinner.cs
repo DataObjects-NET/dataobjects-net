@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals

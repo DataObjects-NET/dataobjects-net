@@ -7,7 +7,7 @@ using System.Data;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using System.Data.Common;

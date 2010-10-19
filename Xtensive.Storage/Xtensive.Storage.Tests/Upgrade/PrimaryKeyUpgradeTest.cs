@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
-using Xtensive.Core;
+using Xtensive.Collections;
+using Xtensive.Disposing;
+using Xtensive;
 using Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1;
 using Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely;
 using Xtensive.Storage.Upgrade;
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 #pragma warning restore 612,618
       }
 
-      protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
       {
         hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Book", typeof(Book2)));
         hints.Add(new RemoveTypeHint("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Category"));

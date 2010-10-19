@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   [Serializable]
   internal class ArrayInstanceGenerator<T>: WrappingInstanceGenerator<T[], T>

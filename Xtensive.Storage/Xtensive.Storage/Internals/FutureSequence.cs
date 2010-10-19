@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Parameters;
+using Xtensive.Parameters;
 using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Internals

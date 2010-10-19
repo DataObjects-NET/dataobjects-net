@@ -5,7 +5,7 @@
 // Created:    2008.06.15
 
 using System.Collections.Generic;
-using Xtensive.Core.Comparison;
+using Xtensive.Comparison;
 using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing

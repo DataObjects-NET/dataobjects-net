@@ -5,7 +5,7 @@
 // Created:    2009.03.17
 
 using System.Collections.Specialized;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Modelling
 {

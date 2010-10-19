@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Providers

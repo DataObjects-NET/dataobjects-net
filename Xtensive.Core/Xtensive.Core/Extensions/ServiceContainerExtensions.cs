@@ -5,11 +5,11 @@
 // Created:    2010.02.02
 
 using System;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Reflection;
+using Xtensive.IoC;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="IServiceContainer"/> related extension methods.

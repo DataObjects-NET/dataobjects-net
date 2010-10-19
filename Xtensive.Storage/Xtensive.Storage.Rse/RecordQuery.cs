@@ -7,10 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Disposing;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 

@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.22
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// Base interface for any size calculator supported by

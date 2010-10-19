@@ -8,12 +8,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Comparison;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
   [TestFixture]
   public class  TupleComparerTest
@@ -21,11 +21,11 @@ namespace Xtensive.Core.Tests.Tuples
     private Type[] types1 = new Type[] { typeof(int), typeof(string) };
     private Type[] types2 = new Type[] { typeof(int), typeof(string), typeof(DateTime) };
 
-    private readonly AdvancedComparer<Tuple>  advancedComparer = AdvancedComparer<Tuple>.Default;
-    private readonly IEqualityComparer<Tuple> equalityComparer = EqualityComparer<Tuple>.Default;
-    private readonly IComparer<Tuple> comparer = Comparer<Tuple>.Default;
+    private readonly AdvancedComparer<Xtensive.Tuples.Tuple>  advancedComparer = AdvancedComparer<Xtensive.Tuples.Tuple>.Default;
+    private readonly IEqualityComparer<Xtensive.Tuples.Tuple> equalityComparer = EqualityComparer<Xtensive.Tuples.Tuple>.Default;
+    private readonly IComparer<Xtensive.Tuples.Tuple> comparer = Comparer<Xtensive.Tuples.Tuple>.Default;
 
-    bool ManualEquals(Tuple x, Tuple y)
+    bool ManualEquals(Xtensive.Tuples.Tuple x, Xtensive.Tuples.Tuple y)
     {
       if (y != null) {
         TupleFieldState state;
@@ -44,8 +44,8 @@ namespace Xtensive.Core.Tests.Tuples
     [Test]
     public void EqualityTest()
     {
-      var x = Tuple.Create(10);
-      var y = Tuple.Create(10);
+      var x = Xtensive.Tuples.Tuple.Create(10);
+      var y = Xtensive.Tuples.Tuple.Create(10);
       Assert.IsTrue(ManualEquals(x,y));
       Assert.AreEqual(x,y);
     }
@@ -53,8 +53,8 @@ namespace Xtensive.Core.Tests.Tuples
     [Test]
     public void EmptyTupleTest()
     {
-      Tuple tuple1 = Tuple.Create(new Type[] {});
-      Tuple tuple2 = Tuple.Create(new Type[] {});
+      Xtensive.Tuples.Tuple tuple1 = Xtensive.Tuples.Tuple.Create(new Type[] {});
+      Xtensive.Tuples.Tuple tuple2 = Xtensive.Tuples.Tuple.Create(new Type[] {});
 
       CheckComparisons(tuple1, tuple2, 0);
       CheckComparisons(tuple1, tuple1, 0);
@@ -63,31 +63,31 @@ namespace Xtensive.Core.Tests.Tuples
     [Test]
     public void ComparisonResultsTest()
     {
-      Assert.AreEqual(2,  advancedComparer.Compare(Tuple.Create(1, 2),    Tuple.Create(1)));
-      Assert.AreEqual(-2, advancedComparer.Compare(Tuple.Create(1, 2, 3), Tuple.Create(1, 3, 5)));
-      Assert.AreEqual(-1, advancedComparer.Compare(Tuple.Create(1),       Tuple.Create(2)));
-      Assert.AreEqual(-1, advancedComparer.Compare(Tuple.Create(1),       Tuple.Create(5)));
+      Assert.AreEqual(2,  advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2),    Xtensive.Tuples.Tuple.Create(1)));
+      Assert.AreEqual(-2, advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2, 3), Xtensive.Tuples.Tuple.Create(1, 3, 5)));
+      Assert.AreEqual(-1, advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1),       Xtensive.Tuples.Tuple.Create(2)));
+      Assert.AreEqual(-1, advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1),       Xtensive.Tuples.Tuple.Create(5)));
 
-      Assert.AreEqual(2,  comparer.Compare(Tuple.Create(1, 2), Tuple.Create(1)));
-      Assert.AreEqual(-2, comparer.Compare(Tuple.Create(1, 2, 3), Tuple.Create(1, 3, 5)));
-      Assert.AreEqual(-1, comparer.Compare(Tuple.Create(1), Tuple.Create(2)));
-      Assert.AreEqual(-1, comparer.Compare(Tuple.Create(1), Tuple.Create(5)));
+      Assert.AreEqual(2,  comparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2), Xtensive.Tuples.Tuple.Create(1)));
+      Assert.AreEqual(-2, comparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2, 3), Xtensive.Tuples.Tuple.Create(1, 3, 5)));
+      Assert.AreEqual(-1, comparer.Compare(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create(2)));
+      Assert.AreEqual(-1, comparer.Compare(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create(5)));
     }
 
     [Test]
     public void DifferentSizeAndTypeTest()
     {
-      CheckComparisons(Tuple.Create(1), Tuple.Create("1"), -1);
-      CheckComparisons(Tuple.Create(1), Tuple.Create(1, "1"), -1);
-      CheckComparisons(Tuple.Create(0), Tuple.Create(1, "1"), -1);
-      CheckComparisons(Tuple.Create(1), Tuple.Create(0, "1"), 1);
+      CheckComparisons(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create("1"), -1);
+      CheckComparisons(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create(1, "1"), -1);
+      CheckComparisons(Xtensive.Tuples.Tuple.Create(0), Xtensive.Tuples.Tuple.Create(1, "1"), -1);
+      CheckComparisons(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create(0, "1"), 1);
     }
 
     [Test]
     public void DebugTest()
     {
-      Tuple tuple1 = Tuple.Create(types1);
-      Tuple tuple2 = Tuple.Create(types2);
+      Xtensive.Tuples.Tuple tuple1 = Xtensive.Tuples.Tuple.Create(types1);
+      Xtensive.Tuples.Tuple tuple2 = Xtensive.Tuples.Tuple.Create(types2);
 
       tuple1.SetValue(1, "test"); // null-"test" null-null-null
       tuple2.SetValue(1, "test"); // null-"test" null-"test"-null
@@ -99,15 +99,15 @@ namespace Xtensive.Core.Tests.Tuples
     {
       Assert.AreEqual("TupleComparer", advancedComparer.Implementation.GetType().Name);
 
-      Tuple tuple1 = Tuple.Create(types1);
-      Tuple tuple2 = Tuple.Create(types2);
+      Xtensive.Tuples.Tuple tuple1 = Xtensive.Tuples.Tuple.Create(types1);
+      Xtensive.Tuples.Tuple tuple2 = Xtensive.Tuples.Tuple.Create(types2);
 
       CheckComparisons(tuple1, tuple1, 0);
       CheckComparisons(tuple1, tuple2, -1);
 
       // Same length
-      tuple1 = Tuple.Create(types1);
-      tuple2 = Tuple.Create(types1);
+      tuple1 = Xtensive.Tuples.Tuple.Create(types1);
+      tuple2 = Xtensive.Tuples.Tuple.Create(types1);
 
       CheckComparisons(tuple1, tuple2, 0);
 
@@ -137,8 +137,8 @@ namespace Xtensive.Core.Tests.Tuples
       var guid1 = Guid.NewGuid();
       var guid2 = Guid.NewGuid();
       Assert.IsFalse(guid1.Equals(guid2));
-      var tuple1 = Tuple.Create(guid1);
-      var tuple2 = Tuple.Create(guid2);
+      var tuple1 = Xtensive.Tuples.Tuple.Create(guid1);
+      var tuple2 = Xtensive.Tuples.Tuple.Create(guid2);
       var condition = tuple1.Equals(tuple2);
       Assert.IsFalse(condition);
     }
@@ -149,8 +149,8 @@ namespace Xtensive.Core.Tests.Tuples
       var dateTime1 = DateTime.Now;
       var dateTime2 = dateTime1.AddMinutes(1);
       Assert.IsFalse(dateTime1.Equals(dateTime2));
-      var tuple1 = Tuple.Create(dateTime1);
-      var tuple2 = Tuple.Create(dateTime2);
+      var tuple1 = Xtensive.Tuples.Tuple.Create(dateTime1);
+      var tuple2 = Xtensive.Tuples.Tuple.Create(dateTime2);
       Assert.IsFalse(tuple1.Equals(tuple2));
     }
 
@@ -160,8 +160,8 @@ namespace Xtensive.Core.Tests.Tuples
       var timeSpan1 = TimeSpan.FromMinutes(10);
       var timeSpan2 = TimeSpan.FromMinutes(15);
       Assert.IsFalse(timeSpan1.Equals(timeSpan2));
-      var tuple1 = Tuple.Create(timeSpan1);
-      var tuple2 = Tuple.Create(timeSpan2);
+      var tuple1 = Xtensive.Tuples.Tuple.Create(timeSpan1);
+      var tuple2 = Xtensive.Tuples.Tuple.Create(timeSpan2);
       Assert.IsFalse(tuple1.Equals(tuple2));
     }
 
@@ -171,8 +171,8 @@ namespace Xtensive.Core.Tests.Tuples
       var int1 = 10;
       var int2 = 15;
       Assert.IsFalse(int1.Equals(int2));
-      var tuple1 = Tuple.Create(int1);
-      var tuple2 = Tuple.Create(int2);
+      var tuple1 = Xtensive.Tuples.Tuple.Create(int1);
+      var tuple2 = Xtensive.Tuples.Tuple.Create(int2);
       Assert.IsFalse(tuple1.Equals(tuple2));
     }
 
@@ -182,8 +182,8 @@ namespace Xtensive.Core.Tests.Tuples
       var char1 = 'a';
       var char2 = 'b';
       Assert.IsFalse(char1.Equals(char2));
-      var tuple1 = Tuple.Create(char1);
-      var tuple2 = Tuple.Create(char2);
+      var tuple1 = Xtensive.Tuples.Tuple.Create(char1);
+      var tuple2 = Xtensive.Tuples.Tuple.Create(char2);
       Assert.IsFalse(tuple1.Equals(tuple2));
     }
 
@@ -193,12 +193,12 @@ namespace Xtensive.Core.Tests.Tuples
       var string1 = "a";
       var string2 = "b";
       Assert.IsFalse(string1.Equals(string2));
-      var tuple1 = Tuple.Create(string1);
-      var tuple2 = Tuple.Create(string2);
+      var tuple1 = Xtensive.Tuples.Tuple.Create(string1);
+      var tuple2 = Xtensive.Tuples.Tuple.Create(string2);
       Assert.IsFalse(tuple1.Equals(tuple2));
     }
 
-    private void CheckComparisons(Tuple x, Tuple y, int expectedResult)
+    private void CheckComparisons(Xtensive.Tuples.Tuple x, Xtensive.Tuples.Tuple y, int expectedResult)
     {
       expectedResult = Normalize(expectedResult);
       bool boolResult = expectedResult==0;

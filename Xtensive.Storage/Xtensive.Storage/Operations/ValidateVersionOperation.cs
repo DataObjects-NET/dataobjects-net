@@ -8,9 +8,9 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Operations

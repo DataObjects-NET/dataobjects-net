@@ -5,10 +5,10 @@
 // Created:    2009.12.18
 
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// Abstract base class for storing cached values.

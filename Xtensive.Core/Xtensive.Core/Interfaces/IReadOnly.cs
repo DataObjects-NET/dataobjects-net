@@ -4,7 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2008.07.24
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Marks that implementing type is read-only analogue of 

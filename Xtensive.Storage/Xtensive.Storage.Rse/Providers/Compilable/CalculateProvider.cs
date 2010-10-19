@@ -5,10 +5,10 @@
 // Created:    2008.09.09
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples.Transform;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples.Transform;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {

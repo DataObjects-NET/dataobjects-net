@@ -11,9 +11,9 @@ using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive.Aspects;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage

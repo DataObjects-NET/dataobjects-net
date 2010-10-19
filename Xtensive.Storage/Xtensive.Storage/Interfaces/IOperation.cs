@@ -4,7 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage

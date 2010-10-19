@@ -6,10 +6,10 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   internal sealed class MappingBuilderAdapter<TSource, TTarget>
     : IMappingBuilderAdapter<TSource, TTarget>

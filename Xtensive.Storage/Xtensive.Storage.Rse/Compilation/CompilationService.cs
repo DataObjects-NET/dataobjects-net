@@ -6,10 +6,10 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.Caching;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Resources;

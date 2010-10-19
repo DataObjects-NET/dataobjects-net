@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// A factory class creating complex <see cref="IAdvancedConverter{TFrom,TTo}"/>.

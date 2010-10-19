@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
+using Xtensive;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Linq.Expressions
 {

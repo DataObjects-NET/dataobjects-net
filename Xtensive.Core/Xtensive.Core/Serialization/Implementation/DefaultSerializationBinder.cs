@@ -9,10 +9,10 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Default <see cref="SerializationBinder"/> implementation.

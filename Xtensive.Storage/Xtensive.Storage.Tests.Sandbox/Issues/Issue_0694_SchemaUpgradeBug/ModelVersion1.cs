@@ -5,7 +5,7 @@
 // Created:    2009.05.20
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1
 {

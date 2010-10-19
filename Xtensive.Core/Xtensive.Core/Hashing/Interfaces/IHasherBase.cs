@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Tagging interface for any hasher supported by

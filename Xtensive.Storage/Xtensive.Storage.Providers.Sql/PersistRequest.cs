@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql

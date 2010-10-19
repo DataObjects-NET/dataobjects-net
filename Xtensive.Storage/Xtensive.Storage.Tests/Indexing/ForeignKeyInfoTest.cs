@@ -4,11 +4,11 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage;
 using Xtensive.Storage.Indexing.Model;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
 namespace Xtensive.Storage.Tests.Indexing
 {

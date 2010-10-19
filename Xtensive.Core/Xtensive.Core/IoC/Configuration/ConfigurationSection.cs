@@ -5,9 +5,9 @@
 // Created:    2009.12.15
 
 using System.Configuration;
-using Xtensive.Core.Configuration;
+using Xtensive.Configuration;
 
-namespace Xtensive.Core.IoC.Configuration
+namespace Xtensive.IoC.Configuration
 {
   /// <summary>
   /// A root element of diagnostics configuration section within a configuration file.
@@ -16,9 +16,9 @@ namespace Xtensive.Core.IoC.Configuration
   {
     /// <summary>
     /// Gets default section name for IoC configuration.
-    /// Value is "Xtensive.Core.IoC".
+    /// Value is "Xtensive.IoC".
     /// </summary>
-    public const string DefaultSectionName = "Xtensive.Core.IoC";
+    public const string DefaultSectionName = "Xtensive.IoC";
 
     private const string CollectionElementName = "containers";
 

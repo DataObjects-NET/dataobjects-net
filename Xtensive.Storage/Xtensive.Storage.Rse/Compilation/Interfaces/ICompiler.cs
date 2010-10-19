@@ -4,8 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.08.31
 
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 

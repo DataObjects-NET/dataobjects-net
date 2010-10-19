@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xtensive.Core.Aspects;
+using Xtensive.Aspects;
 using Xtensive.Storage;
 using System.Diagnostics;
 

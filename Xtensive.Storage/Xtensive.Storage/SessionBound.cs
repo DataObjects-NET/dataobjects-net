@@ -6,10 +6,10 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Aspects;
+using Xtensive.IoC;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;

@@ -5,9 +5,9 @@
 // Created:    2009.06.03
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
 namespace Xtensive.Storage.Linq
 {

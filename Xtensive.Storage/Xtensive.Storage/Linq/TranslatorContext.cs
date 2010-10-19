@@ -7,18 +7,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Helpers;
+using Xtensive.Linq;
+using Xtensive.Parameters;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Linq
 {

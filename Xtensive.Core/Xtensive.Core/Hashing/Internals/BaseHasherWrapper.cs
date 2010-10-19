@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   internal class BaseHasherWrapper<T, TBase> : WrappingHasher<T, TBase>
     where T : TBase

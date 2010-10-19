@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Xtensive.Core.Disposing;
-using Xtensive.Core;
+using Xtensive.Disposing;
+using Xtensive;
 
 namespace Xtensive.Storage.Providers.Sql
 {

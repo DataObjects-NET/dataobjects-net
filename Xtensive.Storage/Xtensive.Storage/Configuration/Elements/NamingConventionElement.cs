@@ -6,7 +6,7 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Core.Configuration;
+using Xtensive.Configuration;
 
 namespace Xtensive.Storage.Configuration.Elements
 {

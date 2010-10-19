@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Comparison;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
   [TestFixture]
   public class TuplePerformanceTest
@@ -45,7 +45,7 @@ namespace Xtensive.Core.Tests.Tuples
     [Test]
     public void BasicTest()
     {
-      Tuple t = Tuple.Create(TupleDescriptor.Create<string, int, string, TimeSpan, string, string>());
+      Xtensive.Tuples.Tuple t = Xtensive.Tuples.Tuple.Create(TupleDescriptor.Create<string, int, string, TimeSpan, string, string>());
       t.SetValue(0, string.Empty);
       t.SetValue(2, "n\\a");
       t.SetValue(3, new TimeSpan());
@@ -53,7 +53,7 @@ namespace Xtensive.Core.Tests.Tuples
       t.SetValue(5, "null");
 
       var s = t.Format();
-      var tt = Tuple.Parse(t.Descriptor, s);
+      var tt = Xtensive.Tuples.Tuple.Parse(t.Descriptor, s);
 
       Assert.AreEqual(t,tt);
     }
@@ -73,7 +73,7 @@ namespace Xtensive.Core.Tests.Tuples
           for (int i = 0; i < fieldCount; i++)
             fieldTypesList.Add(allFieldTypes[random.Next(allFieldTypes.Length)]);
           TupleDescriptor descriptor = TupleDescriptor.Create(fieldTypesList);
-          Tuple tuple = Tuple.Create(descriptor);
+          Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
         }
       }
     }
@@ -84,7 +84,7 @@ namespace Xtensive.Core.Tests.Tuples
     {
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
-      Tuple tuple = Tuple.Create(descriptor);
+      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
       using (new Measurement("Tuple.SetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, (object)i);
@@ -118,7 +118,7 @@ namespace Xtensive.Core.Tests.Tuples
     {
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
-      Tuple tuple = Tuple.Create(descriptor);
+      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
       for (int i = 0; i < iterationCount; i++)
         tuple.SetValue(0, (object)i);
       for (int i = 0; i < iterationCount; i++) {
@@ -194,13 +194,13 @@ namespace Xtensive.Core.Tests.Tuples
     {
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(typicalFieldTypes);
-      Tuple tuple = Tuple.Create(descriptor);
+      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
       using (new Measurement("CreateNew", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.CreateNew();
       using (new Measurement("TupleDescriptor.CreateTuple", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          Tuple.Create(descriptor);
+          Xtensive.Tuples.Tuple.Create(descriptor);
     }
 
     [Test]
@@ -209,7 +209,7 @@ namespace Xtensive.Core.Tests.Tuples
     {
       const int iterationCount = 10000000;
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
-      Tuple tuple = Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
+      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
       var hashCode = tuple.GetHashCode();
       var copy = tuple.CreateNew();
       
@@ -232,10 +232,10 @@ namespace Xtensive.Core.Tests.Tuples
     {
       const int iterationCount = 10000000;
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
-      var tuple = Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
+      var tuple = Xtensive.Tuples.Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
       var clone = tuple.Clone();
       Assert.AreEqual(tuple.GetHashCode(), clone.GetHashCode());
-      var equals = AdvancedComparer<Tuple>.System.Equals;
+      var equals = AdvancedComparer<Xtensive.Tuples.Tuple>.System.Equals;
 
       // Warmup
       for (int i = 0; i < iterationCount / 10; i++) {
@@ -260,9 +260,9 @@ namespace Xtensive.Core.Tests.Tuples
     {
       const int iterationCount = 1000000;
       var descriptor = TupleDescriptor.Create(typicalFieldTypes);
-      var tuple = Tuple.Create(descriptor);
+      var tuple = Xtensive.Tuples.Tuple.Create(descriptor);
       var dummyTuple = new DummyTuple(descriptor);
-      var tuplesList = new List<Tuple>(iterationCount);
+      var tuplesList = new List<Xtensive.Tuples.Tuple>(iterationCount);
 
       int iteration = 0;
       using (new Measurement("DummyTuple memory usage", iterationCount))

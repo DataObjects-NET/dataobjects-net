@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Helper type providing instance generation facilities.

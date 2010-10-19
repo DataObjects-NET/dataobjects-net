@@ -5,9 +5,9 @@
 // Created:    2009.04.03
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Tuple that references another tuple by getter delegate.

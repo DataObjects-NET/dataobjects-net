@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Comparison.Hints
 {

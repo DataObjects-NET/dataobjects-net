@@ -7,9 +7,9 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Exposes <see cref="ISerializer"/> as .Net <see cref="IFormatter"/>.

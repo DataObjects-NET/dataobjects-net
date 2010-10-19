@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.07
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Provides bidirectional conversion support.

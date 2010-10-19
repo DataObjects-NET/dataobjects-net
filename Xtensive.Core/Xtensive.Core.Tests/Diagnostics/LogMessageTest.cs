@@ -8,7 +8,7 @@ using System;
 using System.Globalization;
 using NUnit.Framework;
 
-namespace Xtensive.Core.Tests.Diagnostics
+namespace Xtensive.Tests.Diagnostics
 {
   [TestFixture]
   public class LogMessageTest

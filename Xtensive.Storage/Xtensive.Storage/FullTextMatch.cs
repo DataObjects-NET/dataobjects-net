@@ -4,7 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.14
 
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {

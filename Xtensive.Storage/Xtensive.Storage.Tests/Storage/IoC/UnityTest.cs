@@ -11,7 +11,7 @@ using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
 using NUnit.Framework;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.IoC

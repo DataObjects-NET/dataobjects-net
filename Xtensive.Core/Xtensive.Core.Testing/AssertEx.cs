@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing.Resources;
+using Xtensive.Collections;
+using Xtensive;
+using Xtensive.Reflection;
+using Xtensive.Testing.Resources;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Additional assertion methods.

@@ -6,10 +6,10 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Core.Configuration;
-using Xtensive.Core;
+using Xtensive.Configuration;
+using Xtensive;
 
-namespace Xtensive.Core.Collections.Configuration
+namespace Xtensive.Collections.Configuration
 {
   /// <summary>
   /// Type registration element within a configuration file.

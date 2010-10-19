@@ -6,7 +6,7 @@
 
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// An object that can be converted to <see cref="Expression"/>.

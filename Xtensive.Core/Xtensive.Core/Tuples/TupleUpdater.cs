@@ -5,9 +5,9 @@
 // Created:    2009.03.17
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   ///<summary>
   /// Helper type allowing to update tuples using functional style syntax.

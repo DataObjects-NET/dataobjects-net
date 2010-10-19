@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// <see cref="Dictionary{TKey,TValue}"/>-based 

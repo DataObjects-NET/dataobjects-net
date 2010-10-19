@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 
 namespace Xtensive.Storage.Tests.Storage.IoC
 {

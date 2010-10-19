@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.10.13
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// <see cref="LogEventTypes"/> related extension methods.

@@ -10,9 +10,9 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 using System.Linq;
 
 namespace Xtensive.Storage.Operations

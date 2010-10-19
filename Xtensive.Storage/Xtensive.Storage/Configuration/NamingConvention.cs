@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive.Collections;
+using Xtensive;
+using Xtensive.Helpers;
 
 namespace Xtensive.Storage.Configuration
 {

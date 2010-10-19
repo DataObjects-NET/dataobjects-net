@@ -4,7 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.04.22
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Describes an object that able to calculate its own size.

@@ -6,9 +6,9 @@
 
 using System.Configuration;
 using NUnit.Framework;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 using Xtensive.Storage.Configuration;
-using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
+using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.Storage.Tests.Storage.IoC
 {

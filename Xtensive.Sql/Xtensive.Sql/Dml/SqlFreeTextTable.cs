@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml

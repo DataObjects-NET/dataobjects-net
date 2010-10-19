@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   internal sealed class DefaultServiceContainer : ServiceContainerBase
   {

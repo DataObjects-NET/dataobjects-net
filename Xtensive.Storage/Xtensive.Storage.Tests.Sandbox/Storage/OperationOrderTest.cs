@@ -7,12 +7,12 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Core.Disposing;
+using Xtensive.Disposing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Storage.Operations;
-using Xtensive.Core;
+using Xtensive;
 using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.OperationOrderTest

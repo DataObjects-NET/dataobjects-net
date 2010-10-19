@@ -5,10 +5,10 @@
 // Created:    2008.02.20
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples.Transform;
 using Xtensive.Indexing.Composite;
 using Xtensive.Indexing.Differential;
 using Xtensive.Indexing.Measures;

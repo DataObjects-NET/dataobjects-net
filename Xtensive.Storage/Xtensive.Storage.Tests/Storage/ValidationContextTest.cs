@@ -6,11 +6,11 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.ValidationContextTestModel;
-using AggregateException = Xtensive.Core.AggregateException;
+using AggregateException = Xtensive.AggregateException;
 
 namespace Xtensive.Storage.Tests.Storage.ValidationContextTestModel
 {

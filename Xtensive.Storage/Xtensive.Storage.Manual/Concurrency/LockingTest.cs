@@ -9,10 +9,10 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Manual.Concurrency.Locking
 {

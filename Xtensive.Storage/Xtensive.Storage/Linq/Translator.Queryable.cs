@@ -9,14 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Disposing;
+using Xtensive.Linq;
+using Xtensive.Parameters;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Rse;
@@ -392,22 +392,22 @@ namespace Xtensive.Storage.Linq
         : VisitSequence(source);
       RecordQuery rightDataSource = null;
       switch (method.Name) {
-      case Core.Reflection.WellKnown.Queryable.First:
+      case Xtensive.Reflection.WellKnown.Queryable.First:
         applySequenceType = ApplySequenceType.First;
         markerType = MarkerType.First;
         rightDataSource = projection.ItemProjector.DataSource.Take(1);
         break;
-      case Core.Reflection.WellKnown.Queryable.FirstOrDefault:
+      case Xtensive.Reflection.WellKnown.Queryable.FirstOrDefault:
         applySequenceType = ApplySequenceType.FirstOrDefault;
         markerType = MarkerType.First | MarkerType.Default;
         rightDataSource = projection.ItemProjector.DataSource.Take(1);
         break;
-      case Core.Reflection.WellKnown.Queryable.Single:
+      case Xtensive.Reflection.WellKnown.Queryable.Single:
         applySequenceType = ApplySequenceType.Single;
         markerType = MarkerType.Single;
         rightDataSource = projection.ItemProjector.DataSource.Take(2);
         break;
-      case Core.Reflection.WellKnown.Queryable.SingleOrDefault:
+      case Xtensive.Reflection.WellKnown.Queryable.SingleOrDefault:
         applySequenceType = ApplySequenceType.SingleOrDefault;
         markerType = MarkerType.Single | MarkerType.Default;
         rightDataSource = projection.ItemProjector.DataSource.Take(2);
@@ -586,22 +586,22 @@ namespace Xtensive.Storage.Linq
       ProjectionExpression innerProjection;
 
       switch (method.Name) {
-      case Core.Reflection.WellKnown.Queryable.Count:
+      case Xtensive.Reflection.WellKnown.Queryable.Count:
         aggregateType = AggregateType.Count;
         break;
-      case Core.Reflection.WellKnown.Queryable.LongCount:
+      case Xtensive.Reflection.WellKnown.Queryable.LongCount:
         aggregateType = AggregateType.Count;
         break;
-      case Core.Reflection.WellKnown.Queryable.Min:
+      case Xtensive.Reflection.WellKnown.Queryable.Min:
         aggregateType = AggregateType.Min;
         break;
-      case Core.Reflection.WellKnown.Queryable.Max:
+      case Xtensive.Reflection.WellKnown.Queryable.Max:
         aggregateType = AggregateType.Max;
         break;
-      case Core.Reflection.WellKnown.Queryable.Sum:
+      case Xtensive.Reflection.WellKnown.Queryable.Sum:
         aggregateType = AggregateType.Sum;
         break;
-      case Core.Reflection.WellKnown.Queryable.Average:
+      case Xtensive.Reflection.WellKnown.Queryable.Average:
         aggregateType = AggregateType.Avg;
         break;
       default:

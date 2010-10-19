@@ -11,8 +11,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Linq;
+using Xtensive.Collections;
+using Xtensive.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Tests.Linq
       var queryAllExpression = Expression.Constant(queryable); 
 
       var selectMethodInfo = typeof (System.Linq.Queryable).GetMethods()
-        .Single(methodInfo=>methodInfo.Name==Xtensive.Core.Reflection.WellKnown.Queryable.Select
+        .Single(methodInfo=>methodInfo.Name==Xtensive.Reflection.WellKnown.Queryable.Select
         && methodInfo.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2);
 
       var parameter = Expression.Parameter(entityType, "paramName");

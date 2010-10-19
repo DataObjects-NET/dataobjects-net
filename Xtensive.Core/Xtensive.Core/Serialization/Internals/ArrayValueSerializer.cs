@@ -7,7 +7,7 @@
 using System;
 using System.IO;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   [Serializable]
   internal sealed class ArrayValueSerializer<T> : WrappingValueSerializer<T[], T, long>

@@ -4,8 +4,8 @@
 
 using System;
 using System.Data.Common;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Model
 {

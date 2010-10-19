@@ -7,7 +7,7 @@
 using System;
 using System.Text;
 
-namespace Xtensive.Core
+namespace Xtensive
 {  
   /// <summary>
   /// <see cref="StringBuilder"/> related extension methods.

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Aspects.Helpers
 {
   /// <summary>
   /// Defines standard aspect message types.

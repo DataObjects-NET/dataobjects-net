@@ -8,12 +8,12 @@ using System;
 using System.Reflection;
 using System.Security;
 using System.Text;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using System.Linq;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Resources;
+using Xtensive.Collections;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// <see cref="MemberInfo"/> related helper \ extension methods.

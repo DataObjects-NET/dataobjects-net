@@ -5,8 +5,8 @@
 // Created:    2009.05.26
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {
@@ -32,7 +32,7 @@ namespace Xtensive.Storage
     public int Position { get; set; }
 
     /// <summary>
-    /// Gets or sets the sort direction. Default is <see cref="Core.Direction.Positive"/>.
+    /// Gets or sets the sort direction. Default is <see cref="Xtensive.Direction.Positive"/>.
     /// </summary>
     /// <para>
     /// Key fields <see cref="Position">positions</see> and directions choice can be based on some optimization purposes, 

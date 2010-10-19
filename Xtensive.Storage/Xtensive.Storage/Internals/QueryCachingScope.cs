@@ -5,9 +5,9 @@
 // Created:    2009.04.27
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Parameters;
+using Xtensive;
+using Xtensive.IoC;
+using Xtensive.Parameters;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;

@@ -3,13 +3,13 @@ using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
+using Xtensive.IoC;
+using Xtensive.Reflection;
 using Xtensive.Practices.Localization.Internals;
 using Xtensive.Practices.Localization.Model;
 using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
-using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
+using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.Practices.Localization
 {

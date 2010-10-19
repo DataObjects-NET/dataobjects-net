@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Comparison;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Measures
 {

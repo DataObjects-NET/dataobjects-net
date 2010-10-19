@@ -5,9 +5,9 @@
 // Created:    2008.07.04
 
 using System;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="ILockable"/> related extension methods.

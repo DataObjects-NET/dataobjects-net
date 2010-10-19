@@ -5,7 +5,7 @@
 // Created:    2009.03.23
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 

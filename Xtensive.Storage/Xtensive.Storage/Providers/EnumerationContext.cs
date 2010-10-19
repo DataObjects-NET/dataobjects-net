@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Linq.Materialization;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;

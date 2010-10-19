@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Sorting;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.IoC;
+using Xtensive.Sorting;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -20,7 +20,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Upgrade
 {

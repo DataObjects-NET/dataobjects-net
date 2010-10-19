@@ -5,7 +5,7 @@
 // Created:    2008.08.26
 
 using System.Diagnostics;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {

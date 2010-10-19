@@ -7,8 +7,8 @@
 using System.Reflection;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Testing;
+using Xtensive.Serialization.Binary;
+using Xtensive.Testing;
 using System;
 
 #region Models

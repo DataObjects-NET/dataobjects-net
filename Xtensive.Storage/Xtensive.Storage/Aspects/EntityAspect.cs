@@ -13,8 +13,8 @@ using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects;
-using Xtensive.Core;
+using Xtensive.Aspects;
+using Xtensive;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage

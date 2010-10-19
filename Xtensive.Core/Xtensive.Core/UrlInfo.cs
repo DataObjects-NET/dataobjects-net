@@ -13,11 +13,11 @@ using System.Security;
 using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Holds an URL and provides easy access to its different parts.

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class ValueTypeHasher<T> : WrappingHasher<T, int>

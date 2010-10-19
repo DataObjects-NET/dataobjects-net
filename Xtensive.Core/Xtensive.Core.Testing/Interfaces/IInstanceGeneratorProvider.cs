@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Instance generator provider.

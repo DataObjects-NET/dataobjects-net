@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Describes a collection containing expiring items.

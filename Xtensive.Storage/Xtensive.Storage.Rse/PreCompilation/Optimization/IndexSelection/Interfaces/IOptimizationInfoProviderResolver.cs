@@ -4,8 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.15
 
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing.Optimization;
 using Xtensive.Storage.Model;
 

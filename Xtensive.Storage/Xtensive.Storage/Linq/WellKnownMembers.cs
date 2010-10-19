@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Parameters;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
@@ -71,18 +71,18 @@ namespace Xtensive.Storage.Linq
       static Tuple()
       {
         // Tuple
-        GenericAccessor = typeof (Core.Tuples.Tuple)
+        GenericAccessor = typeof (Xtensive.Tuples.Tuple)
           .GetMethods()
-          .Where(mi => mi.Name==Core.Reflection.WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
+          .Where(mi => mi.Name==Xtensive.Reflection.WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
           .Single();
-        Create = typeof (Core.Tuples.Tuple)
+        Create = typeof (Xtensive.Tuples.Tuple)
           .GetMethods()
-          .Where(mi => mi.Name==Core.Reflection.WellKnown.Tuple.Create
+          .Where(mi => mi.Name==Xtensive.Reflection.WellKnown.Tuple.Create
             && !mi.IsGenericMethod
               && mi.GetParameters().Count()==1
                 && mi.GetParameters()[0].ParameterType==typeof (TupleDescriptor))
           .Single();
-        Descriptor = typeof (Core.Tuples.Tuple).GetProperty(Core.Reflection.WellKnown.Tuple.Descriptor);
+        Descriptor = typeof (Xtensive.Tuples.Tuple).GetProperty(Xtensive.Reflection.WellKnown.Tuple.Descriptor);
       }
     }
 
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Linq
           "Create",
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
           null,
-           new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Core.Tuples.Tuple)}, null);
+           new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Xtensive.Tuples.Tuple)}, null);
 
       }
     }
@@ -120,8 +120,8 @@ namespace Xtensive.Storage.Linq
         Select = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="Select").First();
         First = typeof (System.Linq.Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
-          .First(m => m.Name==Core.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
-        OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Core.Tuples.Tuple));
+          .First(m => m.Name==Xtensive.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
+        OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Xtensive.Tuples.Tuple));
         DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
         Contains = GetMethod(typeof(System.Linq.Enumerable), "Contains", 1, 2);
       }
@@ -165,16 +165,16 @@ namespace Xtensive.Storage.Linq
       static Queryable()
       {
         // Queryable
-        AsQueryable = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
-        DefaultIfEmpty = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
-        Count = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 1);
-        CountWithPredicate = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 2);
-        Take = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Take, 1, 2);
-        Contains = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Contains, 1, 2);
-        LongCount = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.LongCount, 1, 1);
+        AsQueryable = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
+        DefaultIfEmpty = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
+        Count = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Count, 1, 1);
+        CountWithPredicate = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Count, 1, 2);
+        Take = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Take, 1, 2);
+        Contains = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Contains, 1, 2);
+        LongCount = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.LongCount, 1, 1);
         Where = typeof (System.Linq.Queryable).GetMethods().Where(methodInfo => {
           ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-          return methodInfo.Name==Core.Reflection.WellKnown.Queryable.Where
+          return methodInfo.Name==Xtensive.Reflection.WellKnown.Queryable.Where
             && methodInfo.IsGenericMethod
               && parameterInfos.Length==2
                 && parameterInfos[1].ParameterType.IsGenericType
@@ -248,7 +248,7 @@ namespace Xtensive.Storage.Linq
       ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");
 
       // Parameter<Tuple>
-      ParameterOfTupleValue = typeof (Parameter<Core.Tuples.Tuple>).GetProperty("Value", typeof (Core.Tuples.Tuple));
+      ParameterOfTupleValue = typeof (Parameter<Xtensive.Tuples.Tuple>).GetProperty("Value", typeof (Xtensive.Tuples.Tuple));
 
       // Parameter
       ParameterValue = typeof (Parameter).GetProperty("Value");

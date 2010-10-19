@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.12
 
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Indexing
 {

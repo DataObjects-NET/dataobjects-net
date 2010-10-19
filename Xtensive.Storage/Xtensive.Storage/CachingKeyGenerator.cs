@@ -5,9 +5,9 @@
 // Created:    2007.12.20
 
 using System.Collections.Generic;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.IoC;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 

@@ -5,10 +5,10 @@
 // Created:    2009.02.18
 
 using System;
-using Xtensive.Core.Linq;
+using Xtensive.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
+using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {

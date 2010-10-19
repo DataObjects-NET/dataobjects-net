@@ -5,7 +5,7 @@
 // Created:    2009.08.03
 
 using System;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model;
 

@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.11
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Common <see cref="ILog"/> and <see cref="IRealLog"/> methods and properties.

@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   [Serializable]
   internal class KeyValuePairInstanceGenerator<T1, T2>: WrappingInstanceGenerator<KeyValuePair<T1, T2>, T1, T2>

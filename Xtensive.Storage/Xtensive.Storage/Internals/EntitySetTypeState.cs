@@ -5,11 +5,11 @@
 // Created:    2009.08.04
 
 using System;
-using Xtensive.Core.Tuples;
+using Xtensive.Tuples;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse.Providers;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples.Transform;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals

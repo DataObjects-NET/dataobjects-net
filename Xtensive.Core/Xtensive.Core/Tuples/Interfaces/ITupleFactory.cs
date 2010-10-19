@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.02.04
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// <see cref="Tuple"/> factory contract.

@@ -6,11 +6,11 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Security;
 using NUnit.Framework;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Security;
+using Xtensive.Serialization.Binary;
 
-namespace Xtensive.Core.Tests.Security
+namespace Xtensive.Tests.Security
 {
   [TestFixture]
   public class DelegateSecurityTokenProviderTest

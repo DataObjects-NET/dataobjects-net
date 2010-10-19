@@ -12,8 +12,8 @@ using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Issues.Issue0696.Model;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0696.Model
 {

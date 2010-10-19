@@ -8,9 +8,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
+using Xtensive.Aspects;
+using Xtensive.Caching;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Services
 {

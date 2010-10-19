@@ -6,9 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   internal sealed class CachingExpressionCompiler
   {

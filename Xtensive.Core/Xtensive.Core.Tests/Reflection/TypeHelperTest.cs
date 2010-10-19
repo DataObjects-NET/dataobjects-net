@@ -10,11 +10,11 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
+using Xtensive.Collections;
+using Xtensive.Reflection;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Reflection
+namespace Xtensive.Tests.Reflection
 {
   [TestFixture]
   public class TypeHelperTest

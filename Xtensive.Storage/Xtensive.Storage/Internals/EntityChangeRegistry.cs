@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Aspects;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Internals
 {

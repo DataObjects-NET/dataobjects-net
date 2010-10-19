@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers;

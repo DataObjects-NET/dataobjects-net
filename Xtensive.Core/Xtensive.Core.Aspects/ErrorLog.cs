@@ -6,10 +6,10 @@
 
 using System;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Aspects.Resources;
+using Xtensive.Aspects.Helpers;
+using Xtensive.Aspects.Resources;
 
-namespace Xtensive.Core.Aspects
+namespace Xtensive.Aspects
 {
   /// <summary>
   /// Error log used by aspects.
@@ -64,7 +64,7 @@ namespace Xtensive.Core.Aspects
 
     static ErrorLog()
     {
-      MessageSource = new MessageSource("Xtensive.Core.Aspects", Strings.ResourceManager);
+      MessageSource = new MessageSource("Xtensive.Aspects", Strings.ResourceManager);
     }
   }
 }

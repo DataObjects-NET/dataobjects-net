@@ -5,9 +5,9 @@
 // Created:    2008.02.14
 
 using System;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   [Serializable]
   internal class EnumAdvancedConverterFactory<TFrom> : IAdvancedConverterFactory<TFrom>

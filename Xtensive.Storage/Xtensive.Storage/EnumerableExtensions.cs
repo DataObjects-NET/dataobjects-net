@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using System.Linq;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Storage
 {

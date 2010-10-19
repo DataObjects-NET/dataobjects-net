@@ -5,10 +5,10 @@
 // Created:    2009.03.19
 
 using NUnit.Framework;
-using Xtensive.Core.Security;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Security;
+using Xtensive.Serialization.Binary;
 
-namespace Xtensive.Core.Tests.Security
+namespace Xtensive.Tests.Security
 {
   [TestFixture]
   public class DelegateAuthenticationProviderTest

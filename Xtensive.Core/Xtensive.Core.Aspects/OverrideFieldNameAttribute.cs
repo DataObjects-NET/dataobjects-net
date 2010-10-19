@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Aspects
+namespace Xtensive.Aspects
 {
   /// <summary>
   /// Overrides field name for persistence purposes. Should not be applied in end-user code.

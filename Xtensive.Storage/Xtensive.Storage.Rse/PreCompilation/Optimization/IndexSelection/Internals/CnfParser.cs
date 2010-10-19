@@ -7,13 +7,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Linq.Normalization;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Comparison;
+using Xtensive.Linq.Normalization;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
-using Xtensive.Core.Linq;
+using Xtensive.Linq;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection

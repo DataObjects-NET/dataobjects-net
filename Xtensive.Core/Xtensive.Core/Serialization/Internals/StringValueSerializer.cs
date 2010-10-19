@@ -8,7 +8,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   [Serializable]
   internal sealed class StringValueSerializer : WrappingValueSerializer<string, int>

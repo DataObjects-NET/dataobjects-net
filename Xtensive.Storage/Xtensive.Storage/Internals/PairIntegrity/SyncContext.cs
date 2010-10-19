@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 

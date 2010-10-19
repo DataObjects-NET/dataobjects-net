@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Serialization.Binary;
 using Xtensive.Storage.Configuration;
 using System.Linq;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 #region Model
 

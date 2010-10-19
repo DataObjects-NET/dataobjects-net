@@ -8,9 +8,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using PostSharp.Aspects.Dependencies;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Aspects;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Aspects.Constraints

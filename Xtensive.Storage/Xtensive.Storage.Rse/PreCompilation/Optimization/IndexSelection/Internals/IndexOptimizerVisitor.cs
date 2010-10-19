@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Linq.Normalization;
-using Xtensive.Core.Parameters;
+using Xtensive;
+using Xtensive.Caching;
+using Xtensive.Collections;
+using Xtensive.Linq.Normalization;
+using Xtensive.Parameters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;

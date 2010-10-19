@@ -10,7 +10,7 @@ using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 
-namespace Xtensive.Core.Aspects.Tests
+namespace Xtensive.Aspects.Tests
 {
   [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false)]

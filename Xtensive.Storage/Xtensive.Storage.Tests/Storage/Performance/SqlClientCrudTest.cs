@@ -7,8 +7,8 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.Performance.SqlClientCrudModel;
 

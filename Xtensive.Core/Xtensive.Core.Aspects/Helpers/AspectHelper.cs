@@ -9,26 +9,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects.Resources;
-using Xtensive.Core;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Collections;
+using Xtensive.Aspects.Resources;
+using Xtensive;
+using Xtensive.IoC;
+using Xtensive.Reflection;
+using Xtensive.Collections;
+using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
+using WellKnown = Xtensive.Reflection.WellKnown;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Aspects.Helpers
 {
   /// <summary>
   /// Helps to validate common aspect application errors.
   /// </summary>
   public static class AspectHelper
   {
-    private const string XtensiveCoreWeaver = 
-      "Xtensive.Core.Weaver";
-    private const string XtensiveDataObjectsDotNet = 
-      "Xtensive.DataObjects.Net";
-    private const string XtensiveCoreWeaverWeaverFactory = 
-      "Xtensive.Core.Weaver.WeaverFactory";
-    
     private static readonly object lockObject = new object();
     private static readonly Dictionary<string, Type> surrogateTypeCache = new Dictionary<string, Type>();
 

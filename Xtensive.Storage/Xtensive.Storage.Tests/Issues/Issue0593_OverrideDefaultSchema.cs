@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Sql;
 using Xtensive.Storage.Configuration;
 using SqlDomainHandler = Xtensive.Storage.Providers.Sql.DomainHandler;

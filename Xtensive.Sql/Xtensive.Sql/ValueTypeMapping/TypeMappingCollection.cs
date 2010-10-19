@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql

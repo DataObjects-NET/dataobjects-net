@@ -7,7 +7,7 @@
 
 using System;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   [Serializable]
   internal class Int16InstanceGenerator : InstanceGeneratorBase<short>

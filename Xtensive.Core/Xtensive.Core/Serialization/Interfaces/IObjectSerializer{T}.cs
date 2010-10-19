@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Typed object serializer and deserializer.

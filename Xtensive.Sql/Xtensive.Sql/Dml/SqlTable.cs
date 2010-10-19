@@ -66,7 +66,6 @@ namespace Xtensive.Sql.Dml
     public virtual IEnumerator<SqlTable> GetEnumerator()
     {
       yield return this;
-      yield break;
     }
 
     public virtual SqlJoinedTable CrossJoin(SqlTable right)

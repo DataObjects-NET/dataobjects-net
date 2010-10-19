@@ -7,15 +7,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Tuples;
+using Xtensive;
+using Xtensive.Caching;
+using Xtensive.Tuples;
 using Xtensive.Storage.Linq.Materialization;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Internals
 {

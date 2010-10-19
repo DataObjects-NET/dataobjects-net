@@ -5,9 +5,9 @@
 // Created:    2008.02.22
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// A configuration contract (for <see cref="IConfigurable{TConfiguration}"/>).

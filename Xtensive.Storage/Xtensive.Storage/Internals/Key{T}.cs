@@ -5,11 +5,11 @@
 // Created:    2009.07.13
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;
-using ComparerProvider=Xtensive.Core.Comparison.ComparerProvider;
+using ComparerProvider=Xtensive.Comparison.ComparerProvider;
 
 namespace Xtensive.Storage.Internals
 {

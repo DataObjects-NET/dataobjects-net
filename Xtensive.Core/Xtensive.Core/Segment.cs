@@ -9,12 +9,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core.Arithmetic;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Arithmetic;
+using Xtensive.Comparison;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// A definition of segment with boundaries of type <typeparamref name="T"/>.

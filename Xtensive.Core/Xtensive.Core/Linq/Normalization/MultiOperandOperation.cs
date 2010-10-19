@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Linq.Normalization
+namespace Xtensive.Linq.Normalization
 {
   /// <summary>
   /// An abstract base class for any operation with multiple operands.

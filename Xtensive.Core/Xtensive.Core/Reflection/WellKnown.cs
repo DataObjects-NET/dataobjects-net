@@ -6,7 +6,7 @@
 
 using System.Linq;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// Various well-known constants related to this namespace.

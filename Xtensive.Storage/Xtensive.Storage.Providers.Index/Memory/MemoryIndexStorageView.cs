@@ -7,16 +7,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using System.Transactions;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Tuples.Transform;
 using Xtensive.Storage.Providers.Index.Resources;
 
 namespace Xtensive.Storage.Providers.Index.Memory

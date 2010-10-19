@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class TripletHasher<TFirst, TSecond, TThird> : WrappingHasher<Triplet<TFirst, TSecond, TThird>, TFirst, TSecond, TThird>

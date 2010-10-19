@@ -8,9 +8,9 @@ using System;
 using System.Linq.Expressions;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Caching;
-using Xtensive.Core;
-using Xtensive.Core.Linq;
+using Xtensive.Caching;
+using Xtensive;
+using Xtensive.Linq;
 using Xtensive.Storage.Configuration;
 using System.Linq;
 

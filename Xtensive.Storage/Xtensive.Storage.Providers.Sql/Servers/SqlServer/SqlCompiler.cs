@@ -5,7 +5,7 @@
 // Created:    2009.02.13
 
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;

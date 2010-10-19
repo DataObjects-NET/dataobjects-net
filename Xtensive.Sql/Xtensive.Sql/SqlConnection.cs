@@ -5,7 +5,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Resources;
 

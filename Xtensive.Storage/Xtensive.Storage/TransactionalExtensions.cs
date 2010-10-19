@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Transactions;
-using Xtensive.Core.Disposing;
+using Xtensive.Disposing;
 using System.Linq;
 
 namespace Xtensive.Storage

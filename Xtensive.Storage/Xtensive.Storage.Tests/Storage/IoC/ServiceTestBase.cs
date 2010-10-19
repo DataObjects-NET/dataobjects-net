@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.IoC.Model;
 

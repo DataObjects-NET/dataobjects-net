@@ -6,8 +6,8 @@
 
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Testing;
+using Xtensive.Linq;
+using Xtensive.Testing;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Configuration;

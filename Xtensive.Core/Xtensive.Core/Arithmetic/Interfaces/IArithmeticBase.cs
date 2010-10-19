@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.06
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// Very base interface for any arithmetic implementation 

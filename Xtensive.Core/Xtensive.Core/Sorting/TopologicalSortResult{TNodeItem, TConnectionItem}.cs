@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Sorting
+namespace Xtensive.Sorting
 {
   /// <summary>
   /// Describes result of <see cref="TopologicalSorter"/> operations.

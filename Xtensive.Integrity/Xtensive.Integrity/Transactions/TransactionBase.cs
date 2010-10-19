@@ -7,8 +7,8 @@
 using System;
 using System.Diagnostics;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Transactions

@@ -6,7 +6,7 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Internals.FieldAccessors;
 using Xtensive.Storage.Model;
 using System.Linq;

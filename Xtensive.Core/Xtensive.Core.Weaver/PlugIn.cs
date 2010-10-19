@@ -15,15 +15,15 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using PostSharp.Extensibility;
 using PostSharp.Sdk.AspectWeaver;
-using Xtensive.Core.Aspects;
-using Xtensive.Core;
+using Xtensive.Aspects;
+using Xtensive;
 using Xtensive.Licensing;
 using Xtensive.Licensing.Validator;
 
-namespace Xtensive.Core.Weaver
+namespace Xtensive.Weaver
 {
   /// <summary>
-  /// Creates the weavers defined by the 'Xtensive.Core.Weaver' plug-in.
+  /// Creates the weavers defined by the 'Xtensive.Weaver' plug-in.
   /// </summary>
   public sealed class PlugIn : AspectWeaverPlugIn
   {

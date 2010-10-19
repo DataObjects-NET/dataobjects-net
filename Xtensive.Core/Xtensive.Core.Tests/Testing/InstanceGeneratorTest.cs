@@ -7,14 +7,14 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Comparison;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Testing
+namespace Xtensive.Tests.Testing
 {
   // Verifies that 2 generated sequences of given type have appropriate share of coincident elements.
   // Checks all system types.
@@ -69,7 +69,7 @@ namespace Xtensive.Core.Tests.Testing
       TestSequence<uint?>(sequenceLength, 0, baseTolerance);
       TestSequence<ulong>(sequenceLength, 0, baseTolerance);
       TestSequence<ulong?>(sequenceLength, 0, baseTolerance);
-      TestSequence<Tuple>(sequenceLength/10, 0, baseTolerance*10);
+      TestSequence<Xtensive.Tuples.Tuple>(sequenceLength/10, 0, baseTolerance*10);
     }
 
     // Calculates probability for original type (actually does nothing)

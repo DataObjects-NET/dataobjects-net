@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Collections;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
   [TestFixture]
   public class TupleDescriptorTest

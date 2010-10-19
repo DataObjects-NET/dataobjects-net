@@ -7,11 +7,11 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
   [TestFixture]
   public class TupleBehaviorTest : TupleBehaviorTestBase
@@ -19,7 +19,7 @@ namespace Xtensive.Core.Tests.Tuples
     [Test]
     public void GetFieldStateTest()
     {
-      Tuple tuple = Tuple.Create(typeof (string));
+      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(typeof (string));
       TupleFieldState fieldState = tuple.GetFieldState(0);
       Assert.IsTrue(Enum.IsDefined(typeof (TupleFieldState), fieldState));
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Core.Tests.Tuples
     public void EnumGetHashCodeTest()
     {
       var flag = BindingFlags.Instance;
-      var tuple = Tuple.Create(flag);
+      var tuple = Xtensive.Tuples.Tuple.Create(flag);
       var clone = tuple.Clone();
       Console.Out.WriteLine((int)flag);
       Assert.AreEqual(tuple,clone);
@@ -76,9 +76,9 @@ namespace Xtensive.Core.Tests.Tuples
 
       Type[] targetTypes = GetTestTypes(loopCount, out sourceTypes, offset);
 
-      Tuple source = Tuple.Create(sourceTypes);
-      Tuple target = Tuple.Create(targetTypes);
-      Tuple sameTypeTarget = Tuple.Create(sourceTypes);
+      Xtensive.Tuples.Tuple source = Xtensive.Tuples.Tuple.Create(sourceTypes);
+      Xtensive.Tuples.Tuple target = Xtensive.Tuples.Tuple.Create(targetTypes);
+      Xtensive.Tuples.Tuple sameTypeTarget = Xtensive.Tuples.Tuple.Create(sourceTypes);
 
       PopulateData(sourceTypes, source);
       PopulateData(targetTypes, target);
@@ -113,9 +113,9 @@ namespace Xtensive.Core.Tests.Tuples
       return targetTypes;
     }
 
-    protected override Tuple CreateTestTuple(TupleDescriptor descriptor)
+    protected override Xtensive.Tuples.Tuple CreateTestTuple(TupleDescriptor descriptor)
     {
-      return Tuple.Create(descriptor);
+      return Xtensive.Tuples.Tuple.Create(descriptor);
     }
   }
 }

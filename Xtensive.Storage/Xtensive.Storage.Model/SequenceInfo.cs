@@ -5,8 +5,8 @@
 // Created:    2010.02.09
 
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using System;
 
 namespace Xtensive.Storage.Model

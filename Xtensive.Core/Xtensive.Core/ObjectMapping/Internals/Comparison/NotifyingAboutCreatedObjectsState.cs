@@ -8,10 +8,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Threading;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.ObjectMapping.Comparison
+namespace Xtensive.ObjectMapping.Comparison
 {
   internal sealed class NotifyingAboutCreatedObjectsState : ProcessingCollectionState
   {

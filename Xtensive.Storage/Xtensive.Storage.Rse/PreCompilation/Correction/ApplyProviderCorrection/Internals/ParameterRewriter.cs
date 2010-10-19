@@ -5,9 +5,9 @@
 // Created:    2009.05.15
 
 using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Core.Linq;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using Xtensive;
+using Xtensive.Linq;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {

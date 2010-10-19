@@ -7,11 +7,11 @@
 
 using System;
 using PostSharp.Extensibility;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Resources;
-using AggregateException = Xtensive.Core.AggregateException;
+using AggregateException = Xtensive.AggregateException;
 
 namespace Xtensive.Integrity.Validation
 {

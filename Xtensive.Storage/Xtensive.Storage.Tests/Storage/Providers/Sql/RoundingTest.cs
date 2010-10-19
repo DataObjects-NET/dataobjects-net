@@ -7,8 +7,8 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Disposing;
-using Xtensive.Core;
+using Xtensive.Disposing;
+using Xtensive;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 

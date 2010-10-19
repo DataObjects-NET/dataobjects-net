@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Configuration;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Configuration;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Differential
 {

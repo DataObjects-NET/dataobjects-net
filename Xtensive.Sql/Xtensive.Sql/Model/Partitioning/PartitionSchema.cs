@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
 
 namespace Xtensive.Sql.Model
 {

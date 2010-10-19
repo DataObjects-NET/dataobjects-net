@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;

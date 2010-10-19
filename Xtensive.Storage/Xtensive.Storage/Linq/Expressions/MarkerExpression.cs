@@ -5,7 +5,7 @@
 // Created:    2009.06.22
 
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Linq.Expressions
 {

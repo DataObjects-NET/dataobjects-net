@@ -4,9 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.03
 
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Describes an object having <see cref="Extensions"/> property.

@@ -7,7 +7,7 @@
 
 using System;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   [Serializable]
   internal class TripletInstanceGenerator<T1, T2, T3>: WrappingInstanceGenerator<Triplet<T1, T2, T3>, T1, T2, T3>

@@ -7,10 +7,10 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Collections;
+using Xtensive.Helpers;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Manual.FutureQueries
 {

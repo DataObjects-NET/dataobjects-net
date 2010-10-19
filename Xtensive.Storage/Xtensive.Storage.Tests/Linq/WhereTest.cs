@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Tests.Linq
 
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          supplierLekaKey = Session.Query.All<Supplier>().Single(s => s.CompanyName=="Leka Trading").Key;
-          categoryFirstKey = Session.Query.All<Category>().First().Key;
+          supplierLekaKey = session.Query.All<Supplier>().Single(s => s.CompanyName=="Leka Trading").Key;
+          categoryFirstKey = session.Query.All<Category>().First().Key;
         }
       }
     }

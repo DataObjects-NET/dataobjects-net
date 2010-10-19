@@ -6,7 +6,7 @@
 
 using System;
 using PostSharp.Aspects.Dependencies;
-using Xtensive.Core.Aspects;
+using Xtensive.Aspects;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Aspects.Constraints

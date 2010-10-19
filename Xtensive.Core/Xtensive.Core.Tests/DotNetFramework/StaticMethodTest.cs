@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace Xtensive.Core.Tests.DotNetFramework
+namespace Xtensive.Tests.DotNetFramework
 {
   [TestFixture]
   public class StaticMethodTest

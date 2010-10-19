@@ -9,10 +9,10 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
-using Xtensive.Core;
+using Xtensive;
 using System.Linq.Dynamic;
 
 namespace Xtensive.Storage.Tests.Linq.Interfaces

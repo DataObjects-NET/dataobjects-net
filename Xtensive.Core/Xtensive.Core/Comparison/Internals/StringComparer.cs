@@ -7,9 +7,9 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class StringComparer: AdvancedComparerBase<string>,

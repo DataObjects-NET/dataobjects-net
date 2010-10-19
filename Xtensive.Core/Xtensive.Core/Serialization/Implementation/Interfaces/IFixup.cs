@@ -4,7 +4,7 @@
 // Created by: Dmitry Kononchuk
 // Created:    2008.08.20
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// An action which should be executed after complete deserialization of the graph.

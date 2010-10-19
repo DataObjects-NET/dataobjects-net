@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.24
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// This interface should be implemented by classes, that can

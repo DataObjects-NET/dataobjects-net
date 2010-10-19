@@ -6,10 +6,10 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Abstract base class for <see cref="ITypeRegistrationProcessor"/> implementation.

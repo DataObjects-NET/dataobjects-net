@@ -4,8 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.26
 
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 
 namespace Xtensive.Modelling.Comparison.Hints
 {

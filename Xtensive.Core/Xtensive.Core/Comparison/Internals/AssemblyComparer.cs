@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class AssemblyComparer: WrappingComparer<Assembly, string>,

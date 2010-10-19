@@ -6,11 +6,11 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Linq;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Linq;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Helpers;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {

@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.28
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Provider contract.

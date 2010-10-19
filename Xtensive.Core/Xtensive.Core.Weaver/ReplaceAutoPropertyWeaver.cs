@@ -16,10 +16,10 @@ using PostSharp.Sdk.CodeModel.SerializationTypes;
 using PostSharp.Sdk.CodeModel.TypeSignatures;
 using PostSharp.Sdk.Collections;
 using PostSharp.Sdk.Extensibility.Tasks;
-using Xtensive.Core.Aspects;
+using Xtensive.Aspects;
 using System.Linq;
 
-namespace Xtensive.Core.Weaver
+namespace Xtensive.Weaver
 {
   internal class ReplaceAutoPropertyWeaver : MethodLevelAspectWeaver
   {

@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.24
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   partial class WellKnown
   {

@@ -6,12 +6,12 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Linq.SerializableExpressions;
-using Xtensive.Core.Linq.SerializableExpressions.Internals;
-using Xtensive.Core.Resources;
+using Xtensive.Linq;
+using Xtensive.Linq.SerializableExpressions;
+using Xtensive.Linq.SerializableExpressions.Internals;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="Expression"/> related extension methods.

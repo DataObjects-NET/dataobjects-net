@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Caching;
+using Xtensive.Collections;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;

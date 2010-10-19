@@ -5,8 +5,8 @@
 // Created:    2008.07.03
 
 using System;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Threading;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 

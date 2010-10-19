@@ -7,14 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Disposing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {

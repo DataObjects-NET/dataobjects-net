@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 using Xtensive.Practices.Localization.Internals;
 using Xtensive.Storage;
 

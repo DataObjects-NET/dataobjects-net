@@ -8,15 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Diagnostics;
+using Xtensive.Disposing;
+using Xtensive.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Modelling.Comparison
 {

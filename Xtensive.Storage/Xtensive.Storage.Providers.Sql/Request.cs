@@ -4,8 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.27
 
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 

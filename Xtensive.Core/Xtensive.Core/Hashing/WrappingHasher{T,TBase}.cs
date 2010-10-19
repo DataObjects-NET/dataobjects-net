@@ -5,11 +5,11 @@
 // Created:    2008.01.21
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Base class for any wrapping <see cref="IHasher{T}"/>s.

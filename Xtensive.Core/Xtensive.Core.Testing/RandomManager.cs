@@ -8,9 +8,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Creates random-seeded <see cref="Random"/>

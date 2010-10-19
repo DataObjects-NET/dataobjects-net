@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Model.Stored
 {

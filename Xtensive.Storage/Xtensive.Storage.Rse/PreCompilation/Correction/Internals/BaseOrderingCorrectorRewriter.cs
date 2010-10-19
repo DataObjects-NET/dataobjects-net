@@ -4,8 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.28
 
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction

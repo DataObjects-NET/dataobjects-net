@@ -5,11 +5,11 @@
 // Created:    2008.10.30
 
 using System;
-using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Aspects.Helpers;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Aspects.Tests
+namespace Xtensive.Aspects.Tests
 {
   [TestFixture]
   public class NotSupportedTest

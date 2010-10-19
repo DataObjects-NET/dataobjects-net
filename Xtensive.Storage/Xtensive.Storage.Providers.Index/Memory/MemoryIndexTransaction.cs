@@ -6,7 +6,7 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Providers.Index.Memory

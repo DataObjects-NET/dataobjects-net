@@ -1,11 +1,11 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Diagnostics;
+using Xtensive.Parameters;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Performance.CrudModel;

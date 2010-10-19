@@ -7,7 +7,7 @@
 using System;
 using System.Globalization;
 using log4net.Util;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
 namespace Xtensive.Adapters.log4net
 {

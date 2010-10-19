@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using System.Linq;
 using Xtensive.Storage.Disconnected;

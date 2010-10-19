@@ -7,12 +7,12 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.ObjectMapping;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tests.ObjectMapping.SourceModel;
-using Xtensive.Core.Tests.ObjectMapping.TargetModel;
+using Xtensive.ObjectMapping;
+using Xtensive.Testing;
+using Xtensive.Tests.ObjectMapping.SourceModel;
+using Xtensive.Tests.ObjectMapping.TargetModel;
 
-namespace Xtensive.Core.Tests.ObjectMapping
+namespace Xtensive.Tests.ObjectMapping
 {
   [TestFixture]
   public sealed class MapperHandlingStructureTests : MapperTestBase

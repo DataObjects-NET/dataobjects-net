@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Sql;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Upgrade.LegacyUpgradeTest.Model;

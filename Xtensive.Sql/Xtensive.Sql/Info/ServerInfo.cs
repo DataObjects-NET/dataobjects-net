@@ -2,8 +2,8 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
 
 namespace Xtensive.Sql.Info
 {

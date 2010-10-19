@@ -6,9 +6,9 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Parameters;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Materialization;
 

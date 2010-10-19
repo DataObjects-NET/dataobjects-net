@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;

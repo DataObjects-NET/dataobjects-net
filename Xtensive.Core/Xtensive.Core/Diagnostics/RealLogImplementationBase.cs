@@ -5,9 +5,9 @@
 // Created:    2007.10.10
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Base class for any <see cref="IRealLog"/> implementation.

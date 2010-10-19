@@ -9,14 +9,14 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using PostSharp.Aspects;
-using Xtensive.Core;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.IoC;
+using Xtensive.Reflection;
+using Xtensive.Testing;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
-using AggregateException = Xtensive.Core.AggregateException;
+using AggregateException = Xtensive.AggregateException;
 
 namespace Xtensive.Integrity.Tests
 {

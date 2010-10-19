@@ -7,8 +7,8 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using TypeAttributes=Xtensive.Storage.Model.TypeAttributes;

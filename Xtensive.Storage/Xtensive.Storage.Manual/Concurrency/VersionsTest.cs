@@ -9,13 +9,13 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Manual.Concurrency.Versions
 {

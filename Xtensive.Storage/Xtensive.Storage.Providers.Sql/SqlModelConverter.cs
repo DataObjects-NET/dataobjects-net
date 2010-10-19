@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
@@ -21,7 +21,7 @@ using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Storage.Providers.Sql
 {

@@ -5,7 +5,7 @@
 // Created:    2008.08.08
 
 using System.Diagnostics;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Model;
 using System.Linq;
 

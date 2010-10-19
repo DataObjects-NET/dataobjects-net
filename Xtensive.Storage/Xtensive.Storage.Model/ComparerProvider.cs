@@ -8,12 +8,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
-  // TODO: Use Xtensive.Core.Comparers
+  // TODO: Use Xtensive.Comparers
   /// <summary>
   /// Provides comparers for primitive types and strings.
   /// </summary>

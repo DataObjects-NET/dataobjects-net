@@ -7,10 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Conversion;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Conversion;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   ///<summary>
   /// A sequence of <typeparamref name="T"/>-<see cref="Direction"/> pairs.

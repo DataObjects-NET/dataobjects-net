@@ -6,11 +6,11 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Provides (creates or resolves) <see cref="ILog"/> instances by their name.

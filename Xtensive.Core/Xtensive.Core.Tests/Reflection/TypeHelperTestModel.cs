@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Tests.Reflection
+namespace Xtensive.Tests.Reflection
 {
 
   #region GetTypeName test model

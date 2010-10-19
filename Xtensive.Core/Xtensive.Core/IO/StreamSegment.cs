@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.IO
+namespace Xtensive.IO
 {
   /// <summary>
   /// Exposes a <see cref="Segment"/> of the specified <see cref="Stream"/> 

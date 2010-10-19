@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Disposing;
+using Xtensive.Disposing;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {

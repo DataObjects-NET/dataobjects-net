@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
-namespace Xtensive.Core.Tests.DotNetFramework
+namespace Xtensive.Tests.DotNetFramework
 {
   [TestFixture]
   public class SwitchVsArrayTest

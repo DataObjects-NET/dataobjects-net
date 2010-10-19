@@ -9,15 +9,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Comparison;
+using Xtensive.Collections;
+using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Storage.Providers.Index.Memory
 {

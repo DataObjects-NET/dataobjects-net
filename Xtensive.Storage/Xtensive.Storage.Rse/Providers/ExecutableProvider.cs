@@ -8,11 +8,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Rse.Compilation;
 using IEnumerable = System.Collections.IEnumerable;
 

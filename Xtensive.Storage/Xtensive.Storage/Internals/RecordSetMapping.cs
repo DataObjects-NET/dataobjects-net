@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Rse;
 using System.Linq;
 

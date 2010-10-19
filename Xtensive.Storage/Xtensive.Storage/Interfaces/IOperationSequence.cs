@@ -5,7 +5,7 @@
 // Created:    2010.03.01
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage
@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// Operation sequence contract.
   /// </summary>
   public interface IOperationSequence : ICountable<IOperation>,
-    Core.IOperationSequence
+    Xtensive.IOperationSequence
   {
     /// <summary>
     /// Applies this operation sequence to the <see cref="Session.Current"/> session.

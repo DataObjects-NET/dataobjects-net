@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.02.15
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Tagging interface for any converter supported by

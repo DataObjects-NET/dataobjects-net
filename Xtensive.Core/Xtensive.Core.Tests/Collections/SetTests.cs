@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
+using Xtensive.Collections;
+using Xtensive;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class SetTests

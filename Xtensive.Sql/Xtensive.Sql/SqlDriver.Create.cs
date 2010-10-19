@@ -6,8 +6,8 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Reflection;
 
 namespace Xtensive.Sql
 {

@@ -5,9 +5,9 @@
 // Created:    2009.07.03
 
 using System.Linq.Expressions;
-using Xtensive.Core.Linq;
+using Xtensive.Linq;
 using System.Linq;
-using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {

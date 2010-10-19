@@ -10,8 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive;
 
 namespace Xtensive.Storage.Rse
 {

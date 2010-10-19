@@ -5,7 +5,7 @@
 // Created:    2009.04.30
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Upgrade
 {

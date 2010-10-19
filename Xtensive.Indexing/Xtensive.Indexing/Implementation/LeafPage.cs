@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing.Implementation

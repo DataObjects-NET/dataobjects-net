@@ -5,7 +5,7 @@
 // Created:    2008.08.13
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers
 {

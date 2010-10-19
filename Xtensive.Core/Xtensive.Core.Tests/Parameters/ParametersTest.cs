@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Testing;
+using Xtensive.Parameters;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Parameters
+namespace Xtensive.Tests.Parameters
 {
   [TestFixture]
   public class ParametersTest

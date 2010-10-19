@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples.Transform;
 using System.Linq;
 
 namespace Xtensive.Storage

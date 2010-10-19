@@ -5,8 +5,8 @@
 // Created:    2009.03.16
 
 using System.Collections.Generic;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 
 namespace Xtensive.Storage.Indexing

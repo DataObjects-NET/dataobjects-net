@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
-namespace Xtensive.Core.Tuples.Internals
+namespace Xtensive.Tuples.Internals
 {
   /// <summary>
   /// Describes empty tuple.

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Caching;
+using Xtensive.Caching;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0628_ExecuteFutureScalarError_Model;
 

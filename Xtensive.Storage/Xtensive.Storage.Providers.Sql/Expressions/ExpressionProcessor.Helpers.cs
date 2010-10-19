@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;

@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class EnumComparer<TEnum, TSystem>: WrappingComparer<TEnum, TSystem>,

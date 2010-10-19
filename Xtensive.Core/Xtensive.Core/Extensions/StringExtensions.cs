@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Resources;
+using Xtensive.Collections;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="string"/> related extension methods.

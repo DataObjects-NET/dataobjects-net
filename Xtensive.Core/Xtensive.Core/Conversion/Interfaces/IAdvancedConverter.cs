@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.21
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Converts values or instances of type <typeparamref name="TFrom"/> to 

@@ -5,7 +5,7 @@
 // Created:    2010.02.11
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests

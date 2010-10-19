@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Resources;
+using Xtensive.Comparison;
 using System.Collections;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Helper class validation most common error conditions.

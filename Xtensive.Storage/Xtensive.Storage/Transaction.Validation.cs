@@ -5,11 +5,11 @@
 // Created:    2009.11.26
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Disposing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
-using AggregateException = Xtensive.Core.AggregateException;
+using AggregateException = Xtensive.AggregateException;
 
 namespace Xtensive.Storage
 {

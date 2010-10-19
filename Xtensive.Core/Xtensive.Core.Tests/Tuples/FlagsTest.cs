@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
   [TestFixture]
   public class FlagsTest
@@ -17,7 +17,7 @@ namespace Xtensive.Core.Tests.Tuples
     [Test]
     public void Main()
     {
-      Tuple t = Tuple.Create<int, string>(0, null);
+      Xtensive.Tuples.Tuple t = Xtensive.Tuples.Tuple.Create<int, string>(0, null);
       Assert.IsTrue(t.GetFieldState(0).IsAvailable());
       Assert.IsFalse(t.GetFieldState(0).IsNull());
       Assert.IsTrue(t.GetFieldState(1).IsAvailable());

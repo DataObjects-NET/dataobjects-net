@@ -8,8 +8,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Linq;
+using Xtensive;
+using Xtensive.Linq;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler

@@ -5,9 +5,9 @@
 // Created:    2009.12.17
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// A wrapper representing connection information.

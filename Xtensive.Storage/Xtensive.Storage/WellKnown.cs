@@ -6,15 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
+using Xtensive.Collections;
+using Xtensive;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Type=System.Type;
 using System.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage
 {

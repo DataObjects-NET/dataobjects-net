@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.18
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// Invalidatable object contract.

@@ -6,10 +6,10 @@
 
 using System;
 using System.Globalization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive;
 using System.Text;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
 using Xtensive.Modelling.Validation;
 

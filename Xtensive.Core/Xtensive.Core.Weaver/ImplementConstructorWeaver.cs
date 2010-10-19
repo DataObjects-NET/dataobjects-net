@@ -15,11 +15,11 @@ using PostSharp.Sdk.AspectWeaver.Transformations;
 using PostSharp.Sdk.CodeModel;
 using PostSharp.Sdk.CodeWeaver;
 using PostSharp.Sdk.Collections;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Reflection;
+using Xtensive.Aspects;
+using Xtensive.Reflection;
 using LicenseType = Xtensive.Licensing.LicenseType;
 
-namespace Xtensive.Core.Weaver
+namespace Xtensive.Weaver
 {
   internal class ImplementConstructorWeaver : TypeLevelAspectWeaver
   {

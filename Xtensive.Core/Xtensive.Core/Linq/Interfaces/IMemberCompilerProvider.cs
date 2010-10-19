@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Base interface for compiler providers.

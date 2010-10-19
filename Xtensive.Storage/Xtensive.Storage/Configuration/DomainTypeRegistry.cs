@@ -6,12 +6,12 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 using System.Linq;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Linq;
+using Xtensive.Reflection;
 using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Configuration

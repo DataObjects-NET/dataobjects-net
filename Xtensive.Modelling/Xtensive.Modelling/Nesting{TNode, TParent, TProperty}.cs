@@ -7,11 +7,11 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 using Xtensive.Modelling.Resources;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
 namespace Xtensive.Modelling
 {

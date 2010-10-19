@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects;
+using Xtensive.Aspects;
 using Xtensive.Storage;
 
 // General Information about an assembly is controlled through the following 
@@ -31,7 +31,6 @@ using Xtensive.Storage;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("84eed58e-4fbe-43bf-82d3-769cd23184ea")]
-//[assembly: ReferencingAssembliesRequirePostSharpAttribute("Xtensive.Core.Weaver.WeaverFactory", "Xtensive.Core.Weaver")]
 
 // Version information for an assembly consists of the following four values:
 //

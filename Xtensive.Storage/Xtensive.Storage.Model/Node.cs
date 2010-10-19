@@ -5,11 +5,11 @@
 // Created:    2007.07.25
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Notifications;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Helpers;
+using Xtensive.Notifications;
+using Xtensive.Reflection;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model

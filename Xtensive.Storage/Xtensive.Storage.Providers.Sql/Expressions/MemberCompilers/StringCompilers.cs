@@ -8,13 +8,13 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Linq;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
-using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
+using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {

@@ -5,7 +5,7 @@
 // Created:    2009.12.03
 
 using System;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Resources;
 

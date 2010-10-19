@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Notifications;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Notifications;
+using Xtensive.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;

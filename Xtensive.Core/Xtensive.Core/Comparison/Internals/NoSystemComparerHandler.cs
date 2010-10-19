@@ -5,10 +5,10 @@
 // Created:    2008.02.10
 
 using System;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Reflection;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   internal sealed class NoSystemComparerHandler<T>:
     IComparable<T>,

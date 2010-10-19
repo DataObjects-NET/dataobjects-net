@@ -6,11 +6,11 @@
 
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using System;
-using Xtensive.Core.Comparison;
+using Xtensive.Comparison;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class PoolTKeyTValueTest

@@ -7,10 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive;
+using Xtensive.Collections;
 using System.Linq;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -90,7 +90,7 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <inheritdoc/>
-    protected override void GetParameters(List<Xtensive.Core.Pair<string>> parameters)
+    protected override void GetParameters(List<Xtensive.Pair<string>> parameters)
     {
       base.GetParameters(parameters);
       if (!comment.IsNullOrEmpty())

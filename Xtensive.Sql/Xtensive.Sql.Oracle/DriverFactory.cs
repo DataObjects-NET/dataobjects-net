@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using Oracle.DataAccess.Client;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Oracle.Resources;
 

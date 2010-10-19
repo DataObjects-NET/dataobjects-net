@@ -5,7 +5,7 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive.Core.Disposing;
+using Xtensive.Disposing;
 using RseEnumerationScope = Xtensive.Storage.Rse.Providers.EnumerationScope;
 using RseEnumerationContext = Xtensive.Storage.Rse.Providers.EnumerationContext;
 

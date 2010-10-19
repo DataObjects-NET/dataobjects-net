@@ -6,8 +6,8 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
+using Xtensive.Collections;
+using Xtensive.Disposing;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 

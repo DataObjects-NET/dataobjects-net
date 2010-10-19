@@ -6,9 +6,9 @@
 
 using System;
 using System.IO;
-using Xtensive.Core.Configuration;
+using Xtensive.Configuration;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Abstract base class for any serializer.

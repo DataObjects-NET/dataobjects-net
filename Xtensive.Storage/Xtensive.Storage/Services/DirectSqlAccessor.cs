@@ -6,10 +6,10 @@
 
 using System;
 using System.Data.Common;
-using Xtensive.Core.Aspects;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Aspects;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 

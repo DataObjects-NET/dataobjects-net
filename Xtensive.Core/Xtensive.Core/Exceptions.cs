@@ -6,14 +6,14 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Reflection;
+using Xtensive.Helpers;
+using Xtensive.Diagnostics;
+using Xtensive.IoC;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Most common <see cref="Exception"/> factory.

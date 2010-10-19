@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Notifications
+namespace Xtensive.Notifications
 {
   /// <summary>
   /// A collection exposing the collection change events contract.

@@ -5,9 +5,9 @@
 // Created:    2009.03.05
 
 using System;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {

@@ -5,7 +5,7 @@
 // Created:    2008.01.15
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Transactions

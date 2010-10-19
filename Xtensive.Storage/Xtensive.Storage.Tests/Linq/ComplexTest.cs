@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Parameters;
+using Xtensive.Parameters;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;

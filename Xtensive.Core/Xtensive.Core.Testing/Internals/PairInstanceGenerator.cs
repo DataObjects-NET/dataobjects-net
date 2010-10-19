@@ -7,7 +7,7 @@
 
 using System;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   [Serializable]
   internal class PairInstanceGenerator<T1, T2>: WrappingInstanceGenerator<Pair<T1, T2>, T1, T2>

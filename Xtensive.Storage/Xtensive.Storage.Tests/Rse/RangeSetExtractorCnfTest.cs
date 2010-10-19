@@ -8,13 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Linq.Normalization;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Linq.Normalization;
+using Xtensive.Helpers;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -354,8 +354,8 @@ namespace Xtensive.Storage.Tests.Rse
       expectedFirst = new Entire<Tuple>(
         CreateTuple(tupleDescriptor, keyFieldIndex, keyValue
           + (indexInfo.Columns[keyFieldIndex].CultureInfo==null
-            ? Core.Comparison.WellKnown.OrdinalMaxChar
-            : Core.Comparison.WellKnown.CultureSensitiveMaxChar)),
+            ? Xtensive.Comparison.WellKnown.OrdinalMaxChar
+            : Xtensive.Comparison.WellKnown.CultureSensitiveMaxChar)),
         Direction.Positive);
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       result.Add(new Range<Entire<Tuple>>(expectedFirst, expectedSecond));

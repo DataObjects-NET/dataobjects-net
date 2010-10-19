@@ -8,11 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Serialization.Implementation;
-using Xtensive.Core.Threading;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Serialization.Implementation;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Serialization.Binary
+namespace Xtensive.Serialization.Binary
 {
   /// <summary>
   /// Legacy binary serializer.

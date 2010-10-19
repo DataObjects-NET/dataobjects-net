@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using PostSharp.Aspects.Dependencies;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Aspects;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Aspects.Constraints

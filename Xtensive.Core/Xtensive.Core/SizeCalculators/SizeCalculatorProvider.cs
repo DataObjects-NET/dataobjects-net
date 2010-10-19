@@ -7,13 +7,13 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// Default <see cref="ISizeCalculator{T}"/> provider. 

@@ -4,9 +4,9 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.12.30
 
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
 namespace Xtensive.Storage.Upgrade
 {

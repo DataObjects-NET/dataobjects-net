@@ -13,12 +13,12 @@ using PostSharp.Aspects.Dependencies;
 using PostSharp.Aspects.Internals;
 using PostSharp.Extensibility;
 using PostSharp.Reflection;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
+using Xtensive.Aspects;
+using Xtensive.Aspects.Helpers;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
+using Xtensive.Threading;
 using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation;
 

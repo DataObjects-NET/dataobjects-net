@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Tuples;
+using Xtensive.Tuples;
 using Xtensive.Storage.Providers;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Rse;
 using System.Linq;
 

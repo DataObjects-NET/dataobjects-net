@@ -5,9 +5,9 @@
 // Created:    2008.02.14
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 
-namespace Xtensive.Core.Internals.DocTemplates
+namespace Xtensive.Internals.DocTemplates
 {
   /// <summary>
   /// Disposable class documentation template.

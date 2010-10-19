@@ -7,12 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Reflection;
+using Xtensive.Threading;
+using Xtensive.Reflection;
 using System.Linq;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Native type-based classifier.

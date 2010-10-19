@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class PairComparer<T1, T2>: WrappingComparer<Pair<T1, T2>, T1, T2>

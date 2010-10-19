@@ -7,8 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Internals.Prefetch
 {

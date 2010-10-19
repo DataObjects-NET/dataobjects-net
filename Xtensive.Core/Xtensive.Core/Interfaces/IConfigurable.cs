@@ -4,9 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.22
 
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Configurable object contract.

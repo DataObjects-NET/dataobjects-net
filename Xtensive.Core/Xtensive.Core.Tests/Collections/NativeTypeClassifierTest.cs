@@ -9,11 +9,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Testing;
+using Xtensive.Collections;
+using Xtensive.Testing;
 using System.Linq;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class NativeTypeClassifierTest

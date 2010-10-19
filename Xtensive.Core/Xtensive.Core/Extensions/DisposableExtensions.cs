@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Resources;
+using Xtensive.Diagnostics;
+using Xtensive.Disposing;
+using Xtensive.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// <see cref="IDisposable"/> related extension methods.

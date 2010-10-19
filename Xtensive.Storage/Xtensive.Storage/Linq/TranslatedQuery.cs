@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples;
 using Xtensive.Storage.Rse.Providers;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq

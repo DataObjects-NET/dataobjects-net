@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Modelling
 {

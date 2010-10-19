@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 

@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Base class for any <see cref="IHasher{T}"/>s.

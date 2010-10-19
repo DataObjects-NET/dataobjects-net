@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.23
 
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling.Actions

@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Sorting;
+using Xtensive;
+using Xtensive.Sorting;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 

@@ -6,9 +6,9 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Configuration
+namespace Xtensive.Configuration
 {
   /// <summary>
   /// Base class for <see cref="IConfiguration"/> implementors with 

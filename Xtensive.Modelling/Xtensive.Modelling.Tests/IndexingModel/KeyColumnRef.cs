@@ -5,8 +5,8 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {

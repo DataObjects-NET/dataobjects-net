@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Serialization.Internals
+namespace Xtensive.Serialization.Internals
 {
   internal sealed class ObjectSerializer<T> : ObjectSerializerBase<T>
   {

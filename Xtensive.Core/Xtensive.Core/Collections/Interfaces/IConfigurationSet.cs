@@ -5,10 +5,10 @@
 // Created:    2008.02.13
 
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// A configuration described by a set of named configurations 

@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Enumerates supported <see cref="IQueryable{T}"/> methods.

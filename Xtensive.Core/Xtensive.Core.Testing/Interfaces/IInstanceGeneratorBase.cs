@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Base interface for any instance generator supported by

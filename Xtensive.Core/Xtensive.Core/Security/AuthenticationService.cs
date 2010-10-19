@@ -6,11 +6,11 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Security
+namespace Xtensive.Security
 {
   /// <summary>
   /// An implementation of authentication service.

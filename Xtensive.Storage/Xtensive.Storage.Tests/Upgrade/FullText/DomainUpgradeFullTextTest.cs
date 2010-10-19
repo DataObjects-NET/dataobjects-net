@@ -8,8 +8,8 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Disposing;
-using Xtensive.Core;
+using Xtensive.Disposing;
+using Xtensive;
 
 namespace Xtensive.Storage.Tests.Upgrade.FullText
 {

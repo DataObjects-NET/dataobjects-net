@@ -5,9 +5,9 @@
 // Created:    2009.03.13
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Sorting
+namespace Xtensive.Sorting
 {
   /// <summary>
   /// Connection between two <see cref="Node{TNodeItem,TConnectionItem}"/>s.

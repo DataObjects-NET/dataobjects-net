@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
@@ -138,7 +138,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
                 .Single();
 
               // Must throw an exception, since there is no real entity
-                Query.All<OwnedEntity>().Single(a => a.Id==guidC);
+              AssertEx.ThrowsInvalidOperationException(() => 
+                session.Query.All<OwnedEntity>().Single(a => a.Id == guidC));
 
               // But it esxists in EntitySet
               Assert.AreEqual(session.Query.Single<OwnedEntity>(guidB).Name, "b");

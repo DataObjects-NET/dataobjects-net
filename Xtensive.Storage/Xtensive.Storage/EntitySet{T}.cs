@@ -12,10 +12,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Linq;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 

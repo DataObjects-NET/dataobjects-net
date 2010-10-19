@@ -8,12 +8,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Configuration;
-using AggregateException = Xtensive.Core.AggregateException;
+using AggregateException = Xtensive.AggregateException;
 
 namespace Xtensive.Storage.Tests.Storage.Validation
 { 

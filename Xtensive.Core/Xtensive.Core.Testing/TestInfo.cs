@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Provides various info related to the current test.

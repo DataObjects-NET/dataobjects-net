@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Transactions;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Disposing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;

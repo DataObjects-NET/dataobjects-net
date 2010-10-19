@@ -4,8 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.01
 
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
 using Xtensive.Storage.Rse.Providers;

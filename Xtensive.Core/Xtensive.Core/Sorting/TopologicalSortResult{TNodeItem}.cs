@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Sorting
+namespace Xtensive.Sorting
 {
   /// <summary>
   /// Base type for <see cref="TopologicalSortResult{NodeItem,TConnectionItem}"/>.

@@ -6,8 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {

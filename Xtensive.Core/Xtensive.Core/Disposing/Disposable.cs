@@ -5,9 +5,9 @@
 // Created:    2007.10.03
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Disposing
+namespace Xtensive.Disposing
 {
   /// <summary>
   /// A disposable type allowing to execute custom

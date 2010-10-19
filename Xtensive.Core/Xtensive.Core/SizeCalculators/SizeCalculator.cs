@@ -8,11 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// Provides delegates allowing to call size calculator methods faster.

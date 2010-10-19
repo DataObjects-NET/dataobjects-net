@@ -11,12 +11,12 @@ using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Aspects.Resources;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive.Aspects.Helpers;
+using Xtensive.Aspects.Resources;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Aspects
+namespace Xtensive.Aspects
 {
   /// <summary>
   /// Replaces auto-property implementation to invocation of property get and set generic handlers.

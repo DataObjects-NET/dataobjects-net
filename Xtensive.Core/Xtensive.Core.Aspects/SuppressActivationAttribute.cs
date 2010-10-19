@@ -5,9 +5,9 @@
 // Created:    2008.07.02
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Aspects
+namespace Xtensive.Aspects
 {
   /// <summary>
   /// Suppresses the activation of context of specified <see cref="ContextType"/> 

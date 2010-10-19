@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   /// <summary>
   /// Describes seed variation strategy for random sequence.

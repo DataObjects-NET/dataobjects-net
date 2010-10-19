@@ -5,11 +5,11 @@
 // Created:    2008.03.06
 
 using System;
-using Xtensive.Core.Conversion;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive.Conversion;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Casting comparer - wraps some other comparer for type <typeparamref name="TTarget"/>

@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
+using Xtensive.Collections;
+using Xtensive;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.ObjectMapping
@@ -19,7 +19,7 @@ namespace Xtensive.Storage.ObjectMapping
   /// Result of comparison the original graph of target objects with the modified one.
   /// </summary>
   [Serializable]
-  public sealed class GraphComparisonResult : Core.ObjectMapping.GraphComparisonResult,
+  public sealed class GraphComparisonResult : Xtensive.ObjectMapping.GraphComparisonResult,
     IDisposable
   {
     private readonly Dictionary<object, object> original;

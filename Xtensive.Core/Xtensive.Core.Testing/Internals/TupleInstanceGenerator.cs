@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Testing
+namespace Xtensive.Testing
 {
   [Serializable]
-  internal class TupleInstanceGenerator : InstanceGeneratorBase<Tuple>
+  internal class TupleInstanceGenerator : InstanceGeneratorBase<Tuples.Tuple>
   {
     private static readonly Dictionary<Type[], int> descriptors = new Dictionary<Type[], int>(); // Descriptor - probability
     private static readonly int commonProbability;
@@ -22,10 +22,10 @@ namespace Xtensive.Core.Testing
     internal struct TupleGeneratorData
     {
       public IInstanceGeneratorProvider Provider;
-      public Tuple Tuple;
+      public Tuples.Tuple Tuple;
       public Random Random;
 
-      public TupleGeneratorData(IInstanceGeneratorProvider provider, Tuple tuple, Random random)
+      public TupleGeneratorData(IInstanceGeneratorProvider provider, Tuples.Tuple tuple, Random random)
       {
         Provider = provider;
         Tuple = tuple;
@@ -33,13 +33,13 @@ namespace Xtensive.Core.Testing
       }
     }
 
-    public override Tuple GetInstance(Random random)
+    public override Tuples.Tuple GetInstance(Random random)
     {
       int position = random.Next(0, commonProbability);
       foreach (KeyValuePair<Type[], int> descriptor in descriptors) {
         if (position <= descriptor.Value) {
           Type[] types = descriptor.Key;
-          Tuple tuple = Tuple.Create(types);
+          Tuples.Tuple tuple = Tuples.Tuple.Create(types);
           for (int i = 0; i < types.Length; i++) {
             var type = types[i];
             object value = provider.GetInstanceGenerator(type).GetInstance(random);

@@ -7,11 +7,11 @@
 using System;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Aspects;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 
 namespace Xtensive.Storage.Rse.Providers
 {

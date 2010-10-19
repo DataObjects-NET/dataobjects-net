@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Tuples.Transform
+namespace Xtensive.Tuples.Transform
 {
   /// <summary>
   /// Enumerates possible tuple transformation types.

@@ -6,8 +6,8 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.IoC;
+using Xtensive;
+using Xtensive.IoC;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Legacy.CustomKeyGenerators

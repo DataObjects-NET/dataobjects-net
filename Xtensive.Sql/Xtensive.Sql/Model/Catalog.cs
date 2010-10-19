@@ -4,9 +4,9 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Notifications;
+using Xtensive;
+using Xtensive.Helpers;
+using Xtensive.Notifications;
 
 namespace Xtensive.Sql.Model
 {

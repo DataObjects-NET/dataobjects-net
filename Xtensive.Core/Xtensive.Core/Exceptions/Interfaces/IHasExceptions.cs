@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// "Has exceptions" contract.

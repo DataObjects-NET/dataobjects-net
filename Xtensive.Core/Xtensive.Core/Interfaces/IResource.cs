@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   ///<summary>
   /// Describes an object implementing consumption pattern.

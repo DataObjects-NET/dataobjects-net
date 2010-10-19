@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.26
 
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 

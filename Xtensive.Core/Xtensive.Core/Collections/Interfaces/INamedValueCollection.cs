@@ -4,7 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2008.08.26
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Named value collection contract.

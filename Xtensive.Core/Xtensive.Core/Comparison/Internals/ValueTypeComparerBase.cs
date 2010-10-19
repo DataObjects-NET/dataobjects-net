@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   // Fall back to Comparer<T>.Default, EqualityComparer<T>.Default
   [Serializable]

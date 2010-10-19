@@ -6,9 +6,9 @@
 
 using System;
 using System.IO;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// <see cref="ValueSerializer{T}"/> and <see cref="IValueSerializer{T}"/> provider.

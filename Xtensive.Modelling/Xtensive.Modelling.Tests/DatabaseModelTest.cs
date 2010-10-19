@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Serialization.Binary;
+using Xtensive.Testing;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Tests.DatabaseModel;
@@ -22,8 +22,8 @@ namespace Xtensive.Modelling.Tests
   public class DatabaseModelTest
   {
     private Server srv;
-    private Security sec1;
-    private Security sec2;
+    private DatabaseModel.Security sec1;
+    private DatabaseModel.Security sec2;
     private User u1;
     private User u2;
     private Role r1;
@@ -40,7 +40,7 @@ namespace Xtensive.Modelling.Tests
     {
       srv = new Server("srv");
       srv.Actions = new ActionSequence();
-      sec1 = new Security(srv, "sec1");
+      sec1 = new DatabaseModel.Security(srv, "sec1");
       u1 = new User(sec1, "u1") { Password = "1"};
       u1.Password = "u1";
       u2 = new User(sec1, "u2") { Password = "2"};
@@ -249,16 +249,16 @@ namespace Xtensive.Modelling.Tests
       Assert.AreEqual(sec1.State, NodeState.Removed);
       Assert.AreEqual(srv.Security, null);
       
-      sec2 = new Security(srv, "sec2");
+      sec2 = new DatabaseModel.Security(srv, "sec2");
       Assert.AreEqual(srv.Security, sec2);
       AssertEx.Throws<InvalidOperationException>(
-        () => sec1 = new Security(srv, "sec3"));
+        () => sec1 = new DatabaseModel.Security(srv, "sec3"));
 
       sec2.Remove();
       Assert.AreEqual(sec2.State, NodeState.Removed);
       Assert.AreEqual(srv.Security, null);
 
-      sec1 = new Security(srv, "sec1");
+      sec1 = new DatabaseModel.Security(srv, "sec1");
       Assert.AreEqual(srv.Security, sec1);
     }
 

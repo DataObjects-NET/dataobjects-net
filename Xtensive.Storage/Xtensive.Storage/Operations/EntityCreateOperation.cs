@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Operations

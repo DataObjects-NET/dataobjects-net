@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Configuration;
-using Xtensive.Core.Helpers;
+using Xtensive;
+using Xtensive.Configuration;
+using Xtensive.Helpers;
 
 namespace Xtensive.Indexing
 {

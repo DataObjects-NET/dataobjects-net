@@ -5,7 +5,7 @@
 // Created:    2008.01.18
 
 using System;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 
 namespace Xtensive.Integrity.Transactions
 {

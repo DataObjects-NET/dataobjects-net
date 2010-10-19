@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Internals.DocTemplates
+namespace Xtensive.Internals.DocTemplates
 {
   /// <summary>
   /// Class with static <see cref="Default"/> documentation template.

@@ -1,4 +1,4 @@
-
+﻿
 #if! NET40
 // Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
@@ -6,7 +6,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.03.10
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// Encapsulates a method that has 5 parameters

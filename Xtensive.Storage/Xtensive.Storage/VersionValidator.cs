@@ -6,14 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
+using Xtensive;
 using System.Linq;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Aspects;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;

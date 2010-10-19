@@ -7,11 +7,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
 
   /// <summary>

@@ -9,9 +9,9 @@ using System.Reflection;
 using log4net;
 using log4net.Core;
 using log4net.Util;
-using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Adapters.log4net
 {

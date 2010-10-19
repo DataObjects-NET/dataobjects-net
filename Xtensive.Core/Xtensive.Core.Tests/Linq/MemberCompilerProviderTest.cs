@@ -8,10 +8,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Linq;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
   [TestFixture]
   public partial class MemberCompilerProviderTest

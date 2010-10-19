@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
+using Xtensive;
+using Xtensive.Collections;
+using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;

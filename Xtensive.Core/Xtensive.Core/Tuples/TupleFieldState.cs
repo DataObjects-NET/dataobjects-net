@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Defines field state that can be set or get for each field in <see cref="Tuple"/>.

@@ -1,8 +1,8 @@
 using System;
 using System.Web;
 using System.Web.Configuration;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Disposing;
 using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Practices.Web.Resources;

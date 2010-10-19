@@ -6,8 +6,8 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.SizeCalculators;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.SizeCalculators;
 
 namespace Xtensive.Indexing.Measures
 {

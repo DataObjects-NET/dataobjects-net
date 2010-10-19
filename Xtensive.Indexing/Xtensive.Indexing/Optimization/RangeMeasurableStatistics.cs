@@ -5,7 +5,7 @@
 // Created:    2009.04.13
 
 using System;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing.Optimization

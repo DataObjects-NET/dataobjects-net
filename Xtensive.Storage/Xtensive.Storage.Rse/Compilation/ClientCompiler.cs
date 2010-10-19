@@ -5,7 +5,7 @@
 // Created:    2009.02.14
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using StoreProvider=Xtensive.Storage.Rse.Providers.Executable.StoreProvider;

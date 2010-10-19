@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.29
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Action that is taken to truncate a graph. This action is applied

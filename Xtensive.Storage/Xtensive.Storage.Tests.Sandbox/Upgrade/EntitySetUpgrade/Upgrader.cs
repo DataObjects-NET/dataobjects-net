@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive;
+using Xtensive.Disposing;
 using Xtensive.Storage.Upgrade;
 using M1 = Xtensive.Storage.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.EntitySetUpgradeTest.Model.Version2;
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Upgrade.EntitySetUpgradeTest
       return true;
     }
 
-    protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));

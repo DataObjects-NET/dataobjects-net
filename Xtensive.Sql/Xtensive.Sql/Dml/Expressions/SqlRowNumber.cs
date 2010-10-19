@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
-using Xtensive.Core;
+using Xtensive;
 
 namespace Xtensive.Sql.Dml
 {

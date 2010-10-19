@@ -5,7 +5,7 @@
 // Created:    2009.12.21
 
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
 namespace Xtensive.Practices.Web
 {

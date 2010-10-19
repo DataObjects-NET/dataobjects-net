@@ -4,9 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2010.03.01
 
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core
+namespace Xtensive
 {
   /// <summary>
   /// General operation sequence contract.

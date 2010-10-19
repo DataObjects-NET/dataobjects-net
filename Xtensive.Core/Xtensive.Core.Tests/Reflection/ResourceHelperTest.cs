@@ -6,11 +6,11 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tests.Resources;
+using Xtensive.Reflection;
+using Xtensive.Testing;
+using Xtensive.Tests.Resources;
 
-namespace Xtensive.Core.Tests.Reflection
+namespace Xtensive.Tests.Reflection
 {
   [TestFixture]
   public class ResourceHelperTest

@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.SerializableExpressions
+namespace Xtensive.Linq.SerializableExpressions
 {
   /// <summary>
   /// A serializable representation of <see cref="MemberListBinding"/>.

@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
 namespace Xtensive.Storage.Model
 {

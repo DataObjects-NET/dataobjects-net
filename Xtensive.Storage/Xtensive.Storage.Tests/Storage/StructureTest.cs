@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using System.Reflection;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
     public Point Vertex { get; set; }
 
     [Field]
-    public Core.Direction Direction { get; set; }
+    public Xtensive.Direction Direction { get; set; }
 
     protected override void OnSettingFieldValue(FieldInfo field, object value)
     {

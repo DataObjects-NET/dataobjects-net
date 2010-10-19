@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
-using Xtensive.Core;
+using Xtensive;
 using Xtensive.Storage.Model;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using System.Linq;
 
 namespace Xtensive.Storage.Serialization

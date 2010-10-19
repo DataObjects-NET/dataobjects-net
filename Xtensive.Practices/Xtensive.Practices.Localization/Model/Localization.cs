@@ -6,7 +6,7 @@
 
 using System;
 using System.Globalization;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage;
 
 namespace Xtensive.Practices.Localization.Model

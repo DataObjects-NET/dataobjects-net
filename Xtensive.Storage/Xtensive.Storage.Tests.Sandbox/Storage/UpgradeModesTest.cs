@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
+using Xtensive;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Tests.Storage.UpgradeModesTest

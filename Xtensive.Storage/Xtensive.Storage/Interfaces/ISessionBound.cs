@@ -4,8 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.14
 
-using Xtensive.Core.Aspects;
-using Xtensive.Core.IoC;
+using Xtensive.Aspects;
+using Xtensive.IoC;
 using Xtensive.Storage;
 
 namespace Xtensive.Storage

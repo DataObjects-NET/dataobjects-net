@@ -13,11 +13,11 @@ using PostSharp.Sdk.AspectWeaver.AspectWeavers;
 using PostSharp.Sdk.AspectWeaver.Transformations;
 using PostSharp.Sdk.CodeModel;
 using PostSharp.Sdk.Collections;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
+using Xtensive.Aspects;
+using Xtensive.Collections;
+using Xtensive;
 
-namespace Xtensive.Core.Weaver
+namespace Xtensive.Weaver
 {
   internal class NotSupportedWeaver : MethodLevelAspectWeaver
   {

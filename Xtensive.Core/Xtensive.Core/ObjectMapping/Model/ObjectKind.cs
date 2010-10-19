@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.01.24
 
-namespace Xtensive.Core.ObjectMapping.Model
+namespace Xtensive.ObjectMapping.Model
 {
   /// <summary>
   /// Kind of an object whose type described by a <see cref="TypeDescription"/>.

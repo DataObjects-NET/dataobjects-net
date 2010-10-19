@@ -4,9 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.12.03
 
-using Xtensive.Core.Tuples;
+using Xtensive.Tuples;
 using Xtensive.Storage.Providers;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Indexing.Model;
 

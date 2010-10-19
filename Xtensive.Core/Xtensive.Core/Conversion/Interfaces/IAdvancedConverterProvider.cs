@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Provides <see cref="AdvancedConverter{TFrom,TTo}"/>s.
