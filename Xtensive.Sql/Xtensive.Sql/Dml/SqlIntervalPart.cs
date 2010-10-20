@@ -11,11 +11,12 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public enum SqlIntervalPart
   {
-    Day,
-    Hour,
-    Minute,
-    Second,
-    Millisecond,
-    Nothing,
+    Day = 0,
+    Hour = 1,
+    Minute = 2,
+    Second = 3,
+    Millisecond = 4,
+    Nanosecond = 5,
+    Nothing = 10,
   }
 }

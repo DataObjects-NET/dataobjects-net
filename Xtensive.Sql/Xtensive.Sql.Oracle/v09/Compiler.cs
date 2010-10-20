@@ -46,6 +46,9 @@ namespace Xtensive.Sql.Oracle.v09
       case SqlFunctionType.IntervalToMilliseconds:
         SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.IntervalToNanoseconds:
+        SqlHelper.IntervalToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
+        return;
       case SqlFunctionType.Position:
         Position(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;

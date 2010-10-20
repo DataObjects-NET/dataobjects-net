@@ -55,6 +55,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       case SqlFunctionType.IntervalToMilliseconds:
         SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.IntervalToNanoseconds:
+        SqlHelper.IntervalToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
+        return;
       case SqlFunctionType.IntervalAbs:
         SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
         return;
