@@ -10,7 +10,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 using Xtensive.Reflection;
 using Xtensive.Helpers;
 

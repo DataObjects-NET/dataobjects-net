@@ -15,7 +15,7 @@ using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Threading;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 
 namespace Xtensive.Modelling.Comparison.Hints
 {

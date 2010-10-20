@@ -16,7 +16,7 @@ using Xtensive.Helpers;
 using Xtensive.Threading;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Validation;
 using System.Linq;

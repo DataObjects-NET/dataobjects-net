@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Helpers;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 
 namespace Xtensive.Modelling.Comparison
 {

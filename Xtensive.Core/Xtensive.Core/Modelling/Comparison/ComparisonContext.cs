@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 
 namespace Xtensive.Modelling.Comparison
 {

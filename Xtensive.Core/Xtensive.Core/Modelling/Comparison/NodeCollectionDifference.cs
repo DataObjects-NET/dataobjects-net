@@ -11,7 +11,7 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 using Xtensive.Helpers;
 
 namespace Xtensive.Modelling.Comparison

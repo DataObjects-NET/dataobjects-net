@@ -10,7 +10,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 using Xtensive.Helpers;
 
 namespace Xtensive.Modelling

@@ -15,7 +15,7 @@ using Xtensive.Disposing;
 using Xtensive.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 using Xtensive.Reflection;
 
 namespace Xtensive.Modelling.Comparison

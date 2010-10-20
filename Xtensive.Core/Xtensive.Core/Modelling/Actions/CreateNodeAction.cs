@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Reflection;
 using Xtensive.Collections;
-using Xtensive.Modelling.Resources;
+using Xtensive.Resources;
 using System.Linq;
 
 namespace Xtensive.Modelling.Actions
