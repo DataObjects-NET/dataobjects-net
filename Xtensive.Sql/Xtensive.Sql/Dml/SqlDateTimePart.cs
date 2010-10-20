@@ -16,6 +16,7 @@ namespace Xtensive.Sql.Dml
     Minute,
     Second,
     Millisecond,
+    Nanosecond,
     TimeZoneHour,
     TimeZoneMinute,
     DayOfYear,

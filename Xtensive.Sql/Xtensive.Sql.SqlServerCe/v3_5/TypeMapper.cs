@@ -102,7 +102,7 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
       parameter.DbType = DbType.Int64;
       if (value!=null) {
         var timeSpan = (TimeSpan) value;
-        parameter.Value = (long) timeSpan.TotalMilliseconds;
+        parameter.Value = (long) timeSpan.Ticks*100;
       }
       else
         parameter.Value = DBNull.Value;
@@ -135,7 +135,14 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
 
     public override object ReadTimeSpan(DbDataReader reader, int index)
     {
-      return TimeSpan.FromMilliseconds(reader.GetInt64(index));
+      long value = 0L;
+      try {
+        value = reader.GetInt64(index);
+      }
+      catch (InvalidCastException) {
+        value = (long) reader.GetDecimal(index);
+      }
+      return TimeSpan.FromTicks(value/100);
     }
 
     public override void Initialize()
