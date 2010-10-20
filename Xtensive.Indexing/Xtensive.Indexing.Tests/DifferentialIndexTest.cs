@@ -7,8 +7,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Indexing.Differential;
 

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Storage.Rse;
 

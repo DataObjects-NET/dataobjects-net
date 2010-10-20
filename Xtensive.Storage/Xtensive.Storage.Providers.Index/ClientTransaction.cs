@@ -6,7 +6,7 @@
 
 using System;
 using System.Transactions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Providers.Index

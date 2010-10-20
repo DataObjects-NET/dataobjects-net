@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {

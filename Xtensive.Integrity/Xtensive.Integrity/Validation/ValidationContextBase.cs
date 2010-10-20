@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
-using AggregateException = Xtensive.AggregateException;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Integrity.Validation
 {

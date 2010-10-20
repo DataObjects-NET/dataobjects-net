@@ -9,7 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Disposing;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using M1 = Xtensive.Storage.Tests.Upgrade.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.Model.Version2;

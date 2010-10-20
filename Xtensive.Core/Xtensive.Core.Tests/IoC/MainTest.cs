@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Testing;
 using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;

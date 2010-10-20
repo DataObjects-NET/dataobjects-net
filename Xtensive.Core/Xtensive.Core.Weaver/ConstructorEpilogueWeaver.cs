@@ -14,7 +14,7 @@ using PostSharp.Sdk.AspectWeaver.Transformations;
 using PostSharp.Sdk.CodeModel;
 using PostSharp.Sdk.Collections;
 using Xtensive.Aspects;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Weaver
 {

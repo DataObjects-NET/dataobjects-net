@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;

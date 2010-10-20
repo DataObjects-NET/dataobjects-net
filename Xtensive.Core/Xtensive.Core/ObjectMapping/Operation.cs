@@ -8,6 +8,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.ObjectMapping.Model;
 

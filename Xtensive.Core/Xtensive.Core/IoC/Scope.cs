@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Security;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 

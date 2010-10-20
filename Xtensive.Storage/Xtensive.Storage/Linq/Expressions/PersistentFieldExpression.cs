@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Expressions
 {

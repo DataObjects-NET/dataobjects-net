@@ -8,6 +8,7 @@ using System;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.Testing;

@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Expressions
 {

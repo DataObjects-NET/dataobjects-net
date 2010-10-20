@@ -5,8 +5,8 @@
 // Created:    2007.07.25
 
 using System;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Notifications;
 using Xtensive.Reflection;

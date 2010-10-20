@@ -5,7 +5,7 @@
 // Created:    2007.05.25
 
 using System.ComponentModel;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Rse;

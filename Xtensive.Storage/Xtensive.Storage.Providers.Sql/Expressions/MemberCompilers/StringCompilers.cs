@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
 using Xtensive.Sql;

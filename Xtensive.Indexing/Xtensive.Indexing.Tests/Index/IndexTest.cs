@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Conversion;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Indexing;
 using Xtensive.Indexing.Measures;

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Modelling.Resources;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Modelling
 {

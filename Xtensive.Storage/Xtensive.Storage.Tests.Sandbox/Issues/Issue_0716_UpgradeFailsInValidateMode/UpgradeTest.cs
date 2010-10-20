@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive;
+using Xtensive.Core;
 using M1 = Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode.Model.Version2;
 using NUnit.Framework;

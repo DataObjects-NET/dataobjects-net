@@ -6,8 +6,8 @@
 
 using System;
 using System.Linq;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Configuration
 {

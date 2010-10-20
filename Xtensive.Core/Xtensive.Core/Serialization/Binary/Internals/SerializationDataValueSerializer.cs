@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using Xtensive.Core;
 using Xtensive.IO;
 
 namespace Xtensive.Serialization.Binary

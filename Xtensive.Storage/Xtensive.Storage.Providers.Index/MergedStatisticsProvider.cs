@@ -5,8 +5,8 @@
 // Created:    2009.04.14
 
 using System;
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;

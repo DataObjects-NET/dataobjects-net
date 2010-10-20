@@ -9,7 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
 using Xtensive.Testing;

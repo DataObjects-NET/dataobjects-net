@@ -12,7 +12,7 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
-using Xtensive;
+using Xtensive.Core;
 using System.Linq.Dynamic;
 
 namespace Xtensive.Storage.Tests.Linq.Interfaces

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Resources;
 
 namespace Xtensive.Reflection

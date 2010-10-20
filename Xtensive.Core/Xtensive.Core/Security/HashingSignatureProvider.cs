@@ -8,6 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using System.Linq;
 using Xtensive.Internals.DocTemplates;

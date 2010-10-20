@@ -8,8 +8,8 @@ using System;
 using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 

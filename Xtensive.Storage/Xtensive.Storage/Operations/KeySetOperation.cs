@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
 using System.Linq;

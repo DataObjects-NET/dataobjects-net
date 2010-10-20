@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// Operation sequence contract.
   /// </summary>
   public interface IOperationSequence : ICountable<IOperation>,
-    Xtensive.IOperationSequence
+    Xtensive.Core.IOperationSequence
   {
     /// <summary>
     /// Applies this operation sequence to the <see cref="Session.Current"/> session.

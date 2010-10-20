@@ -6,7 +6,7 @@
 
 using System;
 using System.Transactions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Storage.Configuration;
 

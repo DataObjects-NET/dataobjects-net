@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using NUnit.Framework;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Measures;
 

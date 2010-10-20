@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

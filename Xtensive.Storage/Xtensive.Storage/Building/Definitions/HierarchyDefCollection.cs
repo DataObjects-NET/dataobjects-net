@@ -5,8 +5,8 @@
 // Created:    2008.01.11
 
 using System;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Building.Definitions
 {

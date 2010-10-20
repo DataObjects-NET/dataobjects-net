@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Threading;
 using Xtensive.Resources;
 

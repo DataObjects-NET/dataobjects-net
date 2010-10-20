@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 

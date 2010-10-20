@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.IoC;
 
 namespace Xtensive.Storage.Serialization

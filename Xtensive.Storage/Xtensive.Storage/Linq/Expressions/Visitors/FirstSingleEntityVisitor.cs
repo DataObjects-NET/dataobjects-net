@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors

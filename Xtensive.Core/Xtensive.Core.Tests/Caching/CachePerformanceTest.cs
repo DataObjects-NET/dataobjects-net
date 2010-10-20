@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Caching;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.Testing;

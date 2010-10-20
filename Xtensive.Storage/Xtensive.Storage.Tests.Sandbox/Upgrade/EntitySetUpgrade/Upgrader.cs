@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Storage.Upgrade;
 using M1 = Xtensive.Storage.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;

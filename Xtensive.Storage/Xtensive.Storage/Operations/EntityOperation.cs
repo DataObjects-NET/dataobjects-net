@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations

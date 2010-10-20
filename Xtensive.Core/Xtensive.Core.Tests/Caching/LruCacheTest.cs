@@ -3,7 +3,7 @@ using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Conversion;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 
 

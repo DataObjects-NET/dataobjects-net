@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using System.Text;
 using NUnit.Framework;
 using Rhino.Mocks;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
 using Xtensive.Linq.Normalization;

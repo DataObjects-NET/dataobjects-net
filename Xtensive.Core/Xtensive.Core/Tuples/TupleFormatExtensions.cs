@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using Xtensive.Conversion;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Resources;
 using Xtensive.Tuples;
 using Xtensive.Reflection;

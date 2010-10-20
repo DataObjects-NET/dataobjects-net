@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;

@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Xtensive;
 using Xtensive.Collections;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;

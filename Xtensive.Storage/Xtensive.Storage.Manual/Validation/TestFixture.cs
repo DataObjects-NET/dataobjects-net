@@ -6,9 +6,9 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Configuration;
-using AggregateException = Xtensive.AggregateException;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Storage.Manual.Validation
 {

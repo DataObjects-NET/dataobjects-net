@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issue0004_Model;

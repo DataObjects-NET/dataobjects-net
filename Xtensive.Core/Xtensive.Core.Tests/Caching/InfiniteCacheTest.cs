@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
+using Xtensive.Core;
 using Xtensive.Testing;
 
 namespace Xtensive.Tests.Caching

@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.ObjectMapping.Model;
 using Xtensive.Reflection;

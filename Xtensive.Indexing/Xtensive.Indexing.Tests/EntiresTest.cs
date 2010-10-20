@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Xtensive.Reflection;
 using Xtensive.Resources;

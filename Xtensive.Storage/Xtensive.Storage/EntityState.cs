@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive;
 using Xtensive.Aspects;
 using Xtensive.Caching;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;

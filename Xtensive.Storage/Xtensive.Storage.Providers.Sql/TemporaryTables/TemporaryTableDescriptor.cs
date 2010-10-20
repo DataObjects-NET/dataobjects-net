@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.12
 
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

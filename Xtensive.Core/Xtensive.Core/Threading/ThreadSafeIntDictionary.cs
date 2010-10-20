@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Threading
 {

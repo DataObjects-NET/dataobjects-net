@@ -10,7 +10,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Diagnostics;
 using Xtensive.Disposing;

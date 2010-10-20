@@ -7,6 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Xtensive.Diagnostics;
 using Xtensive.Testing;

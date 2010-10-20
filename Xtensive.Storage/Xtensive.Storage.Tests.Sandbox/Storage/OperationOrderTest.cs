@@ -12,7 +12,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Reflection;
 using Xtensive.Storage.Operations;
-using Xtensive;
+using Xtensive.Core;
 using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.OperationOrderTest

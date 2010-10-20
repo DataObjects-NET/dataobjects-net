@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Disposing;
-using Xtensive;
+using Xtensive.Core;
 using SimpleVersion1 = Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1;
 
 namespace Xtensive.Storage.Tests.Upgrade

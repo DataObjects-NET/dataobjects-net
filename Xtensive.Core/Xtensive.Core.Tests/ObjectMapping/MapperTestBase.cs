@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.ObjectMapping;
 using Xtensive.ObjectMapping.Model;
 using Xtensive.Tests.ObjectMapping.SourceModel;

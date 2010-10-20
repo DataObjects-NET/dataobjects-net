@@ -12,7 +12,7 @@ using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Services;
 using Xtensive.Storage.Tests.Issues.Issue0676.Model;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
 {

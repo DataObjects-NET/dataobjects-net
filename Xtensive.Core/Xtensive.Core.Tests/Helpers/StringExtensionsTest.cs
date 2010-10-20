@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Testing;
 
 namespace Xtensive.Tests.Helpers

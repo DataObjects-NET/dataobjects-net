@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Comparison;
 using Xtensive.Internals.DocTemplates;
 

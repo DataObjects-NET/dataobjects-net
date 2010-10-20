@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;

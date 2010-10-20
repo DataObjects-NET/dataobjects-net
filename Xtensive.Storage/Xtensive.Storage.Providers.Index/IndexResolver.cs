@@ -5,7 +5,7 @@
 // Created:    2009.12.03
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 using PostSharp.Extensibility;
 using PostSharp.Sdk.AspectWeaver;
 using Xtensive.Aspects;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Licensing;
 using Xtensive.Licensing.Validator;
 

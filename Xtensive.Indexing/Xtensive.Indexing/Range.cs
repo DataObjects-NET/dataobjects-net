@@ -6,8 +6,8 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.Resources;
 

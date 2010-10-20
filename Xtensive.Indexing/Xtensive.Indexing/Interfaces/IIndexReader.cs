@@ -6,7 +6,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Indexing
 {

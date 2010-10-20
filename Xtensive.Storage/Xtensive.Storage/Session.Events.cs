@@ -11,7 +11,7 @@ using System.Transactions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using System.Linq;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage
 {

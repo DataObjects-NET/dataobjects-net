@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;

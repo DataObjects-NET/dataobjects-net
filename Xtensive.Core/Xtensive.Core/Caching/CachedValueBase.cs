@@ -5,6 +5,7 @@
 // Created:    2009.12.18
 
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Threading;
 

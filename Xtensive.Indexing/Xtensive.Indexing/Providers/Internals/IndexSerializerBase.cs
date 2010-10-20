@@ -4,7 +4,7 @@
 // Created by: Vakhtina Elena
 // Created:    2008.07.17
 
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
 

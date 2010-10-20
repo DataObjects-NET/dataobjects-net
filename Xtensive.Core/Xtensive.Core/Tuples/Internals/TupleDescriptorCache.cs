@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Caching;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Threading;
 using System.Linq;
 

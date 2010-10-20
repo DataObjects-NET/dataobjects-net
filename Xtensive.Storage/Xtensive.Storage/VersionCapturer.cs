@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
 using Xtensive.Aspects;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples.Transform;
 using System.Linq;

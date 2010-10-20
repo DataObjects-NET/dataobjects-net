@@ -7,10 +7,10 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Storage.Indexing.Model;
-using AggregateException = Xtensive.AggregateException;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Storage.Tests.Indexing
 {

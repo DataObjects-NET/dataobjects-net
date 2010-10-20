@@ -5,7 +5,7 @@
 // Created:    2010.02.18
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage
 {

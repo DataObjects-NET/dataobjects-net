@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Comparison;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using System.Linq;
 using Xtensive.Internals.DocTemplates;

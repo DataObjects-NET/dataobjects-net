@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using System;
 using System.Reflection;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;

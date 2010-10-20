@@ -6,7 +6,7 @@
 
 using System;
 using System.Text;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;

@@ -4,7 +4,7 @@
 
 using System;
 using System.Linq;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Notifications;
 

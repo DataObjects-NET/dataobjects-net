@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Resources;
 using Xtensive.Serialization.Implementation;

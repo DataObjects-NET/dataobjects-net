@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Testing;
 

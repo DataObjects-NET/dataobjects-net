@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.IO;
 using Xtensive.Indexing.Resources;
 

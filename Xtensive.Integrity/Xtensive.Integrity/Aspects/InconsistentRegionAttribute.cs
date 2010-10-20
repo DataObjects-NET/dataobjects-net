@@ -10,7 +10,7 @@ using System.Reflection;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
 using Xtensive.Disposing;

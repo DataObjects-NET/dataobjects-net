@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Tests.ObjectModel;

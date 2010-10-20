@@ -5,7 +5,7 @@
 // Created:    2008.05.30
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Resources;
 using Xtensive.Tuples;
 

@@ -5,6 +5,7 @@
 // Created:    2008.05.13
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.SizeCalculators
 {

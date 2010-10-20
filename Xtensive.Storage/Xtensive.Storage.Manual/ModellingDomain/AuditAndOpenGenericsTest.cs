@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;

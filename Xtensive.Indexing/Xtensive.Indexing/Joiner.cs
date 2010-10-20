@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 

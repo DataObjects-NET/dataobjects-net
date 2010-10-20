@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Parameters;
 using Xtensive.Tuples;

@@ -7,7 +7,7 @@
 using System.Collections;
 using System.Linq;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Upgrade;
 using System;
 

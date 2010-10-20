@@ -5,6 +5,7 @@
 // Created:    2008.05.08
 
 using System;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Serialization.Implementation

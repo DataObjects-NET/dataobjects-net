@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model

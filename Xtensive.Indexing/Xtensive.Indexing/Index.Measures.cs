@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Resources;
 

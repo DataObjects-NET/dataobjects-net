@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
 using Xtensive.Collections;
 using System.Linq;
+using Xtensive.Core;
 
 namespace Xtensive.Modelling.Actions
 {

@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.SqlServerCe.v3_5

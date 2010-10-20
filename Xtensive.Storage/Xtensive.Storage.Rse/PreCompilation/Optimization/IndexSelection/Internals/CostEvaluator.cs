@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.14
 
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;

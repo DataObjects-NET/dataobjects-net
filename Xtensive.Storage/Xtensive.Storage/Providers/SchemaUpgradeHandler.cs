@@ -9,7 +9,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Upgrade;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Providers
 {

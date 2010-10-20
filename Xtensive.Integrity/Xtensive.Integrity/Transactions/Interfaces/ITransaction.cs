@@ -6,7 +6,7 @@
 
 using System;
 using System.Transactions;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Integrity.Transactions
 {

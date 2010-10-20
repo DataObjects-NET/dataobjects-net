@@ -1,7 +1,7 @@
 using System;
 using System.Web;
 using System.Web.Configuration;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Storage;
 using Xtensive.Storage.Configuration;

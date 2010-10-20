@@ -6,6 +6,7 @@
 
 using System;
 using System.Threading;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 using Xtensive.Threading;

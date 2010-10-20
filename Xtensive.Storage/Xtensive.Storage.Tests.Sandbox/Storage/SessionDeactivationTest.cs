@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using System.Linq;

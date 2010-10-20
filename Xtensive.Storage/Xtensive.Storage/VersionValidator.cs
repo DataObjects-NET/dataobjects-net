@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
 using System.Linq;
 using Xtensive.Aspects;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples;

@@ -13,7 +13,7 @@ using NUnit.Framework;
 using Xtensive.Linq;
 using Xtensive.Linq.Normalization;
 using Xtensive.Testing;
-using ExpressionExtensions = Xtensive.ExpressionExtensions;
+using ExpressionExtensions = Xtensive.Core.ExpressionExtensions;
 
 namespace Xtensive.Tests.Linq
 {

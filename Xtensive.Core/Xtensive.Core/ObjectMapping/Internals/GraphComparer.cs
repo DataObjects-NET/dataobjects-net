@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.ObjectMapping.Comparison;
 using Xtensive.ObjectMapping.Model;
 using Xtensive.Threading;

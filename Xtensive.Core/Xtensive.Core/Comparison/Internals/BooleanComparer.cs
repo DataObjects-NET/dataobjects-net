@@ -5,6 +5,7 @@
 // Created:    2007.11.28
 
 using System;
+using Xtensive.Core;
 using Xtensive.Resources;
 
 namespace Xtensive.Comparison

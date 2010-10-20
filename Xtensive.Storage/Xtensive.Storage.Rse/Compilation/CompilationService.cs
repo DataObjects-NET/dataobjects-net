@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Caching;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;

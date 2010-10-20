@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Attributes;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {

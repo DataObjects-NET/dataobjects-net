@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive;
 using Xtensive.Caching;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Disposing;
 using Xtensive.IoC;

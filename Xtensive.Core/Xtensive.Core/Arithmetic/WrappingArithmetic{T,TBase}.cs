@@ -5,6 +5,7 @@
 // Created:    2008.02.06
 
 using System;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Arithmetic

@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive;
 using Xtensive.Comparison;
 using Xtensive.Configuration;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Resources;

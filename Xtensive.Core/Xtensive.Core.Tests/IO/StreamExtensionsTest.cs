@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using System.IO;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.IO;
 using Xtensive.Reflection;
 using Xtensive.Testing;

@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;

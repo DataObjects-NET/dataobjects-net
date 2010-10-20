@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Threading;
 
 namespace Xtensive.Comparison

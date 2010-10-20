@@ -9,7 +9,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Tests.ObjectModel;

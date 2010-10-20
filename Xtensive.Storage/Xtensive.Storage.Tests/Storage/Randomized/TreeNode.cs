@@ -5,7 +5,7 @@
 // Created:    2009.11.26
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {

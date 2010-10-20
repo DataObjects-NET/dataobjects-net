@@ -5,6 +5,7 @@
 // Created:    2008.08.27
 
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.IO;
 using Xtensive.Serialization.Implementation;
 

@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0775_WrongLinqQueryOverComputedFields_Model;

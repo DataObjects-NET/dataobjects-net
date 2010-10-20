@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;

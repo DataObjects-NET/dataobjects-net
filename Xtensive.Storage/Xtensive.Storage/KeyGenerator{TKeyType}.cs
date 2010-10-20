@@ -5,9 +5,9 @@
 // Created:    2009.11.18
 
 using System;
-using Xtensive;
 using Xtensive.Arithmetic;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Model;

@@ -15,7 +15,7 @@ using PostSharp.Extensibility;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
 using Xtensive.Disposing;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Storage.Configuration;

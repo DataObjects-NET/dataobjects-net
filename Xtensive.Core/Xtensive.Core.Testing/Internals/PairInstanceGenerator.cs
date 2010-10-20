@@ -6,6 +6,7 @@
 
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Testing
 {

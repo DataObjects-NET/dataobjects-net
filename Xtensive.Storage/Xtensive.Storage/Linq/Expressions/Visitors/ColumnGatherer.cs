@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors

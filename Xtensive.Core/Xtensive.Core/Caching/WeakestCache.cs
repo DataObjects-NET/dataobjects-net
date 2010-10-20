@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Internals.DocTemplates;
 

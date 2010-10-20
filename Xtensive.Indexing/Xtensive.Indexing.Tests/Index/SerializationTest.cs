@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
-using Xtensive;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Conversion;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Testing;
 

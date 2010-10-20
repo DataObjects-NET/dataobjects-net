@@ -5,8 +5,8 @@
 // Created:    2007.06.14
 
 using System.Collections.Generic;
-using Xtensive;
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Collections
 {

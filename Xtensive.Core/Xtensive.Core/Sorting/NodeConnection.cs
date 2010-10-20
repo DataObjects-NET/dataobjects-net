@@ -5,6 +5,7 @@
 // Created:    2009.03.13
 
 using System;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sorting

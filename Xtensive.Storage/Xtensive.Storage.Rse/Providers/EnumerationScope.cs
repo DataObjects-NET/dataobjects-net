@@ -5,7 +5,7 @@
 // Created:    2008.07.21
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 using Xtensive.Storage.Rse.Compilation;

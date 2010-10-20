@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Security

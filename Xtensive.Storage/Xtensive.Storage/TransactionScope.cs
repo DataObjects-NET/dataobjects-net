@@ -5,7 +5,7 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Integrity.Transactions;
 

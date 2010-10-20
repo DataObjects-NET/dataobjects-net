@@ -6,6 +6,7 @@
 
 using System;
 using System.Configuration;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Configuration

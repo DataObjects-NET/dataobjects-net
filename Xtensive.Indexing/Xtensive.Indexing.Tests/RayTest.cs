@@ -5,8 +5,8 @@
 // Created:    2008.02.08
 
 using NUnit.Framework;
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 
 namespace Xtensive.Indexing.Tests
 {

@@ -7,8 +7,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Linq.Normalization;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

@@ -5,7 +5,7 @@
 // Created:    2009.04.27
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Parameters;
 using Xtensive.Storage.Linq;

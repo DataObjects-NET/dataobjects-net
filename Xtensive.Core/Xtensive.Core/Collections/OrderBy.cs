@@ -5,6 +5,7 @@
 // Created:    2008.05.20
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Collections
 {

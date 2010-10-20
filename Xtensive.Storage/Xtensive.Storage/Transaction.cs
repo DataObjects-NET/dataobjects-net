@@ -6,8 +6,8 @@
 
 using System;
 using System.Transactions;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Integrity.Validation;

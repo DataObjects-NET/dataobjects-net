@@ -5,7 +5,7 @@
 // Created:    2009.05.15
 
 using System.Linq.Expressions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 

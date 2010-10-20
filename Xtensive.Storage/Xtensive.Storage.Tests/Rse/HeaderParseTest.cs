@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Configuration;

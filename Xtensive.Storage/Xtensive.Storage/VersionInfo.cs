@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

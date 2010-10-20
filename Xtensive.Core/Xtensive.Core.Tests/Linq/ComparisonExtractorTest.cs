@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
 

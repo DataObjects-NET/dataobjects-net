@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;

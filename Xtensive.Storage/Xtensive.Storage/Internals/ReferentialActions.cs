@@ -5,7 +5,7 @@
 // Created:    2009.07.15
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.ReferentialIntegrity;

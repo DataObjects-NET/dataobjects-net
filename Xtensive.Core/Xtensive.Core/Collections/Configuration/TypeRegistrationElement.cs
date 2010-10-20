@@ -7,7 +7,7 @@
 using System;
 using System.Configuration;
 using Xtensive.Configuration;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Collections.Configuration
 {

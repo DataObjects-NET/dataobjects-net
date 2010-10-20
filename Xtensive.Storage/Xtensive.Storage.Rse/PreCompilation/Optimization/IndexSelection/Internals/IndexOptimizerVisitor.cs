@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive;
 using Xtensive.Caching;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Linq.Normalization;
 using Xtensive.Parameters;
 using Xtensive.Storage.Model;

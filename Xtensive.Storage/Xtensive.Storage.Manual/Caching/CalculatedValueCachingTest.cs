@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Storage.Configuration;
 using System.Linq;

@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 

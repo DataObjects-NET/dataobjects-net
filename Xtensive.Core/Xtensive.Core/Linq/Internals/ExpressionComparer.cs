@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Linq
 {

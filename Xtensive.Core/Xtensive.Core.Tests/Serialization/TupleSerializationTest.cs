@@ -5,6 +5,7 @@
 // Created:    2008.08.27
 
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Serialization.Binary;
 using Xtensive.Testing;
 using Xtensive.Tuples;

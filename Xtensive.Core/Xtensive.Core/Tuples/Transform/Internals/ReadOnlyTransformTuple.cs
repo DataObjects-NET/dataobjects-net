@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using Xtensive.Collections;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Tuples.Transform.Internals

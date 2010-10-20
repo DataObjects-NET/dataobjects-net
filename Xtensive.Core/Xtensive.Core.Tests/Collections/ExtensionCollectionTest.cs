@@ -7,6 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Testing;
 
 namespace Xtensive.Tests.Collections

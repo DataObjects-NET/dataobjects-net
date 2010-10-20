@@ -10,8 +10,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Transactions;
 using NUnit.Framework;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 

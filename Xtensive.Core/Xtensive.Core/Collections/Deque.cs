@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Comparison;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 

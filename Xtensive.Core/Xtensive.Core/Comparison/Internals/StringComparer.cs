@@ -7,6 +7,7 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Resources;
 
 namespace Xtensive.Comparison

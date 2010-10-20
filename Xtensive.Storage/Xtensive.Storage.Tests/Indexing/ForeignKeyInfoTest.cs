@@ -4,7 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage;
 using Xtensive.Storage.Indexing.Model;
 using NUnit.Framework;

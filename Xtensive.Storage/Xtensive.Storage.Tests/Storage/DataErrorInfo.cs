@@ -7,12 +7,12 @@
 using System;
 using System.ComponentModel;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel;
-using AggregateException = Xtensive.AggregateException;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel
 {

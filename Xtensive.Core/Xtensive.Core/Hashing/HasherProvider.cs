@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;

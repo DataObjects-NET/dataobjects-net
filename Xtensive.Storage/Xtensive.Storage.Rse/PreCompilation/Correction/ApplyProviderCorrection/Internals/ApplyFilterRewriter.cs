@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 

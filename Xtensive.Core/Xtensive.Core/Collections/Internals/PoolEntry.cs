@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Collections;
 using System.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Collections
 {

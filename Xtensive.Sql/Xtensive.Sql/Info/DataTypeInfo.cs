@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Info
 {

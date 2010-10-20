@@ -14,7 +14,7 @@ namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// A struct providing faster access for key 
-  /// <see cref="Arithmetic{T}"/> delegates.
+  /// <see cref="Xtensive.Arithmetic.Arithmetic{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IArithmetic{T}"/> generic argument.</typeparam>
   [Serializable]

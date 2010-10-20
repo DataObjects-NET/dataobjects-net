@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Disposing;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;

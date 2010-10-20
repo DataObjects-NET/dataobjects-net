@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Comparison;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;

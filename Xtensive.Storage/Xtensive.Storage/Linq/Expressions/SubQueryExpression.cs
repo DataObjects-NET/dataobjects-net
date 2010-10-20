@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;

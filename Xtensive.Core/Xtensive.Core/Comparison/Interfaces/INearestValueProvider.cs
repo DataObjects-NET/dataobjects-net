@@ -4,6 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.02.01
 
+using Xtensive.Core;
+
 namespace Xtensive.Comparison
 {
   /// <summary>

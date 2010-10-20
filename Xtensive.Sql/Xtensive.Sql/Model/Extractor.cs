@@ -4,7 +4,7 @@
 
 using System;
 using System.Data.Common;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Model

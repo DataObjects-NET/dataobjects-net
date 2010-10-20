@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Modelling.Validation;
 
 namespace Xtensive.Modelling

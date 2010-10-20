@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Rse
 {

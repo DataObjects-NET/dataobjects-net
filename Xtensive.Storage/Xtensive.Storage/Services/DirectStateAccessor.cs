@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.01.14
 
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Services
 {

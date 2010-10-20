@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Caching;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Testing;
 using Xtensive.Storage.Configuration;

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Security.AccessControl;
 using System.Threading;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Reflection;
 using Xtensive.Threading;

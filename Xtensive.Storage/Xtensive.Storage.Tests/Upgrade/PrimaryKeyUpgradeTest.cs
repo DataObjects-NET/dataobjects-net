@@ -10,7 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Disposing;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1;
 using Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely;
 using Xtensive.Storage.Upgrade;

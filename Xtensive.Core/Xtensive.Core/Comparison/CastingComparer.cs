@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Conversion;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 

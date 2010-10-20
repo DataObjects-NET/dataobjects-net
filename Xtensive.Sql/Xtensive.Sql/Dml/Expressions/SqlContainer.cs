@@ -5,7 +5,7 @@
 // Created:    2009.06.11
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {

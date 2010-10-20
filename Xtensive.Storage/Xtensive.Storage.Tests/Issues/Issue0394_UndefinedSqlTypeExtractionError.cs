@@ -5,7 +5,7 @@
 // Created:    2009.09.11
 
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Tests.ObjectModel.Northwind;

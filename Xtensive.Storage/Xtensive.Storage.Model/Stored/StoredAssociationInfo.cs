@@ -7,7 +7,7 @@
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Model.Stored
 {

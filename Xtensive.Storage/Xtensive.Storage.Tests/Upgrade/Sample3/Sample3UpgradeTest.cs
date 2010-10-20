@@ -10,7 +10,7 @@ using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Disposing;
-using Xtensive;
+using Xtensive.Core;
 using M1 = Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version2;
 using System;

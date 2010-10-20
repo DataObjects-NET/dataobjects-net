@@ -12,7 +12,7 @@ using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Aspects.Helpers;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Aspects

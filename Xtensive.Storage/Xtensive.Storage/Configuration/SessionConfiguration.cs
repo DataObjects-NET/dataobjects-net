@@ -6,8 +6,8 @@
 
 using System;
 using System.Transactions;
-using Xtensive;
 using Xtensive.Configuration;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Configuration

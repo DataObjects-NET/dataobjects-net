@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Reflection;
 
 namespace Xtensive.Linq

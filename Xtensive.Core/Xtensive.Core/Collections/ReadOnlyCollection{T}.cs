@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Resources;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Threading;

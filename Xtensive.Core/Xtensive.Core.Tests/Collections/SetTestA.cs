@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Tests.Collections
 {

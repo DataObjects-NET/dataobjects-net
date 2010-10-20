@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Serialization.Binary;
 using Xtensive.Testing;
 using Xtensive.Modelling.Actions;

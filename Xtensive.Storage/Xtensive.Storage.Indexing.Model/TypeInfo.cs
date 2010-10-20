@@ -6,8 +6,8 @@
 
 using System;
 using System.Globalization;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive;
 using System.Text;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Validation;

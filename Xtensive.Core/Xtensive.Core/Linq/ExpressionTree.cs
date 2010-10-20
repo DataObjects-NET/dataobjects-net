@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Linq
 {

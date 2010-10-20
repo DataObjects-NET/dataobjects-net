@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;

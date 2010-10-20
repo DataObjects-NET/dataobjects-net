@@ -7,7 +7,7 @@
 using System;
 using System.Data;
 using NUnit.Framework;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Tests

@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Serialization.Binary;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;

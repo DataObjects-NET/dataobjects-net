@@ -6,7 +6,7 @@
 
 using System;
 using System.Globalization;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 
@@ -20,20 +20,20 @@ namespace Xtensive.Comparison
     IEquatable<ComparisonRule>
   {
     /// <summary>
-    /// Predefined rule with <see cref="Direction"/> = <see cref="Xtensive.Direction.None"/>.
+    /// Predefined rule with <see cref="Direction"/> = <see cref="Core.Direction.None"/>.
     /// </summary>
     public static readonly ComparisonRule None     = new ComparisonRule(Direction.None);
     /// <summary>
-    /// Predefined rule with <see cref="Direction"/> = <see cref="Xtensive.Direction.Positive"/>.
+    /// Predefined rule with <see cref="Direction"/> = <see cref="Core.Direction.Positive"/>.
     /// </summary>
     public static readonly ComparisonRule Positive = new ComparisonRule(Direction.Positive);
     /// <summary>
-    /// Predefined rule with <see cref="Direction"/> = <see cref="Xtensive.Direction.Negative"/>.
+    /// Predefined rule with <see cref="Direction"/> = <see cref="Core.Direction.Negative"/>.
     /// </summary>
     public static readonly ComparisonRule Negative = new ComparisonRule(Direction.Negative);
 
     /// <summary>
-    /// Gets <see cref="Xtensive.Direction"/> for the comparison.
+    /// Gets <see cref="Core.Direction"/> for the comparison.
     /// </summary>
     public readonly Direction Direction;
 
@@ -148,7 +148,7 @@ namespace Xtensive.Comparison
     }
 
     /// <summary>
-    /// Implicit conversion of <see cref="Xtensive.Direction"/> to <see cref="ComparisonRule"/>.
+    /// Implicit conversion of <see cref="Core.Direction"/> to <see cref="ComparisonRule"/>.
     /// </summary>
     /// <param name="direction">Direction to convert.</param>
     /// <returns>Conversion result.</returns>
@@ -172,7 +172,7 @@ namespace Xtensive.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="direction">Initial <see cref="Xtensive.Direction"/> property value.</param>
+    /// <param name="direction">Initial <see cref="Core.Direction"/> property value.</param>
     public ComparisonRule(Direction direction)
       : this(direction, null)
     {
@@ -181,7 +181,7 @@ namespace Xtensive.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="direction">Initial <see cref="Xtensive.Direction"/> property value.</param>
+    /// <param name="direction">Initial <see cref="Core.Direction"/> property value.</param>
     /// <param name="culture">Initial <see cref="Culture"/> property value.</param>
     public ComparisonRule(Direction direction, CultureInfo culture)
     {

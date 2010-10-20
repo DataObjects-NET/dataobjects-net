@@ -1,5 +1,6 @@
 using System;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.IoC;
 
 namespace Xtensive.Diagnostics

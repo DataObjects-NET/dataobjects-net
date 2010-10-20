@@ -5,7 +5,7 @@
 // Created:    2009.05.14
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Modelling.Comparison.Hints;
 

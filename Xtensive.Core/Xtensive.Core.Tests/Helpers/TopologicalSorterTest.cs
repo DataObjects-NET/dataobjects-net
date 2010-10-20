@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Collections;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Sorting;
 using Xtensive.Testing;
 

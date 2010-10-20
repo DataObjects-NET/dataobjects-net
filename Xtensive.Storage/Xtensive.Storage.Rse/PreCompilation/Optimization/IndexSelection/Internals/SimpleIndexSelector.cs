@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection

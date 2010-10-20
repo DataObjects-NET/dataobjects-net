@@ -4,8 +4,8 @@
 // Created by: Alexey Kochetov
 // Created:    2008.02.12
 
-using Xtensive;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Indexing

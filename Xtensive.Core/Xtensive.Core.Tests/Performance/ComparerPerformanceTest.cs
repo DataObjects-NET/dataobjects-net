@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using NUnit.Framework;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Diagnostics;

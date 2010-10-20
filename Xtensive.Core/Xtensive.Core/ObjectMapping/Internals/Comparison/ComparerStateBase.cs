@@ -5,6 +5,7 @@
 // Created:    2010.01.22
 
 using System;
+using Xtensive.Core;
 using Xtensive.Resources;
 using Xtensive.ObjectMapping.Model;
 

@@ -5,8 +5,8 @@
 // Created:    2008.11.06
 
 using System;
-using Xtensive;
 using Xtensive.Aspects;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 using Xtensive.Storage.Model;

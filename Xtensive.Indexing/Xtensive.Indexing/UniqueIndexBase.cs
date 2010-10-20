@@ -5,7 +5,7 @@
 // Created:    2008.06.15
 
 using System.Collections.Generic;
-using Xtensive;
+using Xtensive.Core;
 
 namespace Xtensive.Indexing
 {

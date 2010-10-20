@@ -7,7 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Storage.Providers.Sql.Resources;
 

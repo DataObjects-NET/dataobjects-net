@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Upgrade

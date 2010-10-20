@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Storage.Linq;
 using Xtensive.Reflection;
 

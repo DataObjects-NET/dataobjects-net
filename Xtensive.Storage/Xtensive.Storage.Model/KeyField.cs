@@ -5,7 +5,7 @@
 // Created:    2007.12.28
 
 using System;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model

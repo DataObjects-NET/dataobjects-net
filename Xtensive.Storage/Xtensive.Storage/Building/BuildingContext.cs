@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;

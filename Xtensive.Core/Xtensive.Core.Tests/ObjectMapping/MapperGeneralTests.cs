@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.ObjectMapping;
 using Xtensive.ObjectMapping.Model;
 using Xtensive.Testing;

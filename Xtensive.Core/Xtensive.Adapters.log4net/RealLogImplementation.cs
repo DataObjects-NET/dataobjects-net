@@ -9,7 +9,7 @@ using System.Reflection;
 using log4net;
 using log4net.Core;
 using log4net.Util;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Internals.DocTemplates;
 

@@ -6,8 +6,8 @@
 
 using System;
 using System.Configuration;
-using Xtensive;
 using Xtensive.Configuration;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;

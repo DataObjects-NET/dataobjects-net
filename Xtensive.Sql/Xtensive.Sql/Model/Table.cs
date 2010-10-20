@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Sql.Dml;
 

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.SqlServerCe

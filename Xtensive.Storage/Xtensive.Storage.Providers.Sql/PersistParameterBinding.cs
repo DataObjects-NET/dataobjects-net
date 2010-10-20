@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.25
 
-using Xtensive;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql;
 

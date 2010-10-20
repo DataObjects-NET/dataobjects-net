@@ -5,6 +5,7 @@
 // Created:    2009.06.15
 
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Testing;
 
 namespace Xtensive.Tests
