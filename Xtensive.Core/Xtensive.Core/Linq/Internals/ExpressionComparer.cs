@@ -12,7 +12,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Core.Linq
 {
-  internal sealed class ExpressionComparer
+  public sealed class ExpressionComparer
   {
     private readonly ParameterCollection leftParameters = new ParameterCollection();
     private readonly ParameterCollection rightParameters = new ParameterCollection();
