@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected DomainHandler DomainHandler { get { return (DomainHandler) handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var sessionContext = (EnumerationContext) context;
       var sessionHandler = sessionContext.SessionHandler;

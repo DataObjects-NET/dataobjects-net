@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Rse.Helpers
       if (expression.NodeType == ExpressionType.Call) {
         var mc = (MethodCallExpression)expression;
         if (mc.Object != null && mc.Object.Type == typeof(Tuple))
-          if (mc.Method.Name == WellKnown.Tuple.GetValue || mc.Method.Name == WellKnown.Tuple.GetValueOrDefault)
+          if (mc.Method.Name == Reflection.WellKnown.Tuple.GetValue || mc.Method.Name == Reflection.WellKnown.Tuple.GetValueOrDefault)
             return mc;
       }
       return null;
