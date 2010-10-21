@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Linq
 
     public bool JoinLocalCollectionEntity { get; set; }
 
-    public bool AddedCalculableColumn { get; set; }
+    public bool AllowCalculableColumnCombine { get; set; }
 
     public ParameterExpression[] Parameters { get; set; }
 
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Linq
         BuildingProjection = currentState.BuildingProjection;
         CurrentLambda = currentState.CurrentLambda;
         JoinLocalCollectionEntity = currentState.JoinLocalCollectionEntity;
-        AddedCalculableColumn = currentState.AddedCalculableColumn;
+        AllowCalculableColumnCombine = currentState.AllowCalculableColumnCombine;
         IncludeAlgorithm = currentState.IncludeAlgorithm;
         IsTailMethod = currentState.IsTailMethod;
         SetOperationProjection = currentState.SetOperationProjection;
