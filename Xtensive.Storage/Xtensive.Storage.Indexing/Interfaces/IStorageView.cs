@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
-using Xtensive.Integrity.Transactions;
+using Xtensive.Transactions;
 
 namespace Xtensive.Storage.Indexing
 {

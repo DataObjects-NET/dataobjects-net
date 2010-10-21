@@ -1006,6 +1006,15 @@ namespace Xtensive.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid transaction state (&apos;{0}&apos;). Expected state(s) is (are) &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExInvalidTransactionState {
+            get {
+                return ResourceManager.GetString("ExInvalidTransactionState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid TupleDescriptor. Expected descriptor is {0}..
         /// </summary>
         internal static string ExInvalidTupleDescriptorExpectedDescriptorIs {
@@ -1627,6 +1636,15 @@ namespace Xtensive.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Scope-bound transaction can be committed only by its scope. Use TransactionScopeBase.Complete() \  Dispose() methods of  appropriate TransactionScopeBase descendant instance to do this..
+        /// </summary>
+        internal static string ExScopeBoundTransactionCanBeCommittedOnlyByItsScope {
+            get {
+                return ResourceManager.GetString("ExScopeBoundTransactionCanBeCommittedOnlyByItsScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Scope can&apos;t be disposed. Most likely it is bound to a different thread..
         /// </summary>
         internal static string ExScopeCantBeDisposed {
@@ -1777,6 +1795,24 @@ namespace Xtensive.Resources {
             get {
                 return ResourceManager.GetString("ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParame" +
                         "ters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction is already activated..
+        /// </summary>
+        internal static string ExTransactionIsAlreadyActivated {
+            get {
+                return ResourceManager.GetString("ExTransactionIsAlreadyActivated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TransactionScope.IsCompleted can not be set to &apos;false&apos;..
+        /// </summary>
+        internal static string ExTransactionScopeIsCompletedCanNotBeSetToFalse {
+            get {
+                return ResourceManager.GetString("ExTransactionScopeIsCompletedCanNotBeSetToFalse", resourceCulture);
             }
         }
         

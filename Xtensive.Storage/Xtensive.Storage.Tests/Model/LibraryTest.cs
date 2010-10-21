@@ -19,7 +19,6 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Model.LibraryModel;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
-using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Tests.Model.LibraryModel
 {

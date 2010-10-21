@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Serialization
       if (isDeserialized)
         return;
 
-      using (var region = Validation.Disable()) {
+      using (var region = ValidationManager.Disable()) {
         InitializeEntities();
         DeserializeEntities();
         region.Complete();

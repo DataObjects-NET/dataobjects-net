@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 

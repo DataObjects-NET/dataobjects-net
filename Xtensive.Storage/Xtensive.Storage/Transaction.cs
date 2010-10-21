@@ -9,10 +9,10 @@ using System.Transactions;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Integrity.Transactions;
-using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
+using Xtensive.Transactions;
+using InconsistentRegion = Xtensive.Storage.Validation.InconsistentRegion;
 
 namespace Xtensive.Storage
 {

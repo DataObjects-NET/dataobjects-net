@@ -7,10 +7,10 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Transactions;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;

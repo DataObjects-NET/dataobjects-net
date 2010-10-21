@@ -8,8 +8,8 @@ using System;
 using System.ComponentModel;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Storage.Validation;
 using Xtensive.Testing;
-using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel;
 using AggregateException = Xtensive.Core.AggregateException;
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          using (var region = Xtensive.Storage.Validation.Disable()) {
+          using (var region = Xtensive.Storage.ValidationManager.Disable()) {
 
             var person = new Person();
 

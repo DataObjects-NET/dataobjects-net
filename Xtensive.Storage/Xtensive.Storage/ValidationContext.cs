@@ -4,14 +4,14 @@
 // Created by: Alex Kofman
 // Created:    2008.08.28
 
-using Xtensive.Integrity.Validation;
+using ValidationContextBase = Xtensive.Storage.Validation.ValidationContextBase;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// Validation context used by <see cref="Session"/>.
   /// </summary>
-  public sealed class ValidationContext : ValidationContextBase
+  public sealed class ValidationContext : Validation.ValidationContextBase
   {
     internal new void Reset()
     {

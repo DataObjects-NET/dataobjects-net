@@ -13,7 +13,7 @@ using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Aspects;
 using Xtensive.Reflection;
-using Xtensive.Integrity.Aspects;
+using Xtensive.Storage.Validation;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage

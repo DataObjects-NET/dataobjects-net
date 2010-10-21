@@ -22,7 +22,7 @@ namespace Xtensive.Storage.PairIntegrity
     {
       if (context==null) {
         // We must create a new context
-        using (var region = Validation.Disable(owner.Session)) {
+        using (var region = ValidationManager.Disable(owner.Session)) {
           context = CreateContext(removalContext, type, association, owner, target);
           context.ProcessPendingActionsRecursively(finalizer);
           region.Complete();

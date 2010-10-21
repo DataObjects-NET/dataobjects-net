@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
-using Xtensive.Integrity.Aspects;
+using Xtensive.Storage.Validation;
 
 namespace Xtensive.Storage.Manual.Validation
 {

@@ -8,12 +8,12 @@ using System;
 using System.Transactions;
 using Xtensive.Disposing;
 using Xtensive.Core;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using Xtensive.Transactions;
 using SD=System.Data;
 
 namespace Xtensive.Storage

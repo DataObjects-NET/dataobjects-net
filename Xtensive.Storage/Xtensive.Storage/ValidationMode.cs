@@ -22,11 +22,11 @@ namespace Xtensive.Storage
     /// </summary>
     /// <remarks>
     /// <para>
-    /// To work with entities in inconsistent state open inconsistent region with <see cref="Validation.Disable()"/>.
+    /// To work with entities in inconsistent state open inconsistent region with <see cref="ValidationManager.Disable()"/>.
     /// Validation will be performed on disposing inconsistent region.
     /// </para>
     /// <code>
-    /// using (var inconsistentRegion = Validation.Disable()) {
+    /// using (var inconsistentRegion = ValidationManager.Disable()) {
     ///   // Perform operations here
     ///   inconsistentRegion.Complete();
     /// }
@@ -35,7 +35,7 @@ namespace Xtensive.Storage
     Continuous = 0,
 
     /// <summary>
-    /// Validation is performed automatically only on transaction commit and on explicit <see cref="Validation.Enforce()"/> method call.
+    /// Validation is performed automatically only on transaction commit and on explicit <see cref="ValidationManager.Enforce()"/> method call.
     /// </summary>
     OnDemand = 1
   }

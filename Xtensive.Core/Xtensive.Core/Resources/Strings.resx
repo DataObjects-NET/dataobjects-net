@@ -900,4 +900,16 @@
   <data name="ExPropertyXYIsNotFound" xml:space="preserve">
     <value>Property "{0}.{1}" is not found.</value>
   </data>
+  <data name="ExInvalidTransactionState" xml:space="preserve">
+    <value>Invalid transaction state ('{0}'). Expected state(s) is (are) '{1}'.</value>
+  </data>
+  <data name="ExTransactionIsAlreadyActivated" xml:space="preserve">
+    <value>Transaction is already activated.</value>
+  </data>
+  <data name="ExTransactionScopeIsCompletedCanNotBeSetToFalse" xml:space="preserve">
+    <value>TransactionScope.IsCompleted can not be set to 'false'.</value>
+  </data>
+  <data name="ExScopeBoundTransactionCanBeCommittedOnlyByItsScope" xml:space="preserve">
+    <value>Scope-bound transaction can be committed only by its scope. Use TransactionScopeBase.Complete() \  Dispose() methods of  appropriate TransactionScopeBase descendant instance to do this.</value>
+  </data>
 </root>

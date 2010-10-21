@@ -7,8 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Aspects;
-using Xtensive.Integrity.Aspects.Constraints;
-using Xtensive.Integrity.Validation;
+using Xtensive.Storage.Validation;
 
 namespace Xtensive.Storage.Tests.Storage
 {

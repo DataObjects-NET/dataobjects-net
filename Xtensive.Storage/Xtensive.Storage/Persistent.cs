@@ -14,8 +14,8 @@ using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.IoC;
+using Xtensive.Storage.Validation;
 using Xtensive.Tuples;
-using Xtensive.Integrity.Validation;
 using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -25,8 +25,10 @@ using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
 using AggregateException = Xtensive.Core.AggregateException;
+using InconsistentRegion = Xtensive.Storage.Validation.InconsistentRegion;
 using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
+using ValidationContextBase = Xtensive.Storage.Validation.ValidationContextBase;
 
 namespace Xtensive.Storage
 {
@@ -881,7 +883,7 @@ namespace Xtensive.Storage
     {
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
         TransactionScope = Session.OpenAutoTransaction(),
-        InconsistentRegion = Validation.Disable(Session),
+        InconsistentRegion = ValidationManager.Disable(Session),
         Previous = CtorTransactionInfo.Current,
       };
     }

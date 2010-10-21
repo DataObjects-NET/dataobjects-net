@@ -7,7 +7,7 @@
 using System;
 using System.Transactions;
 using Xtensive.Core;
-using Xtensive.Integrity.Transactions;
+using Xtensive.Transactions;
 
 namespace Xtensive.Storage.Providers.Index
 {

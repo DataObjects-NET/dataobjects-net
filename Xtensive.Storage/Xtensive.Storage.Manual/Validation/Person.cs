@@ -5,8 +5,7 @@
 // Created:    2009.10.27
 
 using System;
-using Xtensive.Integrity.Aspects.Constraints;
-using Xtensive.Integrity.Validation;
+using Xtensive.Storage.Validation;
 
 namespace Xtensive.Storage.Manual.Validation
 {

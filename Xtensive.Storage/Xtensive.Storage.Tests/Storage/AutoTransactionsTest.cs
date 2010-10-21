@@ -333,7 +333,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       bool isTransactionOpen = session.Transaction!=null 
-        && session.Transaction.State==Integrity.Transactions.TransactionState.Active;
+        && session.Transaction.State==Xtensive.Transactions.TransactionState.Active;
 
       Assert.AreEqual(transactionState==TransactionState.Open, isTransactionOpen);
 

@@ -61,7 +61,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       var processedEntities = new List<Entity>();
       var notifiedEntities = new HashSet<Entity>();
       try {
-        using (var region = Validation.Disable()) {
+        using (var region = ValidationManager.Disable()) {
           var operations = Session.Operations;
           using (var scope = operations.BeginRegistration(OperationType.System)) 
           using (Context = new RemovalContext(this)) {

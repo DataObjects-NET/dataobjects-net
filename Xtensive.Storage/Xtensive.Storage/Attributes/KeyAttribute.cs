@@ -32,7 +32,7 @@ namespace Xtensive.Storage
     public int Position { get; set; }
 
     /// <summary>
-    /// Gets or sets the sort direction. Default is <see cref="Xtensive.Direction.Positive"/>.
+    /// Gets or sets the sort direction. Default is <see cref="Core.Direction.Positive"/>.
     /// </summary>
     /// <para>
     /// Key fields <see cref="Position">positions</see> and directions choice can be based on some optimization purposes, 

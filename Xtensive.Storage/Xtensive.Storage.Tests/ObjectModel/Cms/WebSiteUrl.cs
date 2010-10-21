@@ -5,7 +5,7 @@
 // Created:    2009.09.08
 
 using System;
-using Xtensive.Integrity.Aspects.Constraints;
+using Xtensive.Storage.Validation;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {

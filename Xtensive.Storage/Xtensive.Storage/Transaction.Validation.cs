@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
 using AggregateException = Xtensive.Core.AggregateException;
 
@@ -29,7 +28,7 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInconsistentState);
 
       try {
-        Validation.Enforce(Session);
+        ValidationManager.Enforce(Session);
 
         if (region!=null) {
           inconsistentRegion = null;

@@ -7,9 +7,9 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel;
+using Xtensive.Storage.Validation;
 
 namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
 {
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Tests.Storage
           Company company;
           Contact contact;
 
-          using (var region = Xtensive.Storage.Validation.Disable()) {
+          using (var region = Xtensive.Storage.ValidationManager.Disable()) {
             company = new Company();
             contact = new Contact {Company = company};
             region.Complete();

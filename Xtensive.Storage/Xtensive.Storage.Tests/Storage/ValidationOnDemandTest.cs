@@ -62,14 +62,14 @@ namespace Xtensive.Storage.Tests.Storage
         var transactionScope = session.OpenTransaction();
 
         var entity = new Validatable {IsValid = false};
-        AssertEx.Throws<AggregateException>(Xtensive.Storage.Validation.Enforce);
-        AssertEx.Throws<AggregateException>(Xtensive.Storage.Validation.Enforce);
+        AssertEx.Throws<AggregateException>(Xtensive.Storage.ValidationManager.Enforce);
+        AssertEx.Throws<AggregateException>(Xtensive.Storage.ValidationManager.Enforce);
 
         entity.IsValid = true;
-        Xtensive.Storage.Validation.Enforce();
+        Xtensive.Storage.ValidationManager.Enforce();
 
         entity.IsValid = false;
-        AssertEx.Throws<AggregateException>(Xtensive.Storage.Validation.Enforce);
+        AssertEx.Throws<AggregateException>(Xtensive.Storage.ValidationManager.Enforce);
         
         transactionScope.Complete();
         AssertEx.Throws<InvalidOperationException>(transactionScope.Dispose);

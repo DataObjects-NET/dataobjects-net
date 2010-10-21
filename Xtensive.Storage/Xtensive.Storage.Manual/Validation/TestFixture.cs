@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Manual.Validation
       using (var session = domain.OpenSession()) {
         try {
           using (var transactionScope = session.OpenTransaction()) {
-            using (var inconsistencyRegion = Storage.Validation.Disable()) {
+            using (var inconsistencyRegion = Storage.ValidationManager.Disable()) {
 
               var person = new Person {
                 FirstName = "Mike",

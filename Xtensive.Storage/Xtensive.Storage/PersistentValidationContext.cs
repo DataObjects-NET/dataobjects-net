@@ -4,14 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.18
 
-using Xtensive.Integrity.Validation;
+using ValidationContextBase = Xtensive.Storage.Validation.ValidationContextBase;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// <see cref="ValidationContextBase"/> implementation used in DataObjects.Net.
   /// </summary>
-  public sealed class PersistentValidationContext : ValidationContextBase
+  public sealed class PersistentValidationContext : Validation.ValidationContextBase
   {
   }
 }

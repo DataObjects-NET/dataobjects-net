@@ -6,13 +6,13 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Transactions;
 using Xtensive.Disposing;
-using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An implementation of <see cref="Integrity.Transactions.TransactionScope"/>
+  /// An implementation of <see cref="Xtensive.Transactions.TransactionScope"/>
   /// suitable for storage.
   /// </summary>
   public class TransactionScope : CompletableScope
