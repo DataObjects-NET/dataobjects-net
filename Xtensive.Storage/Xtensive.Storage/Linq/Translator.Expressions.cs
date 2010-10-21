@@ -15,6 +15,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Linq.Rewriters;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
@@ -116,8 +117,11 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       using (state.CreateLambdaScope(le)) {
-        state.AddedCalculableColumn = false;
-        Expression body = Visit(le.Body);
+        state.AllowCalculableColumnCombine = false;
+        Expression body = le.Body;
+        if (!state.IsTailMethod)
+          body = CoalesceRewriter.Rewrite(body);
+        body = Visit(body);
         ParameterExpression parameter = le.Parameters[0];
         if (body.NodeType!=ExpressionType.New
           && body.NodeType!=ExpressionType.MemberInit
@@ -770,7 +774,7 @@ namespace Xtensive.Storage.Linq
 
         RecordSet dataSource = oldResult.ItemProjector.DataSource;
         var columns = new List<CalculatedColumnDescriptor>();
-        if (!state.AddedCalculableColumn && dataSource.Provider is CalculateProvider && isInlined==((CalculateProvider) dataSource.Provider).IsInlined) {
+        if (state.AllowCalculableColumnCombine && dataSource.Provider is CalculateProvider && isInlined==((CalculateProvider) dataSource.Provider).IsInlined) {
           var calculateProvider = ((CalculateProvider) dataSource.Provider);
           var presentColumns = calculateProvider
             .CalculatedColumns
@@ -788,7 +792,7 @@ namespace Xtensive.Storage.Linq
         context.Bindings.ReplaceBound(lambdaParameter, newResult);
 
         body = ColumnExpression.Create(originalBodyType, dataSource.Header.Length - 1);
-        state.AddedCalculableColumn = true;
+        state.AllowCalculableColumnCombine = true;
       }
       return body;
     }
