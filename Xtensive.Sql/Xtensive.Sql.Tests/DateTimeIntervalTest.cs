@@ -144,7 +144,7 @@ namespace Xtensive.Sql.Tests
     public virtual void IntervalConstructTest()
     {
       CheckEquality(
-        SqlDml.IntervalConstruct(500),
+        SqlDml.IntervalConstruct(500000000),
         new TimeSpan(0, 0, 0, 0, 500));
     }
 

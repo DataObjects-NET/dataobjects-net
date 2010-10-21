@@ -547,7 +547,7 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part==SqlIntervalPart.Nothing)
         throw new ArgumentException();
-      return new SqlExtract(part, operand);      
+      return new SqlExtract(part, operand);
     }
 
     public static SqlFunctionCall DateTimeConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
@@ -612,6 +612,12 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source); 
+    }
+
+    public static SqlFunctionCall IntervalToNanoseconds(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source); 
     }
 
     public static SqlFunctionCall IntervalAbs(SqlExpression source)

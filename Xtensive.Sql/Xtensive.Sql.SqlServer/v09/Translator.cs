@@ -392,7 +392,7 @@ namespace Xtensive.Sql.SqlServer.v09
     {
       var literalType = literalValue.GetType();
       if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds);
+        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks*100);
       if (literalType==typeof (Boolean))
         return ((bool) literalValue) ? "cast(1 as bit)" : "cast(0 as bit)";
       if (literalType==typeof(DateTime)) {

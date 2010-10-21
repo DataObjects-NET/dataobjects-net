@@ -94,9 +94,24 @@ namespace Xtensive.Sql
 
     /// <summary>
     /// Converts the specified interval expression to expression
+    /// that represents number of milliseconds in that interval.
+    /// This is a generic implementation via <see cref="SqlExtract"/>s.
+    /// It's suitable for any server, but can be inefficient.
+    /// </summary>
+    /// <param name="interval">The interval to convert.</param>
+    /// <returns>Result of conversion.</returns>
+    public static SqlExpression IntervalToNanoseconds(SqlExpression interval)
+    {
+      var nanoseconds = SqlDml.Extract(SqlIntervalPart.Nanosecond, interval);
+
+      return IntervalToMilliseconds(interval) * 1000000L + nanoseconds;
+    }
+
+    /// <summary>
+    /// Converts the specified interval expression to expression
     /// that represents absolute value (duration) of the specified interval.
     /// This is a generic implementation that uses comparison with zero interval.
-    /// It's suitable for any server, but can be inefficent.
+    /// It's suitable for any server, but can be inefficient.
     /// </summary>
     /// <param name="source">The source.</param>
     /// <returns>Result of conversion.</returns>

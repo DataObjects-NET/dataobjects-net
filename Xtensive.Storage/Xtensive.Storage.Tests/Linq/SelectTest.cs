@@ -880,12 +880,14 @@ namespace Xtensive.Storage.Tests.Linq
           TimeSpanTotalHours = k.TimeSpan.TotalHours,
           TimeSpanTotalMinutes = k.TimeSpan.TotalMinutes,
           TimeSpanTotalSeconds = k.TimeSpan.TotalSeconds,
+          TimeSpanTotalMilliSeconds = k.TimeSpan.TotalMilliseconds,
           TimeSpanTicks = k.TimeSpan.Ticks,
           TimeSpanDuration = k.TimeSpan.Duration(),
           TimeSpanFromDays = TimeSpan.FromDays(k.TimeSpan.TotalDays),
           TimeSpanFromHours = TimeSpan.FromHours(k.TimeSpan.TotalHours),
           TimeSpanFromMinutes = TimeSpan.FromMinutes(k.TimeSpan.TotalMinutes),
           TimeSpanFromSeconds = TimeSpan.FromSeconds(k.TimeSpan.TotalSeconds),
+          TimeSpanFromMilliseconds = TimeSpan.FromMilliseconds(k.TimeSpan.TotalMilliseconds),
         })
         .First();
       Assert.AreEqual(dateTime, result.DateTime);
@@ -908,12 +910,14 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.IsTrue(Math.Abs(timeSpan.TotalHours - result.TimeSpanTotalHours) < 0.1);
       Assert.IsTrue(Math.Abs(timeSpan.TotalMinutes - result.TimeSpanTotalMinutes) < 0.1);
       Assert.IsTrue(Math.Abs(timeSpan.TotalSeconds - result.TimeSpanTotalSeconds) < 0.1);
+      Assert.IsTrue(Math.Abs(timeSpan.TotalMilliseconds - result.TimeSpanTotalMilliSeconds) < 0.1);
       Assert.AreEqual(timeSpan.Ticks, result.TimeSpanTicks);
       Assert.AreEqual(timeSpan.Duration(), result.TimeSpanDuration);
       Assert.AreEqual(timeSpan, result.TimeSpanFromDays);
       Assert.AreEqual(timeSpan, result.TimeSpanFromHours);
       Assert.AreEqual(timeSpan, result.TimeSpanFromMinutes);
       Assert.AreEqual(timeSpan, result.TimeSpanFromSeconds);
+      Assert.AreEqual(timeSpan, result.TimeSpanFromMilliseconds);
     }
 
     [Test]

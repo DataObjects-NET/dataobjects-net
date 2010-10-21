@@ -1683,6 +1683,8 @@ namespace Xtensive.Sql.Compiler
         return "SECOND";
       case SqlDateTimePart.Millisecond:
         return "MILLISECOND";
+      case SqlDateTimePart.Nanosecond:
+        return "NANOSECOND";
       case SqlDateTimePart.TimeZoneHour:
         return "TIMEZONE_HOUR";
       case SqlDateTimePart.TimeZoneMinute:
@@ -1709,6 +1711,8 @@ namespace Xtensive.Sql.Compiler
         return "SECOND";
       case SqlIntervalPart.Millisecond:
         return "MILLISECOND";
+      case SqlIntervalPart.Nanosecond:
+        return "NANOSECOND";
       default:
         throw new ArgumentOutOfRangeException("intervalPart");
       }
