@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Dml
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
-      visitor.Visit(this);
+      throw new NotSupportedException();
     }
 
     internal SqlContainer(object value)
