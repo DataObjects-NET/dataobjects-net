@@ -9,14 +9,13 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using PostSharp.Aspects;
-using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Reflection;
 using Xtensive.Storage.Validation;
 using Xtensive.Testing;
 using AggregateException = Xtensive.Core.AggregateException;
 
-namespace Xtensive.Integrity.Tests
+namespace Xtensive.Tests.Integrity
 {
   [TestFixture]
   public class ConstraintsTest

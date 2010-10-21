@@ -4,10 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.31
 
-using System;
 using Xtensive.Storage.Validation;
 
-namespace Xtensive.Integrity.Tests
+namespace Xtensive.Tests.Integrity
 {
   public class ValidationContext: ValidationContextBase
   {

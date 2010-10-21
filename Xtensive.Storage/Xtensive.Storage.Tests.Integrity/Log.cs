@@ -7,7 +7,7 @@
 using System.Reflection;
 using Xtensive.Diagnostics;
 
-namespace Xtensive.Integrity.Tests
+namespace Xtensive.Tests.Integrity
 {
   /// <summary>
   /// Log for this namespace.
