@@ -10,7 +10,7 @@ using Xtensive.Sql;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using SqlProviderInfoBuilder = Xtensive.Storage.Providers.Sql.ProviderInfoBuilder;
-using IndexProviderInfoBuilder = Xtensive.Storage.Providers.Index.ProviderInfoBuilder;
+using IndexProviderInfoBuilder = Xtensive.Storage.Providers.Indexing.ProviderInfoBuilder;
 
 namespace Xtensive.Storage.Tests
 {

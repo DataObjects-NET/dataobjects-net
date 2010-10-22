@@ -1,0 +1,122 @@
+// Copyright (C) 2003-2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Ivan Galkin
+// Created:    2009.04.15
+
+using System;
+using System.Collections.Generic;
+using System.Net.Sockets;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Transactions;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Indexing;
+using Xtensive.Modelling.Actions;
+using Xtensive.Storage.Commands;
+using Xtensive.Storage.StorageModel;
+
+namespace Xtensive.Storage.Providers.Indexing
+{
+  /// <summary>
+  /// Client-side storage view proxy.
+  /// </summary>
+  [Serializable]
+  public class ClientStorageView : IStorageView
+  {
+    private IndexStorage storage;
+    private Guid transactionId;
+
+    /// <summary>
+    /// Gets the real storage view.
+    /// </summary>
+    protected IndexStorageView RealStorageView { get; private set; }
+
+    /// <inheritdoc/>
+    public StorageInfo Model {
+      get {
+        EnsureRealViewIsAlive();
+        return RealStorageView.Model;
+      }
+    }
+
+    /// <inheritdoc/>
+    public ITransaction Transaction {
+      get {
+        EnsureRealViewIsAlive();
+        return RealStorageView.Transaction;
+      }
+    }
+
+    public Providers.SessionHandler SessionHandler
+    {
+      get
+      {
+        EnsureRealViewIsAlive();
+        return RealStorageView.SessionHandler;
+      }
+    }
+
+    /// <inheritdoc/>
+    public CommandResult Execute(Command command)
+    {
+      EnsureRealViewIsAlive();
+      return RealStorageView.Execute(command);
+    }
+
+    /// <inheritdoc/>
+    public Dictionary<int, CommandResult> Execute(List<Command> commands)
+    {
+      EnsureRealViewIsAlive();
+      return RealStorageView.Execute(commands);
+    }
+
+    /// <inheritdoc/>
+    public void Update(ActionSequence sequence)
+    {
+      EnsureRealViewIsAlive();
+      RealStorageView.Update(sequence);
+    }
+
+    /// <inheritdoc/>
+    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler)
+    {
+      EnsureRealViewIsAlive();
+      return RealStorageView.GetIndex(indexInfo, sessionHandler);
+    }
+
+    #region Private / internal methods
+
+    private void EnsureRealViewIsAlive()
+    {
+      try {
+        RealStorageView.Ping();
+      }
+      catch (SocketException) {
+        Refresh();
+      }
+    }
+
+    private void Refresh()
+    {
+      var newClientView = storage.GetView(RealStorageView.SessionHandler, transactionId) as ClientStorageView;
+      RealStorageView = newClientView.RealStorageView;
+    }
+
+    #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="realStorageView">The real storage view.</param>
+    public ClientStorageView(IndexStorageView realStorageView)
+    {
+      RealStorageView = realStorageView;
+      transactionId = realStorageView.Transaction.Identifier;
+      storage = realStorageView.Storage;
+    }
+  }
+}

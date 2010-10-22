@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests
       var sqlHandler = handler as Providers.Sql.SessionHandler;
       if (sqlHandler!=null)
         return sqlHandler.Connection.ActiveTransaction;
-      var indexHandler = handler as Providers.Index.SessionHandler;
+      var indexHandler = handler as Providers.Indexing.SessionHandler;
       if (indexHandler!=null)
         return indexHandler.StorageView;
       throw new InvalidOperationException();

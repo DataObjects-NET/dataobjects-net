@@ -5,7 +5,7 @@
 // Created:    2009.09.15
 
 using System;
-using Xtensive.Storage.Indexing;
+using Xtensive.Storage.Commands;
 using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Rse;
 
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.All
       typeof (Command),
       typeof (StorageInfo),
       typeof (TypeInfo),
-      typeof (Providers.Index.Memory.DomainHandler),
+      typeof (Providers.Indexing.Memory.DomainHandler),
       typeof (Providers.Sql.DomainHandler),
       typeof (RecordQuery),
     };
