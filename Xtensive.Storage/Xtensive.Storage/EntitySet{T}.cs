@@ -257,6 +257,7 @@ namespace Xtensive.Storage
       return Session.Query.Provider.CreateQuery<TItem>(queryExpression);
     }
 
+ 
     // Constructors
 
     /// <summary>
