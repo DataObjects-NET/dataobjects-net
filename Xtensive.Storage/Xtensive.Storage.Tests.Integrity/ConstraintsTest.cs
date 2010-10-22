@@ -15,7 +15,7 @@ using Xtensive.Storage.Validation;
 using Xtensive.Testing;
 using AggregateException = Xtensive.Core.AggregateException;
 
-namespace Xtensive.Tests.Integrity
+namespace Xtensive.Storage.Tests.Integrity
 {
   [TestFixture]
   public class ConstraintsTest
@@ -155,7 +155,7 @@ namespace Xtensive.Tests.Integrity
         }
       }
       catch (AggregateException exception) {
-        var errors = exception.GetFlatExceptions().Cast<ConstraintViolationException>();
+        var errors = exception.GetFlatExceptions().Cast<Validation.ConstraintViolationException>();
         Assert.AreEqual(6, errors.Count());
         Assert.IsTrue(errors.Any(error => error.TargetType==typeof(Person)));
 
@@ -183,7 +183,7 @@ namespace Xtensive.Tests.Integrity
       using (var region = context.OpenInconsistentRegion()) {
         Person person = new Person();
         
-        AssertEx.Throws<ConstraintViolationException>(() =>
+        AssertEx.Throws<Validation.ConstraintViolationException>(() =>
           person.Name = "Bla-Bla-Bla longer than 20 characters.");
 
         person.Name = "Alex Kofman";

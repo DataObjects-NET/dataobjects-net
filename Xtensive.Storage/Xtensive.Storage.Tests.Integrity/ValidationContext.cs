@@ -6,7 +6,7 @@
 
 using Xtensive.Storage.Validation;
 
-namespace Xtensive.Tests.Integrity
+namespace Xtensive.Storage.Tests.Integrity
 {
   public class ValidationContext: ValidationContextBase
   {

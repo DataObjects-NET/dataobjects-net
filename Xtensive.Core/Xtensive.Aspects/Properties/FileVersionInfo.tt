@@ -88,6 +88,7 @@ using System.Reflection;
   string platform = productInfo["Platform"];
   string platformCode = productInfo["PlatformCode"];
   string version = productInfo["Version"];
+  string assemblyVersion = productInfo["AssemblyVersion"];
   string buildType = productInfo["BuildType"];
   string buildTypeTitle = productInfo["BuildTypeTitle"];
   string versionAndBuildType = buildType.Length==0
@@ -96,5 +97,6 @@ using System.Reflection;
 #>
 
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-<#= DateTime.Now.Year #>")]
-[assembly: AssemblyFileVersion("1.0.<#= rootRevision.Item1 #>.<#= rootRevision.Item2 #>")]
+[assembly: AssemblyVersion("<#= assemblyVersion #>")]
+[assembly: AssemblyFileVersion("<#= version #>.<#= rootRevision.Item1 #>")]
 [assembly: AssemblyInformationalVersion("<#= name #> <#= versionAndBuildType #> component, build <#= rootRevision.Item1 #> for <#= platform #>, build date: <#= DateTime.Now.ToString("d", DateTimeFormatInfo.InvariantInfo) #>")]

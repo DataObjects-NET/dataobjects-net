@@ -98,7 +98,7 @@ if (shouldFail.Contains(i))	{
       config.Types.Register(typeof(Model<#=i#>.Item).Assembly, typeof(Model<#=i#>.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
-      using (var session = Domain.OpenSession())
+      using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = new Model<#=i#>.Document();
         key = document.Key;
