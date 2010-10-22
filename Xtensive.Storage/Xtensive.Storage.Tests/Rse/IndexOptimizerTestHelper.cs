@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.Rse
 {
   public class IndexOptimizerTestHelper
   {
-    public static IndexInfo GetIndexForField<T>(string fieldName, DomainModel domainModel)
+    public static IndexInfo GetIndexForField<T>(string fieldName, Xtensive.Storage.Model.DomainModel domainModel)
     {
       var targetName = "_" + fieldName;
       return domainModel.Types[typeof (T)].Indexes.GetIndexesContainingAllData()

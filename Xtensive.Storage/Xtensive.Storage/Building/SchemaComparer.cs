@@ -13,11 +13,11 @@ using Xtensive.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Upgrade;
-using ColumnInfo=Xtensive.Storage.Indexing.Model.ColumnInfo;
-using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
+using ColumnInfo=Xtensive.Storage.StorageModel.ColumnInfo;
+using TypeInfo=Xtensive.Storage.StorageModel.TypeInfo;
 using UpgradeContext=Xtensive.Storage.Upgrade.UpgradeContext;
 using UpgradeStage=Xtensive.Modelling.Comparison.UpgradeStage;
 

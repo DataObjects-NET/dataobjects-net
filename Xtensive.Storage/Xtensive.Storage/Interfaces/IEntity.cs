@@ -34,7 +34,7 @@ namespace Xtensive.Storage
     int TypeId { get; }
 
     /// <summary>
-    /// Gets <see cref="Model.TypeInfo"/> object describing <see cref="Entity"/> structure.
+    /// Gets <see cref="Xtensive.Storage.Model.TypeInfo"/> object describing <see cref="Entity"/> structure.
     /// </summary>
     TypeInfo TypeInfo { get; }
 

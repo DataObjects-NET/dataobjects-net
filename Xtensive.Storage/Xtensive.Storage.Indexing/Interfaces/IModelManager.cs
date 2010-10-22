@@ -5,7 +5,7 @@
 // Created:    2009.03.16
 
 using Xtensive.Storage.Indexing;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Modelling.Actions;
 
 namespace Xtensive.Storage.Indexing

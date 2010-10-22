@@ -15,10 +15,10 @@ using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Upgrade;
-using ModelTypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
+using ModelTypeInfo = Xtensive.Storage.StorageModel.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {

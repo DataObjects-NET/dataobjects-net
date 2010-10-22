@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Storage.Indexing;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.All

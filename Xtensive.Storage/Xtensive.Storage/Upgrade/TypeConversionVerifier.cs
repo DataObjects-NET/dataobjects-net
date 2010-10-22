@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 
 namespace Xtensive.Storage.Upgrade
 {

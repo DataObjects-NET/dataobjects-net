@@ -11,7 +11,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {

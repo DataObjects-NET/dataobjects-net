@@ -6,7 +6,7 @@
 
 using Xtensive.Core;
 using Xtensive.Storage;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using NUnit.Framework;
 using Xtensive.Testing;
 

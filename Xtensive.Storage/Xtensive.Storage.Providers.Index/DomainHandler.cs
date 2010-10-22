@@ -22,7 +22,7 @@ using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using IndexInfo = Xtensive.Storage.Model.IndexInfo;
 using PF = Xtensive.Storage.Providers.ProviderFeatures;
-using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using StorageIndexInfo = Xtensive.Storage.StorageModel.IndexInfo;
 using TypeInfo = Xtensive.Storage.Model.TypeInfo;
 
 
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <summary>
-    /// Gets the <see cref="Indexing.Model.IndexInfo"/>
+    /// Gets the <see cref="Xtensive.Storage.StorageModel.IndexInfo"/>
     /// by <see cref="IndexInfoRef"/>. 
     /// </summary>
     /// <param name="indexInfoRef">The index info.</param>

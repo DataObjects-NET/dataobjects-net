@@ -13,7 +13,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Providers.Index;
 
 namespace Xtensive.Storage.Providers.Index

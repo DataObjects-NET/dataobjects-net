@@ -13,14 +13,14 @@ using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Indexing.Model;
-using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
-using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using Xtensive.Storage.StorageModel;
+using ColumnInfo = Xtensive.Storage.StorageModel.ColumnInfo;
+using IndexInfo = Xtensive.Storage.StorageModel.IndexInfo;
 using Node = Xtensive.Sql.Model.Node;
-using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
+using ReferentialAction = Xtensive.Storage.StorageModel.ReferentialAction;
+using SequenceInfo = Xtensive.Storage.StorageModel.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
-using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
+using TableInfo = Xtensive.Storage.StorageModel.TableInfo;
 using Xtensive.Collections;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -267,7 +267,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <summary>
     /// Converts the <see cref="Xtensive.Sql.ReferentialAction"/> to 
-    /// <see cref="Xtensive.Storage.Indexing.Model.ReferentialAction"/>.
+    /// <see cref="Xtensive.Storage.StorageModel.ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>

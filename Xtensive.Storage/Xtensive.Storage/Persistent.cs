@@ -71,7 +71,7 @@ namespace Xtensive.Storage
     private IFieldValueAdapter[] fieldAdapters;
 
     /// <summary>
-    /// Gets <see cref="Model.TypeInfo"/> object describing structure of persistent object.
+    /// Gets <see cref="Xtensive.Storage.Model.TypeInfo"/> object describing structure of persistent object.
     /// </summary>
     [Infrastructure]
     public abstract TypeInfo TypeInfo { get; }

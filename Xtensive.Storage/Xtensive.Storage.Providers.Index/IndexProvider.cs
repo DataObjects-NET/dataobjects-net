@@ -11,7 +11,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Rse.Providers;
-using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using StorageIndexInfo = Xtensive.Storage.StorageModel.IndexInfo;
 
 namespace Xtensive.Storage.Providers.Index
 {

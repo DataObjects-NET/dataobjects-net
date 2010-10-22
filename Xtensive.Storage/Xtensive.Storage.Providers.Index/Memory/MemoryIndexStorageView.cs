@@ -11,7 +11,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Transactions;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

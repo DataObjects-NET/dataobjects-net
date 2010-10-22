@@ -14,7 +14,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Indexing;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Comparison;
 using Xtensive.Collections;
 using Xtensive.Tuples.Transform;

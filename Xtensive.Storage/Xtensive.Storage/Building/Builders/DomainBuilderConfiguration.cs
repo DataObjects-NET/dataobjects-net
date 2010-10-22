@@ -12,7 +12,7 @@ using Xtensive.IoC;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 
 namespace Xtensive.Storage.Building.Builders
 {

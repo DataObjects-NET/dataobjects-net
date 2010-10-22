@@ -13,22 +13,22 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 using FullTextIndexInfo = Xtensive.Storage.Model.FullTextIndexInfo;
 using IndexInfo = Xtensive.Storage.Model.IndexInfo;
-using IndexingModel = Xtensive.Storage.Indexing.Model;
-using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
+using IndexingModel = Xtensive.Storage.StorageModel;
+using ReferentialAction = Xtensive.Storage.StorageModel.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
 using TypeInfo = Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
-  /// Converts <see cref="Storage.Model.DomainModel"/> to indexing storage model.
+  /// Converts <see cref="Xtensive.Storage.Model.DomainModel"/> to indexing storage model.
   /// </summary>
   internal sealed class DomainModelConverter : ModelVisitor<IPathNode>
   {
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Upgrade
     private IndexingModel.TableInfo CurrentTable { get; set; }
 
     /// <summary>
-    /// Converts the specified <see cref="Storage.Model.DomainModel"/> to
+    /// Converts the specified <see cref="Xtensive.Storage.Model.DomainModel"/> to
     /// <see cref="StorageInfo"/>.
     /// </summary>
     /// <param name="domainModel">The domain model.</param>
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Upgrade
 
     #region Helper methods
 
-    private object GetColumnDefaultValue(ColumnInfo column, Indexing.Model.TypeInfo typeInfo)
+    private object GetColumnDefaultValue(ColumnInfo column, IndexingModel.TypeInfo typeInfo)
     {
       if (column.DefaultValue!=null)
         return column.DefaultValue;
@@ -406,7 +406,7 @@ namespace Xtensive.Storage.Upgrade
 
     /// <summary>
     /// Converts the <see cref="Xtensive.Storage.OnRemoveAction"/> to 
-    /// <see cref="Xtensive.Storage.Indexing.Model.ReferentialAction"/>.
+    /// <see cref="Xtensive.Storage.StorageModel.ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>
@@ -430,7 +430,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="table">The table.</param>
     /// <param name="keyColumns">The key columns.</param>
     /// <returns>The index.</returns>
-    private static Indexing.Model.IndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
+    private static IndexingModel.IndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
     {
       IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
       if (primaryKeyColumns.Except(keyColumns)
@@ -515,7 +515,7 @@ namespace Xtensive.Storage.Upgrade
       return primaryIndexColumnName;
     }
 
-    private static void CreateForeignKey(TableInfo referencingTable, string foreignKeyName, TableInfo referencedTable, Indexing.Model.IndexInfo referencingIndex)
+    private static void CreateForeignKey(TableInfo referencingTable, string foreignKeyName, TableInfo referencedTable, IndexingModel.IndexInfo referencingIndex)
     {
       var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
@@ -555,7 +555,7 @@ namespace Xtensive.Storage.Upgrade
       Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator, 
       bool buildHierarchyForeignKeys, 
       Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator, 
-      Func<Type, int?, int?, int?, Indexing.Model.TypeInfo> typeBuilder)
+      Func<Type, int?, int?, int?, IndexingModel.TypeInfo> typeBuilder)
     {
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
       if (buildForeignKeys)

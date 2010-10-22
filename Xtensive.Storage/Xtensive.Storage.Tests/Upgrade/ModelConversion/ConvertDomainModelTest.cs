@@ -8,11 +8,11 @@ using NUnit.Framework;
 using System;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;
-using TypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
+using TypeInfo = Xtensive.Storage.StorageModel.TypeInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {

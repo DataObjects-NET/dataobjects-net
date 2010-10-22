@@ -20,13 +20,13 @@ using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Providers.Sql.Resources;
-using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
-using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
+using ColumnInfo = Xtensive.Storage.StorageModel.ColumnInfo;
+using ReferentialAction = Xtensive.Storage.StorageModel.ReferentialAction;
+using SequenceInfo = Xtensive.Storage.StorageModel.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
-using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
+using TableInfo = Xtensive.Storage.StorageModel.TableInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {

@@ -8,7 +8,7 @@ using Xtensive.Tuples;
 using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 
 namespace Xtensive.Storage.Indexing
 {

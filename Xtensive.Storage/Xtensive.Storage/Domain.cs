@@ -15,7 +15,7 @@ using Xtensive.Disposing;
 using Xtensive.IoC;
 using Xtensive.Threading;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
@@ -23,7 +23,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
-using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
+using TypeInfo=Xtensive.Storage.StorageModel.TypeInfo;
 
 namespace Xtensive.Storage
 {

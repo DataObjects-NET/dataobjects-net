@@ -14,7 +14,7 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.StorageModel;
 using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Upgrade
