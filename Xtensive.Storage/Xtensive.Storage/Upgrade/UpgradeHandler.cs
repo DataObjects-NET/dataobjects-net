@@ -79,8 +79,8 @@ namespace Xtensive.Storage.Upgrade
         case UpgradeStage.Initializing:
           break;
         case UpgradeStage.Upgrading:
-          AddAutoHints(context.Hints);
           AddUpgradeHints(context.Hints);
+          AddAutoHints(context.Hints);
           break;
         case UpgradeStage.Final:
           break;
@@ -236,7 +236,15 @@ namespace Xtensive.Storage.Upgrade
           string ns = TryStripRecycledSuffix(r.Type.Namespace);
           oldName = ns + "." + oldName;
         }
-        hints.Add(new RenameTypeHint(oldName, r.Type));
+        var renameHint = new RenameTypeHint(oldName, r.Type);
+        var similarHints =
+          from h in hints
+          let similarHint = h as RenameTypeHint
+          where similarHint!=null
+          where similarHint.NewType==renameHint.NewType
+          select similarHint;
+        if (!similarHints.Any())
+          hints.Add(renameHint);
         // TODO: Add table rename hint as well
       }
 

@@ -462,15 +462,17 @@ namespace Xtensive.Storage.Upgrade
       // Removes TypeId field ( = column) from hierarchies with ConcreteTable inheritance mapping
       var result = new List<UpgradeHint>();
       var types =
-        from p in typeMapping
-        let sourceHierarchy = p.Key.Hierarchy
-        let targetHierarchy = p.Value.Hierarchy
+        from pair in typeMapping
+        let sourceHierarchy = pair.Key.Hierarchy
+        let targetHierarchy = pair.Value.Hierarchy
         where
           targetHierarchy != null && sourceHierarchy != null &&
           targetHierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable
-        select p.Key;
+        select pair.Key;
       foreach (var type in types) {
-        var typeIdField = type.Fields.Single(f => f.IsTypeId);
+        var typeIdField = type.Fields.SingleOrDefault(f => f.IsTypeId);
+        if (typeIdField==null) // Table of old type may not contain TypeId
+          continue;
         var targetType = typeMapping[type];
         var targetTypeIdField = targetType.Fields.Single(f => f.IsTypeId);
         if (targetTypeIdField.IsPrimaryKey)
@@ -599,7 +601,7 @@ namespace Xtensive.Storage.Upgrade
 
     private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes)
     {
-      removedTypes.ForEach(GenerateCleanupByForegnKeyHints);
+      removedTypes.Where(IsRemoved).ForEach(GenerateCleanupByForegnKeyHints);
       removedTypes.ForEach(GenerateCleanupByPrimaryKeyHints);
     }
 
@@ -609,7 +611,8 @@ namespace Xtensive.Storage.Upgrade
       var hierarchy = removedType.Hierarchy;
       switch (hierarchy.InheritanceSchema) {
       case InheritanceSchema.ClassTable:
-        typesToProcess.Add(removedType);
+        if (!IsMovedToAnotherHierarchy(removedType))
+          typesToProcess.Add(removedType);
         typesToProcess.AddRange(removedType.AllAncestors);
         break;
       case InheritanceSchema.SingleTable:
@@ -866,6 +869,20 @@ namespace Xtensive.Storage.Upgrade
       return !fieldMapping.ContainsKey(field);
     }
 
+    private bool IsMovedToAnotherHierarchy(StoredTypeInfo oldType)
+    {
+      var newType = typeMapping.GetValueOrDefault(oldType);
+      if (newType==null)
+        return false; // Type is removed
+      var oldRoot = oldType.Hierarchy.Root;
+      if (oldRoot==null)
+        return false; // Just to be sure
+      var newRoot = newType.Hierarchy.Root;
+      if (newRoot==null)
+        return false; // Just to be sure
+      return newRoot!=typeMapping.GetValueOrDefault(oldRoot);
+    }
+
     private void RegisterRenameTableHint(string oldTableName, string newTableName)
     {
       if (EnsureTableExist(oldTableName))
@@ -921,7 +938,7 @@ namespace Xtensive.Storage.Upgrade
       return (
         from type in GetNonConnectorTypes(model)
         where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
-        where IsRemoved(type)
+        where IsRemoved(type) || IsMovedToAnotherHierarchy(type)
         select type
         ).ToList();
     }
