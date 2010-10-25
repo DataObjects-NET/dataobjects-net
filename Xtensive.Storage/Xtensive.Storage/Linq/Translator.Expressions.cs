@@ -140,9 +140,11 @@ namespace Xtensive.Storage.Linq
         state.CalculateExpressions = false;
         expression = Visit(ma.Expression);
       }
+
       expression = expression.IsProjection()
-        ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
-        : ProcessProjectionElement(expression);
+      ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
+      : ProcessProjectionElement(expression);
+
 
       if (state.SetOperationProjection)
         expression = ProcessProjectionElement(expression);
@@ -759,8 +761,7 @@ namespace Xtensive.Storage.Linq
         if (found)
           return body;
 
-        if (body.Type.IsEnum)
-          body = new EnumRewriter().Visit(body);
+        body = new EnumRewriter().Visit(body);
         var convertExpression = Expression.Convert(body, typeof (object));
 
         var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
@@ -912,7 +913,7 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException(
             string.Format(Strings.ExCouldNotGetMemberXFromExpression,
               member));
-        Expression argument = newExpression.Arguments[memberIndex];
+        Expression argument = Visit(newExpression.Arguments[memberIndex]);
         return isMarker
           ? new MarkerExpression(argument, markerType)
           : argument;
@@ -938,6 +939,7 @@ namespace Xtensive.Storage.Linq
       case ExtendedExpressionType.Constructor:
         if (!((ConstructorExpression) extendedExpression).Bindings.TryGetValue(member, out result))
           throw new InvalidOperationException(String.Format(Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer, member.Name, member.ReflectedType.Name));
+        result = Visit(result);
         break;
       case ExtendedExpressionType.Structure:
       case ExtendedExpressionType.StructureField:
