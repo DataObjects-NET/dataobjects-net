@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NullableGroupingKeyTest()
     {
+      var k = Query.All<Order>().GroupBy(o => o.Freight, o => o.ShippingAddress.City).Select(g => g);
+
       var grouping = Query.All<Order>().GroupBy(p => p.ProcessingTime).FirstOrDefault(g=>g.Key==null);
       Assert.IsNotNull(grouping);
       Assert.IsTrue(grouping.Count()> 0);
