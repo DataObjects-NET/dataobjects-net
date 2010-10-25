@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void AnonimousTest()
     {
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Tests.Issues
             g => new {
               Year = g.Year
             });
-
+          session.Persist();
           var result = query.ToList();
           Assert.AreEqual(1, result.Count);
         }

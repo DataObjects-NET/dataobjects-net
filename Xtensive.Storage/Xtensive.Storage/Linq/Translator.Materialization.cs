@@ -173,8 +173,8 @@ namespace Xtensive.Storage.Linq
           body = Visit(argument);
         }
         body = body.IsProjection()
-                 ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
-                 : ProcessProjectionElement(body);
+                  ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+                  : ProcessProjectionElement(body);
         arguments.Add(body);
       }
       var constructorParameters = n.Constructor.GetParameters();
