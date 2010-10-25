@@ -140,11 +140,11 @@ namespace Xtensive.Storage.Linq
       using (state.CreateScope()) {
         state.CalculateExpressions = false;
         expression = Visit(ma.Expression);
-
-        expression = expression.IsProjection()
-        ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
-        : ProcessProjectionElement(expression);
       }
+
+      expression = expression.IsProjection()
+      ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
+      : ProcessProjectionElement(expression);
 
 
       if (state.SetOperationProjection)
