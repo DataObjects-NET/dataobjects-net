@@ -150,6 +150,7 @@ namespace Xtensive.Modelling.Comparison
           ProcessStage(UpgradeStage.TemporaryRename, actions);
           ProcessStage(UpgradeStage.Upgrade, actions);
           ProcessStage(UpgradeStage.CopyData, actions);
+          ProcessStage(UpgradeStage.PostCopyData, actions);
           ProcessStage(UpgradeStage.Cleanup, actions);
 
           var validationHints = new HintSet(CurrentModel, TargetModel);
@@ -271,10 +272,15 @@ namespace Xtensive.Modelling.Comparison
       switch (Stage) {
       case UpgradeStage.CleanupData:
         if (difference.IsDataChanged) {
-          Hints.GetHints<UpdateDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
-            .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
-          Hints.GetHints<DeleteDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
-            .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+          Hints.GetHints<UpdateDataHint>(difference.Source)
+            .Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .ForEach(hint => AddAction(UpgradeActionType.Regular, 
+              new DataAction {DataHint = hint}));
+          Hints.GetHints<DeleteDataHint>(difference.Source)
+            .Where(hint => !hint.PostCopy)
+            .Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .ForEach(hint => AddAction(UpgradeActionType.Regular, 
+              new DataAction {DataHint = hint}));
         }
         break;
       case UpgradeStage.Prepare:
@@ -308,6 +314,15 @@ namespace Xtensive.Modelling.Comparison
       case UpgradeStage.CopyData:
         Hints.GetHints<CopyDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
           .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+        break;
+      case UpgradeStage.PostCopyData:
+        if (difference.IsDataChanged) {
+          Hints.GetHints<DeleteDataHint>(difference.Source)
+            .Where(hint => hint.PostCopy)
+            .Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .ForEach(hint => AddAction(UpgradeActionType.Regular,
+              new DataAction {DataHint = hint}));
+        }
         break;
       case UpgradeStage.Upgrade:
         if (target==null)
@@ -486,6 +501,7 @@ namespace Xtensive.Modelling.Comparison
       case UpgradeStage.Upgrade:
         return !isRemoveOnPrepare && (isCreated || isNameChanged);
       case UpgradeStage.CopyData:
+      case UpgradeStage.PostCopyData:
         return difference.IsDataChanged;
       case UpgradeStage.Cleanup:
         return isRemoved;
@@ -734,11 +750,21 @@ namespace Xtensive.Modelling.Comparison
         Hints.Add(newCopyDataHint);
       }
 
+      // Process DeleteDataHints
+      foreach (var deleteDataHint in originalHints.OfType<DeleteDataHint>()) {
+        if (!deleteDataHint.PostCopy)
+          continue; // It's not necessary to copy this hint
+        var sourceTablePath = GetActualPath(deleteDataHint.SourceTablePath);
+        var identities = deleteDataHint.Identities.Select(pair => 
+          new IdentityPair(GetActualPath(pair.Source), pair.Target, pair.IsIdentifiedByConstant))
+          .ToList();
+        var newDeleteDataHint = new DeleteDataHint(sourceTablePath, identities, true);
+        Hints.Add(newDeleteDataHint);
+      }
+
       // Process IgnoreHints
       foreach (var ignoreHint in originalHints.OfType<IgnoreHint>())
         Hints.Add(ignoreHint);
-      
-      // DeleteDataHints are not needed now.
     }
 
     private string GetActualPath(string oldNodePath)

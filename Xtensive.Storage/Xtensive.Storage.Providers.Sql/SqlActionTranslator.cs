@@ -58,7 +58,8 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<string> preUpgradeCommands = new List<string>();
     private readonly List<string> upgradeCommands = new List<string>();
     private readonly List<string> copyDataCommands = new List<string>();
-    private readonly List<string> postUpgradeCommands = new List<string>();
+    private readonly List<string> postCopyDataCommands = new List<string>();
+    private readonly List<string> cleanupCommands = new List<string>();
     private readonly List<string> nonTransactionalEpilogCommands = new List<string>();
     private readonly List<string> nonTransactionalPrologCommands = new List<string>();
     
@@ -123,15 +124,27 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Gets the post upgrade commands, thats
-    /// must be executed after data manipulate commands.
+    /// Gets the data cleanup commands.
     /// </summary>
-    public List<string> PostUpgradeCommands
+    public List<string> PostCopyDataCommands
     {
       get
       {
         EnsureCommandsAreTranslated();
-        return postUpgradeCommands;
+        return postCopyDataCommands;
+      }
+    }
+
+    /// <summary>
+    /// Gets the post upgrade commands, thats
+    /// must be executed after data manipulate commands.
+    /// </summary>
+    public List<string> CleanupCommands
+    {
+      get
+      {
+        EnsureCommandsAreTranslated();
+        return cleanupCommands;
       }
     }
 
@@ -174,37 +187,51 @@ namespace Xtensive.Storage.Providers.Sql
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.CleanupData.ToString());
       if (cleanupData!=null)
         VisitAction(cleanupData);
-      ProcessClearDataActions();
+      ProcessClearDataActions(false);
+
       // Prepairing
       stage = UpgradeStage.Prepare;
-      var prepare = actions.OfType<GroupingNodeAction>()
+      var prepareActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
-      if (prepare!=null)
-        VisitAction(prepare);
+      if (prepareActions!=null)
+        VisitAction(prepareActions);
+
       // Mutual renaming
       stage = UpgradeStage.TemporaryRename;
-      var cycleRename = actions.OfType<GroupingNodeAction>()
+      var renameActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.TemporaryRename.ToString());
-      if (cycleRename!=null)
-        VisitAction(cycleRename);
+      if (renameActions!=null)
+        VisitAction(renameActions);
+
       // Upgrading
       stage = UpgradeStage.Upgrade;
-      var upgrade = actions.OfType<GroupingNodeAction>()
+      var upgradeActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Upgrade.ToString());
-      if (upgrade!=null)
-        VisitAction(upgrade);
+      if (upgradeActions!=null)
+        VisitAction(upgradeActions);
+
       // Copying data
       stage = UpgradeStage.CopyData;
-      var dataManipulate = actions.OfType<GroupingNodeAction>()
+      var copyDataActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.CopyData.ToString());
-      if (dataManipulate!=null)
-        VisitAction(dataManipulate);
+      if (copyDataActions!=null)
+        VisitAction(copyDataActions);
+
+      // Post copying data
+      stage = UpgradeStage.PostCopyData;
+      var postCopyDataActions = actions.OfType<GroupingNodeAction>()
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.PostCopyData.ToString());
+      if (postCopyDataActions!=null)
+        VisitAction(postCopyDataActions);
+      ProcessClearDataActions(true);
+
       // Cleanup
       stage = UpgradeStage.Cleanup;
-      var cleanup = actions.OfType<GroupingNodeAction>()
+      var cleanupActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Cleanup.ToString());
-      if (cleanup!=null)
-        VisitAction(cleanup);
+      if (cleanupActions!=null)
+        VisitAction(cleanupActions);
+
       // Turn on deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred), NonTransactionalStage.None);
@@ -681,12 +708,24 @@ namespace Xtensive.Storage.Providers.Sql
       table.Indexes.Remove(ftIndex);
     }
 
-    private void ProcessClearDataActions()
+    private void ProcessClearDataActions(bool postCopy)
     {
-      var updateActions = clearDataActions.Where(action => action.DataHint is UpdateDataHint).ToList();
+      var updateActions = (
+        from action in clearDataActions
+        let updateDataHint = action.DataHint as UpdateDataHint
+        where updateDataHint!=null
+        select action
+        ).ToList();
+      var deleteActions = (
+        from action in clearDataActions
+        let deleteDataHint = action.DataHint as DeleteDataHint
+        where deleteDataHint!=null && deleteDataHint.PostCopy==postCopy
+        select action
+        ).ToList();
+
       var deleteFromConnectorTableActions = new List<DataAction>();
       var deleteFromAncestorTableActions = new List<DataAction>();
-      foreach (var deleteAction in clearDataActions.Where(action => action.DataHint is DeleteDataHint)) {
+      foreach (var deleteAction in deleteActions) {
         var hint = deleteAction.DataHint as DeleteDataHint;
         if (hint.Identities.Any(pair => !pair.IsIdentifiedByConstant))
           deleteFromConnectorTableActions.Add(deleteAction);
@@ -694,12 +733,17 @@ namespace Xtensive.Storage.Providers.Sql
           deleteFromAncestorTableActions.Add(deleteAction);
       }
 
-      updateActions.ForEach(ProcessUpdateDataAction);
-      deleteFromConnectorTableActions.ForEach(ProcessDeleteDataAction);
-      ProcessClearAncestorsActions(deleteFromAncestorTableActions);
+      updateActions.ForEach(
+        a => ProcessUpdateDataAction(a, postCopy));
+      deleteFromConnectorTableActions.ForEach(
+        a => ProcessDeleteDataAction(a, postCopy));
+      ProcessClearAncestorsActions(deleteFromAncestorTableActions, postCopy);
+      
+      // Necessary, since this method is called twice on upgrade
+      clearDataActions.Clear();
     }
 
-    private void ProcessDeleteDataAction(DataAction action)
+    private void ProcessDeleteDataAction(DataAction action, bool postCopy)
     {
       var hint = action.DataHint as DeleteDataHint;
       var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath, true) as TableInfo;
@@ -708,12 +752,16 @@ namespace Xtensive.Storage.Providers.Sql
       
       delete.Where = CreateConditionalExpression(hint, table);
 
-      RegisterCommand(delete, UpgradeStage.CleanupData, NonTransactionalStage.None);
+      RegisterCommand(delete, 
+        postCopy ? 
+          UpgradeStage.PostCopyData : 
+          UpgradeStage.CleanupData, 
+        NonTransactionalStage.None);
     }
 
     /// <exception cref="InvalidOperationException">Can not create update command 
     /// with specific hint parameters.</exception>
-    private void ProcessUpdateDataAction(DataAction action)
+    private void ProcessUpdateDataAction(DataAction action, bool postCopy)
     {
       var hint = action.DataHint as  UpdateDataHint;
       var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath, true) as TableInfo;
@@ -734,10 +782,14 @@ namespace Xtensive.Storage.Providers.Sql
 
       update.Where = CreateConditionalExpression(hint, table);
       
-      RegisterCommand(update, UpgradeStage.CleanupData, NonTransactionalStage.None);
+      RegisterCommand(update, 
+        postCopy ? 
+          UpgradeStage.PostCopyData : 
+          UpgradeStage.CleanupData,
+        NonTransactionalStage.None);
     }
 
-    private void ProcessClearAncestorsActions(List<DataAction> originalActions)
+    private void ProcessClearAncestorsActions(List<DataAction> originalActions, bool postCopy)
     {
       if (originalActions.Count==0)
         return;
@@ -778,7 +830,11 @@ namespace Xtensive.Storage.Providers.Sql
         var typeIds = deleteActions[table];
         foreach (var typeId in typeIds)
           delete.Where |= tableRef[typeIdColumnName]==typeId;
-        RegisterCommand(delete, UpgradeStage.CleanupData, NonTransactionalStage.None);
+        RegisterCommand(delete, 
+          postCopy ? 
+            UpgradeStage.PostCopyData : 
+            UpgradeStage.CleanupData,
+          NonTransactionalStage.None);
       }
     }
 
@@ -1100,10 +1156,15 @@ namespace Xtensive.Storage.Providers.Sql
             copyDataCommands.Add(string.Empty);
           copyDataCommands.Add(commandText);
           break;
+        case UpgradeStage.PostCopyData:
+          if (inNewBatch)
+            postCopyDataCommands.Add(string.Empty);
+          postCopyDataCommands.Add(commandText);
+          break;
         case UpgradeStage.Cleanup:
           if (inNewBatch)
-            postUpgradeCommands.Add(string.Empty);
-          postUpgradeCommands.Add(commandText);
+            cleanupCommands.Add(string.Empty);
+          cleanupCommands.Add(commandText);
           break;
       }
     }

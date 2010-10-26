@@ -67,7 +67,8 @@ namespace Xtensive.Storage.Providers.Sql
       Execute(translator.PreUpgradeCommands);
       Execute(translator.UpgradeCommands);
       Execute(translator.CopyDataCommands);
-      Execute(translator.PostUpgradeCommands);
+      Execute(translator.PostCopyDataCommands);
+      Execute(translator.CleanupCommands);
 
       if (translator.NonTransactionalEpilogCommands.Count > 0) {
         context.TransactionScope.Complete();
@@ -154,7 +155,8 @@ namespace Xtensive.Storage.Providers.Sql
         .Concat(translator.PreUpgradeCommands)
         .Concat(translator.UpgradeCommands)
         .Concat(translator.CopyDataCommands)
-        .Concat(translator.PostUpgradeCommands)
+        .Concat(translator.PostCopyDataCommands)
+        .Concat(translator.CleanupCommands)
         .Concat(EnumerableUtils.One(Driver.BatchEnd))
         .ToArray();
 
