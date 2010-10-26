@@ -4,11 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Xtensive.IoC;
+using Xtensive.Orm;
 using Xtensive.Reflection;
 using Xtensive.Practices.Localization.Internals;
 using Xtensive.Practices.Localization.Model;
-using Xtensive.Storage;
-using Xtensive.Storage.Configuration;
+using Xtensive.Orm.Configuration;
 using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.Practices.Localization
@@ -79,14 +79,14 @@ namespace Xtensive.Practices.Localization
           // Enumerating through localization scope activation
           Console.WriteLine(string.Format("Switching to {0} using LocalizationScope", English.Name));
           using (new LocalizationScope(English))
-            foreach (var page in Xtensive.Storage.Query.All<Page>())
+            foreach (var page in Xtensive.Orm.Query.All<Page>())
               Console.WriteLine(string.Format("{0} {1}", page.Title, page.Content));
           Console.WriteLine();
 
           // Enumerating using Thread.Current.CurrentCulture change
           Console.WriteLine(string.Format("Switching to {0} using Thread.Current.CurrentCulture", Spanish.Name));
           Thread.CurrentThread.CurrentCulture = Spanish;
-          foreach (var page in Xtensive.Storage.Query.All<Page>())
+          foreach (var page in Xtensive.Orm.Query.All<Page>())
             Console.WriteLine(string.Format("{0} {1}", page.Title, page.Content));
           Thread.CurrentThread.CurrentCulture = English;
           Console.WriteLine();
@@ -103,7 +103,7 @@ namespace Xtensive.Practices.Localization
         using (var ts = Transaction.Open()) {
 
           Console.WriteLine("Implicit join through preprocessor");
-          var pages = from p in Xtensive.Storage.Query.All<Page>()
+          var pages = from p in Xtensive.Orm.Query.All<Page>()
           where p.Title=="Welcome!"
           select p;
           Console.WriteLine(pages.ToList().Count);
@@ -113,8 +113,8 @@ namespace Xtensive.Practices.Localization
 
         Console.WriteLine("Explicit hard-coded join");
         using (var ts = Transaction.Open()) {
-          var pages = from p in Xtensive.Storage.Query.All<Page>()
-          join pl in Xtensive.Storage.Query.All<PageLocalization>()
+          var pages = from p in Xtensive.Orm.Query.All<Page>()
+          join pl in Xtensive.Orm.Query.All<PageLocalization>()
             on p equals pl.Target
           where pl.CultureName==LocalizationContext.Current.CultureName && pl.Title=="Welcome!"
           select p;
@@ -142,7 +142,7 @@ namespace Xtensive.Practices.Localization
         using (var ts = Transaction.Open()) {
 
           Console.WriteLine("Implicit join through preprocessor");
-          var pages = from p in Xtensive.Storage.Query.All<MyPage>()
+          var pages = from p in Xtensive.Orm.Query.All<MyPage>()
           where p.MyContent=="Some my content"
           select p;
           Console.WriteLine(pages.ToList().Count);
@@ -152,8 +152,8 @@ namespace Xtensive.Practices.Localization
 
         Console.WriteLine("Explicit hard-coded join");
         using (var ts = Transaction.Open()) {
-          var pages = from p in Xtensive.Storage.Query.All<MyPage>()
-          join pl in Xtensive.Storage.Query.All<PageLocalization>()
+          var pages = from p in Xtensive.Orm.Query.All<MyPage>()
+          join pl in Xtensive.Orm.Query.All<PageLocalization>()
             on p equals pl.Target
           where pl.CultureName==LocalizationContext.Current.CultureName && pl.MyContent=="Some my content"
           select p;

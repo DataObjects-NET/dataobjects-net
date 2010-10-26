@@ -5,7 +5,7 @@
 // Created:    2009.12.16
 
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Storage;
+using Xtensive.Orm;
 
 namespace Xtensive.Practices.Localization
 {

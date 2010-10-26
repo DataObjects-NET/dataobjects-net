@@ -8,7 +8,7 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
-using Xtensive.Storage;
+using Xtensive.Orm;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Practices.Localization.Internals

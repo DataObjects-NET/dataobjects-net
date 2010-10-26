@@ -5,7 +5,7 @@
 // Created:    2009.11.27
 
 using System;
-using Xtensive.Storage;
+using Xtensive.Orm;
 
 namespace Xtensive.Practices.Localization.Model
 {
