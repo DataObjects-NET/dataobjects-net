@@ -14,10 +14,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0841_HintGeneratorBug.Model.Versio
   public class Derived : Entity
   {
     [Field, Key]
-    public long Id {get; private set;}
+    public long Id { get; private set; }
 
     [Field]
-    public string Text {get;set;}
+    public string Text { get;set; }
   }
 
   [HierarchyRoot]
@@ -25,6 +25,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0841_HintGeneratorBug.Model.Versio
   public class RecycledBase : Entity
   {
     [Field, Key]
-    public long Id {get; private set;}
+    public long Id { get; private set; }
   }
 }

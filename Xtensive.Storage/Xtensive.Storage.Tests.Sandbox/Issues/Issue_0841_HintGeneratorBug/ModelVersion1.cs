@@ -12,12 +12,12 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0841_HintGeneratorBug.Model.Versio
   public class Base : Entity
   {
     [Field, Key]
-    public long Id {get; private set;}
+    public long Id { get; private set; }
   }
 
   public class Derived : Base
   {
     [Field]
-    public string Text {get;set;}
+    public string Text { get;set; }
   }
 }

@@ -14,22 +14,22 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Versio
   public class Base : Entity
   {
     [Field, Key]
-    public long Id {get; private set;}
+    public long Id { get; private set; }
 
     [Field]
-    public string BaseTitle {get;set;}
+    public string BaseTitle { get;set; }
   }
 
   [HierarchyRoot]
   public class Derived : Entity
   {
     [Field, Key]
-    public long Id {get; private set;}
+    public long Id { get; private set; }
 
     [Field]
-    public string BaseTitle {get;set;}
+    public string BaseTitle { get;set; }
 
     [Field]
-    public string DerivedTitle {get;set;}
+    public string DerivedTitle { get;set; }
   }
 }

@@ -71,7 +71,10 @@ namespace Xtensive.Storage.Upgrade
       GenerateCopyColumnHints(copyFieldHints);
 
       var removedTypes = GetRemovedTypes(storedModel);
-      GenerateRecordCleanupHints(removedTypes);
+      GenerateRecordCleanupHints(removedTypes, false);
+      
+      var movedTypes = GetMovedTypes(storedModel);
+      GenerateRecordCleanupHints(movedTypes, true);
       
       // Adding useful info
 
@@ -599,19 +602,20 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
-    private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes)
+    private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes, bool isMovedToAnotherHierarchy)
     {
-      removedTypes.Where(IsRemoved).ForEach(GenerateCleanupByForegnKeyHints);
-      removedTypes.ForEach(GenerateCleanupByPrimaryKeyHints);
+      if (!isMovedToAnotherHierarchy)
+        removedTypes.ForEach(GenerateCleanupByForegnKeyHints);
+      removedTypes.ForEach(type => GenerateCleanupByPrimaryKeyHints(type, isMovedToAnotherHierarchy));
     }
 
-    private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType)
+    private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType, bool isMovedToAnotherHierarchy)
     {
       var typesToProcess = new List<StoredTypeInfo>();
       var hierarchy = removedType.Hierarchy;
       switch (hierarchy.InheritanceSchema) {
       case InheritanceSchema.ClassTable:
-        if (!IsMovedToAnotherHierarchy(removedType))
+        if (!isMovedToAnotherHierarchy)
           typesToProcess.Add(removedType);
         typesToProcess.AddRange(removedType.AllAncestors);
         break;
@@ -634,7 +638,8 @@ namespace Xtensive.Storage.Upgrade
             GetColumnPath(tableName, GetTypeIdMappingName(type)),
             removedType.TypeId.ToString(),
             true));
-        schemaHints.Add(new DeleteDataHint(sourceTablePath, identities));
+        schemaHints.Add(
+          new DeleteDataHint(sourceTablePath, identities, isMovedToAnotherHierarchy));
       }
     }
     
@@ -938,7 +943,17 @@ namespace Xtensive.Storage.Upgrade
       return (
         from type in GetNonConnectorTypes(model)
         where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
-        where IsRemoved(type) || IsMovedToAnotherHierarchy(type)
+        where IsRemoved(type)
+        select type
+        ).ToList();
+    }
+
+    private List<StoredTypeInfo> GetMovedTypes(StoredDomainModel model)
+    {
+      return (
+        from type in GetNonConnectorTypes(model)
+        where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
+        where IsMovedToAnotherHierarchy(type)
         select type
         ).ToList();
     }

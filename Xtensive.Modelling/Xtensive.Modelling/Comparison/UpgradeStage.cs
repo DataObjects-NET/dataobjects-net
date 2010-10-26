@@ -32,6 +32,10 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     CopyData,
     /// <summary>
+    /// Post copy data.
+    /// </summary>
+    PostCopyData,
+    /// <summary>
     /// Remove structures thats have not been 
     /// removed on <see cref="UpgradeStage.Prepare"/> stage.
     /// </summary>
