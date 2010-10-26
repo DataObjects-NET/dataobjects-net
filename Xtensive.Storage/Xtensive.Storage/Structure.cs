@@ -305,6 +305,18 @@ namespace Xtensive.Storage
 
     #region Equals & GetHashCode
 
+    public static bool operator==(Structure left, Structure right)
+    {
+      if (!ReferenceEquals(left, null))
+        return left.Equals(right);
+      return ReferenceEquals(right, null);
+    }
+
+    public static bool operator !=(Structure left, Structure rigth)
+    {
+      return !(left==rigth);
+    }
+
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
