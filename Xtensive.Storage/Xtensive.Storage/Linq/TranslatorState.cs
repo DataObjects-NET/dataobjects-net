@@ -5,7 +5,6 @@
 // Created:    2010.01.21
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
@@ -34,9 +33,13 @@ namespace Xtensive.Storage.Linq
 
     public LambdaExpression CurrentLambda { get; set; }
 
+    public bool GroupingKey { get; set; }
+
     public bool SetOperationProjection { get; set; }
 
     public bool IsTailMethod { get; set; }
+
+    public bool SelectManyProjection { get; set; }
 
     public IDisposable CreateScope()
       {
@@ -83,6 +86,8 @@ namespace Xtensive.Storage.Linq
         AllowCalculableColumnCombine = currentState.AllowCalculableColumnCombine;
         IncludeAlgorithm = currentState.IncludeAlgorithm;
         IsTailMethod = currentState.IsTailMethod;
+        SelectManyProjection = currentState.SelectManyProjection;
+        GroupingKey = currentState.GroupingKey;
         SetOperationProjection = currentState.SetOperationProjection;
       }
   }
