@@ -724,6 +724,7 @@ namespace Xtensive.Storage.Linq
       using (context.Bindings.PermanentAdd(keySelector.Parameters[0], sequence)) {
         using (state.CreateScope()) {
           state.CalculateExpressions = true;
+          state.GroupingKey = true;
           var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
           groupingSourceProjection = new ProjectionExpression(
             typeof (IQueryable<>).MakeGenericType(keySelector.Body.Type),
@@ -906,7 +907,10 @@ namespace Xtensive.Storage.Linq
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer))
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner))
       using (context.Bindings.LinkParameters(resultSelector.Parameters))
+      using (state.CreateScope()) {
+        state.CalculateExpressions = true;
         return BuildProjection(resultSelector);
+      }
     }
 
     private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer, Expression expressionPart)
@@ -973,6 +977,7 @@ namespace Xtensive.Storage.Linq
             .Concat(collectionSelector.Parameters)
             .AddOne(outerParameter).ToArray();
           state.Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
+          state.SelectManyProjection = true;
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
           if (visitedCollectionSelector.IsGroupingExpression()) {
@@ -1043,8 +1048,11 @@ namespace Xtensive.Storage.Linq
       }
       using (indexBinding)
       using (context.Bindings.PermanentAdd(le.Parameters[0], sequence)) {
-        var projection = BuildProjection(le);
-        return projection;
+        using (state.CreateScope()) {
+          state.CalculateExpressions = state.SetOperationProjection || state.SelectManyProjection;
+          state.SelectManyProjection = false;
+          return BuildProjection(le);
+        }
       }
     }
 
@@ -1052,7 +1060,6 @@ namespace Xtensive.Storage.Linq
     {
       using (state.CreateScope()) {
         state.BuildingProjection = true;
-        state.CalculateExpressions = !state.IsTailMethod;
         var itemProjector = (ItemProjectorExpression) VisitLambda(le);
         return new ProjectionExpression(
           typeof (IQueryable<>).MakeGenericType(le.Body.Type),

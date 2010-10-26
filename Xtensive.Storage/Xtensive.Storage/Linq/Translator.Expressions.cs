@@ -141,13 +141,16 @@ namespace Xtensive.Storage.Linq
         expression = Visit(ma.Expression);
       }
 
-      expression = expression.IsProjection()
-      ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
-      : ProcessProjectionElement(expression);
+      if (expression.IsProjection())
+        expression = BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type);
+      else {
+          using (state.CreateScope()) {
+//            if (!state.SetOperationProjection)
+//              state.CalculateExpressions = false;
+            expression = ProcessProjectionElement(expression);
+          }
+      }
 
-
-      if (state.SetOperationProjection)
-        expression = ProcessProjectionElement(expression);
       if (expression!=ma.Expression)
         return Expression.Bind(ma.Member, expression);
       return ma;
@@ -770,7 +773,7 @@ namespace Xtensive.Storage.Linq
 
         var lambdaParameter = state.Parameters[0];
         var oldResult = context.Bindings[lambdaParameter];
-        var isInlined = !state.BuildingProjection;
+        var isInlined = !state.BuildingProjection && !state.GroupingKey;
 
         var dataSource = oldResult.ItemProjector.DataSource;
         var columns = new List<CalculatedColumnDescriptor>();
@@ -784,7 +787,7 @@ namespace Xtensive.Storage.Linq
         }
         columns.Add(ccd);
         dataSource = dataSource.Calculate(
-          !state.BuildingProjection,
+          isInlined,
           columns.ToArray());
 
         var newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
