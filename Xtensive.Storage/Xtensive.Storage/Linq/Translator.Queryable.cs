@@ -908,7 +908,7 @@ namespace Xtensive.Storage.Linq
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner))
       using (context.Bindings.LinkParameters(resultSelector.Parameters))
       using (state.CreateScope()) {
-        state.CalculateExpressions = true;
+        state.CalculateExpressions = !state.SelectManyProjection;
         return BuildProjection(resultSelector);
       }
     }
