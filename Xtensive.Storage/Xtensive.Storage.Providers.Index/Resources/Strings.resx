@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExInstanceXIsNotFound" xml:space="preserve">
     <value>Instance of type '{0}' with specified key is not found.</value>
@@ -137,5 +137,26 @@
   </data>
   <data name="ExIndexingStoragesSupportOnlyConnectionUrls" xml:space="preserve">
     <value>Indexing storages support only connection URLs</value>
+  </data>
+  <data name="LogSessionXBeginningTransactionWithYIsolationLevel" xml:space="preserve">
+    <value>Session '{0}'. Beginning transaction @ {1}.</value>
+  </data>
+  <data name="LogSessionXCommitTransaction" xml:space="preserve">
+    <value>Session '{0}'. Commit transaction.</value>
+  </data>
+  <data name="LogSessionXRollbackTransaction" xml:space="preserve">
+    <value>Session '{0}'. Rollback transaction.</value>
+  </data>
+  <data name="LogSessionXMakeSavepointY" xml:space="preserve">
+    <value>Session '{0}'. Make savepoint '{1}'.</value>
+  </data>
+  <data name="LogSessionXRollbackToSavepointY" xml:space="preserve">
+    <value>Session '{0}'. Rollback to savepoint '{1}'.</value>
+  </data>
+  <data name="LogSessionXReleaseSavepointY" xml:space="preserve">
+    <value>Session '{0}'. Release savepoint '{1}'.</value>
+  </data>
+  <data name="ExCurrentStorageProviderDoesNotSupportSavepoints" xml:space="preserve">
+    <value>Current storage provider does not support savepoints (nested transactions).</value>
   </data>
 </root>

@@ -28,7 +28,8 @@ namespace Xtensive.Storage.Providers.Index
     IIndexResolver
   {
     private IndexStorage storage;
-    
+    private bool isDebugLoggingEnabled;
+
     /// <summary>
     /// Gets the storage view.
     /// </summary>
@@ -38,49 +39,47 @@ namespace Xtensive.Storage.Providers.Index
     public override bool TransactionIsStarted { get { return StorageView!=null; } }
 
     public override void SetCommandTimeout(int? commandTimeout)
-    {}
+    {
+      // TODO: implement this method
+    }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      lock (connectionSyncRoot) {
-        if (StorageView!=null)
-          throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
-        StorageView = storage.CreateView(isolationLevel);
-        // TODO: Implement transactions
+      try {
+        if (isDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
+            Session.GetFullNameSafely(), isolationLevel);
+        lock (connectionSyncRoot) {
+          if (StorageView!=null)
+            throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
+          StorageView = storage.CreateView(isolationLevel);
+          // TODO: Implement transactions
+        }
       }
-    }
-
-    /// <inheritdoc/>
-    public override void CreateSavepoint(string name)
-    {
-      // TODO: Implement transactions
-    }
-
-    /// <inheritdoc/>
-    public override void RollbackToSavepoint(string name)
-    {
-      base.RollbackToSavepoint(name);
-      // TODO: Implement transactions
-    }
-
-    public override void ReleaseSavepoint(string name)
-    {
-      base.ReleaseSavepoint(name);
-      // TODO: Implement transactions
+      catch (Exception e) {
+        throw TranslateException(null, e);
+      }
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void CommitTransaction()
     {
-      base.CommitTransaction();
-      lock (connectionSyncRoot) {
-        if (StorageView==null)
-          throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
-        StorageView.Transaction.Commit();
-        StorageView = null;
-        // TODO: Implement transactions
+      try {
+        if (isDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXCommitTransaction, Session.GetFullNameSafely());
+        base.CommitTransaction();
+        lock (connectionSyncRoot) {
+          if (StorageView==null)
+            throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
+          StorageView.Transaction.Commit();
+          StorageView = null;
+          // TODO: Implement transactions
+        }
+      }
+      catch (Exception e) {
+        throw TranslateException(null, e);
       }
     }
 
@@ -88,13 +87,61 @@ namespace Xtensive.Storage.Providers.Index
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void RollbackTransaction()
     {
-      base.RollbackTransaction();
-      lock (connectionSyncRoot) {
-        if (StorageView==null)
-          throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
-        StorageView.Transaction.Rollback();
-        StorageView = null;
-        // TODO: Implement transactions
+      try {
+        if (isDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXRollbackTransaction, Session.GetFullNameSafely());
+        base.RollbackTransaction();
+        lock (connectionSyncRoot) {
+          if (StorageView==null)
+            throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
+          StorageView.Transaction.Rollback();
+          StorageView = null;
+          // TODO: Implement transactions
+        }
+      }
+      catch (Exception e) {
+        throw TranslateException(null, e);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void CreateSavepoint(string name)
+    {
+      try {
+        if (isDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXMakeSavepointY, Session.GetFullNameSafely(), name);
+        // TODO: Implement nested transactions
+      }
+      catch (Exception e) {
+        throw TranslateException(null, e);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(string name)
+    {
+      try {
+        if (isDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXRollbackToSavepointY, Session.GetFullNameSafely(), name);
+        base.RollbackToSavepoint(name);
+        throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
+        // TODO: Implement nested transactions
+      }
+      catch (Exception e) {
+        throw TranslateException(null, e);
+      }
+    }
+
+    public override void ReleaseSavepoint(string name)
+    {
+      try {
+        if (isDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXReleaseSavepointY, Session.GetFullNameSafely(), name);
+        base.ReleaseSavepoint(name);
+        // TODO: Implement nested transactions
+      }
+      catch (Exception e) {
+        throw TranslateException(null, e);
       }
     }
 
@@ -151,18 +198,6 @@ namespace Xtensive.Storage.Providers.Index
 
     #endregion
 
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-      base.Initialize();
-      storage = ((DomainHandler) Handlers.DomainHandler).GetIndexStorage();
-    }
-
-    /// <inheritdoc/>
-    public override void Dispose()
-    {
-    }
-
     #region IIndexResolver members
 
     /// <inheritdoc/>
@@ -172,5 +207,29 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     #endregion
+
+    /// <summary>
+    /// Translates thrown exception.
+    /// </summary>
+    /// <param name="query">The query.</param>
+    /// <param name="exception">The exception.</param>
+    /// <returns>Translated exception.</returns>
+    protected virtual Exception TranslateException(object query, Exception exception)
+    {
+      return exception;
+    }
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      base.Initialize();
+      storage = ((DomainHandler) Handlers.DomainHandler).GetIndexStorage();
+      isDebugLoggingEnabled = Session.IsDebugEventLoggingEnabled;
+    }
+
+    /// <inheritdoc/>
+    public override void Dispose()
+    {
+    }
   }
 }
