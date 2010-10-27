@@ -439,9 +439,9 @@ namespace Xtensive.Storage.Providers
     public virtual string BuildAuxiliaryTypeMappingName(AssociationInfo target)
     {
       return ApplyNamingRules(string.Format(AssociationPattern, 
-        target.OwnerType.MappingName, 
-        target.OwnerField.MappingName, 
-        target.TargetType.MappingName));
+        target.OwnerType.MappingName ?? target.OwnerType.Name, 
+        target.OwnerField.MappingName ?? target.OwnerField.Name, 
+        target.TargetType.MappingName ?? target.TargetType.Name));
     }
 
     /// <summary>
