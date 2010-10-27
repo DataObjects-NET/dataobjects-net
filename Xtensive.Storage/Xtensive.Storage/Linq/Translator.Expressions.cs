@@ -141,15 +141,9 @@ namespace Xtensive.Storage.Linq
         expression = Visit(ma.Expression);
       }
 
-      if (expression.IsProjection())
-        expression = BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type);
-      else {
-          using (state.CreateScope()) {
-//            if (!state.SetOperationProjection)
-//              state.CalculateExpressions = false;
-            expression = ProcessProjectionElement(expression);
-          }
-      }
+      expression = expression.IsProjection() 
+        ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type) 
+        : ProcessProjectionElement(expression);
 
       if (expression!=ma.Expression)
         return Expression.Bind(ma.Member, expression);

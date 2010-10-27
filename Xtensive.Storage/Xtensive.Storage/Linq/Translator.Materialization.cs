@@ -176,15 +176,9 @@ namespace Xtensive.Storage.Linq
           state.CalculateExpressions = false;
           body = Visit(argument);
         }
-        if (body.IsProjection())
-          body = BuildSubqueryResult((ProjectionExpression) body, argument.Type);
-        else {
-          using (state.CreateScope()) {
-//            if (!state.SetOperationProjection)
-//              state.CalculateExpressions = false;
-            body = ProcessProjectionElement(body);
-          }
-        }
+        body = body.IsProjection() 
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type) 
+          : ProcessProjectionElement(body);
         arguments.Add(body);
       }
       var constructorParameters = n.Constructor.GetParameters();
