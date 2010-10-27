@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Rse
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration(); 
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Rse.AnimalModel");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Rse.AnimalModel");
       return config;
     }
 

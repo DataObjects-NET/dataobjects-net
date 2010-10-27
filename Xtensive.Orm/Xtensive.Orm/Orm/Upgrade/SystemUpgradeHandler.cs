@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// <see cref="UpgradeHandler"/> implementation 
-  /// for <see cref="Xtensive.Storage"/> assembly.
+  /// for <see cref="Xtensive.Orm"/> assembly.
   /// </summary>
   public sealed class SystemUpgradeHandler : UpgradeHandler
   {

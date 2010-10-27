@@ -53,7 +53,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Name of the <see cref="Extension"/> that describes domain model.
     /// </summary>
-    public const string DomainModelExtensionName = "Xtensive.Storage.Model";
+    public const string DomainModelExtensionName = "Xtensive.Orm.Model";
 
     /// <summary>
     /// Name of the <see cref="Extension"/> that describes domain model.

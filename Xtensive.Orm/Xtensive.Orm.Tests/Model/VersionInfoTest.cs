@@ -154,27 +154,27 @@ namespace Xtensive.Orm.Tests.Model
     public void RootOnlyVersionTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel1"));
+        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel1"));
     }
 
     [Test]
     public void DenyKeyFieldsTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel2"));
+        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel2"));
     }
 
     [Test]
     public void DenyLazyLoadFieldsTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel3"));
+        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel3"));
     }
 
     [Test]
     public void VersionFieldsTest()
     {
-      var domain = BuildDomain("Xtensive.Storage.Tests.Model.VersionInfoTests.ValidModel");
+      var domain = BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel");
       var model = domain.Model;
 
       var parentType = model.Types[typeof (Parent)];
@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void SerializeVersionInfoTest()
     {
-      var domain = BuildDomain("Xtensive.Storage.Tests.Model.VersionInfoTests.ValidModel");
+      var domain = BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel");
       Key key;
       VersionInfo version;
 

@@ -78,57 +78,57 @@ namespace Xtensive.Orm.Tests.Upgrade
       get {
         // renaming types
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact", typeof(Person));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact", typeof(Person));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Sync<>", typeof(NewSync<>));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Sync<>", typeof(NewSync<>));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Person", typeof(BusinessContact));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(BusinessContact));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Address", typeof (Address));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Address", typeof (Address));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", typeof (Employee));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", typeof (Employee));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Order", typeof (Order));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof (Order));
 
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Product", typeof (Product));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Product", typeof (Product));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Category", typeof (ProductGroup));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Category", typeof (ProductGroup));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Boy", typeof (Boy));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Boy", typeof (Boy));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Girl", typeof (Girl));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Girl", typeof (Girl));
 
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity1", typeof (Entity1));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity1", typeof (Entity1));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity2", typeof (Entity2));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity2", typeof (Entity2));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity3", typeof (Entity3));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity3", typeof (Entity3));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity4", typeof (Entity4));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity4", typeof (Entity4));
 
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure1", typeof (Structure1));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure1", typeof (Structure1));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure2", typeof (Structure2));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure2", typeof (Structure2));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure3", typeof (Structure3));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure3", typeof (Structure3));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure4", typeof (Structure4));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure4", typeof (Structure4));
 
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer1", typeof (StructureContainer1));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer1", typeof (StructureContainer1));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer2", typeof (StructureContainer2));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer2", typeof (StructureContainer2));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer3", typeof (StructureContainer3));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer3", typeof (StructureContainer3));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer4", typeof (StructureContainer4));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer4", typeof (StructureContainer4));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.MyStructureOwner", typeof (MyStructureOwner));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", typeof (MyStructureOwner));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.ReferencedEntity", typeof (ReferencedEntity));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.ReferencedEntity", typeof (ReferencedEntity));
 
 
         // renaming fields
@@ -157,12 +157,12 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         // copying data
         yield return new CopyFieldHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (BusinessContact));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (BusinessContact));
         yield return new CopyFieldHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof (BusinessContact));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof (BusinessContact));
         if (!IncludeTypeIdModifier.IsEnabled)
           yield return new CopyFieldHint(
-            "Xtensive.Storage.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof (MyStructureOwner), "Reference");
+            "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof (MyStructureOwner), "Reference");
         
       }
     }
@@ -172,9 +172,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       get
       {
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Order", typeof (Model.Version3.Order));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof (Model.Version3.Order));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Person", typeof(Model.Version3.Person));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(Model.Version3.Person));
       }
     }
   }

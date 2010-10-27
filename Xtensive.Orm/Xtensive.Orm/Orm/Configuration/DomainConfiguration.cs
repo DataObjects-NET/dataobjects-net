@@ -26,9 +26,9 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Default <see cref="SectionName"/> value:
-    /// "<see langword="Xtensive.Storage" />".
+    /// "<see langword="Xtensive.Orm" />".
     /// </summary>
-    public const string DefaultSectionName = "Xtensive.Storage";
+    public const string DefaultSectionName = "Xtensive.Orm";
 
     /// <summary>
     /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value: 
@@ -480,7 +480,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public DomainConfiguration()
     {
-      types.Register(typeof (Persistent).Assembly);
+      types.Register(typeof (Persistent).Assembly, typeof (Persistent).Namespace);
     }
   }
 }

@@ -75,11 +75,11 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3
       get {
         // renaming types
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Person", typeof (Person));
+          "Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1.Person", typeof (Person));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Employee", typeof (Employee));
+          "Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1.Employee", typeof (Employee));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Order", typeof (Order));
+          "Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1.Order", typeof (Order));
       }
     }
 

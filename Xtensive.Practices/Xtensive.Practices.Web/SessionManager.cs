@@ -24,7 +24,7 @@ namespace Xtensive.Practices.Web
   /// &lt;configuration&gt;
   ///   &lt;system.web&gt;
   ///     &lt;httpModules&gt;
-  ///       &lt;add name="SessionManager" type="Xtensive.Storage.Web.SessionManager, Xtensive.Storage"/&gt;
+  ///       &lt;add name="SessionManager" type="Xtensive.Orm.Web.SessionManager, Xtensive.Storage"/&gt;
   ///     &lt;/httpModules&gt;
   ///   &lt;/system.web&gt;
   /// &lt;/configuration&gt;

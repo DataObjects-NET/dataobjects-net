@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
-        "Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version" + version);
+        "Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version" + version);
       configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);

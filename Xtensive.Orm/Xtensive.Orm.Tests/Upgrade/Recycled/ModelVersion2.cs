@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
   }
 
   [Serializable]
-  [Recycled("Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1.Customer")]
+  [Recycled("Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1.Customer")]
   [HierarchyRoot]
   public class RcCustomer : Entity
   {
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
   }
 
   [Serializable]
-  [Recycled("Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1.Employee")]
+  [Recycled("Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1.Employee")]
   [HierarchyRoot]
   public class RcEmployee : Entity
   {

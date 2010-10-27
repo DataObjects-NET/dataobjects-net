@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Rse
     {
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(),
-        "Xtensive.Storage.Tests.Rse.VirtualAndRealIndexesModel");
+        "Xtensive.Orm.Tests.Rse.VirtualAndRealIndexesModel");
       return config;
     }
 

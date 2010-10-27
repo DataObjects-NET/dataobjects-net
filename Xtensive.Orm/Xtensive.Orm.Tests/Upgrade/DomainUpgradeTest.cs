@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var session = domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           personTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
+            .First(type => type.Name=="Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
           maxTypeId = session.Query.All<Metadata.Type>().Max(type => type.Id);
         }
       }
@@ -134,9 +134,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var session = domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var businessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact").Id;
+            .First(type => type.Name=="Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
           var newPersonTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
+            .First(type => type.Name=="Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
 
           Assert.AreEqual(personTypeId, newPersonTypeId);
           Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
@@ -153,9 +153,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var session = domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           personTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
+            .First(type => type.Name=="Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
           businessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact").Id;
+            .First(type => type.Name=="Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
         }
       }
 
@@ -163,9 +163,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var session = domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var newBusinessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version2.BusinessContact").Id;
+            .First(type => type.Name=="Xtensive.Orm.Tests.Upgrade.Model.Version2.BusinessContact").Id;
           var newPersonTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version2.Person").Id;
+            .First(type => type.Name=="Xtensive.Orm.Tests.Upgrade.Model.Version2.Person").Id;
 
           Assert.AreEqual(personTypeId, newBusinessContactTypeId);
           Assert.AreEqual(businessContactTypeId, newPersonTypeId);
@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
-        "Xtensive.Storage.Tests.Upgrade.Model.Version" + version);
+        "Xtensive.Orm.Tests.Upgrade.Model.Version" + version);
       configuration.Types.Register(typeof (Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);

@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Model
     public void CombinedTest()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.CycleReferenceTestModel");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Model.CycleReferenceTestModel");
 
       using (var domain = Domain.Build(config))
       using (var session = domain.OpenSession())

@@ -119,7 +119,7 @@ namespace Xtensive.Aspects.Weaver
           if (interfaces.Count > 0) {
             var iEntity = interfaces
                             .OfType<NamedMetadataDeclaration>()
-                            .FirstOrDefault(n => n.Name=="Xtensive.Storage.IEntity") as ITypeSignature;
+                            .FirstOrDefault(n => n.Name=="Xtensive.Orm.IEntity") as ITypeSignature;
             if (iEntity!=null) {
               var persistentInterface = interfaces
                 .FirstOrDefault(i => !i.MatchesReference(iEntity) && i.IsAssignableTo(iEntity));

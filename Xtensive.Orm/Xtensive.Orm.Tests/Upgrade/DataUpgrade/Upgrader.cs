@@ -77,11 +77,11 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
       get
       {
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version1.A", typeof(A));
+          "Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1.A", typeof(A));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version1.C", typeof(C));
+          "Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1.C", typeof(C));
         yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version1.D", typeof(D));
+          "Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1.D", typeof(D));
       }
     }
   }

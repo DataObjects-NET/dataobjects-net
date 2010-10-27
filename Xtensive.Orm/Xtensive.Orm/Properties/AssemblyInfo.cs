@@ -15,11 +15,11 @@ using Xtensive.Orm;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Storage")]
+[assembly: AssemblyTitle("Xtensive.Orm")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
-[assembly: AssemblyProduct("Xtensive.Storage")]
+[assembly: AssemblyProduct("Xtensive.Orm")]
 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
 
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var oldNamespace = "Xtensive.Storage.Tests.Issues.Issue0376.Model1";
+      var oldNamespace = "Xtensive.Orm.Tests.Issues.Issue0376.Model1";
       hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
       hints.Add(new RenameTypeHint(oldNamespace + ".Son", typeof (Son)));
       hints.Add(new MoveFieldHint(oldNamespace + ".Son", "FirstName", typeof (Father)));
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model3
 
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var oldNamespace = "Xtensive.Storage.Tests.Issues.Issue0376.Model2";
+      var oldNamespace = "Xtensive.Orm.Tests.Issues.Issue0376.Model2";
       hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
       hints.Add(new RemoveTypeHint(oldNamespace + ".Son"));
     }
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Issues.Issue0376.Model1");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model1");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       // Test MoveFieldHint (RemoveFieldHint)
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Issues.Issue0376.Model2");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model2");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       Domain domain;
       using (M2.Upgrader.Enable()) {
@@ -202,7 +202,7 @@ namespace Xtensive.Orm.Tests.Issues
       
       // Test RemoveTypeHint
       config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Issues.Issue0376.Model3");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model3");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       using (M3.Upgrader.Enable()) {
         domain = Domain.Build(config);

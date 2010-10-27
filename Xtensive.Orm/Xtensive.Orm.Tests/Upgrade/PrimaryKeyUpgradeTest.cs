@@ -69,9 +69,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
       {
-        hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Book", typeof(PrimaryKeyModel.Version2PerformSafely.Book)));
-        hints.Add(new RemoveTypeHint("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Category"));
-        hints.Add(new RemoveFieldHint("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Book", "Category"));
+        hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book", typeof(PrimaryKeyModel.Version2PerformSafely.Book)));
+        hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Category"));
+        hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book", "Category"));
       }
     }
 
@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel." + version);
+      configuration.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel." + version);
       configuration.Types.Register(typeof(Upgrader));
       using(upgradeMode == DomainUpgradeMode.PerformSafely ? Upgrader.Enable() : null)
         domain = Domain.Build(configuration);

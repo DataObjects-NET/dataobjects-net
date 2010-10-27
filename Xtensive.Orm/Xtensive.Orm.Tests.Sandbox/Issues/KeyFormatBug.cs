@@ -61,8 +61,8 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
         select type.Namespace
         ).Distinct().ToArray();
       var prefixes = new[] {
-          "Xtensive.Storage",
-          "Xtensive.Storage.Metadata",
+          "Xtensive.Orm",
+          "Xtensive.Orm.Metadata",
           GetType().Namespace,
         };
       var synonyms =

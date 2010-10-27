@@ -12,11 +12,11 @@ using System.Security.Permissions;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly : AssemblyTitle("Xtensive.Storage.Tests")]
+[assembly : AssemblyTitle("Xtensive.Orm.Tests")]
 [assembly : AssemblyDescription("")]
 [assembly : AssemblyConfiguration("")]
 [assembly : AssemblyCompany("Xtensive LLC")]
-[assembly : AssemblyProduct("Xtensive.Storage.Tests")]
+[assembly : AssemblyProduct("Xtensive.Orm.Tests")]
 [assembly : AssemblyCopyright("Copyright © X-tensive.com 2003-2010")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]

@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
-        "Xtensive.Storage.Tests.Upgrade.FullText.Model." + version);
+        "Xtensive.Orm.Tests.Upgrade.FullText.Model." + version);
       using (Upgrader.Enable(version))
         domain = Domain.Build(configuration);
     }

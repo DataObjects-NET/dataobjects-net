@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled
     protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
-        hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1.Order", typeof(Order)));
+        hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1.Order", typeof(Order)));
     }
 
     public override void OnUpgrade()

@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely
   }
 
   [HierarchyRoot]
-  [Recycled("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Author")]
+  [Recycled("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Author")]
   public class RcAuthor : Entity
   {
     [Key, Field]
