@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -101,6 +102,8 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXMakeSavepointY, session.GetFullNameSafely(), name);
+        if ((connection.Driver.ServerInfo.ServerFeatures & ServerFeatures.Savepoints)!=ServerFeatures.Savepoints)
+          return; // Driver does not support savepoints, so let's fail later (on rollback)
         connection.MakeSavepoint(name);
       }
       catch (Exception exception) {
@@ -113,6 +116,8 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXRollbackToSavepointY, session.GetFullNameSafely(), name);
+        if ((connection.Driver.ServerInfo.ServerFeatures & ServerFeatures.Savepoints)!=ServerFeatures.Savepoints)
+          throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
         connection.RollbackToSavepoint(name);
       }
       catch (Exception exception) {
