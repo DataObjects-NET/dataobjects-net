@@ -23,6 +23,16 @@ namespace Xtensive.Storage.Tests.Issues.Issue0813_AuxilaryTableMappingNameBug_Mo
     [FieldMapping("F")]
     public EntitySet<Person> Friends { get; private set; }
   }
+
+  [HierarchyRoot]
+  public class PersonGroup : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public EntitySet<Person> Persons { get; private set; }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Issues
@@ -41,6 +51,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain))
       using (var ts = Transaction.Open()) {
+
         var person = new Person();
         var typeInfo = person.TypeInfo;
         var fieldInfo = typeInfo.Fields["Friends"];
@@ -48,6 +59,15 @@ namespace Xtensive.Storage.Tests.Issues
         var auxiliaryType = associationInfo.AuxiliaryType;
         Assert.AreEqual("Person-Friends-Person", auxiliaryType.Name);
         Assert.AreEqual("P-F-P", auxiliaryType.MappingName);
+
+        var personGroup = new PersonGroup();
+        typeInfo = personGroup.TypeInfo;
+        fieldInfo = typeInfo.Fields["Persons"];
+        associationInfo = fieldInfo.Associations[0];
+        auxiliaryType = associationInfo.AuxiliaryType;
+        Assert.AreEqual("PersonGroup-Persons-Person", auxiliaryType.Name);
+        Assert.AreEqual("PersonGroup-Persons-P", auxiliaryType.MappingName);
+
         ts.Complete();
       }
     }
