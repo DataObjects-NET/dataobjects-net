@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (M2.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-      using (var session = Domain.OpenSession()) {
+      using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           var son = session.Query.All<M2.Son>().Single();
           Assert.AreEqual("FirstName", son.FirstName);
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (M3.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-      using (var session = Domain.OpenSession()) {
+      using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           Assert.IsTrue(session.Query.All<M3.Father>().Count()==0);
           transactionScope.Complete();
