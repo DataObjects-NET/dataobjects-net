@@ -7,10 +7,10 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.Issue0813_AuxilaryTableMappingNameBug_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.Issue0813_AuxilaryTableMappingNameBug_Model;
 
-namespace Xtensive.Storage.Tests.Issues.Issue0813_AuxilaryTableMappingNameBug_Model
+namespace Xtensive.Orm.Tests.Issues.Issue0813_AuxilaryTableMappingNameBug_Model
 {
   [HierarchyRoot]
   [TableMapping("P")]
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0813_AuxilaryTableMappingNameBug_Mo
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class Issue0813_AuxilaryTableMappingNameBug : AutoBuildTest
   {

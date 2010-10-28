@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues_Issue0844_GroupByConstant;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues_Issue0844_GroupByConstant;
 
-namespace Xtensive.Storage.Tests.Issues_Issue0844_GroupByConstant
+namespace Xtensive.Orm.Tests.Issues_Issue0844_GroupByConstant
 {
   [HierarchyRoot]
   public class Line : Entity
@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Issues_Issue0844_GroupByConstant
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
   public class Issue0844_GroupByConstant : AutoBuildTest

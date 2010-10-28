@@ -8,11 +8,11 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using M1 = Xtensive.Storage.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version1;
-using M2 = Xtensive.Storage.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version2;
+using M1 = Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version1;
+using M2 = Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version2;
 using NUnit.Framework;
 
-namespace Xtensive.Storage.Tests.Issues.Issue_0834_HintGeneratorBug
+namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug
 {
   [TestFixture]
   public class UpgradeTest

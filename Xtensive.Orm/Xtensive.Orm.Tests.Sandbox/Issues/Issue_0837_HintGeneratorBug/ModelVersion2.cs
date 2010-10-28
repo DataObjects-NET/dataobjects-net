@@ -5,10 +5,10 @@
 // Created:    2009.05.20
 
 using Xtensive.Core;
-using Xtensive.Storage.Upgrade;
+using Xtensive.Orm.Upgrade;
 using System;
 
-namespace Xtensive.Storage.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version2
+namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version2
 {
   [HierarchyRoot]
   public class Base : Entity
