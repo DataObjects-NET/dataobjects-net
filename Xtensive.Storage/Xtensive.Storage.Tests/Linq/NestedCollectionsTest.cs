@@ -27,9 +27,9 @@ namespace Xtensive.Storage.Tests.Linq
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        numberOfCustomers = Session.Query.All<Customer>().Count();
-        numberOfOrders = Session.Query.All<Order>().Count();
-        numberOfEmployees = Session.Query.All<Employee>().Count();
+        numberOfCustomers = session.Query.All<Customer>().Count();
+        numberOfOrders = session.Query.All<Order>().Count();
+        numberOfEmployees = session.Query.All<Employee>().Count();
         t.Complete();
       }
     }
