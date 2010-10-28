@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Linq
     /// <returns>Query execution result.</returns>
     public TResult Execute(Session session, ParameterContext parameterContext)
     {
-      return Materializer(
+      return Materializer.Invoke(
         new RecordSet(session.CreateEnumerationContext(), DataSource),
         session, 
         TupleParameterBindings, 
