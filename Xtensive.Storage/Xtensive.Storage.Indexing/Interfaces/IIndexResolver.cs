@@ -21,8 +21,7 @@ namespace Xtensive.Storage.Indexing
     /// Gets the index.
     /// </summary>
     /// <param name="indexInfo">The index.</param>
-    /// <param name="sessionHandler"></param>
     /// <returns>The unique ordered index.</returns>
-    IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, SessionHandler sessionHandler);
+    IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo);
   }
 }

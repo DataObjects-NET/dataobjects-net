@@ -288,6 +288,7 @@ namespace Xtensive.Storage.Linq
           return Visit(customCompiler.Invoke(mc.Object, mc.Arguments.ToArray()));
 
         // Visit Query.
+#pragma warning disable 612,618
         if (mc.Method.DeclaringType==typeof (Query)) {
           // Query.All<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All)
@@ -302,6 +303,7 @@ namespace Xtensive.Storage.Linq
             return VisitQuerySingle(mc);
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
+#pragma warning restore 612,618
 
         // Visit Queryable extensions.
         if (mc.Method.DeclaringType==typeof (QueryableExtensions))

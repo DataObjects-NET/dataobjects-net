@@ -63,6 +63,16 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public abstract void RollbackToSavepoint(Transaction transaction);
 
+    /// <summary>
+    /// Gets the name of the savepoint associated with the transaction.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
+    /// <returns>The name of the savepoint</returns>
+    public string GetSavepointName(Transaction transaction)
+    {
+      return transaction.SavepointName;
+    }
+
 
     /// <summary>
     /// Ensures the transaction is opened.

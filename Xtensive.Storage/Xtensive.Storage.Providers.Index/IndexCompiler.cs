@@ -22,8 +22,6 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public class IndexCompiler : RseCompiler
   {
-    private readonly IIndexResolver indexResolver;
-
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
     /// </summary>
@@ -122,7 +120,7 @@ namespace Xtensive.Storage.Providers.Index
     private ExecutableProvider BuildIndexProviderInternal(Rse.Providers.Compilable.IndexProvider provider)
     {
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      return new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index), indexResolver);
+      return new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index));
     }
 
     // Constructors
@@ -130,11 +128,10 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public IndexCompiler(HandlerAccessor handlers, IIndexResolver indexResolver)
+    public IndexCompiler(HandlerAccessor handlers)
       : base(handlers.DomainHandler.StorageLocation)
     {
       Handlers = handlers;
-      this.indexResolver = indexResolver;
     }
   }
 }

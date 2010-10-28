@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Indexing
     /// </summary>
     /// <param name="isolationLevel">Required isolation level.</param>
     /// <returns>New transactional view.</returns>
-    IStorageView CreateView(SessionHandler sessionHandler, IsolationLevel isolationLevel);
+    IStorageView CreateView(IsolationLevel isolationLevel);
 
     /// <summary>
     /// Gets the transactional view.
@@ -29,6 +29,6 @@ namespace Xtensive.Storage.Indexing
     /// <param name="transactionId">The transaction identifier to get the view for.</param>
     /// <returns>The transactional view;
     /// <see langword="null" />, if no view is available for the specified transaction.</returns>
-    IStorageView GetView(SessionHandler sessionHandler, Guid transactionId);
+    IStorageView GetView(Guid transactionId);
   }
 }

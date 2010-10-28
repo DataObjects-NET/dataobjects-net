@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     IEnumerator<Tuple> IQueryExecutor.ExecuteTupleReader(QueryRequest request)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         var enumerator = commandProcessor.ExecuteRequestsWithReader(request);
         using (enumerator) {
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     int IQueryExecutor.ExecuteNonQuery(ISqlCompileUnit statement)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         using (var command = connection.CreateCommand(statement))
           return driver.ExecuteNonQuery(Session, command);
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     object IQueryExecutor.ExecuteScalar(ISqlCompileUnit statement)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         using (var command = connection.CreateCommand(statement))
           return driver.ExecuteScalar(Session, command);
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     int IQueryExecutor.ExecuteNonQuery(string commandText)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         using (var command = connection.CreateCommand(commandText))
           return driver.ExecuteNonQuery(Session, command);
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     object IQueryExecutor.ExecuteScalar(string commandText)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         using (var command = connection.CreateCommand(commandText))
           return driver.ExecuteScalar(Session, command);
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     void IQueryExecutor.Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         foreach (var tuple in tuples)
           commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     void IQueryExecutor.Clear(TemporaryTableDescriptor descriptor)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
         commandProcessor.ExecuteRequests();

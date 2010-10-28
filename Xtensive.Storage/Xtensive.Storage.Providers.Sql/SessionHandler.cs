@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public SqlConnection Connection {
       get {
-        lock (connectionSyncRoot) {
+        lock (ConnectionSyncRoot) {
           EnsureConnectionIsOpen();
         }
         return connection;
@@ -50,14 +50,16 @@ namespace Xtensive.Storage.Providers.Sql
 
     public override void SetCommandTimeout(int? commandTimeout)
     {
-      if (connection!=null)
-        connection.CommandTimeout = commandTimeout;
+      lock (ConnectionSyncRoot) {
+        if (connection!=null)
+          connection.CommandTimeout = commandTimeout;
+      }
     }
 
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         var nonBatchedTasks = new List<QueryTask>();
         foreach (var task in queryTasks) {
@@ -87,7 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void BeginTransaction(Transaction transaction)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.BeginTransaction(
           Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
@@ -97,7 +99,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void CreateSavepoint(Transaction transaction)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.MakeSavepoint(Session, connection, transaction.SavepointName);
       }
@@ -106,7 +108,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void RollbackToSavepoint(Transaction transaction)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.RollbackToSavepoint(Session, connection, transaction.SavepointName);
       }
@@ -115,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void ReleaseSavepoint(Transaction transaction)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
       }
@@ -124,7 +126,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         if (Connection.ActiveTransaction!=null)
           driver.CommitTransaction(Session, connection);
         EndNativeTransaction();
@@ -134,7 +136,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
-      lock (connectionSyncRoot) {
+      lock (ConnectionSyncRoot) {
         if (Connection.ActiveTransaction!=null)
           driver.RollbackTransaction(Session, Connection);
         EndNativeTransaction();

@@ -88,6 +88,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current storage provider does not support savepoints (nested transactions)..
+        /// </summary>
+        internal static string ExCurrentStorageProviderDoesNotSupportSavepoints {
+            get {
+                return ResourceManager.GetString("ExCurrentStorageProviderDoesNotSupportSavepoints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enumeration is already finished..
         /// </summary>
         internal static string ExEnumerationIsAlreadyFinished {

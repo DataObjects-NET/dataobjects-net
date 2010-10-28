@@ -21,14 +21,15 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public sealed class IndexProvider : ExecutableProvider
   {
-    private readonly IIndexResolver indexResolver;
     private readonly StorageIndexInfo indexDescriptor;
 
     /// <inheritdoc/>
     public override T GetService<T>()
     {
-      var storageContext = (EnumerationContext)EnumerationContext.Current;
-      var index = indexResolver.GetIndex(indexDescriptor, storageContext.SessionHandler);
+      var storageEnumerationContext = (EnumerationContext) EnumerationContext.Current;
+      var storageSessionHandler = (SessionHandler) (storageEnumerationContext.SessionHandler.GetRealHandler());
+      var storageView = storageSessionHandler.StorageView;
+      var index = storageView.GetIndex(indexDescriptor);
       var result = index as T;
       return result;
     }
@@ -36,8 +37,10 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      var storageContext = (EnumerationContext) context;
-      var index = indexResolver.GetIndex(indexDescriptor, storageContext.SessionHandler);
+      var storageEnumerationContext = (EnumerationContext) EnumerationContext.Current;
+      var storageSessionHandler = (SessionHandler) (storageEnumerationContext.SessionHandler.GetRealHandler());
+      var storageView = storageSessionHandler.StorageView;
+      var index = storageView.GetIndex(indexDescriptor);
       return index;
     }
 
@@ -49,12 +52,9 @@ namespace Xtensive.Storage.Providers.Index
     /// </summary>
     /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
     /// <param name="indexDescriptor">Descriptor of the index.</param>
-    /// <param name="indexResolver">Index resolver.</param>
-    public IndexProvider(CompilableProvider origin,
-      StorageIndexInfo indexDescriptor, IIndexResolver indexResolver)
+    public IndexProvider(CompilableProvider origin, StorageIndexInfo indexDescriptor)
       : base(origin)
     {
-      this.indexResolver = indexResolver;
       this.indexDescriptor = indexDescriptor;
     }
   }

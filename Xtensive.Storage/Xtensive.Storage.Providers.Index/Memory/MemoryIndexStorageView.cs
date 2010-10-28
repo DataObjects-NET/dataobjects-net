@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Providers.Index.Memory
   /// </summary>
   public sealed class MemoryIndexStorageView : IndexStorageView
   {
-    private readonly Providers.SessionHandler sessionHandler;
     private readonly MemoryIndexTransaction transaction;
+    private readonly MemoryIndexStorage memoryIndexStorage;
 
     /// <inheritdoc/>
     public override CommandResult Execute(Command command)
@@ -56,27 +56,27 @@ namespace Xtensive.Storage.Providers.Index.Memory
     /// <inheritdoc/>
     public override void Update(ActionSequence sequence)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
     public override void ClearSchema()
     {
-      ((MemoryIndexStorage) Storage).ClearSchema();
-      Model = Storage.Model;
+      memoryIndexStorage.ClearSchema();
+      Model = memoryIndexStorage.Model;
     }
 
     /// <inheritdoc/>
     public override void CreateNewSchema(StorageInfo model)
     {
-      ((MemoryIndexStorage) Storage).CreateNewSchema(model);
-      Model = Storage.Model;
+      memoryIndexStorage.CreateNewSchema(model);
+      Model = memoryIndexStorage.Model;
     }
     
     /// <inheritdoc/>
-    public override IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo, Providers.SessionHandler sessionHandler)
+    public override IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
     {
-      return Storage.GetRealIndex(indexInfo);
+      return memoryIndexStorage.realIndexes[indexInfo];
     }
 
     #region Private / internal methods
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     private void Update(Tuple key, Tuple value, string tableName)
     {
       var table = Model.Tables[tableName];
-      var primaryIndex = GetIndex(table.PrimaryIndex, sessionHandler);
+      var primaryIndex = GetIndex(table.PrimaryIndex);
       var oldValue = FindTuple(tableName, key);
       var newValue = oldValue.Clone();
       newValue.MergeWith(value, MergeBehavior.PreferDifference);
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
         if (!oldTransformed.GetFieldState(0).IsAvailable())
           continue;
         var newTransformed = transform.Apply(TupleTransformType.Tuple, newValue);
-        var secondaryIndex = GetIndex(indexInfo, sessionHandler);
+        var secondaryIndex = GetIndex(indexInfo);
         secondaryIndex.Remove(oldTransformed);
         secondaryIndex.Add(newTransformed);
       }
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     private void Insert(Tuple key, Tuple value, string tableName)
     {
       var table = Model.Tables[tableName];
-      var primaryIndex = GetIndex(table.PrimaryIndex, sessionHandler);
+      var primaryIndex = GetIndex(table.PrimaryIndex);
       primaryIndex.Add(value);
 
       foreach (var indexInfo in table.SecondaryIndexes) {
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
         var transformedTuple = transform.Apply(TupleTransformType.Tuple, value);
         if (!transformedTuple.GetFieldState(0).IsAvailable()) 
           continue;
-        var secondaryIndex = GetIndex(indexInfo, sessionHandler);
+        var secondaryIndex = GetIndex(indexInfo);
         secondaryIndex.Add(transformedTuple);
       }
     }
@@ -134,13 +134,13 @@ namespace Xtensive.Storage.Providers.Index.Memory
     {
       var value = FindTuple(tableName, key);
       var table = Model.Tables[tableName];
-      var primaryIndex = GetIndex(table.PrimaryIndex, sessionHandler);
+      var primaryIndex = GetIndex(table.PrimaryIndex);
       primaryIndex.RemoveKey(value);
 
       foreach (var indexInfo in table.SecondaryIndexes) {
         var transform = Storage.GetTransform(indexInfo);
         var transformedTuple = transform.Apply(TupleTransformType.Tuple, value);
-        var secondaryIndex = GetIndex(indexInfo, sessionHandler);
+        var secondaryIndex = GetIndex(indexInfo);
         secondaryIndex.Remove(transformedTuple);
       }
     }
@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     private Tuple FindTuple(string tableName, Tuple key)
     {
       var indexInfo = Model.Tables[tableName].PrimaryIndex;
-      var primaryIndex = GetIndex(indexInfo, sessionHandler);
+      var primaryIndex = GetIndex(indexInfo);
       var seekResult = primaryIndex.Seek(key);
       if (seekResult.ResultType!=SeekResultType.Exact)
         throw new InvalidOperationException(
@@ -169,10 +169,10 @@ namespace Xtensive.Storage.Providers.Index.Memory
     /// <param name="storage">The storage.</param>
     /// <param name="model">The model.</param>
     /// <param name="isolationLevel">The transaction isolation level.</param>
-    public MemoryIndexStorageView(MemoryIndexStorage storage, StorageInfo model, Providers.SessionHandler sessionHandler, IsolationLevel isolationLevel)
-      :base(storage, model, sessionHandler)
+    public MemoryIndexStorageView(MemoryIndexStorage storage, StorageInfo model, IsolationLevel isolationLevel)
+      : base(storage, model)
     {
-      this.sessionHandler = sessionHandler;
+      memoryIndexStorage = storage;
       transaction = new MemoryIndexTransaction(Guid.NewGuid(), isolationLevel);
     }
   }
