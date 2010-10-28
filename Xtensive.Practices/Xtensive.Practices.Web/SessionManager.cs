@@ -3,8 +3,8 @@ using System.Web;
 using System.Web.Configuration;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Storage;
-using Xtensive.Storage.Configuration;
+using Xtensive.Orm;
+using Xtensive.Orm.Configuration;
 using Xtensive.Practices.Web.Resources;
 
 namespace Xtensive.Practices.Web

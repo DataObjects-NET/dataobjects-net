@@ -7,8 +7,8 @@
 using System;
 using System.Globalization;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Storage;
-using Xtensive.Storage.Model;
+using Xtensive.Orm;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Practices.Localization.Model
 {
@@ -28,7 +28,7 @@ namespace Xtensive.Practices.Localization.Model
       get
       {
         var key = Key.Create(Session.Domain, typeof (TItem), culture.Name, Owner.Key);
-        var result = Xtensive.Storage.Query.SingleOrDefault<TItem>(key);
+        var result = Xtensive.Orm.Query.SingleOrDefault<TItem>(key);
         if (result!=null)
           return result;
 

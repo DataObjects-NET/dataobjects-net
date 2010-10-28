@@ -9,10 +9,10 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Web;
 using System.Web.Configuration;
+using Xtensive.Orm;
 using Xtensive.Practices.Web.Resources;
-using Xtensive.Storage;
-using Xtensive.Storage.Configuration;
-using ConfigurationSection = Xtensive.Storage.Configuration.Elements.ConfigurationSection;
+using Xtensive.Orm.Configuration;
+using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Practices.Web
 {

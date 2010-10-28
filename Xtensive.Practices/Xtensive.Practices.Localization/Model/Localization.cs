@@ -7,7 +7,7 @@
 using System;
 using System.Globalization;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Storage;
+using Xtensive.Orm;
 
 namespace Xtensive.Practices.Localization.Model
 {
