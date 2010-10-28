@@ -120,12 +120,14 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(customer => customer.Id)
         .Where(customer => customer["Address"]==address)
         .ToList();
+#pragma warning disable 252,253
       var expected = Session.Query
         .All<Customer>()
         .AsEnumerable()
         .OrderBy(customer => customer.Id)
         .Where(customer => customer.Address==address)
         .ToList();
+#pragma warning restore 252,253
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 

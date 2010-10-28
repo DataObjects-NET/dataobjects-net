@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
@@ -27,9 +28,13 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     private Expression ConvertEnum(Expression expression)
     {
-      return expression.Type.IsEnum 
-        ? Expression.Convert(expression, Enum.GetUnderlyingType(expression.Type)) 
-        : expression;
+      if (expression.Type.StripNullable().IsEnum) {
+        var underlyingType = Enum.GetUnderlyingType(expression.Type.StripNullable());
+        if (expression.Type.IsNullable())
+          underlyingType = typeof (Nullable<>).MakeGenericType(underlyingType);
+        return Expression.Convert(expression, underlyingType);
+      }
+      return expression;
     }
   }
 }

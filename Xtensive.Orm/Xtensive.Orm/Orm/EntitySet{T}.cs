@@ -257,6 +257,7 @@ namespace Xtensive.Orm
       return Session.Query.Provider.CreateQuery<TItem>(queryExpression);
     }
 
+ 
     // Constructors
 
     /// <summary>

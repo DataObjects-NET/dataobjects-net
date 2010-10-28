@@ -206,6 +206,8 @@ namespace Xtensive.Orm.Building.Builders
         // Defining auxiliary type
         var underlyingTypeDef = ModelDefBuilder.DefineType(underlyingType);
         underlyingTypeDef.Name = association.Name;
+        underlyingTypeDef.MappingName = 
+          context.NameBuilder.BuildAuxiliaryTypeMappingName(association);
 
         // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
         var hra = genericInstanceType.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);

@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Providers
     /// Gets the name for <see cref="TypeDef"/> object.
     /// </summary>
     /// <param name="type">The <see cref="TypeDef"/> object.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Type name.</returns>
     public virtual string BuildTypeName(TypeDef type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Providers
     /// Build table name by index.
     /// </summary>
     /// <param name="indexInfo">Index to build table name for.</param>
-    /// <returns>Table name</returns>
+    /// <returns>Table name.</returns>
     public virtual string BuildTableName(IndexInfo indexInfo)
     {
       return ApplyNamingRules(indexInfo.ReflectedType.Name);
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Providers
     /// Build table column name by <see cref="Model.ColumnInfo"/>.
     /// </summary>
     /// <param name="columnInfo"><see cref="Model.ColumnInfo"/> to build column table name for.</param>
-    /// <returns>Column name</returns>
+    /// <returns>Column name.</returns>
     public virtual string BuildTableColumnName(ColumnInfo columnInfo)
     {
       return ApplyNamingRules(columnInfo.Name);
@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Providers
     /// Gets the name for <see cref="FieldDef"/> object.
     /// </summary>
     /// <param name="field">The <see cref="FieldDef"/> object.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Field name.</returns>
     public virtual string BuildFieldName(FieldDef field)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
@@ -215,11 +215,11 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Builds the name of the explicitly implemented member.
+    /// Builds the name of the explicitly implemented field.
     /// </summary>
     /// <param name="type">The type of interface explicit member implements.</param>
     /// <param name="name">The member name.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Explicitly implemented field name.</returns>
     public virtual string BuildExplicitFieldName(TypeInfo type, string name)
     {
       return type.IsInterface ? type.UnderlyingType.Name + "." + name : name;
@@ -230,6 +230,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="complexField">The complex field.</param>
     /// <param name="childField">The child field.</param>
+    /// <returns>Nested field name.</returns>
     public virtual string BuildNestedFieldName(FieldInfo complexField, FieldInfo childField)
     {
       ArgumentValidator.EnsureArgumentNotNull(complexField, "complexField");
@@ -246,6 +247,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="complexField">The complex field.</param>
     /// <param name="childField">The child field.</param>
+    /// <returns>Field mapping name.</returns>
     public string BuildMappingName(FieldInfo complexField, FieldInfo childField)
     {
       Func<FieldInfo, string> getMappingName = f => f.MappingName ?? f.Name;
@@ -260,7 +262,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="field">The field info.</param>
     /// <param name="baseColumn">The <see cref="ColumnInfo"/> object.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Column name.</returns>
     public virtual string BuildColumnName(FieldInfo field, ColumnInfo baseColumn)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
@@ -275,7 +277,7 @@ namespace Xtensive.Storage.Providers
     /// <see cref="Node.Name"/> of its declaring type with the original column name.
     /// </summary>
     /// <param name="column">The <see cref="ColumnInfo"/> object.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Column name.</returns>
     public virtual string BuildColumnName(ColumnInfo column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
@@ -290,7 +292,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="type">The type def.</param>
     /// <param name="index">The <see cref="IndexDef"/> object.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Index name.</returns>
     public virtual string BuildIndexName(TypeDef type, IndexDef index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
@@ -324,7 +326,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="type">The type def.</param>
     /// <param name="index">The <see cref="IndexInfo"/> object.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Index name.</returns>
     public virtual string BuildIndexName(TypeInfo type, IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
@@ -420,16 +422,34 @@ namespace Xtensive.Storage.Providers
     /// Builds the name for the <see cref="AssociationInfo"/>.
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
-    /// <returns>The built name.</returns>
+    /// <returns>Association name.</returns>
     public virtual string BuildAssociationName(AssociationInfo target)
     {
-      return ApplyNamingRules(string.Format(AssociationPattern, target.OwnerType.Name, target.OwnerField.Name, target.TargetType.Name));
+      return ApplyNamingRules(string.Format(AssociationPattern, 
+        target.OwnerType.Name, 
+        target.OwnerField.Name, 
+        target.TargetType.Name));
+    }
+
+    /// <summary>
+    /// Builds the mapping name for the auxiliary type
+    /// associated with specified <see cref="AssociationInfo"/>.
+    /// </summary>
+    /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
+    /// <returns>Auxiliary type mapping name.</returns>
+    public virtual string BuildAuxiliaryTypeMappingName(AssociationInfo target)
+    {
+      return ApplyNamingRules(string.Format(AssociationPattern, 
+        target.OwnerType.MappingName ?? target.OwnerType.Name, 
+        target.OwnerField.MappingName ?? target.OwnerField.Name, 
+        target.TargetType.MappingName ?? target.TargetType.Name));
     }
 
     /// <summary>
     /// Builds the key sequence name by <see cref="KeyInfo"/> instance.
     /// </summary>
     /// <param name="keyInfo">The <see cref="KeyInfo"/> instance to build sequence name for.</param>
+    /// <returns>Sequence name.</returns>
     public string BuildSequenceName(KeyInfo keyInfo)
     {
       return keyInfo.GeneratorName == null
@@ -467,17 +487,18 @@ namespace Xtensive.Storage.Providers
     /// Computes the hash for the specified <paramref name="name"/>.
     /// The length of the resulting hash is 8 characters.
     /// </summary>
-    /// <returns>The hash.</returns>
+    /// <returns>Computed hash.</returns>
     protected string GetHash(string name)
     {
       byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
       return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
     }
 
+
     // Initializers
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Initialize" copy="true" />
+    /// <see cref="ClassDocTemplate.Initialize" copy="true"/>
     /// </summary>
     /// <param name="namingConvention">The naming convention.</param>
     protected internal virtual void Initialize(NamingConvention namingConvention)

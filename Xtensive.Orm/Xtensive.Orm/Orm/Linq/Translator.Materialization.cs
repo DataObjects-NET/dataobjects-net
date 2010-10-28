@@ -176,9 +176,9 @@ namespace Xtensive.Orm.Linq
           state.CalculateExpressions = false;
           body = Visit(argument);
         }
-        body = body.IsProjection()
-                 ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
-                 : ProcessProjectionElement(body);
+        body = body.IsProjection() 
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type) 
+          : ProcessProjectionElement(body);
         arguments.Add(body);
       }
       var constructorParameters = n.Constructor.GetParameters();

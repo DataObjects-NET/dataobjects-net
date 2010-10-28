@@ -27,8 +27,8 @@ namespace Xtensive.Orm.Model.Stored
     public int TypeId;
 
     /// <summary>
-    /// If is not <see langword="null"/> declares this instance as hierarchy root
-    /// and value of this property specifies <see cref="InheritanceSchema"/>.
+    /// If not <see langword="null"/>, indicates this instance is a hierarchy root,
+    /// and value of this property specifies its <see cref="InheritanceSchema"/>.
     /// </summary>
     public string HierarchyRoot;
 
