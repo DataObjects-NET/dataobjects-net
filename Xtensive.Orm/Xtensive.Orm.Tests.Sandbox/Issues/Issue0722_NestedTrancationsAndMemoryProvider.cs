@@ -7,10 +7,11 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.Issue0722_NestedTrancationsAndMemoryProvider_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
+using Xtensive.Orm.Tests.Issues.Issue0722_NestedTrancationsAndMemoryProvider_Model;
 
-namespace Xtensive.Storage.Tests.Issues.Issue0722_NestedTrancationsAndMemoryProvider_Model
+namespace Xtensive.Orm.Tests.Issues.Issue0722_NestedTrancationsAndMemoryProvider_Model
 {
   [HierarchyRoot]
   public class MyEntity : Entity
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0722_NestedTrancationsAndMemoryProv
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class Issue0722_NestedTrancationsAndMemoryProvider : AutoBuildTest
   {
