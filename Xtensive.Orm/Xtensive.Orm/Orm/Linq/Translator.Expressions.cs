@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Linq
         if (customCompiler!=null)
           return Visit(customCompiler.Invoke(mc.Object, mc.Arguments.ToArray()));
 
-        // Visit Query.
+        // Visit Query. Deprecated.
 #pragma warning disable 612,618
         if (mc.Method.DeclaringType==typeof (Query)) {
           // Query.All<T>
@@ -300,6 +300,21 @@ namespace Xtensive.Orm.Linq
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
             WellKnownMembers.Query.SingleKey,
             WellKnownMembers.Query.SingleOrDefaultKey))
+            return VisitQuerySingle(mc);
+          throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
+        }
+        // Visit QueryEndpoint.
+        if (mc.Method.DeclaringType == typeof(Session.QueryEndpoint)) {
+          // Query.All<T>
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All)
+            return ConstructQueryable(mc);
+          // Query.FreeText<T>
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.QueryEndpoint.FreeTextString, WellKnownMembers.QueryEndpoint.FreeTextExpression))
+            return CosntructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+          // Query.Single<T> & Query.SingleOrDefault<T>
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
+            WellKnownMembers.QueryEndpoint.SingleKey,
+            WellKnownMembers.QueryEndpoint.SingleOrDefaultKey))
             return VisitQuerySingle(mc);
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
@@ -806,39 +821,7 @@ namespace Xtensive.Orm.Linq
       var entityExpression = EntityExpression.Create(type, 0, false);
       var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-
-//      var constExpression = rootPoint.Expression as ConstantExpression;
-//      if (constExpression!=null && constExpression.Value==rootPoint) {
-//        Type elementType = rootPoint.ElementType;
-//        TypeInfo type;
-//        if (!context.Model.Types.TryGetValue(elementType, out type))
-//          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
-//
-//        IndexInfo index = type.Indexes.PrimaryIndex;
-//        EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
-//        var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
-//        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-//      }
-//      return VisitSequence(rootPoint.Expression);
     }
-
-//    private Expression ConstructQueryable(IQueryable rootPoint)
-//    {
-    // Special case. Constructing Queryable<T>.
-//      var constExpression = rootPoint.Expression as ConstantExpression;
-//      if (constExpression!=null && constExpression.Value==rootPoint) {
-//        Type elementType = rootPoint.ElementType;
-//        TypeInfo type;
-//        if (!context.Model.Types.TryGetValue(elementType, out type))
-//          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
-//
-//        IndexInfo index = type.Indexes.PrimaryIndex;
-//        EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
-//        var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
-//        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-//      }
-//      return VisitSequence(rootPoint.Expression);
-//    }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
