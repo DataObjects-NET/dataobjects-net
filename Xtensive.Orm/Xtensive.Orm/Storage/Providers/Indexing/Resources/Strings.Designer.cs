@@ -79,6 +79,15 @@ namespace Xtensive.Storage.Providers.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current storage provider does not support savepoints (nested transactions)..
+        /// </summary>
+        internal static string ExCurrentStorageProviderDoesNotSupportSavepoints {
+            get {
+                return ResourceManager.GetString("ExCurrentStorageProviderDoesNotSupportSavepoints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Indexing storages support only connection URLs.
         /// </summary>
         internal static string ExIndexingStoragesSupportOnlyConnectionUrls {
@@ -120,6 +129,60 @@ namespace Xtensive.Storage.Providers.Indexing.Resources {
         internal static string ExUnsupportedIndex {
             get {
                 return ResourceManager.GetString("ExUnsupportedIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Beginning transaction @ {1}..
+        /// </summary>
+        internal static string LogSessionXBeginningTransactionWithYIsolationLevel {
+            get {
+                return ResourceManager.GetString("LogSessionXBeginningTransactionWithYIsolationLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Commit transaction..
+        /// </summary>
+        internal static string LogSessionXCommitTransaction {
+            get {
+                return ResourceManager.GetString("LogSessionXCommitTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Make savepoint &apos;{1}&apos;..
+        /// </summary>
+        internal static string LogSessionXMakeSavepointY {
+            get {
+                return ResourceManager.GetString("LogSessionXMakeSavepointY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Release savepoint &apos;{1}&apos;..
+        /// </summary>
+        internal static string LogSessionXReleaseSavepointY {
+            get {
+                return ResourceManager.GetString("LogSessionXReleaseSavepointY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Rollback to savepoint &apos;{1}&apos;..
+        /// </summary>
+        internal static string LogSessionXRollbackToSavepointY {
+            get {
+                return ResourceManager.GetString("LogSessionXRollbackToSavepointY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Rollback transaction..
+        /// </summary>
+        internal static string LogSessionXRollbackTransaction {
+            get {
+                return ResourceManager.GetString("LogSessionXRollbackTransaction", resourceCulture);
             }
         }
     }

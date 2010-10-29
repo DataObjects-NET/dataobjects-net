@@ -34,17 +34,17 @@ namespace Xtensive.Storage.Providers.Indexing
     public string Name { get; private set; }
 
     /// <inheritdoc/>
-    public abstract IStorageView CreateView(Providers.SessionHandler sessionHandler, IsolationLevel isolationLevel);
+    public abstract IStorageView CreateView(IsolationLevel isolationLevel);
 
     /// <inheritdoc/>
-    public abstract IStorageView GetView(Providers.SessionHandler sessionHandler, Guid transactionId);
+    public abstract IStorageView GetView(Guid transactionId);
 
     /// <summary>
-    /// Gets real index.
+    /// Gets an adapter for real index allowing to access its statistics.
     /// </summary>
     /// <param name="indexInfo">The index info.</param>
-    /// <returns>The real index.</returns>
-    public abstract IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfo indexInfo);
+    /// <returns>An adapter for real index allowing to access its statistics.</returns>
+    public abstract IUniqueOrderedIndex<Tuple, Tuple> GetRealIndexStatisticsAdapter(IndexInfo indexInfo);
 
     /// <summary>
     /// Gets the transform for index.

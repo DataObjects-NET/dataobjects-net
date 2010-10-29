@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// The <see cref="object"/> to synchronize access to a connection.
     /// </summary>
-    protected readonly object connectionSyncRoot = new object();
+    protected readonly object ConnectionSyncRoot = new object();
 
     /// <summary>
     /// Gets the current <see cref="Session"/>.
@@ -47,8 +47,20 @@ namespace Xtensive.Storage.Providers
     /// to release the connection lock.</returns>
     public IDisposable AcquireConnectionLock()
     {
-      Monitor.Enter(connectionSyncRoot);
-      return new Disposable<object>(connectionSyncRoot, (disposing, syncRoot) => Monitor.Exit(syncRoot));
+      Monitor.Enter(ConnectionSyncRoot);
+      return new Disposable<object>(ConnectionSyncRoot, (disposing, syncRoot) => Monitor.Exit(syncRoot));
+    }
+
+    /// <summary>
+    /// Gets the real session handler (the final handler in chain of all <see cref="ChainingSessionHandler"/>s).
+    /// </summary>
+    /// <returns>The real session handler.</returns>
+    public SessionHandler GetRealHandler()
+    {
+      var handler = this;
+      while (handler is ChainingSessionHandler)
+        handler = (handler as ChainingSessionHandler).ChainedHandler;
+      return handler;
     }
 
     /// <summary>

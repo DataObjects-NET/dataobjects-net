@@ -106,8 +106,8 @@ namespace Xtensive.Orm.Disconnected
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
-//      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-//        chainedHandler.CommitTransaction(transaction);
+//      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
+//        ChainedHandler.CommitTransaction(transaction);
 //      disconnectedState.OnTransactionCommited();
       if (!transaction.IsAutomatic) {
         if (disconnectedState.IsConnected)
@@ -121,8 +121,8 @@ namespace Xtensive.Orm.Disconnected
     /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
-//      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-//        chainedHandler.RollbackTransaction(transaction);
+//      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
+//        ChainedHandler.RollbackTransaction(transaction);
 //      disconnectedState.OnTransactionRollbacked();
       if (!transaction.IsAutomatic) {
         if (disconnectedState.IsConnected)
@@ -135,18 +135,18 @@ namespace Xtensive.Orm.Disconnected
 
    /* public void BeginChainedTransaction()
     {
-      if (chainedHandler.TransactionIsStarted)
+      if (ChainedHandler.TransactionIsStarted)
         return;
       if (!disconnectedState.IsConnected)
         throw new ConnectionRequiredException();
-      chainedHandler.BeginTransaction(Session.Configuration.DefaultIsolationLevel);
+      ChainedHandler.BeginTransaction(Session.Configuration.DefaultIsolationLevel);
     }
 
     public void CommitChainedTransaction()
     {
       // We assume that chained transactions are always readonly, so there is no rollback.
-      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-        chainedHandler.CommitTransaction();
+      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
+        ChainedHandler.CommitTransaction();
     }*/
 
 

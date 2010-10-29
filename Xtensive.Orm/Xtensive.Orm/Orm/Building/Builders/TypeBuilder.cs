@@ -150,7 +150,6 @@ namespace Xtensive.Orm.Building.Builders
       if (typeInfo.IsEntity && !IsAuxiliaryType(typeInfo)) {
         foreach (var @interface in typeInfo.GetInterfaces())
           BuildFieldMap(context, @interface, typeInfo);
-        ProcessImplementedAssociations(context, typeInfo);
       }
     }
 
@@ -183,95 +182,6 @@ namespace Xtensive.Orm.Building.Builders
           if (!declaringType.FieldMap.ContainsKey(field))
             declaringType.FieldMap.Add(field, declaringField);
         }
-      }
-    }
-
-    private static void ProcessImplementedAssociations(BuildingContext context, TypeInfo typeInfo)
-    {
-      // pair integrity escalation and consistency check
-      context.TypesWithProcessedInheritedAssociations.Add(typeInfo);
-      var refFields = typeInfo.Fields.Where(f => f.IsEntity || f.IsEntitySet).ToList();
-      // check for interface fields
-      foreach (var refField in refFields) {
-        var parentIsPaired = false;
-        var interfaceIsPaired = false;
-        var interfaceAssociations = new List<AssociationInfo>();
-        if (refField.IsDeclared && refField.IsInterfaceImplementation) {
-          var implementedInterfaceFields = typeInfo.FieldMap
-            .GetImplementedInterfaceFields(refField);
-
-          foreach (var interfaceField in implementedInterfaceFields) {
-            var field = interfaceField;
-            interfaceAssociations.AddRange(field.Associations);
-            interfaceIsPaired |= context.PairedAssociations.Any(pa => field.Associations.Contains(pa.First));
-          }
-        }
-        if (refField.IsInherited) {
-          var ancestor = typeInfo.GetAncestor();
-          var field = ancestor.Fields[refField.Name];
-          parentIsPaired |= context.PairedAssociations.Any(pa => field.Associations.Contains(pa.First));
-        }
-
-        if (!parentIsPaired && !interfaceIsPaired) {
-          List<Pair<AssociationInfo, string>> pairedToReverse;
-          if (context.PairedAssociationsToReverse.TryGetValue(typeInfo, out pairedToReverse))
-            foreach (var pair in pairedToReverse)
-              AssociationBuilder.BuildReversedAssociation(pair.First, pair.Second);
-          var field = refField;
-          var pairedAssociations = context.PairedAssociations
-            .Where(pa => field.Associations.Contains(pa.First))
-            .ToList();
-          if (pairedAssociations.Count > 0) {
-            foreach (var paired in pairedAssociations) {
-              paired.First.Ancestors.AddRange(interfaceAssociations);
-              if (paired.First.TargetType.IsInterface || context.TypesWithProcessedInheritedAssociations.Contains(paired.First.TargetType))
-                AssociationBuilder.BuildReversedAssociation(paired.First, paired.Second);
-              else {
-                List<Pair<AssociationInfo, string>> pairs;
-                if (!context.PairedAssociationsToReverse.TryGetValue(paired.First.TargetType, out pairs)) {
-                  pairs = new List<Pair<AssociationInfo, string>>();
-                  context.PairedAssociationsToReverse.Add(paired.First.TargetType, pairs);
-                }
-                pairs.Add(paired);
-              }
-            }
-            continue;
-          }
-        }
-
-        var fieldCopy = refField;
-        if (!parentIsPaired)
-          context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
-        Func<AssociationInfo, bool> associationFilter = a => context.PairedAssociations
-          .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
-            && pa.Second == a.OwnerField.Name
-            && a.OwnerType == pa.First.TargetType);
-        var associationsToKeep = refField.IsInterfaceImplementation
-          ? refField.Associations
-              .Where(associationFilter)
-              .ToList()
-          : refField.Associations.Count > 1
-            ? refField.Associations
-                .Where(associationFilter)
-                .ToList()
-            : refField.Associations.ToList();
-        var associationsToRemove = refField.Associations
-          .Except(associationsToKeep)
-          .ToList();
-
-        foreach (var association in associationsToRemove) {
-          context.Model.Associations.Remove(association);
-          refField.Associations.Remove(association);
-        }
-        foreach (var association in associationsToKeep) {
-          var interfaceAssociationsToRemove = interfaceAssociations
-            .Where(ia => ia.OwnerType != association.OwnerType)
-            .ToList();
-          association.Ancestors.AddRange(interfaceAssociationsToRemove);
-          foreach (var interfaceAssociation in interfaceAssociationsToRemove)
-            interfaceAssociations.Remove(interfaceAssociation);
-        }
-        refField.Associations.AddRange(interfaceAssociations);
       }
     }
 

@@ -73,6 +73,13 @@ namespace Xtensive.Orm.Building.Builders
       if (!context.Model.Associations.TryGetValue(association.Name, out existing)) {
         context.Model.Associations.Add(association);
         association.Ancestors.AddRange(field.Associations);
+
+        var associationsToRemove = field.Associations
+          .Where(a => a.TargetType == association.TargetType)
+          .ToList();
+        foreach (var toRemove in associationsToRemove)
+          field.Associations.Remove(toRemove);
+
         field.Associations.Add(association);
       }
     }

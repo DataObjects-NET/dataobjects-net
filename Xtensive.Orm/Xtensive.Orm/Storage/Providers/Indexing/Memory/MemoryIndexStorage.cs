@@ -26,27 +26,27 @@ namespace Xtensive.Storage.Providers.Indexing.Memory
   /// </summary>
   public class MemoryIndexStorage : IndexStorage
   {
-    private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = 
+    internal readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = 
       new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
 
     private readonly Dictionary<IndexInfo, MapTransform> indexTransforms =
       new Dictionary<IndexInfo, MapTransform>();
 
     /// <inheritdoc/>
-    public override IStorageView CreateView(Providers.SessionHandler sessionHandler, IsolationLevel isolationLevel)
+    public override IStorageView CreateView(IsolationLevel isolationLevel)
     {
-      return new MemoryIndexStorageView(this, Model, sessionHandler, isolationLevel);
+      return new MemoryIndexStorageView(this, Model, isolationLevel);
     }
 
     /// <inheritdoc/>
-    public override IStorageView GetView(Providers.SessionHandler sessionHandler, Guid transactionId)
+    public override IStorageView GetView(Guid transactionId)
     {
       // TODO: Complete this
-      return new MemoryIndexStorageView(this, Model, sessionHandler, IsolationLevel.RepeatableRead);
+      return new MemoryIndexStorageView(this, Model, IsolationLevel.RepeatableRead);
     }
 
     /// <inheritdoc/>
-    public override IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfo indexInfo)
+    public override IUniqueOrderedIndex<Tuple, Tuple> GetRealIndexStatisticsAdapter(IndexInfo indexInfo)
     {
       return realIndexes[indexInfo];
     }

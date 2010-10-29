@@ -44,36 +44,7 @@ namespace Xtensive.Storage.Providers.Indexing
     /// <summary>
     /// Gets the index storage.
     /// </summary>
-    protected IndexStorage Storage { get; private set; }
-
-    /// <inheritdoc/>
-    protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
-    {
-      return Type.EmptyTypes;
-    }
-
-    /// <inheritdoc/>
-    protected override ICompiler CreateCompiler()
-    {
-      return new IndexCompiler(Handlers, new IndexResolver());
-    }
-
-    /// <inheritdoc/>
-    protected override IPreCompiler CreatePreCompiler()
-    {
-      return new CompositePreCompiler(
-        new ApplyProviderCorrector(false),
-        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor, false),
-        new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
-        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor, true)
-        );
-    }
-
-    /// <inheritdoc/>
-    protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
-    {
-      return new EmptyPostCompiler();
-    }
+    public IndexStorage Storage { get; private set; }
 
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
@@ -119,11 +90,22 @@ namespace Xtensive.Storage.Providers.Indexing
     /// Gets the <see cref="Xtensive.Orm.Model.IndexInfo"/>
     /// by <see cref="IndexInfoRef"/>. 
     /// </summary>
-    /// <param name="indexInfoRef">The index info.</param>
+    /// <param name="indexInfoRef">The index info reference.</param>
     /// <returns>Converted index info.</returns>
     public StorageIndexInfo GetStorageIndexInfo(IndexInfoRef indexInfoRef)
     {
       var indexInfo = indexInfoRef.Resolve(Domain.Model);
+      return indexInfoMapping[indexInfo];
+    }
+
+    /// <summary>
+    /// Gets the <see cref="Indexing.Model.IndexInfo"/>
+    /// by <see cref="IndexInfo"/>. 
+    /// </summary>
+    /// <param name="indexInfo">The index info.</param>
+    /// <returns>Converted index info.</returns>
+    public StorageIndexInfo GetStorageIndexInfo(IndexInfo indexInfo)
+    {
       return indexInfoMapping[indexInfo];
     }
 
@@ -135,16 +117,7 @@ namespace Xtensive.Storage.Providers.Indexing
       return ProviderInfoBuilder.Build();
     }
 
-    #region Storage access methods
-
-    /// <summary>
-    /// Gets the storage of real indexes.
-    /// </summary>
-    /// <returns>The storage.</returns>
-    internal IndexStorage GetIndexStorage()
-    {
-      return Storage;
-    }
+    #region Local & remote storage initialization methods
 
     /// <summary>
     /// Tries get remote storage.
@@ -180,17 +153,44 @@ namespace Xtensive.Storage.Providers.Indexing
 
     #endregion
 
+    #region Compilation-related methods
+
+    /// <inheritdoc/>
+    protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
+    {
+      return Type.EmptyTypes;
+    }
+
+    /// <inheritdoc/>
+    protected override ICompiler CreateCompiler()
+    {
+      return new IndexCompiler(Handlers);
+    }
+
+    /// <inheritdoc/>
+    protected override IPreCompiler CreatePreCompiler()
+    {
+      return new CompositePreCompiler(
+        new ApplyProviderCorrector(false),
+        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor, false),
+        new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
+        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor, true)
+        );
+    }
+
+    /// <inheritdoc/>
+    protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
+    {
+      return new EmptyPostCompiler();
+    }
+
+    #endregion
+
     #region Internal \ private methods
 
     internal MapTransform GetTransform(IndexInfo indexInfo, TypeInfo type)
     {
       return primaryIndexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
-    }
-
-    internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
-    {
-      // TODO: Replace with StorageView.GetIndex
-      return Storage.GetRealIndex(GetStorageIndexInfo(indexInfoRef));
     }
 
     #endregion

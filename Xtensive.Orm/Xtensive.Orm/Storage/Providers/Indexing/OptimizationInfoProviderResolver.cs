@@ -22,8 +22,10 @@ namespace Xtensive.Storage.Providers.Indexing
 
     public IOptimizationInfoProvider<Tuple> Resolve(IndexInfo indexInfo)
     {
-      if (!indexInfo.IsVirtual)
-        return domainHandler.GetRealIndex(indexInfo);
+      if (!indexInfo.IsVirtual) {
+        return domainHandler.Storage.GetRealIndexStatisticsAdapter(
+          domainHandler.GetStorageIndexInfo(indexInfo));
+      }
       if ((indexInfo.Attributes & IndexAttributes.Union) == IndexAttributes.Union) {
         var underlyingProviders = indexInfo.UnderlyingIndexes.Select(index => Resolve(index)).ToArray();
         return new MergedStatisticsProvider(underlyingProviders);

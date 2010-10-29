@@ -833,25 +833,28 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
       using (state.CreateScope()) {
         state.CalculateExpressions = true;
-        var orderByProjector = (ItemProjectorExpression) VisitLambda(le);
-        var orderItems = orderByProjector
-          .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct)
-          .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
-        var result = context.Bindings[le.Parameters[0]];
-        var sortProvider = (SortProvider) result.ItemProjector.DataSource.Provider;
-        var sortOrder = new DirectionCollection<int>(sortProvider.Order);
-        foreach (var item in orderItems) {
-          if (!sortOrder.ContainsKey(item.Key))
-            sortOrder.Add(item);
+        using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
+        {
+          state.CalculateExpressions = true;
+          var orderByProjector = (ItemProjectorExpression) VisitLambda(le);
+          var orderItems = orderByProjector
+            .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct)
+            .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
+          var result = context.Bindings[le.Parameters[0]];
+          var sortProvider = (SortProvider) result.ItemProjector.DataSource.Provider;
+          var sortOrder = new DirectionCollection<int>(sortProvider.Order);
+          foreach (var item in orderItems) {
+            if (!sortOrder.ContainsKey(item.Key))
+              sortOrder.Add(item);
+          }
+          var recordSet = new SortProvider(sortProvider.Source, sortOrder).Result;
+          var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, recordSet, context);
+          return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
         }
-        var recordSet = new SortProvider(sortProvider.Source, sortOrder).Result;
-        var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, recordSet, context);
-        return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
-      }
     }
+  }
 
     private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, bool isLeftJoin, Expression expressionPart)
     {
@@ -907,10 +910,7 @@ namespace Xtensive.Orm.Linq
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer))
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner))
       using (context.Bindings.LinkParameters(resultSelector.Parameters))
-      using (state.CreateScope()) {
-        state.CalculateExpressions = !state.SelectManyProjection;
         return BuildProjection(resultSelector);
-      }
     }
 
     private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer, Expression expressionPart)
