@@ -10,11 +10,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// A set of weekly referenced items identified by weekly referenced keys.

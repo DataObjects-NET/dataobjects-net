@@ -4,7 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2008.02.01
 
-namespace Xtensive.Core.Comparison
+using Xtensive.Core;
+
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Provides nearest values for the specified value of specified type <typeparamref name="T"/>.

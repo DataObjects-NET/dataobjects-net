@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.26
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// "Top deque" contract - a combination of double-ended queue and dictionary.

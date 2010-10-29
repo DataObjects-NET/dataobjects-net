@@ -6,7 +6,7 @@
 
 using System.Collections;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Very base interface for any comparer supported by <see cref="IComparerProvider"/>.

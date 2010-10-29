@@ -8,12 +8,13 @@ using System;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Helpers;
+using Xtensive.Core;
+using Xtensive.Helpers;
 using System.Linq;
-using Xtensive.Core.Threading;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Security
+namespace Xtensive.Security
 {
   /// <summary>
   /// Implementation of hashing signature provider.

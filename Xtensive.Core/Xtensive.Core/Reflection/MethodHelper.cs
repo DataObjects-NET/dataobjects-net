@@ -8,11 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// <see cref="MethodInfo"/> related helper \ extension methods.

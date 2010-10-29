@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.ObjectMapping.Model
+namespace Xtensive.ObjectMapping.Model
 {
   /// <summary>
   /// Description of target mapped type.

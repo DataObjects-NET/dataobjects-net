@@ -6,9 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Contract of classes which helps to build a mapping configuration for an O2O-mapper.

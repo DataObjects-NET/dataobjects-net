@@ -5,7 +5,7 @@
 // Created:    2008.07.16
 
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
 
 namespace Xtensive.Indexing.Providers.Internals

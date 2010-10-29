@@ -8,8 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// "Order by" clause descriptor - a helper type allowing to describe "order by" clauses with ease.

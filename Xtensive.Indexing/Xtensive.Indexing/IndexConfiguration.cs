@@ -6,10 +6,10 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Comparison;
+using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Configuration;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Resources;
 

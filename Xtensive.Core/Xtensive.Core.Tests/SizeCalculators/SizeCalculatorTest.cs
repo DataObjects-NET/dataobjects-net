@@ -6,13 +6,14 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.SizeCalculators;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.Tuples;
+using Xtensive.Diagnostics;
+using Xtensive.SizeCalculators;
+using Xtensive.Testing;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.SizeCalculators
+namespace Xtensive.Tests.SizeCalculators
 {
   [TestFixture]
   public class SizeCalculatorTest
@@ -154,14 +155,14 @@ namespace Xtensive.Core.Tests.SizeCalculators
     [Test]
     public void TupleTest()
     {
-      Tuple tuple = Tuple.Create(new Type[] {typeof(int), typeof(string), typeof(bool), typeof(byte)});
+      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(new Type[] {typeof(int), typeof(string), typeof(bool), typeof(byte)});
       string testString = "Test string. Sample...";
       tuple.SetValue(0, 0x11111111);
       tuple.SetValue(1, testString);
       tuple.SetValue(2, true);
       tuple.SetValue(3, (byte)0x33);
 
-      SizeCalculator<Tuple> calculator = SizeCalculator<Tuple>.Default;
+      SizeCalculator<Xtensive.Tuples.Tuple> calculator = SizeCalculator<Xtensive.Tuples.Tuple>.Default;
       Assert.IsNotNull(calculator);
       Assert.AreEqual("TupleSizeCalculator", calculator.Implementation.GetType().Name);
 

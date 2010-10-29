@@ -5,7 +5,7 @@
 // Created:    2007.08.28
 
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Providers.Internals;
 using Xtensive.Indexing.BloomFilter;

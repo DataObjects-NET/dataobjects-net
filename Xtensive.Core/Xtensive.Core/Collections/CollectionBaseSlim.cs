@@ -9,11 +9,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Lightweight base class for any collection.

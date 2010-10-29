@@ -10,7 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   internal sealed class ExpressionHashCodeCalculator : ExpressionVisitor<int>
   {

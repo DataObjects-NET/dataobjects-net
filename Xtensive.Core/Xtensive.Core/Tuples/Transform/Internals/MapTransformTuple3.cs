@@ -5,10 +5,11 @@
 // Created:    2008.06.04
 
 using System;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples.Transform.Internals
+namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
   /// A <see cref="MapTransform"/> result tuple mapping up to 3 source tuples to a single one (this).

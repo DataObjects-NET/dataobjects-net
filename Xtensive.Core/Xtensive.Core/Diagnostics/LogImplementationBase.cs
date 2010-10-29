@@ -5,13 +5,13 @@
 // Created:    2007.10.10
 
 using System;
-using Xtensive.Core.Disposing;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Resources;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Actual <see cref="ILog"/> implementation

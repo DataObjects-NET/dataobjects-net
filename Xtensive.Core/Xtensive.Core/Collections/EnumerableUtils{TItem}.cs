@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// <see cref="IEnumerable"/> related utilities.

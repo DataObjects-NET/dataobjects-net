@@ -7,10 +7,11 @@
 using System;
 using System.Diagnostics;
 using System.Security;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Provides access to the thread-bound stack of contextual information 

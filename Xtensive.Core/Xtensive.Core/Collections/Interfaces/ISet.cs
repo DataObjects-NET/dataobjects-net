@@ -5,7 +5,7 @@
 using System;
 using System.Collections;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Set of items.

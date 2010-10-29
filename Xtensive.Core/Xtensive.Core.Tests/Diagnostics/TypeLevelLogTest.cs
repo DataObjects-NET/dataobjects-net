@@ -5,9 +5,9 @@
 // Created:    2009.12.24
 
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
-namespace Xtensive.Core.Tests.Diagnostics
+namespace Xtensive.Tests.Diagnostics
 {
   [TestFixture]
   public class TypeLevelLogTestTest<T1, T2>

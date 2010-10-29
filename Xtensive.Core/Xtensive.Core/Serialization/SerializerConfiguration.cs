@@ -7,12 +7,12 @@
 using System;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
-using Xtensive.Core.Configuration;
+using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Helpers;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Configuration for <see cref="SerializerBase"/>.

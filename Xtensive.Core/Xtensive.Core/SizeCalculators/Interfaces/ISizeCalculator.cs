@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.22
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// Calculates the size of instances of type <typeparamref name="T"/>.

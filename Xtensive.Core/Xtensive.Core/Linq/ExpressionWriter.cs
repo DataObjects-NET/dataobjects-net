@@ -11,12 +11,12 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Writes out an expression tree in a C#-ish syntax.

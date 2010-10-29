@@ -5,9 +5,10 @@
 // Created:    2008.05.08
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Default <see cref="IFixup"/> implementation.

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Real log implementation.

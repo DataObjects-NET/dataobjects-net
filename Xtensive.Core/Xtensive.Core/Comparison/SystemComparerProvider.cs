@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Provides <see cref="AdvancedComparer{T}"/> wrappers for system comparers.

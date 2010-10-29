@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// A wrapper for <see cref="System.Linq.Expressions.Expression"/>.

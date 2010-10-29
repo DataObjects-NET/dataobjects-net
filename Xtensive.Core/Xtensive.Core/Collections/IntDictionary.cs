@@ -8,11 +8,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// The fast dictionary-like collection using keys of type <see cref="int"/>.

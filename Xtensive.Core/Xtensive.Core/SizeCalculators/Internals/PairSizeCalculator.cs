@@ -5,8 +5,9 @@
 // Created:    2008.05.13
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   [Serializable]
   internal class PairSizeCalculator<TFirst, TSecond> : 

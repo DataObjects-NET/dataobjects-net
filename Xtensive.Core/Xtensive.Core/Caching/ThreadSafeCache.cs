@@ -7,11 +7,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// A thread-safe wrapper for any <see cref="ICache{TKey,TItem}"/> implementation.

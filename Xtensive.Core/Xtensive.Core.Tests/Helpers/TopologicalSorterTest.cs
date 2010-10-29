@@ -6,12 +6,13 @@
 
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Sorting;
-using Xtensive.Core.Testing;
+using Xtensive.Collections;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.Sorting;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Helpers
+namespace Xtensive.Tests.Helpers
 {
   [TestFixture]
   public class TopologicalSorterTest

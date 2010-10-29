@@ -9,9 +9,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using System;
 using System.IO;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
-namespace Xtensive.Core.Tests.Helpers
+namespace Xtensive.Tests.Helpers
 {
   [Serializable]
   public class Container

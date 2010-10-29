@@ -4,7 +4,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql

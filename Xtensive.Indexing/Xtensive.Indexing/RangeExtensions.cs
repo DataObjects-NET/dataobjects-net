@@ -7,12 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing

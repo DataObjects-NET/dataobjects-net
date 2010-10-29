@@ -5,8 +5,9 @@
 // Created:    2009.12.18
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// Describes expiring <see cref="CachedValueBase{TValue,TActualizationInfo}.Value"/>.

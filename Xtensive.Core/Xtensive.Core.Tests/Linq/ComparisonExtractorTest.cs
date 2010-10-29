@@ -8,10 +8,10 @@ using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
+using Xtensive.Linq;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
   [TestFixture]
   public class ComparisonExtractorTest

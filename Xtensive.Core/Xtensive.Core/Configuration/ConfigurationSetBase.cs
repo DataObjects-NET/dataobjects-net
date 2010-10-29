@@ -8,13 +8,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Configuration
+namespace Xtensive.Configuration
 {
   /// <summary>
   /// Base class for a configuration described by a set of named configurations 

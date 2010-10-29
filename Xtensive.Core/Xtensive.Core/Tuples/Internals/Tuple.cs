@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Xtensive.Core.Tuples.Internals
+namespace Xtensive.Tuples.Internals
 {
   /// <summary>
   /// Provides access to maximal generated tuple length value.

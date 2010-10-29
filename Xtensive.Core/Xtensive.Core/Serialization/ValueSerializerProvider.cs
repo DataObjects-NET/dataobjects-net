@@ -7,13 +7,14 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Serialization.Binary;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Default <see cref="IValueSerializer{T}"/> provider. 

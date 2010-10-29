@@ -7,10 +7,10 @@
 using System;
 using System.Globalization;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Describes how to compare values of comparable objects.

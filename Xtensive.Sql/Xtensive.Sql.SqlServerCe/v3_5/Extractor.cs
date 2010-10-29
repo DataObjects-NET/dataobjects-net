@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using UniqueConstraint=Xtensive.Sql.Model.UniqueConstraint;

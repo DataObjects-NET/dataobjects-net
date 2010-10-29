@@ -10,7 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
   [TestFixture]
   public class ExpressionWriterTest

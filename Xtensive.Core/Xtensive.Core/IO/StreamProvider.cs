@@ -10,16 +10,16 @@ using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Threading;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.Disposing;
+using Xtensive.Reflection;
+using Xtensive.Threading;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.IO
+namespace Xtensive.IO
 {
   /// <summary>
   /// Provides read or write of streams for a single file.

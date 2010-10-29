@@ -8,9 +8,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Default implementation of <see cref="IOperationSequence"/> and operation logger.

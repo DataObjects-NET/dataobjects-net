@@ -7,14 +7,14 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples.Transform.Internals;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
+using Xtensive.Tuples.Transform.Internals;
 
-namespace Xtensive.Core.Tuples.Transform
+namespace Xtensive.Tuples.Transform
 {
   /// <summary>
   /// Base class for any tuple field mapping transform.

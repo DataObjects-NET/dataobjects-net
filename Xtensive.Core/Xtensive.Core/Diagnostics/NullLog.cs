@@ -5,9 +5,9 @@
 // Created:    2009.10.06
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Null log implementation. Does nothing.

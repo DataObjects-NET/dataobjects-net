@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Hasher provider.

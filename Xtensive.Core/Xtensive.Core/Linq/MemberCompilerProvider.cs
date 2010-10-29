@@ -9,11 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Reflection;
+using Xtensive.Helpers;
+using Xtensive.Resources;
+using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
+using DelegateHelper = Xtensive.Reflection.DelegateHelper;
+using WellKnown = Xtensive.Reflection.WellKnown;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Default implementation of <see cref="IMemberCompilerProvider{T}"/>.

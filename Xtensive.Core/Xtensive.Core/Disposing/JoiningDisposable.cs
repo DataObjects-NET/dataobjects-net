@@ -7,10 +7,10 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Disposing
+namespace Xtensive.Disposing
 {
   /// <summary>
   /// Disposes two <see cref="IDisposable"/> objects.

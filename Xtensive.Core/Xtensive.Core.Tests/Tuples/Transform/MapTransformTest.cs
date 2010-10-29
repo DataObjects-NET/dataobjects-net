@@ -5,20 +5,20 @@
 // Created:    2008.08.08
 
 using NUnit.Framework;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Tuples;
+using Xtensive.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples.Transform
+namespace Xtensive.Tests.Tuples.Transform
 {
   [TestFixture]
   public class MapTransformTest
   {
     public void MainTest()
     {
-      Tuple source = Tuple.Create(1);
+      Xtensive.Tuples.Tuple source = Tuple.Create(1);
       MapTransform transform = new MapTransform(true, TupleDescriptor.Create<byte, int, string>(), new[] {-1, 0});
-      Tuple result = transform.Apply(TupleTransformType.TransformedTuple, source);
+      Xtensive.Tuples.Tuple result = transform.Apply(TupleTransformType.TransformedTuple, source);
       Assert.AreEqual(TupleFieldState.Default, result.GetFieldState(0));
       Assert.AreEqual(TupleFieldState.Available, result.GetFieldState(1));
       Assert.AreEqual(TupleFieldState.Default, result.GetFieldState(2));

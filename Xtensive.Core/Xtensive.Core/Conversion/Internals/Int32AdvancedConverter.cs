@@ -7,7 +7,7 @@
 using System;
 using System.Globalization;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   [Serializable]
   internal class Int32AdvancedConverter :

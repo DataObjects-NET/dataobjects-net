@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Threading
+namespace Xtensive.Threading
 {
   [Serializable]
   internal class Task : ITask

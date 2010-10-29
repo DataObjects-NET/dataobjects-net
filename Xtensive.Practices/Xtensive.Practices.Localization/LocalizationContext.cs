@@ -7,7 +7,7 @@
 using System;
 using System.Globalization;
 using System.Threading;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Practices.Localization
 {

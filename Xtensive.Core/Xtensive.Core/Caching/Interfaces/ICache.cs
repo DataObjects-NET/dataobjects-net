@@ -5,9 +5,9 @@
 // Created:    2007.05.25
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// Cache contract.

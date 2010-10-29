@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class KeyValuePairComparer<T1, T2>: WrappingComparer<KeyValuePair<T1, T2>, T1, T2>,

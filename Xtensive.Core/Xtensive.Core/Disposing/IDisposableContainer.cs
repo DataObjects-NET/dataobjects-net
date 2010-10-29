@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Disposing
+namespace Xtensive.Disposing
 {
   /// <summary>
   /// Defines a <see cref="DisposingState"/> property for <see cref="IDisposable"/> implementors.

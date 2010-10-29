@@ -6,9 +6,10 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Fast read-only <see cref="Tuple"/> implementation.

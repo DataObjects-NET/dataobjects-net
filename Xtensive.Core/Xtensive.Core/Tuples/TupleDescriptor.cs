@@ -9,17 +9,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Tuples.Internals;
+using Xtensive.Collections;
+using Xtensive.Comparison;
 using System.Linq;
-using WellKnown = Xtensive.Core.Reflection.WellKnown;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
+using Xtensive.Resources;
+using Xtensive.Tuples.Internals;
+using WellKnown = Xtensive.Reflection.WellKnown;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Tuple descriptor.
@@ -200,9 +200,9 @@ namespace Xtensive.Core.Tuples
         for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
           var type = fieldTypes[fieldIndex];
           var getValueDelegateType = typeof (GetValueDelegate<>).MakeGenericType(type);
-          var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.GetValueX.FormatWith(fieldIndex)), true);
+          var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, tupleType.GetMethod(Reflection.WellKnown.Tuple.GetValueX.FormatWith(fieldIndex)), true);
           var setValueDelegateType = typeof(Action<,>).MakeGenericType(typeof(Tuple), type);
-          var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.SetValueX.FormatWith(fieldIndex)), true);
+          var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, tupleType.GetMethod(Reflection.WellKnown.Tuple.SetValueX.FormatWith(fieldIndex)), true);
           GetValueDelegates[fieldIndex] = getValueDelegate;
           SetValueDelegates[fieldIndex] = setValueDelegate;
           if (isValueTypeFlags[fieldIndex]) {

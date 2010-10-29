@@ -8,10 +8,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// A collection classifying all the items by their classes.

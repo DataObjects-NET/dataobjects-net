@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Aspects;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Indexing.Tests
 {

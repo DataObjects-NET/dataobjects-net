@@ -5,9 +5,9 @@
 // Created:    2008.01.21
 
 using System;
-using Xtensive.Core.Conversion;
+using Xtensive.Conversion;
 
-namespace Xtensive.Core.Tests.Conversion
+namespace Xtensive.Tests.Conversion
 {
   public class StringAdvancedConverter:
     IAdvancedConverter<string, int>, 

@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Uniquely identifies the <see cref="Value"/> in current

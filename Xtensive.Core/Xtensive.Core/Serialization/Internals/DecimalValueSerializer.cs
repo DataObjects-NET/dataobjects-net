@@ -6,10 +6,10 @@
 
 using System;
 using System.IO;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   [Serializable]
   internal sealed class DecimalValueSerializer : ValueSerializerBase<decimal>

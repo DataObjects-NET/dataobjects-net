@@ -6,9 +6,10 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Threading;
+using Xtensive.Core;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class TypeComparer: WrappingComparer<Type, string, Assembly>,

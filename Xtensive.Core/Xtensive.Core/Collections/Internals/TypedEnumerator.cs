@@ -7,8 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   internal class TypedEnumerator<T> : IEnumerator<T>
   {

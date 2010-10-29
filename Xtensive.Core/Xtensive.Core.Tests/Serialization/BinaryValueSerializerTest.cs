@@ -8,13 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Serialization;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Testing;
+using Xtensive.Reflection;
+using Xtensive.Diagnostics;
+using Xtensive.Serialization;
+using Xtensive.Serialization.Binary;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Serialization
+namespace Xtensive.Tests.Serialization
 {
   [TestFixture]
   public class BinaryValueSerializerTest

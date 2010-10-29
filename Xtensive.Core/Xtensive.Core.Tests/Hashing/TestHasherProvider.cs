@@ -5,9 +5,9 @@
 // Created:    2008.01.17
 
 using System;
-using Xtensive.Core.Hashing;
+using Xtensive.Hashing;
 
-namespace Xtensive.Core.Tests.Hashing
+namespace Xtensive.Tests.Hashing
 {
   public class TestHasherProvider : HasherProvider
   {

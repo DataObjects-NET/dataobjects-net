@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Threading;
+using Xtensive.Testing;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Tests.Threading
+namespace Xtensive.Tests.Threading
 {
   [TestFixture]
   public sealed class AsyncProcessorTest

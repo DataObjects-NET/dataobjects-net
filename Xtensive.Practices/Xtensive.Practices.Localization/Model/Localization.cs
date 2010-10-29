@@ -6,8 +6,8 @@
 
 using System;
 using System.Globalization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm;
 
 namespace Xtensive.Practices.Localization.Model
 {

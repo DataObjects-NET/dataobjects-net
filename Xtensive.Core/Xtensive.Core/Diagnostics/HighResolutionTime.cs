@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// A timer providing much higher resolution rather then default one.

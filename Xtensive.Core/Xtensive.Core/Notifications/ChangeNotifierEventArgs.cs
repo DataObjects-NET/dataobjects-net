@@ -5,9 +5,9 @@
 // Created:    2007.10.15
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Notifications
+namespace Xtensive.Notifications
 {
   /// <summary>
   /// Represents a set of information describing <see cref="IChangeNotifier"/> change.

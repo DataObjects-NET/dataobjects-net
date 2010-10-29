@@ -8,11 +8,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Arithmetic;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
+using Xtensive.Arithmetic;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Arithmetics
+namespace Xtensive.Tests.Arithmetics
 {
   [TestFixture]
   public class AritmeticsTest

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// <see cref="IRealLog"/> event handler (see <see cref="IRealLog.OnLogEvent"/>).

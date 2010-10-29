@@ -8,11 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Collections;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Testing;
+using Xtensive.IoC;
+using Xtensive.Testing;
 using Xtensive.Indexing.Tests.Index;
 
 namespace Xtensive.Indexing.Tests

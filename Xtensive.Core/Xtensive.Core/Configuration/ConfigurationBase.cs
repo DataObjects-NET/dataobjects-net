@@ -5,10 +5,11 @@
 // Created:    2008.02.22
 
 using System;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Configuration
+namespace Xtensive.Configuration
 {
   /// <summary>
   /// Base class for <see cref="IConfiguration"/> implementors.

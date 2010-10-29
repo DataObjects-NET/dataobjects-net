@@ -7,10 +7,10 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Threading
+namespace Xtensive.Threading
 {
   /// <summary>
   /// Wrapping exception that contains a real exception thrown 

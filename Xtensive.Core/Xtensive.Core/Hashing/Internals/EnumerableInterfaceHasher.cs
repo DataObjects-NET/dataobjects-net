@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class EnumerableInterfaceHasher<TEnumerable, T> : WrappingHasher<TEnumerable, T>

@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Linq.SerializableExpressions.Internals
+namespace Xtensive.Linq.SerializableExpressions.Internals
 {
   internal sealed class ExpressionToSerializableExpressionConverter
     : ExpressionVisitor<SerializableExpression>

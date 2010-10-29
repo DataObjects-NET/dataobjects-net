@@ -5,9 +5,9 @@
 // Created:    2007.03.01
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Notifications
+namespace Xtensive.Notifications
 {
   /// <summary>
   /// Represents class that contains <see cref="ICollectionChangeNotifier{TItem}"/> related event data.

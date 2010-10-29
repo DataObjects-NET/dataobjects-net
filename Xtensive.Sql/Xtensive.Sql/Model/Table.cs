@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Model

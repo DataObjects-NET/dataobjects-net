@@ -9,15 +9,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
+using Xtensive.Reflection;
+using Xtensive.Threading;
 using Factory = System.Func<
   System.Linq.Expressions.Expression,
   System.Collections.Generic.IEnumerable<System.Linq.Expressions.ParameterExpression>,
   System.Linq.Expressions.LambdaExpression
   >;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   internal sealed class LambdaExpressionFactory
   {

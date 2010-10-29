@@ -6,11 +6,12 @@
 
 using System;
 using System.Threading;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Base class for logs producing textual output.

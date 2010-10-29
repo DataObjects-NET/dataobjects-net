@@ -7,7 +7,7 @@
 using System;
 using System.Text;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class StringHasher : HasherBase<string>

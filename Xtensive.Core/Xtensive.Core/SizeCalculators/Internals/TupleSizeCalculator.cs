@@ -5,17 +5,18 @@
 // Created:    2008.05.13
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Reflection;
+using Xtensive.Threading;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   [Serializable]
-  internal class TupleSizeCalculator : SizeCalculatorBase<Tuple>,
+  internal class TupleSizeCalculator : SizeCalculatorBase<Tuples.Tuple>,
     IFinalAssociate
   {
     private readonly object _lock = new object();
@@ -28,10 +29,10 @@ namespace Xtensive.Core.SizeCalculators
     private struct TupleSizeCalculatorData
     {
       public int Result;
-      public readonly Tuple Tuple;
+      public readonly Tuples.Tuple Tuple;
       public readonly ISizeCalculatorBase[] Calculators;
 
-      public TupleSizeCalculatorData(Tuple tuple, ISizeCalculatorBase[] calculators)
+      public TupleSizeCalculatorData(Tuples.Tuple tuple, ISizeCalculatorBase[] calculators)
       {
         Result = 0;
         Tuple = tuple;
@@ -55,7 +56,7 @@ namespace Xtensive.Core.SizeCalculators
     private ThreadSafeList<SizeCulculatorHandler> sizeCulculatorHandlers;
 
     /// <inheritdoc/>
-    public override int GetValueSize(Tuple value)
+    public override int GetValueSize(Tuples.Tuple value)
     {
       if (value==null)
         return SizeCalculatorProvider.PointerFieldSize;
@@ -111,7 +112,7 @@ namespace Xtensive.Core.SizeCalculators
       return false;
     }
 
-    private ISizeCalculatorBase[] GetCalculators(Tuple tuple)
+    private ISizeCalculatorBase[] GetCalculators(Tuples.Tuple tuple)
     {
       return calculators.GetValue(tuple.Descriptor,
         (descriptor, _this) => {

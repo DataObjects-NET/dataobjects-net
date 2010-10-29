@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Core.Tuples.Internals
+namespace Xtensive.Tuples.Internals
 {
   internal class NullableAccessor
   {

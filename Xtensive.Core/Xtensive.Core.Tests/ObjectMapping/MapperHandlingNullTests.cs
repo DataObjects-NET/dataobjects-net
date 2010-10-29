@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.ObjectMapping;
-using Xtensive.Core.Tests.ObjectMapping.SourceModel;
-using Xtensive.Core.Tests.ObjectMapping.TargetModel;
 using NUnit.Framework;
+using Xtensive.ObjectMapping;
+using Xtensive.Tests.ObjectMapping.SourceModel;
+using Xtensive.Tests.ObjectMapping.TargetModel;
 
-namespace Xtensive.Core.Tests.ObjectMapping
+namespace Xtensive.Tests.ObjectMapping
 {
   [TestFixture]
   public sealed class MapperHandlingNullTests : MapperTestBase

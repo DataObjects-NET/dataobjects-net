@@ -7,9 +7,9 @@
 using System;
 using System.Globalization;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
-namespace Xtensive.Core.Tests.Comparison
+namespace Xtensive.Tests.Comparison
 {
   [TestFixture]
   public class StringComparisonTest

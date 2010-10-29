@@ -13,13 +13,13 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core.Conversion;
+using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// A sequence of <typeparamref name="TKey"/>-<typeparamref name="TFlag"/> pairs.

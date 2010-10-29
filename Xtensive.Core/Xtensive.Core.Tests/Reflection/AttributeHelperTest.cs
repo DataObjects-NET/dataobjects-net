@@ -10,12 +10,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
+using Xtensive.Linq;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Tests.Reflection
+namespace Xtensive.Tests.Reflection
 {
   [TestFixture]
   public class AttributeHelperTest

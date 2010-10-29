@@ -5,11 +5,11 @@
 // Created:    2009.09.17
 
 using System;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Tuples;
+using Xtensive.Resources;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Extension methods for <see cref="TupleFieldState"/>.

@@ -7,11 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Default <see cref="IAdvancedConverter{TFrom,TTo}"/> provider. 

@@ -7,11 +7,12 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Base class for any <see cref="IValueSerializer{T}"/>.

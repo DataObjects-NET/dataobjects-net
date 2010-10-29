@@ -5,9 +5,9 @@
 // Created:    2010.01.30
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   internal sealed class ServiceTypeRegistrationProcessor : TypeRegistrationProcessorBase
   {

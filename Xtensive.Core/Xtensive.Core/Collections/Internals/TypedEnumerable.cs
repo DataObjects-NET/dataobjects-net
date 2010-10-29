@@ -7,7 +7,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   internal class TypedEnumerable<T> : IEnumerable<T>
   {

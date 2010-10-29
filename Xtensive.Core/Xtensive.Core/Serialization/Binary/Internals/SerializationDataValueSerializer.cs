@@ -6,9 +6,10 @@
 
 using System;
 using System.IO;
-using Xtensive.Core.IO;
+using Xtensive.Core;
+using Xtensive.IO;
 
-namespace Xtensive.Core.Serialization.Binary
+namespace Xtensive.Serialization.Binary
 {
   [Serializable]
   internal sealed class SerializationDataValueSerializer : WrappingValueSerializer<SerializationData, long>

@@ -7,13 +7,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Reflection;
+using Xtensive.Resources;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Object graph transformer.

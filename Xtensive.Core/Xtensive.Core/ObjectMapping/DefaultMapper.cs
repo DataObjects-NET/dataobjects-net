@@ -5,10 +5,10 @@
 // Created:    2009.12.10
 
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Default concrete heir of <see cref="MapperBase{TComparisonResult}"/>.

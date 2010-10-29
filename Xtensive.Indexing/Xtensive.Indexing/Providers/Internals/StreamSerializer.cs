@@ -9,8 +9,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Serialization;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Serialization;
 using Xtensive.Indexing.Implementation;
 
 namespace Xtensive.Indexing.Providers.Internals

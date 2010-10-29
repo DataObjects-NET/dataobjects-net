@@ -6,10 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Result of comparison the original graph of target objects with the modified one.

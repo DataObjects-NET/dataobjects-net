@@ -5,16 +5,17 @@
 // Created:    2008.01.29
 
 using System;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Threading;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
-  internal sealed class TupleComparer : AdvancedComparerBase<Tuple>,
-    ISystemComparer<Tuple>
+  internal sealed class TupleComparer : AdvancedComparerBase<Tuples.Tuple>,
+    ISystemComparer<Tuples.Tuple>
   {
     [NonSerialized]
     private int nullHashCode;
@@ -24,12 +25,12 @@ namespace Xtensive.Core.Comparison
     private ThreadSafeList<Pair<int, Func<object,object,int>>[]> comparersInfo;
 
 
-    protected override IAdvancedComparer<Tuple> CreateNew(ComparisonRules rules)
+    protected override IAdvancedComparer<Tuples.Tuple> CreateNew(ComparisonRules rules)
     {
       return new TupleComparer(Provider, ComparisonRules.Combine(rules));
     }
 
-    public override int Compare(Tuple x, Tuple y)
+    public override int Compare(Tuples.Tuple x, Tuples.Tuple y)
     {
       if (x==null) {
         if (y==null)
@@ -103,7 +104,7 @@ namespace Xtensive.Core.Comparison
       return descriptorComparer.Compare(dx, dy);
     }
 
-    public override bool Equals(Tuple x, Tuple y)
+    public override bool Equals(Tuples.Tuple x, Tuples.Tuple y)
     {
       if (x == null)
         return y == null;
@@ -126,7 +127,7 @@ namespace Xtensive.Core.Comparison
       return true;
     }
 
-    public override int GetHashCode(Tuple obj)
+    public override int GetHashCode(Tuples.Tuple obj)
     {
       return ReferenceEquals(obj, null) 
         ? nullHashCode 
@@ -160,7 +161,7 @@ namespace Xtensive.Core.Comparison
 
     private void Initialize()
     {
-      nullHashCode       = SystemComparerStruct<Tuple>.Instance.GetHashCode(null);
+      nullHashCode       = SystemComparerStruct<Tuples.Tuple>.Instance.GetHashCode(null);
       descriptorComparer = Provider.GetComparer<TupleDescriptor>().ApplyRules(ComparisonRules);
       comparersInfo.Initialize(new object());
     }

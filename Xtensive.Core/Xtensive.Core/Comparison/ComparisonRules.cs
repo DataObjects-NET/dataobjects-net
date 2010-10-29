@@ -7,12 +7,12 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Ordering rule for <see cref="IAdvancedComparer{T}"/> comparer.
@@ -26,15 +26,15 @@ namespace Xtensive.Core.Comparison
     private volatile int cachedHashCode;
 
     /// <summary>
-    /// Predefined rules with <see cref="Direction"/> = <see cref="Core.Direction.None"/>.
+    /// Predefined rules with <see cref="Direction"/> = <see cref="Direction.None"/>.
     /// </summary>
     public static readonly ComparisonRules None     = new ComparisonRules(ComparisonRule.None);
     /// <summary>
-    /// Predefined rules with <see cref="Direction"/> = <see cref="Core.Direction.Positive"/>.
+    /// Predefined rules with <see cref="Direction"/> = <see cref="Direction.Positive"/>.
     /// </summary>
     public static readonly ComparisonRules Positive = new ComparisonRules(ComparisonRule.Positive);
     /// <summary>
-    /// Predefined rules with <see cref="Direction"/> = <see cref="Core.Direction.Negative"/>.
+    /// Predefined rules with <see cref="Direction"/> = <see cref="Direction.Negative"/>.
     /// </summary>
     public static readonly ComparisonRules Negative = new ComparisonRules(ComparisonRule.Negative);
 

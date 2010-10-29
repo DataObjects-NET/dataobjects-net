@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   [Serializable]
   internal class ExtractionInfo

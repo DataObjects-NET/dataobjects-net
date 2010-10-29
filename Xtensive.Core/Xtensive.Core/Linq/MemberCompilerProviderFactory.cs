@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   [Serializable]
   public class MemberCompilerProviderFactory

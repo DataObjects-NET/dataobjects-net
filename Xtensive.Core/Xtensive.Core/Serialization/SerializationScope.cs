@@ -4,10 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.24
 
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Serialization scope.

@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.Tuples.Internals
+namespace Xtensive.Tuples.Internals
 {
   /// <summary>
   /// Empty tuple descriptor.

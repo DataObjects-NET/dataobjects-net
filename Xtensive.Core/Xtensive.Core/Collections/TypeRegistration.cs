@@ -7,9 +7,10 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Describes a single type registration call to <see cref="TypeRegistry"/>.

@@ -6,12 +6,12 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core.Caching;
+using Xtensive.Caching;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Security
+namespace Xtensive.Security
 {
   /// <summary>
   /// Caching signature provider: caches decrypted signatures

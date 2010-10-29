@@ -5,7 +5,7 @@
 // Created:    2009.12.16
 
 using System.Linq;
-using Xtensive.Storage;
+using Xtensive.Orm;
 
 namespace Xtensive.Practices.Localization
 {
@@ -22,8 +22,8 @@ namespace Xtensive.Practices.Localization
     /// <returns></returns>
     public static IQueryable<LocalizationPair<TTarget, TLocalization>> All<TTarget, TLocalization>() where TTarget: Entity where TLocalization: Model.Localization<TTarget>
     {
-      return from target in Xtensive.Storage.Query.All<TTarget>()
-      join localization in Xtensive.Storage.Query.All<TLocalization>()
+      return from target in Xtensive.Orm.Query.All<TTarget>()
+      join localization in Xtensive.Orm.Query.All<TLocalization>()
         on target equals localization.Target
       where localization.CultureName==LocalizationContext.Current.CultureName
       select new LocalizationPair<TTarget, TLocalization>(target, localization);

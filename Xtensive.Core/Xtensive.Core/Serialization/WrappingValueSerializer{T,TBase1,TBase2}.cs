@@ -5,10 +5,10 @@
 // Created:    2008.02.12
 
 using System;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Reflection;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Base class for any wrapping <see cref="IValueSerializer{T}"/>s.

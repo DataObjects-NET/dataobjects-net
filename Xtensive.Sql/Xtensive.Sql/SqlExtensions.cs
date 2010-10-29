@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql

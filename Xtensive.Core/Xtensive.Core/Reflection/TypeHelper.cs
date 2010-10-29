@@ -14,14 +14,15 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Sorting;
-using Xtensive.Core.Threading;
+using Xtensive.Collections;
+using Xtensive.Comparison;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.Resources;
+using Xtensive.Sorting;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// <see cref="Type"/> related helper \ extension methods.

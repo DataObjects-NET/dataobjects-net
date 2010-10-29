@@ -7,9 +7,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Arithmetic;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Arithmetic;
-using Xtensive.Core.Comparison;
 
 namespace Xtensive.Indexing.Optimization
 {

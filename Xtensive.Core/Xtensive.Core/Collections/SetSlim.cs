@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Comparison;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Represents a set of items.

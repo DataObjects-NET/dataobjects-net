@@ -8,14 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Comparison;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Performance
+namespace Xtensive.Tests.Performance
 {
   public sealed class InvariantStringComparer: IComparer<string>
   {
@@ -49,7 +50,7 @@ namespace Xtensive.Core.Tests.Performance
     {
 //      StructTest<Direction>(0.5);
 //      StructTest<double>(1);
-      ClassTest<Tuple>(0.2);
+      ClassTest<Xtensive.Tuples.Tuple>(0.2);
     }
 
     [Test]
@@ -65,7 +66,7 @@ namespace Xtensive.Core.Tests.Performance
     {
       StructTest<Direction>(0.5);
       StructTest<double>(1);
-      ClassTest<Tuple>(0.2);
+      ClassTest<Xtensive.Tuples.Tuple>(0.2);
     }
 
     public void Test(double speedFactor)
@@ -86,7 +87,7 @@ namespace Xtensive.Core.Tests.Performance
       StructTest<Guid>(0.5 * speedFactor);
       StructTest<Direction>(0.5 * speedFactor);
       ClassTest<string>(0.2 * speedFactor);
-      ClassTest<Tuple>(0.2 * speedFactor);
+      ClassTest<Xtensive.Tuples.Tuple>(0.2 * speedFactor);
     }
 
     public void ClassTest<T>(double speedFactor)

@@ -5,9 +5,9 @@
 // Created:    2008.01.22
 
 using System;
-using Xtensive.Core.Hashing;
+using Xtensive.Hashing;
 
-namespace Xtensive.Core.Tests.Hashing
+namespace Xtensive.Tests.Hashing
 {
   internal class CustomStringHasher : HasherBase<string>
   {

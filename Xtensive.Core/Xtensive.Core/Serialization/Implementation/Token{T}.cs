@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Typed version of <see cref="Token"/>.

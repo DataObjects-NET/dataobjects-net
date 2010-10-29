@@ -1,13 +1,13 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
+using Xtensive.Caching;
+using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Conversion;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
 
-namespace Xtensive.Core.Tests.Caching
+namespace Xtensive.Tests.Caching
 {
   internal class TestClass : 
     IIdentified<string>,

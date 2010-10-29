@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Describes a tuple.

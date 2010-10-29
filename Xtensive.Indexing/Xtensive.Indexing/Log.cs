@@ -5,7 +5,7 @@
 // Created:    2008.01.03
 
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Diagnostics;
 
 namespace Xtensive.Indexing
 {

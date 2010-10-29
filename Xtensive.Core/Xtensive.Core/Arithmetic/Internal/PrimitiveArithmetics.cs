@@ -1,13 +1,14 @@
-// Copyright (C) 2008 Xtensive LLC.
+﻿// Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
 // Created:    2008.01.22
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Arithmetic;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   [Serializable]
   internal sealed class ByteArithmetic

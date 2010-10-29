@@ -5,10 +5,10 @@
 // Created:    2008.03.03
 
 using System.Diagnostics;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Configuration;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Comparison;
+using Xtensive.Configuration;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing.Composite

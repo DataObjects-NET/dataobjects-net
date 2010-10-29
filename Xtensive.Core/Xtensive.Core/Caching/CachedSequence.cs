@@ -6,9 +6,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// Cached sequence wrapper.

@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Flag registry. An item could be registered multiple times with the different flags. 

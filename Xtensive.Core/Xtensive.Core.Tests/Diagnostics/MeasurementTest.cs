@@ -7,11 +7,11 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Disposing;
+using Xtensive.Disposing;
 using Xtensive.Core;
+using Xtensive.Diagnostics;
 
-namespace Xtensive.Core.Tests.Diagnostics
+namespace Xtensive.Tests.Diagnostics
 {
   [TestFixture]
   public class MeasurementTest

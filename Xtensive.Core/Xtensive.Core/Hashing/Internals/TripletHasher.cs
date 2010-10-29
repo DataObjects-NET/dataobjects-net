@@ -5,8 +5,9 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class TripletHasher<TFirst, TSecond, TThird> : WrappingHasher<Triplet<TFirst, TSecond, TThird>, TFirst, TSecond, TThird>

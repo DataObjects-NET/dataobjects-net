@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Measures

@@ -2,9 +2,9 @@ using System;
 using System.Web;
 using System.Web.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Disposing;
-using Xtensive.Storage;
-using Xtensive.Storage.Configuration;
+using Xtensive.Disposing;
+using Xtensive.Orm;
+using Xtensive.Orm.Configuration;
 using Xtensive.Practices.Web.Resources;
 
 namespace Xtensive.Practices.Web
@@ -24,7 +24,7 @@ namespace Xtensive.Practices.Web
   /// &lt;configuration&gt;
   ///   &lt;system.web&gt;
   ///     &lt;httpModules&gt;
-  ///       &lt;add name="SessionManager" type="Xtensive.Storage.Web.SessionManager, Xtensive.Storage"/&gt;
+  ///       &lt;add name="SessionManager" type="Xtensive.Orm.Web.SessionManager, Xtensive.Storage"/&gt;
   ///     &lt;/httpModules&gt;
   ///   &lt;/system.web&gt;
   /// &lt;/configuration&gt;

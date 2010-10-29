@@ -7,12 +7,13 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
 using FieldInfo=System.Reflection.FieldInfo;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// Base class for any <see cref="ISizeCalculator{T}"/> implementor.

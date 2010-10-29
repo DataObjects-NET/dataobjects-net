@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
+namespace Xtensive.Tests.ObjectMapping.SourceModel
 {
   public interface IPerson
   {

@@ -5,9 +5,9 @@
 // Created:    2007.10.15
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.Notifications
+namespace Xtensive.Notifications
 {
   /// <summary>
   /// An object exposing change related events contract.

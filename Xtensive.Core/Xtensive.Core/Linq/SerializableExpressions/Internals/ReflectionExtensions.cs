@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace Xtensive.Core.Linq.SerializableExpressions.Internals
+namespace Xtensive.Linq.SerializableExpressions.Internals
 {
   internal static class ReflectionExtensions
   {

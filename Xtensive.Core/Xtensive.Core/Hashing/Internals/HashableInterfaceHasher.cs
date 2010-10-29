@@ -5,8 +5,9 @@
 // Created:    2008.01.24
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   [Serializable]
   internal class HashableInterfaceHasher<T> : WrappingHasher<T, long>

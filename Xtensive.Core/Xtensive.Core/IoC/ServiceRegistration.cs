@@ -5,14 +5,14 @@
 // Created:    2009.10.12
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 using System.Linq;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Describes single service mapping entry for <see cref="ServiceContainer"/>.

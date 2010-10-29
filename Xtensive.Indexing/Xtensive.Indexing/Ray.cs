@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing

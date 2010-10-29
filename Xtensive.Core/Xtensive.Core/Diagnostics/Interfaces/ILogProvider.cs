@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Log provider contract.

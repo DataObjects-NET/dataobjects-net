@@ -1,0 +1,163 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core.dll" #>
+<#@ import namespace="System.Linq" #>
+using System;
+using System.Linq;
+using NUnit.Framework;
+using Xtensive.Orm;
+
+namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
+{
+<#
+var shouldFail = new[] {7,8,11,12,14,18,19,20,23,24,26,30,32,36};
+int count = 0;
+for(int i=0; i<3; i++) {
+for(int j=0; j<2; j++) {
+for(int k=0; k<3; k++) {
+for(int l=0; l<2; l++) {
+count++;
+#>
+  namespace Model<#=count#>
+  {
+    public interface IDocument<# if (i == 2) {#><TItem><#}#> : IEntity
+<# if (i == 2) {#>      where TItem : IItem
+<#}#>
+    {
+      [Field]
+<# if (k == 0 || k == 2) {#>
+      [Association(PairTo = "Document", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
+<#}#>
+<# if (i == 0) {#>
+      EntitySet<IItem> Items { get; }<#}#>
+<# if (i == 1) {#>
+      EntitySet<Item> Items { get; }<#}#>
+<# if (i == 2) {#>
+      EntitySet<TItem> Items { get; }<#}#>
+
+    }
+
+    public interface IItem : IEntity
+    {
+      [Field]
+<# if (l == 1 && (k == 0 || k == 2)) {#>
+      [Association(PairTo = "Items", OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Cascade)]
+<#}#>
+      <# if (j == 0 || i == 2) {#>I<#}#>Document<# if (i == 2) {#><Item><#}#> Document { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class Document : Entity, IDocument<# if (i == 2) {#><Item>
+<#} else {#>
+
+<#}#>
+    {
+      [Field,Key]
+      public int Id { get; private set; }
+      [Field]
+<# if (k == 1 || k == 2) {#>
+      [Association(PairTo = "Document", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
+<#}#>
+<# if (i == 0) {#>
+      public EntitySet<IItem> Items { get; private set; }<#}#>
+<# if (i == 1) {#>
+      public EntitySet<Item> Items { get; private set; }<#}#>
+<# if (i == 2) {#>
+      public EntitySet<Item> Items { get; private set; }<#}#>
+
+    }
+
+    [HierarchyRoot]
+    public class Item : Entity, IItem
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+      [Field]
+<# if (l == 1 && (k == 1 || k == 2)) {#>
+      [Association(PairTo = "Items", OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Cascade)]
+<#}#>
+      public <# if (j == 0 || i == 2) {#>I<#}#>Document<# if (i == 2) {#><Item><#}#> Document { get; set; }
+    }
+  }
+
+<#}}}}#>
+  [TestFixture]
+  public class InterfaceAssociationTest
+  {
+<#
+for(int i = 1; i <= count; i++){
+#>
+    [Test]
+<#
+if (shouldFail.Contains(i))	{
+#>
+    [ExpectedException(typeof(DomainBuilderException))]
+<#}#>
+    public void CombinedTest<#=string.Format("{0:00}",i)#>()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(Model<#=i#>.Item).Assembly, typeof(Model<#=i#>.Item).Namespace);
+      var domain = Domain.Build(config);
+      var key = (Key)null;
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = new Model<#=i#>.Document();
+        key = document.Key;
+        new Model<#=i#>.Item() { Document = document };
+        new Model<#=i#>.Item() { Document = document };
+        new Model<#=i#>.Item() { Document = document };
+        new Model<#=i#>.Item() { Document = document };
+        new Model<#=i#>.Item() { Document = document };
+        var itemCount = 0;
+        Assert.AreEqual(5, document.Items.Count);
+        foreach (var item in document.Items) {
+          Assert.IsNotNull(item);
+	      itemCount++;
+        }
+        Assert.AreEqual(5, itemCount);
+        t.Complete();
+      }
+	  
+      using (var session = Session.Open(domain))
+      using (var t = Transaction.Open()) {
+        var document = Query.Single<Model<#=i#>.Document>(key);
+        var itemCount = 0;
+        Assert.AreEqual(5, document.Items.Count);
+        foreach (var item in document.Items) {
+          Assert.IsNotNull(item);
+          itemCount++;
+        }
+        Assert.AreEqual(5, itemCount);
+		
+        var some = document.Items.First();
+        some.Document = null;
+        itemCount = 0;
+        Assert.AreEqual(4, document.Items.Count);
+        foreach (var item in document.Items) {
+          Assert.IsNotNull(item);
+          itemCount++;
+        }
+        Assert.AreEqual(4, itemCount);
+        t.Complete();
+      }
+	  
+      using (var session = Session.Open(domain))
+      using (var t = Transaction.Open()) {
+        var document = Query.Single<Model<#=i#>.Document>(key);
+        var itemCount = 0;
+        Assert.AreEqual(4, document.Items.Count);
+        foreach (var item in document.Items) {
+          Assert.IsNotNull(item);
+          itemCount++;
+        }
+        Assert.AreEqual(4, itemCount);
+        
+        document.Remove();
+        var items = Query.All<Model<#=i#>.Item>().ToList();
+        Assert.AreEqual(1, items.Count);
+        
+        t.Complete();
+      }
+    }
+<#}#>
+  }
+}

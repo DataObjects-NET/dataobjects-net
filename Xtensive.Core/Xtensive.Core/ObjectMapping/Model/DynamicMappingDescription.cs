@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 
-namespace Xtensive.Core.ObjectMapping.Model
+namespace Xtensive.ObjectMapping.Model
 {
   [Serializable]
   internal sealed class DynamicMappingDescription : MappingDescription

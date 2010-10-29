@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Conversion;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 
 namespace Xtensive.Indexing.Tests.Index
 {
@@ -72,7 +72,7 @@ namespace Xtensive.Indexing.Tests.Index
         File.Delete(fileName);
       }
       Index<T, T> index = GetIndex<T>();
-      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
+      Xtensive.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
       foreach (T item in instances) {
         index.Add(item);
@@ -113,7 +113,7 @@ namespace Xtensive.Indexing.Tests.Index
     private void MemorySerializeInternal<T>(int count)
     {
       Index<T, T> index = GetIndex<T>();
-      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
+      Xtensive.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
       foreach (T item in instances) {
         index.Add(item);
@@ -157,9 +157,9 @@ namespace Xtensive.Indexing.Tests.Index
         File.Delete(fileName);
       }
       Index<T, T> index = GetIndex<T>();
-      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
+      Xtensive.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
-      Core.Collections.ISet<T> missingInstances = GetUniqueInstances<T>(count);
+      Xtensive.Collections.ISet<T> missingInstances = GetUniqueInstances<T>(count);
       missingInstances.ExceptWith(instances);
 
       foreach (T item in instances) {
@@ -234,7 +234,7 @@ namespace Xtensive.Indexing.Tests.Index
     private void DebugInternal<T>(int count)
     {
       Index<T, T> index = GetIndex<T>();
-      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
+      Xtensive.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
       foreach (T item in instances) {
         index.Add(item);

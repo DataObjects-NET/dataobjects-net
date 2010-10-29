@@ -8,16 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Disposing;
+using Xtensive.Collections;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Resources;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// The context of a single serialization / deserialization operation.

@@ -6,9 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   [Serializable]
   internal class ConvertingEnumerator<T1, T2> : IEnumerator<T2>

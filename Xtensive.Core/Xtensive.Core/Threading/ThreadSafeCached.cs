@@ -7,11 +7,12 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.Comparison;
+using Xtensive.Core;
+using Xtensive.Threading;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Threading
+namespace Xtensive.Threading
 {
   /// <summary>
   /// A structure caching a single value of type <typeparamref name="T"/>.

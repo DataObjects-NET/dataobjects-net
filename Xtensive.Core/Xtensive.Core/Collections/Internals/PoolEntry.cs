@@ -5,10 +5,11 @@
 // Created:    2007.06.13
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using System.Collections;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   internal class PoolEntry<T>
   {

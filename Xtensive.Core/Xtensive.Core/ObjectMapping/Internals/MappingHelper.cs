@@ -9,10 +9,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Resources;
+using Xtensive.Collections;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   internal static class MappingHelper
   {

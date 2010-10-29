@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Core.Disposing
+namespace Xtensive.Disposing
 {
   /// <summary>
   /// An implementation of <see cref="ICompletableScope"/>, that is always uncompleted.

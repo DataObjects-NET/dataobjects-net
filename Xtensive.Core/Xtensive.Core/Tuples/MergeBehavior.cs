@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.21
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Possible tuple merge behaviors.

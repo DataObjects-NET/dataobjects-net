@@ -8,15 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.ObjectMapping;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tests.ObjectMapping.SourceModel;
-using Xtensive.Core.Tests.ObjectMapping.TargetModel;
 using NUnit.Framework;
-using Action=Xtensive.Core.Tests.ObjectMapping.SourceModel.Action;
+using Xtensive.ObjectMapping;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Testing;
+using Xtensive.Tests.ObjectMapping.SourceModel;
+using Xtensive.Tests.ObjectMapping.TargetModel;
+using Action=Xtensive.Tests.ObjectMapping.SourceModel.Action;
 
-namespace Xtensive.Core.Tests.ObjectMapping
+namespace Xtensive.Tests.ObjectMapping
 {
   [TestFixture]
   public sealed class MapperHandlingCollectionTests : MapperTestBase
@@ -163,7 +163,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       modified.PasswordHash[3] += 5;
       var oldAccessRight = modified.AccessRights[0];
       modified.AccessRights[0] = new AccessRightDto {
-        Action = Action.Write, ObjectId = oldAccessRight.ObjectId
+        Action = SourceModel.Action.Write, ObjectId = oldAccessRight.ObjectId
       };
       modified.AccessRights[0].ObjectId[2] += 7;
       var operations = ((DefaultOperationLog) mapper.Compare(original, modified).Operations).ToList();
@@ -302,8 +302,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       return new Account {
         AccessRights = new List<AccessRight> {
-          new AccessRight {Action = Action.Read, ObjectId = new[] {1L, 2, 3, 4, 5}},
-          new AccessRight {Action = Action.Write, ObjectId = new[] {0L, 9, 8, 7, 6}}
+          new AccessRight {Action = SourceModel.Action.Read, ObjectId = new[] {1L, 2, 3, 4, 5}},
+          new AccessRight {Action = SourceModel.Action.Write, ObjectId = new[] {0L, 9, 8, 7, 6}}
         },
         PasswordHash = new byte[] {1, 8, 89, 29, 50, 77}
       };

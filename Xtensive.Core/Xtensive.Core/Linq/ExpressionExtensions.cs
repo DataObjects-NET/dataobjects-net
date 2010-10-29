@@ -8,11 +8,12 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// <see cref="Expression"/> related extension methods.
@@ -22,7 +23,7 @@ namespace Xtensive.Core.Linq
     private static readonly MethodInfo TupleGenericAccessor;
 
     ///<summary>
-    /// Makes <see cref="Tuple.GetValueOrDefault{T}"/> method call.
+    /// Makes <see cref="Tuples.Tuple.GetValueOrDefault{T}"/> method call.
     ///</summary>
     ///<param name="target">Target expression.</param>
     ///<param name="accessorType">Type of accessor.</param>

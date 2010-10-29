@@ -8,12 +8,12 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Security;
 using System.Security.Cryptography;
 using System.Text;
-using Xtensive.Core.Testing;
+using Xtensive.Security;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Security
+namespace Xtensive.Tests.Security
 {
   [TestFixture]
   public class AuthenticationServiceTest

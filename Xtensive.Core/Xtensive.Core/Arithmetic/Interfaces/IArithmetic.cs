@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.22
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// Provides arithmetic operations for specified type.

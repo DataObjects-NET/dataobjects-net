@@ -7,9 +7,9 @@
 using System;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
-using Xtensive.Core.Linq.SerializableExpressions.Internals;
+using Xtensive.Linq.SerializableExpressions.Internals;
 
-namespace Xtensive.Core.Linq.SerializableExpressions
+namespace Xtensive.Linq.SerializableExpressions
 {
   /// <summary>
   /// A serializable representation of <see cref="Expression"/>.

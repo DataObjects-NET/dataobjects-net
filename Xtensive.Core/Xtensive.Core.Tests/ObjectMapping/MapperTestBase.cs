@@ -13,12 +13,12 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.ObjectMapping;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Tests.ObjectMapping.SourceModel;
-using Xtensive.Core.Tests.ObjectMapping.TargetModel;
+using Xtensive.ObjectMapping;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Tests.ObjectMapping.SourceModel;
+using Xtensive.Tests.ObjectMapping.TargetModel;
 
-namespace Xtensive.Core.Tests.ObjectMapping
+namespace Xtensive.Tests.ObjectMapping
 {
   public class MapperTestBase
   {

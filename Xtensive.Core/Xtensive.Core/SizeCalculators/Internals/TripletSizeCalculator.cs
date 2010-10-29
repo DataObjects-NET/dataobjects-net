@@ -5,9 +5,10 @@
 // Created:    2008.05.13
 
 using System;
-using Xtensive.Core.Reflection;
+using Xtensive.Core;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   [Serializable]
   internal class TripletSizeCalculator<TFirst, TSecond, TThird> : 

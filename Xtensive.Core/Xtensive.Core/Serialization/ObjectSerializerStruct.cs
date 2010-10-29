@@ -8,9 +8,10 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// A struct providing faster access for key <see cref="ObjectSerializer{T}"/> delegates.

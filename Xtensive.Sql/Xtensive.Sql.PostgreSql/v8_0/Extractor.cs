@@ -9,12 +9,12 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Npgsql;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Dml;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 using System.Linq;
 
 namespace Xtensive.Sql.PostgreSql.v8_0

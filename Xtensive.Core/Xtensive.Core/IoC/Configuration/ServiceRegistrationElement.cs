@@ -6,11 +6,11 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Core.Configuration;
+using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
-namespace Xtensive.Core.IoC.Configuration
+namespace Xtensive.IoC.Configuration
 {
   /// <summary>
   /// Service mapping configuration element.

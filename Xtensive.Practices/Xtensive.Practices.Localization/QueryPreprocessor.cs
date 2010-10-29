@@ -6,9 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
+using Xtensive.Orm;
 using Xtensive.Practices.Localization.Internals;
-using Xtensive.Storage;
 
 namespace Xtensive.Practices.Localization
 {

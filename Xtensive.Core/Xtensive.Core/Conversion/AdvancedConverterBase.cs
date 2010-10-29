@@ -7,9 +7,10 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Base class for any advanced converter.

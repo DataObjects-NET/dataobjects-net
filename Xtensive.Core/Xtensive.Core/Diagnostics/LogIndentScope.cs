@@ -4,10 +4,10 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.11
 
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Log indent scope. 

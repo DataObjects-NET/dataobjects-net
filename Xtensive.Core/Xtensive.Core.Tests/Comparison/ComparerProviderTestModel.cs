@@ -5,9 +5,9 @@
 // Created:    2007.12.17
 
 using System;
-using Xtensive.Core.Comparison;
+using Xtensive.Comparison;
 
-namespace Xtensive.Core.Tests.Comparison
+namespace Xtensive.Tests.Comparison
 {
   public class Wrapper<T>
   {

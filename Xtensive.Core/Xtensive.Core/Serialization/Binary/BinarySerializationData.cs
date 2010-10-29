@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization.Binary
+namespace Xtensive.Serialization.Binary
 {
   /// <summary>
   /// A <see cref="SerializationData"/> specific to binary serialization.

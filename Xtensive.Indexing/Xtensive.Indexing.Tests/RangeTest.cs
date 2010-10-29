@@ -6,9 +6,9 @@
 
 using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
 namespace Xtensive.Indexing.Tests
 {

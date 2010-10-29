@@ -7,9 +7,10 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Threading
+namespace Xtensive.Threading
 {
   /// <summary>
   /// Thread-safe version of <see cref="IntDictionary{TValue}"/>. Any operation on it is atomic.

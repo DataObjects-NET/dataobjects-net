@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.SizeCalculators;
-using Xtensive.Core.Testing;
+using Xtensive.Collections;
+using Xtensive.SizeCalculators;
+using Xtensive.Testing;
 using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing.Tests

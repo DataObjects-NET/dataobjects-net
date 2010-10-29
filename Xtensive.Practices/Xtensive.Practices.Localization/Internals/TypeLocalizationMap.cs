@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Practices.Localization.Internals
 {

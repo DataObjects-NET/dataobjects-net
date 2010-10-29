@@ -5,9 +5,10 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Threading
+namespace Xtensive.Threading
 {
   /// <summary>
   /// Lock utility - a helper class providing more convenient ways for dealing

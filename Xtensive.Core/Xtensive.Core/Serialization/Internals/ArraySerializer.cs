@@ -5,9 +5,9 @@
 // Created:    2008.08.27
 
 using System;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Serialization.Internals
+namespace Xtensive.Serialization.Internals
 {
   internal sealed class ArraySerializer<T> : ObjectSerializerBase<T[]>
   {

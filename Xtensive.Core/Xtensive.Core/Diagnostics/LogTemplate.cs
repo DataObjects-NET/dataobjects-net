@@ -7,9 +7,10 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core.IoC;
+using Xtensive.Core;
+using Xtensive.IoC;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Log template - simplifies logging,

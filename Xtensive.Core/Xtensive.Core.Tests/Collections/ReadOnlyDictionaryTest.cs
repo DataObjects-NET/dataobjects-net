@@ -11,9 +11,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using NUnit.Framework;
 using System.Collections;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class ReadOnlyDictionaryTest

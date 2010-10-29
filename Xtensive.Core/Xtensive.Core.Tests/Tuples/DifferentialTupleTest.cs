@@ -4,15 +4,14 @@
 // Created by: Nick Svetlov
 // Created:    2008.05.23
 
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
   [TestFixture]
   public class DifferentialTupleTest : TupleBehaviorTestBase
@@ -21,8 +20,8 @@ namespace Xtensive.Core.Tests.Tuples
     public void DifferentialTest()
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(fieldTypes);
-      Tuple t1 = Tuple.Create(descriptor);
-      Tuple t2 = t1.Clone();
+      Xtensive.Tuples.Tuple t1 = Tuple.Create(descriptor);
+      Xtensive.Tuples.Tuple t2 = t1.Clone();
       PopulateData(fieldTypes, t2, t1);
 
       DifferentialTuple d = new DifferentialTuple(t1);
@@ -62,12 +61,12 @@ namespace Xtensive.Core.Tests.Tuples
       base.RandomTest();
     }
 
-    protected override Tuple CreateTestTuple(TupleDescriptor descriptor)
+    protected override Xtensive.Tuples.Tuple CreateTestTuple(TupleDescriptor descriptor)
     {
       return new DifferentialTuple(Tuple.Create(descriptor));
     }
 
-    protected override Tuple CreateTestTuple(Tuple source)
+    protected override Xtensive.Tuples.Tuple CreateTestTuple(Xtensive.Tuples.Tuple source)
     {
       return new DifferentialTuple(source);
     }

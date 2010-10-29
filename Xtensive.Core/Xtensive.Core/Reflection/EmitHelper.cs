@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// Code emission (via <see cref="System.Reflection.Emit"/>) helper.

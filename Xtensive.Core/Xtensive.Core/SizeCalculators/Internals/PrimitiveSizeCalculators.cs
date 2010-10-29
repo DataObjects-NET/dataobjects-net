@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Xtensive LLC.
+﻿// Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   [Serializable]
   internal class BooleanSizeCalculator : SizeCalculatorBase<Boolean>

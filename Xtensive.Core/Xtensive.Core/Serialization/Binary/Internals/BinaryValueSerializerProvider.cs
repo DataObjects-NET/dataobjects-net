@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Binary
+namespace Xtensive.Serialization.Binary
 {
   /// <summary>
   /// An implementation of <see cref="IValueSerializerProvider"/> for binary serialization.

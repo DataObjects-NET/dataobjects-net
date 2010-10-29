@@ -9,16 +9,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
+using Xtensive.Comparison;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Reflection;
+using Xtensive.Reflection;
 using System.Linq;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Provides high-level access to the serializing or deserializing data.

@@ -9,17 +9,19 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Disposing;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC.Configuration;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
+using Xtensive.Diagnostics;
+using Xtensive.Reflection;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC.Configuration;
+using Xtensive.Resources;
+using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
+using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
+using DelegateHelper = Xtensive.Reflection.DelegateHelper;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Default IoC (inversion of control) container implementation.
@@ -253,8 +255,8 @@ namespace Xtensive.Core.IoC
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
     public static IServiceContainer Create(string name)
     {
-      var configuration = (ConfigurationSection) ConfigurationManager.GetSection(
-        ConfigurationSection.DefaultSectionName);
+      var configuration = (Configuration.ConfigurationSection) ConfigurationManager.GetSection(
+        Configuration.ConfigurationSection.DefaultSectionName);
       return Create(configuration, name);
     }
 
@@ -264,7 +266,7 @@ namespace Xtensive.Core.IoC
     /// <param name="section">IoC configuration section.</param>
     /// <param name="name">The name of container configuration to create container for.</param>
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
-    public static IServiceContainer Create(ConfigurationSection section, string name)
+    public static IServiceContainer Create(Configuration.ConfigurationSection section, string name)
     {
       if (name.IsNullOrEmpty())
         name = string.Empty;
