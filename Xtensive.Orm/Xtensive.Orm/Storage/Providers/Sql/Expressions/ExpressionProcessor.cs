@@ -328,7 +328,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         // TODO: Check out this sh..t
         var sqlProvider = (SqlProvider) provider;
         var permanentReference = sqlProvider.PermanentReference;
-        if (permanentReference.Columns.Count < sqlProvider.Request.SelectStatement.Columns.Count)
+        if (permanentReference.Columns.Count != sqlProvider.Request.SelectStatement.Columns.Count)
           return compiler.ExtractColumnExpressions(sqlProvider.Request.SelectStatement, sqlProvider.Origin)[columnIndex];
         return permanentReference[columnIndex];
       }
