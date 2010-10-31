@@ -9,11 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.Issue0839_MultithreadingBug_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.Issue0839_MultithreadingBug_Model;
 using Xtensive.Core;
 
-namespace Xtensive.Storage.Tests.Issues.Issue0839_MultithreadingBug_Model
+namespace Xtensive.Orm.Tests.Issues.Issue0839_MultithreadingBug_Model
 {
   [Serializable]
   [HierarchyRoot]
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0839_MultithreadingBug_Model
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class Issue0839_MultithreadingBug : AutoBuildTest
   {
