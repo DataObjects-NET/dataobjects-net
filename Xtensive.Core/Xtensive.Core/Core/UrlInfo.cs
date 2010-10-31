@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
+using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Collections;
