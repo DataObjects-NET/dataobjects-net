@@ -43,7 +43,8 @@ namespace Xtensive.Orm.Linq.Materialization
       return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
     }
 
-    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters)
+    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context, 
+      IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
       var materializationContextParameter = Expression.Parameter(typeof (ItemMaterializationContext), "mc");
