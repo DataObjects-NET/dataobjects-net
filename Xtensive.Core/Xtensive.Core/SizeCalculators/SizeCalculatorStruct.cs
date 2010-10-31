@@ -14,14 +14,14 @@ using S=Xtensive.SizeCalculators;
 namespace Xtensive.SizeCalculators
 {
   /// <summary>
-  /// A struct providing faster access for key <see cref="SizeCalculator{T}"/> delegates.
+  /// A struct providing faster access for key <see cref="S.SizeCalculator{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="ISizeCalculator{T}"/> generic argument.</typeparam>
   [Serializable]
   public struct SizeCalculatorStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="SizeCalculatorStruct{T}"/> for <see cref="SizeCalculator{T}.Default"/> hasher.
+    /// Gets <see cref="SizeCalculatorStruct{T}"/> for <see cref="S.SizeCalculator{T}.Default"/> hasher.
     /// </summary>
     public static readonly SizeCalculatorStruct<T> Default = new SizeCalculatorStruct<T>(SizeCalculator<T>.Default);
 
@@ -42,7 +42,7 @@ namespace Xtensive.SizeCalculators
     public readonly Func<T, int> GetValueSize;
 
     /// <summary>
-    /// Implicit conversion of <see cref="SizeCalculator{T}"/> to <see cref="SizeCalculatorStruct{T}"/>.
+    /// Implicit conversion of <see cref="S.SizeCalculator{T}"/> to <see cref="SizeCalculatorStruct{T}"/>.
     /// </summary>
     /// <param name="sizeCalculator">Size calculator to provide the struct for.</param>
     public static implicit operator SizeCalculatorStruct<T>(SizeCalculator<T> sizeCalculator)

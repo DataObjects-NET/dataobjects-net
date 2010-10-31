@@ -266,8 +266,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Converts the <see cref="Xtensive.Sql.ReferentialAction"/> to 
-    /// <see cref="Xtensive.Orm.Model.ReferentialAction"/>.
+    /// Converts the <see cref="Xtensive.Sql.ReferentialAction"/> to <see cref="ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>

@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Issues
       public int Id { get; private set; }
 
       [Field]
-      public string State { get; set; }
+      public new string State { get; set; }
     }
 
     [HierarchyRoot, Serializable]
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       [Field]
       [FieldMapping("StateID")]
-      public State State { get; set; }
+      public new State State { get; set; }
     }
   }
 

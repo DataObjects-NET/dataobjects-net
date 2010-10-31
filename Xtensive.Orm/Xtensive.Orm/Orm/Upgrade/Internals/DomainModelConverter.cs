@@ -406,7 +406,7 @@ namespace Xtensive.Orm.Upgrade
 
     /// <summary>
     /// Converts the <see cref="OnRemoveAction"/> to 
-    /// <see cref="Xtensive.Orm.Model.ReferentialAction"/>.
+    /// <see cref="Xtensive.Storage.Model.ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>

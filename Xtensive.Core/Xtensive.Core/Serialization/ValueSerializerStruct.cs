@@ -10,20 +10,21 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Internals.DocTemplates;
+using S=Xtensive.Serialization;
 
 namespace Xtensive.Serialization
 {
   /// <summary>
   /// A struct providing faster access for key 
-  /// <see cref="ValueSerializer{T}"/> delegates.
+  /// <see cref="S.ValueSerializer{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IValueSerializer{T}"/> generic argument.</typeparam>
   [Serializable]
   public struct ValueSerializerStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="ValueSerializerStruct{T}"/> for 
-    /// <see cref="ValueSerializer{T}.Default"/> hasher.
+    /// Gets <see cref="S.ValueSerializerStruct{T}"/> for 
+    /// <see cref="S.ValueSerializer{T}.Default"/> hasher.
     /// </summary>
     public static readonly ValueSerializerStruct<T> Default = 
       new ValueSerializerStruct<T>(ValueSerializer<T>.Default);
@@ -44,8 +45,7 @@ namespace Xtensive.Serialization
     public readonly Action<Stream, T> Serialize;
 
     /// <summary>
-    /// Implicit conversion of 
-    /// <see cref="ValueSerializer{T}"/> 
+    /// Implicit conversion of <see cref="S.ValueSerializer{T}"/> 
     /// to <see cref="ValueSerializerStruct{T}"/>.
     /// </summary>
     /// <param name="valueSerializer">Serializer to provide the struct for.</param>
@@ -60,7 +60,7 @@ namespace Xtensive.Serialization
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="valueSerializer"><see cref="ValueSerializer{T}"/> 
+    /// <param name="valueSerializer"><see cref="S.ValueSerializer{T}"/> 
     /// to provide the delegates for.</param>
     public ValueSerializerStruct(ValueSerializer<T> valueSerializer) 
     {

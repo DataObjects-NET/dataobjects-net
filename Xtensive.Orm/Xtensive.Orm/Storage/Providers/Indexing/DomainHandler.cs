@@ -99,8 +99,7 @@ namespace Xtensive.Storage.Providers.Indexing
     }
 
     /// <summary>
-    /// Gets the <see cref="Indexing.Model.IndexInfo"/>
-    /// by <see cref="IndexInfo"/>. 
+    /// Gets the <see cref="StorageIndexInfo"/> by <see cref="IndexInfo"/>. 
     /// </summary>
     /// <param name="indexInfo">The index info.</param>
     /// <returns>Converted index info.</returns>

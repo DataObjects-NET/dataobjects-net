@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Internals.DocTemplates;
+using A=Xtensive.Arithmetic;
 
 namespace Xtensive.Arithmetic
 {
@@ -21,8 +22,8 @@ namespace Xtensive.Arithmetic
   public struct ArithmeticStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="ArithmeticStruct{T}"/> for 
-    /// <see cref="Arithmetic{T}.Default"/> arithmetic.
+    /// Gets <see cref="A.ArithmeticStruct{T}"/> for 
+    /// <see cref="A.Arithmetic{T}.Default"/> arithmetic.
     /// </summary>
     public static readonly ArithmeticStruct<T> Default = new ArithmeticStruct<T>(Arithmetic<T>.Default);
 
@@ -82,15 +83,13 @@ namespace Xtensive.Arithmetic
     public readonly Func<T, T, T> Subtract;
 
     /// <summary>
-    /// Creates a new instance of 
-    /// <see cref="Arithmetic{T}"/> 
+    /// Creates a new instance of <see cref="A.Arithmetic{T}"/> 
     /// with specified arithmetic rules applied.
     /// </summary>
     public Func<ArithmeticRules, Arithmetic<T>> ApplyRules;
 
     /// <summary>
-    /// Implicit conversion of 
-    /// <see cref="Arithmetic{T}"/> to 
+    /// Implicit conversion of <see cref="A.Arithmetic{T}"/> to 
     /// <see cref="ArithmeticStruct{T}"/>.
     /// </summary>
     /// <param name="arithmetic">Arithmetic to provide the struct for.</param>
