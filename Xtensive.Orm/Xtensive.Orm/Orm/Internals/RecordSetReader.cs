@@ -57,32 +57,32 @@ namespace Xtensive.Orm.Internals
       CacheItem cacheItem;
       var recordPartCount = header.ColumnGroups.Count;
       var context = new MaterializationContext(session, recordPartCount);
-      if (!cache.TryGetItem(header, true, out cacheItem))
-      lock (_lock)
-      if (!cache.TryGetItem(header, false, out cacheItem)) {
-        var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
-        var model = context.Model;
-        var mappings = new RecordPartMapping[recordPartCount];
-        for (int i = 0; i < recordPartCount; i++) {
-          var columnGroup = header.ColumnGroups[i];
-          var approximateType = columnGroup.TypeInfoRef.Resolve(model);
-          var columnMapping = new List<Pair<int>>();
-          var typeIdColumnIndex = -1;
-          foreach (var columnIndex in columnGroup.Columns) {
-            var column = (MappedColumn) header.Columns[columnIndex];
-            var columnInfo = column.ColumnInfoRef.Resolve(model);
-            FieldInfo fieldInfo;
-            if (!approximateType.Fields.TryGetValue(columnInfo.Field.Name, out fieldInfo))
-              continue;
-            var targetColumnIndex = fieldInfo.MappingInfo.Offset;
-            if (columnInfo.Name == typeIdColumnName)
-              typeIdColumnIndex = column.Index;
-            columnMapping.Add(new Pair<int>(targetColumnIndex, columnIndex));
+      lock (_lock) {
+        if (!cache.TryGetItem(header, false, out cacheItem)) {
+          var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
+          var model = context.Model;
+          var mappings = new RecordPartMapping[recordPartCount];
+          for (int i = 0; i < recordPartCount; i++) {
+            var columnGroup = header.ColumnGroups[i];
+            var approximateType = columnGroup.TypeInfoRef.Resolve(model);
+            var columnMapping = new List<Pair<int>>();
+            var typeIdColumnIndex = -1;
+            foreach (var columnIndex in columnGroup.Columns) {
+              var column = (MappedColumn) header.Columns[columnIndex];
+              var columnInfo = column.ColumnInfoRef.Resolve(model);
+              FieldInfo fieldInfo;
+              if (!approximateType.Fields.TryGetValue(columnInfo.Field.Name, out fieldInfo))
+                continue;
+              var targetColumnIndex = fieldInfo.MappingInfo.Offset;
+              if (columnInfo.Name==typeIdColumnName)
+                typeIdColumnIndex = column.Index;
+              columnMapping.Add(new Pair<int>(targetColumnIndex, columnIndex));
+            }
+            mappings[i] = new RecordPartMapping(typeIdColumnIndex, columnMapping.ToArray(), approximateType);
           }
-          mappings[i] = new RecordPartMapping(typeIdColumnIndex, columnMapping.ToArray(), approximateType);
+          cacheItem = new CacheItem(header, mappings);
+          cache.Add(cacheItem);
         }
-        cacheItem = new CacheItem(header, mappings);
-        cache.Add(cacheItem);
       }
       return source.Select(tuple => ParseRow(tuple, context, cacheItem.Mappings));
     }
