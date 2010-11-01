@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
 
             var person = new Person();
 

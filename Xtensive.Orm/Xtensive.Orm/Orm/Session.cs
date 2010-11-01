@@ -60,7 +60,6 @@ namespace Xtensive.Orm
   [DebuggerDisplay("FullName = {FullName}")]
   public partial class Session : DomainBound,
     IVersionSetProvider,
-    IIdentified<long>,
     IContext<SessionScope>, 
     IHasExtensions,
     IDisposable
@@ -75,6 +74,7 @@ namespace Xtensive.Orm
     private ExtensionCollection extensions;
     private volatile bool isDisposed;
     private readonly bool allowSwitching;
+    private long identifier;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -88,37 +88,15 @@ namespace Xtensive.Orm
     public string Name { get; private set; }
 
     /// <summary>
-    /// Gets the identifier of the session.
-    /// Identifiers are unique in <see cref="AppDomain"/> scope.
-    /// </summary>
-    public long Identifier { get; private set; }
-
-    /// <inheritdoc/>
-    object IIdentified.Identifier { get { return Identifier; } }
-
-    /// <summary>
-    /// Gets the full name of the <see cref="Session"/>.
-    /// Full name includes both <see cref="Name"/> and <see cref="Identifier"/>.
-    /// </summary>
-    public string FullName {
-      get {
-        string name = Name;
-        return name.IsNullOrEmpty()
-          ? string.Format(IdentifierFormat, Identifier)
-          : string.Format(FullNameFormat, name, Identifier);
-      }
-    }
-
-    /// <summary>
     /// Indicates whether debug event logging is enabled.
     /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
     /// </summary>
-    public bool IsDebugEventLoggingEnabled { get; private set; }
+    internal bool IsDebugEventLoggingEnabled { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether <see cref="SaveChanges"/> method is running.
     /// </summary>
-    public bool IsPersisting { get; private set; }
+    internal bool IsPersisting { get; private set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether session is disconnected:
@@ -316,7 +294,7 @@ namespace Xtensive.Orm
     #region IVersionSetProvider members
 
     /// <inheritdoc/>
-    public VersionSet CreateVersionSet(IEnumerable<Key> keys)
+    VersionSet IVersionSetProvider.CreateVersionSet(IEnumerable<Key> keys)
     {
       using (Activate())
       using (var tx = OpenAutoTransaction()) {
@@ -364,7 +342,10 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      return FullName;
+      string name = Name;
+      return name.IsNullOrEmpty()
+        ? string.Format(IdentifierFormat, identifier)
+        : string.Format(FullNameFormat, name, identifier);
     }
 
 
@@ -379,7 +360,7 @@ namespace Xtensive.Orm
       // Configuration is already locked
       Configuration = configuration;
       Name = configuration.Name;
-      Identifier = Interlocked.Increment(ref lastUsedIdentifier);
+      identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
       allowSwitching = (configuration.Options & SessionOptions.AllowSwitching)==SessionOptions.AllowSwitching;
 

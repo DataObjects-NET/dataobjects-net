@@ -22,14 +22,6 @@ namespace Xtensive.Orm.Tests.Integrity
   [TestFixture]
   public class ConstraintsTest
   {
-    internal class ValidationContext : ValidationContextBase
-    {
-      public new void Reset()
-      {
-        base.Reset();
-      }
-    }
-
     internal static ValidationContext context = new ValidationContext();
 
     internal class ValidatableObject : IValidationAware
@@ -39,7 +31,7 @@ namespace Xtensive.Orm.Tests.Integrity
         this.CheckConstraints();
       }
 
-      ValidationContextBase IContextBound<ValidationContextBase>.Context
+      ValidationContext IContextBound<ValidationContext>.Context
       {
         get { return context; }
       }
@@ -117,7 +109,7 @@ namespace Xtensive.Orm.Tests.Integrity
     {
       context = new ValidationContext();
 
-      using (var region = context.OpenInconsistentRegion()) {
+      using (var region = context.DisableValidation()) {
         Person person = new Person();
 
         Assert.AreEqual(
@@ -143,7 +135,7 @@ namespace Xtensive.Orm.Tests.Integrity
       context = new ValidationContext();
 
       try {
-        using (var region = context.OpenInconsistentRegion()) {
+        using (var region = context.DisableValidation()) {
           Person person = new Person();
           
           person.Age = -1;
@@ -182,7 +174,7 @@ namespace Xtensive.Orm.Tests.Integrity
 
       context.Reset();
 
-      using (var region = context.OpenInconsistentRegion()) {
+      using (var region = context.DisableValidation()) {
         Person person = new Person();
         
         AssertEx.Throws<Validation.ConstraintViolationException>(() =>
@@ -199,7 +191,7 @@ namespace Xtensive.Orm.Tests.Integrity
         region.Complete();
       }
 
-      using (var region = context.OpenInconsistentRegion()) {
+      using (var region = context.DisableValidation()) {
         Person person = new Person();
 
         person.Name = "Mr. Unknown";
@@ -220,7 +212,7 @@ namespace Xtensive.Orm.Tests.Integrity
     {
       context = new ValidationContext();
 
-      var region = context.OpenInconsistentRegion();
+      var region = context.DisableValidation();
 
       var person = new Person();
       AssertEx.Throws<AggregateException>(person.CheckConstraints);

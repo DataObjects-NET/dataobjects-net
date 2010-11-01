@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Storage.Providers;
 using Xtensive.Tuples;
 using Xtensive.Orm.Linq.Materialization;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -59,7 +60,7 @@ namespace Xtensive.Orm.Internals
       var context = new MaterializationContext(session, recordPartCount);
       lock (_lock) {
         if (!cache.TryGetItem(header, false, out cacheItem)) {
-          var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
+        var typeIdColumnName = Domain.Handlers.NameBuilder.TypeIdColumnName;
           var model = context.Model;
           var mappings = new RecordPartMapping[recordPartCount];
           for (int i = 0; i < recordPartCount; i++) {

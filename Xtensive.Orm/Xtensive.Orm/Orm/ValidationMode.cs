@@ -22,20 +22,20 @@ namespace Xtensive.Orm
     /// </summary>
     /// <remarks>
     /// <para>
-    /// To work with entities in inconsistent state open inconsistent region with <see cref="ValidationManager.Disable()"/>.
+    /// To work with entities in inconsistent state open inconsistent region with <see cref="Session.DisableValidation()"/>.
     /// Validation will be performed on disposing inconsistent region.
     /// </para>
     /// <code>
-    /// using (var inconsistentRegion = ValidationManager.Disable()) {
+    /// using (var scope = Session.DisableValidation()) {
     ///   // Perform operations here
-    ///   inconsistentRegion.Complete();
+    ///   scope.Complete();
     /// }
     /// </code>
     /// </remarks>
     Continuous = 0,
 
     /// <summary>
-    /// Validation is performed automatically only on transaction commit and on explicit <see cref="ValidationManager.Enforce()"/> method call.
+    /// Validation is performed automatically only on transaction commit and on explicit <see cref="Session.Validate()"/> method call.
     /// </summary>
     OnDemand = 1
   }

@@ -53,13 +53,13 @@ namespace Xtensive.Orm.Tests.Storage
           Validatable second;
 
           AssertEx.Throws<AggregateException>(() => {
-            using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+            using (var region = session.DisableValidation()) {
               first = new Validatable();
               region.Complete();
             }
           });
 
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             first.IsValid = true;
             region.Complete();
           }
@@ -76,9 +76,9 @@ namespace Xtensive.Orm.Tests.Storage
         var transactionScope = session.OpenTransaction();
 
         AssertEx.Throws<Exception>(() => {
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             var obj = new Validatable {IsValid = false};
-            Xtensive.Orm.ValidationManager.Enforce();
+            session.Validate();
             obj.IsValid = true;
             region.Complete();
           }
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Tests.Storage
         var transactionScope = session.OpenTransaction();
 
         try {
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             var obj = new Validatable();
             region.Complete();
           }

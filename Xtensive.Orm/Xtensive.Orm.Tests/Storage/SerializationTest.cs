@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Tests.Storage
           object[] array;
           Company existingCompany = (Company) session.Query.SingleOrDefault(Key.Create(typeof (Company), firstCompanyId)); //session.Query.All<Company>().First();
 
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
 
             Company company = new Company {Name = "Region mobile"};
             Emploee mike = new Emploee {Name = "Mike", Company = company};

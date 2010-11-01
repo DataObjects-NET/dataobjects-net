@@ -10,9 +10,9 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Orm.Resources;
+using Xtensive.Orm.Validation;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Transactions;
-using InconsistentRegion = Xtensive.Orm.Validation.InconsistentRegion;
 
 namespace Xtensive.Orm
 {
@@ -68,7 +68,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    private InconsistentRegion inconsistentRegion;
+    private ICompletableScope inconsistentRegion;
     private ExtensionCollection extensions;
     private Transaction inner;
 

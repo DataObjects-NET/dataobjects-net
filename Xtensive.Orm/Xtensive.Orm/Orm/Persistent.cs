@@ -25,10 +25,8 @@ using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Services;
 using AggregateException = Xtensive.Core.AggregateException;
-using InconsistentRegion = Xtensive.Orm.Validation.InconsistentRegion;
 using OperationType = Xtensive.Orm.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
-using ValidationContextBase = Xtensive.Orm.Validation.ValidationContextBase;
 
 namespace Xtensive.Orm
 {
@@ -56,7 +54,7 @@ namespace Xtensive.Orm
 
       // public int Id;
       public TransactionScope TransactionScope;
-      public InconsistentRegion InconsistentRegion;
+      public ICompletableScope InconsistentRegion;
       public CompletableScope OperationScope;
       public CtorTransactionInfo Previous;
 
@@ -694,7 +692,7 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     [Infrastructure]
-    ValidationContextBase IContextBound<ValidationContextBase>.Context {
+    ValidationContext IContextBound<ValidationContext>.Context {
       get {
         return (Session ?? Session.Demand()).ValidationContext;
       }
@@ -883,7 +881,7 @@ namespace Xtensive.Orm
     {
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
         TransactionScope = Session.OpenAutoTransaction(),
-        InconsistentRegion = ValidationManager.Disable(Session),
+        InconsistentRegion = Session.DisableValidation(),
         Previous = CtorTransactionInfo.Current,
       };
     }

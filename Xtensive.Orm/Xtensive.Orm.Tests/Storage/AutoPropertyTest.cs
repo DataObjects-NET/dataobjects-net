@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Storage
       
     }
 
-    public ValidationContextBase Context
+    public ValidationContext Context
     {
       get { throw new NotImplementedException(); }
     }

@@ -15,6 +15,7 @@ using Xtensive.Disposing;
 using Xtensive.Linq;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
+using Xtensive.Storage.Providers;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
@@ -1293,7 +1294,7 @@ namespace Xtensive.Orm.Linq
             var field = context
               .Model
               .Types[memberAccess.Expression.Type]
-              .Fields[context.Domain.NameBuilder.BuildFieldName((PropertyInfo)memberAccess.Member)];
+              .Fields[context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo)memberAccess.Member)];
             sequenceExpression = QueryHelper.CreateEntitySetQueryExpression(memberAccess.Expression, field);
           }
         }

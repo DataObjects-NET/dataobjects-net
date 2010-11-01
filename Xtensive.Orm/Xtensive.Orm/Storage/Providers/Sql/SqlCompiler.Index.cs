@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Providers.Sql
         }
       }
       else {
-        var typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
+        var typeIdColumn = baseQuery.Columns[Handlers.Domain.Handlers.NameBuilder.TypeIdColumnName];
         var typeIds = filterByTypes.Select(t => t.TypeId).ToArray();
         filter = filterByTypes.Count == 1
           ? typeIdColumn == filterByTypes.First().TypeId

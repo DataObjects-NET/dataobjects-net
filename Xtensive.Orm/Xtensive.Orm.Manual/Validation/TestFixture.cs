@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Manual.Validation
       using (var session = domain.OpenSession()) {
         try {
           using (var transactionScope = session.OpenTransaction()) {
-            using (var inconsistencyRegion = Orm.ValidationManager.Disable()) {
+            using (var inconsistencyRegion = session.DisableValidation()) {
 
               var person = new Person {
                 FirstName = "Mike",

@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Storage
           Company company;
           Contact contact;
 
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             company = new Company();
             contact = new Contact {Company = company};
             region.Complete();

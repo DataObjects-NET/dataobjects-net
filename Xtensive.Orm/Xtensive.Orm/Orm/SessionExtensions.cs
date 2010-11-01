@@ -15,27 +15,15 @@ namespace Xtensive.Orm
   public static class SessionExtensions
   {
     /// <summary>
-    /// Gets the <see cref="Session.Name"/> of specified 
+    /// Gets the string representation of specified 
     /// <see cref="Session"/> safely (with null check).
     /// </summary>
-    /// <param name="session">The session to get the name for.</param>
-    /// <returns>The name of specified <paramref name="session"/>;
+    /// <param name="session">The session to get the string representation for.</param>
+    /// <returns>The string representation of specified <paramref name="session"/>;
     /// "n\a", if <paramref name="session"/> is <see langword="null" />.</returns>
-    public static string GetNameSafely(this Session session)
+    internal static string ToStringSafely(this Session session)
     {
-      return session==null ? Strings.NA : (session.Name ?? Strings.Null);
-    }
-
-    /// <summary>
-    /// Gets the <see cref="Session.FullName"/> of specified 
-    /// <see cref="Session"/> safely (with null check).
-    /// </summary>
-    /// <param name="session">The session to get the full name for.</param>
-    /// <returns>The full name of specified <paramref name="session"/>;
-    /// "n\a", if <paramref name="session"/> is <see langword="null" />.</returns>
-    public static string GetFullNameSafely(this Session session)
-    {
-      return session==null ? Strings.NA : session.FullName;
+      return session==null ? Strings.NA : session.ToString();
     }
   }
 }

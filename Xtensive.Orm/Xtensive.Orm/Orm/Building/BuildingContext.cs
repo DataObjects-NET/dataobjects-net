@@ -82,14 +82,14 @@ namespace Xtensive.Orm.Building
     /// Gets the handler factory.
     /// </summary>
     public HandlerFactory HandlerFactory {
-      get { return Domain.HandlerFactory; }
+      get { return Domain.Handlers.HandlerFactory; }
     }
 
     /// <summary>
     /// Gets the name builder.
     /// </summary>
     public NameBuilder NameBuilder { 
-      get { return Domain.NameBuilder; }
+      get { return Domain.Handlers.NameBuilder; }
     }
 
     /// <summary>

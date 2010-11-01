@@ -14,7 +14,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a value indicating whether only a system logic is enabled.
     /// </summary>
-    public bool IsSystemLogicOnly { get; internal set; }
+    internal bool IsSystemLogicOnly { get; set; }
 
     internal IDisposable OpenSystemLogicOnlyRegion()
     {

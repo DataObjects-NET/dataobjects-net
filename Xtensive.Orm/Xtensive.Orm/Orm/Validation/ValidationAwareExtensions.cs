@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Validation
     /// </returns>
     public static bool Validate(this IValidationAware target, Action<IValidationAware> validator, bool immediately)
     {            
-      ValidationContextBase context = target.Context;
+      ValidationContext context = target.Context;
 
       bool validateNow = immediately || context==null || context.IsConsistent;
 

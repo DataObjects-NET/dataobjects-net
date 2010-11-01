@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Providers.Sql
           throw new DomainBuilderException(string.Format(Strings.ExTableXIsNotFound, storageTableName));
         var mapping = Mapping.RegisterMapping(primaryIndex, storageTable);
         foreach (var column in primaryIndex.Columns) {
-          var storageColumnName = Domain.NameBuilder.BuildTableColumnName(column);
+          var storageColumnName = Domain.Handlers.NameBuilder.BuildTableColumnName(column);
           var storageColumn = storageTable.TableColumns
             .FirstOrDefault(dataTableColumn => dataTableColumn.Name==storageColumnName);
           if (storageColumn==null)

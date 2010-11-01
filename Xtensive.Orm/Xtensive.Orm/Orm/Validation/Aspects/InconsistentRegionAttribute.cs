@@ -13,13 +13,14 @@ using PostSharp.Extensibility;
 using Xtensive.Core;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
+using Xtensive.Disposing;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation
 {
   /// <summary>
   /// Wraps a method of property body into so-called "inconsistent region"
-  /// using <see cref="ValidationContextBase.OpenInconsistentRegion"/> method.
+  /// using <see cref="ValidationContext.DisableValidation"/> method.
   /// </summary>
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
@@ -51,14 +52,14 @@ namespace Xtensive.Orm.Validation
     {
       var validatable = (IValidationAware)eventArgs.Instance;
       var context = validatable.Context;
-      var region = context.OpenInconsistentRegion();
+      var region = context.DisableValidation();
       eventArgs.MethodExecutionTag = region;
     }
 
     /// <inheritdoc/>
     public override void OnSuccess(MethodExecutionArgs eventArgs)
     {
-      var region = (InconsistentRegion) eventArgs.MethodExecutionTag;
+      var region = (ICompletableScope) eventArgs.MethodExecutionTag;
       region.Complete();
     }
 
@@ -66,7 +67,7 @@ namespace Xtensive.Orm.Validation
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionArgs eventArgs)
     {
-      var region = (InconsistentRegion) eventArgs.MethodExecutionTag;
+      var region = (ICompletableScope) eventArgs.MethodExecutionTag;
       region.DisposeSafely();
     }
   }

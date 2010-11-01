@@ -22,7 +22,7 @@ namespace Xtensive.Orm.PairIntegrity
     {
       if (context==null) {
         // We must create a new context
-        using (var region = ValidationManager.Disable(owner.Session)) {
+        using (var region = owner.Session.DisableValidation()) {
           context = CreateContext(removalContext, type, association, owner, target);
           context.ProcessPendingActionsRecursively(finalizer);
           region.Complete();

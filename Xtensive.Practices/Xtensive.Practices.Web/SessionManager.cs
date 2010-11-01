@@ -236,8 +236,8 @@ namespace Xtensive.Practices.Web
     /// to invoke on request completion.</returns>
     protected virtual Pair<Session, IDisposable> ProvideSession()
     {
-      var newSession = Session.Open(Domain); // Open, but don't activate!
-      var transactionScope = Transaction.Open(newSession);
+      var newSession = Domain.OpenSession(); // Open, but don't activate!
+      var transactionScope = newSession.OpenTransaction();
       var toDispose = transactionScope.Join(newSession);
       return new Pair<Session, IDisposable>(newSession, new Disposable(disposing => {
         try {

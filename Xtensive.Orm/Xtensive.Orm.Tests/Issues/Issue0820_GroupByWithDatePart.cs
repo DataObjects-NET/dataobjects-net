@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Tests.Issues
             g => new {
               Year = g.Year
             });
-          session.Persist();
+          session.SaveChanges();
           var result = query.ToList();
           Assert.AreEqual(1, result.Count);
         }

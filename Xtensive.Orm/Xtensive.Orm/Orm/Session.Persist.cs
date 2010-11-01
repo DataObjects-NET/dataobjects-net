@@ -61,28 +61,6 @@ namespace Xtensive.Orm
         throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
     }
 
-    /// <summary>
-    /// Persists all modified instances immediately.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This method should be called to ensure that all delayed
-    /// updates are flushed to the storage. 
-    /// </para>
-    /// <para>
-    /// Note, that this method is called automatically when it's necessary,
-    /// e.g. before beginning, committing and rolling back a transaction, performing a
-    /// query and so further. So generally you should not worry
-    /// about calling this method.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
-    [Obsolete("Use SaveChanges() method instead.")]
-    public void Persist()
-    {
-      Persist(PersistReason.Manual);
-    }
-
     internal void Persist(PersistReason reason)
     {
       EnsureNotDisposed();
@@ -191,30 +169,6 @@ namespace Xtensive.Orm
 
       disableAutoSaveChanges = true;
       return new Disposable(_ => { disableAutoSaveChanges = false; });
-    }
-
-    /// <summary>
-    /// Pins the specified <see cref="IEntity"/>.
-    /// Pinned entity is prevented from being persisted,
-    /// when <see cref="SaveChanges"/> is called or query is executed.
-    /// If persist is to be performed due to starting a nested transaction or committing a transaction,
-    /// any pinned entity will lead to failure.
-    /// If <paramref name="target"/> is not present in the database,
-    /// all entities that reference <paramref name="target"/> are also pinned automatically.
-    /// </summary>
-    /// <param name="target">The entity to pin.</param>
-    /// <returns>An entity pinning scope if <paramref name="target"/> was not previously pinned,
-    /// otherwise <see langword="null"/>.</returns>
-    [Obsolete("Use Session.DisableSaveChanges(...) instead.")]
-    public IDisposable Pin(IEntity target)
-    {
-      EnsureNotDisposed();
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      var targetEntity = (Entity)target;
-      targetEntity.EnsureNotRemoved();
-      if (IsDisconnected)
-        return new Disposable(b => { return; }); // No need to pin in this case
-      return Pinner.RegisterRoot(targetEntity.State);
     }
   }
 }

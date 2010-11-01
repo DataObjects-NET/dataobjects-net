@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var session = SessionHandler!=null ? SessionHandler.Session : null;
       Log.Info(Strings.LogSessionXSchemaUpgradeScriptY,
-        session.GetFullNameSafely(),
+        session.ToStringSafely(),
         Driver.BuildBatch(batch).Trim());
     }
   }

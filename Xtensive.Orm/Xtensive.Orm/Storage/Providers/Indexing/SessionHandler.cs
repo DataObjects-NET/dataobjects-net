@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Providers.Indexing
       try {
         if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
-            Session.GetFullNameSafely(), transaction.IsolationLevel);
+            Session.ToStringSafely(), transaction.IsolationLevel);
         lock (ConnectionSyncRoot) {
           if (StorageView!=null)
             throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCommitTransaction, Session.GetFullNameSafely());
+          Log.Debug(Strings.LogSessionXCommitTransaction, Session.ToStringSafely());
         lock (ConnectionSyncRoot) {
           if (StorageView==null)
             throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollbackTransaction, Session.GetFullNameSafely());
+          Log.Debug(Strings.LogSessionXRollbackTransaction, Session.ToStringSafely());
         lock (ConnectionSyncRoot) {
           if (StorageView==null)
             throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXMakeSavepointY, Session.GetFullNameSafely(), GetSavepointName(transaction));
+          Log.Debug(Strings.LogSessionXMakeSavepointY, Session.ToStringSafely(), GetSavepointName(transaction));
         // TODO: Implement nested transactions
       }
       catch (Exception e) {
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollbackToSavepointY, Session.GetFullNameSafely(), GetSavepointName(transaction));
+          Log.Debug(Strings.LogSessionXRollbackToSavepointY, Session.ToStringSafely(), GetSavepointName(transaction));
         throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
         // TODO: Implement nested transactions
       }
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXReleaseSavepointY, Session.GetFullNameSafely(), GetSavepointName(transaction));
+          Log.Debug(Strings.LogSessionXReleaseSavepointY, Session.ToStringSafely(), GetSavepointName(transaction));
         // TODO: Implement nested transactions
       }
       catch (Exception e) {

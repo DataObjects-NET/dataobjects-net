@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Issues
             LinkedEntity = linkedEntity,
             OwnerEntity = ownerEntity,
           };
-          session.Persist();
+          session.SaveChanges();
           var query =
             Query.All<DocEntity>().Select(
               q =>
@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Issues
             LinkedEntity = linkedEntity,
             OwnerEntity = ownerEntity,
           };
-          session.Persist();
+          session.SaveChanges();
           var q = Query.All<DocEntity>()
             .GroupBy(tpf => tpf.EnEntityType.Id)
             .Select(gr => new {

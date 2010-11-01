@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       validationCallsCount = 0;
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             var mouse = new Mouse {
               ButtonCount = 2,
               ScrollingCount = 1
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         Mouse mouse;
 
         using (var tx = session.OpenTransaction()) {
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             mouse = new Mouse {
               ButtonCount = 2,
               ScrollingCount = 1,
@@ -179,13 +179,13 @@ namespace Xtensive.Orm.Tests.Storage.Validation
             };
             mouse.Led.Brightness = 4.3;
 
-            Xtensive.Orm.ValidationManager.Enforce();
+            session.Validate();
             Assert.AreEqual(1, validationCallsCount);
 
             mouse.Led.Brightness = 2.3;
 
             // Fails here!
-            AssertEx.Throws<AggregateException>(Xtensive.Orm.ValidationManager.Enforce);
+            AssertEx.Throws<AggregateException>(session.Validate);
 
             region.Complete();
             AssertEx.Throws<AggregateException>(region.Dispose);
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
           AssertEx.Throws<AggregateException>(
             () => {
-              using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+              using (var region = session.DisableValidation()) {
                 new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led {Brightness = 1, Precision = 1}};
                 region.Complete();
               }
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           AssertEx.Throws<AggregateException>(
             () => {
               Mouse m;
-              using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+              using (var region = session.DisableValidation()) {
                 m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led {Brightness = 1, Precision = 1}};
                 region.Complete();
               }
@@ -235,7 +235,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
 
           Mouse mouse;
           // Valid object - ok.
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             mouse = new Mouse {ButtonCount = 5, ScrollingCount = 3};
             mouse.Led.Precision = 1;
             mouse.Led.Brightness = 2;
@@ -243,14 +243,14 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           }
 
           // Valid modification with invalid intermediate state - ok.
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             mouse.ButtonCount = 2;
             mouse.ScrollingCount = 1;
             region.Complete();
           }
 
           // Invalid object is removed - ok.
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             mouse.ScrollingCount = 3;
             mouse.Remove();
             region.Complete();
@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         using (var transactionScope = session.OpenTransaction()) {
 
           // Valid mouse is created.
-          using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+          using (var region = session.DisableValidation()) {
             mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
             mouse.Led = new Led {Brightness = 7.3, Precision = 33};
             region.Complete();
@@ -302,20 +302,19 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       using (var session = Domain.OpenSession()) {
 
         // Inconsistent region can not be opened without transaction.
-        AssertEx.ThrowsInvalidOperationException(() =>
-          Xtensive.Orm.ValidationManager.Disable());
+        AssertEx.ThrowsInvalidOperationException(() => session.DisableValidation());
 
         // Transaction can not be committed while validation context is in inconsistent state.
           AssertEx.ThrowsInvalidOperationException(() => {
           using (var t = session.OpenTransaction()) {
-            Xtensive.Orm.ValidationManager.Disable();
+            session.DisableValidation();
             t.Complete();
           }
         });
 
         using (var transactionScope = session.OpenTransaction()) {
           try {
-            using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+            using (var region = session.DisableValidation()) {
               var mouse = new Mouse();
               throw new Exception("Test");
               // region.Complete();
@@ -337,7 +336,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         AssertEx.Throws<Exception>(() => {
           var reference1 = new Reference();
         });
-        using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+        using (var region = session.DisableValidation()) {
           var reference2 = new Reference {
             Title = "Test"
           };
@@ -348,7 +347,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         AssertEx.Throws<Exception>(() => {
           var referrer1 = new Referrer();
         });
-        using (var region = Xtensive.Orm.ValidationManager.Disable()) {
+        using (var region = session.DisableValidation()) {
           var referrer2 = new Referrer {
             Title = "Test", 
             Reference = reference

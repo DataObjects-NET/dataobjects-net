@@ -18,7 +18,7 @@ namespace Xtensive.Orm
     {
       ValidationContext.Reset();
       if (Session.Domain.Configuration.ValidationMode==ValidationMode.OnDemand)
-        inconsistentRegion = ValidationContext.OpenInconsistentRegion();
+        inconsistentRegion = ValidationContext.DisableValidation();
     }
 
     private void CompleteValidation()
@@ -28,7 +28,7 @@ namespace Xtensive.Orm
         throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInconsistentState);
 
       try {
-        ValidationManager.Enforce(Session);
+        Session.Validate();
 
         if (region!=null) {
           inconsistentRegion = null;

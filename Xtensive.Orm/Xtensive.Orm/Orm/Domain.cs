@@ -41,6 +41,7 @@ namespace Xtensive.Orm
   {
     private readonly object _lock = new object();
     private volatile ExtensionCollection extensions;
+    private DisposingState disposingState;
     
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -100,51 +101,15 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the disposing state of the domain.
     /// </summary>
-    public DisposingState DisposingState { get; private set; }
+    DisposingState IDisposableContainer.DisposingState
+    {
+      get { return disposingState; }
+    }
 
     /// <summary>
     /// Gets the domain model.
     /// </summary>
     public DomainModel Model { get; internal set; }
-
-    /// <summary>
-    /// Gets the storage schema.
-    /// </summary>
-    public StorageInfo Schema { get; set; }
-
-    /// <summary>
-    /// Gets the extracted storage schema.
-    /// </summary>
-    public StorageInfo ExtractedSchema { get; set; }
-
-    /// <summary>
-    /// Gets the handler factory.
-    /// </summary>
-    public HandlerFactory HandlerFactory  { 
-      [DebuggerStepThrough]
-      get { return Handlers.HandlerFactory; }
-    }
-
-    /// <summary>
-    /// Gets the name builder.
-    /// </summary>
-    public NameBuilder NameBuilder { 
-      [DebuggerStepThrough]
-      get { return Handlers.NameBuilder; }
-    }
-
-    /// <summary>
-    /// Gets the domain-level temporary data.
-    /// </summary>
-    public GlobalTemporaryData TemporaryData { get; private set; }
-
-    /// <summary>
-    /// Indicates whether debug event logging is enabled.
-    /// </summary>
-    /// <remarks>
-    /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
-    /// </remarks>
-    public bool IsDebugEventLoggingEnabled { get; private set; }
 
     /// <summary>
     /// Gets the information about provider's capabilities.
@@ -157,6 +122,29 @@ namespace Xtensive.Orm
     public IServiceContainer Services { get; internal set; }
 
     #region Private / internal members
+
+    /// <summary>
+    /// Gets the storage schema.
+    /// </summary>
+    internal StorageInfo Schema { get; set; }
+
+    /// <summary>
+    /// Gets the extracted storage schema.
+    /// </summary>
+    internal StorageInfo ExtractedSchema { get; set; }
+
+    /// <summary>
+    /// Gets the domain-level temporary data.
+    /// </summary>
+    internal GlobalTemporaryData TemporaryData { get; private set; }
+
+    /// <summary>
+    /// Indicates whether debug event logging is enabled.
+    /// </summary>
+    /// <remarks>
+    /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
+    /// </remarks>
+    internal bool IsDebugEventLoggingEnabled { get; private set; }
 
     internal DomainHandler Handler {
       [DebuggerStepThrough]
@@ -318,8 +306,8 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public void Dispose()
     {
-      if (DisposingState==DisposingState.None) lock (_lock) if (DisposingState==DisposingState.None) {
-        DisposingState = DisposingState.Disposing;
+      if (disposingState==DisposingState.None) lock (_lock) if (disposingState==DisposingState.None) {
+        disposingState = DisposingState.Disposing;
         try {
           if (IsDebugEventLoggingEnabled)
             Log.Debug(Strings.LogDomainIsDisposing);
@@ -327,7 +315,7 @@ namespace Xtensive.Orm
           Services.DisposeSafely();
         }
         finally {
-          DisposingState = DisposingState.Disposed;
+          disposingState = DisposingState.Disposed;
         }
       }
     }

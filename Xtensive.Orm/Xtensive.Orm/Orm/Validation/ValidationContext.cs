@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Validation.Resources;
 using AggregateException = Xtensive.Core.AggregateException;
@@ -16,7 +17,7 @@ namespace Xtensive.Orm.Validation
   /// <summary>
   /// Provides consistency validation for see <see cref="IValidationAware"/> implementors.
   /// </summary>
-  public abstract class ValidationContextBase
+  public class ValidationContext
   {
     private HashSet<Pair<IValidationAware, Action<IValidationAware>>> registry;
 
@@ -43,12 +44,12 @@ namespace Xtensive.Orm.Validation
     /// </para>
     /// </remarks>
     /// <exception cref="InvalidOperationException">Context <see cref="IsConsistent">is invalid</see>.</exception>
-    public InconsistentRegion OpenInconsistentRegion()
+    public ICompletableScope DisableValidation()
     {
       if (!IsConsistent)
-        return InconsistentRegion.VoidRegionInstance;
+        return new CompletableScope<bool>(false, (notVoid, completed) => {});
       IsConsistent = false;
-      return new InconsistentRegion(this);
+      return new CompletableScope<bool>(true, (notVoid, completed) => LeaveInconsistentRegion(completed));
     }
 
     /// <summary>
@@ -118,10 +119,10 @@ namespace Xtensive.Orm.Validation
     /// Leaves the inconsistent region.
     /// </summary>
     /// <exception cref="AggregateException">Validation failed.</exception>
-    protected internal virtual void LeaveInconsistentRegion(InconsistentRegion region)
+    protected internal virtual void LeaveInconsistentRegion(bool isCompleted)
     {
       IsConsistent = true;
-      if (region.IsCompleted)
+      if (isCompleted)
         Validate();
       // Else do nothing, since an exception must be already thrown
     }
@@ -129,7 +130,7 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Resets the state of this context to initial.
     /// </summary>
-    protected virtual void Reset()
+    public virtual void Reset()
     {
       registry = null;
       IsConsistent = true;
@@ -143,7 +144,7 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected ValidationContextBase()
+    public ValidationContext()
     {
       registry = null;
       IsConsistent = true;
