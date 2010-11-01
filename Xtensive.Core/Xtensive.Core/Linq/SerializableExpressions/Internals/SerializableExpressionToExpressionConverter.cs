@@ -172,6 +172,8 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
 
     private Expression VisitNew(SerializableNewExpression n)
     {
+      if (n.Constructor == null)
+        return Expression.New(n.Type);
       if (n.Members != null && n.Members.Length > 0)
         return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments), n.Members);
       return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments));

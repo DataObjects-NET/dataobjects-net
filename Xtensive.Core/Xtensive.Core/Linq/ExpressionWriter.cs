@@ -553,7 +553,7 @@ namespace Xtensive.Core.Linq
     protected override Expression VisitNew(NewExpression n)
     {
       Write("new ");
-      Write(GetTypeName(n.Constructor.DeclaringType));
+      Write(GetTypeName(n.Type));
       WriteArguments("(", n.Arguments, ")");
       return n;
     }

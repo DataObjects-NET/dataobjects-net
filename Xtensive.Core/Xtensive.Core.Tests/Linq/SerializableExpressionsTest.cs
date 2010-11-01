@@ -17,6 +17,7 @@ using Xtensive.Core.Linq.SerializableExpressions;
 
 namespace Xtensive.Core.Tests.Linq
 {
+
   [TestFixture]
   public class SerializableExpressionsTest : ExpressionTestBase
   {
