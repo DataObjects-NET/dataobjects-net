@@ -5,13 +5,12 @@ Imports NUnit.Framework
 
 Namespace Linq
     <TestFixture()>
- _
-    Public Class VbMethodTransaltionTest
+    Public Class StringTests
         Inherits NorthwindDOModelTest
 
-        Public ReadOnly Property Customers As IOrderedQueryable(Of Customer)
+        Public Shadows ReadOnly Property Customers As IOrderedQueryable(Of Customer)
             Get
-                Return Query.All (Of Customer)().OrderBy (Function(c) c.Id)
+                Return Query.All(Of Customer)().OrderBy(Function(c) c.Id)
             End Get
         End Property
 
@@ -25,7 +24,7 @@ Namespace Linq
                     Where Microsoft.VisualBasic.Strings.Trim("   prefix " + customer.CompanyName + " suffix  ") <> "test" _
                     Select customer) _
                     .ToList()
-            Assert.IsTrue (expected.SequenceEqual (result))
+            Assert.IsTrue(expected.SequenceEqual(result))
         End Sub
 
         <Test()>
@@ -38,7 +37,7 @@ Namespace Linq
                     Where Microsoft.VisualBasic.Strings.LTrim("   prefix " + customer.CompanyName + " suffix  ") <> "test" _
                     Select customer) _
                     .ToList()
-            Assert.IsTrue (expected.SequenceEqual (result))
+            Assert.IsTrue(expected.SequenceEqual(result))
         End Sub
 
         <Test()>
