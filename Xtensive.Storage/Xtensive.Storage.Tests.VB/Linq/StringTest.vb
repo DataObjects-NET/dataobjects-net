@@ -5,7 +5,7 @@ Imports NUnit.Framework
 
 Namespace Linq
     <TestFixture()>
-    Public Class StringTests
+    Public Class StringTest
         Inherits NorthwindDOModelTest
 
         Public Shadows ReadOnly Property Customers As IOrderedQueryable(Of Customer)
@@ -13,36 +13,6 @@ Namespace Linq
                 Return Query.All(Of Customer)().OrderBy(Function(c) c.Id)
             End Get
         End Property
-
-        <Test()>
-        Public Sub CompareStringTest()
-            Dim C = Customers.ToList()
-            Dim result = (From customer In Customers _
-                    Where customer.CompanyName > "test" _
-                    Select customer) _
-                    .ToList()
-            ' SQL compares CaseInsensitive by default
-            Dim expected = (From customer In Customers.ToList() _
-                    Where Microsoft.VisualBasic.CompilerServices.Operators.CompareString(customer.CompanyName, "test", True) > 0 _
-                    Select customer) _
-                    .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
-
-        <Test()>
-        Public Sub CompareString2Test()
-            Dim C = Customers.ToList()
-            Dim result = (From customer In Customers _
-                    Select customer.CompanyName > "test") _
-                    .Where(Function(i) i > 0) _
-                    .ToList()
-            ' SQL compares CaseInsensitive by default
-            Dim expected = (From customer In Customers.ToList() _
-                    Select Microsoft.VisualBasic.CompilerServices.Operators.CompareString(customer.CompanyName, "test", True)) _
-                    .Where(Function(i) i > 0) _
-                    .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
 
         <Test()>
         Public Sub TrimTest()

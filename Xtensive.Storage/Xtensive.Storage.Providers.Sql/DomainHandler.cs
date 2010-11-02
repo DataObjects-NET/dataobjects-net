@@ -75,7 +75,9 @@ namespace Xtensive.Storage.Providers.Sql
         typeof (NumericCompilers),
         typeof (DecimalCompilers),
         typeof (GuidCompilers),
-        typeof (VisualBasicCompilers)
+        typeof (VbStringsCompilers),
+        typeof (VbDateAndTimeCompilers),
+        typeof (VbConversionsCompilers),
       };
     }
 

@@ -4,7 +4,7 @@ Imports Xtensive.Storage.Tests.ObjectModel
 
 Namespace Linq
 
-    Public Class DateTimeTests
+    Public Class DateTimeTest
         Inherits NorthwindDOModelTest
 
         Public Shadows ReadOnly Property Orders As IOrderedQueryable(Of Order)
