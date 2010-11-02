@@ -57,11 +57,11 @@ Namespace Linq
         Public Sub LenTest()
             Dim result = (From customer In Customers _
                     Where Microsoft.VisualBasic.Strings.Len("   prefix " + customer.CompanyName + " suffix  ") > 0 _
-                    Select customer) _
+                    Select Microsoft.VisualBasic.Strings.Len("   prefix " + customer.CompanyName + " suffix  ")) _
                     .ToList()
             Dim expected = (From customer In Customers.ToList() _
-                    Where Microsoft.VisualBasic.Strings.Len("   prefix " + customer.CompanyName + " suffix  ") <> 0 _
-                    Select customer) _
+                    Where Microsoft.VisualBasic.Strings.Len("   prefix " + customer.CompanyName + " suffix  ") > 0 _
+                    Select Microsoft.VisualBasic.Strings.Len("   prefix " + customer.CompanyName + " suffix  ")) _
                     .ToList()
             Assert.IsTrue(expected.SequenceEqual(result))
         End Sub
@@ -94,21 +94,21 @@ Namespace Linq
         End Sub
 
         <Test()>
-        Public Sub Mid1Test()
-            Dim result = (From customer In Customers _
-                    Where Microsoft.VisualBasic.Strings.Mid("   prefix " + customer.CompanyName + " suffix  ", 2) <> "test" _
-                    Select customer) _
-                    .ToList()
-            Dim expected = (From customer In Customers.ToList() _
-                    Where Microsoft.VisualBasic.Strings.Mid("   prefix " + customer.CompanyName + " suffix  ", 2) <> "test" _
-                    Select customer) _
-                    .ToList()
-            Assert.IsTrue(expected.SequenceEqual(result))
-        End Sub
-
-        <Test()>
         Public Sub Mid2Test()
             Dim result = (From customer In Customers _
+                    Where Microsoft.VisualBasic.Strings.Mid("   prefix " + customer.CompanyName + " suffix  ", 2) <> "test" _
+                    Select customer) _
+                    .ToList()
+            Dim expected = (From customer In Customers.ToList() _
+                    Where Microsoft.VisualBasic.Strings.Mid("   prefix " + customer.CompanyName + " suffix  ", 2) <> "test" _
+                    Select customer) _
+                    .ToList()
+            Assert.IsTrue(expected.SequenceEqual(result))
+        End Sub
+
+        <Test()>
+        Public Sub Mid3Test()
+            Dim result = (From customer In Customers _
                     Where Microsoft.VisualBasic.Strings.Mid("   prefix " + customer.CompanyName + " suffix  ", 2, 1) <> "test" _
                     Select customer) _
                     .ToList()
@@ -120,7 +120,7 @@ Namespace Linq
         End Sub
 
         <Test()>
-        Public Sub UCaseTest()
+        Public Sub UCaseStringTest()
             Dim result = (From customer In Customers _
                     Where Microsoft.VisualBasic.Strings.UCase("   prefix " + customer.CompanyName + " suffix  ") <> "test" _
                     Select customer) _
@@ -133,13 +133,39 @@ Namespace Linq
         End Sub
 
         <Test()>
-        Public Sub LCaseTest()
+        Public Sub LCaseStringTest()
             Dim result = (From customer In Customers _
                     Where Microsoft.VisualBasic.Strings.LCase("   prefix " + customer.CompanyName + " suffix  ") <> "test" _
                     Select customer) _
                     .ToList()
             Dim expected = (From customer In Customers.ToList() _
                     Where Microsoft.VisualBasic.Strings.LCase("   prefix " + customer.CompanyName + " suffix  ") <> "test" _
+                    Select customer) _
+                    .ToList()
+            Assert.IsTrue(expected.SequenceEqual(result))
+        End Sub
+
+        <Test()>
+        Public Sub UCaseCharTest()
+            Dim result = (From customer In Customers _
+                    Where Microsoft.VisualBasic.Strings.UCase("A"c) <> "A"c _
+                    Select customer) _
+                    .ToList()
+            Dim expected = (From customer In Customers.ToList() _
+                    Where Microsoft.VisualBasic.Strings.UCase("A"c) <> "A"c _
+                    Select customer) _
+                    .ToList()
+            Assert.IsTrue(expected.SequenceEqual(result))
+        End Sub
+
+        <Test()>
+        Public Sub LCaseCharTest()
+            Dim result = (From customer In Customers _
+                    Where Microsoft.VisualBasic.Strings.LCase("A"c) <> "A"c _
+                    Select customer) _
+                    .ToList()
+            Dim expected = (From customer In Customers.ToList() _
+                    Where Microsoft.VisualBasic.Strings.LCase("A"c) <> "A"c _
                     Select customer) _
                     .ToList()
             Assert.IsTrue(expected.SequenceEqual(result))
