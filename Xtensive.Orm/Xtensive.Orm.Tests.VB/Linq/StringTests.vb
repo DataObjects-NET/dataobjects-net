@@ -1,6 +1,6 @@
-﻿Imports Xtensive.Storage.Tests.ObjectModel.NorthwindDO
-Imports Xtensive.Storage.Tests.ObjectModel
-Imports Xtensive.Storage.Configuration
+﻿Imports Xtensive.Orm.Tests.ObjectModel.NorthwindDO
+Imports Xtensive.Orm.Tests.ObjectModel
+Imports Xtensive.Orm.Configuration
 Imports NUnit.Framework
 
 Namespace Linq

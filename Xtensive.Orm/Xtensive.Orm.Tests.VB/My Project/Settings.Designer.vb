@@ -64,9 +64,9 @@ Namespace My
     Friend Module MySettingsProperty
         
         <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>  _
-        Friend ReadOnly Property Settings() As Global.Xtensive.Storage.Tests.VB.My.MySettings
+        Friend ReadOnly Property Settings() As Global.Xtensive.Orm.Tests.VB.My.MySettings
             Get
-                Return Global.Xtensive.Storage.Tests.VB.My.MySettings.Default
+                Return Global.Xtensive.Orm.Tests.VB.My.MySettings.Default
             End Get
         End Property
     End Module

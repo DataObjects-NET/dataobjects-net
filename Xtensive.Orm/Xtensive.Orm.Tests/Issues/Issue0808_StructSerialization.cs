@@ -8,8 +8,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Linq.SerializableExpressions;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Linq.SerializableExpressions;
+using Xtensive.Serialization.Binary;
 using Rhino.Mocks;
 
 namespace Xtensive.Storage.Tests.Issues
