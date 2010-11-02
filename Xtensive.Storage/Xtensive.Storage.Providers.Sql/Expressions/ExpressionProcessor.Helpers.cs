@@ -47,9 +47,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       bool isCompareTo = methodType==typeof (IComparable)
         || methodType.IsGenericType && methodType.GetGenericTypeDefinition()==typeof (IComparable<>);
 
+      bool isVbStringCompare = method.DeclaringType.FullName=="Microsoft.VisualBasic.CompilerServices.Operators" 
+        && method.Name=="CompareString" 
+        && method.GetParameters().Length==3 
+        && method.IsStatic;
+
       bool isCompare = method.Name=="Compare" && method.GetParameters().Length==2 && method.IsStatic;
 
-      if (!isCompareTo && !isCompare)
+      if (!isCompareTo && !isCompare && !isVbStringCompare)
         return null;
 
       if (constantExpression.Value==null)
@@ -58,7 +63,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (!(constantExpression.Value is int))
         return null;
 
-      int constant = (int) constantExpression.Value;
+      var constant = (int) constantExpression.Value;
 
       SqlExpression leftComparand = null;
       SqlExpression rightComparand = null;
@@ -68,7 +73,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         rightComparand = Visit(callExpression.Arguments[0]);
       }
 
-      if (isCompare) {
+      if (isCompare || isVbStringCompare) {
         leftComparand = Visit(callExpression.Arguments[0]);
         rightComparand = Visit(callExpression.Arguments[1]);
       }
