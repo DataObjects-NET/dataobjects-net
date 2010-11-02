@@ -18,7 +18,12 @@ namespace Xtensive.Tests.Linq
   {
     public LambdaExpression[] Expressions { get; private set; }
 
-    #region Nested type : Helper class
+    #region Nested types : Helper class, struct
+
+    private struct Struct
+    {
+      public int Id;
+    }
 
     private class Helper
     {
@@ -112,6 +117,9 @@ namespace Xtensive.Tests.Linq
 
           // Member member binding
           (Expression<Func<object>>) (() => new Helper {NestedClass = {Field = 5}}),
+
+          // Struct constructor
+          (Expression<Func<int, Struct>>) (a => new Struct {Id = 2}),
 
           // Don't know how to write InvocationExpression in C# syntax :-(
           Expression.Lambda<Func<int>>(
