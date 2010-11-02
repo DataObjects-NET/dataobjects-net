@@ -208,8 +208,8 @@ namespace Xtensive.Orm.Tests.Linq
 
     private IEnumerable<Order> GetOrders(IEnumerable<int> ids)
     {
-      return Session.Query.Execute(() =>
-        from order in Session.Query.All<Order>()
+      return Session.Query.Execute(qe =>
+        from order in qe.All<Order>()
         where ids.Contains(order.Id)
         select order);
     }
@@ -708,7 +708,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var localItems = GetLocalItems(100);
       var queryable = Session.Query.Store(localItems);
-      var result = Session.Query.Execute(()=>Session.Query.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1)));
+      var result = Session.Query.Execute(qe => qe.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1)));
       QueryDumper.Dump(result);
     }
 

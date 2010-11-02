@@ -18,9 +18,9 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class ComplexTest : NorthwindDOModelTest
   {
-    private static IQueryable<Customer> GetQuery(string filter)
+    private static IQueryable<Customer> GetQuery(Session.QueryEndpoint qe, string filter)
     {
-      var customers = Session.Demand().Query.All<Customer>().Where(cn => cn.CompanyName.StartsWith(filter));
+      var customers = qe.All<Customer>().Where(cn => cn.CompanyName.StartsWith(filter));
       return customers;
     }
 
@@ -30,11 +30,11 @@ namespace Xtensive.Orm.Tests.Linq
     {
       for (char c = 'A'; c <= 'Z'; c++) {
         string firstChar = c.ToString();
-        var builtQuery = GetQuery(firstChar);
+        var builtQuery = GetQuery(Session.Query, firstChar);
         var query = builtQuery
           .Select(customer => customer.ContactName);
         var cachedQuery = Session.Query
-          .Execute(() => GetQuery(firstChar).Select(customer => customer.ContactName));
+          .Execute(qe => GetQuery(Session.Query, firstChar).Select(customer => customer.ContactName));
         var fullQuery = Session.Query.All<Customer>()
           .Where(cn => cn.CompanyName.StartsWith(firstChar))
           .Select(customer => customer.ContactName);

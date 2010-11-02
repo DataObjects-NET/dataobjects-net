@@ -236,8 +236,8 @@ namespace Xtensive.Orm.Tests.Linq
 
     private IEnumerable<Order> GetOrders(IEnumerable<int> ids)
     {
-      return Session.Query.Execute(() =>
-        from order in Session.Query.All<Order>()
+      return Session.Query.Execute(qe =>
+        from order in qe.All<Order>()
         where order.Id.In(ids)
         select order);
     }
@@ -290,7 +290,7 @@ namespace Xtensive.Orm.Tests.Linq
 
     private static IEnumerable<Customer> GetCustomers(params string[] customerIds)
     {
-      return Session.Demand().Query.Execute(() => Session.Demand().Query.All<Customer>().Where(customer => customer.Id.In(customerIds)));
+      return Session.Demand().Query.Execute(qe => qe.All<Customer>().Where(customer => customer.Id.In(customerIds)));
     }
   }
 }

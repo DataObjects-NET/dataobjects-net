@@ -200,12 +200,12 @@ namespace Xtensive.Orm.Tests.Linq
 
     private IEnumerable<FullTextMatch<Category>> TakeMatchesIncorrect(string searchCriteria)
     {
-      return Session.Query.Execute(() => Session.Query.FreeText<Category>(searchCriteria));
+      return Session.Query.Execute(qe => qe.FreeText<Category>(searchCriteria));
     }
 
     private IEnumerable<FullTextMatch<Category>> TakeMatchesCorrect(string searchCriteria)
     {
-      return Session.Query.Execute(() => Session.Query.FreeText<Category>(() => searchCriteria));
+      return Session.Query.Execute(qe => qe.FreeText<Category>(() => searchCriteria));
     }
   }
 }

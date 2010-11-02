@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
           Text = "Entity 2"
       }; // Nothing is sent to server yet
 
-      var futureCount = Session.Demand().Query.ExecuteFutureScalar(() => Session.Demand().Query.All<MyEntity>().Count());
+      var futureCount = Session.Demand().Query.ExecuteDelayed(qe => qe.All<MyEntity>().Count());
 
       foreach (var e in Session.Demand().Query.All<MyEntity>()) // Batch is sent
         Console.WriteLine("Entity.Text: {0}", e.Text); 

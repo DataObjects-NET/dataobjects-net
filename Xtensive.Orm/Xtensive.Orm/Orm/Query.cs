@@ -194,7 +194,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.Execute method instead")]
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.Execute(query.Method, query);
+      return Session.Demand().Query.Execute(query.Method, qe => query());
     }
 
     /// <summary>
@@ -210,7 +210,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.Execute method instead")]
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.Execute(key, query);
+      return Session.Demand().Query.Execute(key, qe => query());
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.Execute method instead")]
     public static TResult Execute<TResult>(Func<TResult> query)
     {
-      return Session.Demand().Query.Execute(query);
+      return Session.Demand().Query.Execute(qe => query());
     }
 
     /// <summary>
@@ -242,7 +242,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.Execute method instead")]
     public static TResult Execute<TResult>(object key, Func<TResult> query)
     {
-      return Session.Demand().Query.Execute(key, query);
+      return Session.Demand().Query.Execute(key, qe => query());
     }
 
     /// <summary>
@@ -258,7 +258,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.ExecuteFutureScalar method instead")]
     public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
-      return Session.Demand().Query.ExecuteFutureScalar(key, query);
+      return Session.Demand().Query.ExecuteDelayed(key, qe => query());
     }
 
     /// <summary>
@@ -273,7 +273,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.ExecuteFutureScalar method instead")]
     public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
-      return Session.Demand().Query.ExecuteFutureScalar(query);
+      return Session.Demand().Query.ExecuteDelayed(qe => query());
     }
 
     /// <summary>
@@ -289,7 +289,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.ExecuteFuture method instead")]
     public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.ExecuteFuture(key, query);
+      return Session.Demand().Query.ExecuteDelayed(key, qe => query());
     }
 
     /// <summary>
@@ -304,7 +304,7 @@ namespace Xtensive.Orm
     [Obsolete("Use Session.Query.ExecuteFuture method instead")]
     public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.ExecuteFuture(query);
+      return Session.Demand().Query.ExecuteDelayed(qe => query());
     }
 
     /// <summary>

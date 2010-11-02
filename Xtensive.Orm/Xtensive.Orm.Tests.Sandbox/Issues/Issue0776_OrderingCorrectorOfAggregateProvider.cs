@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Issues
         // Exception!
         var nowCount = aggregate.FirstOrDefault();
 
-        var futureCount = session.Query.ExecuteFutureScalar(() => aggregate.FirstOrDefault());
+        var futureCount = session.Query.ExecuteDelayed(_ => aggregate.FirstOrDefault());
 
         transactionScope.Complete();
       }

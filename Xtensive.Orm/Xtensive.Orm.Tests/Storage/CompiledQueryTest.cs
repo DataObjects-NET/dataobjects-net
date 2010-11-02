@@ -20,7 +20,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = Session.Query.Execute(() => Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
+      var result = Session.Query.Execute(
+        qe => qe.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
     }
 
     [Test]
@@ -33,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage
         .Select(c => new {Category = c, ProductsCount = c.Products.Count})
         .ToDictionary(a => a.Category.CategoryName);
       foreach (var categoryName in categoryNames) {
-        var result = Session.Query.Execute(() => Session.Query.All<Category>()
+        var result = Session.Query.Execute(qe => qe.All<Category>()
           .Where(c => c.CategoryName == categoryName)
           .Select(c => new {
             Category = c, 
@@ -58,7 +59,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = Session.Query.Execute(() => Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
+      var result = Session.Query.Execute(qe => qe.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
     }
 
     [Test]
@@ -66,7 +67,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = Session.Query.Execute(() => Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
+      var result = Session.Query.Execute(qe => qe.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
     }
   }
 }

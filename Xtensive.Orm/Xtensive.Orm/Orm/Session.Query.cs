@@ -231,7 +231,7 @@ namespace Xtensive.Orm
       /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
       /// <param name="query">A delegate performing the query to cache.</param>
       /// <returns>Query result.</returns>
-      public IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
+      public IEnumerable<TElement> Execute<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
       {
         return Execute(query.Method, query);
       }
@@ -246,7 +246,7 @@ namespace Xtensive.Orm
       /// <param name="key">An object identifying this query in cache.</param>
       /// <param name="query">A delegate performing the query to cache.</param>
       /// <returns>Query result.</returns>
-      public IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
+      public IEnumerable<TElement> Execute<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
       {
         return ExecuteInternal(GetParameterizedQuery(key, query), query.Target);
       }
@@ -261,7 +261,7 @@ namespace Xtensive.Orm
       /// <typeparam name="TResult">The type of the result.</typeparam>
       /// <param name="query">A delegate performing the query to cache.</param>
       /// <returns>Query result.</returns>
-      public TResult Execute<TResult>(Func<TResult> query)
+      public TResult Execute<TResult>(Func<QueryEndpoint,TResult> query)
       {
         return Execute(query.Method, query);
       }
@@ -276,7 +276,7 @@ namespace Xtensive.Orm
       /// <param name="key">An object identifying this query in cache.</param>
       /// <param name="query">A delegate performing the query to cache.</param>
       /// <returns>Query result.</returns>
-      public TResult Execute<TResult>(object key, Func<TResult> query)
+      public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
         var domain = Domain.Demand();
         var target = query.Target;
@@ -294,7 +294,7 @@ namespace Xtensive.Orm
             using (new ParameterContext().Activate()) {
               if (queryParameter != null)
                 queryParameter.Value = target;
-              result = query.Invoke();
+              result = query.Invoke(this);
             }
             parameterizedQuery = (ParameterizedQuery<TResult>)queryCachingScope.ParameterizedQuery;
             lock (cache)
@@ -316,7 +316,7 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
+      public FutureScalar<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
         var domain = session.Domain;
         var target = query.Target;
@@ -333,7 +333,7 @@ namespace Xtensive.Orm
             using (new ParameterContext().Activate()) {
               if (queryParameter != null)
                 queryParameter.Value = target;
-              query.Invoke();
+              query.Invoke(this);
             }
             parameterizedQuery = (ParameterizedQuery<TResult>)queryCachingScope.ParameterizedQuery;
             lock (cache)
@@ -356,9 +356,9 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public FutureScalar<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
+      public FutureScalar<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
       {
-        return ExecuteFutureScalar(query.Method, query);
+        return ExecuteDelayed(query.Method, query);
       }
 
       /// <summary>
@@ -371,7 +371,7 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
+      public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query)
       {
         var parameterizedQuery = GetParameterizedQuery(key, query);
         var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
@@ -389,9 +389,9 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
+      public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint,IQueryable<TElement>> query)
       {
-        return ExecuteFuture(query.Method, query);
+        return ExecuteDelayed(query.Method, query);
       }
 
       public IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
@@ -448,8 +448,8 @@ namespace Xtensive.Orm
         return query.Execute(session, context);
       }
 
-      private ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key,
-        Func<IQueryable<TElement>> query) {
+      private ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query) 
+      {
         var domain = session.Domain;
         var cache = domain.QueryCache;
         Pair<object, TranslatedQuery> item;
@@ -461,7 +461,7 @@ namespace Xtensive.Orm
           ExtendedExpressionReplacer replacer;
           var queryParameter = BuildQueryParameter(query.Target, out replacer);
           using (new QueryCachingScope(queryParameter, replacer)) {
-            var result = query.Invoke();
+            var result = query.Invoke(this);
             var translationResult = Provider.Translate<IEnumerable<TElement>>(result.Expression);
             parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>)translationResult.Query;
             lock (cache)

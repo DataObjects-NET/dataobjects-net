@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Internals
 
     public readonly Func<Tuple, Entity> ItemCtor;
 
-    public readonly Func<long> ItemCountQuery;
+    public readonly Func<Session.QueryEndpoint,long> ItemCountQuery;
 
     public RecordSet GetSeekRecordSet (SessionHandler handler)
     {
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Internals
     }
 
     public EntitySetTypeState(ExecutableProvider seekProvider, MapTransform seekTransform,
-      Func<Tuple, Entity> itemCtor, Func<long> itemCountQuery)
+      Func<Tuple, Entity> itemCtor, Func<Session.QueryEndpoint, long> itemCountQuery)
     {
       this.seekProvider = seekProvider;
       SeekTransform = seekTransform;

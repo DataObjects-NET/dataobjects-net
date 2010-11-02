@@ -150,7 +150,7 @@ namespace Xtensive.Orm
     /// The created delegate which returns an <see cref="IQueryable{T}"/>
     /// returning count of items associated with this instance.
     /// </returns>
-    protected abstract Func<long> GetItemCountQueryDelegate(FieldInfo field);
+    protected abstract Func<Session.QueryEndpoint,long> GetItemCountQueryDelegate(FieldInfo field);
 
     /// <summary>
     /// Ensures the owner is not removed.

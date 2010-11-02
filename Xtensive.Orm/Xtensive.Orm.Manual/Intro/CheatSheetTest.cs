@@ -142,20 +142,20 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           Assert.AreSame(dmitri, query.First());
 
           // Querying the storage using compiled query
-          anotherDmitri = session.Query.Execute(() => // Default caching key is methodof( () => ... )
+          anotherDmitri = session.Query.Execute(qe => // Default caching key is methodof( () => ... )
             from user in session.Query.All<User>()
             where user.Name=="Dmitri"
             select user).First();
           Assert.AreSame(dmitri, anotherDmitri);
 
           // Querying the storage using compiled future scalar query
-          var delayedDmitry1 = session.Query.ExecuteFutureScalar(() => (
-            from user in session.Query.All<User>()
+          var delayedDmitry1 = session.Query.ExecuteDelayed(qe => (
+            from user in qe.All<User>()
             where user.Name=="Dmitri"
             select user
             ).FirstOrDefault());
-          var delayedDmitry2 = session.Query.ExecuteFutureScalar(() => (
-            from user in session.Query.All<User>()
+          var delayedDmitry2 = session.Query.ExecuteDelayed(qe => (
+            from user in qe.All<User>()
             where user.Id==dmitriId
             select user
             ).First());

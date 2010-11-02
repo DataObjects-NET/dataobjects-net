@@ -236,42 +236,42 @@ namespace Xtensive.Orm.Tests.Linq
 
     private IEnumerable<Customer> TakeCustomersIncorrect(int amount)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().Take(amount));
+      return Session.Query.Execute(qe => qe.All<Customer>().Take(amount));
     }
 
     private IEnumerable<Customer> TakeCustomersCorrect(int amount)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().Take(() => amount));
+      return Session.Query.Execute(qe => qe.All<Customer>().Take(() => amount));
     }
 
     private IEnumerable<Customer> SkipCustomersIncorrect(int skip)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().Skip(skip));
+      return Session.Query.Execute(qe => qe.All<Customer>().Skip(skip));
     }
 
     private IEnumerable<Customer> SkipCustomersCorrect(int skip)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().Skip(() => skip));
+      return Session.Query.Execute(qe => qe.All<Customer>().Skip(() => skip));
     }
 
     private Customer ElementAtIncorrect(int index)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
     }
 
     private Customer ElementAtCorrect(int index)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(() => index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAt(() => index));
     }
 
     private Customer ElementAtOrDefaultIncorrect(int index)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(index));
     }
 
     private Customer ElementAtOrDefaultCorrect(int index)
     {
-      return Session.Query.Execute(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(() => index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(() => index));
     }
   }
 }

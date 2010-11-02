@@ -244,9 +244,9 @@ namespace Xtensive.Orm
     
     /// <inheritdoc/>
     [Infrastructure]
-    protected sealed override Func<long> GetItemCountQueryDelegate(FieldInfo field)
+    protected sealed override Func<Session.QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {
-      return () => GetItemsQuery(field).LongCount();
+      return qe => GetItemsQuery(field).LongCount();
     }
 
     private IQueryable<TItem> GetItemsQuery(FieldInfo field)

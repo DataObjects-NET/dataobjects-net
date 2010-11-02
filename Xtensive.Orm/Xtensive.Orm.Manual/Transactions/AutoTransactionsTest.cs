@@ -143,14 +143,14 @@ namespace Xtensive.Orm.Manual.Transactions.AutoTransactions
 
         // Auto transactions on scalar queries
         var count         = session.Query.All<Person>().Count();
-        var compiledCount = session.Query.Execute(()  => session.Query.All<Person>().Count());
+        var compiledCount = session.Query.Execute(qe => qe.All<Person>().Count());
         Assert.AreEqual(count, compiledCount);
         Assert.IsNull(Transaction.Current);
 
         // Auto transactions on compiled query enumeration
         Console.WriteLine("All persons (compiled query):");
-        foreach (var item in session.Query.Execute(() => 
-          from person in session.Query.All<Person>()
+        foreach (var item in session.Query.Execute(qe => 
+          from person in qe.All<Person>()
           select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()})) {
           // Transaction is not null while enumeration is still in process; otherwise is null (committed)
           // Assert.IsNotNull(Transaction.Current);

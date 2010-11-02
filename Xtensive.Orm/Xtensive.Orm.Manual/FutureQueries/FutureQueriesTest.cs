@@ -62,17 +62,17 @@ namespace Xtensive.Orm.Manual.FutureQueries
         var manager  = new Person {Name = "Manager"};
         manager.Employees.Add(employee);
 
-        var simpleCompiledQuery = session.Query.Execute(() =>
-          from person in session.Query.All<Person>()
+        var simpleCompiledQuery = session.Query.Execute(qe =>
+          from person in qe.All<Person>()
           orderby person.Name
           select person
           );
-        var managedPersonCount = session.Query.ExecuteFutureScalar(() => (
-          from person in session.Query.All<Person>()
+        var managedPersonCount = session.Query.ExecuteDelayed(qe => (
+          from person in qe.All<Person>()
           where person.Manager!=null
           select person
           ).Count());
-        var personsWithEmployees = session.Query.ExecuteFuture(() =>
+        var personsWithEmployees = session.Query.ExecuteDelayed(qe =>
           from person in session.Query.All<Person>()
           where person.Employees.Count!=0
           select person

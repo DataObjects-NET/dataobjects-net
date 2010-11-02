@@ -373,7 +373,7 @@ namespace Xtensive.Orm.Tests.Storage
         var books0 = author0.Books;
         author0.Remove();
         AssertEx.Throws<InvalidOperationException>(() =>
-          session.Query.ExecuteFuture(() => books0.Where(b => b.Name==0)));
+          session.Query.ExecuteDelayed(_ => books0.Where(b => b.Name==0)));
       }
     }
 
