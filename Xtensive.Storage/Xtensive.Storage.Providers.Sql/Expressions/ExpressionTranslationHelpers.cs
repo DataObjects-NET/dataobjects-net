@@ -77,6 +77,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return Cast(target, typeof (ushort));
     }
 
+    public static SqlExpression ToString(SqlExpression target)
+    {
+      return Cast(target, typeof (string));
+    }
+
     private static SqlExpression Cast(SqlExpression target, Type type)
     {
       var destinationType = ExpressionTranslationContext.Current.Driver.BuildValueType(type);

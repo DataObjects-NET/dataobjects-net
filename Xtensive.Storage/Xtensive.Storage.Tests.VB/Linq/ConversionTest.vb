@@ -225,5 +225,34 @@ Namespace Linq
             Assert.IsTrue(expected.SequenceEqual(result))
         End Sub
 
+        <Test()>
+        Public Sub ToStringTest()
+            ToStringGenericTest(Of Boolean)(True)
+            ToStringGenericTest(Of Byte)(1)
+            ToStringGenericTest(Of Char)("a"c)
+            ToStringGenericTest(Of Date)(Date.Now)
+            ToStringGenericTest(Of Decimal)(1)
+            ToStringGenericTest(Of Double)(1)
+            ToStringGenericTest(Of Short)(1)
+            ToStringGenericTest(Of Integer)(1)
+            ToStringGenericTest(Of Long)(1)
+            ToStringGenericTest(Of Single)(1)
+            ToStringGenericTest(Of UInt32)(1)
+            ToStringGenericTest(Of UInt64)(1)
+        End Sub
+
+        Public Sub ToStringGenericTest(Of TType)(ByVal ParamArray parameter() As TType)
+            Dim store = Query.Store(Of TType)(parameter)
+            Dim result = (From customer In store _
+                    Where Microsoft.VisualBasic.CompilerServices.Conversions.ToString(customer) <> "test" _
+                    Select customer) _
+                    .ToList()
+
+            Dim expected = (From customer In store.ToList() _
+                    Where Microsoft.VisualBasic.CompilerServices.Conversions.ToString(parameter) <> "test" _
+                    Select customer) _
+                    .ToList()
+            Assert.IsTrue(expected.SequenceEqual(result))
+        End Sub
     End Class
 End Namespace

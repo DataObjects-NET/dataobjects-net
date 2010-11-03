@@ -112,5 +112,77 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       return ExpressionTranslationHelpers.ToUshort(stringExpression);
     }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromBoolean([Type(typeof(bool))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromByte([Type(typeof(byte))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromDecimal([Type(typeof(decimal))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromDate([Type(typeof(DateTime))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromChar([Type(typeof(char))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromDouble([Type(typeof(double))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromShort([Type(typeof(short))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromLong([Type(typeof(long))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromSingle([Type(typeof(float))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromUInt32([Type(typeof(uint))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromUInt64([Type(typeof(ulong))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
+
+    [Compiler(VbConversions, "ToString", TargetKind.Static)]
+    public static SqlExpression ToStringFromInteger([Type(typeof(int))]SqlExpression expression)
+    {
+      return ExpressionTranslationHelpers.ToString(expression);
+    }
   }
 }
