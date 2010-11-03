@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xtensive.Core.Linq;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
@@ -16,5 +17,100 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
   [CompilerContainer(typeof(SqlExpression))]
   internal static class VbConversionsCompilers
   {
+    #if NET40
+      private const string VbConversions = "Microsoft.VisualBasic.CompilerServices.Conversions, Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+    #else
+      private const string VbConversions = "Microsoft.VisualBasic.CompilerServices.Conversions, Microsoft.VisualBasic, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+    #endif
+
+    [Compiler(VbConversions, "ToBoolean", TargetKind.Static)]
+    public static SqlExpression ToBoolean([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToDecimal(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToByte", TargetKind.Static)]
+    public static SqlExpression ToByte([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToByte(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToChar", TargetKind.Static)]
+    public static SqlExpression ToChar([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToChar(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToDate", TargetKind.Static)]
+    public static SqlExpression ToDate([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToDateTime(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToDecimal", TargetKind.Static)]
+    public static SqlExpression ToDecimalFromString([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToDecimal(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToDecimal", TargetKind.Static)]
+    public static SqlExpression ToDecimalFromBoolean([Type(typeof(bool))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToDecimal(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToDouble", TargetKind.Static)]
+    public static SqlExpression ToDouble([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToDouble(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToInteger", TargetKind.Static)]
+    public static SqlExpression ToInteger([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToInt(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToLong", TargetKind.Static)]
+    public static SqlExpression ToLong([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToLong(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToSByte", TargetKind.Static)]
+    public static SqlExpression ToSByte([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToSbyte(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToShort", TargetKind.Static)]
+    public static SqlExpression ToShort([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToShort(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToSingle", TargetKind.Static)]
+    public static SqlExpression ToSingle([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToFloat(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToUInteger", TargetKind.Static)]
+    public static SqlExpression ToUInteger([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToUint(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToULong", TargetKind.Static)]
+    public static SqlExpression ToULong([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToUlong(stringExpression);
+    }
+
+    [Compiler(VbConversions, "ToUShort", TargetKind.Static)]
+    public static SqlExpression ToUShort([Type(typeof(string))]SqlExpression stringExpression)
+    {
+      return ExpressionTranslationHelpers.ToUshort(stringExpression);
+    }
   }
 }
