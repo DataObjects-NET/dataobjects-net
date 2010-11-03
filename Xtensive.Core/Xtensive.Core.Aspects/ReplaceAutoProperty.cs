@@ -5,6 +5,7 @@
 // Created:    2008.05.29
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -63,7 +64,9 @@ namespace Xtensive.Core.Aspects
 
       var compilerGeneratedAttribute = accessorInfo
         .GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.Default);
-      return compilerGeneratedAttribute != null;
+      var debuggerNonUserCodeAttribute = accessorInfo
+        .GetAttribute<DebuggerNonUserCodeAttribute>(AttributeSearchOptions.Default);
+      return compilerGeneratedAttribute != null || debuggerNonUserCodeAttribute != null;
     }
 
 
