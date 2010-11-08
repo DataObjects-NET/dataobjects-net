@@ -113,7 +113,6 @@ namespace Xtensive.Storage.Linq
         query = preprocessor.Apply(query);
 
       // Built-in preprocessors
-      query = VbRewriter.Rewrite(query);
       query = ClosureAccessRewriter.Rewrite(query);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);
