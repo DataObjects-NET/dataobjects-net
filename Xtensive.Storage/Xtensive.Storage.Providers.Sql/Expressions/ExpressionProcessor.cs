@@ -139,6 +139,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var targetType = cast.Type.StripNullable();
       if (sourceType==targetType || targetType==typeof(object))
         return operand;
+      // Special case for boolean cast
+      if (fixBooleanExpressions && IsBooleanExpression(cast.Operand)) {
+        var result = SqlDml.Case();
+        result.Add(operand, 1);
+        result.Else = 0;
+        operand = result;
+      }
       return SqlDml.Cast(operand, driver.BuildValueType(targetType));
     }
 

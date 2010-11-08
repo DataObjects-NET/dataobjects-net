@@ -7,6 +7,12 @@ Namespace Linq
     Public Class OperatorsTest
         Inherits NorthwindDOModelTest
 
+        Public Shadows ReadOnly Property Orders As IOrderedQueryable(Of Order)
+            Get
+                Return Query.All(Of Order)().OrderBy(Function(c) c.Id)
+            End Get
+        End Property
+
         Public Shadows ReadOnly Property Customers As IOrderedQueryable(Of Customer)
             Get
                 Return Query.All(Of Customer)().OrderBy(Function(c) c.Id)
@@ -29,14 +35,13 @@ Namespace Linq
 
         <Test()>
         Public Sub CompareString2Test()
-            Dim C = Customers.ToList()
             Dim result = (From customer In Customers _
                     Select customer.CompanyName > "test") _
                     .Where(Function(i) i > 0) _
                     .ToList()
             ' SQL compares CaseInsensitive by default
             Dim expected = (From customer In Customers.ToList() _
-                    Select Microsoft.VisualBasic.CompilerServices.Operators.CompareString(customer.CompanyName, "test", True)) _
+                    Select customer.CompanyName > "test") _
                     .Where(Function(i) i > 0) _
                     .ToList()
             Assert.IsTrue(expected.SequenceEqual(result))
@@ -44,16 +49,12 @@ Namespace Linq
 
         <Test()>
         Public Sub BooleanTest()
-            Dim x = GetType(Microsoft.VisualBasic.CompilerServices.Operators).AssemblyQualifiedName
-
-            Dim C = Customers.ToList()
-            Dim result = (From customer In Customers _
-                    Select customer.Id > 10) _
+            Dim result = (From order In Orders _
+                    Select order.Freight > 10) _
                     .Where(Function(i) i > 0) _
                     .ToList()
-            ' SQL compares CaseInsensitive by default
-            Dim expected = (From customer In Customers.ToList() _
-                    Select customer.Id > 10) _
+            Dim expected = (From order In Orders.ToList() _
+                    Select order.Freight > 10) _
                     .Where(Function(i) i > 0) _
                     .ToList()
             Assert.IsTrue(expected.SequenceEqual(result))
