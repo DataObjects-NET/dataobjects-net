@@ -17,12 +17,12 @@ Namespace Linq
         <Test()>
         Public Sub StringToBooleanTest()
             Dim result = (From customer In Customers _
-                    Where Microsoft.VisualBasic.CompilerServices.Conversions.ToBoolean(customer.Id) _
+                    Where Microsoft.VisualBasic.CompilerServices.Conversions.ToBoolean(If(customer.Id = "test", "True", "False")) _
                     Select customer) _
                     .ToList()
 
             Dim expected = (From customer In Customers.ToList() _
-                    Where Microsoft.VisualBasic.CompilerServices.Conversions.ToBoolean(customer.Id) _
+                    Where Microsoft.VisualBasic.CompilerServices.Conversions.ToBoolean(If(customer.Id = "test", "True", "False")) _
                     Select customer) _
                     .ToList()
             Assert.IsTrue(expected.SequenceEqual(result))

@@ -2,15 +2,14 @@
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
-using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
-  internal class CoalesceRewriter : ExpressionVisitor
+  internal class NullComparsionRewriter : ExpressionVisitor
   {
     public static Expression Rewrite(Expression e)
     {
-      return new CoalesceRewriter().Visit(e);
+      return new NullComparsionRewriter().Visit(e);
     }
 
     protected override Expression VisitUnknown(Expression e)
