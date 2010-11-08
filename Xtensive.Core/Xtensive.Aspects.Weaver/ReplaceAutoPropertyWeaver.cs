@@ -102,6 +102,7 @@ namespace Xtensive.Aspects.Weaver
     private class Instance : MethodBodyTransformationInstance
     {
       private const string AutoPropertyBackingFieldFormat = "<{0}>k__BackingField";
+      private const string VBAutoPropertyBackingFieldFormat = "_{0}";
       private const string HandlerGetMethodPrefix = "Get";
       private const string HandlerSetMethodPrefix = "Set";
       private readonly string handlerMethodSuffix;
@@ -135,7 +136,7 @@ namespace Xtensive.Aspects.Weaver
             if (!targetMethod.IsVirtual)
               isNew = true;
         }
-        var fieldName = string.Format(AutoPropertyBackingFieldFormat, propertyName);
+        var originalPropertyName = propertyName;
         if (isExplicit) {
           var interfaceMethod = (MethodDefDeclaration)targetMethod.InterfaceImplementations.Single().ImplementedMethod;
           var interfaceType = interfaceMethod.DeclaringType;
@@ -155,9 +156,14 @@ namespace Xtensive.Aspects.Weaver
           }
         }
 
+        var fieldName = string.Format(AutoPropertyBackingFieldFormat, originalPropertyName);
         var fieldDef = targetType.Fields.GetByName(fieldName);
-        if (fieldDef == null)
-          return;
+        if (fieldDef == null) {
+          fieldName = string.Format(VBAutoPropertyBackingFieldFormat, originalPropertyName);
+          fieldDef = targetType.Fields.GetByName(fieldName);
+          if (fieldDef == null)
+            return;
+        }
 
         var methodBody = targetMethod.MethodBody;
         methodBody.MaxStack = 8;

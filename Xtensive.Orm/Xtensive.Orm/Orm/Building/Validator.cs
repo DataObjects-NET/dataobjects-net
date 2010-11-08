@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Definitions;
@@ -104,9 +106,15 @@ namespace Xtensive.Orm.Building
         if (fieldDef.UnderlyingProperty==null)
           continue;
         var setter = fieldDef.UnderlyingProperty.GetSetMethod(true);
-        if (setter!=null && (setter.Attributes & MethodAttributes.Private)==0)
-          throw new DomainBuilderException(
-            String.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, hierarchyDef.Root.Name));
+        if (setter != null && (setter.Attributes & MethodAttributes.Private) == 0) {
+          var debuggerNonUserCodeAttribute = setter
+            .GetAttribute<DebuggerNonUserCodeAttribute>(AttributeSearchOptions.Default);
+          var compilerGeneratedAttribute = setter
+            .GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.Default);
+          if (debuggerNonUserCodeAttribute == null || compilerGeneratedAttribute != null)
+            throw new DomainBuilderException(
+              String.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, hierarchyDef.Root.Name));
+        }
 
         if (fieldDef.IsLazyLoad)
           throw new DomainBuilderException(String.Format(Strings.ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey, fieldDef.Name));

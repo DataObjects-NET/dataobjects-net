@@ -234,8 +234,10 @@ namespace Xtensive.Linq
     {
       var attribute = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
 
-      bool isBadTargetType = attribute.TargetType == null
-        || (attribute.TargetType.IsGenericType && !attribute.TargetType.IsGenericTypeDefinition);
+      var targetType = Type.GetType(attribute.TargetTypeAssemblyQualifiedName, false);
+
+      bool isBadTargetType = targetType == null
+        || (targetType.IsGenericType && !targetType.IsGenericTypeDefinition);
 
       if (isBadTargetType)
         throw new InvalidOperationException(string.Format(
@@ -248,7 +250,7 @@ namespace Xtensive.Linq
       bool isPropertyGetter = (attribute.TargetKind & TargetKind.PropertyGet) != 0;
       bool isField = (attribute.TargetKind & TargetKind.Field) != 0;
       bool isGenericMethod = attribute.NumberOfGenericArguments > 0;
-      bool isGenericType = attribute.TargetType.IsGenericType;
+      bool isGenericType = targetType.IsGenericType;
       bool isGeneric = isGenericType || isGenericMethod;
       
       string memberName = attribute.TargetMember;
@@ -305,7 +307,7 @@ namespace Xtensive.Linq
           .FirstOrDefault();
 
         if (returnTypeAttribute != null && returnTypeAttribute.Value != null) {
-          memberInfo = attribute.TargetType.GetMethods()
+          memberInfo = targetType.GetMethods()
           .Where(mi => mi.Name == memberName
                     && mi.IsStatic
                     && mi.ReturnType == returnTypeAttribute.Value)
@@ -316,13 +318,13 @@ namespace Xtensive.Linq
       
       if (!specialCase) {
         if (isCtor)
-          memberInfo = attribute.TargetType.GetConstructor(bindingFlags, parameterTypes);
+          memberInfo = targetType.GetConstructor(bindingFlags, parameterTypes);
         else if (isField)
-          memberInfo = attribute.TargetType.GetField(memberName, bindingFlags);
+          memberInfo = targetType.GetField(memberName, bindingFlags);
         else {
           // method / property getter / property setter
           var genericArgumentNames = isGenericMethod ? new string[attribute.NumberOfGenericArguments] : null;
-          memberInfo = attribute.TargetType
+          memberInfo = targetType
             .GetMethod(memberName, bindingFlags, genericArgumentNames, parameterTypes);
         }
       }

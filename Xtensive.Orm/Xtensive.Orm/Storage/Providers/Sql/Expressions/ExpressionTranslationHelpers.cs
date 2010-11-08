@@ -26,13 +26,58 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       return Cast(target, typeof (long));
     }
+
+    public static SqlExpression ToSbyte(SqlExpression target)
+    {
+      return Cast(target, typeof (sbyte));
+    }
+
+    public static SqlExpression ToShort(SqlExpression target)
+    {
+      return Cast(target, typeof (short));
+    }
+
+    public static SqlExpression ToFloat(SqlExpression target)
+    {
+      return Cast(target, typeof (float));
+    }
     
     public static SqlExpression ToDecimal(SqlExpression target)
     {
       return Cast(target, typeof (decimal));
     }
+    
+    public static SqlExpression ToByte(SqlExpression target)
+    {
+      return Cast(target, typeof (byte));
+    }
 
     public static SqlExpression ToChar(SqlExpression target)
+    {
+      return Cast(target, typeof (string));
+    }
+
+    public static SqlExpression ToDateTime(SqlExpression target)
+    {
+      return Cast(target, typeof (DateTime));
+    }
+
+    public static SqlExpression ToUint(SqlExpression target)
+    {
+      return Cast(target, typeof (uint));
+    }
+
+    public static SqlExpression ToUlong(SqlExpression target)
+    {
+      return Cast(target, typeof (ulong));
+    }
+
+    public static SqlExpression ToUshort(SqlExpression target)
+    {
+      return Cast(target, typeof (ushort));
+    }
+
+    public static SqlExpression ToString(SqlExpression target)
     {
       return Cast(target, typeof (string));
     }

@@ -4,7 +4,7 @@ Imports Xtensive.Orm.Tests.ObjectModel
 
 Namespace Linq
 
-    Public Class DateTimeTests
+    Public Class DateTimeTest
         Inherits NorthwindDOModelTest
 
         Public Shadows ReadOnly Property Orders As IOrderedQueryable(Of Order)
@@ -14,7 +14,8 @@ Namespace Linq
         End Property
 
         <Test()>
-        Public Sub DatePart1Test()
+        <ExpectedException(GetType(NotSupportedException))>
+        Public Sub DatePartNotSupported1Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.DatePart("Day", order.OrderDate) > 0 _
                     Select order) _
@@ -27,7 +28,8 @@ Namespace Linq
         End Sub
 
         <Test()>
-        Public Sub DatePart2Test()
+        <ExpectedException(GetType(NotSupportedException))>
+        Public Sub DatePartNotSupported2Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.DatePart(DateInterval.Day, order.OrderDate.Value) > 0 _
                     Select order) _
@@ -131,7 +133,8 @@ Namespace Linq
         End Sub
 
         <Test()>
-        Public Sub MonthName1Test()
+        <ExpectedException(GetType(NotSupportedException))>
+        Public Sub MonthNameNotSupported1Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, True) <> "test" _
                     Select order) _
@@ -144,7 +147,8 @@ Namespace Linq
         End Sub
 
         <Test()>
-        Public Sub MonthName2Test()
+        <ExpectedException(GetType(NotSupportedException))>
+        Public Sub MonthNameNotSupported2Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, False) <> "test" _
                     Select order) _
