@@ -11,8 +11,14 @@ namespace Xtensive.Orm.Validation
   /// <summary>
   /// Implemented by objects supporting validation framework.
   /// </summary>
-  public interface IValidationAware : IContextBound<ValidationContext>
+  public interface IValidationAware
   {
+    /// <summary>
+    /// Gets the validation context.
+    /// </summary>
+    /// <value>The validation context.</value>
+    ValidationContext Context { get; }
+
     /// <summary>
     /// Validates the object state right now - i.e. without any delays.
     /// </summary>

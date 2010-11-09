@@ -692,7 +692,8 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     [Infrastructure]
-    ValidationContext IContextBound<ValidationContext>.Context {
+    ValidationContext IValidationAware.Context
+    {
       get {
         return (Session ?? Session.Demand()).ValidationContext;
       }

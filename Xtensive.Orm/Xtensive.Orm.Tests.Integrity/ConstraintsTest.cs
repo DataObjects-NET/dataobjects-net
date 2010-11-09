@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Integrity
         this.CheckConstraints();
       }
 
-      ValidationContext IContextBound<ValidationContext>.Context
+      ValidationContext IValidationAware.Context
       {
         get { return context; }
       }
