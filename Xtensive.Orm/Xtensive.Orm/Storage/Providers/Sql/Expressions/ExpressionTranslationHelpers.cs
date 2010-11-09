@@ -12,6 +12,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal static class ExpressionTranslationHelpers
   {
+    public static SqlExpression ToBool(SqlExpression target)
+    {
+      return Cast(target, typeof (bool));
+    }
+
     public static SqlExpression ToInt(SqlExpression target)
     {
       return Cast(target, typeof (int));

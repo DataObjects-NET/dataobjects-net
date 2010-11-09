@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Linq
         state.AllowCalculableColumnCombine = false;
         Expression body = le.Body;
         if (!state.IsTailMethod)
-          body = CoalesceRewriter.Rewrite(body);
+          body = NullComparsionRewriter.Rewrite(body);
         body = Visit(body);
         ParameterExpression parameter = le.Parameters[0];
         if (body.NodeType!=ExpressionType.New
