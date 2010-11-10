@@ -5,11 +5,8 @@
 // Created:    2009.09.07
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Transactions;
 using NUnit.Framework;
 using System.Linq;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
