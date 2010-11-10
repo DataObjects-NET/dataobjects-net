@@ -816,7 +816,12 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
+      ProjectionExpression projectionExpression;
+      using (state.CreateScope()) {
+        state.CalculateExpressions = false;
+        projectionExpression = VisitSequence(expression);
+      }
+      using (context.Bindings.Add(le.Parameters[0], projectionExpression))
       using (state.CreateScope()) {
         state.CalculateExpressions = true;
         var orderByProjector = (ItemProjectorExpression) VisitLambda(le);
@@ -834,8 +839,9 @@ namespace Xtensive.Storage.Linq
     private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
       using (state.CreateScope()) {
-        state.CalculateExpressions = true;
-        using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
+        state.CalculateExpressions = false;
+        var projectionExpression = VisitSequence(expression);
+        using (context.Bindings.Add(le.Parameters[0], projectionExpression))
         {
           state.CalculateExpressions = true;
           var orderByProjector = (ItemProjectorExpression) VisitLambda(le);
