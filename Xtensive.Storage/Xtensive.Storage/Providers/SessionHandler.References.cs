@@ -45,10 +45,17 @@ namespace Xtensive.Storage.Providers
       }
       var queryTask = new QueryTask(executableProvider, parameterContext);
       Session.RegisterDelayedQuery(queryTask);
-      return queryTask
-        .ToEntities(recordSet.Header, 0)
-        .Select(item => new ReferenceInfo(item, target, association));
+
+      return GetReferencesToInternal(association, target, recordSet.Header, queryTask);
     }
+
+    private IEnumerable<ReferenceInfo> GetReferencesToInternal(AssociationInfo association, Entity target, RecordSetHeader header, QueryTask queryTask)
+    {
+      Session.ExecuteDelayedQueries(true);
+      foreach (var entity in queryTask.ToEntities(header, 0))
+        yield return new ReferenceInfo(entity, target, association);
+    }
+
 
     /// <summary>
     /// Gets the references from specified entity.
