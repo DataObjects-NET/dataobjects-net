@@ -404,15 +404,9 @@ namespace Xtensive.Orm.Upgrade
       return Activator.CreateInstance(column.ValueType);
     }
 
-    /// <summary>
-    /// Converts the <see cref="OnRemoveAction"/> to 
-    /// <see cref="Xtensive.Orm.Model.ReferentialAction"/>.
-    /// </summary>
-    /// <param name="toConvert">The action to convert.</param>
-    /// <returns>Converted action.</returns>
-    private static ReferentialAction ConvertReferentialAction(OnRemoveAction toConvert)
+    private static ReferentialAction ConvertReferentialAction(OnRemoveAction source)
     {
-      switch (toConvert) {
+      switch (source) {
       case OnRemoveAction.Deny:
         return ReferentialAction.Restrict;
       case OnRemoveAction.Cascade:
@@ -424,12 +418,6 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    /// <summary>
-    /// Finds the specific index by key columns.
-    /// </summary>
-    /// <param name="table">The table.</param>
-    /// <param name="keyColumns">The key columns.</param>
-    /// <returns>The index.</returns>
     private static IndexingModel.IndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
     {
       IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
@@ -446,12 +434,6 @@ namespace Xtensive.Orm.Upgrade
       return null;
     }
 
-    /// <summary>
-    /// Finds the index of the real.
-    /// </summary>
-    /// <param name="index">The index.</param>
-    /// <param name="field">The field.</param>
-    /// <returns></returns>
     private static IndexInfo FindIndex(IndexInfo index, FieldInfo field)
     {
       if (index.IsVirtual) {
@@ -466,11 +448,6 @@ namespace Xtensive.Orm.Upgrade
       return null;
     }
 
-    /// <summary>
-    /// Finds the non virtual primary index.
-    /// </summary>
-    /// <param name="index">The index.</param>
-    /// <returns>Primary index.</returns>
     private static IndexInfo FindNonVirtualPrimaryIndex(IndexInfo index)
     {
       if (index.IsPrimary && !index.IsVirtual)
@@ -483,11 +460,6 @@ namespace Xtensive.Orm.Upgrade
           : primaryIndex;
     }
 
-    /// <summary>
-    /// Gets the table.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns>Table.</returns>
     private TableInfo GetTable(TypeInfo type)
     {
       if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
@@ -497,13 +469,6 @@ namespace Xtensive.Orm.Upgrade
       return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
     }
 
-    /// <summary>
-    /// Gets the name of the primary index column.
-    /// </summary>
-    /// <param name="primaryIndex">Index of the primary.</param>
-    /// <param name="secondaryIndexColumn">The secondary index column.</param>
-    /// <param name="secondaryIndex">Index of the secondary.</param>
-    /// <returns>Columns name.</returns>
     private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
     {
       string primaryIndexColumnName = null;

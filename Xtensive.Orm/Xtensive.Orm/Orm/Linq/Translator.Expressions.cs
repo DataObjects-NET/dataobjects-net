@@ -787,6 +787,13 @@ namespace Xtensive.Orm.Linq
         var isInlined = !state.BuildingProjection && !state.GroupingKey;
 
         var dataSource = oldResult.ItemProjector.DataSource;
+
+        SortProvider sortProvider = null; 
+        if (dataSource.Provider is SortProvider) {
+          sortProvider = (SortProvider) dataSource.Provider;
+          dataSource = sortProvider.Source.Result;
+        }
+
         var columns = new List<CalculatedColumnDescriptor>();
         if (state.AllowCalculableColumnCombine && dataSource.Provider is CalculateProvider && isInlined==((CalculateProvider) dataSource.Provider).IsInlined) {
           var calculateProvider = ((CalculateProvider) dataSource.Provider);
@@ -800,6 +807,9 @@ namespace Xtensive.Orm.Linq
         dataSource = dataSource.Calculate(
           isInlined,
           columns.ToArray());
+
+        if (sortProvider!=null)
+          dataSource = dataSource.OrderBy(sortProvider.Order);
 
         var newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
         var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
