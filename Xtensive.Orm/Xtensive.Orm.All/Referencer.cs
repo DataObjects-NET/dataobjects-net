@@ -18,7 +18,7 @@ namespace Xtensive.Storage.All
   public sealed class Referencer
   {
     private Type[] types = new [] {
-      typeof (Sql.All.Referencer), // Referencing all SQL DOM providers
+      typeof (Sql.SqlDriver), 
       typeof (Entity),
       typeof (Command),
       typeof (StorageInfo),

@@ -5,6 +5,8 @@
 // Created:    2009.12.17
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -14,6 +16,12 @@ namespace Xtensive.Sql
   partial class SqlDriver
   {
     private const string DriverAssemblyFormat = "Xtensive.Sql.{0}";
+    private static Dictionary<string, Type> factoryRegistry = new Dictionary<string, Type> {
+      {"sqlserver", typeof(SqlServer.DriverFactory)},
+      {"sqlserverce", typeof(SqlServerCe.DriverFactory)},
+      {"oracle", typeof(Oracle.DriverFactory)},
+      {"postgresql", typeof(PostgreSql.DriverFactory)}
+    };
 
     /// <summary>
     /// Creates the driver from the specified connection URL.
@@ -63,10 +71,7 @@ namespace Xtensive.Sql
 
     private static SqlDriver BuildDriver(ConnectionInfo connectionInfo)
     {
-      var assembly = AssemblyHelper.LoadExtensionAssembly(
-        string.Format(DriverAssemblyFormat, connectionInfo.Provider));
-      var factoryType = assembly.GetTypes()
-        .Single(type => type.IsPublicNonAbstractInheritorOf(typeof (SqlDriverFactory)));
+      var factoryType = factoryRegistry[connectionInfo.Provider.ToLower()];
       var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
       var connectionString = connectionInfo.ConnectionString
         ?? factory.BuildConnectionString(connectionInfo.ConnectionUrl);
