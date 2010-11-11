@@ -55,7 +55,7 @@ Namespace Model
   Public Class SomeAspect
     Inherits PostSharp.Aspects.OnMethodBoundaryAspect
 
-    Public Overrides Sub OnEntry(ByVal args As MethodExecutionArgs)
+    Public NotOverridable Overrides Sub OnEntry(ByVal args As MethodExecutionArgs)
       Console.WriteLine("Entry...")
     End Sub
   End Class
