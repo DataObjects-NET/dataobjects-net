@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
+using System.Diagnostics;
 using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using System;
@@ -18,6 +19,7 @@ namespace Xtensive.Storage.Tests
   [TestFixture]
   public abstract class AutoBuildTest
   {
+    private const string ErrorInTestFixtureSetup = "Error in TestFixtureSetUp:\r\n{0}";
     private DisposableSet disposables;
     private static UnityContainer container;
 
@@ -27,23 +29,45 @@ namespace Xtensive.Storage.Tests
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp()
     {
-      CheckRequirements();
-      var config = BuildConfiguration();
-      Domain = BuildDomain(config);
-      if (Domain!=null)
-        ProviderInfo = Domain.StorageProviderInfo;
+      try {
+        CheckRequirements();
+        RebuildDomain();
+      }
+      catch (IgnoreException) {
+        throw;
+      }
+      catch (Exception e) {
+        Debug.WriteLine(ErrorInTestFixtureSetup, e);
+        throw;
+      }
     }
 
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown()
     {
-      disposables.DisposeSafely();
-      Domain.DisposeSafely();
+      disposables.DisposeSafely(true);
+      Domain.DisposeSafely(true);
     }
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
       return DomainConfigurationFactory.Create();
+    }
+
+    protected void RebuildDomain()
+    {
+      disposables.DisposeSafely(true);
+      Domain.DisposeSafely(true);
+
+      var config = BuildConfiguration();
+      Domain = BuildDomain(config);
+      PupulateData();
+      if (Domain!=null)
+        ProviderInfo = Domain.StorageProviderInfo;
+    }
+
+    protected virtual void PupulateData()
+    {
     }
 
     protected virtual void CheckRequirements()
