@@ -682,7 +682,7 @@ namespace Xtensive.Storage
     [Transactional]
     private void InnerOnValidate()
     {
-      if (!CanBeValidated) // True for Structures which aren't bound to entities
+      if (!CanBeValidated) // True for Structures which aren't bound to entities & removed entities
         return;
       this.CheckConstraints(); // Ensures all PropertyConstraintAspects will be executed
                                // CheckConstraints is an extension method provided by Integrity

@@ -927,6 +927,9 @@ Schema difference:
   <data name="ExFieldXIsNotAnEntityReferenceNorEntitySet" xml:space="preserve">
     <value>Field '{0}' is not an entity reference, nor entity set.</value>
   </data>
+  <data name="ExFieldXIsNotAnEntitySet" xml:space="preserve">
+    <value>Field '{0}' is not an entity set.</value>
+  </data>
   <data name="ExUnableToRemapKeyExpression" xml:space="preserve">
     <value>Unable to remap KeyExpression.</value>
   </data>

@@ -7,16 +7,25 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Storage.ManyToManyValidationTest_Model;
+using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Storage.Tests.Storage
 {
   namespace ManyToManyValidationTest_Model
   {
+    public interface IHasValidationCount
+    {
+      int ValidationCount { get; } 
+    }
+
     [HierarchyRoot]
-    public class Book : Entity
+    public class Book : Entity, 
+      IHasValidationCount
     {
       public int ValidationCount { get; set; }
 
@@ -27,7 +36,7 @@ namespace Xtensive.Storage.Tests.Storage
       public string Title { get; set; }
 
       [Field]
-      public EntitySet<Author> Authors { get; private set; }
+      public EntitySetValidatedByOwner<Author> Authors { get; private set; }
 
       protected override void OnValidate()
       {
@@ -36,7 +45,8 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [HierarchyRoot]
-    public class Author: Entity
+    public class Author: Entity, 
+      IHasValidationCount
     {
       public int ValidationCount { get; set; }
 
@@ -47,11 +57,34 @@ namespace Xtensive.Storage.Tests.Storage
       public string Name { get; set; }
 
       [Field]
-      public EntitySet<Book> Books { get; private set; }
+      public EntitySetValidatedByOwner<Book> Books { get; private set; }
 
       protected override void OnValidate()
       {
         ValidationCount++;
+      }
+    }
+
+    public class EntitySetValidatedByOwner<T> : EntitySet<T>,
+      IHasValidationCount
+      where T: IEntity
+    {
+      public int ValidationCount { get; set; }
+
+      protected override void OnValidate()
+      {
+        ValidationCount++;
+        Owner.Validate();
+      }
+
+      protected EntitySetValidatedByOwner(Entity owner, FieldInfo field)
+        : base(owner, field)
+      {
+      }
+
+      protected EntitySetValidatedByOwner(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+      {
       }
     }
   }
@@ -72,43 +105,37 @@ namespace Xtensive.Storage.Tests.Storage
       Author author;
       Book book;
       using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var tx = Transaction.Open()) {
         author = new Author {Name = "Vasya Pupkin"};
-        Assert.AreEqual(2, author.ValidationCount);
-
         book = new Book {Title = "Mathematics"};
-        book.Authors.Add(author);
 
-        Assert.AreEqual(3, author.ValidationCount);
-        
-        t.Complete();
+        EnsureIsValidated(() => {
+          book.Authors.Add(author);
+        }, book, book.Authors);
+
+        EnsureIsValidated(() => {
+          book.Authors.Remove(author);
+        }, book, book.Authors);
+
+        EnsureIsValidated(() => {
+          book.Authors.Clear();
+        }, book, book.Authors);
+
+        tx.Complete();
       }
-      Assert.AreEqual(4, author.ValidationCount);
-      Assert.AreEqual(4, book.ValidationCount);
+    }
 
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
-        author = Query.All<Author>().First(a => a.Name == "Vasya Pupkin");
-        Assert.IsNotNull(author);
-        Assert.AreEqual(0, author.ValidationCount);
-        
-        t.Complete();
+    private void EnsureIsValidated(Action action, params IHasValidationCount[] checkList)
+    {
+      var originalValidationCounts = (
+        from o in checkList
+        select o.ValidationCount
+        ).ToArray();
+      action.Invoke();
+      for (int i = 0; i < originalValidationCounts.Length; i++) {
+        var originalValidationCount = originalValidationCounts[i];
+        Assert.AreNotEqual(originalValidationCounts[i], checkList[i].ValidationCount);
       }
-      Assert.AreEqual(0, author.ValidationCount);
-
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
-        author = Query.All<Author>().First(a => a.Name == "Vasya Pupkin");
-        Assert.IsNotNull(author);
-        Assert.AreEqual(0, author.ValidationCount);
-
-        author.Books.Add(new Book {Title = "Mathematics 1-3"});
-        Assert.AreEqual(1, author.ValidationCount);
-        
-        t.Complete();
-      }
-      Assert.AreEqual(1, author.ValidationCount);
-
     }
   }
 }

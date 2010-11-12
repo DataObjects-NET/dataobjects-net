@@ -15,10 +15,12 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -41,7 +43,8 @@ namespace Xtensive.Storage
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,
-    INotifyCollectionChanged
+    INotifyCollectionChanged,
+    IValidationAware
   {
     private static readonly string presentationFrameworkAssemblyPrefix = "PresentationFramework,";
     private static readonly string storageTestsAssemblyPrefix = "Xtensive.Storage.Tests.";
@@ -200,6 +203,9 @@ namespace Xtensive.Storage
         if (Session.IsSystemLogicOnly)
           return;
 
+        if (Session.Domain.Configuration.AutoValidation)
+          this.Validate();
+
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
@@ -241,6 +247,9 @@ namespace Xtensive.Storage
 
         if (Session.IsSystemLogicOnly)
           return;
+
+        if (Session.Domain.Configuration.AutoValidation)
+          this.Validate();
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
@@ -286,6 +295,9 @@ namespace Xtensive.Storage
 
         if (Session.IsSystemLogicOnly)
           return;
+
+        if (Session.Domain.Configuration.AutoValidation)
+          this.Validate();
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
@@ -413,32 +425,83 @@ namespace Xtensive.Storage
 
     #region Event-like methods
 
+    /// <summary>
+    /// Called when entity set is initialized.
+    /// </summary>
+    [Infrastructure]
     protected virtual void OnInitialize()
     {
     }
 
+    /// <summary>
+    /// Called when item is adding to entity set.
+    /// </summary>
+    /// <param name="item">The item.</param>
+    [Infrastructure]
     protected virtual void OnAdding(Entity item)
     {
     }
 
+    /// <summary>
+    /// Called when item is added to entity set.
+    /// </summary>
+    /// <param name="item">The item.</param>
+    [Infrastructure]
     protected virtual void OnAdd(Entity item)
     {
     }
 
+    /// <summary>
+    /// Called when item is removing from entity set.
+    /// </summary>
+    /// <param name="item">The item.</param>
+    [Infrastructure]
     protected virtual void OnRemoving(Entity item)
     {
     }
 
+    /// <summary>
+    /// Called when item is removed from entity set.
+    /// </summary>
+    /// <param name="item">The item.</param>
+    [Infrastructure]
     protected virtual void OnRemove(Entity item)
     {
     }
 
+    /// <summary>
+    /// Called when entity set is clearing.
+    /// </summary>
+    [Infrastructure]
     protected virtual void OnClearing()
     {
     }
 
+    /// <summary>
+    /// Called when entity set is cleared.
+    /// </summary>
+    [Infrastructure]
     protected virtual void OnClear()
     {
+    }
+
+    /// <summary>
+    /// Called when entity set should be validated.
+    /// </summary>
+    /// <remarks>
+    /// Override this method to perform custom entity set validation.
+    /// </remarks>
+    [Infrastructure]
+    protected virtual void OnValidate()
+    {
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether validation can be performed for this entity.
+    /// </summary>
+    [Infrastructure]
+    protected internal virtual bool CanBeValidated {
+      get { return !Owner.IsRemoved();  }
     }
 
     #endregion
@@ -703,6 +766,33 @@ namespace Xtensive.Storage
       }
       foreach (var item in other)
         Remove(item);
+    }
+
+    #endregion
+
+    #region IValidationAware implementation
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    void IValidationAware.OnValidate()
+    {
+      InnerOnValidate();
+    }
+
+    [Transactional]
+    private void InnerOnValidate()
+    {
+      if (!CanBeValidated) // True for EntitySets with removed owners
+        return;
+      OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    ValidationContextBase IContextBound<ValidationContextBase>.Context {
+      get {
+        return Session.ValidationContext;
+      }
     }
 
     #endregion

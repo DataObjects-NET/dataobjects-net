@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Building.Definitions
     public Type ValueType { get; private set; }
 
     /// <summary>
-    /// Gets or sets the item type for field that describes the EntitySet.
+    /// Gets or sets the item type for field that describes the entity set.
     /// </summary>
     public Type ItemType { get; private set; }
 

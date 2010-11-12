@@ -239,9 +239,10 @@ namespace Xtensive.Storage.Model
     /// <param name="ownerField">The referencing field.</param>
     /// <param name="targetType">The referenced type.</param>
     /// <param name="multiplicity">The association multiplicity.</param>
-    /// <param name="onTargetRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="TargetType"/> object removal.</param>
     /// <param name="onOwnerRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="OwnerType"/> object removal.</param>
-    public AssociationInfo(FieldInfo ownerField, TypeInfo targetType, Multiplicity multiplicity, OnRemoveAction? onOwnerRemove, OnRemoveAction? onTargetRemove)
+    /// <param name="onTargetRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="TargetType"/> object removal.</param>
+    public AssociationInfo(FieldInfo ownerField, TypeInfo targetType, Multiplicity multiplicity, 
+      OnRemoveAction? onOwnerRemove, OnRemoveAction? onTargetRemove)
     {
       OwnerField = ownerField;
       TargetType = targetType;
