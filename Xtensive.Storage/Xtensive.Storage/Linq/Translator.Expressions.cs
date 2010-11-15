@@ -35,23 +35,25 @@ namespace Xtensive.Storage.Linq
   {
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
-      Type expressionType = tb.Expression.Type;
+      var expression = tb.Expression;
+      Type expressionType = expression.Type;
       Type operandType = tb.TypeOperand;
       if (operandType.IsAssignableFrom(expressionType))
         return Expression.Constant(true);
 
       // Structure
-      if (tb.Expression.GetMemberType()==MemberType.Structure
+      var memberType = expression.GetMemberType();
+      if (memberType==MemberType.Structure
         && typeof (Structure).IsAssignableFrom(operandType))
         return Expression.Constant(false);
 
       // Entity
-      if (tb.Expression.GetMemberType()==MemberType.Entity
+      if (memberType==MemberType.Entity
         && typeof (IEntity).IsAssignableFrom(operandType)) {
         TypeInfo typeInfo = context.Model.Types[operandType];
         IEnumerable<int> typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti => ti.TypeId);
 
-        MemberExpression memberExpression = Expression.MakeMemberAccess(tb.Expression, WellKnownMembers.TypeId);
+        MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
           boolExpression = MakeBinaryExpression(
