@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Issues_Issue0847_IsOperator
     public string Name { get; set; }
   }
 
-  public interface IAmSoloProfessional
+  public interface IAmSoloProfessional : IEntity 
   {
     [Field]
     Activity CurrentActivity { get; set; }
