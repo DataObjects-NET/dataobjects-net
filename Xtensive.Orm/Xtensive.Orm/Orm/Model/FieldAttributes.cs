@@ -37,6 +37,6 @@ namespace Xtensive.Orm.Model
     TypeDiscriminator = 0x100000,
     Computed = 0x200000,
     Indexed = 0x400000,
-    Nested = 0x800000
+    Nested = 0x800000,
   }
 }

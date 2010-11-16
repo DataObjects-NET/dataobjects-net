@@ -92,7 +92,7 @@ namespace Xtensive.Orm
           Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
 
         var entityState = session.Handler.FetchEntityState(this);
-        if (entityState==null)
+        if (entityState==null || entityState.IsNotAvailableOrMarkedAsRemoved)
           throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
         TypeReference = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
         return TypeReference.Type;
