@@ -14,7 +14,7 @@
     public int Id { get; private set; }
 
     [Field]
-    public int Reference { get; set; }
+    public X Reference { get; set; }
   }
 
   public class B : A

@@ -10,7 +10,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
   {
     protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
     {
-      hints.Add(new MoveFieldHint("B", "Reference", typeof (ModelVersion2.A)));
+      hints.Add(new RenameTypeHint(typeof (ModelVersion1.A).FullName, typeof (ModelVersion2.A)));
+      hints.Add(new RenameTypeHint(typeof (ModelVersion1.B).FullName, typeof (ModelVersion2.B)));
+      hints.Add(new RenameTypeHint(typeof (ModelVersion1.X).FullName, typeof (ModelVersion2.X)));
+      hints.Add(new MoveFieldHint(typeof (ModelVersion1.B).FullName, "Reference", typeof (ModelVersion2.A)));
       base.AddUpgradeHints(hints);
     }
   }
