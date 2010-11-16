@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Linq
         if (u.GetMemberType()==MemberType.Entity) {
           if (u.Type==u.Operand.Type
             || u.Type.IsAssignableFrom(u.Operand.Type)
-              || !typeof (Entity).IsAssignableFrom(u.Operand.Type))
+              || !typeof (IEntity).IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
@@ -999,10 +999,10 @@ namespace Xtensive.Storage.Linq
         return visitedSource;
 
       // Call convert to parent type.
-      if (!targetType.IsSubclassOf(source.Type))
+      if (targetType.IsAssignableFrom(source.Type))
         return Visit(Expression.Convert(source, targetType));
 
-      // Cast to subclass.
+      // Cast to subclass or interface.
       using (state.CreateScope()) {
         TypeInfo targetTypeInfo = context.Model.Types[targetType];
         ParameterExpression parameter = state.Parameters[0];
