@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Tests.Issues.Issue_0841_HintGeneratorBug2.Model.Version1
+namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2.Model.Version1
 {
   [HierarchyRoot]
   public class Base : Entity

@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues_Issue0847_IsOperator;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues_Issue0847_IsOperator;
 
-namespace Xtensive.Storage.Tests.Issues_Issue0847_IsOperator
+namespace Xtensive.Orm.Tests.Issues_Issue0847_IsOperator
 {
   public enum Activity
   {
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Issues_Issue0847_IsOperator
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class Issue0847_IsOperator : AutoBuildTest
   {
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Session.Open(Domain)) {
         using (var transactionn = Transaction.Open()) {
           var alex = new Alex();
-          session.Persist();
+          session.SaveChanges();
           var query = Query.All<Developer>().Select(developer => new {IsSoloProfessional = developer is IAmSoloProfessional}).ToArray();
           Assert.AreEqual(1, query.Length);
           Assert.AreEqual(true, query[0].IsSoloProfessional);
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Session.Open(Domain)) {
         using (var transactionn = Transaction.Open()) {
           var alex = new Alex();
-          session.Persist();
+          session.SaveChanges();
           var query = Query.All<Developer>().Select(developer => new {SoloProfessional = developer as IAmSoloProfessional}).ToArray();
           Assert.AreEqual(1, query.Length);
           Assert.AreSame(alex, query[0].SoloProfessional);
