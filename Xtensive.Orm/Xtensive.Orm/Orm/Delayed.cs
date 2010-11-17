@@ -18,7 +18,7 @@ namespace Xtensive.Orm
   /// </summary>
   /// <typeparam name="T">The type of the result.</typeparam>
   [Serializable]
-  public sealed class FutureScalar<T> : FutureBase<T>
+  public sealed class Delayed<T> : DelayedQueryResult<T>
   {
     /// <summary>
     /// Gets the result.
@@ -35,7 +35,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    public FutureScalar(TranslatedQuery<T> translatedQuery, ParameterContext parameterContext) :
+    public Delayed(TranslatedQuery<T> translatedQuery, ParameterContext parameterContext) :
       base(translatedQuery, parameterContext)
     {}
   }

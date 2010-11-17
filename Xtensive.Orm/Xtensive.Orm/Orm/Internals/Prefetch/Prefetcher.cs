@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       Prefetch(expression, (int?)entitySetItemCountLimit);
       return this;
     }
-
+/*
     /// <summary>
     /// Registers the prefetch of the field specified by <paramref name="expression"/> and
     /// registers the delegate prefetching fields of an object referenced by element of
@@ -83,9 +83,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       Prefetch(expression, (int?) null);
       RegisterPrefetchMany(expression.Compile(), nestedPrefetcher);
       return this;
-    }
+    }*/
 
-    /// <summary>
+    /*/// <summary>
     /// Registers the delegate prefetching fields of an object referenced by element of
     /// the sequence specified by <paramref name="selector"/>.
     /// </summary>
@@ -99,9 +99,9 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       RegisterPrefetchMany(selector, nestedPrefetcher);
       return this;
-    }
+    }*/
 
-    /// <summary>
+   /* /// <summary>
     /// Registers the delegate prefetching fields of an object referenced by the value
     /// specified by <paramref name="selector"/>.
     /// </summary>
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         };
       prefetchManyProcessorCreators.Add(prefetchManyDelegate);
       return this;
-    }
+    }*/
     
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator()

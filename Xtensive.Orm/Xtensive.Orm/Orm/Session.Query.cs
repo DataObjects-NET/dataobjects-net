@@ -222,6 +222,51 @@ namespace Xtensive.Orm
       }
 
       /// <summary>
+      /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
+      /// </summary>
+      /// <param name="keys">The source sequence.</param>
+      /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
+      public IEnumerable<T> Many<T>(IEnumerable<Key> keys)
+        where T : class, IEntity
+      {
+        throw new NotImplementedException();
+        //      return source
+        //        .Prefetch<Key>(key => key)
+        //        .Select(key => session.Query.SingleOrDefault(key))
+        //        .ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
+      }
+
+      /// <summary>
+      /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
+      /// </summary>
+      /// <param name="keys">The source sequence.</param>
+      /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
+      public IEnumerable<T> Many<T,TElement>(IEnumerable<TElement> keys)
+        where T : class, IEntity
+      {
+        throw new NotImplementedException();
+        //      return source
+        //        .Prefetch<Key>(key => key)
+        //        .Select(key => session.Query.SingleOrDefault(key))
+        //        .ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
+      }
+
+      /*    /// <summary>
+          /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/>.
+          /// </summary>
+          /// <typeparam name="T">The type containing fields which can be registered for prefetch.</typeparam>
+          /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
+          /// <param name="source">The source sequence.</param>
+          /// <param name="keyExtractor">The <see cref="Key"/> extractor.</param>
+          /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
+          public static IEnumerable<T> Prefetch<T, TElement>(this IEnumerable<TElement> source, Func<TElement, Key> keyExtractor)
+            where T : IEntity
+          {
+            throw new NotImplementedException();
+      //      return new Prefetcher<T, TElement>(source, keyExtractor);
+          }*/
+
+      /// <summary>
       /// Finds compiled query in cache by provided <paramref name="query"/> delegate
       /// (in fact, by its <see cref="MethodInfo"/> instance)
       /// and executes them if it's already cached;
@@ -316,7 +361,7 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public FutureScalar<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
+      public Delayed<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
         var domain = session.Domain;
         var target = query.Target;
@@ -342,7 +387,7 @@ namespace Xtensive.Orm
           }
         }
         var parameterContext = CreateParameterContext(target, parameterizedQuery);
-        var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
+        var result = new Delayed<TResult>(parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }
@@ -356,7 +401,7 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public FutureScalar<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
+      public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
       {
         return ExecuteDelayed(query.Method, query);
       }
@@ -375,7 +420,7 @@ namespace Xtensive.Orm
       {
         var parameterizedQuery = GetParameterizedQuery(key, query);
         var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
-        var result = new FutureSequence<TElement>(parameterizedQuery, parameterContext);
+        var result = new DelayedSequence<TElement>(parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }

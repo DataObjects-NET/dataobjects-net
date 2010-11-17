@@ -256,7 +256,7 @@ namespace Xtensive.Orm
     /// The future that will be executed when its result is requested.
     /// </returns>
     [Obsolete("Use Session.Query.ExecuteFutureScalar method instead")]
-    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
+    public static Delayed<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
       return Session.Demand().Query.ExecuteDelayed(key, qe => query());
     }
@@ -271,7 +271,7 @@ namespace Xtensive.Orm
     /// The future that will be executed when its result is requested.
     /// </returns>
     [Obsolete("Use Session.Query.ExecuteFutureScalar method instead")]
-    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
+    public static Delayed<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
       return Session.Demand().Query.ExecuteDelayed(qe => query());
     }

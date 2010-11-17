@@ -19,58 +19,26 @@ namespace Xtensive.Orm
   public static class PrefetchEnumerableExtensions
   {
     /// <summary>
-    /// Prefetches specified <paramref name="source"/> sequence.
-    /// </summary>
-    /// <param name="source">The source sequence.</param>
-    /// <returns>Prefetched sequence.</returns>
-    public static IEnumerable<Entity> Prefetch(this IEnumerable<Key> source)
-    {
-      return source.Prefetch(Session.Demand());
-    }
-
-    /// <summary>
-    /// Prefetches specified <paramref name="source"/> sequence.
-    /// </summary>
-    /// <param name="source">The source sequence.</param>
-    /// <param name="session">The session.</param>
-    /// <returns>Prefetched sequence.</returns>
-    public static IEnumerable<Entity> Prefetch(this IEnumerable<Key> source, Session session)
-    {
-      return source
-        .Prefetch<Key>(key => key)
-        .Select(key => session.Query.SingleOrDefault(key))
-        .ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
-    }
-
-    /// <summary>
-    /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/>.
+    /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/> and 
+    /// registers the prefetch of the field specified by <paramref name="expression"/>.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
+    /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="keyExtractor">The <see cref="Key"/> extractor.</param>
+    /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
-    public static Prefetcher<Entity, TElement> Prefetch<TElement>(this IEnumerable<TElement> source,
-      Func<TElement, Key> keyExtractor)
+    public static IEnumerable<TElement> Prefetch<TElement, TFieldValue>(
+      this IEnumerable<TElement> source, 
+      Expression<Func<TElement, TFieldValue>> expression)
+
+      where TElement : IEntity
     {
-      return new Prefetcher<Entity, TElement>(source, keyExtractor);
+      throw new NotImplementedException();
+//      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+//        .Prefetch(expression);
     }
 
-    /// <summary>
-    /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/>.
-    /// </summary>
-    /// <typeparam name="T">The type containing fields which can be registered for prefetch.</typeparam>
-    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
-    /// <param name="source">The source sequence.</param>
-    /// <param name="keyExtractor">The <see cref="Key"/> extractor.</param>
-    /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
-    public static Prefetcher<T, TElement> Prefetch<T, TElement>(this IEnumerable<TElement> source,
-      Func<TElement, Key> keyExtractor)
-      where T : IEntity
-    {
-      return new Prefetcher<T, TElement>(source, keyExtractor);
-    }
-
-    /// <summary>
+/*    /// <summary>
     /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/> and 
     /// registers the prefetch of the field specified by <paramref name="expression"/>.
     /// </summary>
@@ -169,6 +137,6 @@ namespace Xtensive.Orm
     {
       return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .PrefetchSingle(selector, nestedPrefetcher);
-    }
+    }*/
   }
 }
