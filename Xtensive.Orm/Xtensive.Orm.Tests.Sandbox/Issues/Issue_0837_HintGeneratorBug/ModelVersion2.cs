@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version2
     public long Id { get; private set; }
 
     [Field]
-    public string BaseTitle { get;set; }
+    public string BaseTitle { get; set; }
   }
 
   [HierarchyRoot]
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version2
     public long Id { get; private set; }
 
     [Field]
-    public string BaseTitle { get;set; }
+    public string BaseTitle { get; set; }
 
     [Field]
     public string DerivedTitle { get;set; }

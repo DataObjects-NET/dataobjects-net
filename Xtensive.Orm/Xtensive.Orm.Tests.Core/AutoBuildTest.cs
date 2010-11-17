@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests
         throw;
       }
       catch (Exception e) {
-        Debug.WriteLine(ErrorInTestFixtureSetup, e);
+        Debug.WriteLine(ErrorInTestFixtureSetup.FormatWith(e));
         throw;
       }
     }

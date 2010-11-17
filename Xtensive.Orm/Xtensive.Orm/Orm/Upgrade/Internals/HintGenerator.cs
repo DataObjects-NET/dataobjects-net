@@ -559,8 +559,14 @@ namespace Xtensive.Orm.Upgrade
       var targetHierarchy = targetType.Hierarchy;
 
       var sourceTypeName = hint.SourceType;
-      var sourceType = storedModel.Types.Single(type => type.UnderlyingType==sourceTypeName);
-      var sourceField = sourceType.AllFields.Single(field => field.Name==hint.SourceField);
+      var sourceType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType==sourceTypeName);
+      if (sourceType==null)
+        return;
+
+      var sourceField = sourceType.AllFields.SingleOrDefault(field => field.Name==hint.SourceField);
+      if (sourceField==null)
+        return;
+
       var sourceHierarchy = sourceType.Hierarchy;
       
       // checking that types have hierarchies
