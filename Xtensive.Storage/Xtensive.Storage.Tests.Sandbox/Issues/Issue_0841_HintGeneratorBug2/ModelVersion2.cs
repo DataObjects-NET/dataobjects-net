@@ -8,10 +8,10 @@ using Xtensive.Core;
 using Xtensive.Storage.Upgrade;
 using System;
 
-namespace Xtensive.Storage.Tests.Issues.Issue_0841_HintGeneratorBug.Model.Version2
+namespace Xtensive.Storage.Tests.Issues.Issue_0841_HintGeneratorBug2.Model.Version2
 {
   [HierarchyRoot]
-  public class Derived : Entity
+  public class Base : Entity
   {
     [Field, Key]
     public long Id { get; private set; }
@@ -20,11 +20,15 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0841_HintGeneratorBug.Model.Versio
     public string Text { get; set; }
   }
 
+  // It's necessary to keep it till the final stage of upgrade
   [HierarchyRoot]
   [Recycled, Obsolete]
-  public class RecycledBase : Entity
+  public class Derived : Entity
   {
     [Field, Key]
     public long Id { get; private set; }
+
+    [Field]
+    public string Text { get; set; }
   }
 }
