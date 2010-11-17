@@ -62,6 +62,7 @@ namespace Xtensive.Storage.Tests
       var config = BuildConfiguration();
       Domain = BuildDomain(config);
       PupulateData();
+
       if (Domain!=null)
         ProviderInfo = Domain.StorageProviderInfo;
     }
