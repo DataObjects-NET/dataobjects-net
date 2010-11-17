@@ -1533,4 +1533,16 @@ Error: {1}]]></value>
 	<data name="ExNullableAndNullableOnUpgradeCannotBeUsedWithXField">
 		<value><![CDATA[Nullable and NullableOnUpgrade flags can't be used with '{0}' field. They can be used only with reference-typed fields (except Structure descendants).]]></value>
 	</data>
+	<data name="ExUpgradeHintTargetTypeNotFound">
+		<value><![CDATA[Upgrade hint error. Target type '{0}' not found.]]></value>
+	</data>
+	<data name="ExUpgradeHintTargetFieldNotFound">
+		<value><![CDATA[Upgrade hint error. Target field '{0}' not found.]]></value>
+	</data>
+	<data name="ExUpgradeHintSourceTypeNotFound">
+		<value><![CDATA[Upgrade hint error. Source type '{0}' not found.]]></value>
+	</data>
+	<data name="ExUpgradeHintSourceFieldNotFound">
+		<value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
+	</data>
 </root>

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using NUnit.Framework;
-using Xtensive.Storage.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint.ModelVersion1;
 
 
 namespace Xtensive.Storage.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
@@ -25,7 +24,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
       BuildDomain(typeof (ModelVersion1.A), DomainUpgradeMode.Recreate);
       using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
-          var acticle = new ModelVersion1.B(){Reference = new X()};
+          var acticle = new ModelVersion1.B(){Reference = new ModelVersion1.X()};
           tx.Complete();
         }
       }
