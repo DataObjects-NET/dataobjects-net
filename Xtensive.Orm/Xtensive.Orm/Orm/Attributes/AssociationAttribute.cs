@@ -80,7 +80,6 @@ namespace Xtensive.Orm
     /// </example>
     public string PairTo { get; set; }
 
-
     internal bool IsCompatibleWith(AssociationAttribute other)
     {
       if (ReferenceEquals(null, other)) return false;

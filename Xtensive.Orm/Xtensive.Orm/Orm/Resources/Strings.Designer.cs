@@ -1159,6 +1159,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; is not an entity set..
+        /// </summary>
+        internal static string ExFieldXIsNotAnEntitySet {
+            get {
+                return ResourceManager.GetString("ExFieldXIsNotAnEntitySet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}&apos; is not an EntitySet field..
         /// </summary>
         internal static string ExFieldXIsNotAnEntitySetField {
