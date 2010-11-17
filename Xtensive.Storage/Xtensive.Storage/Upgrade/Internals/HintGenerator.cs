@@ -554,19 +554,21 @@ namespace Xtensive.Storage.Upgrade
     {
       // searching for all required objects
       var targetTypeName = hint.TargetType.GetFullName();
-      var targetType = currentModel.Types.Single(type => type.UnderlyingType==targetTypeName);
-      var targetField = targetType.AllFields.Single(field => field.Name==hint.TargetField);
+      var targetType = currentModel.Types.SingleOrDefault(type => type.UnderlyingType==targetTypeName);
+      if (targetType==null)
+        throw new InvalidOperationException(String.Format(Strings.ExUpgradeHintTargetTypeNotFound, targetTypeName));
+      var targetField = targetType.AllFields.SingleOrDefault(field => field.Name==hint.TargetField);
+      if (targetField==null)
+        throw new InvalidOperationException(String.Format(Strings.ExUpgradeHintTargetFieldNotFound, hint.TargetField));
       var targetHierarchy = targetType.Hierarchy;
 
       var sourceTypeName = hint.SourceType;
       var sourceType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType==sourceTypeName);
       if (sourceType==null)
-        return;
-
+        throw new InvalidOperationException(String.Format(Strings.ExUpgradeHintSourceTypeNotFound, sourceTypeName));
       var sourceField = sourceType.AllFields.SingleOrDefault(field => field.Name==hint.SourceField);
       if (sourceField==null)
-        return;
-
+        throw new InvalidOperationException(String.Format(Strings.ExUpgradeHintSourceFieldNotFound, hint.SourceField));
       var sourceHierarchy = sourceType.Hierarchy;
       
       // checking that types have hierarchies
