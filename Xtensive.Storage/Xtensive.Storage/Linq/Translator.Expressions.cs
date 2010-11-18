@@ -268,9 +268,16 @@ namespace Xtensive.Storage.Linq
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
-        if (!context.Model.Types[ma.Expression.Type].Fields.Contains(context.Domain.NameBuilder.BuildFieldName((PropertyInfo) ma.Member)))
+      else if (ma.Expression.GetMemberType() == MemberType.Entity && ma.Member.Name != "Key") {
+        var type = ma.Expression.Type;
+        var parameter = ma.Expression as ParameterExpression;
+        if (parameter != null) {
+          var projection = context.Bindings[parameter];
+          type = projection.ItemProjector.Item.Type;
+        }
+        if (!context.Model.Types[type].Fields.Contains(context.Domain.NameBuilder.BuildFieldName((PropertyInfo) ma.Member)))
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
+      }
       Expression source;
       using (state.CreateScope()) {
 //        state.BuildingProjection = false;
