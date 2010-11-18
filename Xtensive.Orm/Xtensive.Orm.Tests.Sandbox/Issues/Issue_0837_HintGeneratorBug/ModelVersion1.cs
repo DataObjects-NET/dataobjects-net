@@ -15,12 +15,12 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version1
     public long Id { get; private set; }
 
     [Field]
-    public string BaseTitle { get;set; }
+    public string BaseTitle { get; set; }
   }
 
   public class Derived : Base
   {
     [Field]
-    public string DerivedTitle { get;set; }
+    public string DerivedTitle { get; set; }
   }
 }

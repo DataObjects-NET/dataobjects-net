@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests
         throw;
       }
       catch (Exception e) {
-        Debug.WriteLine(ErrorInTestFixtureSetup, e);
+        Debug.WriteLine(ErrorInTestFixtureSetup.FormatWith(e));
         throw;
       }
     }
@@ -62,6 +62,7 @@ namespace Xtensive.Orm.Tests
       var config = BuildConfiguration();
       Domain = BuildDomain(config);
       PupulateData();
+
       if (Domain!=null)
         ProviderInfo = Domain.StorageProviderInfo;
     }

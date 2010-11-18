@@ -34,23 +34,24 @@ namespace Xtensive.Orm.Linq
   {
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
-      Type expressionType = tb.Expression.Type;
+      var expression = tb.Expression;
+      Type expressionType = expression.Type;
       Type operandType = tb.TypeOperand;
       if (operandType.IsAssignableFrom(expressionType))
         return Expression.Constant(true);
 
       // Structure
-      if (tb.Expression.GetMemberType()==MemberType.Structure
+      var memberType = expression.GetMemberType();
+      if (memberType==MemberType.Structure
         && typeof (Structure).IsAssignableFrom(operandType))
         return Expression.Constant(false);
 
       // Entity
-      if (tb.Expression.GetMemberType()==MemberType.Entity
+      if (memberType==MemberType.Entity
         && typeof (IEntity).IsAssignableFrom(operandType)) {
         TypeInfo typeInfo = context.Model.Types[operandType];
-        IEnumerable<int> typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti => ti.TypeId);
-
-        MemberExpression memberExpression = Expression.MakeMemberAccess(tb.Expression, WellKnownMembers.TypeId);
+        IEnumerable<int> typeIds = typeInfo.GetDescendants().Union(typeInfo.GetImplementors()).AddOne(typeInfo).Select(ti => ti.TypeId);
+        MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
           boolExpression = MakeBinaryExpression(
@@ -102,7 +103,7 @@ namespace Xtensive.Orm.Linq
         if (u.GetMemberType()==MemberType.Entity) {
           if (u.Type==u.Operand.Type
             || u.Type.IsAssignableFrom(u.Operand.Type)
-              || !typeof (Entity).IsAssignableFrom(u.Operand.Type))
+              || !typeof (IEntity).IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
@@ -982,10 +983,10 @@ namespace Xtensive.Orm.Linq
         return visitedSource;
 
       // Call convert to parent type.
-      if (!targetType.IsSubclassOf(source.Type))
+      if (targetType.IsAssignableFrom(source.Type))
         return Visit(Expression.Convert(source, targetType));
 
-      // Cast to subclass.
+      // Cast to subclass or interface.
       using (state.CreateScope()) {
         TypeInfo targetTypeInfo = context.Model.Types[targetType];
         ParameterExpression parameter = state.Parameters[0];
