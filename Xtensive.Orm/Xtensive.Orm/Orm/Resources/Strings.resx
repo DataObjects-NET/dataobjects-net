@@ -1536,4 +1536,13 @@ Error: {1}</value>
   <data name="XW0001" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="ExUpgradeHintTargetFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Target field '{0}' not found.]]></value>
+  </data>
+  <data name="ExUpgradeHintSourceTypeNotFound">
+    <value><![CDATA[Upgrade hint error. Source type '{0}' not found.]]></value>
+  </data>
+  <data name="ExUpgradeHintSourceFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
+  </data>
 </root>

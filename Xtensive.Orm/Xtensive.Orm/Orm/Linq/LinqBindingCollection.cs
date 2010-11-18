@@ -22,14 +22,14 @@ namespace Xtensive.Orm.Linq
 
     public override Disposable Add(ParameterExpression key, ProjectionExpression value)
     {
-      if (key.Type != value.ItemProjector.Type)
+      if (!key.Type.IsAssignableFrom(value.ItemProjector.Type))
         throw new ArgumentException(Resources.Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, "key");
       return base.Add(key, value);
     }
 
     public override Disposable PermanentAdd(ParameterExpression key, ProjectionExpression value)
     {
-      if (key.Type != value.ItemProjector.Type)
+      if (!key.Type.IsAssignableFrom(value.ItemProjector.Type))
         throw new ArgumentException(Resources.Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, "key");
       return base.PermanentAdd(key, value);
     }
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Linq
         }
       }
     }
-
+    
     public Disposable LinkParameters(IEnumerable<ParameterExpression> parameters)
     {
       foreach (var parameter in parameters)

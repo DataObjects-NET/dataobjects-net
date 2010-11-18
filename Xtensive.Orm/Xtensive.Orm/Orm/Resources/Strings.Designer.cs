@@ -3134,6 +3134,42 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Upgrade hint error. Source field &apos;{0}&apos; not found..
+        /// </summary>
+        internal static string ExUpgradeHintSourceFieldNotFound {
+            get {
+                return ResourceManager.GetString("ExUpgradeHintSourceFieldNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upgrade hint error. Source type &apos;{0}&apos; not found..
+        /// </summary>
+        internal static string ExUpgradeHintSourceTypeNotFound {
+            get {
+                return ResourceManager.GetString("ExUpgradeHintSourceTypeNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upgrade hint error. Target field &apos;{0}&apos; not found..
+        /// </summary>
+        internal static string ExUpgradeHintTargetFieldNotFound {
+            get {
+                return ResourceManager.GetString("ExUpgradeHintTargetFieldNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upgrade hint error. Target type &apos;{0}&apos; not found..
+        /// </summary>
+        internal static string ExUpgradeHintTargetTypeNotFound {
+            get {
+                return ResourceManager.GetString("ExUpgradeHintTargetTypeNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Upgrade of assembly &apos;{0}&apos; from version &apos;{1}&apos; to &apos;{2}&apos; is not supported..
         /// </summary>
         internal static string ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported {
