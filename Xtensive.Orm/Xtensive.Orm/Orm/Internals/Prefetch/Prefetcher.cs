@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   /// <typeparam name="T">The type containing fields which can be registered for prefetch.</typeparam>
   /// <typeparam name="TElement">The type of the element.</typeparam>
   [Serializable]
-  public sealed class Prefetcher<T, TElement> : IEnumerable<TElement>
+  internal sealed class Prefetcher<T, TElement> : IEnumerable<TElement>
     where T : IEntity
   {
     private static readonly object descriptorArraysCachingRegion = new object();
@@ -67,7 +67,6 @@ namespace Xtensive.Orm.Internals.Prefetch
       Prefetch(expression, (int?)entitySetItemCountLimit);
       return this;
     }
-/*
     /// <summary>
     /// Registers the prefetch of the field specified by <paramref name="expression"/> and
     /// registers the delegate prefetching fields of an object referenced by element of
@@ -83,7 +82,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       Prefetch(expression, (int?) null);
       RegisterPrefetchMany(expression.Compile(), nestedPrefetcher);
       return this;
-    }*/
+    }
 
     /*/// <summary>
     /// Registers the delegate prefetching fields of an object referenced by element of
@@ -148,38 +147,37 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     #region Private \ internal methods
 
-    private void RegisterPrefetchMany<TSelectorResult>(
-      Func<T, IEnumerable<TSelectorResult>> selector,
+    private void RegisterPrefetchMany<TSelectorResult> (
+      Func<T, IEnumerable<TSelectorResult>> selector, 
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher)
     {
       ArgumentValidator.EnsureArgumentNotNull(nestedPrefetcher, "nestedPrefetcher");
       Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>> prefetchManyDelegate =
-        (rootEnumerator, sessionHandler) => {
-          Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector =
-            (element, sh) => SelectChildElements(element, selector, sh);
-          return new PrefetchManyProcessor<TElement, TSelectorResult>(rootEnumerator, childElementSelector,
-            nestedPrefetcher, sessionHandler);
-        };
+        (rootEnumerator, sessionHandler) => new PrefetchManyProcessor<TElement, TSelectorResult>(
+          rootEnumerator, 
+          (element, sh) => SelectChildElements(element, selector, sh),
+          nestedPrefetcher, 
+          sessionHandler);
       prefetchManyProcessorCreators.Add(prefetchManyDelegate);
     }
 
-    private IEnumerable<TSelectorResult> SelectChildElements<TSelectorResult>(
-      TElement element, Func<T, IEnumerable<TSelectorResult>> selector, SessionHandler sessionHandler)
+    private IEnumerable<TSelectorResult> SelectChildElements<TSelectorResult> (
+      TElement element, 
+      Func<T, IEnumerable<TSelectorResult>> selector, 
+      SessionHandler sessionHandler)
     {
       EntityState state;
       sessionHandler.TryGetEntityState(keyExtractor.Invoke(element), out state);
       return selector.Invoke((T) (object) state.Entity);
     }
 
-    private void Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression,
-      int? entitySetItemCountLimit)
+    private void Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression, int? entitySetItemCountLimit)
     {
       var body = expression.Body;
       if (body.NodeType != ExpressionType.MemberAccess)
         throw new ArgumentException(Strings.ExSpecifiedExpressionIsNotMemberExpression, "expression");
       var modelField = GetModelField(expression, (MemberExpression) body);
-      fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit,
-        true, true, null);
+      fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit, true, true, null);
     }
 
     private FieldInfo GetModelField(LambdaExpression expression, MemberExpression memberAccess)

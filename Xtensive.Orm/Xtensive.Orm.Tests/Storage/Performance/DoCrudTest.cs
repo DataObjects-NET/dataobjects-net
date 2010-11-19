@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           var keys = GetKeys(count).ToList();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Prefetch", count)) {
-            foreach (var key in keys.Prefetch<Simplest, Key>(key => key)) {
+            foreach (var key in session.Query.Many<Simplest>(keys)) {
               i++;
               //var o = session.Query.SingleOrDefault<Simplest>(key);
               //sum -= o.Id;

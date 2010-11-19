@@ -279,8 +279,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         var declaringType = descriptors[i].Field.DeclaringType;
         if (type!=declaringType && !declaringType.UnderlyingType.IsAssignableFrom(type.UnderlyingType))
           throw new InvalidOperationException(
-            String.Format(Strings.ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors,
-              descriptors[i].Field, type));
+            String.Format(Strings.ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors, descriptors[i].Field, type));
       }
     }
 

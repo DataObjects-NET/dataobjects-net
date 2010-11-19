@@ -61,7 +61,7 @@ namespace Xtensive.Orm
           var keys =
             from triplet in entitySubscribers
             select triplet.First;
-          keys.Prefetch(this).Run();
+          Query.Many<Entity>(keys).Run();
         }
 
         var skipRemovedEntities = 

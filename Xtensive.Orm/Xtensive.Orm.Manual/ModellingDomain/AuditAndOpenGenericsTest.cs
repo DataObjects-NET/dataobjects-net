@@ -263,9 +263,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
       var batches = info.ChangedEntities.Batch(); // To avoid further GCs, if set is large
       foreach (var changedEntities in batches) {
-        changedEntities
-          .Prefetch<AuditRecord, Key>(key => key)
-          .Run();
+        session.Query.Many<AuditRecord>(changedEntities).Run();
         foreach (var key in changedEntities) {
           var entity = session.Query.SingleOrDefault(key);
           bool isRemoved = entity.IsRemoved();
@@ -418,14 +416,12 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       // Prefetching AuditRecord<T> - so far we're sure there is only
       // AuditRecord fields and Transaction, but we need descendant fields
       // as well.
-      auditTable
-        .Select(e => e.Record.Key)
-        .Prefetch<Entity, Key>(key => key)
+      Session.Demand().Query
+        .Many<Entity>(auditTable.Select(e => e.Record.Key))
         .Run();
       // Prefetching AuditRecord.EntityKey
-      auditTable
-        .Select(e => e.Record.EntityKey)
-        .Prefetch<Entity, Key>(key => key)
+      Session.Demand().Query
+        .Many<Entity>(auditTable.Select(e => e.Record.EntityKey))
         .Run();
 
       TransactionInfo lastTransaction = null;

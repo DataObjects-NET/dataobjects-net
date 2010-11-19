@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
@@ -53,11 +54,13 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Employee);
+        session.Query.Many<Order>(keys)
+          .Prefetch(o => o.Employee)
+          .Run();
         var orderType = typeof (Order).GetTypeInfo();
         var employeeType = typeof (Employee).GetTypeInfo();
         var employeeField = orderType.Fields["Employee"];
-        foreach (var key in prefetcher) {
+        foreach (var key in keys) {
           GC.Collect(2, GCCollectionMode.Forced);
           GC.WaitForPendingFinalizers();
           var orderState = session.EntityStateCache[key, true];
@@ -85,13 +88,10 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Person, Key>(key => key)/*.Prefetch(p => p.Name)*/
-          .PrefetchSingle(p => new Customer {Name = p.Name}, customer => {
-            customer.First().Remove();
-            CollectGarbadge();
-            return customer;
-          });
-        foreach (var key in prefetcher) {
+        session.Query.Many<Person>(keys)
+          .Prefetch(p => p.Name)
+          .Run();
+        foreach (var key in keys) {
           var orderState = session.EntityStateCache[key, true];
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderState.Key, orderState.Key.Type,
             session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
@@ -112,10 +112,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Details);
+        session.Query.Many<Order>(keys)
+          .Prefetch(o => o.Details)
+          .Run();
         var orderType = typeof (Order).GetTypeInfo();
         var detailsField = orderType.Fields["Details"];
-        foreach (var key in prefetcher) {
+        foreach (var key in keys) {
           CollectGarbadge();
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);

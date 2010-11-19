@@ -116,8 +116,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <param name="keyExtractionSubscriber">The delegate which will be invoked
     /// if a key of a referenced entity has been extracted and
     /// its exact type can't be get or inferred.</param>
-    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit,
-      bool fetchFieldsOfReferencedEntity, bool fetchLazyFields,
+    public PrefetchFieldDescriptor(
+      FieldInfo field, 
+      int? entitySetItemCountLimit, 
+      bool fetchFieldsOfReferencedEntity, 
+      bool fetchLazyFields,
       Action<Key, FieldInfo, Key> keyExtractionSubscriber)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");

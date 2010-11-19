@@ -21,17 +21,14 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly IEnumerable<T> source;
     private readonly TypeInfo modelType;
     private readonly Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors;
-    private readonly Dictionary<TypeInfo, FieldDescriptorCollection> userDescriptorsCache =
-      new Dictionary<TypeInfo, FieldDescriptorCollection>();
+    private readonly Dictionary<TypeInfo, FieldDescriptorCollection> userDescriptorsCache = new Dictionary<TypeInfo, FieldDescriptorCollection>();
     private readonly Queue<T> processedElements = new Queue<T>();
     private readonly Queue<Pair<Key, T>> waitingElements = new Queue<Pair<Key, T>>();
     private readonly StrongReferenceContainer strongReferenceContainer;
     private readonly Queue<Triplet<Key, T, TypeInfo>> delayedElements = new Queue<Triplet<Key, T, TypeInfo>>();
     private Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeys;
-    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysFirst =
-      new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
-    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysSecond =
-      new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
+    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysFirst = new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
+    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysSecond = new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
 
     private Key blockingDelayedElement;
     private readonly SessionHandler sessionHandler;
@@ -87,8 +84,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var type = SelectType(key);
       var descriptors = GetUserDescriptors(type);
-      strongReferenceContainer.JoinIfPossible(sessionHandler
-        .Prefetch(keyExtractor.Invoke(element), type, descriptors));
+      var result = sessionHandler.Prefetch(keyExtractor.Invoke(element), type, descriptors);
+      strongReferenceContainer.JoinIfPossible(result);
       return type;
     }
 
@@ -109,8 +106,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       FieldDescriptorCollection result;
       if (!userDescriptorsCache.TryGetValue(type, out result)) {
         result = new FieldDescriptorCollection(
-          PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(sessionHandler.Session.Domain, type)
-          .Concat(fieldDescriptors.Values));
+          PrefetchHelper
+            .GetCachedDescriptorsForFieldsLoadedByDefault(sessionHandler.Session.Domain, type)
+            .Concat(fieldDescriptors.Values));
         userDescriptorsCache[type] = result;
       }
       return result;
@@ -227,8 +225,12 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    public RootElementsPrefetcher(IEnumerable<T> source, Func<T, Key> keyExtractor, TypeInfo modelType,
-      Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors, SessionHandler sessionHandler)
+    public RootElementsPrefetcher(
+      IEnumerable<T> source, 
+      Func<T, Key> keyExtractor, 
+      TypeInfo modelType,
+      Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors, 
+      SessionHandler sessionHandler)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");

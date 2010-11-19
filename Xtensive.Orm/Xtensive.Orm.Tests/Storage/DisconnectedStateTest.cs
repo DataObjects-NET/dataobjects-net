@@ -817,8 +817,8 @@ namespace Xtensive.Orm.Tests.Storage
             using (state.Connect()) {
               orders = session.Query.All<Order>()
                 .Prefetch(o => o.Customer)
-                .Prefetch(o => o.Details,
-                  od => od.Prefetch(item => item.Product)).ToList();
+                .Prefetch(o => o.Details.Prefetch(od => od.Product))
+                .ToList();
             }
             var newCustomer = new Customer {
               Name = "NewCustomer"
@@ -887,8 +887,7 @@ namespace Xtensive.Orm.Tests.Storage
             using (state.Connect()) {
               orders = session.Query.All<Order>()
                 .Prefetch(o => o.Customer)
-                .Prefetch(o => o.Details,
-                  od => od.Prefetch(item => item.Product)).ToList();
+                .Prefetch(o => o.Details.Prefetch(item => item.Product)).ToList();
             }
 
             var order1 = orders.First(order => order.Number==1);
@@ -1329,8 +1328,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transactionScope = session.OpenTransaction()) {
           var orders = session.Query.All<Order>()
             .Prefetch(o => o.Customer)
-            .Prefetch(o => o.Details,
-              od => od.Prefetch(item => item.Product)).ToList();
+            .Prefetch(o => o.Details.Prefetch(item => item.Product)).ToList();
           
           var newCustomer = new Customer {Name = "NewCustomer"};
           newCustomerKey = newCustomer.Key;
@@ -1400,8 +1398,7 @@ namespace Xtensive.Orm.Tests.Storage
             using (state.Connect()) {
               orders = session.Query.All<Order>()
                 .Prefetch(o => o.Customer)
-                .Prefetch(o => o.Details,
-                  od => od.Prefetch(item => item.Product)).ToList();
+                .Prefetch(o => o.Details.Prefetch(item => item.Product)).ToList();
             }
 
             var newCustomer = new Customer {
