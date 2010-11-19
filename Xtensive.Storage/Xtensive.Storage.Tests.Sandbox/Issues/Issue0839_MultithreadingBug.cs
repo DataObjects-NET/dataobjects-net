@@ -81,14 +81,16 @@ namespace Xtensive.Storage.Tests.Issues
       Thread.Sleep(20 * 1000);
 
       Console.WriteLine("Aborting the threads...");
-      for (int i = 0; i<threadCount; i++) {
-        var thread = threads[i];
-        thread.Abort();
-        thread.Join();
-      }
+      for (int i = 0; i < threadCount; i++)
+        threads[i].Abort();
+      for (int i = 0; i < threadCount; i++)
+        threads[i].Join();
+
       Console.WriteLine("Done.");
 
       Assert.AreEqual(0, exceptionCount);
+
+      Console.WriteLine("test finished");
     }
 
     private void ThreadFunction()
@@ -102,7 +104,8 @@ namespace Xtensive.Storage.Tests.Issues
             using (var tx = Transaction.Open()) {
               // Prefetching the whole set of entities
               foreach (var key in keys) {
-                var entity = Query.SingleOrDefault<UniqueTextEntity>(key);
+                Key key1 = key;
+                var entity = Query.All<UniqueTextEntity>().Where(q=>q.Key == key1 && q.Text != Thread.CurrentThread.ManagedThreadId.ToString()).SingleOrDefault();
               }
               tx.Complete();
             }
