@@ -16,52 +16,22 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0851_AnyMappingError_Model
 {
-  // Мы можем создать свой класс бизнес-объектов,
-  // чтобы проверить какие-то нюансы работы модели.
-
-  [Serializable]
   [HierarchyRoot]
   public class CustomNamed : Entity
   {
     [Field, Key]
-    public int ID { get; private set; }
+    public int Id { get; private set; }
 
     [Field(Length = 100)]
     public string Name { get; set; }
-
-    public override string ToString()
-    {
-      return Name;
-    }
   }
 
   public class Good : CustomNamed
   {
   }
 
-  public class Contractor : CustomNamed
-  {
-  }
 
-
-  public interface IDoc : IEntity
-  {
-    [Field]
-    //[Key]
-      int ID { get; }
-
-    //[Field]
-    string TypeName { get; }
-
-    [Field]
-    string DocNo { get; }
-
-    [Field]
-    DateTime Date { get; }
-  }
-
-
-  public interface IGoodDoc : IDoc
+  public interface IGoodDoc : IEntity
   {
     [Field]
     EntitySet<BladeItem> Items { get; }
@@ -71,29 +41,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0851_AnyMappingError_Model
   public class Blade : CustomNamed, IGoodDoc
   {
     [Field]
-    public DateTime Date { get; set; }
-
-
-    public string TypeName
-    {
-      get { return this.GetType().ToString(); }
-    }
-
-    [Field]
-    public string DocNo { get; set; }
-
-    [Field]
-    public Contractor Contractor { get; set; }
-
-
-    [Field]
     public EntitySet<BladeItem> Items { get; private set; }
-
-
-    public override string ToString()
-    {
-      return TypeName + " " + DocNo + "  - " + Date;
-    }
   }
 
 
@@ -109,15 +57,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue0851_AnyMappingError_Model
 
     [Field]
     public Good Good { get; set; }
-
-    [Field]
-    public decimal Number { get; set; }
-
-    [Field(Scale = 2)]
-    public decimal Price { get; set; }
-
-    [Field(Scale = 2)]
-    public decimal Cost { get; set; }
   }
 
 
@@ -140,19 +79,18 @@ namespace Xtensive.Storage.Tests.Issues
       // Создаем накладные
       using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-            var contr = new Contractor() { Name = "Сидоров" };
-            var g1 = new Good() { Name = "Товар1" };
-            var g2 = new Good() { Name = "Товар2" };
-            var g3 = new Good() { Name = "Товар3" };
+            var g1 = new Good { Name = "Товар1" };
+            var g2 = new Good { Name = "Товар2" };
+            var g3 = new Good { Name = "Товар3" };
 
-            var b1 = new Blade() { Date = DateTime.Now, Contractor = contr };
-            b1.Items.Add(new BladeItem(){Good = g1, Number= 1, Price = 10, Cost = 10});
-            b1.Items.Add(new BladeItem() { Good = g2, Number = 2, Price = 20, Cost = 40 });
+            var b1 = new Blade();
+            b1.Items.Add(new BladeItem {Good = g1,});
+            b1.Items.Add(new BladeItem { Good = g2, });
 
-            var b2 = new Blade() { Date = DateTime.Now, Contractor = contr };
-            b2.Items.Add(new BladeItem() { Good = g1, Number = 1, Price = 10, Cost = 10 });
-            b2.Items.Add(new BladeItem() { Good = g2, Number = 2, Price = 20, Cost = 40 });
-            b2.Items.Add(new BladeItem() { Good = g3, Number = 3, Price = 30, Cost = 90 });
+            var b2 = new Blade();
+            b2.Items.Add(new BladeItem { Good = g1,  });
+            b2.Items.Add(new BladeItem() { Good = g2,  });
+            b2.Items.Add(new BladeItem() { Good = g3,  });
 
           Console.WriteLine("Созданы документы:");
           foreach (IGoodDoc doc in Query.All<Blade>().ToList()) {
