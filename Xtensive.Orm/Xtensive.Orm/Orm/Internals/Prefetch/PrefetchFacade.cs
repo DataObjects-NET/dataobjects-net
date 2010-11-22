@@ -23,13 +23,16 @@ namespace Xtensive.Orm.Internals.Prefetch
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
       var node = PrefetchNodeParser.Parse(expression);
-      return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
+      return keySource == null
+        ? new PrefetchFacade<T>(session, source, nodes.AppendHead(node))
+        : new PrefetchFacade<T>(session, keySource, nodes.AppendHead(node));
     }
 
     public IEnumerator<T> GetEnumerator()
     {
       if (keySource != null) {
         var sessionHandler = session.Handler;
+//        sessionHandler.Prefetch()
 //        var result = new RootElementsPrefetcher<T>(source, keyExtractor, modelType,
 //          fieldDescriptors, sessionHandler);
       }
@@ -42,10 +45,14 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public PrefetchFacade(Session session, IEnumerable<Key> keySource)
+      : this(session, keySource, Collections.LinkedList<PrefetchNode>.Empty)
+    {}
+
+    private PrefetchFacade(Session session, IEnumerable<Key> keySource, Collections.LinkedList<PrefetchNode> nodes)
     {
       this.session = session;
       this.keySource = keySource;
-      nodes = Collections.LinkedList<PrefetchNode>.Empty;
+      this.nodes = nodes;
     }
 
     public PrefetchFacade(Session session, IEnumerable<T> source)
