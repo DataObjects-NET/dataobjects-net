@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
       Key authorKey;
       Ref<Author> authorRef;
 
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var author = new Author();
         authorKey = author.Key;
         authorRef = (Ref<Author>) author;
@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
 
       authorRef = Cloner.Default.Clone(authorRef);
 
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         Assert.AreEqual(authorKey, authorRef.Key);
         var author = authorRef.Value;
         Assert.IsNotNull(author);

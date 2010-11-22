@@ -67,9 +67,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void SelectManyTest()
     {
-      using (Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       {
-        using (var transactionScope = Transaction.Open())
+        using (var transactionScope = session.OpenTransaction())
         {
           var parent = new Parent();
           var child = new Child();
@@ -77,13 +77,13 @@ namespace Xtensive.Orm.Tests.Storage
 
           Session.Current.SaveChanges();
 
-          var list = Query.All<Parent>()
+          var list = session.Query.All<Parent>()
             .SelectMany(p => p.MyChildren, (p, c) => new {MasterId = p.ID, SlaveId = c.ID})
             .ToList();
 
           Assert.AreEqual(1, list.Count);
 
-          var p0 = Query.All<Parent>().First();
+          var p0 = session.Query.All<Parent>().First();
           foreach (var c in p0.MyChildren) {
             Console.WriteLine(c);
           }
@@ -94,9 +94,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void CustomQueryTestTest()
     {
-      using (Session.Open(Domain))
+      using (var session = Domain.OpenSession())
       {
-        using (var transactionScope = Transaction.Open())
+        using (var transactionScope = session.OpenTransaction())
         {
           var parent = new Parent();
           var child = new Child();
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Storage
 
           var types = Domain.Model.Types;
           var itemsType = Domain.Model.Types[typeof(Parent)].Fields["MyChildren"].Associations[0].AuxiliaryType.UnderlyingType;
-          var qqq = Query.All(itemsType) as IQueryable<EntitySetItem<Parent, Child>>;
+          var qqq = session.Query.All(itemsType) as IQueryable<EntitySetItem<Parent, Child>>;
           var list = qqq.ToList();
           var qq = qqq
             .Select(e => new { MasterId = e.Master.ID, SlaveId = e.Slave.ID })
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Tests.Storage
 
           Assert.AreEqual(1, list.Count);
 
-          var p0 = Query.All<Parent>().First();
+          var p0 = session.Query.All<Parent>().First();
           foreach (var c in p0.MyChildren)
           {
             Console.WriteLine(c);

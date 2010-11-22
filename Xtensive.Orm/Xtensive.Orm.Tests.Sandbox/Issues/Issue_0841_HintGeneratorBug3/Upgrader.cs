@@ -72,9 +72,9 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
       if (UpgradeContext.Stage==UpgradeStage.Initializing) {
         // Relying on Metadata.Type, because
         // only system types are registered in model @ this stage.
-        int baseTypeId = Query.All<Metadata.Type>()
+        int baseTypeId = session.Query.All<Metadata.Type>()
           .Where(t => t.Name==typeof(M1.Base).FullName).Single().Id;
-        int derivedTypeId = Query.All<Metadata.Type>()
+        int derivedTypeId = session.Query.All<Metadata.Type>()
           .Where(t => t.Name==typeof(M1.Derived).FullName).Single().Id;
         var command = directSql.CreateCommand();
         command.CommandText = @"

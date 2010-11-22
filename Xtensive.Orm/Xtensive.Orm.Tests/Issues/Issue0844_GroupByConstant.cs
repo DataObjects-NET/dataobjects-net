@@ -34,9 +34,9 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transactionn = Transaction.Open()) {
-          var query = Query.All<Line>().GroupBy(x => 0);
+      using (var session = Domain.OpenSession()) {
+        using (var transactionn = session.OpenTransaction()) {
+          var query = session.Query.All<Line>().GroupBy(x => 0);
           var result = query.ToList();
         }
       }

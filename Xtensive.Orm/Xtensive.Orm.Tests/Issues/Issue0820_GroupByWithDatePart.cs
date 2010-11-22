@@ -84,8 +84,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AnonimousTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           var dateTime = DateTime.Now;
           var item1 = new Item {Date = dateTime};
           var item2 = new Item {Date = dateTime.AddSeconds(1)};

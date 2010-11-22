@@ -72,8 +72,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transaction = Transaction.Open(session)) {
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           var myEntity = new MyEntity() {
             Date = DateTime.Now,
             Text = "Text"

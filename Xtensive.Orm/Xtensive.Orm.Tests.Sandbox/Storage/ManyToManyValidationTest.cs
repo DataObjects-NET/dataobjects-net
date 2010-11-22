@@ -105,8 +105,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       Author author;
       Book book;
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         author = new Author {Name = "Vasya Pupkin"};
         book = new Book {Title = "Mathematics"};
 

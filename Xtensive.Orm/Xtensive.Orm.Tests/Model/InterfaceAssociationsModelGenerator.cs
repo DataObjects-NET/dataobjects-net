@@ -1306,9 +1306,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model1.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model1.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1329,9 +1329,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model1.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model1.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1341,7 +1341,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model1.Item>().ToList();
+        var items = session.Query.All<Model1.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1373,9 +1373,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model2.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model2.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1396,9 +1396,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model2.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model2.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1408,7 +1408,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model2.Item>().ToList();
+        var items = session.Query.All<Model2.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1440,9 +1440,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model3.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model3.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1463,9 +1463,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model3.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model3.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1475,7 +1475,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model3.Item>().ToList();
+        var items = session.Query.All<Model3.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1507,9 +1507,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model4.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model4.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1530,9 +1530,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model4.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model4.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1542,7 +1542,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model4.Item>().ToList();
+        var items = session.Query.All<Model4.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1574,9 +1574,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model5.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model5.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1597,9 +1597,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model5.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model5.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1609,7 +1609,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model5.Item>().ToList();
+        var items = session.Query.All<Model5.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1641,9 +1641,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model6.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model6.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1664,9 +1664,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model6.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model6.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1676,7 +1676,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model6.Item>().ToList();
+        var items = session.Query.All<Model6.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1709,9 +1709,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model7.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model7.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1732,9 +1732,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model7.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model7.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1744,7 +1744,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model7.Item>().ToList();
+        var items = session.Query.All<Model7.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1777,9 +1777,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model8.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model8.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1800,9 +1800,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model8.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model8.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1812,7 +1812,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model8.Item>().ToList();
+        var items = session.Query.All<Model8.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1844,9 +1844,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model9.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model9.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1867,9 +1867,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model9.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model9.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1879,7 +1879,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model9.Item>().ToList();
+        var items = session.Query.All<Model9.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1911,9 +1911,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model10.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model10.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1934,9 +1934,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model10.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model10.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -1946,7 +1946,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model10.Item>().ToList();
+        var items = session.Query.All<Model10.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -1979,9 +1979,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model11.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model11.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2002,9 +2002,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model11.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model11.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2014,7 +2014,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model11.Item>().ToList();
+        var items = session.Query.All<Model11.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2047,9 +2047,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model12.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model12.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2070,9 +2070,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model12.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model12.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2082,7 +2082,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model12.Item>().ToList();
+        var items = session.Query.All<Model12.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2114,9 +2114,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model13.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model13.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2137,9 +2137,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model13.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model13.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2149,7 +2149,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model13.Item>().ToList();
+        var items = session.Query.All<Model13.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2182,9 +2182,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model14.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model14.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2205,9 +2205,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model14.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model14.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2217,7 +2217,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model14.Item>().ToList();
+        var items = session.Query.All<Model14.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2249,9 +2249,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model15.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model15.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2272,9 +2272,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model15.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model15.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2284,7 +2284,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model15.Item>().ToList();
+        var items = session.Query.All<Model15.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2316,9 +2316,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model16.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model16.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2339,9 +2339,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model16.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model16.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2351,7 +2351,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model16.Item>().ToList();
+        var items = session.Query.All<Model16.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2383,9 +2383,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model17.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model17.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2406,9 +2406,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model17.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model17.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2418,7 +2418,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model17.Item>().ToList();
+        var items = session.Query.All<Model17.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2451,9 +2451,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model18.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model18.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2474,9 +2474,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model18.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model18.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2486,7 +2486,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model18.Item>().ToList();
+        var items = session.Query.All<Model18.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2519,9 +2519,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model19.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model19.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2542,9 +2542,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model19.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model19.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2554,7 +2554,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model19.Item>().ToList();
+        var items = session.Query.All<Model19.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2587,9 +2587,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model20.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model20.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2610,9 +2610,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model20.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model20.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2622,7 +2622,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model20.Item>().ToList();
+        var items = session.Query.All<Model20.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2654,9 +2654,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model21.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model21.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2677,9 +2677,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model21.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model21.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2689,7 +2689,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model21.Item>().ToList();
+        var items = session.Query.All<Model21.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2721,9 +2721,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model22.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model22.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2744,9 +2744,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model22.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model22.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2756,7 +2756,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model22.Item>().ToList();
+        var items = session.Query.All<Model22.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2789,9 +2789,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model23.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model23.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2812,9 +2812,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model23.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model23.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2824,7 +2824,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model23.Item>().ToList();
+        var items = session.Query.All<Model23.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2857,9 +2857,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model24.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model24.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2880,9 +2880,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model24.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model24.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2892,7 +2892,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model24.Item>().ToList();
+        var items = session.Query.All<Model24.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2924,9 +2924,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model25.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model25.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2947,9 +2947,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model25.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model25.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -2959,7 +2959,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model25.Item>().ToList();
+        var items = session.Query.All<Model25.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -2992,9 +2992,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model26.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model26.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3015,9 +3015,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model26.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model26.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3027,7 +3027,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model26.Item>().ToList();
+        var items = session.Query.All<Model26.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3059,9 +3059,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model27.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model27.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3082,9 +3082,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model27.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model27.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3094,7 +3094,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model27.Item>().ToList();
+        var items = session.Query.All<Model27.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3126,9 +3126,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model28.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model28.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3149,9 +3149,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model28.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model28.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3161,7 +3161,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model28.Item>().ToList();
+        var items = session.Query.All<Model28.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3193,9 +3193,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model29.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model29.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3216,9 +3216,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model29.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model29.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3228,7 +3228,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model29.Item>().ToList();
+        var items = session.Query.All<Model29.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3261,9 +3261,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model30.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model30.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3284,9 +3284,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model30.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model30.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3296,7 +3296,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model30.Item>().ToList();
+        var items = session.Query.All<Model30.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3328,9 +3328,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model31.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model31.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3351,9 +3351,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model31.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model31.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3363,7 +3363,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model31.Item>().ToList();
+        var items = session.Query.All<Model31.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3396,9 +3396,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model32.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model32.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3419,9 +3419,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model32.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model32.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3431,7 +3431,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model32.Item>().ToList();
+        var items = session.Query.All<Model32.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3463,9 +3463,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model33.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model33.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3486,9 +3486,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model33.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model33.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3498,7 +3498,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model33.Item>().ToList();
+        var items = session.Query.All<Model33.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3530,9 +3530,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model34.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model34.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3553,9 +3553,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model34.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model34.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3565,7 +3565,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model34.Item>().ToList();
+        var items = session.Query.All<Model34.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3597,9 +3597,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model35.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model35.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3620,9 +3620,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model35.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model35.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3632,7 +3632,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model35.Item>().ToList();
+        var items = session.Query.All<Model35.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
@@ -3665,9 +3665,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model36.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model36.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3688,9 +3688,9 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
 	  
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open()) {
-        var document = Query.Single<Model36.Document>(key);
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var document = session.Query.Single<Model36.Document>(key);
         var itemCount = 0;
         Assert.AreEqual(4, document.Items.Count);
         foreach (var item in document.Items) {
@@ -3700,7 +3700,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         
         document.Remove();
-        var items = Query.All<Model36.Item>().ToList();
+        var items = session.Query.All<Model36.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();

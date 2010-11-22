@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
     public void SetUp()
     {
       BuildDomain(typeof (ModelVersion1.A), DomainUpgradeMode.Recreate);
-      using (Session.Open(domain)) {
-        using (var tx = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var tx = session.OpenTransaction()) {
           var acticle = new ModelVersion1.B(){Reference = new ModelVersion1.X()};
           tx.Complete();
         }
@@ -42,9 +42,9 @@ namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
     public void UpgradeTest()
     {
       BuildDomain(typeof (ModelVersion2.A), DomainUpgradeMode.PerformSafely);
-      using (Session.Open(domain)) {
-        using (Transaction.Open()) {
-          var result = Query.All<ModelVersion2.B>().ToList();
+      using (var session = domain.OpenSession()) {
+        using (session.OpenTransaction()) {
+          var result = session.Query.All<ModelVersion2.B>().ToList();
           Assert.AreEqual(1, result.Count);
           Assert.IsNotNull(result[0].Reference);
         }

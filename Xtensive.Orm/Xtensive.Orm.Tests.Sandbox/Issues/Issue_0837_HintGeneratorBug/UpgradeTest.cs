@@ -29,8 +29,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug
     public void SetUp()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (Session.Open(domain)) {
-        using (var tx = Transaction.Open()) {
+      using (var session = domain.OpenSession()) {
+        using (var tx = session.OpenTransaction()) {
           var a = new M1.Base() { BaseTitle = "a.Base"};
           var b = new M1.Derived() { BaseTitle = "b.Base", DerivedTitle = "b.Derived" };
           tx.Complete();
@@ -42,13 +42,13 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (Session.Open(domain)) {
-        using (Transaction.Open()) {
-          var a = Query.All<M2.Base>().SingleOrDefault();
+      using (var session = domain.OpenSession()) {
+        using (session.OpenTransaction()) {
+          var a = session.Query.All<M2.Base>().SingleOrDefault();
           Assert.IsNotNull(a);
           Assert.AreEqual("a.Base", a.BaseTitle);
 
-          var b = Query.All<M2.Derived>().SingleOrDefault();
+          var b = session.Query.All<M2.Derived>().SingleOrDefault();
           Assert.IsNotNull(b);
           Assert.AreEqual("b.Base", b.BaseTitle);
           Assert.AreEqual("b.Derived", b.DerivedTitle);

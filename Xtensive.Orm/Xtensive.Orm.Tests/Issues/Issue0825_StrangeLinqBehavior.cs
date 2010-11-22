@@ -85,8 +85,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transactionn = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionn = session.OpenTransaction()) {
 
           var sevRGasCustomer2 = new SevRGasCustomer() {
             Code = "Code",

@@ -58,8 +58,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
-        using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var tx = session.OpenTransaction()) {
           for (int i = 0; i < entityCount; ++i) {
             var entity = new UniqueTextEntity { Text = "Test" + i };
             keys[i] = entity.Key;
@@ -95,14 +95,14 @@ namespace Xtensive.Orm.Tests.Issues
     {
       string entityText = null;
 
-      using (Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         var rnd = new Random();
         while (true) {
           try {
-            using (var tx = Transaction.Open()) {
+            using (var tx = session.OpenTransaction()) {
               // Prefetching the whole set of entities
               foreach (var key in keys) {
-                var entity = Query.SingleOrDefault<UniqueTextEntity>(key);
+                var entity = session.Query.SingleOrDefault<UniqueTextEntity>(key);
               }
               tx.Complete();
             }

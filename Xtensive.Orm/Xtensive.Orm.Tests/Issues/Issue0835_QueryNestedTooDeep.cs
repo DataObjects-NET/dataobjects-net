@@ -339,9 +339,9 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transaction = Transaction.Open(session)) {
-          var query = Query.All<PaymentTransfer>().Select(c => new PaymentTransferDto {
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          var query = session.Query.All<PaymentTransfer>().Select(c => new PaymentTransferDto {
             ID = c.Id,
             Number = c.Number,
             Date = c.Date,

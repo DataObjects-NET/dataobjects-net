@@ -40,11 +40,11 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var key = Key.Create<Person>(999); // Key of non-existing entity
         
-        Assert.IsNull(Query.SingleOrDefault(key));
+        Assert.IsNull(session.Query.SingleOrDefault(key));
         AssertEx.ThrowsInvalidOperationException(() => {
           var type = key.Type;
         });
