@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Transactions;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Parameters;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
@@ -239,11 +240,7 @@ namespace Xtensive.Orm
       public IEnumerable<T> Many<T>(IEnumerable<Key> keys)
         where T : class, IEntity
       {
-        throw new NotImplementedException();
-        //      return source
-        //        .Prefetch<Key>(key => key)
-        //        .Select(key => session.Query.SingleOrDefault(key))
-        //        .ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
+        return new PrefetchFacade<T>(session, keys);
       }
 
       /// <summary>
@@ -254,27 +251,17 @@ namespace Xtensive.Orm
       public IEnumerable<T> Many<T,TElement>(IEnumerable<TElement> keys)
         where T : class, IEntity
       {
-        throw new NotImplementedException();
-        //      return source
-        //        .Prefetch<Key>(key => key)
-        //        .Select(key => session.Query.SingleOrDefault(key))
-        //        .ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
-      }
+        var elementType = typeof (TElement);
+        Func<TElement, Key> selector = null;
+        if (elementType == typeof(object[]))
+          selector = e => Key.Create<T>(session.Domain, (object[]) (object) e);
+        else if (typeof (Tuple).IsAssignableFrom(elementType))
+          selector = e => Key.Create<T>(session.Domain, (Tuple) (object) e);
+        else
+          selector = e => Key.Create<T>(session.Domain, new object[] {e} );
 
-      /*    /// <summary>
-          /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/>.
-          /// </summary>
-          /// <typeparam name="T">The type containing fields which can be registered for prefetch.</typeparam>
-          /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
-          /// <param name="source">The source sequence.</param>
-          /// <param name="keyExtractor">The <see cref="Key"/> extractor.</param>
-          /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
-          public static IEnumerable<T> Prefetch<T, TElement>(this IEnumerable<TElement> source, Func<TElement, Key> keyExtractor)
-            where T : IEntity
-          {
-            throw new NotImplementedException();
-      //      return new Prefetcher<T, TElement>(source, keyExtractor);
-          }*/
+        return new PrefetchFacade<T>(session, keys.Select(selector));
+      }
 
       /// <summary>
       /// Finds compiled query in cache by provided <paramref name="query"/> delegate

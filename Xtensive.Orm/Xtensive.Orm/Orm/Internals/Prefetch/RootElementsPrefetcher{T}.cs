@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Storage.Providers;
@@ -20,15 +21,15 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly Func<T, Key> keyExtractor;
     private readonly IEnumerable<T> source;
     private readonly TypeInfo modelType;
-    private readonly Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors;
-    private readonly Dictionary<TypeInfo, FieldDescriptorCollection> userDescriptorsCache = new Dictionary<TypeInfo, FieldDescriptorCollection>();
+    private readonly ReadOnlyList<PrefetchFieldDescriptor> fieldDescriptors;
+    private readonly Dictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> userDescriptorsCache = new Dictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
     private readonly Queue<T> processedElements = new Queue<T>();
     private readonly Queue<Pair<Key, T>> waitingElements = new Queue<Pair<Key, T>>();
     private readonly StrongReferenceContainer strongReferenceContainer;
     private readonly Queue<Triplet<Key, T, TypeInfo>> delayedElements = new Queue<Triplet<Key, T, TypeInfo>>();
-    private Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeys;
-    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysFirst = new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
-    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysSecond = new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
+    private Dictionary<Key, System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeys;
+    private readonly Dictionary<Key, System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysFirst = new Dictionary<Key, System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>>>();
+    private readonly Dictionary<Key, System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysSecond = new Dictionary<Key, System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>>>();
 
     private Key blockingDelayedElement;
     private readonly SessionHandler sessionHandler;
@@ -101,14 +102,14 @@ namespace Xtensive.Orm.Internals.Prefetch
       return type;
     }
 
-    private FieldDescriptorCollection GetUserDescriptors(TypeInfo type)
+    private ReadOnlyList<PrefetchFieldDescriptor> GetUserDescriptors(TypeInfo type)
     {
-      FieldDescriptorCollection result;
+      ReadOnlyList<PrefetchFieldDescriptor> result;
       if (!userDescriptorsCache.TryGetValue(type, out result)) {
-        result = new FieldDescriptorCollection(
+        result = new ReadOnlyList<PrefetchFieldDescriptor>(
           PrefetchHelper
             .GetCachedDescriptorsForFieldsLoadedByDefault(sessionHandler.Session.Domain, type)
-            .Concat(fieldDescriptors.Values));
+            .Concat(fieldDescriptors).ToList());
         userDescriptorsCache[type] = result;
       }
       return result;
@@ -121,7 +122,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (blockingDelayedElement == null)
           blockingDelayedElement = elementToBeFetched.First;
         var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
-        LinkedList<Pair<Key, TypeInfo>> referencedKeys;
+        System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>> referencedKeys;
         if (referencedDelayedElementKeys.TryGetValue(elementToBeFetched.First, out referencedKeys)) {
           RegisterPrefetchOfDelayedReferencedElements(referencedKeys);
           referencedDelayedElementKeys.Remove(elementToBeFetched.First);
@@ -132,7 +133,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    private void RegisterPrefetchOfDelayedReferencedElements(LinkedList<Pair<Key, TypeInfo>> referencedKeys)
+    private void RegisterPrefetchOfDelayedReferencedElements(System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>> referencedKeys)
     {
       foreach (var referencedKeyPair in referencedKeys)
         RegisterPrefetchOfDefaultFields(referencedKeyPair.First, referencedKeyPair.Second);
@@ -210,11 +211,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       GetReferencedKeysList(ownerKey).AddLast(new Pair<Key, TypeInfo>(referencedKey, type));
     }
 
-    private LinkedList<Pair<Key, TypeInfo>> GetReferencedKeysList(Key ownerKey)
+    private System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>> GetReferencedKeysList(Key ownerKey)
     {
-      LinkedList<Pair<Key, TypeInfo>> result;
+      System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>> result;
       if (!referencedDelayedElementKeys.TryGetValue(ownerKey, out result)) {
-        result = new LinkedList<Pair<Key, TypeInfo>>();
+        result = new System.Collections.Generic.LinkedList<Pair<Key, TypeInfo>>();
         referencedDelayedElementKeys.Add(ownerKey, result);
       }
       return result;
@@ -229,7 +230,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       IEnumerable<T> source, 
       Func<T, Key> keyExtractor, 
       TypeInfo modelType,
-      Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors, 
+      IEnumerable<PrefetchFieldDescriptor> fieldDescriptors, 
       SessionHandler sessionHandler)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -239,12 +240,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.source = source;
       this.keyExtractor = keyExtractor;
       this.modelType = modelType;
-      this.fieldDescriptors = new Dictionary<FieldInfo, PrefetchFieldDescriptor>(fieldDescriptors.Count);
       Action<Key, FieldInfo, Key> keyExtractionSubscriber = HandleReferencedKeyExtraction;
-      foreach (var pair in fieldDescriptors)
-        this.fieldDescriptors[pair.Key] = new PrefetchFieldDescriptor(pair.Value.Field,
-          pair.Value.EntitySetItemCountLimit, pair.Value.FetchFieldsOfReferencedEntity,
-          pair.Value.FetchLazyFields, keyExtractionSubscriber);
+      this.fieldDescriptors = new ReadOnlyList<PrefetchFieldDescriptor>(
+        fieldDescriptors
+          .Select(fd => new PrefetchFieldDescriptor(fd.Field, fd.EntitySetItemCountLimit, fd.FetchFieldsOfReferencedEntity, fd.FetchLazyFields, keyExtractionSubscriber))
+          .ToList());
       this.sessionHandler = sessionHandler;
       strongReferenceContainer = new StrongReferenceContainer(null);
       referencedDelayedElementKeys = referencedDelayedElementKeysFirst;

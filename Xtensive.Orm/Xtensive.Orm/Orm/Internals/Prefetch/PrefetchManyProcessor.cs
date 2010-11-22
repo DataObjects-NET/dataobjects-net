@@ -26,8 +26,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     #endregion
 
-    private readonly LinkedList<RootElementContainer> remainingCountOfChildElements =
-      new LinkedList<RootElementContainer>();
+    private readonly LinkedList<RootElementContainer> remainingCountOfChildElements = new LinkedList<RootElementContainer>();
     private readonly Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector;
     private readonly Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher;
     private readonly IEnumerable<TElement> source;
@@ -82,7 +81,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    public PrefetchManyProcessor(IEnumerable<TElement> source,
+    public PrefetchManyProcessor(
+      IEnumerable<TElement> source,
       Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector,
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher,
       SessionHandler sessionHandler)

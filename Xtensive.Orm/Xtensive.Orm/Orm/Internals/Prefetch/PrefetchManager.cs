@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public int TaskExecutionCount { get; private set; }
 
-    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, FieldDescriptorCollection descriptors)
+    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, ReadOnlyList<PrefetchFieldDescriptor> descriptors)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
@@ -272,8 +272,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
-    private static void EnsureAllFieldsBelongToSpecifiedType(FieldDescriptorCollection descriptors,
-      TypeInfo type)
+    private static void EnsureAllFieldsBelongToSpecifiedType(ReadOnlyList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
     {
       for (int i = 0; i < descriptors.Count; i++) {
         var declaringType = descriptors[i].Field.DeclaringType;

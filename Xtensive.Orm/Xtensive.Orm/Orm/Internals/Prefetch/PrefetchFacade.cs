@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       this.session = session;
       this.keySource = keySource;
+      nodes = Collections.LinkedList<PrefetchNode>.Empty;
     }
 
     public PrefetchFacade(Session session, IEnumerable<T> source)

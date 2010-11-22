@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
@@ -21,19 +22,18 @@ namespace Xtensive.Orm.Internals.Prefetch
       return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
     }
 
-    public static FieldDescriptorCollection CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
+    public static ReadOnlyList<PrefetchFieldDescriptor> CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
     {
-      return new FieldDescriptorCollection(type.Fields
+      return new ReadOnlyList<PrefetchFieldDescriptor>(type.Fields
         .Where(field => field.Parent==null && IsFieldToBeLoadedByDefault(field))
-        .Select(field => new PrefetchFieldDescriptor(field, false, false)));
+        .Select(field => new PrefetchFieldDescriptor(field, false, false)).ToList());
     }
 
-    public static FieldDescriptorCollection GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain,
-      TypeInfo type)
+    public static ReadOnlyList<PrefetchFieldDescriptor> GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain, TypeInfo type)
     {
       object key = new Pair<object, TypeInfo>(descriptorArraysCachingRegion, type);
       Func<object, object> generator = pair => CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second);
-      return (FieldDescriptorCollection) domain.Cache.GetValue(key, generator);
+      return (ReadOnlyList<PrefetchFieldDescriptor>)domain.Cache.GetValue(key, generator);
     }
 
     public static bool? TryGetExactKeyType(Key key, PrefetchManager manager, out TypeInfo type)

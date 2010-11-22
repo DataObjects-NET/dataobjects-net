@@ -5,6 +5,8 @@
 // Created:    2009.08.19
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
@@ -28,8 +30,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
-    public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type,
-      FieldDescriptorCollection descriptors)
+    public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type, ReadOnlyList<PrefetchFieldDescriptor> descriptors)
     {
       EnsureTransactionIsOpened();
       return prefetchManager.Prefetch(key, type, descriptors);
