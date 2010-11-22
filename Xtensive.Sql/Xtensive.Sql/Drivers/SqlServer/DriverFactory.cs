@@ -9,7 +9,7 @@ using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.SqlServer.Resources;
+using Xtensive.Sql.Drivers.SqlServer.Resources;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer
