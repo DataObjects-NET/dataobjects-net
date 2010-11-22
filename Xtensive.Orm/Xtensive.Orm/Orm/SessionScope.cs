@@ -4,6 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.29
 
+using System;
+using System.Threading;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 
