@@ -9,7 +9,7 @@ using System.Linq;
 using Oracle.DataAccess.Client;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.Oracle.Resources;
+using Xtensive.Sql.Drivers.Oracle.Resources;
 
 namespace Xtensive.Sql.Oracle
 {

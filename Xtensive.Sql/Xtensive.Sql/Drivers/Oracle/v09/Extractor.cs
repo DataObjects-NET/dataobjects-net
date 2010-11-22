@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.Oracle.Resources;
+using Xtensive.Sql.Drivers.Oracle.Resources;
 using Constraint=Xtensive.Sql.Model.Constraint;
 
 namespace Xtensive.Sql.Oracle.v09

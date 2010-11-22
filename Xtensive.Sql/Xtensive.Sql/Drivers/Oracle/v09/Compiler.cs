@@ -11,7 +11,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.Oracle.Resources;
+using Xtensive.Sql.Drivers.Oracle.Resources;
 using System.Linq;
 
 namespace Xtensive.Sql.Oracle.v09
