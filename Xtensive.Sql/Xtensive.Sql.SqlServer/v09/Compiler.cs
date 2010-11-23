@@ -16,6 +16,9 @@ namespace Xtensive.Sql.SqlServer.v09
 {
   internal class Compiler : SqlCompiler
   {
+    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks*100;
+    protected static readonly long NanosecondsPerSecond = 1000000000;
+    protected static readonly long NanosecondsPerMillisecond = 1000000;
     protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
     protected static readonly long MillisecondsPerSecond = 1000L;
     protected static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
@@ -185,15 +188,10 @@ namespace Xtensive.Sql.SqlServer.v09
         -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
     }
     
-    protected SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
+    protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
-          + CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) * NanosecondsPerMillisecond
-          + DateDiffNanosecond(
-              DateAddMillisecond(
-                DateAddDay(date2, DateDiffDay(date2, date1)), 
-                DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)),
-              date1);
+          + CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) * NanosecondsPerMillisecond;
     }
 
     protected virtual SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
@@ -268,12 +266,12 @@ namespace Xtensive.Sql.SqlServer.v09
       return SqlDml.FunctionCall("DATEPART", SqlDml.Native("WEEKDAY"), date);
     }
 
-    private static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
+    protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
     {
       return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("DAY"), date1, date2);
     }
 
-    private static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
+    protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
     {
       return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("MS"), date1, date2);
     }
