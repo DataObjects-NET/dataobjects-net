@@ -61,16 +61,16 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
 
           var item = new Item();
           var referenceContainer1 = new ReferenceContainer();
           var referenceContainer2 = new ReferenceContainer{Items = {new Reference {Item = item}}};
 
-
+          session.Persist();
           var l = Query.All<IHasItems>()
-            .Where(container => (container.Items.Any(reference => reference.Item==item)))
+            .Where(container => container.Items.Any())
             .ToList();
 
           Assert.AreEqual(1, l.Count);
