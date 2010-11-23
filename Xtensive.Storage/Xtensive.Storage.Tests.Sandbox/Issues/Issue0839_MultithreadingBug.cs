@@ -56,6 +56,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
+    [Ignore]
     public void MainTest()
     {
       using (Session.Open(Domain)) {
