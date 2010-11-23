@@ -40,12 +40,13 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class Issue0839_MultithreadingBug : AutoBuildTest
   {
+    private static bool stopThread = false;
     private const int threadCount = 2;
     private const int entityCount = 20;
     private const int readCount = 20;
 
     private static object exceptionLock = new object();
-    private static int exceptionCount = 0;
+    private static int exceptionCount;
     private static Key[] keys = new Key[entityCount];
 
     protected override DomainConfiguration BuildConfiguration()
@@ -78,12 +79,13 @@ namespace Xtensive.Orm.Tests.Issues
       }
       Console.WriteLine("Done.");
 
-      Thread.Sleep(20 * 1000);
+      Thread.Sleep(TimeSpan.FromSeconds(5));
+
+      stopThread = true;
 
       Console.WriteLine("Aborting the threads...");
       for (int i = 0; i<threadCount; i++) {
         var thread = threads[i];
-        thread.Abort();
         thread.Join();
       }
       Console.WriteLine("Done.");
@@ -97,7 +99,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession()) {
         var rnd = new Random();
-        while (true) {
+        while (!stopThread) {
           try {
             using (var tx = session.OpenTransaction()) {
               // Prefetching the whole set of entities

@@ -1296,7 +1296,7 @@ namespace Xtensive.Orm.Linq
           var memberAccess = (MemberExpression) sequence;
           if ((memberAccess.Member is PropertyInfo)
             && memberAccess.Expression!=null
-              && memberAccess.Expression.Type.IsSubclassOf(typeof (Entity))) {
+              && context.Model.Types.Contains(memberAccess.Expression.Type)) {
             var field = context
               .Model
               .Types[memberAccess.Expression.Type]
