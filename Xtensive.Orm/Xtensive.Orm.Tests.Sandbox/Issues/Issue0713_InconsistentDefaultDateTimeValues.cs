@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
         return true;
       }
 
-      protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
       {
         hints.Add(new RenameTypeHint(typeof (InconsistentDefaultDateTimeValuesModel1.MyEntity).FullName, typeof (InconsistentDefaultDateTimeValuesModel2.MyEntity)));
       }
