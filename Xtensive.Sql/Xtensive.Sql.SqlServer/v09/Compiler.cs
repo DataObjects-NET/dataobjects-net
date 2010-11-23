@@ -16,12 +16,9 @@ namespace Xtensive.Sql.SqlServer.v09
 {
   internal class Compiler : SqlCompiler
   {
-    private static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks*100;
-    private static readonly long NanosecondsPerSecond = 1000000000;
-    private static readonly long NanosecondsPerMillisecond = 1000000;
-    private static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    private static readonly long MillisecondsPerSecond = 1000L;
-    private static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
+    protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
+    protected static readonly long MillisecondsPerSecond = 1000L;
+    protected static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
     
     public override void Visit(SqlSelect node)
     {
@@ -179,7 +176,7 @@ namespace Xtensive.Sql.SqlServer.v09
       }
     }
 
-    private SqlExpression DateTimeTruncate(SqlExpression date)
+    protected SqlExpression DateTimeTruncate(SqlExpression date)
     {
       return DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
         -SqlDml.Extract(SqlDateTimePart.Hour, date)),
@@ -188,7 +185,7 @@ namespace Xtensive.Sql.SqlServer.v09
         -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
     }
     
-    private SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
+    protected SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
           + CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) * NanosecondsPerMillisecond
@@ -199,13 +196,11 @@ namespace Xtensive.Sql.SqlServer.v09
               date1);
     }
 
-    private SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
+    protected virtual SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
-      return DateAddNanosecond(
-        DateAddMillisecond(
+        return DateAddMillisecond(
           DateAddDay(date, interval / NanosecondsPerDay),
-          (interval/NanosecondsPerMillisecond) % (MillisecondsPerDay)),
-        (interval/NanosecondsPerSecond) % NanosecondsPerDay/NanosecondsPerSecond);
+          (interval/NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
 
     private SqlExpression GenericPad(SqlFunctionCall node)
@@ -283,11 +278,6 @@ namespace Xtensive.Sql.SqlServer.v09
       return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("MS"), date1, date2);
     }
 
-    private static SqlUserFunctionCall DateDiffNanosecond(SqlExpression date1, SqlExpression date2)
-    {
-      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("NS"), date1, date2);
-    }
-
     private static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
     {
       return SqlDml.FunctionCall("DATEADD", SqlDml.Native("YEAR"),years, date);
@@ -298,7 +288,7 @@ namespace Xtensive.Sql.SqlServer.v09
       return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MONTH"), months, date);
     }
 
-    private static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
+    protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
     {
       return SqlDml.FunctionCall("DATEADD", SqlDml.Native("DAY"), days, date);
     }
@@ -318,14 +308,9 @@ namespace Xtensive.Sql.SqlServer.v09
       return SqlDml.FunctionCall("DATEADD", SqlDml.Native("SECOND"), seconds, date);
     }
 
-    private static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
+    protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
     {
       return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MS"), milliseconds, date);
-    }
-
-    private static SqlUserFunctionCall DateAddNanosecond(SqlExpression date, SqlExpression nanoseconds)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("NS"), nanoseconds, date);
     }
 
     #endregion
