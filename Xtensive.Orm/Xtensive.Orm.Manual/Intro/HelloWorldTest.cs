@@ -42,26 +42,25 @@ namespace Xtensive.Orm.Manual.Intro.HelloWorld
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession()) {
-        Debug.Assert(session==Session.Current);
+        // Session don't activated by default
+        Debug.Assert(Session.Current == null);
       }
 
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var helloWorld = new MyEntity {
-            Text = "Hello World!"
-          };
-          // Marking transaction as committable
-          transactionScope.Complete();
-        }
+      var sessionConfiguration = new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.AutoActivation);
+      using (var session = domain.OpenSession(sessionConfiguration))
+      using (var transactionScope = session.OpenTransaction()) {
+        Debug.Assert(Session.Current == session);
+        var helloWorld = new MyEntity { Text = "Hello World!" };
+        // Marking transaction as committable
+        transactionScope.Complete();
       }
 
       // Reading all persisted objects from another Session
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          foreach (var myEntity in session.Query.All<MyEntity>())
-            Console.WriteLine(myEntity.Text);
-          transactionScope.Complete();
-        }
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        foreach (var myEntity in session.Query.All<MyEntity>())
+          Console.WriteLine(myEntity.Text);
+        transactionScope.Complete();
       }
     }
   }

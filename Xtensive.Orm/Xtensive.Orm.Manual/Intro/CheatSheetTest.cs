@@ -40,6 +40,10 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
     [Field]
     [Association(PairTo = "Friends")]
     public EntitySet<User> Friends { get; private set; }
+
+    public User(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -54,6 +58,10 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
 
     [Field(Length = 200)]
     public string Url { get; set; }
+
+    public WebPage(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -71,6 +79,10 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
 
     [Field]
     public User Author { get; set;}
+
+    public BlogPost(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -101,7 +113,7 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
         using (var transactionScope = session.OpenTransaction()) {
 
           // Creating user
-          var dmitri = new User {
+          var dmitri = new User(session) {
             Name = "Dmitri"
           };
           
@@ -181,15 +193,15 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           Assert.AreEqual("Dmitri Maximov", dmitri.Name);
           
           // Creating few more objects
-          var xtensiveWebPage = new WebPage {
+          var xtensiveWebPage = new WebPage (session) {
             Title = "Xtensive Web Site", 
             Url = "http://www.x-tensive.com"
           };
-          var alexYakuninBlogPage = new WebPage {
+          var alexYakuninBlogPage = new WebPage (session) {
             Title = "Alex Yakunin's Blog", 
             Url = "http://blog.alexyakunin.com"
           };
-          var subsonicPage = new WebPage {
+          var subsonicPage = new WebPage (session) {
             Title = "SubSonic project page", 
             Url = "http://www.subsonicproject.com/"
           };
