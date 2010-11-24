@@ -55,7 +55,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     }
 
     // Only this assmebly may create or modify this instance
-    internal TransactionInfo()
+    internal TransactionInfo(Session session)
+      : base (session)
     {
       var thisType = typeof (TransactionInfo);
       try {
@@ -96,6 +97,10 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     public string EntityAsString { get; internal set; }
 
     public abstract Entity UntypedEntity { get; internal set; }
+
+    protected AuditRecord(Session session)
+      : base(session)
+    {}
   }
 
   // Unused, here it is just to show one more open generic
@@ -107,6 +112,10 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     [Field, Key]
     [Association(OnTargetRemove = OnRemoveAction.None)] 
     public T Entity { get; private set; }
+
+    public SyncInfo(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -133,7 +142,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     }
 
     // Only this assmebly may create or modify this instance
-    internal AuditRecord()
+    internal AuditRecord(Session session)
+      : base (session)
     {
       var thisType = typeof (AuditRecord<>);
       try {
@@ -165,6 +175,10 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       return "{0} {1}, Id: #{2}, Pets: {3}".FormatWith(GetType().GetShortName(), Name, 
         Id, Pets.Select(p => p.Name).ToCommaDelimitedString());
     }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -185,16 +199,26 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       return "{0} {1}, Id: #{2}, Owner: {3}".FormatWith(GetType().GetShortName(), Name, 
         Id, Owner==null ? "none" : Owner.Name);
     }
+
+    public Animal(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
   public class Cat : Animal
   {
+    public Cat(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
   public class Dog : Animal
   {
+    public Dog(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -256,7 +280,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       if (info.ChangedEntities.Count==0)
         return; // Logging only writing transactions
 
-      var transactionInfo = new TransactionInfo {
+      var transactionInfo = new TransactionInfo (session) {
         Guid = transaction.Guid,
         TimeStamp = transaction.TimeStamp
       };
@@ -337,14 +361,14 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Person alex;
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          tom = new Cat {Name = "Tom"};
-          new Dog {Name = "Sharik"};
+          tom = new Cat (session) {Name = "Tom"};
+          new Dog (session) {Name = "Sharik"};
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
           Assert.AreEqual(1, session.Query.All<TransactionInfo>().Count());
           Assert.AreEqual(2, session.Query.All<AuditRecord<Animal>>().Count());
-          musya = new Cat();
+          musya = new Cat(session);
           tx.Complete();
         }
 
@@ -365,13 +389,12 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
         using (Session.Deactivate()) // Blocks session switching check
         using (var session2 = domain.OpenSession()) {
           using (var tx = session2.OpenTransaction()) {
-            alex = new Person {Name = "Alex"};
+            alex = new Person (session2) {Name = "Alex"};
             tx.Complete();
           }
         }
 
-        using (var tx = session.OpenTransaction())
-        {
+        using (var tx = session.OpenTransaction()) {
           alex = session.Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
         }
 
