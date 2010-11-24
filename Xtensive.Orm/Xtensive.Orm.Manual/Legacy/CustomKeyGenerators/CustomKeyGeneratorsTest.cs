@@ -82,8 +82,7 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 
     public Book(Session session)
       : base (session)
-    {
-    }
+    {}
 
     public Book(Session session, int id)
       : base(session, id)
@@ -115,7 +114,7 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
           var ben    = new Author {Name = "Ben Albahari"};
           
           // Creating the Book book with book.Id = joseph.Id
-          var book = new Book(joseph.Id) {Name = "C# 4.0 in a Nutshell"};
+          var book = new Book (session, joseph.Id) {Name = "C# 4.0 in a Nutshell"};
           book.Authors.Add(joseph);
           book.Authors.Add(ben);
 
