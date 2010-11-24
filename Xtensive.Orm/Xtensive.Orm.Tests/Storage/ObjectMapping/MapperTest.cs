@@ -333,14 +333,14 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var root = session.Query.Single<CompositeKeyRoot>(Key.Parse((string) keyMapping[target.Key]));
+        var root = session.Query.Single<CompositeKeyRoot>(Key.Parse(Domain, (string) keyMapping[target.Key]));
         Assert.AreEqual(target.Aux, root.Aux);
-        Assert.AreEqual(Key.Parse((string) keyMapping[target.FirstId.Key]), root.FirstId.Key);
-        Assert.AreEqual(Key.Parse((string) keyMapping[target.SecondId.Key]), root.SecondId.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[target.FirstId.Key]), root.FirstId.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[target.SecondId.Key]), root.SecondId.Key);
         var firstLevel0 = root.FirstId;
         Assert.AreEqual(firstLevel0Dto.Aux, firstLevel0.Aux);
         Assert.AreEqual(firstLevel0Dto.FirstId, firstLevel0.FirstId);
-        Assert.AreEqual(Key.Parse((string) keyMapping[firstLevel0Dto.SecondId.Key]), firstLevel0.SecondId.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[firstLevel0Dto.SecondId.Key]), firstLevel0.SecondId.Key);
         var firstLevel1 = firstLevel0.SecondId;
         Assert.AreEqual(firstLevel1Dto.Aux, firstLevel1.Aux);
         Assert.AreEqual(firstLevel1Dto.FirstId, firstLevel1.FirstId);
@@ -349,7 +349,7 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
         Assert.AreEqual(secondLevel0Dto.Aux, secondLevel0.Aux);
         Assert.AreEqual(secondLevel0Dto.FirstId, secondLevel0.FirstId);
         Assert.AreEqual(secondLevel0Dto.SecondId, secondLevel0.SecondId);
-        Assert.AreEqual(Key.Parse((string) keyMapping[secondLevel0Dto.Reference.Key]), firstLevel0.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[secondLevel0Dto.Reference.Key]), firstLevel0.Key);
         Assert.AreSame(secondLevel0.Reference, firstLevel0);
       }
     }
@@ -372,7 +372,7 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
         Assert.IsFalse(comparisonResult.Operations.Count==0);
         var binaryFormatter = new BinaryFormatter();
         comparisonResult.VersionInfoProvider
-          .Invoke(Key.Parse(((PersonWithVersionDto) modifiedProductDto[0]).Key));
+          .Invoke(Key.Parse(Domain, ((PersonWithVersionDto)modifiedProductDto[0]).Key));
         TestSerialization(comparisonResult, binaryFormatter.Serialize, binaryFormatter.Deserialize);
         var dataContractSerializer = new DataContractSerializer(typeof (GraphComparisonResult),
           new[] {

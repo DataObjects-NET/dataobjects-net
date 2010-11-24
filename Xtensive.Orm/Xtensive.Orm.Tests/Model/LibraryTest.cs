@@ -679,12 +679,12 @@ namespace Xtensive.Orm.Tests.Model
           Book book2 = new Book("0976470705");          
           book2.Remove();
 
-          var k = Key.Create<Book>("0976470705").Format();
-          var key = Key.Parse(k);
-          Assert.AreEqual(key, Key.Create<Book>("0976470705"));
+          var k = Key.Create<Book>(Domain, "0976470705").Format();
+          var key = Key.Parse(Domain, k);
+          Assert.AreEqual(key, Key.Create<Book>(Domain, "0976470705"));
 
-          Assert.IsNull(session.Query.SingleOrDefault(Key.Create<Book>("0976470705")));
-          Assert.AreEqual(null, session.Query.SingleOrDefault(Key.Create<Book>("0976470705")));
+          Assert.IsNull(session.Query.SingleOrDefault(Key.Create<Book>(Domain, "0976470705")));
+          Assert.AreEqual(null, session.Query.SingleOrDefault(Key.Create<Book>(Domain, "0976470705")));
         }
       }
     }

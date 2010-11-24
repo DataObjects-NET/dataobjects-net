@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
         var personIds = session.Query.All<Person>().Select(p => p.Id);
-        var prefetchedPersons = personIds.Prefetch<Person, int>(id => Key.Create<Person>(id))
+        var prefetchedPersons = personIds.Prefetch<Person, int>(id => Key.Create<Person>(domain, id))
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees, // EntitySet Employees
             employees => employees

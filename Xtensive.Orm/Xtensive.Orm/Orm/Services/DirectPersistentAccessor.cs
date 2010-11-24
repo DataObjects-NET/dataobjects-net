@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Services
           throw new InvalidOperationException(
             string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
 
-        var key = Key.Create(entityType);
+        var key = Key.Create(Session, entityType);
         return Session.CreateOrInitializeExistingEntity(entityType, key);
       }
     }

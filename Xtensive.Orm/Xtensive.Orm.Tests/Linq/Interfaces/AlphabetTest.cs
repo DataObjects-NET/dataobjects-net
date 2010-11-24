@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
         var named = session.Query.Single<INamed>(33L);
         Assert.IsNotNull(named);
         Assert.AreEqual("Name: D'2", named.Name);
-        named = session.Query.Single<INamed>(Key.Create<INamed>(51L));
+        named = session.Query.Single<INamed>(Key.Create<INamed>(Domain, 51L));
         Assert.IsNotNull(named);
         Assert.AreEqual("Name: F0", named.Name);
         t.Complete();
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         for (long i = 1; i <= totalCount; i++) {
-          var key = Key.Create<INamed>(i);
+          var key = Key.Create<INamed>(Domain, i);
           var named = session.Query.Single<INamed>(key);
           Assert.IsNotNull(named);
           Assert.IsNotNull(named.Name);

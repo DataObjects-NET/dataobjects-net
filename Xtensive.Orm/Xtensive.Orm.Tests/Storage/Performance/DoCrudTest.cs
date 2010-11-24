@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Fetch & GetField", count)) {
             for (int i = 0; i < count; i++) {
-              var key = Key.Create<Simplest>((long) i%instanceCount);
+              var key = Key.Create<Simplest>(Domain, (long) i%instanceCount);
               var o = session.Query.SingleOrDefault<Simplest>(key);
               sum -= o.Id;
             }
@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     private IEnumerable<Key> GetKeys(int count)
     {
       for (int i = 0; i < count; i++)
-        yield return Key.Create<Simplest>((long) i%instanceCount);
+        yield return Key.Create<Simplest>(Domain, (long) i%instanceCount);
     }
 
     private void MaterializeTest(int count)

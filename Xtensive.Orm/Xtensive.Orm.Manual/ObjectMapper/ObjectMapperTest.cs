@@ -425,7 +425,7 @@ namespace Xtensive.Orm.Manual.ObjectMapper
           comparisonResult.Operations.Replay();
           // The property KeyMapping provides the mapping from simulated keys of 
           // new objects in the graph to real keys of these objects in the storage
-          var newFreind = session.Query.Single<User>(Key.Parse((string) comparisonResult.KeyMapping[newFriendDto.Key]));
+          var newFreind = session.Query.Single<User>(Key.Parse(domain, (string) comparisonResult.KeyMapping[newFriendDto.Key]));
         }
         tx.Complete();
       }
@@ -521,7 +521,7 @@ namespace Xtensive.Orm.Manual.ObjectMapper
         tx.Complete();
       }
 
-      ValidateStructureTest(orderDto, domain);
+      ValidateStructureTest(domain, orderDto);
     }
 
     [Test]
@@ -583,13 +583,13 @@ namespace Xtensive.Orm.Manual.ObjectMapper
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDtos, orderDtos)) {
           comparisonResult.Operations.Replay();
-          var order0 = session.Query.Single<Order>(Key.Parse(orderDto0.Key));
+          var order0 = session.Query.Single<Order>(Key.Parse(domain, orderDto0.Key));
           Assert.AreEqual(orderDto0.Priority, order0.Priority);
           Assert.AreNotEqual(orderDto0.Customer.FirstName, order0.Customer.FirstName);
           Assert.AreEqual("First", order0.Customer.FirstName);
           Assert.AreEqual(orderDto0.Customer.LastName, order0.Customer.LastName);
           Assert.AreEqual(2, order0.Items.Count);
-          var order1 = session.Query.Single<Order>(Key.Parse(orderDto1.Key));
+          var order1 = session.Query.Single<Order>(Key.Parse(domain, orderDto1.Key));
           Assert.AreEqual(orderDto1.Priority, order1.Priority);
           Assert.AreEqual(orderDto1.Customer.Key, order0.Customer.Key.Format());
           Assert.AreEqual(2, order0.Items.Count);
@@ -633,7 +633,7 @@ namespace Xtensive.Orm.Manual.ObjectMapper
         tx.Complete();
       }
 
-      ValidateCustomKeyGenerationTest(branchDto, newObjectKeys, domain);
+      ValidateCustomKeyGenerationTest(domain, branchDto, newObjectKeys);
     }
 
     private byte[] SerializeVersionInfo(VersionInfo versionInfo)
@@ -704,7 +704,7 @@ namespace Xtensive.Orm.Manual.ObjectMapper
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var author = session.Query.Single<Author>(Key.Parse(authorDto.Key));
+        var author = session.Query.Single<Author>(Key.Parse(domain, authorDto.Key));
         Assert.AreEqual(authorDto.Name, author.Name);
         Assert.AreEqual(2, author.Books.Count);
         var firstBookDto = authorDto.Books[0];
@@ -718,11 +718,11 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       }
     }
 
-    private static void ValidateStructureTest(OrderDto orderDto, Domain domain)
+    private static void ValidateStructureTest(Domain domain, OrderDto orderDto)
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var order = session.Query.Single<Order>(Key.Parse(orderDto.Key));
+        var order = session.Query.Single<Order>(Key.Parse(domain, orderDto.Key));
         Assert.AreEqual(orderDto.Priority, order.Priority);
         var orderItemDto = orderDto.Items.Single();
         var orderItem = order.Items.Single();
@@ -743,13 +743,12 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       }
     }
 
-    private static void ValidateCustomKeyGenerationTest(BranchDto branchDto,
-      IDictionary<object, object> newObjectKeys, Domain domain)
+    private static void ValidateCustomKeyGenerationTest(Domain domain, BranchDto branchDto, IDictionary<object, object> newObjectKeys)
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var branch = session.Query.Single<Branch>(Key.Parse((string) newObjectKeys[branchDto.Key]));
-        Assert.AreEqual(Key.Parse((string) newObjectKeys[branchDto.Trunk.Key]), branch.Trunk.Key);
+        var branch = session.Query.Single<Branch>(Key.Parse(domain, (string) newObjectKeys[branchDto.Key]));
+        Assert.AreEqual(Key.Parse(domain, (string) newObjectKeys[branchDto.Trunk.Key]), branch.Trunk.Key);
         Assert.AreEqual(branchDto.Id, branch.Id);
         Assert.AreEqual(branchDto.CreationDate.ToString(), branch.CreationDate.ToString());
         Assert.AreEqual(branchDto.Trunk.ProjectName, branch.Trunk.ProjectName);

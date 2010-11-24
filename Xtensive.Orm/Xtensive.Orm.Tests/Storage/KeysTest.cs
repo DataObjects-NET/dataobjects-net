@@ -108,13 +108,13 @@ namespace Xtensive.Orm.Tests.Storage.Keys
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          Key k1 = Key.Create<Apple>("1");
-          Key k2 = Key.Create<Apple>("1");
+          Key k1 = Key.Create<Apple>(Domain, "1");
+          Key k2 = Key.Create<Apple>(Domain, "1");
           Assert.AreEqual(k1, k2);
 
-          Key kk = Key.Create<Apple>("");
+          Key kk = Key.Create<Apple>(Domain, "");
           var s = kk.Format();
-          var k = Key.Parse(s);
+          var k = Key.Parse(Domain, s);
           Assert.AreEqual(k, kk);
           t.Complete();
         }
@@ -125,23 +125,20 @@ namespace Xtensive.Orm.Tests.Storage.Keys
     public void ResolveKeyTest()
     {
       using (var session = Domain.OpenSession())
-      {
-        using (var t = session.OpenTransaction())
-        {
-          var descriptor = Domain.Model.Types[typeof (Test)].Hierarchy.Key.TupleDescriptor;
+      using (var t = session.OpenTransaction()) {
+        var descriptor = Domain.Model.Types[typeof (Test)].Hierarchy.Key.TupleDescriptor;
 
-          Tuple tuple = Tuple.Create(descriptor);
-          tuple.SetValue(0, " , ");
-          tuple.SetValue<Byte>(1, 1);
-          tuple.SetValue<SByte>(2, -1);
-          tuple.SetValue(3, DateTime.Now);
+        Tuple tuple = Tuple.Create(descriptor);
+        tuple.SetValue(0, " , ");
+        tuple.SetValue<Byte>(1, 1);
+        tuple.SetValue<SByte>(2, -1);
+        tuple.SetValue(3, DateTime.Now);
 
-          Key k1 = Key.Create<Test>(tuple);
-          var stringValue = k1.Format();
-          var k2 = Key.Parse(stringValue);
-          Assert.AreEqual(k1, k2);
-          t.Complete();
-        }
+        Key k1 = Key.Create<Test>(Domain, tuple);
+        var stringValue = k1.Format();
+        var k2 = Key.Parse(Domain, stringValue);
+        Assert.AreEqual(k1, k2);
+        t.Complete();
       }
     }
 
@@ -152,7 +149,7 @@ namespace Xtensive.Orm.Tests.Storage.Keys
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          Key key = Key.Create(typeof (Fruit), "NotExistingFruit");
+          Key key = Key.Create(Domain, typeof (Fruit), "NotExistingFruit");
           var entity = session.Query.SingleOrDefault(key);
           var entity2 = session.Query.SingleOrDefault<Fruit>("NotExistingFruit");
           Assert.IsNull(entity);

@@ -329,7 +329,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void KeyTest()
     {
       var suppliers = Session.Query.All<Supplier>();
-      var key = Key.Create<Supplier>(supplierLekaKey.Value);
+      var key = Key.Create<Supplier>(Domain, supplierLekaKey.Value);
       var supplier = suppliers.Where(s => s.Key==key).First();
       Assert.IsNotNull(supplier);
       Assert.AreEqual("Leka Trading", supplier.CompanyName);

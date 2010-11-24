@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var key = Key.Create<Person>(999); // Key of non-existing entity
+        var key = Key.Create<Person>(Domain, 999); // Key of non-existing entity
         
         Assert.IsNull(session.Query.SingleOrDefault(key));
         AssertEx.ThrowsInvalidOperationException(() => {

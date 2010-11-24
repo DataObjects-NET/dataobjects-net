@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
       var value = tuple.GetValue<string>(fieldIndex, out state);
       if (!state.IsAvailable())
         return @default;
-      return (T) (object) Key.Parse(value);
+      return (T) (object) Key.Parse(obj.Session.Domain, value);
     }
 
     /// <inheritdoc/>

@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Operations
     protected EntitySetItemOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      ItemKey = Key.Parse(info.GetString("ItemKey"));
+      ItemKey = Key.Parse(Domain.Demand(), info.GetString("ItemKey"));
       ItemKey.TypeReference = new TypeReference(ItemKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
     }
   }
