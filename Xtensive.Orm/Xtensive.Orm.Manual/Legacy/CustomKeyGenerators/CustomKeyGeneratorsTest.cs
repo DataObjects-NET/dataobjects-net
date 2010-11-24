@@ -80,14 +80,14 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 
     // Constructors
 
-    public Book()
+    public Book(Session session)
+      : base (session)
     {
     }
 
-    public Book(int id)
-      : base(id)
-    {
-    }
+    public Book(Session session, int id)
+      : base(session, id)
+    {}
   }
 
   #endregion
