@@ -261,7 +261,7 @@ namespace Xtensive.Practices.Web
       context.EndRequest += EndRequest;
       context.Error += Error;
       
-      if (Session.Resolver==null)
+      if (Session.Resolver == null)
         Session.Resolver = () => Current.Session;
     }
 
@@ -276,8 +276,12 @@ namespace Xtensive.Practices.Web
 
     private static void EnsureDomainIsBuilt()
     {
-      if (domain == null) lock (domainBuildLock) if (domain == null)
+      if (domain == null) lock (domainBuildLock) if (domain == null) {
+        Session.Resolver = null;
         domain = DomainBuilder.Invoke();
+        if (Session.Resolver == null)
+          Session.Resolver = () => Current.Session;
+      }
     }
 
     private void EnsureSessionIsProvided()

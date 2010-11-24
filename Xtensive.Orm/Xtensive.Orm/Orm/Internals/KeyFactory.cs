@@ -28,8 +28,7 @@ namespace Xtensive.Orm.Internals
 
       var keyGenerator = domain.KeyGenerators[typeInfo.Key];
       if (keyGenerator==null)
-        throw new InvalidOperationException(String.Format(
-          Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.GenerateKey(session==null ? false : session.IsDisconnected);
       var key = Materialize(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
 
@@ -122,8 +121,7 @@ namespace Xtensive.Orm.Internals
       return Materialize(domain, type, tuple, accuracy, false, null);
     }
 
-    private static Key CreateGenericKey(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy,
-      Tuple tuple, int[] keyIndexes)
+    private static Key CreateGenericKey(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple tuple, int[] keyIndexes)
     {
       var keyTypeInfo = domain.GenericKeyTypes.GetValue(type.TypeId, BuildGenericKeyTypeInfo, type);
       if (keyIndexes==null)

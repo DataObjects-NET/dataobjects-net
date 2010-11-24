@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public MaterializationContext(Session session, int entityCount)
     {
       Session = session;
-      Model = Domain.Demand().Model;
+      Model = session.Domain.Model;
       EntitiesInRow = entityCount;
       entityMappings = new EntityMappingCache[entityCount];
       for (int i = 0; i < entityMappings.Length; i++)
