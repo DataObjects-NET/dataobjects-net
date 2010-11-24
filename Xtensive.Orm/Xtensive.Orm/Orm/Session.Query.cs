@@ -417,7 +417,7 @@ namespace Xtensive.Orm
           if (keyValue is Entity)
             return (keyValue as Entity).Key;
         }
-        return Key.Create(typeof(T), keyValues);
+        return Key.Create(session.Domain, typeof(T), keyValues);
       }
 
       /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>

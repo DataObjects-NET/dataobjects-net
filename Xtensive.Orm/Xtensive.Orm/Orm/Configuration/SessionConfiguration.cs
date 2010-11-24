@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name)
-      : this(name, SessionOptions.LegacyProfile)
+      : this(name, SessionOptions.ServerProfile)
     {
     }
 
