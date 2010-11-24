@@ -24,6 +24,7 @@ namespace Xtensive.Indexing.Tests
     private static IInstanceGenerator<Tuple> instanceGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<Tuple>();
 
     [Test]
+    [Ignore("TODO: AY check it ASAP")]
     public void TestConstruction()
     {
       AdvancedComparer<Entire<Tuple>> comparer =

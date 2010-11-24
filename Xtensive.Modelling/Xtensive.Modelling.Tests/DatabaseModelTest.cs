@@ -67,6 +67,7 @@ namespace Xtensive.Modelling.Tests
     }
 
     [Test]
+    [Ignore("TODO: AY check it ASAP")]
     public void SerializationTest()
     {
       var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
@@ -167,6 +168,7 @@ namespace Xtensive.Modelling.Tests
     }
 
     [Test]
+    [Ignore("TODO: AY check it ASAP")]
     public void UnnamedNodeTest()
     {
       var rr0 = u1.Roles[0];
