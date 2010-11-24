@@ -60,7 +60,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         return "Person('{0}')".FormatWith(FullName);
     }
 
-    public Person(string fullName)
+    public Person(Session session, string fullName)
+      : base (session)
     {
       var pair = fullName.RevertibleSplitFirstAndTail('\\', ',');
       SecondName = pair.First.Trim();
@@ -127,10 +128,10 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         Company xtensive;
         VersionInfo xtensiveVersion;
         using (var tx = session.OpenTransaction()) {
-          alex = new Person("Yakunin, Alex");
+          alex = new Person(session, "Yakunin, Alex");
           alexVersion = alex.VersionInfo;
           Dump(alex);
-          dmitri = new Person("Maximov, Dmitri");
+          dmitri = new Person(session, "Maximov, Dmitri");
           dmitriVersion = dmitri.VersionInfo;
           Dump(dmitri);
 
@@ -226,8 +227,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         Person alex;
         Person dmitri;
         using (var tx = session.OpenTransaction()) {
-          alex = new Person("Yakunin, Alex");
-          dmitri = new Person("Maximov, Dmitri");
+          alex = new Person(session, "Yakunin, Alex");
+          dmitri = new Person(session, "Maximov, Dmitri");
           tx.Complete();
         }
 

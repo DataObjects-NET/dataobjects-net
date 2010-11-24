@@ -298,8 +298,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="sessionOptions">The session options.</param>
     public SessionConfiguration(SessionOptions sessionOptions)
       : this(null, sessionOptions)
-    {
-    }
+    {}
 
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -307,8 +306,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name)
       : this(name, SessionOptions.ServerProfile)
-    {
-    }
+    {}
 
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>

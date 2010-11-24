@@ -47,6 +47,10 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
     {
       return string.Format("{0}{1}", prefix, LastName);
     }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -185,9 +189,9 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
         using (var session = domain.OpenSession()) {
           using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
-            new Person {FirstName = "Ivan", LastName = "Semenov"};
-            new Person {FirstName = "John", LastName = "Smith"};
-            new Person {FirstName = "Andrew", LastName = "Politkovsky"};
+            new Person(session) {FirstName = "Ivan", LastName = "Semenov"};
+            new Person(session) {FirstName = "John", LastName = "Smith"};
+            new Person(session) {FirstName = "Andrew", LastName = "Politkovsky"};
 
             transactionScope.Complete();
           }
