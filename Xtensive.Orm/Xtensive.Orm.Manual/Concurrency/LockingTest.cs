@@ -28,10 +28,9 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
     [Field]
     public int Value { get; set; }
 
-    public Counter(string name)
-      : base(name)
-    {
-    }
+    public Counter(Session session, string name)
+      : base(session, name)
+    {}
   }
 
   #endregion
@@ -78,7 +77,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
       using (var tx = session.OpenTransaction()) {
         Counter counter;
         if (counterKey==null) {
-          counter = new Counter(LockingTestName);
+          counter = new Counter(session, LockingTestName);
           counterKey = counter.Key;
         }
         else

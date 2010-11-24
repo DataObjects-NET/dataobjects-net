@@ -66,6 +66,10 @@ namespace Xtensive.Orm.Manual.Attributes
     [Association(PairTo = "Books")]
     [Field]
     public Author Author { get; set; }
+
+    protected Book(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -80,6 +84,10 @@ namespace Xtensive.Orm.Manual.Attributes
 
     [Field(LazyLoad = true)]
     public DateTime SciFiDescriptionDate { get; set; }
+
+    public SciFi(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -87,6 +95,9 @@ namespace Xtensive.Orm.Manual.Attributes
   [TypeDiscriminatorValue(false)]
   public class Horror : Book
   {
+    public Horror(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -108,6 +119,10 @@ namespace Xtensive.Orm.Manual.Attributes
     // Then author removed, all its books will be removed too.
     [Field, Association(OnOwnerRemove = OnRemoveAction.Cascade)]
     public EntitySet<Book> Books { get; set; }
+
+    public Author(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -127,9 +142,9 @@ namespace Xtensive.Orm.Manual.Attributes
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
 
-          var author = new Author();
-          var sciFi = new SciFi {Author = author};
-          var horror = new Horror {Author = author};
+          var author = new Author(session);
+          var sciFi = new SciFi (session) {Author = author};
+          var horror = new Horror (session) {Author = author};
 
           transactionScope.Complete();
         }

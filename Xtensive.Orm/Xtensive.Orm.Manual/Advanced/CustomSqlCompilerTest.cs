@@ -44,6 +44,10 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
 
     [Field]
     public Address Address { get; set; }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -139,12 +143,12 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
         using (var session = domain.OpenSession()) {
           using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
-            new Person {
+            new Person(session) {
               Name = "Tereza", Address = new Address {
                 Country = "Czech Republic", City = "Prague", Street = "Vinohradska", Building = "34"
               }
             };
-            new Person {
+            new Person(session) {
               Name = "Ivan", Address = new Address {
                 Country = "Russia", City = "Ekaterinburg", Street = "Lenina", Building = "11/2"
               }
