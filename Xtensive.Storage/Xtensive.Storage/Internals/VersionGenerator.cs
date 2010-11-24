@@ -51,11 +51,12 @@ namespace Xtensive.Storage.Internals
       case TypeCode.Single:
         return ((float) currentVersion) + 1;
       case TypeCode.DateTime:
-        var current = (DateTime) currentVersion;
         var next = DateTime.UtcNow;
-        if (next<current) // Previously used incremental generation has run too much forward
-          next = current + new TimeSpan(1);
-        return next;
+        next = new DateTime(next.Year, next.Month, next.Day, next.Hour, next.Minute, next.Second, next.Millisecond - next.Millisecond % 10); 
+        var current = ((DateTime) currentVersion);
+        current = new DateTime(current.Year, current.Month, current.Day, current.Hour, current.Minute, current.Second, current.Millisecond - current.Millisecond % 10); 
+        var increment = current.AddMilliseconds(10);
+        return next<increment ? increment : next;
       case TypeCode.String:
         return Guid.NewGuid().ToString();
       case TypeCode.Object:
