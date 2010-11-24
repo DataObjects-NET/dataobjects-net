@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0717.Model;
@@ -42,13 +43,10 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Sessions.Add(new SessionConfiguration("Default")
-      {
-        BatchSize = 25,
-        DefaultIsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
-        CacheSize = 1000
-      }); 
       configuration.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+      configuration.Sessions.Default.BatchSize = 25;
+      configuration.Sessions.Default.DefaultIsolationLevel = IsolationLevel.ReadCommitted;
+      configuration.Sessions.Default.CacheSize = 1000;
       return configuration;
     }
 

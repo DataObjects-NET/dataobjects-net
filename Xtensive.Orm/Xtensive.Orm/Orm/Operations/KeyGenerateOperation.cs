@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Operations
     {
       var domain = context.Session.Domain;
       if (Key.IsTemporary(domain)) {
-        var mappedKey = Key.Create(domain, Key.Type.UnderlyingType);
+        var mappedKey = Key.Create(context.Session, Key.Type.UnderlyingType);
         context.AddKeyMapping(Key, mappedKey);
       }
     }

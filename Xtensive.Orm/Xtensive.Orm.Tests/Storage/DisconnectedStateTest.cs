@@ -424,6 +424,7 @@ namespace Xtensive.Orm.Tests.Storage
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Simple).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return config;
     }
     

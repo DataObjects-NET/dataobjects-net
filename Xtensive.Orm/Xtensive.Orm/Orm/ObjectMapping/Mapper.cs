@@ -139,7 +139,7 @@ namespace Xtensive.Orm.ObjectMapping
           TypeReferenceAccuracy.ExactType, customKeyFieldValues);
       }
       else
-        result = Key.Create(session.Domain, sourceType.SystemType);
+        result = Key.Create(session, sourceType.SystemType);
       newObjectKeys[dtoKey] = result;
       return result;
     }

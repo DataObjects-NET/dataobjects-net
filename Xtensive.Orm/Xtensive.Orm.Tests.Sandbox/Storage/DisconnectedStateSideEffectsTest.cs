@@ -119,6 +119,7 @@ namespace Xtensive.Orm.Tests.Storage.DisconnectedStateSideEffectsTest
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(Book).Assembly, typeof(Book).Namespace);
+      configuration.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return configuration;
     }
 

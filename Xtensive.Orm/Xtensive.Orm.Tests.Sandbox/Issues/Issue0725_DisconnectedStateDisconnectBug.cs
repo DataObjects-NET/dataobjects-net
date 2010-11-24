@@ -41,6 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(Unit).Assembly, typeof(Unit).Namespace);
+      configuration.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return configuration;
     }
 

@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = new DomainConfiguration("memory://localhost/DO40-Tests");
       config.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      config.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default, SessionOptions.LegacyProfile));
       return config;
     }
 

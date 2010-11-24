@@ -53,10 +53,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void Test()
     {
-      var sc1 = new SessionConfiguration("First");
-      var sc2 = new SessionConfiguration("Second");
-      sc1.Options |= SessionOptions.AutoTransactionOpenMode;
-      sc2.Options |= SessionOptions.AutoTransactionOpenMode;
+      var sc1 = new SessionConfiguration("First", SessionOptions.LegacyProfile);
+      var sc2 = new SessionConfiguration("Second", SessionOptions.LegacyProfile);
       using (var session1 = Domain.OpenSession(sc1)) {
         using (session1.OpenTransaction()) {
           Ray ray1 = new Ray();

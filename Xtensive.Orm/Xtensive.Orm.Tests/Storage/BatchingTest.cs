@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void RunTest(int batchSize)
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize})) {
+      using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize, Options = SessionOptions.ServerProfile | SessionOptions.AutoActivation})) {
         Key key;
         using (var transactionScope = session.OpenTransaction()) {
           var hexagon = new Hexagon();

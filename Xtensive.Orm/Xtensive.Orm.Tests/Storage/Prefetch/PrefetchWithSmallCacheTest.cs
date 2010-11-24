@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default));
       config.Sessions.Default.CacheType = SessionCacheType.LruWeak;
       config.Sessions.Default.CacheSize = 2;
       config.KeyCacheSize = 2;
