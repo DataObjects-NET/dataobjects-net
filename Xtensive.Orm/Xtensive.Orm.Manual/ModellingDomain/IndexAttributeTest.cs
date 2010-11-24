@@ -32,6 +32,10 @@ namespace Xtensive.Orm.Manual.ModellingDomain.IndexAttribute_
      
     [Field]
     public int Age { get; set; }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -50,12 +54,12 @@ namespace Xtensive.Orm.Manual.ModellingDomain.IndexAttribute_
 
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var alex = new Person { FirstName = "Alex", LastName = "Kofman", Age = 26};
-          var ivan = new Person { FirstName = "Ivan", LastName = "Galkin", Age = 28};
+          var alex = new Person (session) { FirstName = "Alex", LastName = "Kofman", Age = 26};
+          var ivan = new Person (session) { FirstName = "Ivan", LastName = "Galkin", Age = 28};
 
-          Assert.AreEqual(alex, GetPersonByName("Alex", "Kofman"));
+          Assert.AreEqual(alex, GetPersonByName(session, "Alex", "Kofman"));
           
-          var adults = GetPersonOverAge(27);
+          var adults = GetPersonOverAge(session, 27);
           Assert.AreEqual(1, adults.Count());
           Assert.AreEqual(ivan, adults.First());
 
@@ -64,28 +68,28 @@ namespace Xtensive.Orm.Manual.ModellingDomain.IndexAttribute_
 
         AssertEx.Throws<StorageException>(() => {
           using (var transactionScope = session.OpenTransaction()) {
-            new Person {FirstName = "Alex", LastName = "Kofman", Age = 0};
+            new Person (session) {FirstName = "Alex", LastName = "Kofman", Age = 0};
             transactionScope.Complete();
           }
         });
       }
     }
 
-    public IEnumerable<Person> GetPersonOverAge(int age)
+    public IEnumerable<Person> GetPersonOverAge(Session session, int age)
     {
       // Filtering and ordering uses secondary index
       return
-        from person in Session.Demand().Query.All<Person>()
+        from person in session.Query.All<Person>()
         where person.Age > age
         orderby person.Age
         select person;
     }
 
-    public Person GetPersonByName(string firstName, string lastName)
+    public Person GetPersonByName(Session session, string firstName, string lastName)
     {
       // Filtering uses unique secondary index
       return (
-        from person in Session.Demand().Query.All<Person>()
+        from person in session.Query.All<Person>()
         where person.FirstName==firstName && person.LastName==lastName
         select person
         ).FirstOrDefault();
