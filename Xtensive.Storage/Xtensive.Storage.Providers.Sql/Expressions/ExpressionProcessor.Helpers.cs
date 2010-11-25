@@ -149,8 +149,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNull(left);
+
+      object id = null;
       if (right.NodeType==SqlNodeType.Placeholder)
-        return SqlDml.Variant(((SqlPlaceholder) right).Id, SqlDml.Equals(left, right), SqlDml.IsNull(left));
+        id = ((SqlPlaceholder) right).Id;
+      else if (right.NodeType==SqlNodeType.Cast && ((SqlCast) (right)).Operand.NodeType==SqlNodeType.Placeholder)
+        id = ((SqlPlaceholder) ((SqlCast) (right)).Operand).Id;
+      if (id!=null) 
+        return SqlDml.Variant(id, SqlDml.Equals(left, right), SqlDml.IsNull(left));
+      
       return null;
     }
 
@@ -158,8 +165,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNotNull(left);
+      
+      object id = null;
       if (right.NodeType==SqlNodeType.Placeholder)
-        return SqlDml.Variant(((SqlPlaceholder) right).Id, SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left));
+        id = ((SqlPlaceholder) right).Id;
+      else if (right.NodeType==SqlNodeType.Cast && ((SqlCast) (right)).Operand.NodeType==SqlNodeType.Placeholder)
+        id = ((SqlPlaceholder) ((SqlCast) (right)).Operand).Id;
+      if (id!=null) 
+        return SqlDml.Variant(id, SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left));
+
       return null;
     }
 
