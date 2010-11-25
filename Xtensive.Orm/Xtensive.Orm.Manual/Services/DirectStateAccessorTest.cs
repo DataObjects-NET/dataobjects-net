@@ -23,6 +23,10 @@ namespace Xtensive.Orm.Manual.Services
 
     [Field]
     public string Value { get; set; }
+
+    public Simple(Session session)
+      : base(session)
+    {}
   }
 
   [HierarchyRoot]
@@ -33,6 +37,10 @@ namespace Xtensive.Orm.Manual.Services
 
     [Field]
     public EntitySet<Simple> Entities { get; private set; }
+
+    public Container(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -49,7 +57,7 @@ namespace Xtensive.Orm.Manual.Services
         Key entityKey;
         string originalValue;
         using (var tx = session.OpenTransaction()) {
-          var entity = new Simple {
+          var entity = new Simple (session) {
             Value = Guid.NewGuid().ToString()
           };
           entityKey = entity.Key;
@@ -91,7 +99,7 @@ namespace Xtensive.Orm.Manual.Services
       using (var session = domain.OpenSession()) {
         Key entityKey;
         using (var tx = session.OpenTransaction()) {
-          var entity = new Simple {Value = Guid.NewGuid().ToString()};
+          var entity = new Simple (session) {Value = Guid.NewGuid().ToString()};
           entityKey = entity.Key;
           tx.Complete();
         }
@@ -120,12 +128,12 @@ namespace Xtensive.Orm.Manual.Services
         Key containerKey;
         Key firstContainedKey;
         using (var tx = session.OpenTransaction()) {
-          var container = new Container();
+          var container = new Container(session);
           containerKey = container.Key;
-          container.Entities.Add(new Simple());
+          container.Entities.Add(new Simple(session));
           firstContainedKey = container.Entities.Single().Key;
-          container.Entities.Add(new Simple());
-          container.Entities.Add(new Simple());
+          container.Entities.Add(new Simple(session));
+          container.Entities.Add(new Simple(session));
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {

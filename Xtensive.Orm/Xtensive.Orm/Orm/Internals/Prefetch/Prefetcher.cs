@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         fieldDescriptors, sessionHandler);
       foreach (var prefetchManyDelegate in prefetchManyProcessorCreators)
         result = prefetchManyDelegate.Invoke(result, sessionHandler);
-      return result.ToTransactional().GetEnumerator();
+      return result.ToTransactional(session).GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -239,13 +239,13 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    internal Prefetcher(IEnumerable<TElement> source, Func<TElement, Key> keyExtractor)
+    internal Prefetcher(Session session, IEnumerable<TElement> source, Func<TElement, Key> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.source = source;
       this.keyExtractor = keyExtractor;
-      session = Session.Demand();
+      this.session = session;
       modelType = typeof (T) != typeof (Entity) ? typeof (T).GetTypeInfo(session.Domain) : null;
     }
   }

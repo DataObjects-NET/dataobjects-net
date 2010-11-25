@@ -278,7 +278,7 @@ namespace Xtensive.Orm
       /// <returns>Query result.</returns>
       public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
-        var domain = Domain.Demand();
+        var domain = session.Domain;
         var target = query.Target;
         var cache = domain.QueryCache;
         Pair<object, TranslatedQuery> item;
@@ -342,7 +342,7 @@ namespace Xtensive.Orm
           }
         }
         var parameterContext = CreateParameterContext(target, parameterizedQuery);
-        var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
+        var result = new FutureScalar<TResult>(session, parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }
@@ -375,7 +375,7 @@ namespace Xtensive.Orm
       {
         var parameterizedQuery = GetParameterizedQuery(key, query);
         var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
-        var result = new FutureSequence<TElement>(parameterizedQuery, parameterContext);
+        var result = new FutureSequence<TElement>(session, parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }

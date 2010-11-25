@@ -28,6 +28,10 @@ namespace Xtensive.Orm.Manual.Services
       public string Title { get; set; }
       [Field]
       public string Content { get; set; }
+
+      public Article(Session session)
+        : base(session)
+      {}
     }
 
     #endregion
@@ -46,7 +50,7 @@ namespace Xtensive.Orm.Manual.Services
         }
 
         using (var t = session.OpenTransaction()) {
-          var article = new Article {Title = "Some title", Content = "Some content"};
+          var article = new Article(session) {Title = "Some title", Content = "Some content"};
           session.SaveChanges(); // Ensures changes are flushed
           
           // Article is created:

@@ -47,14 +47,13 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 
     // Constructors
 
-    public Author()
-    {
-    }
+    public Author(Session session)
+      : base (session)
+    {}
 
-    public Author(int id)
-      : base(id)
-    {
-    }
+    public Author(Session session, int id)
+      : base(session, id)
+    {}
   }
 
   [Serializable]
@@ -110,8 +109,8 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
         using (var transactionScope = session.OpenTransaction()) {
 
           // Creating two authors
-          var joseph = new Author {Name = "Joseph Albahari"};
-          var ben    = new Author {Name = "Ben Albahari"};
+          var joseph = new Author(session) {Name = "Joseph Albahari"};
+          var ben    = new Author(session) {Name = "Ben Albahari"};
           
           // Creating the Book book with book.Id = joseph.Id
           var book = new Book (session, joseph.Id) {Name = "C# 4.0 in a Nutshell"};

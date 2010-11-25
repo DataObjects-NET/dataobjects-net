@@ -41,6 +41,10 @@ namespace Xtensive.Orm.Manual.Structures
 
     [Field]
     public Point Right { get; set; }
+
+    public Range(Session session)
+      : base(session)
+    {}
   }
 }
 
@@ -61,7 +65,7 @@ namespace Xtensive.Orm.Manual.Structures
         using (var t = session.OpenTransaction()) {
 
           // Example 1
-          Range range = new Range();
+          Range range = new Range(session);
           range.Left.X = 0;
           range.Left.Y = 0;
 

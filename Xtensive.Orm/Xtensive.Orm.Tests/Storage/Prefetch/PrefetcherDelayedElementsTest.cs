@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Person, Key>(key => key);
+        var prefetcher = keys.Prefetch<Person, Key>(session, key => key);
         var count = 0;
         foreach (var key in prefetcher) {
           count++;
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var ordersField = customerType.Fields["Orders"];
         var employeeField = orderType.Fields["Employee"];
         var employeeType = typeof (Employee).GetTypeInfo();
-        var prefetcher = keys.Prefetch<Customer, Key>(key => key).Prefetch(c => c.Orders)
+        var prefetcher = keys.Prefetch<Customer, Key>(session, key => key).Prefetch(c => c.Orders)
           .PrefetchMany(c => {
             var orders = c.Orders;
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orders.Owner.Key, customerType,
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             session.Handler.TryGetEntitySetState(orders.Owner.Key, orders.Field, out state);
             Assert.IsTrue(state.IsFullyLoaded);
             return orders;},
-          orders => orders.Prefetch(o => o.Employee));
+          orders => orders.Prefetch(session, o => o.Employee));
         var customerCount = 0;
         var expectedEmployeeCount = 0;
         foreach (var key in prefetcher) {
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Entity, Key>(key => key);
+        var prefetcher = keys.Prefetch<Entity, Key>(session, key => key);
         foreach (var key in prefetcher) {
           var cachedKey = GetCachedKey(key, session);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, customerType, session,
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var prefetchCount = session.Handler.PrefetchTaskExecutionCount;
-        var prefetcher = keys.Prefetch<AdvancedPerson, Key>(key => key);
+        var prefetcher = keys.Prefetch<AdvancedPerson, Key>(session, key => key);
         foreach (var key in prefetcher) {
           var cachedKey = GetCachedKey(key, session);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var count = 0;
-        foreach (var key in keys.Take(15).Prefetch<AdvancedPerson, Key>(key => key)) {
+        foreach (var key in keys.Take(15).Prefetch<AdvancedPerson, Key>(session, key => key)) {
           count++;
           var cachedKey = GetCachedKey(key, session);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         }
         Assert.AreEqual(15, count);
         var prefetchCount = session.Handler.PrefetchTaskExecutionCount;
-        var prefetcher = keys.Prefetch<AdvancedPerson, Key>(key => key);
+        var prefetcher = keys.Prefetch<AdvancedPerson, Key>(session, key => key);
         count = 0;
         foreach (var key in prefetcher) {
           count++;
@@ -250,7 +250,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Book, Key>(key => key).Prefetch(b => b.TranslationTitles);
+        var prefetcher = keys.Prefetch<Book, Key>(session, key => key).Prefetch(b => b.TranslationTitles);
         var bookType = typeof (Book).GetTypeInfo();
         var translationTitlesField = bookType.Fields["TranslationTitles"];
         var titleType = typeof (Title).GetTypeInfo();
@@ -290,7 +290,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = publisherKeys.Prefetch<Publisher, Key>(key => key).Prefetch(p => p.Distributors);
+        var prefetcher = publisherKeys.Prefetch<Publisher, Key>(session, key => key).Prefetch(p => p.Distributors);
         var distributorsField = publisherType.Fields["Distributors"];
         var isOneItemPresentAtLeast = false;
         foreach (var key in prefetcher)
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = bookShopKeys.Prefetch<BookShop, Key>(key => key).Prefetch(b => b.Suppliers);
+        var prefetcher = bookShopKeys.Prefetch<BookShop, Key>(session, key => key).Prefetch(b => b.Suppliers);
         var suppliersField = bookShopType.Fields["Suppliers"];
         var isOneItemPresentAtLeast = false;
         foreach (var key in prefetcher)
@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<IReferenceToSelf, Key>(key => key).Prefetch(r => r.Reference);
+        var prefetcher = keys.Prefetch<IReferenceToSelf, Key>(session, key => key).Prefetch(r => r.Reference);
         foreach (var key in prefetcher) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, referenceToSelfType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
@@ -364,7 +364,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Book, Key>(key => key).Prefetch(b => b.Title);
+        var prefetcher = keys.Prefetch<Book, Key>(session, key => key).Prefetch(b => b.Title);
         var bookType = typeof (Book).GetTypeInfo();
         var titleField = bookType.Fields["Title"];
         var titleType = typeof (Title).GetTypeInfo();

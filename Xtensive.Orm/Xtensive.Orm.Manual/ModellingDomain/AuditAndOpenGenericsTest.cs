@@ -142,8 +142,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     }
 
     // Only this assmebly may create or modify this instance
-    internal AuditRecord(Session session)
-      : base (session)
+    internal AuditRecord()
+      : base (Session.Demand())
     {
       var thisType = typeof (AuditRecord<>);
       try {
@@ -284,34 +284,35 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
         Guid = transaction.Guid,
         TimeStamp = transaction.TimeStamp
       };
-
-      var batches = info.ChangedEntities.Batch(); // To avoid further GCs, if set is large
-      foreach (var changedEntities in batches) {
-        changedEntities
-          .Prefetch<AuditRecord, Key>(key => key)
-          .Run();
-        foreach (var key in changedEntities) {
-          var entity = session.Query.SingleOrDefault(key);
-          bool isRemoved = entity.IsRemoved();
-          bool isCreated = info.CreatedEntities.Contains(key);
-          if (isRemoved && isCreated)
-            continue; // Nothing really happened ;)
+      using (var ss = session.Activate()) {
+        var batches = info.ChangedEntities.Batch(); // To avoid further GCs, if set is large
+        foreach (var changedEntities in batches) {
+          changedEntities
+            .Prefetch<AuditRecord, Key>(session, key => key)
+            .Run();
+          foreach (var key in changedEntities) {
+            var entity = session.Query.SingleOrDefault(key);
+            bool isRemoved = entity.IsRemoved();
+            bool isCreated = info.CreatedEntities.Contains(key);
+            if (isRemoved && isCreated)
+              continue; // Nothing really happened ;)
           
-          var entityHierarchyRootType = (isRemoved ? key.Type : entity.TypeInfo).Hierarchy.Root.UnderlyingType;
-          var recordType = typeof (AuditRecord<>).MakeGenericType(entityHierarchyRootType);
-          var auditRecord = (AuditRecord) Activator.CreateInstance(recordType, true);
-          auditRecord.Transaction = transactionInfo;
-          auditRecord.ChangeType = 
-            isRemoved ? EntityChangeType.Removed : // Order is important here!
-            isCreated ? EntityChangeType.Created :
-                        EntityChangeType.Changed;
-          auditRecord.EntityAsString = isRemoved ? key.ToString() : entity.ToString();
-          auditRecord.EntityKey = key;
-          if (!isRemoved)
-            auditRecord.UntypedEntity = entity;
+            var entityHierarchyRootType = (isRemoved ? key.Type : entity.TypeInfo).Hierarchy.Root.UnderlyingType;
+            var recordType = typeof (AuditRecord<>).MakeGenericType(entityHierarchyRootType);
+            var auditRecord = (AuditRecord) Activator.CreateInstance(recordType, true);
+            auditRecord.Transaction = transactionInfo;
+            auditRecord.ChangeType = 
+              isRemoved ? EntityChangeType.Removed : // Order is important here!
+              isCreated ? EntityChangeType.Created :
+                          EntityChangeType.Changed;
+            auditRecord.EntityAsString = isRemoved ? key.ToString() : entity.ToString();
+            auditRecord.EntityKey = key;
+            if (!isRemoved)
+              auditRecord.UntypedEntity = entity;
+          }
+          // In the end of all, to log it more precisely:
+          transactionInfo.Duration = DateTime.UtcNow - transactionInfo.TimeStamp;
         }
-        // In the end of all, to log it more precisely:
-        transactionInfo.Duration = DateTime.UtcNow - transactionInfo.TimeStamp;
       }
     }
 
@@ -359,7 +360,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Cat tom;
       Cat musya;
       Person alex;
-      using (var session = domain.OpenSession()) {
+      using (var session = domain.OpenSession())
+      using (var ss = session.Activate()) {
         using (var tx = session.OpenTransaction()) {
           tom = new Cat (session) {Name = "Tom"};
           new Dog (session) {Name = "Sharik"};
@@ -432,8 +434,9 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     private void DumpAuditLog()
     {
       Console.WriteLine("Audit log:");
+      var session = Session.Demand();
       var auditTable =
-        from record in Session.Demand().Query.All<AuditRecord>()
+        from record in session.Query.All<AuditRecord>()
         let transaction = record.Transaction
         orderby transaction.Id , record.EntityKey
         select new {Record = record, Transaction = transaction};
@@ -443,12 +446,12 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       // as well.
       auditTable
         .Select(e => e.Record.Key)
-        .Prefetch<Entity, Key>(key => key)
+        .Prefetch<Entity, Key>(session, key => key)
         .Run();
       // Prefetching AuditRecord.EntityKey
       auditTable
         .Select(e => e.Record.EntityKey)
-        .Prefetch<Entity, Key>(key => key)
+        .Prefetch<Entity, Key>(session, key => key)
         .Run();
 
       TransactionInfo lastTransaction = null;

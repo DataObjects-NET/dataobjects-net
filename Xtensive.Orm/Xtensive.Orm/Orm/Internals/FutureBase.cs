@@ -25,9 +25,8 @@ namespace Xtensive.Orm.Internals
   public abstract class FutureBase<TResult>
   {
     private readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
-    protected readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
-
-    private readonly Transaction transaction;
+    private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
+    protected readonly Transaction transaction;
 
     /// <summary>
     /// Gets the task for this future.
@@ -37,15 +36,16 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Materializes a result.
     /// </summary>
+    /// <param name="session"></param>
     /// <returns>The materialized result.</returns>
-    protected TResult Materialize()
+    protected TResult Materialize(Session session)
     {
-      if (transaction != Transaction.Current)
+      if (transaction != session.Transaction)
         throw new InvalidOperationException(
           Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
       if (Task.Result==null)
-        transaction.Session.ExecuteDelayedQueries(false);
-      return materializer.Invoke(Task.Result, transaction.Session, tupleParameterBindings, new ParameterContext());
+        session.ExecuteDelayedQueries(false);
+      return materializer.Invoke(Task.Result, session, tupleParameterBindings, new ParameterContext());
     }
 
 
@@ -54,11 +54,12 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="session"></param>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    protected FutureBase(TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
+    protected FutureBase(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
     {
-      transaction = Transaction.Current;
+      transaction = session.Transaction;
       if (transaction == null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       materializer = translatedQuery.Materializer;

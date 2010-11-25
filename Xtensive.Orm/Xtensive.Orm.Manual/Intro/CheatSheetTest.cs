@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
         // Opening another transaction
         using (var transactionScope = session.OpenTransaction()) {
           // Parses the serialized key
-          var anotherDimtriKey = Key.Parse(Domain.Current, dmitriKeyString);
+          var anotherDimtriKey = Key.Parse(session.Domain, dmitriKeyString);
           // Keys are equal
           Assert.AreEqual(dmitriKey, anotherDimtriKey);
 

@@ -52,6 +52,8 @@ namespace Xtensive.Orm.Manual.Validation
         throw new Exception("Can not subscribe on news (email is not specified).");
     }
 
-    
+    public Person(Session session)
+      : base(session)
+    {}
   }
 }

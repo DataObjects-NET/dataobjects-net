@@ -24,7 +24,10 @@ namespace Xtensive.Orm
     /// Gets the result.
     /// </summary>
     public T Value {
-      get { return Materialize(); }
+      get {
+        var session = Session.Current ?? transaction.Session;
+        return Materialize(transaction.Session);
+      }
     }
 
 
@@ -33,10 +36,11 @@ namespace Xtensive.Orm
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="session">The session.</param>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    public FutureScalar(TranslatedQuery<T> translatedQuery, ParameterContext parameterContext) :
-      base(translatedQuery, parameterContext)
+    public FutureScalar(Session session, TranslatedQuery<T> translatedQuery, ParameterContext parameterContext) :
+      base(session, translatedQuery, parameterContext)
     {}
   }
 }

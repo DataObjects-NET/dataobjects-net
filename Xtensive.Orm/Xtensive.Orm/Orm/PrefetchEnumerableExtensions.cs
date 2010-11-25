@@ -23,6 +23,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="source">The source sequence.</param>
     /// <returns>Prefetched sequence.</returns>
+    [Obsolete("Use Prefetch(IEnumerable<Key>, Session) method instead.")]
     public static IEnumerable<Entity> Prefetch(this IEnumerable<Key> source)
     {
       return source.Prefetch(Session.Demand());
@@ -37,9 +38,9 @@ namespace Xtensive.Orm
     public static IEnumerable<Entity> Prefetch(this IEnumerable<Key> source, Session session)
     {
       return source
-        .Prefetch<Key>(key => key)
+        .Prefetch<Key>(session, key => key)
         .Select(key => session.Query.SingleOrDefault(key))
-        .ToTransactional(); // Necessary, because there is Query.SingleOrDefault(key).
+        .ToTransactional(session); // Necessary, because there is Query.SingleOrDefault(key).
     }
 
     /// <summary>
@@ -47,12 +48,15 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <param name="source">The source sequence.</param>
+    /// <param name="session">The session.</param>
     /// <param name="keyExtractor">The <see cref="Key"/> extractor.</param>
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
-    public static Prefetcher<Entity, TElement> Prefetch<TElement>(this IEnumerable<TElement> source,
+    public static Prefetcher<Entity, TElement> Prefetch<TElement>(
+      this IEnumerable<TElement> source,
+      Session session,
       Func<TElement, Key> keyExtractor)
     {
-      return new Prefetcher<Entity, TElement>(source, keyExtractor);
+      return new Prefetcher<Entity, TElement>(session, source, keyExtractor);
     }
 
     /// <summary>
@@ -61,13 +65,16 @@ namespace Xtensive.Orm
     /// <typeparam name="T">The type containing fields which can be registered for prefetch.</typeparam>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <param name="source">The source sequence.</param>
+    /// <param name="session">The session.</param>
     /// <param name="keyExtractor">The <see cref="Key"/> extractor.</param>
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
-    public static Prefetcher<T, TElement> Prefetch<T, TElement>(this IEnumerable<TElement> source,
+    public static Prefetcher<T, TElement> Prefetch<T, TElement>(
+      this IEnumerable<TElement> source,
+      Session session,
       Func<TElement, Key> keyExtractor)
       where T : IEntity
     {
-      return new Prefetcher<T, TElement>(source, keyExtractor);
+      return new Prefetcher<T, TElement>(session, source, keyExtractor);
     }
 
     /// <summary>
@@ -77,13 +84,16 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
     /// <param name="source">The source sequence.</param>
+    /// <param name="session">The session.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
     public static Prefetcher<TElement, TElement> Prefetch<TElement, TFieldValue>(
-      this IEnumerable<TElement> source, Expression<Func<TElement, TFieldValue>> expression)
+      this IEnumerable<TElement> source, 
+      Session session,
+      Expression<Func<TElement, TFieldValue>> expression)
       where TElement : IEntity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(session, source, element => element.Key)
         .Prefetch(expression);
     }
 
@@ -95,15 +105,19 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TItem">The type of a sequence item.</typeparam>
+    /// <param name="source">Element source.</param>
+    /// <param name="session">The session.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
     /// <returns><see langword="this"/></returns>
     public static Prefetcher<TElement, TElement> Prefetch<TElement, TItem>(
-      this IEnumerable<TElement> source, Expression<Func<TElement, IEnumerable<TItem>>> expression,
+      this IEnumerable<TElement> source, 
+      Session session,
+      Expression<Func<TElement, IEnumerable<TItem>>> expression,
       Func<IEnumerable<TItem>, IEnumerable<TItem>> nestedPrefetcher)
       where TElement : IEntity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(session, source, element => element.Key)
         .Prefetch(expression, nestedPrefetcher);
     }
 
@@ -114,16 +128,19 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TItem">The type of a sequence item.</typeparam>
     /// <param name="source">The source sequence.</param>
+    /// <param name="session">The session.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <param name="entitySetItemCountLimit">The limit of count of items to be loaded during the 
-    /// prefetch of <see cref="EntitySet{T}"/>.</param>
+    ///   prefetch of <see cref="EntitySet{T}"/>.</param>
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
     public static Prefetcher<TElement, TElement> Prefetch<TElement, TItem>(
-      this IEnumerable<TElement> source, Expression<Func<TElement, IEnumerable<TItem>>> expression,
+      this IEnumerable<TElement> source, 
+      Session session,
+      Expression<Func<TElement, IEnumerable<TItem>>> expression,
       int entitySetItemCountLimit)
       where TElement : IEntity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(session, source, element => element.Key)
         .Prefetch(expression, entitySetItemCountLimit);
     }
 
@@ -135,15 +152,18 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TSelectorResult">The result's type of a referenced object's selector.</typeparam>
     /// <param name="source">The source sequence.</param>
+    /// <param name="session"></param>
     /// <param name="selector">The selector of a sequence.</param>
     /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
     public static Prefetcher<TElement, TElement> PrefetchMany<TElement, TSelectorResult>(
-      this IEnumerable<TElement> source, Func<TElement,IEnumerable<TSelectorResult>> selector,
+      this IEnumerable<TElement> source, 
+      Session session,
+      Func<TElement,IEnumerable<TSelectorResult>> selector,
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher)
       where TElement : IEntity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(session, source, element => element.Key)
         .PrefetchMany(selector, nestedPrefetcher);
     }
 
@@ -155,6 +175,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TSelectorResult">The result's type of a referenced object's selector.</typeparam>
     /// <param name="source">The source sequence.</param>
+    /// <param name="session">The session.</param>
     /// <param name="selector">The selector of a field value.</param>
     /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
@@ -162,12 +183,14 @@ namespace Xtensive.Orm
     /// <see cref="IEnumerable{T}"/>. The result of the <paramref name="selector"/> is transformed 
     /// to <see cref="IEnumerable{T}"/> by <see cref="EnumerableUtils.One{TItem}"/>.</remarks>
     public static Prefetcher<TElement, TElement> PrefetchSingle<TElement, TSelectorResult>(
-      this IEnumerable<TElement> source, Func<TElement,TSelectorResult> selector,
+      this IEnumerable<TElement> source, 
+      Session session,
+      Func<TElement,TSelectorResult> selector,
       Func<IEnumerable<TSelectorResult>,IEnumerable<TSelectorResult>> nestedPrefetcher)
       where TElement : IEntity
       where TSelectorResult : IEntity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(session, source, element => element.Key)
         .PrefetchSingle(selector, nestedPrefetcher);
     }
   }

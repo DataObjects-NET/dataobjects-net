@@ -297,7 +297,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="sessionOptions">The session options.</param>
     public SessionConfiguration(SessionOptions sessionOptions)
-      : this(null, sessionOptions)
+      : this(WellKnown.Sessions.Default, sessionOptions)
     {}
 
     /// <summary>

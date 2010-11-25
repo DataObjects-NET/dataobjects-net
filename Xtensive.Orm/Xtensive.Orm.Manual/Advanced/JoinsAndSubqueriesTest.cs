@@ -64,12 +64,13 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var query = session.Query.All<Person>().Select(employee => 
-            new {
-              employee, 
-              Namesakes = session.Query.All<Person>()
-                .Where(person => person.Name == employee.Name)
-            });
+          var query = session.Query.All<Person>()
+            .Select(employee => 
+              new {
+                employee, 
+                Namesakes = session.Query.All<Person>()
+                  .Where(person => person.Name == employee.Name)
+              });
 
           // Enumerate query
           foreach (var employeeData in query) {

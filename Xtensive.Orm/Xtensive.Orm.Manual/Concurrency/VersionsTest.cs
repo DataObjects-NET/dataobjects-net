@@ -102,7 +102,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         return "Company('{0}')".FormatWith(Name);
     }
 
-    public Company(string name)
+    public Company(Session session, string name)
+      : base (session)
     {
       Name = name;
     }
@@ -140,7 +141,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
           Assert.AreEqual(alexVersion, alex.VersionInfo);
           Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
 
-          xtensive = new Company("X-tensive.com");
+          xtensive = new Company (session, "X-tensive.com");
           xtensiveVersion = xtensive.VersionInfo;
           Dump(xtensive);
           tx.Complete();
@@ -221,7 +222,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
     {
       var domain = GetDomain();
 
-      using (var session = domain.OpenSession()) {
+      using (var session = domain.OpenSession())
+      using (var scope = session.Activate()) {
         var versions = new VersionSet();
 
         Person alex;
@@ -232,7 +234,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
           tx.Complete();
         }
 
-        using (VersionCapturer.Attach(versions))
+        using (VersionCapturer.Attach(session, versions))
         using (var tx = session.OpenTransaction()) {
           // Simulating entity displaying @ web page
           // By default this leads to their addition to VersionSet
@@ -246,7 +248,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         // And dump it
         Dump(versions);
 
-        using (VersionValidator.Attach(versions))
+        using (VersionValidator.Attach(session, versions))
         using (var tx = session.OpenTransaction()) {
           alex.Name = "Edited Alex"; // Passes
           alex.Name = "Edited again"; // Passes, because this is not the very first modification
@@ -254,7 +256,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         }
 
         AssertEx.Throws<VersionConflictException>(() => {
-          using (VersionValidator.Attach(versions))
+          using (VersionValidator.Attach(session, versions))
           using (var tx = session.OpenTransaction()) {
             alex.Name = "And again"; 
             tx.Complete(); 
@@ -265,7 +267,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
           versions.Add(alex, true); // Overwriting versions
         Dump(versions);
 
-        using (VersionValidator.Attach(versions))
+        using (VersionValidator.Attach(session, versions))
         using (var tx = session.OpenTransaction()) {
           alex.Name = "Edited again"; // Passes now
           tx.Complete();

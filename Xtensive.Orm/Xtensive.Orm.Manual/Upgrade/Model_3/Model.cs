@@ -25,6 +25,10 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_3
 
     [Field]
     public Person Customer { get; set;}
+
+    public Order(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -36,5 +40,9 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_3
 
     [Field]
     public string FullName { get; set; }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 }

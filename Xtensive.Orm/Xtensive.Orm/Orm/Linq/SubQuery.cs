@@ -72,7 +72,9 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
+// ReSharper disable MemberCanBeProtected.Global
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery query, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
+// ReSharper restore MemberCanBeProtected.Global
     {
       this.provider = context.Session.Query.Provider;
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
@@ -99,7 +101,7 @@ namespace Xtensive.Orm.Linq
         (Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
-      futureSequence = new FutureSequence<TElement>(translatedQuery, parameterContext);
+      futureSequence = new FutureSequence<TElement>(context.Session, translatedQuery, parameterContext);
       context.Session.RegisterDelayedQuery(futureSequence.Task);
       context.MaterializationContext.MaterializationQueue.Enqueue(MaterializeSelf);
     }

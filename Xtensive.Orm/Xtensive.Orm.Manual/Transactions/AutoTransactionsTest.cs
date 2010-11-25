@@ -169,6 +169,11 @@ namespace Xtensive.Orm.Manual.Transactions.AutoTransactions
           UpgradeMode = DomainUpgradeMode.Recreate
         };
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+        config.Sessions.Add(new SessionConfiguration(
+          "Default", 
+          SessionOptions.ServerProfile | 
+          SessionOptions.AutoTransactionOpenMode | 
+          SessionOptions.AutoActivation));
         var domain = Domain.Build(config);
         using (var session = domain.OpenSession()) {
           using (var transactionScope = session.OpenTransaction()) {

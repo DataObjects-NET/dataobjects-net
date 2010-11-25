@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Employee);
+        var prefetcher = keys.Prefetch<Order, Key>(session, key => key).Prefetch(o => o.Employee);
         var orderType = typeof (Order).GetTypeInfo();
         var employeeType = typeof (Employee).GetTypeInfo();
         var employeeField = orderType.Fields["Employee"];
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Person, Key>(key => key)/*.Prefetch(p => p.Name)*/
+        var prefetcher = keys.Prefetch<Person, Key>(session, key => key)/*.Prefetch(p => p.Name)*/
           .PrefetchSingle(p => new Customer {Name = p.Name}, customer => {
             customer.First().Remove();
             CollectGarbadge();
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Details);
+        var prefetcher = keys.Prefetch<Order, Key>(session, key => key).Prefetch(o => o.Details);
         var orderType = typeof (Order).GetTypeInfo();
         var detailsField = orderType.Fields["Details"];
         foreach (var key in prefetcher) {

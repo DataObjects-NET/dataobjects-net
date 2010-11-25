@@ -907,7 +907,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var order = session.Query.All<Order>().Prefetch(o => o.Details).First();
+        var order = session.Query.All<Order>().Prefetch(session, o => o.Details).First();
         var detail = order.Details.First();
         order.Details.Remove(detail);
         detail.Remove();
