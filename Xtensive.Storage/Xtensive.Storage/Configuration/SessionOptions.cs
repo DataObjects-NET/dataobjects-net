@@ -64,5 +64,13 @@ namespace Xtensive.Storage.Configuration
     /// </para>
     /// </remarks>
     AllowSwitching = 0x8,
+
+    /// <summary>
+    /// Enables reading of fields of removed objects.
+    /// By default this leads no an exception - only <see cref="Entity.Key"/>, <see cref="Entity.TypeId"/> and
+    /// few other system properties of removed objects can be accessed.
+    /// This option allows to read all the properties of removed objects, which values are available.
+    /// </summary>
+    ReadRemovedObjects = 0x16,
   }
 }

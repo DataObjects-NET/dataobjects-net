@@ -20,6 +20,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Configuration;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Validation;
@@ -412,6 +413,7 @@ namespace Xtensive.Storage
       if (tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable())
         return;
 
+      EnsureNotRemoved();
       Session.Handler.FetchField(Key, field);
     }
 
@@ -571,7 +573,8 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemBeforeGetValue(FieldInfo field)
     {
-      EnsureNotRemoved();
+      if ((Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+        EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
       EnsureIsFetched(field);
