@@ -10,6 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Core;
 
 namespace Xtensive.Storage
 {
@@ -51,8 +52,10 @@ namespace Xtensive.Storage
       Entity initiator, 
       Entity referencingObject, 
       Entity referencedObject)
-      : base(string.Format(Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, 
-        initiator.GetType().GetFullName(), initiator.Key))
+      : base(
+        Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY.FormatWith(
+          initiator.GetType().GetFullName(), initiator.Key,
+          association, referencingObject.Key, referencedObject.Key))
     {
       Association = association;
       Initiator = initiator.Key;

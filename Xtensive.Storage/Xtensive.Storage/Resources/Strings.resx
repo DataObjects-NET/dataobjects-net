@@ -730,7 +730,10 @@ Schema difference:
     <value>Referential integrity violation.</value>
   </data>
   <data name="ReferentialIntegrityViolationOnAttemptToRemoveXKeyY" xml:space="preserve">
-    <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.</value>
+    <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.
+Association: {2}
+Referencing Entity Key: {3}
+Referenced Entity Key: {4}</value>
   </data>
   <data name="ExLeftJoinDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>LeftJoin does not support query provider of type '{0}'.</value>
@@ -1407,7 +1410,7 @@ SessionOptions.AllowSwitching flag to avoid this exception, if this is intention
   <data name="ExCannotGenerateNextVersionValueOfTypeX" xml:space="preserve">
     <value>Can't generate next version value of type '{0}'.</value>
   </data>
-	<data name="ExPropertyXDoesnTHavePublicGetter" xml:space="preserve">
+  <data name="ExPropertyXDoesnTHavePublicGetter" xml:space="preserve">
     <value>Property '{0}' doesn't have public getter.</value>
   </data>
   <data name="ExPropertyXDoesnTHavePublicSetter" xml:space="preserve">
@@ -1513,36 +1516,36 @@ SessionOptions.AllowSwitching flag to avoid this exception, if this is intention
   <data name="ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty" xml:space="preserve">
     <value>You must either apply or cancel cached changes before changing this property.</value>
   </data>
-	<data name="LogFailedToAddSchemaHintXErrorY">
-		<value><![CDATA[Failed to add schema hint '{0}' to schema hint collection. The hint will be ignored.
+  <data name="LogFailedToAddSchemaHintXErrorY">
+    <value><![CDATA[Failed to add schema hint '{0}' to schema hint collection. The hint will be ignored.
 Likely, the schema object (table, column, etc.) it references does not exists, because it was manually removed from the database.
 Error: {1}]]></value>
-	</data>
-	<data name="LogSessionXVersionValidationFailedKeyYVersionZExpected3">
-		<value><![CDATA[Session '{0}'. Version validation failed: Key = '{1}', Version = '{2}' (expected version = '{3}').]]></value>
-	</data>
-	<data name="ExOperationIsNotRegisteredYet">
-		<value><![CDATA[Operation isn't registered yet. See Session.Oeprations.RegisterOperations().]]></value>
-	</data>
-	<data name="ExOperationStartedIsAlreadyCalledForThisOperation">
-		<value xml:space="preserve">OperatonStarted is alerady called for this operation.</value>
-	</data>
-	<data name="ExOperationIsNotMarkedAsStarted">
-		<value><![CDATA[Operation isn't marked as started. See Sessopn.Operations.OperationStarted() method.]]></value>
-	</data>
-	<data name="ExNullableAndNullableOnUpgradeCannotBeUsedWithXField">
-		<value><![CDATA[Nullable and NullableOnUpgrade flags can't be used with '{0}' field. They can be used only with reference-typed fields (except Structure descendants).]]></value>
-	</data>
-	<data name="ExUpgradeHintTargetTypeNotFound">
-		<value><![CDATA[Upgrade hint error. Target type '{0}' not found.]]></value>
-	</data>
-	<data name="ExUpgradeHintTargetFieldNotFound">
-		<value><![CDATA[Upgrade hint error. Target field '{0}' not found.]]></value>
-	</data>
-	<data name="ExUpgradeHintSourceTypeNotFound">
-		<value><![CDATA[Upgrade hint error. Source type '{0}' not found.]]></value>
-	</data>
-	<data name="ExUpgradeHintSourceFieldNotFound">
-		<value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
-	</data>
+  </data>
+  <data name="LogSessionXVersionValidationFailedKeyYVersionZExpected3">
+    <value><![CDATA[Session '{0}'. Version validation failed: Key = '{1}', Version = '{2}' (expected version = '{3}').]]></value>
+  </data>
+  <data name="ExOperationIsNotRegisteredYet">
+    <value><![CDATA[Operation isn't registered yet. See Session.Oeprations.RegisterOperations().]]></value>
+  </data>
+  <data name="ExOperationStartedIsAlreadyCalledForThisOperation">
+    <value xml:space="preserve">OperatonStarted is alerady called for this operation.</value>
+  </data>
+  <data name="ExOperationIsNotMarkedAsStarted">
+    <value><![CDATA[Operation isn't marked as started. See Sessopn.Operations.OperationStarted() method.]]></value>
+  </data>
+  <data name="ExNullableAndNullableOnUpgradeCannotBeUsedWithXField">
+    <value><![CDATA[Nullable and NullableOnUpgrade flags can't be used with '{0}' field. They can be used only with reference-typed fields (except Structure descendants).]]></value>
+  </data>
+  <data name="ExUpgradeHintTargetTypeNotFound">
+    <value><![CDATA[Upgrade hint error. Target type '{0}' not found.]]></value>
+  </data>
+  <data name="ExUpgradeHintTargetFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Target field '{0}' not found.]]></value>
+  </data>
+  <data name="ExUpgradeHintSourceTypeNotFound">
+    <value><![CDATA[Upgrade hint error. Source type '{0}' not found.]]></value>
+  </data>
+  <data name="ExUpgradeHintSourceFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
+  </data>
 </root>
