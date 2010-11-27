@@ -783,4 +783,10 @@
   <data name="ExPropertiesXAndYHaveDifferentPrimitiveTypes" xml:space="preserve">
     <value>The properties {0} and {1} have different primitive types.</value>
   </data>
+	<data name="ExExpression0MustReferenceField">
+		<value><![CDATA[Expression '{0}' must reference field.]]></value>
+	</data>
+	<data name="ExExpression0MustReferenceProperty">
+		<value><![CDATA[Expression '{0}' must reference property.]]></value>
+	</data>
 </root>

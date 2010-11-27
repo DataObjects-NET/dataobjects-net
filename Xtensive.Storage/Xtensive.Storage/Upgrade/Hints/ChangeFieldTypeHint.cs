@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -83,9 +84,22 @@ namespace Xtensive.Storage.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "sourceField");
+
       Type = type;
       FieldName = fieldName;
       AffectedColumns = new ReadOnlyList<string>(new List<string>());
+    }
+
+    /// <summary>
+    /// Creates the instance of this hint.
+    /// </summary>
+    /// <typeparam name="T">The type.</typeparam>
+    /// <param name="propertyAccessExpression">The field access expression.</param>
+    /// <returns>The newly created instance of this hint.</returns>
+    public static ChangeFieldTypeHint Create<T>(Expression<Func<T, object>> propertyAccessExpression)
+      where T: Entity
+    {
+      return new ChangeFieldTypeHint(typeof(T), propertyAccessExpression.GetProperty().Name);
     }
   }
 }

@@ -664,6 +664,24 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Expression &apos;{0}&apos; must reference field..
+        /// </summary>
+        internal static string ExExpression0MustReferenceField {
+            get {
+                return ResourceManager.GetString("ExExpression0MustReferenceField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expression &apos;{0}&apos; must reference property..
+        /// </summary>
+        internal static string ExExpression0MustReferenceProperty {
+            get {
+                return ResourceManager.GetString("ExExpression0MustReferenceProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The expression having the different normal form must not be a root expression..
         /// </summary>
         internal static string ExExpressionHavingDifferentNormalFormMustNotBeRoot {

@@ -42,8 +42,8 @@ namespace Xtensive.Core.Linq
     /// Makes <c>IsNull</c> condition expression.
     /// </summary>
     /// <param name="target">Target expression</param>
-    /// <param name="ifNull">Result expression if <paramref name="target"/> is null.</param>
-    /// <param name="ifNotNull">Result expression if <paramref name="target"/> is not null.</param>
+    /// <param name="ifNull">Result expression if <paramref name="target"/> is <see langword="null" />.</param>
+    /// <param name="ifNotNull">Result expression if <paramref name="target"/> is not <see langword="null" />.</param>
     /// <returns><see cref="ConditionalExpression"/></returns>
     public static ConditionalExpression MakeIsNullCondition(this Expression target, Expression ifNull, Expression ifNotNull)
     {
@@ -54,56 +54,14 @@ namespace Xtensive.Core.Linq
     }
 
     /// <summary>
-    /// Strips <see cref="Expression.Quote"/> expressions.
-    /// </summary>
-    /// <param name="expression">The expression.</param>
-    public static LambdaExpression StripQuotes(this Expression expression)
-    {
-      while (expression.NodeType == ExpressionType.Quote)
-        expression = ((UnaryExpression)expression).Operand;
-      return (LambdaExpression)expression;
-    }
-
-    /// <summary>
-    /// Strips <see cref="ExpressionType.Convert"/> and <see cref="ExpressionType.TypeAs"/>.
-    /// </summary>
-    /// <param name="expression">The expression.</param>
-    public static Expression StripCasts(this Expression expression)
-    {
-      while (expression.NodeType == ExpressionType.Convert
-        || expression.NodeType == ExpressionType.TypeAs)
-        expression = ((UnaryExpression)expression).Operand;
-      return expression;
-    }
-
-
-    /// <summary>
     /// Converts expression type to nullable type (for value types).
     /// </summary>
     /// <param name="expression">The expression.</param>
     public static Expression LiftToNullable(this Expression expression)
     {
       return expression.Type.IsNullable() 
-        ? expression 
-        : Expression.Convert(expression, expression.Type.ToNullable());
-    }
-
-    /// <summary>
-    /// Determines whether the specified expression is <see cref="ConstantExpression"/> 
-    /// with <see langword="null" /> <see cref="ConstantExpression.Value"/>.
-    /// </summary>
-    /// <param name="expression">The expression.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified expression is null; otherwise, <see langword="false" />.
-    /// </returns>
-    public static bool IsNull(this Expression expression)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      if (expression.NodeType == ExpressionType.Constant) {
-        var constantExpression = (ConstantExpression)expression;
-        return constantExpression.Value == null;
-      }
-      return false;
+               ? expression 
+               : Expression.Convert(expression, expression.Type.ToNullable());
     }
 
     /// <summary>
@@ -116,14 +74,15 @@ namespace Xtensive.Core.Linq
       return new ExpressionTree(expression);
     }
 
+
     // Type initializer
 
     static ExpressionExtensions()
     {
       TupleGenericAccessor = typeof (Tuples.Tuple)
-          .GetMethods()
-          .Where(mi => mi.Name==WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
-          .Single();
+        .GetMethods()
+        .Where(mi => mi.Name==WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
+        .Single();
     }
   }
 }
