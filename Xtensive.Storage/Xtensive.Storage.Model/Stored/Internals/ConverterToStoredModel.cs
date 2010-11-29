@@ -5,6 +5,7 @@
 // Created:    2009.05.24
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Reflection;
 
@@ -14,11 +15,13 @@ namespace Xtensive.Storage.Model.Stored
   {
     public StoredDomainModel Convert(DomainModel model)
     {
-      return new StoredDomainModel {Types = model.Types.Select(t => ConvertType(t)).ToArray()};
+      var associationNames = new HashSet<string>();
+      return new StoredDomainModel {Types = model.Types.Select(t => ConvertType(t, associationNames)).ToArray()};
     }
 
-    private static StoredTypeInfo ConvertType(TypeInfo source)
+    private static StoredTypeInfo ConvertType(TypeInfo source, HashSet<string> associationNames)
     {
+      var inheritedAssociatedFields = new HashSet<string>();
       var declaredFields = source.Fields
         .Where(field => field.IsDeclared && !field.IsNested)
         .ToArray();
@@ -27,9 +30,25 @@ namespace Xtensive.Storage.Model.Stored
       if (source.Hierarchy != null && source.Hierarchy.Root == source)
         hierarchyRoot = source.Hierarchy.InheritanceSchema.ToString();
       var associations = source.GetOwnerAssociations()
-        .Where(a => declaredFields.Contains(a.OwnerField))
-        .Select(a => ConvertAssociation(a))
+        .Where(a => {
+          if (associationNames.Contains(a.Name))
+            return false;
+          if (declaredFields.Contains(a.OwnerField))
+            return true;
+          if (a.IsPaired) {
+            inheritedAssociatedFields.Add(a.OwnerField.Name);
+            return true;
+          }
+          return false;})
+        .Select(ConvertAssociation)
         .ToArray();
+      foreach (var association in associations)
+        associationNames.Add(association.Name);
+
+      var fields = source.Fields
+        .Where(field => (field.IsDeclared && !field.IsNested) || inheritedAssociatedFields.Contains(field.Name))
+        .ToArray();
+
       // hack: for SingleTable hierarchies mapping name is not set correctly
       // and always should be taken from hierarchy root
       var mappingNameSource =
@@ -50,7 +69,7 @@ namespace Xtensive.Storage.Model.Stored
           AncestorName = sourceAncestor != null ? sourceAncestor.Name : null,
           Associations = associations,
           HierarchyRoot = hierarchyRoot,
-          Fields = declaredFields.Select(f => ConvertField(f)).ToArray(),
+          Fields = fields.Select(ConvertField).ToArray(),
         };
       return result;
     }
@@ -83,7 +102,7 @@ namespace Xtensive.Storage.Model.Stored
           OriginalName = source.OriginalName,
           ValueType = source.ValueType.GetFullName(),
           ItemType = GetTypeFullName(source.ItemType),
-          Fields = nestedFields.Select(f => ConvertField(f)).ToArray(),
+          Fields = nestedFields.Select(ConvertField).ToArray(),
           Length = source.Length.HasValue ? source.Length.Value : 0,
           IsEntity = source.IsEntity,
           IsEntitySet = source.IsEntitySet,
