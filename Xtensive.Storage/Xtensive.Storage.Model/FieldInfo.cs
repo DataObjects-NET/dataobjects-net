@@ -509,16 +509,10 @@ namespace Xtensive.Storage.Model
 
       var ordered = IsLocked
         ? associations
-        : ReorderAssociations(associations);
+        : associations.Reorder();
 
       return ordered.FirstOrDefault(
         a => a.TargetType.UnderlyingType.IsAssignableFrom(targetType.UnderlyingType));
-    }
-
-    private static IEnumerable<AssociationInfo> ReorderAssociations(IEnumerable<AssociationInfo> origin)
-    {
-      return TopologicalSorter.Sort(origin,
-        (f, s) => s.TargetType != f.TargetType && s.TargetType.UnderlyingType.IsAssignableFrom(f.TargetType.UnderlyingType));
     }
 
     public NodeCollection<AssociationInfo> Associations
@@ -598,7 +592,7 @@ namespace Xtensive.Storage.Model
       if (column!=null) 
         column.Lock(true);
       if (associations.Count > 1) {
-        var sorted = ReorderAssociations(associations);
+        var sorted = associations.Reorder();
         associations = new NodeCollection<AssociationInfo>(associations.Owner, associations.Name);
         associations.AddRange(sorted);
       }

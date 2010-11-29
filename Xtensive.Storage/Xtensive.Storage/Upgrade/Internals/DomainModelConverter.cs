@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Sorting;
 using Xtensive.Modelling;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
@@ -123,8 +124,15 @@ namespace Xtensive.Storage.Upgrade
 
       // Build foreign keys
       if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
-        foreach (AssociationInfo association in domainModel.Associations)
-          Visit(association);
+        foreach (var group in domainModel.Associations.GroupBy(a => a.OwnerField.DeclaringField)) {
+          var associations = group.ToList();
+          if (associations.Count == 1)
+            Visit(associations.Single());
+          else {
+            var mostCommonAssociation = associations.Reorder().Last();
+            Visit(mostCommonAssociation);
+          }
+        }
       }
 
       // Build keys and sequences
