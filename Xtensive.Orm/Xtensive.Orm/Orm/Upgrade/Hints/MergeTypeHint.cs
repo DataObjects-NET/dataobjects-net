@@ -5,6 +5,8 @@
 // Created:    2009.04.29
 
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
@@ -15,10 +17,10 @@ namespace Xtensive.Orm.Upgrade
   /// Rename type hint.
   /// </summary>
   [Serializable]
-  public sealed class RenameTypeHint : UpgradeHint,
-    IEquatable<RenameTypeHint>
+  public sealed class MergeTypeHint : UpgradeHint,
+    IEquatable<MergeTypeHint>
   {
-    private const string ToStringFormat = "Rename type: {0} -> {1}";
+    private const string ToStringFormat = "Merge type: {0} -> {1}";
 
     /// <summary>
     /// Gets the new type.
@@ -26,12 +28,12 @@ namespace Xtensive.Orm.Upgrade
     public Type NewType { get; private set; }
 
     /// <summary>
-    /// Gets the name of old type.
+    /// Gets the old type.
     /// </summary>
-    public string OldType { get; private set; }
+    public Type OldType { get; private set; }
 
     /// <inheritdoc/>
-    public bool Equals(RenameTypeHint other)
+    public bool Equals(MergeTypeHint other)
     {
       if (ReferenceEquals(null, other))
         return false;
@@ -45,7 +47,7 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     public override bool Equals(UpgradeHint other)
     {
-      return Equals(other as RenameTypeHint);
+      return Equals(other as MergeTypeHint);
     }
 
     /// <inheritdoc/>
@@ -62,7 +64,7 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(ToStringFormat, OldType, NewType.GetFullName());
+      return string.Format(ToStringFormat, OldType.GetFullName(), NewType.GetFullName());
     }
 
 
@@ -73,27 +75,28 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="oldType">The old type.</param>
     /// <param name="newType">The new type.</param>
-    public RenameTypeHint(string oldType, Type newType)
+    public MergeTypeHint(Type oldType, Type newType)
     {
       ArgumentValidator.EnsureArgumentNotNull(newType, "newType");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldType, "oldType");
+      ArgumentValidator.EnsureArgumentNotNull(oldType, "oldType");
 
-      if (!oldType.Contains("."))
-        oldType = newType.Namespace + "." + oldType;
       OldType = oldType;
       NewType = newType;
+
+      throw new NotImplementedException();
     }
 
     /// <summary>
     /// Creates the instance of this hint.
     /// </summary>
-    /// <typeparam name="T">The new type.</typeparam>
-    /// <param name="oldName">The old type name.</param>
+    /// <typeparam name="TOld">The old type.</typeparam>
+    /// <typeparam name="TNew">The new type.</typeparam>
     /// <returns>The newly created instance of this hint.</returns>
-    public static RenameTypeHint Create<T>(string oldName)
-      where T: Entity
+    public static MergeTypeHint Create<TOld, TNew>()
+      where TOld: Entity
+      where TNew: Entity
     {
-      return new RenameTypeHint(oldName, typeof(T));
+      return new MergeTypeHint(typeof(TOld), typeof(TNew));
     }
   }
 }

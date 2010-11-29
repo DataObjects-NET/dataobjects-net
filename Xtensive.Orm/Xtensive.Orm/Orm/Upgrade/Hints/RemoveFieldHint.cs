@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm.Upgrade
@@ -86,6 +87,18 @@ namespace Xtensive.Orm.Upgrade
       Type = type;
       Field = field;
       AffectedColumns = new ReadOnlyList<string>(new List<string>());
+    }
+
+    /// <summary>
+    /// Creates the instance of this hint.
+    /// </summary>
+    /// <typeparam name="T">The type.</typeparam>
+    /// <param name="propertyAccessExpression">The field access expression.</param>
+    /// <returns>The newly created instance of this hint.</returns>
+    public static RemoveFieldHint Create<T>(Expression<Func<T, object>> propertyAccessExpression)
+      where T: Entity
+    {
+      return new RemoveFieldHint(typeof(T).FullName, propertyAccessExpression.GetProperty().Name);
     }
   }
 }

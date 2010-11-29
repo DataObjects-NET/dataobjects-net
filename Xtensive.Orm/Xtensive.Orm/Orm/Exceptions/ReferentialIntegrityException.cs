@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Orm.Model;
@@ -51,8 +52,10 @@ namespace Xtensive.Orm
       Entity initiator, 
       Entity referencingObject, 
       Entity referencedObject)
-      : base(string.Format(Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, 
-        initiator.GetType().GetFullName(), initiator.Key))
+      : base(
+        Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY.FormatWith(
+          initiator.GetType().GetFullName(), initiator.Key,
+          association, referencingObject.Key, referencedObject.Key))
     {
       Association = association;
       Initiator = initiator.Key;

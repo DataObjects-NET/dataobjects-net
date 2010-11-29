@@ -730,7 +730,10 @@ Schema difference:
     <value>Referential integrity violation.</value>
   </data>
   <data name="ReferentialIntegrityViolationOnAttemptToRemoveXKeyY" xml:space="preserve">
-    <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.</value>
+    <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.
+Association: {2}
+Referencing Entity Key: {3}
+Referenced Entity Key: {4}</value>
   </data>
   <data name="ExLeftJoinDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>LeftJoin does not support query provider of type '{0}'.</value>

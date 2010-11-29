@@ -4128,7 +4128,10 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Referential integrity violation on attempt to remove &apos;{0}&apos;, Key=&apos;{1}&apos;..
+        ///   Looks up a localized string similar to Referential integrity violation on attempt to remove &apos;{0}&apos;, Key=&apos;{1}&apos;.
+        ///Association: {2}
+        ///Referencing Entity Key: {3}
+        ///Referenced Entity Key: {4}.
         /// </summary>
         internal static string ReferentialIntegrityViolationOnAttemptToRemoveXKeyY {
             get {

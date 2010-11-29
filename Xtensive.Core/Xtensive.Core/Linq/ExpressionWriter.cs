@@ -107,6 +107,8 @@ namespace Xtensive.Linq
     /// <param name="text">The text to write.</param>
     protected void Write(string text)
     {
+      if (text.IsNullOrEmpty()) 
+        return;
       if (text.IndexOf('\n') >= 0) {
         string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0, n = lines.Length; i < n; i++) {

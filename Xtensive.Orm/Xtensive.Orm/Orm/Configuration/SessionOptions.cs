@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Configuration
   {
     /// <summary>
     /// Default option set.
-    /// The same as <see cref="LegacyProfile"/>.
+    /// The same as <see cref="ServerProfile"/>.
     /// </summary>
     Default = ServerProfile,
 
@@ -71,16 +71,22 @@ namespace Xtensive.Orm.Configuration
     Disconnected = 0x40,
 
     /// <summary>
-    /// Consider <see cref="TransactionalBehavior.Auto"/> option 
     /// as <see cref="TransactionalBehavior.Suppress"/> when processing <see cref="TransactionalAttribute"/>.
     /// </summary>
     AutoTransactionSuppressMode = 0x80,
 
     /// <summary>
     /// Consider <see cref="TransactionalBehavior.Auto"/> option 
-    /// as <see cref="TransactionalBehavior.Open"/> when processing <see cref="TransactionalAttribute"/>.
     /// </summary>
     AutoTransactionOpenMode = 0x100,
+
+    /// <summary>
+    /// Enables reading of fields of removed objects.
+    /// By default this leads no an exception - only <see cref="Entity.Key"/>, <see cref="Entity.TypeId"/> and
+    /// few other system properties of removed objects can be accessed.
+    /// This option allows to read all the properties of removed objects, which values are available.
+    /// </summary>
+    ReadRemovedObjects = 0x200,
 
     // Profiles
 
@@ -92,7 +98,6 @@ namespace Xtensive.Orm.Configuration
     ServerProfile = AutoShortenTransactions,
 
     /// <summary>
-    /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
     /// Combines 
     /// <see cref="AutoShortenTransactions"/> | 
     /// <see cref="AutoTransactionOpenMode"/> | 
