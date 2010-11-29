@@ -71,6 +71,6 @@ namespace Xtensive.Storage.Configuration
     /// few other system properties of removed objects can be accessed.
     /// This option allows to read all the properties of removed objects, which values are available.
     /// </summary>
-    ReadRemovedObjects = 0x16,
+    ReadRemovedObjects = 0x200,
   }
 }
