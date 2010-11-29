@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
+using Xtensive.Sorting;
 using Xtensive.Modelling;
 using Xtensive.Orm.Building;
 using Xtensive.Storage.Model;
@@ -123,8 +124,15 @@ namespace Xtensive.Orm.Upgrade
 
       // Build foreign keys
       if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
-        foreach (AssociationInfo association in domainModel.Associations)
-          Visit(association);
+        foreach (var group in domainModel.Associations.GroupBy(a => a.OwnerField.DeclaringField)) {
+          var associations = group.ToList();
+          if (associations.Count == 1)
+            Visit(associations.Single());
+          else {
+            var mostCommonAssociation = associations.Reorder().Last();
+            Visit(mostCommonAssociation);
+          }
+        }
       }
 
       // Build keys and sequences

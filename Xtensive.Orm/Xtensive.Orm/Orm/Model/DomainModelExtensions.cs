@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.24
 
+using System.Collections.Generic;
+using Xtensive.Sorting;
 using Xtensive.Orm.Model.Stored;
 
 namespace Xtensive.Orm.Model
@@ -21,6 +23,17 @@ namespace Xtensive.Orm.Model
     public static StoredDomainModel ToStoredModel(this DomainModel model)
     {
       return new ConverterToStoredModel().Convert(model);
+    }
+
+    /// <summary>
+    /// Reorders the specified sequence of <see cref="AssociationInfo"/> using <see cref="TopologicalSorter"/>.
+    /// </summary>
+    /// <param name="origin">The origin.</param>
+    /// <returns>A reordered sequence.</returns>
+    public static IEnumerable<AssociationInfo> Reorder(this IEnumerable<AssociationInfo> origin)
+    {
+      return TopologicalSorter.Sort(origin,
+        (f, s) => s.TargetType != f.TargetType && s.TargetType.UnderlyingType.IsAssignableFrom(f.TargetType.UnderlyingType));
     }
   }
 }
