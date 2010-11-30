@@ -4,11 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
-using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -18,30 +13,9 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public abstract class SqlTemporaryDataProvider : SqlProvider
   {
-    private const string TemporaryTableLockName = "TemporaryTableLockName";
+    public const string TemporaryTableLockName = "TemporaryTableLockName";
 
-    private readonly TemporaryTableDescriptor tableDescriptor;
-    
-    protected void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
-    {
-      var tableLock = DomainHandler.TemporaryTableManager.Acquire(tableDescriptor);
-      if (tableLock == null) 
-        return;
-      context.SetValue(this, TemporaryTableLockName, tableLock);
-      var executor = handlers.SessionHandler.GetService<IQueryExecutor>(true);
-      executor.Store(tableDescriptor, data);
-    }
-
-    protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)
-    {
-      var tableLock = context.GetValue<IDisposable>(this, TemporaryTableLockName);
-      if (tableLock==null)
-        return false;
-      using (tableLock)
-        handlers.SessionHandler.GetService<IQueryExecutor>(true)
-          .Clear(tableDescriptor);
-      return true;
-    }
+    public TemporaryTableDescriptor TableDescriptor { get; private set; }
 
 
     // Constructors
@@ -51,7 +25,7 @@ namespace Xtensive.Storage.Providers.Sql
       CompilableProvider origin, ExecutableProvider[] sources)
       : base(handlers, request, origin, sources)
     {
-      this.tableDescriptor = tableDescriptor;
+      TableDescriptor = tableDescriptor;
     }
   }
 }

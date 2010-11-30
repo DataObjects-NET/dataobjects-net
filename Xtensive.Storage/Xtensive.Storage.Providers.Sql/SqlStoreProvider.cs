@@ -4,10 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
+using System;
+using System.Collections.Generic;
+using Xtensive.Core;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Storage.Services;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -17,16 +23,29 @@ namespace Xtensive.Storage.Providers.Sql
   public class SqlStoreProvider : SqlTemporaryDataProvider,
     IHasNamedResult
   {
-    private new StoreProvider Origin { get { return (StoreProvider) base.Origin; } }
-    private ExecutableProvider Source { get { return (ExecutableProvider) Sources[0]; } }
+    private new StoreProvider Origin
+    {
+      get { return (StoreProvider) base.Origin; }
+    }
+
+    private ExecutableProvider Source
+    {
+      get { return (ExecutableProvider) Sources[0]; }
+    }
 
     #region IHasNamedResult members
 
     /// <inheritdoc/>
-    public TemporaryDataScope Scope { get { return Origin.Scope; } }
+    public TemporaryDataScope Scope
+    {
+      get { return Origin.Scope; }
+    }
 
     /// <inheritdoc/>
-    public string Name { get { return Origin.Name; } }
+    public string Name
+    {
+      get { return Origin.Name; }
+    }
 
     #endregion
 
@@ -37,11 +56,19 @@ namespace Xtensive.Storage.Providers.Sql
       LockAndStore(context, Source);
     }
 
-    /// <inheritdoc/>
-    protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+
+    private void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
     {
-      ClearAndUnlock(context);
-      base.OnAfterEnumerate(context);
+      var tableLock = DomainHandler.TemporaryTableManager.Acquire(TableDescriptor);
+      if (tableLock==null)
+        return;
+      var transactionMonitor = handlers.SessionHandler.Session.Services.Get<TransactionMonitor>();
+      transactionMonitor.SetValue(new Disposable(disposing => {
+        using (tableLock)
+          handlers.SessionHandler.GetService<IQueryExecutor>(true).Clear(TableDescriptor);
+      }));
+      var executor = handlers.SessionHandler.GetService<IQueryExecutor>(true);
+      executor.Store(TableDescriptor, data);
     }
 
 
@@ -58,7 +85,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlStoreProvider(
       HandlerAccessor handlers, QueryRequest request, TemporaryTableDescriptor descriptor,
       StoreProvider origin, ExecutableProvider source)
-     : base(handlers, request, descriptor, origin, new [] {source})
+      : base(handlers, request, descriptor, origin, new[] {source})
     {
       AddService<IHasNamedResult>();
     }
