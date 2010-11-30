@@ -101,17 +101,30 @@ namespace Xtensive.Storage.Providers
         case Multiplicity.ZeroToOne:
         case Multiplicity.ManyToOne: {
           var index = association.OwnerType.Indexes.PrimaryIndex;
+          var nonLazyColumnsSelector = index
+            .Columns
+            .Select((column, i)=>new {Column = column, Index = i})
+            .Where(a=>!a.Column.IsLazyLoad)
+            .Select(a=>a.Index)
+            .ToArray();
           recordSet = index.ToRecordSet()
             .Filter(QueryHelper.BuildFilterLambda(
               association.OwnerField.MappingInfo.Offset,
               association.OwnerField.Columns.Select(c => c.ValueType).ToList(),
-              parameter));
+              parameter))
+            .Select(nonLazyColumnsSelector);
           break;
         }
         case Multiplicity.OneToOne:
         case Multiplicity.OneToMany: {
           var index = association.OwnerType.Indexes.PrimaryIndex;
           var targetIndex = association.TargetType.Indexes.PrimaryIndex;
+          var nonLazyColumnsSelector = index
+            .Columns
+            .Select((column, i)=>new {Column = column, Index = i})
+            .Where(a=>!a.Column.IsLazyLoad)
+            .Select(a=>targetIndex.Columns.Count + a.Index)
+            .ToArray();
           recordSet = targetIndex.ToRecordSet()
             .Filter(QueryHelper.BuildFilterLambda(0,
               association.TargetType.Key.TupleDescriptor,
@@ -124,7 +137,7 @@ namespace Xtensive.Storage.Providers
                 .GetItems()
                 .Select((l,r) => new Pair<int>(l,r))
                 .ToArray())
-            .Select(Enumerable.Range(targetIndex.Columns.Count, index.Columns.Count).ToArray());
+            .Select(nonLazyColumnsSelector);
           break;
         }
         case Multiplicity.ZeroToMany:
@@ -137,6 +150,12 @@ namespace Xtensive.Storage.Providers
             : association.OwnerType;
           var index = referencedType.Indexes.PrimaryIndex;
           var targetIndex = association.AuxiliaryType.Indexes.PrimaryIndex;
+          var nonLazyColumnsSelector = index
+            .Columns
+            .Select((column, i)=>new {Column = column, Index = i})
+            .Where(a=>!a.Column.IsLazyLoad)
+            .Select(a=>targetIndex.Columns.Count + a.Index)
+            .ToArray();
           var referencingField = association.IsMaster
             ? association.AuxiliaryType.Fields[WellKnown.SlaveFieldName]
             : association.AuxiliaryType.Fields[WellKnown.MasterFieldName];
@@ -156,7 +175,7 @@ namespace Xtensive.Storage.Providers
                 .GetItems()
                 .Select((l, r) => new Pair<int>(l, r))
                 .ToArray())
-            .Select(Enumerable.Range(targetIndex.Columns.Count, index.Columns.Count).ToArray());
+            .Select(nonLazyColumnsSelector);
           break;
         }
       }
