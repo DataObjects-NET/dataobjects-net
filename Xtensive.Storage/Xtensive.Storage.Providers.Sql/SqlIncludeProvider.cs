@@ -6,13 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -56,8 +53,22 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
-      ClearAndUnlock(context);
+      var tableLock = context.GetValue<IDisposable>(this, TemporaryTableLockName);
+      if (tableLock!=null)
+        using (tableLock)
+          handlers.SessionHandler.GetService<IQueryExecutor>(true).Clear(TableDescriptor);
       base.OnAfterEnumerate(context);
+    }
+
+
+    private void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
+    {
+      var tableLock = DomainHandler.TemporaryTableManager.Acquire(TableDescriptor);
+      if (tableLock == null) 
+        return;
+      context.SetValue(this, TemporaryTableLockName, tableLock);
+      var executor = handlers.SessionHandler.GetService<IQueryExecutor>(true);
+      executor.Store(TableDescriptor, data);
     }
 
     // Constructors
