@@ -27,13 +27,6 @@ namespace Xtensive.Orm.Configuration
     None = 0x0,
 
     /// <summary>
-    /// Transactions will actually be opened just before execution of DB command. 
-    /// This option is ignored for non-SQL providers.
-    /// Value is <see langword="0x8" />.
-    /// </summary>
-    AutoShortenTransactions = 0x8,
-
-    /// <summary>
     /// Enables activation of this <see cref="Session"/> from another session having this option.
     /// </summary>
     /// <remarks>
@@ -92,27 +85,23 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
-    /// Includes only
-    /// <see cref="AutoShortenTransactions"/> flag.
+    /// Includes only <see cref="None"/> flag.
     /// </summary>
-    ServerProfile = AutoShortenTransactions,
+    ServerProfile = None,
 
     /// <summary>
     /// Combines 
-    /// <see cref="AutoShortenTransactions"/> | 
     /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="AllowSwitching"/> | 
     /// <see cref="Disconnected"/> flags.
     /// </summary>
-    ClientProfile = AutoShortenTransactions | AutoTransactionOpenMode | AllowSwitching | Disconnected,
+    ClientProfile = AutoTransactionOpenMode | Disconnected,
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
     /// Combines 
     /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="AutoActivation"/> | 
-    /// <see cref="AutoShortenTransactions"/> flags.
+    /// <see cref="AutoActivation"/> flags.
     /// </summary>
-    LegacyProfile = AutoShortenTransactions | AutoTransactionOpenMode | AutoActivation,
+    LegacyProfile = AutoTransactionOpenMode | AutoActivation,
   }
 }

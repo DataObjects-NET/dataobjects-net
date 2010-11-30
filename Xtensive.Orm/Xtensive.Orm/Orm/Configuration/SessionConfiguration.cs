@@ -193,19 +193,6 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets a value indicating whether session uses autoshortened transactions.
-    /// </summary>
-    public bool UseAutoShortenedTransactions {
-      get { return (options & SessionOptions.AutoShortenTransactions)==SessionOptions.AutoShortenTransactions; }
-      set {
-        this.EnsureNotLocked();
-        options = value
-          ? (options | SessionOptions.AutoShortenTransactions)
-          : (options & ~SessionOptions.AutoShortenTransactions);
-      }
-    }
-
-    /// <summary>
     /// Gets or sets the type of the service container.
     /// </summary>
     public Type ServiceContainerType {

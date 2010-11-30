@@ -194,7 +194,10 @@ namespace Xtensive.Orm
 
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UseAutoShortenedTransactions || transaction.IsNested || IsDisconnected)
+      var isSystemTransaction = transaction.Session.Configuration.Type
+        .In(SessionType.KeyGenerator, SessionType.System);
+
+      if (isSystemTransaction || transaction.IsNested || IsDisconnected)
         StartTransaction(transaction);
     }
 
