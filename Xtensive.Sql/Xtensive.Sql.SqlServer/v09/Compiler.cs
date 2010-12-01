@@ -179,13 +179,9 @@ namespace Xtensive.Sql.SqlServer.v09
       }
     }
 
-    protected SqlExpression DateTimeTruncate(SqlExpression date)
+    protected virtual SqlExpression DateTimeTruncate(SqlExpression date)
     {
-      return DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
-        -SqlDml.Extract(SqlDateTimePart.Hour, date)),
-        -SqlDml.Extract(SqlDateTimePart.Minute, date)),
-        -SqlDml.Extract(SqlDateTimePart.Second, date)),
-        -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
+      return SqlDml.Cast(date, new SqlValueType("Date"));
     }
     
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
