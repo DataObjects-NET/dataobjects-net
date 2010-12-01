@@ -57,7 +57,6 @@ namespace Xtensive.Orm
   /// </example>
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
-  [DebuggerDisplay("FullName = {FullName}")]
   public partial class Session : DomainBound,
     IVersionSetProvider,
     IContext<SessionScope>, 
