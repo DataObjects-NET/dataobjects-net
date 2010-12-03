@@ -90,6 +90,7 @@ namespace Xtensive.Orm.Configuration
     ServerProfile = None,
 
     /// <summary>
+    /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
     /// Combines 
     /// <see cref="AutoTransactionOpenMode"/> | 
     /// <see cref="Disconnected"/> flags.
