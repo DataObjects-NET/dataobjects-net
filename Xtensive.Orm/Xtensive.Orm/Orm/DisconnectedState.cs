@@ -283,6 +283,7 @@ namespace Xtensive.Orm
 
       IDisposable disposable = null;
       KeyMapping keyMapping;
+      EnsureNoTransaction();
       using (OpenDetachRegion())
       using (targetSession.Activate())
         try {
@@ -667,7 +668,7 @@ namespace Xtensive.Orm
     {
       if (!IsAttached)
         return;
-      if (Session.Transaction!=null)
+      if (Session.Transaction != null && Session.Transaction.IsDisconnected)
         throw new InvalidOperationException(Strings.ExTransactionIsRunning);
     }
 
