@@ -28,10 +28,7 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       var storageEnumerationContext = (EnumerationContext) EnumerationContext.Current;
       var storageSessionHandler = (SessionHandler) (storageEnumerationContext.SessionHandler.GetRealHandler());
-      var storageView = storageSessionHandler.StorageView;
-      var index = storageView.GetIndex(indexDescriptor);
-      var result = index as T;
-      return result;
+      return storageSessionHandler.GetIndex(indexDescriptor) as T;
     }
 
     /// <inheritdoc/>
@@ -39,9 +36,7 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       var storageEnumerationContext = (EnumerationContext) EnumerationContext.Current;
       var storageSessionHandler = (SessionHandler) (storageEnumerationContext.SessionHandler.GetRealHandler());
-      var storageView = storageSessionHandler.StorageView;
-      var index = storageView.GetIndex(indexDescriptor);
-      return index;
+      return storageSessionHandler.GetIndex(indexDescriptor);
     }
 
     
