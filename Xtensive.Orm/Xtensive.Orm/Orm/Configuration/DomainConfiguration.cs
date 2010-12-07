@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Configuration
     /// Gets or sets the connection info.
     /// </summary>
     /// <example>
-    /// <code lang="cs" source="..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Connection URL examples" />
+    /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Connection URL examples" />
     /// <code lang="cs">
     /// var configuration = new DomainConfiguration();
     /// configuration.ConnectionInfo = new ConnectionInfo(connectionUrl);
