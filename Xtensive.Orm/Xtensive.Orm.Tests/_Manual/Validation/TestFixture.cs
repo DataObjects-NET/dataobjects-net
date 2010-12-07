@@ -8,9 +8,10 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests._Manual.Validation;
 using AggregateException = Xtensive.Core.AggregateException;
 
-namespace Xtensive.Orm.Manual.Validation
+namespace Xtensive.Orm.Tests._Manual.Validation
 {
   [TestFixture]
   public class TestFixture

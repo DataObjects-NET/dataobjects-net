@@ -11,7 +11,7 @@ using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
 using Xtensive.Orm.Validation;
 
-namespace Xtensive.Orm.Manual.Validation
+namespace Xtensive.Orm.Tests._Manual.Validation
 {
   [Serializable]
   [ProvideAspectRole(StandardRoles.Validation)]
