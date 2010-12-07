@@ -134,7 +134,7 @@ namespace Xtensive.Orm
     public bool Contains(Key key)
     {
       EnsureOwnerIsNotRemoved();
-      if (key==null || !Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
+      if (key==null || !Field.ItemType.IsAssignableFrom(key.TypeInfo.UnderlyingType))
         return false;
 
       var entityState = Session.EntityStateCache[key, true];

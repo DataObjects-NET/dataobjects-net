@@ -48,7 +48,7 @@ namespace Xtensive.Orm
     public TypeInfo Type
     {
       [DebuggerStepThrough]
-      get { return key.Type; }
+      get { return key.TypeInfo; }
     }
 
     /// <summary>

@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         book.Remove();
 
         Assert.AreEqual(key, book.Key);
-        Assert.AreEqual(key.Type, book.TypeInfo);
+        Assert.AreEqual(key.TypeInfo, book.TypeInfo);
         AssertEx.ThrowsInvalidOperationException(
           () => { var id = book.Id; });
         AssertEx.ThrowsInvalidOperationException(

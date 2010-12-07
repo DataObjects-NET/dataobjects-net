@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       TypeInfo type;
       if (referencedKey.HasExactType)
-        type = referencedKey.Type;
+        type = referencedKey.TypeInfo;
       else
         type = referencingField.IsEntitySet
           ? sessionHandler.Session.Domain.Model.Types[referencingField.ItemType]

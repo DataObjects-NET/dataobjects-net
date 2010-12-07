@@ -63,7 +63,7 @@ namespace Xtensive.Orm
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
-    public TypeInfo Type {
+    public TypeInfo TypeInfo {
       get {
         if (TypeReference.Accuracy == TypeReferenceAccuracy.ExactType)
           return TypeReference.Type;
@@ -96,7 +96,6 @@ namespace Xtensive.Orm
           throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
         TypeReference = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
         return TypeReference.Type;
-
       }
     }
 
@@ -134,7 +133,7 @@ namespace Xtensive.Orm
     protected abstract int CalculateHashCode();
 
     /// <summary>
-    /// Determines whether <see cref="Type"/> property has exact type value or not.
+    /// Determines whether <see cref="TypeInfo"/> property has exact type value or not.
     /// </summary>
     internal bool HasExactType
     {
@@ -284,7 +283,7 @@ namespace Xtensive.Orm
     {
       if (HasExactType)
         return string.Format(Strings.KeyFormat,
-          Type.UnderlyingType.GetShortName(),
+          TypeInfo.UnderlyingType.GetShortName(),
           Value.ToRegular());
       else
         return string.Format(Strings.KeyFormatUnknownKeyType,

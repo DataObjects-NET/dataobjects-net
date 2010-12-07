@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Disconnected
       }
       // Updating
       else {
-        foreach (var pair in associationCache.GetEntitySets(key.Type)) {
+        foreach (var pair in associationCache.GetEntitySets(key.TypeInfo)) {
           var prevOwnerKey = associationCache.GetKeyFieldValue(pair.First, oldTuple);
           var ownerKey = associationCache.GetKeyFieldValue(pair.First, newTuple);
           if (ownerKey!=prevOwnerKey) {
@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Disconnected
               InsertIntoEntitySet(ownerKey, pair.Second, key);
           }
         }
-        foreach (var field in associationCache.GetReferencingFields(key.Type)) {
+        foreach (var field in associationCache.GetReferencingFields(key.TypeInfo)) {
           var prevOwnerKey = associationCache.GetKeyFieldValue(field, oldTuple);
           var ownerKey = associationCache.GetKeyFieldValue(field, newTuple);
           if (ownerKey!=prevOwnerKey) {

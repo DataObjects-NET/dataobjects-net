@@ -476,7 +476,7 @@ namespace Xtensive.Orm
         var tuple = entityState.Tuple;
         if (tuple==null)
           continue;
-        var version = GetVersion(entityState.Key.Type, tuple);
+        var version = GetVersion(entityState.Key.TypeInfo, tuple);
         if (version.IsVoid)
           continue;
         result.Add(entityState.Key, version, true);

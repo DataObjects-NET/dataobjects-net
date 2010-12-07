@@ -108,7 +108,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    #region Properties: Key, Type, Tuple, PersistenceState, VersionInfo, etc.
+    #region Properties: Key, TypeInfo, Tuple, PersistenceState, VersionInfo, etc.
 
     /// <summary>
     /// Gets the <see cref="Key"/> that identifies this entity.

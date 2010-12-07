@@ -145,7 +145,7 @@ namespace Xtensive.Orm
 
     private QueryTask CreateFetchVersionTask(Key key)
     {
-      var type = key.Type;
+      var type = key.TypeInfo;
       var provider = type.Indexes.PrimaryIndex.ToRecordQuery().Seek(key.Value).Provider;
       var execProvider = Session.CompilationService.Compile(provider);
       return new QueryTask(execProvider, null);
@@ -157,7 +157,7 @@ namespace Xtensive.Orm
       if (fetchVersionTasks.Count > 0)
         foreach (var task in fetchVersionTasks) {
           var key = task.Key;
-          var version = ExtractVersion(task.Key.Type, task.Value.Result.FirstOrDefault());
+          var version = ExtractVersion(task.Key.TypeInfo, task.Value.Result.FirstOrDefault());
           queuedVersions.Add(key, version);
         }
       foreach (var pair in queuedVersions)

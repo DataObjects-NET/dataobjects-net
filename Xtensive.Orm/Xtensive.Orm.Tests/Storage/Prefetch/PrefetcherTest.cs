@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         Func<FieldInfo, bool> fieldSelector = field => field.IsPrimaryKey || field.IsSystem
           || !field.IsLazyLoad && !field.IsEntitySet;
         foreach (var key in prefetcher) {
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, fieldSelector);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.TypeInfo, session, fieldSelector);
           var orderState = session.EntityStateCache[key, true];
           var employeeKey = Key.Create(Domain, typeof(Employee).GetTypeInfo(Domain),
             TypeReferenceAccuracy.ExactType, employeeField.Associations.Last()
@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var order in prefetcher) {
           var entitySetState = GetFullyLoadedEntitySet(session, order.Key, detailsField);
           foreach (var detailKey in entitySetState) {
-            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.Type, session,
+            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.TypeInfo, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
             PrefetchTestHelper.AssertReferencedEntityIsLoaded(detailKey, session, productField);
           }
@@ -353,8 +353,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetcher = EnumerableUtils.One(containerKey).Prefetch<Model.OfferContainer, Key>(session, key => key)
           .Prefetch(oc => oc.RealOffer.Book).Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop);
         foreach (var key in prefetcher) {
-          PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book0Key, book0Key.Type, session);
-          PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop1Key, bookShop1Key.Type, session);
+          PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book0Key, book0Key.TypeInfo, session);
+          PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop1Key, bookShop1Key.TypeInfo, session);
         }
       }
     }
@@ -375,7 +375,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetcher = EnumerableUtils.One(containerKey).Prefetch<Model.OfferContainer, Key>(session, key => key)
           .Prefetch(oc => oc.IntermediateOffer);
         foreach (var key in prefetcher) {
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.Type, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.TypeInfo, session,
             field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field)
               || field.Name.StartsWith("IntermediateOffer"));
         }

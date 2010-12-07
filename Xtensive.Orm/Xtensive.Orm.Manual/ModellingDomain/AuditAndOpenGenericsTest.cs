@@ -297,7 +297,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
             if (isRemoved && isCreated)
               continue; // Nothing really happened ;)
           
-            var entityHierarchyRootType = (isRemoved ? key.Type : entity.TypeInfo).Hierarchy.Root.UnderlyingType;
+            var entityHierarchyRootType = (isRemoved ? key.TypeInfo : entity.TypeInfo).Hierarchy.Root.UnderlyingType;
             var recordType = typeof (AuditRecord<>).MakeGenericType(entityHierarchyRootType);
             var auditRecord = (AuditRecord) Activator.CreateInstance(recordType, true);
             auditRecord.Transaction = transactionInfo;
