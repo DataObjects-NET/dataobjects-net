@@ -61,9 +61,9 @@ namespace Xtensive.Practices.Localization
 
           // Creating MyPage instance to check whether inheritance is supported
           var myPage = new MyPage();
-          myPage.Title = "Some title";
-          myPage.Content = "Some content";
-          myPage.MyContent = "Some my content";
+          myPage.Title = "Title of MyPage";
+          myPage.Content = "Content of MyPage";
+          myPage.MyContent = "MyContent of MyPage";
 
           ts.Complete();
         }
@@ -73,18 +73,19 @@ namespace Xtensive.Practices.Localization
     private static void EnumeratePages()
     {
       Console.WriteLine("Enumerating Pages");
+      Console.WriteLine(new string('-', 17));
       using (Session.Open(domain)) {
         using (var ts = Transaction.Open()) {
 
           // Enumerating through localization scope activation
-          Console.WriteLine(string.Format("Switching to {0} using LocalizationScope", English.Name));
+          Console.WriteLine(string.Format("Enumerating {0} pages using LocalizationScope", English.Name));
           using (new LocalizationScope(English))
             foreach (var page in Xtensive.Orm.Query.All<Page>())
               Console.WriteLine(string.Format("{0} {1}", page.Title, page.Content));
           Console.WriteLine();
 
           // Enumerating using Thread.Current.CurrentCulture change
-          Console.WriteLine(string.Format("Switching to {0} using Thread.Current.CurrentCulture", Spanish.Name));
+          Console.WriteLine(string.Format("Enumerating {0} pages using Thread.Current.CurrentCulture", Spanish.Name));
           Thread.CurrentThread.CurrentCulture = Spanish;
           foreach (var page in Xtensive.Orm.Query.All<Page>())
             Console.WriteLine(string.Format("{0} {1}", page.Title, page.Content));
@@ -99,36 +100,40 @@ namespace Xtensive.Practices.Localization
     private static void QueryPages()
     {
       Console.WriteLine("Querying Pages");
+      Console.WriteLine(new string('-', 14));
       using (Session.Open(domain)) {
         using (var ts = Transaction.Open()) {
 
-          Console.WriteLine("Implicit join through preprocessor");
+          Console.WriteLine("Using implicit join through LINQ preprocessor");
           var pages = from p in Xtensive.Orm.Query.All<Page>()
           where p.Title=="Welcome!"
           select p;
-          Console.WriteLine(pages.ToList().Count);
+          Console.WriteLine(string.Format("Found pages: {0}", pages.ToList().Count));
+          Console.WriteLine();
 
           ts.Complete();
         }
 
-        Console.WriteLine("Explicit hard-coded join");
+        Console.WriteLine("Using explicit hard-coded join");
         using (var ts = Transaction.Open()) {
           var pages = from p in Xtensive.Orm.Query.All<Page>()
           join pl in Xtensive.Orm.Query.All<PageLocalization>()
             on p equals pl.Target
           where pl.CultureName==LocalizationContext.Current.CultureName && pl.Title=="Welcome!"
           select p;
-          Console.WriteLine(pages.ToList().Count);
+          Console.WriteLine(string.Format("Found pages: {0}", pages.ToList().Count));
+          Console.WriteLine();
 
           ts.Complete();
         }
 
-        Console.WriteLine("using Query.All<Page, PageLocalization>()");
+        Console.WriteLine("Using Query.All<Page, PageLocalization>()");
         using (var ts = Transaction.Open()) {
           var pairs = from pair in Query.All<Page, PageLocalization>()
           where pair.Localization.Title=="Welcome!"
           select pair.Target;
-          Console.WriteLine(pairs.ToList().Count);
+          Console.WriteLine(string.Format("Found pages: {0}", pairs.ToList().Count));
+          Console.WriteLine();
 
           ts.Complete();
         }
@@ -137,37 +142,42 @@ namespace Xtensive.Practices.Localization
 
     private static void QueryMyPages()
     {
+      Console.WriteLine();
       Console.WriteLine("Querying MyPages");
+      Console.WriteLine(new string('-', 16));
       using (Session.Open(domain)) {
         using (var ts = Transaction.Open()) {
 
-          Console.WriteLine("Implicit join through preprocessor");
+          Console.WriteLine("Using implicit join through LINQ preprocessor");
           var pages = from p in Xtensive.Orm.Query.All<MyPage>()
-          where p.MyContent=="Some my content"
+          where p.MyContent=="MyContent of MyPage"
           select p;
-          Console.WriteLine(pages.ToList().Count);
+          Console.WriteLine(string.Format("Found pages: {0}", pages.ToList().Count));
+          Console.WriteLine();
 
           ts.Complete();
         }
 
-        Console.WriteLine("Explicit hard-coded join");
+        Console.WriteLine("Using explicit hard-coded join");
         using (var ts = Transaction.Open()) {
           var pages = from p in Xtensive.Orm.Query.All<MyPage>()
           join pl in Xtensive.Orm.Query.All<PageLocalization>()
             on p equals pl.Target
-          where pl.CultureName==LocalizationContext.Current.CultureName && pl.MyContent=="Some my content"
+          where pl.CultureName==LocalizationContext.Current.CultureName && pl.MyContent=="MyContent of MyPage"
           select p;
-          Console.WriteLine(pages.ToList().Count);
+          Console.WriteLine(string.Format("Found pages: {0}", pages.ToList().Count));
+          Console.WriteLine();
 
           ts.Complete();
         }
 
-        Console.WriteLine("using Query.All<Page, PageLocalization>()");
+        Console.WriteLine("Using Query.All<Page, PageLocalization>()");
         using (var ts = Transaction.Open()) {
           var pairs = from pair in Query.All<Page, PageLocalization>()
-          where pair.Localization.MyContent=="Some my content"
+          where pair.Localization.MyContent=="MyContent of MyPage"
           select pair.Target;
-          Console.WriteLine(pairs.ToList().Count);
+          Console.WriteLine(string.Format("Found pages: {0}", pairs.ToList().Count));
+          Console.WriteLine();
 
           ts.Complete();
         }
