@@ -61,9 +61,10 @@ namespace Xtensive.Orm
       /// </returns>
       public IQueryable All(Type elementType)
       {
-        var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
-        var queryable = (IQueryable)queryAll.Invoke(null, ArrayUtils<object>.EmptyArray);
-        return queryable;
+        var allMethod = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
+        var expression = Expression.Call(null, allMethod);
+        var provider = (IQueryProvider) Provider;
+        return provider.CreateQuery(expression);
       }
 
       /// <summary>
