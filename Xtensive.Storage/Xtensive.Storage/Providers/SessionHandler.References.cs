@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Providers
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
           var target = (Entity) owner.GetFieldValue(association.OwnerField);
-          if (target != null)
+          if (target != null && association.TargetType.UnderlyingType.IsAssignableFrom(target.TypeInfo.UnderlyingType))
             yield return referenceCtor(owner, target, association);
           break;
         case Multiplicity.ZeroToMany:
@@ -88,7 +88,8 @@ namespace Xtensive.Storage.Providers
         case Multiplicity.ManyToMany:
           var targets = (EntitySetBase) owner.GetFieldValue(association.OwnerField);
           foreach (var item in targets.Entities)
-            yield return referenceCtor(owner, (Entity)item, association);
+            if (association.TargetType.UnderlyingType.IsAssignableFrom(item.TypeInfo.UnderlyingType))
+              yield return referenceCtor(owner, (Entity)item, association);
           break;
       }
     }

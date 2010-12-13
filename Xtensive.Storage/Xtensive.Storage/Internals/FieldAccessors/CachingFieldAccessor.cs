@@ -16,7 +16,8 @@ namespace Xtensive.Storage.Internals.FieldAccessors
     public override T GetValue(Persistent obj)
     {
       var field = Field;
-      return (T) obj.GetFieldValueAdapter(field, Constructor);
+      var valueAdapter = obj.GetFieldValueAdapter(field, Constructor);
+      return (T) valueAdapter;
     }
   }
 }
