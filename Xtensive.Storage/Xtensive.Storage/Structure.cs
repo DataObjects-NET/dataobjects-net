@@ -13,6 +13,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Serialization;
 using Xtensive.Storage.Services;
 using Tuple = Xtensive.Core.Tuples.Tuple;
@@ -345,12 +346,12 @@ namespace Xtensive.Storage
     {
       if (thisIsBound) {
         EnsureIsFetched(Field);
-        if (Entity.IsRemoved)
+        if (Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       if (otherIsBound) {
         other.EnsureIsFetched(other.Field);
-        if (other.Entity.IsRemoved)
+        if (other.Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
