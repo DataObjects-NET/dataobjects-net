@@ -126,22 +126,25 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>A newly created <see cref="ProviderOrderingDescriptor"/>.</returns>
     protected static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
-      bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
-        || provider.Type==ProviderType.Seek || provider.Type==ProviderType.Range
+      bool isOrderSensitive = provider.Type==ProviderType.Skip 
+        || provider.Type == ProviderType.Take
+        || provider.Type == ProviderType.Seek
+        || provider.Type == ProviderType.Range
         || provider.Type == ProviderType.RowNumber;
       bool preservesOrder = provider.Type==ProviderType.Take
-        || provider.Type==ProviderType.Seek || provider.Type==ProviderType.Range
-        || provider.Type == ProviderType.RowNumber || provider.Type == ProviderType.Reindex
-        || provider.Type == ProviderType.Sort || provider.Type == ProviderType.Range
+        || provider.Type == ProviderType.Skip
         || provider.Type == ProviderType.Seek
-        || provider.Type==ProviderType.Distinct;
-      bool isOrderBreaker = provider.Type==ProviderType.Except
-        || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
-        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence
-        /*|| provider.Type==ProviderType.Distinct*/;
-      bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex;
-      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker,
-        isSorter);
+        || provider.Type == ProviderType.Range
+        || provider.Type == ProviderType.RowNumber
+        || provider.Type == ProviderType.Distinct
+        || provider.Type == ProviderType.Alias;
+      bool isOrderBreaker = provider.Type == ProviderType.Except
+        || provider.Type == ProviderType.Intersect
+        || provider.Type == ProviderType.Union
+        || provider.Type == ProviderType.Concat
+        || provider.Type == ProviderType.Existence;
+      bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex || provider.Type == ProviderType.Index;
+      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
     
     /// <inheritdoc/>
@@ -197,9 +200,8 @@ namespace Xtensive.Storage.Providers.Sql
       return new CompositePreCompiler(
         applyCorrector,
         skipTakeCorrector,
-        new OrderingCorrector(ResolveOrderingDescriptor, false),
         new RedundantColumnOptimizer(),
-        new OrderingCorrector(ResolveOrderingDescriptor, true));
+        new OrderingCorrector(ResolveOrderingDescriptor));
     }
 
     // Initialization

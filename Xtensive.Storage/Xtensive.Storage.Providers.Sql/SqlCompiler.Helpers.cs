@@ -236,7 +236,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (origin.Type==ProviderType.Take || origin.Type==ProviderType.Skip) {
         var sortProvider = origin.Sources[0] as SortProvider;
         var orderingOverCalculatedColumn = sortProvider!=null &&
-          sortProvider.ExpectedOrder
+          sortProvider.Header.Order
             .Select(order => order.Key)
             .Any(calculatedColumnIndexes.Contains);
         return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
@@ -262,7 +262,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       if (origin.Type == ProviderType.Sort) {
-        var orderingOverCalculatedColumn = origin.ExpectedOrder
+        var orderingOverCalculatedColumn = origin.Header.Order
           .Select(order => order.Key)
           .Any(calculatedColumnIndexes.Contains);
         return orderingOverCalculatedColumn;

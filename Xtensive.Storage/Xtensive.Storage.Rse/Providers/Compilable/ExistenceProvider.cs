@@ -33,11 +33,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         new[] { new SystemColumn(ExistenceColumnName, 0, typeof(bool)) });
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return EmptyOrder;
-    }
 
     // Constructors
 

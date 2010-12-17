@@ -51,8 +51,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     /// <param name="preservesOrder">value of <see cref="PreservesOrder"/>.</param>
     /// <param name="isOrderingBoundary">value of <see cref="BreaksOrder"/>.</param>
     /// <param name="isSorter">value of <see cref="IsSorter"/>.</param>
-    public ProviderOrderingDescriptor(bool isOrderSensitive, bool preservesOrder, bool isOrderingBoundary,
-      bool isSorter)
+    public ProviderOrderingDescriptor(bool isOrderSensitive, bool preservesOrder, bool isOrderingBoundary, bool isSorter)
     {
       IsOrderSensitive = isOrderSensitive;
       PreservesOrder = preservesOrder;

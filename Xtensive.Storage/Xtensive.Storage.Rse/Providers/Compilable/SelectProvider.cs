@@ -43,22 +43,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Header.Columns.Select(c => c.Name).ToCommaDelimitedString();
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      var selectOrdering = new DirectionCollection<int>();
-      foreach (KeyValuePair<int, Direction> pair in Source.ExpectedOrder) {
-        var columnIndex = ColumnIndexes.IndexOf(pair.Key);
-        if (columnIndex < 0) {
-          if (selectOrdering.Count > 0)
-            selectOrdering.Clear();
-          break;
-        }
-        selectOrdering.Add(columnIndex, pair.Value);
-      }
-      return selectOrdering;
-    }
-
 
     // Constructors
 

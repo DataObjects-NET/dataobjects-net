@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
     {
       var columnExpressions = ExtractColumnExpressions(query, provider);
-      foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
+      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
         query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
     }
 

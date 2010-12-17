@@ -60,12 +60,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Concatenation"));
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return EmptyOrder;
-    }
-
 
     // Constructors
 

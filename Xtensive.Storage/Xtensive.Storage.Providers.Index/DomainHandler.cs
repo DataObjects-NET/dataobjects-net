@@ -61,12 +61,8 @@ namespace Xtensive.Storage.Providers.Index
     {
       return new CompositePreCompiler(
         new ApplyProviderCorrector(false),
-        new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor, false),
-        new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
-//        new IndexRedundantColumnOptimizer(),
- //       new StoreRedundantColumnOptimizer(),
-        new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor, true)
-        );
+        new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor),
+        new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)));
     }
 
     /// <inheritdoc/>

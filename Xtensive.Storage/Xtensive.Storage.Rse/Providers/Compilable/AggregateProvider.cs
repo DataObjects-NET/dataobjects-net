@@ -75,15 +75,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       Transform = new MapTransform(false, TupleDescriptor.Create(types), columnIndexes);
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return new DirectionCollection<int>(
-          Source.ExpectedOrder
-            .Where(p => GroupColumnIndexes.Contains(p.Key))
-            .Select(p => new KeyValuePair<int,Direction>(GroupColumnIndexes.IndexOf(p.Key), p.Value)));
-    }
-
     /// <summary>
     /// Gets the type of the aggregate column according to a <see cref="AggregateType"/> and original column type.
     /// </summary>

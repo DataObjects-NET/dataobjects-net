@@ -33,13 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Intersection"));
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return EmptyOrder;
-    }
-
-
+  
     // Constructors
 
     /// <summary>

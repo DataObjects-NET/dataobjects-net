@@ -26,13 +26,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Source.Header;
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return Source.ExpectedOrder;
-    }
-
-
     // Constructors
 
     /// <summary>

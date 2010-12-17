@@ -59,19 +59,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return string.Format("{0} apply", ApplyType);
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      var result = Left.ExpectedOrder;
-      if (Left.ExpectedOrder.Count > 0) {
-        var leftHeaderLength = Left.Header.Length;
-        result = new DirectionCollection<int>(
-          result.Union(Right.ExpectedOrder.Select(p =>
-                                                  new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
-      }
-      return result;
-    }
-
 
     // Constructors
 

@@ -1275,17 +1275,20 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void JoinTest()
     {
-      var actual = from customer in Query.All<Customer>()
-      join order in Query.All<Order>() on customer equals order.Customer
-      where order.Freight > 30
-      orderby new {customer, order}
-      select new {customer, order};
-      var expected = from customer in Query.All<Customer>().ToList()
-      join order in Query.All<Order>().ToList() on customer equals order.Customer
-      where order.Freight > 30
-      orderby customer.Id , order.Id
-      select new {customer, order};
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      var actual = 
+        from customer in Query.All<Customer>()
+        join order in Query.All<Order>() on customer equals order.Customer
+        where order.Freight > 30
+        orderby new {customer, order}
+        select new {customer, order};
+      var list = actual.ToList();
+      var expected = 
+        from customer in Query.All<Customer>().ToList()
+        join order in Query.All<Order>().ToList() on customer equals order.Customer
+        where order.Freight > 30
+        orderby customer.Id , order.Id
+        select new {customer, order};
+      Assert.IsTrue(expected.SequenceEqual(list));
     }
 
     [Test]

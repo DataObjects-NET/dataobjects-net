@@ -34,19 +34,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Expression<Func<Tuple, Tuple, bool>> Predicate { get; private set; }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      var result = Left.ExpectedOrder;
-      if (Left.ExpectedOrder.Count > 0) {
-        var leftHeaderLength = Left.Header.Columns.Count;
-        result = new DirectionCollection<int>(
-          Enumerable.Union(result, Right.ExpectedOrder.Select(p =>
-            new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
-      }
-      return result;
-    }
-
 
     // Constructors
 

@@ -35,10 +35,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return indexHeader;
     }
 
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return EmptyOrder;
-    }
 
     public FreeTextProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, bool fullFeatured)
       : base(ProviderType.FreeText)
