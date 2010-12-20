@@ -203,7 +203,9 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
     {
-      return StorageView.GetIndex(indexInfo);
+      return StorageView == null 
+        ? storage.GetRealIndex(indexInfo) 
+        : StorageView.GetIndex(indexInfo);
     }
 
     #endregion
