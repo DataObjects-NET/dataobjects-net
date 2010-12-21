@@ -33,16 +33,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (originProvider.Type == ProviderType.Select) {
         var selectProvider = (SelectProvider) originProvider;
         var source = rewriter.VisitCompilable(selectProvider.Source);
-        return source == selectProvider.Source 
-          ? selectProvider
-          : new SelectProvider(
-              rewriter.InsertSortProvider(source), 
-              selectProvider.ColumnIndexes);
+        return new SelectProvider(
+          rewriter.InsertSortProvider(source), 
+          selectProvider.ColumnIndexes);
       }
       var visited = rewriter.VisitCompilable(originProvider);
-      return visited == originProvider
-        ? originProvider 
-        : rewriter.InsertSortProvider(visited);
+      return rewriter.InsertSortProvider(visited);
     }
 
     protected override Provider Visit(CompilableProvider cp)

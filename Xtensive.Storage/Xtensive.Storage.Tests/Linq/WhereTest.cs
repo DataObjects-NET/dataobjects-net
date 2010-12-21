@@ -160,6 +160,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2.Customer!=null)
             .Customer)
         .ToList();
@@ -168,6 +169,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2.Customer!=null)
             .Customer)
         .ToList();
@@ -182,6 +184,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2["Customer"]!=null)
             .Customer)
         .ToList();
@@ -190,6 +193,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2.Customer!=null)
             .Customer)
         .ToList();
