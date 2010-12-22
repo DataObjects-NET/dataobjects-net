@@ -278,9 +278,13 @@ namespace Xtensive.Practices.Web
     {
       if (domain == null) lock (domainBuildLock) if (domain == null) {
         Session.Resolver = null;
-        domain = DomainBuilder.Invoke();
-        if (Session.Resolver == null)
-          Session.Resolver = () => Current.Session;
+        try {
+          domain = DomainBuilder.Invoke();
+        }
+        finally {
+          if (Session.Resolver == null)
+            Session.Resolver = () => Current.Session;
+        }
       }
     }
 
