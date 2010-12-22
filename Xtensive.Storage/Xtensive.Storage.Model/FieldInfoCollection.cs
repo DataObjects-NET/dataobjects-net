@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -53,6 +54,11 @@ namespace Xtensive.Storage.Model
       base.UpdateState(recursive);
     }
 
+    protected override string GetExceptionMessage(string key)
+    {
+      return string.Format(Strings.ExItemWithKeyXWasNotFound
+        + " You might have forgotten to apply [Field] attribute on property {0}.", key);
+    }
 
     // Constructors
 

@@ -71,7 +71,7 @@ namespace Xtensive.Modelling.Tests
     public void SerializationTest()
     {
       var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
-      clone.Dump();
+//      clone.Dump();
       clone.Validate();
     }
 
@@ -80,7 +80,7 @@ namespace Xtensive.Modelling.Tests
     {
       var clone = Clone(srv);
       clone.Validate();
-      clone.Dump();
+//      clone.Dump();
     }
 
     [Test]
@@ -91,9 +91,9 @@ namespace Xtensive.Modelling.Tests
       target.Validate();
        
       Log.Info("Source model:");
-      source.Dump();
+//      source.Dump();
       Log.Info("Target model:");
-      target.Dump();
+//      target.Dump();
 
       var comparer = new Comparer();
       var hints = new HintSet(source, target) {
@@ -111,7 +111,7 @@ namespace Xtensive.Modelling.Tests
       actions.Apply(source);
 
       Log.Info("Updated Model 1:");
-      source.Dump();
+//      source.Dump();
     }
 
     [Test]
@@ -164,7 +164,7 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Applying actions...");
       srv.Actions.Apply(srvx);
       Log.Info("Updated model:");
-      srvx.Dump();
+//      srvx.Dump();
     }
 
     [Test]
@@ -295,7 +295,7 @@ namespace Xtensive.Modelling.Tests
     [Test]
     public void DumpTest()
     {
-      srv.Dump();
+//      srv.Dump();
     }
 
     [Test]
@@ -311,7 +311,7 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Applying actions...");
       srv.Actions.Apply(srvx);
       Log.Info("Updated model:");
-      srvx.Dump();
+//      srvx.Dump();
     }
 
     [Test]
@@ -341,8 +341,8 @@ namespace Xtensive.Modelling.Tests
       if (!useHints)
         hints = new HintSet(s1, s2);
       Log.Info("Update test ({0} hints)", useHints ? "with" : "without");
-      s1.Dump();
-      s2.Dump();
+//      s1.Dump();
+//      s2.Dump();
       s1.Validate();
       s2.Validate();
 

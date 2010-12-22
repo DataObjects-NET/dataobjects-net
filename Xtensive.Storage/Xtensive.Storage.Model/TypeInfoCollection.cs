@@ -481,7 +481,13 @@ namespace Xtensive.Storage.Model
       implementors.Add(implementor);
     }
 
-    
+    protected override string GetExceptionMessage(string key)
+    {
+      return string.Format(Strings.ExItemWithKeyXWasNotFound
+        + " You might have forgotten to register type {0} as a part of domain model.", key);
+    }
+
+
     // Constructors
     
     /// <inheritdoc/>

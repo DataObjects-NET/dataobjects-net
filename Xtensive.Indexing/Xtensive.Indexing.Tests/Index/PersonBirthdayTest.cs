@@ -546,6 +546,7 @@ namespace Xtensive.Indexing.Tests.Index
     }
 
     [Test]
+    [Explicit, Category("Profile")]
     public void Test()
     {
       for (int i = 0; i < 50; i++)
