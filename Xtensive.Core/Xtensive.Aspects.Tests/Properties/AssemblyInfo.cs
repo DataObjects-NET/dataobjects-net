@@ -11,11 +11,11 @@ using System.Security.Permissions;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Core.Aspects.Tests")]
+[assembly: AssemblyTitle("Xtensive.Aspects.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
-[assembly: AssemblyProduct("Xtensive.Core.Aspects.Tests")]
+[assembly: AssemblyProduct("Xtensive.Aspects.Tests")]
 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
