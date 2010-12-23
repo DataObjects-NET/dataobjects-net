@@ -96,7 +96,7 @@ namespace Xtensive.Indexing.Tests
     private static void TestIndex<TKey, TItem>(IOrderedIndex<TKey, TItem> index)
     {
       PopulateIndex(index);
-      TryDumpIndex(index);
+//      TryDumpIndex(index);
       Assert.Greater(index.Size, 0);
       if (index is IUniqueOrderedIndex<TKey, TItem>)
         TestGetItems((IUniqueOrderedIndex<TKey, TItem>) index);
@@ -183,7 +183,7 @@ namespace Xtensive.Indexing.Tests
         index.Remove(item);
         removedCount++;
         Log.Info("Removed count: {0}", removedCount);
-        TryDumpIndex(index);
+//        TryDumpIndex(index);
         TryValidateIndex(index);
         Assert.AreEqual(originalCount - removedCount, index.Count);
         Assert.IsFalse(index.Contains(item));
