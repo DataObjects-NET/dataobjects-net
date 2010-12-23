@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Linq.SerializableExpressions;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Serialization;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -24,6 +25,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CombinedTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var query = Query.All<Category>()
         .Where(c => c.CategoryName == "Beverages")
         .Where(c => c.Id > 0)

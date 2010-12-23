@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Linq.Dto;
 using System.Linq;
 
@@ -165,6 +166,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
         new Person() {Name = "A", BudgetType = BudgetType.Default};
@@ -225,6 +227,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void FirstOrDefaultTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var manager = new Manager() {

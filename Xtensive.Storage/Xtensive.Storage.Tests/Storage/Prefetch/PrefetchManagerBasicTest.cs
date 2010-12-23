@@ -629,6 +629,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void EntitySetWhichOwnerHasBeenRemovedPrefetchTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var orderKey = GetFirstKey<Order>();
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {

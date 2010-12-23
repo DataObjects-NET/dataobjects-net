@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Issues_Issue0828_LinqMaterializeException;
 
 namespace Xtensive.Storage.Tests.Issues_Issue0828_LinqMaterializeException
@@ -72,6 +73,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (var session = Session.Open(Domain)) {
         using (var transaction = Transaction.Open(session)) {
           var myEntity = new MyEntity() {

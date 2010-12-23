@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -87,6 +88,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CrossApplyExistenseTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           LoadData();

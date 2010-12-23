@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests
         return;
       isInitialized = true;
 
-      storageType = "memory";
+      storageType = "default";
       foreignKeyMode = ForeignKeyMode.Default;
       typeIdBehavior = TypeIdBehavior.Default;
       inheritanceSchema = InheritanceSchema.Default;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Issues_Issue0806_ColumnNamingError;
 
 namespace Xtensive.Storage.Tests.Issues_Issue0806_ColumnNamingError
@@ -120,6 +121,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var today = DateTime.Now;
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
@@ -155,6 +157,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void SimplifiedTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var today = DateTime.Now;
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {

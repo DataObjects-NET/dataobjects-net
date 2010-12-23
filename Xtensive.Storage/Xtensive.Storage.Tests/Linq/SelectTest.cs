@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -134,6 +135,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StaticPropertyTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var customers = Query.All<Customer>()
         .Where(cutomer =>
           cutomer
@@ -937,12 +939,14 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExternalPropertyCall()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Query.All<Customer>().Select(c => Customers.Single(c2 => c2==c)).ToList();
     }
 
     [Test]
     public void ExternalMethodCall()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Query.All<Customer>()
         .Select(c => GetCustomers().Single(c2 => c2==c));
       var expected = Query.All<Customer>()
@@ -954,6 +958,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExternalMethodWithCorrectParams1Call()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Query.All<Customer>()
         .Select(c => GetCustomers(1).Single(c2 => c2==c));
       var expected = Query.All<Customer>()
@@ -965,6 +970,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExternalMethodWithCorrectParams2Call()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       int count = 1;
       var query = Query.All<Customer>()
         .Select(c => GetCustomers(count).Single(c2 => c2==c));

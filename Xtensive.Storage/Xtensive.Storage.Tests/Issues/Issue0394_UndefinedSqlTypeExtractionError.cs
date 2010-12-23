@@ -36,8 +36,12 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var domainHandler = (DomainHandler) Domain.Handler;
-          var createTableCommandText = "CREATE TABLE " + 
-            domainHandler.Schema.Name + ".[TestTable] ([TestColumn] [money])";
+          string createTableCommandText;
+          if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.SqlServer)
+            createTableCommandText = "CREATE TABLE " + 
+                                   domainHandler.Schema.Name + ".[TestTable] ([TestColumn] [money])";
+          else
+            createTableCommandText = "CREATE TABLE [TestTable] ([TestColumn] [money])";
           var sessionHandler = (SessionHandler) session.Handler;
           var queryExecutor = sessionHandler.GetService<IQueryExecutor>(true);
           queryExecutor.ExecuteNonQuery(createTableCommandText);

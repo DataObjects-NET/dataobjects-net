@@ -209,6 +209,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Order>().Select(o => o.Employee).Distinct();
       var expected = Query.All<Order>().ToList().Select(o => o.Employee).Distinct();
       Assert.AreEqual(0, result.ToList().Except(expected).Count());

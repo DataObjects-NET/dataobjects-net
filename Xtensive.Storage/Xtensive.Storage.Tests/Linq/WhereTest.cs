@@ -606,6 +606,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DateTimeConstructYMDHMSTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var orders = Query.All<Order>();
       var order = orders.Where(o => o.OrderDate >= new DateTime(o.OrderDate.Value.Year, 1, 1, 10, 25, 55)).First();
       Assert.IsNotNull(order);
@@ -678,6 +679,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DateTimeDayOfWeekTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var orders = Query.All<Order>();
       var order = orders.Where(o => o.OrderDate.Value.DayOfWeek==DayOfWeek.Friday).First();
       Assert.IsNotNull(order);

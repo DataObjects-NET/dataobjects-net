@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using NUnit.Framework;
+using Xtensive.Storage.Providers;
 
 
 namespace Xtensive.Storage.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
     [Test]
     public void UpgradeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
       BuildDomain(typeof (ModelVersion2.A), DomainUpgradeMode.PerformSafely);
       using (Session.Open(domain)) {
         using (Transaction.Open()) {

@@ -10,6 +10,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Upgrade;
 using System.Reflection;
 using System.Linq;
@@ -182,6 +183,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void BaseTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
       // Test MoveFieldHint (RemoveFieldHint)
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Issues.Issue0376.Model2");
