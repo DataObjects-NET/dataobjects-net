@@ -43,12 +43,13 @@ namespace Xtensive.Orm.Tests.Storage.IoC
   {
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
-      configuration.ServiceContainerType = 
-        typeof (DomainServiceContainer);
-      configuration.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default));
-      configuration.Sessions.Default.ServiceContainerType = 
-        typeof (SessionServiceContainer);
+      configuration.ServiceContainerType = typeof (DomainServiceContainer);
+      configuration.Sessions.Default.ServiceContainerType = typeof (SessionServiceContainer);
       return base.BuildDomain(configuration);
     }
+
+    [Test]
+    public void MainTest()
+    {}
   }
 }

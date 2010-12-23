@@ -42,11 +42,13 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql); // PostgreSql stores intervals with microseconds only
+      
       long ticks = 123456789;
 
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        new MyEntity(new TimeSpan(ticks));
+        var entity = new MyEntity(new TimeSpan(ticks));
         ts.Complete();
       }
 

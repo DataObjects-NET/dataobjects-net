@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Indexing
           domainHandler.GetStorageIndexInfo(indexInfo));
       }
       if ((indexInfo.Attributes & IndexAttributes.Union) == IndexAttributes.Union) {
-        var underlyingProviders = indexInfo.UnderlyingIndexes.Select(index => Resolve(index)).ToArray();
+        var underlyingProviders = indexInfo.UnderlyingIndexes.Select(Resolve).ToArray();
         return new MergedStatisticsProvider(underlyingProviders);
       }
       return Resolve(indexInfo.UnderlyingIndexes.First());

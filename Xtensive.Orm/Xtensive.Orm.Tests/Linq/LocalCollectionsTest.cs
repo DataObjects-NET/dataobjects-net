@@ -620,8 +620,14 @@ namespace Xtensive.Orm.Tests.Linq
       var resultList = result.ToList();
       Assert.AreEqual(resultList.Count, expectedList.Count);
       for (int i = 0; i < resultList.Count; i++) {
-        Assert.AreEqual(resultList[i].key, expectedList[i].key); 
-        Assert.AreEqual(0, expectedList[i].Value1.Except(resultList[i].Value1).Count()); 
+        Console.WriteLine(string.Format("Key (expected/result): {0} / {1}", expectedList[i].key, resultList[i].key));
+        foreach (var expectedValue in expectedList[i].Value1)
+          Console.WriteLine(string.Format("Expected Value: {0}", expectedValue));
+        foreach (var resultValue in resultList[i].Value1)
+          Console.WriteLine(string.Format("Result Value: {0}", resultValue));
+        Assert.AreEqual(resultList[i].key, expectedList[i].key);
+        var isCorrect = expectedList[i].Value1.Except(resultList[i].Value1).Count()==0;
+        Assert.IsTrue(isCorrect); 
       }
       QueryDumper.Dump(result);
     }

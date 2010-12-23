@@ -14,7 +14,7 @@ Namespace Linq
         End Property
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException))>
+        <ExpectedException(GetType(QueryTranslationException))>
         Public Sub DatePartNotSupported1Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.DatePart("Day", order.OrderDate) > 0 _
@@ -28,7 +28,7 @@ Namespace Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException))>
+        <ExpectedException(GetType(QueryTranslationException))>
         Public Sub DatePartNotSupported2Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.DatePart(DateInterval.Day, order.OrderDate.Value) > 0 _
@@ -133,7 +133,7 @@ Namespace Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException))>
+        <ExpectedException(GetType(QueryTranslationException))>
         Public Sub MonthNameNotSupported1Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, True) <> "test" _
@@ -147,7 +147,7 @@ Namespace Linq
         End Sub
 
         <Test()>
-        <ExpectedException(GetType(NotSupportedException))>
+        <ExpectedException(GetType(QueryTranslationException))>
         Public Sub MonthNameNotSupported2Test()
             Dim result = (From order In Orders _
                     Where Microsoft.VisualBasic.DateAndTime.MonthName(order.OrderDate.Value.Month, False) <> "test" _

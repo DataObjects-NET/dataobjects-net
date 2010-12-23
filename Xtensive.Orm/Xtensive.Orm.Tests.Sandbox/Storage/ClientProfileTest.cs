@@ -24,6 +24,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    [ExpectedException(typeof(InvalidOperationException))]
     public void SaveChangesTest()
     {
       using (var session = Domain.OpenSession()) {

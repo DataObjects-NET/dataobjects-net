@@ -181,6 +181,7 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Contains;
 
       // Querable extensions
+      public static readonly MethodInfo ExtensionCount;
       public static readonly MethodInfo ExtensionLeftJoin;
       public static readonly MethodInfo ExtensionLock;
       public static readonly MethodInfo ExtensionTake;
@@ -208,6 +209,7 @@ namespace Xtensive.Orm.Linq
         }).First();
 
         // Querable extensions
+        ExtensionCount = GetQueryableExtensionsMethod("Count", 0, 1);
         ExtensionLeftJoin = GetQueryableExtensionsMethod("LeftJoin", 4, 5);
         ExtensionLock = GetQueryableExtensionsMethod("Lock", 1, 3);
         ExtensionTake = GetQueryableExtensionsMethod("Take", 1, 2);

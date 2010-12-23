@@ -150,6 +150,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         book.OtherCoolBooks.Add(book); // (1)
         Assert.IsTrue(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded));
 
+        session.Persist();
         book.Remove(); // Fails, but only if (1) is enabled!
         Assert.IsTrue(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded));
       }

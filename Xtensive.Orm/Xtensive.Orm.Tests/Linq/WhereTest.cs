@@ -160,6 +160,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Session.Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2.Customer!=null)
             .Customer)
         .ToList();
@@ -168,6 +169,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Session.Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2.Customer!=null)
             .Customer)
         .ToList();
@@ -182,6 +184,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Session.Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2["Customer"]!=null)
             .Customer)
         .ToList();
@@ -190,6 +193,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Session.Query.All<Order>()
+            .OrderBy(order2 => order2.Customer.Id)
             .First(order2 => order2.Customer!=null)
             .Customer)
         .ToList();
@@ -1275,17 +1279,20 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinTest()
     {
-      var actual = from customer in Session.Query.All<Customer>()
-      join order in Session.Query.All<Order>() on customer equals order.Customer
-      where order.Freight > 30
-      orderby new {customer, order}
-      select new {customer, order};
-      var expected = from customer in Session.Query.All<Customer>().ToList()
-      join order in Session.Query.All<Order>().ToList() on customer equals order.Customer
-      where order.Freight > 30
-      orderby customer.Id , order.Id
-      select new {customer, order};
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      var actual = 
+	    from customer in Session.Query.All<Customer>()
+        join order in Session.Query.All<Order>() on customer equals order.Customer
+        where order.Freight > 30
+        orderby new {customer, order}
+        select new {customer, order};
+      var list = actual.ToList();
+      var expected = 
+	    from customer in Session.Query.All<Customer>().ToList()
+        join order in Session.Query.All<Order>().ToList() on customer equals order.Customer
+        where order.Freight > 30
+        orderby customer.Id , order.Id
+        select new {customer, order};
+      Assert.IsTrue(expected.SequenceEqual(list));
     }
 
     [Test]

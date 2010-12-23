@@ -21,6 +21,11 @@ namespace Xtensive.Sql.SqlServer.v10
       return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("NS"), date1, date2);
     }
 
+    protected override SqlExpression DateTimeTruncate(SqlExpression date)
+    {
+      return SqlDml.Cast(date, new SqlValueType("Date"));
+    }
+
     protected override SqlExpression  DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return base.DateTimeSubtractDateTime(date1, date2)

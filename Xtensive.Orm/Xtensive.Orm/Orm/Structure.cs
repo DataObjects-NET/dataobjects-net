@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Serialization;
 using Xtensive.Orm.Services;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -345,12 +346,12 @@ namespace Xtensive.Orm
     {
       if (thisIsBound) {
         EnsureIsFetched(Field);
-        if (Entity.IsRemoved)
+        if (Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       if (otherIsBound) {
         other.EnsureIsFetched(other.Field);
-        if (other.Entity.IsRemoved)
+        if (other.Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);

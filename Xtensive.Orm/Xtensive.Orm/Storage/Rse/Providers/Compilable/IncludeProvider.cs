@@ -72,12 +72,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return newHeader;
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return EmptyOrder;
-    }
-
 
     // Constructors
 

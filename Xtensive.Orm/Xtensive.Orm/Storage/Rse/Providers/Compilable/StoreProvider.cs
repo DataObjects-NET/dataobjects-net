@@ -44,12 +44,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return header;
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return header.Order;
-    }
-
+   
     /// <inheritdoc/>
     public override string ParametersToString()
     {

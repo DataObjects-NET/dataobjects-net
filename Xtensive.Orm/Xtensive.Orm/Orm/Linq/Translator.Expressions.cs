@@ -344,6 +344,8 @@ namespace Xtensive.Orm.Linq
             return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
           else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionElementAtOrDefault.Name)
             return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
+          else if (mc.Method.Name == WellKnownMembers.Queryable.ExtensionCount.Name)
+            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
           else
             throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         // Visit Collection extensions

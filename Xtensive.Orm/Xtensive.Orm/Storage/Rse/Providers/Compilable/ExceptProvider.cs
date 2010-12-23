@@ -33,12 +33,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Except operation"));
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return EmptyOrder;
-    }
-
 
     // Constructors
 

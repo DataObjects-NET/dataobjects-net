@@ -5,8 +5,8 @@
 // Created:    2009.11.13
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core;
+using System.Collections.Generic;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Rse.Providers;
@@ -18,9 +18,9 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public abstract class SqlTemporaryDataProvider : SqlProvider
   {
-    private const string TemporaryTableLockName = "TemporaryTableLockName";
+    public const string TemporaryTableLockName = "TemporaryTableLockName";
 
-    private readonly TemporaryTableDescriptor tableDescriptor;
+    protected readonly TemporaryTableDescriptor tableDescriptor;
     
     protected void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
     {
@@ -44,7 +44,6 @@ namespace Xtensive.Storage.Providers.Sql
           .Clear(tableDescriptor);
       return true;
     }
-
 
     // Constructors
 
