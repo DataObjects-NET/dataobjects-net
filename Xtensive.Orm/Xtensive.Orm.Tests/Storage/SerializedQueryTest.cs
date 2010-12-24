@@ -9,12 +9,14 @@ using System.IO;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq.SerializableExpressions;
+using Xtensive.Orm.Linq;
 using Xtensive.Serialization.Binary;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Serialization;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Orm.Tests.Storage
 {
