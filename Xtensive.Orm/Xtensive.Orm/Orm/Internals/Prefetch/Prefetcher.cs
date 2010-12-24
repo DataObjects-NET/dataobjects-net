@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var sessionHandler = session.Handler;
       IEnumerable<TElement> result = new RootElementsPrefetcher<TElement>(source, keyExtractor, modelType,
-        fieldDescriptors, sessionHandler);
+        fieldDescriptors.Values, sessionHandler);
       foreach (var prefetchManyDelegate in prefetchManyProcessorCreators)
         result = prefetchManyDelegate.Invoke(result, sessionHandler);
       return result.ToTransactional(session).GetEnumerator();

@@ -147,7 +147,7 @@ namespace Xtensive.Orm
           }
         }
         if (columnsToPrefetch!=null) {
-          Session.Handler.Prefetch(Key, TypeInfo, new FieldDescriptorCollection(columnsToPrefetch));
+          Session.Handler.Prefetch(Key, TypeInfo, columnsToPrefetch);
           Session.Handler.ExecutePrefetchTasks(true);
         }
         var versionTuple = TypeInfo.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);

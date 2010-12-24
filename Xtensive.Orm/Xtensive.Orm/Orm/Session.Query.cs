@@ -19,6 +19,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Resources;
 using Xtensive.Reflection;
+using Tuple = Xtensive.Tuples.Tuple;
 using Activator = System.Activator;
 
 namespace Xtensive.Orm

@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TakeTest()
     {
-      var query = Query.All<Customer>()
+      var query = Session.Query.All<Customer>()
         .Where(c => c.Address.Country == "Germany")
         .Select(c => c.Key)
         .Take(10);

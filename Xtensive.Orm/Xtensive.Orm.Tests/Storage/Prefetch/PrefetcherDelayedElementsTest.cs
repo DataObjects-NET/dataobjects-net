@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         session.Query.Many<AdvancedPerson>(keys).Run();
         foreach (var key in keys) {
           var cachedKey = GetCachedKey(key, session);
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(prefetchCount + 2, session.Handler.PrefetchTaskExecutionCount);

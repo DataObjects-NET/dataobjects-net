@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees // EntitySet Employees
               .Prefetch(e => e.Photo)) // and lazy load field of each of its items
-            .Prefetch(e => e.Manager)) // and lazy load field of each of its items
+            .Prefetch(e => e.Manager) // and lazy load field of each of its items
           .Prefetch(p => p.Manager.Photo); // Referenced entity
         foreach (var person in prefetchedPersons) {
           // some code here...

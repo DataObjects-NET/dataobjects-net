@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Run();
         foreach (var key in keys) {
           var orderState = session.EntityStateCache[key, true];
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderState.Key, orderState.Key.Type,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderState.Key, orderState.Key.TypeInfo,
             session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }

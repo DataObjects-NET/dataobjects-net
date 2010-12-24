@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Linq
         (Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
-      futureSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);
+      var futureSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);
       context.Session.RegisterDelayedQuery(futureSequence.Task);
       context.MaterializationContext.MaterializationQueue.Enqueue(MaterializeSelf);
     }

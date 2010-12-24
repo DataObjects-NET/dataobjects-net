@@ -126,8 +126,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void JoinCategory2PgSqlTest()
     {
       var keywords = "lager";
-      var result = Query.FreeText<Product>(keywords)
-        .Join(Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c});
+      var result = Session.Query.FreeText<Product>(keywords)
+        .Join(Session.Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c});
       var list = result.ToList();
     }
 
