@@ -10,6 +10,7 @@ using System.Linq;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Tuples;
+using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
@@ -46,6 +47,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AggregateAfterGroupingTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => g.Where(p2 => p2.UnitPrice==g.Count()));
@@ -56,7 +58,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AggregateAfterGroupingAnonymousTest()
     {
-
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
@@ -128,6 +130,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void EntityGroupTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var groupByResult = Session.Query.All<Product>().GroupBy(p => p.Category);
       IEnumerable<Category> result = groupByResult
         .ToList()
@@ -285,6 +288,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AnonymousTypeEntityAndFieldTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var groupByResult = Session.Query.All<Product>().GroupBy(product => new {
         product.Category,
         product.Category.CategoryName,
@@ -315,6 +319,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AnonymousTypeEntityGroupTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var groupByResult = Session.Query.All<Product>().GroupBy(product => new {product.Category});
       var list = groupByResult.ToList();
       var result = groupByResult
@@ -567,6 +572,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByCountTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {Customer = g.Key, OrdersCount = g.Count()});
@@ -585,6 +591,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupBySumMinMaxAvgTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g =>
@@ -712,6 +719,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {Count = g.Count(), Customer = g.Key});
@@ -730,6 +738,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis22Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {Count = g.Count(), Customer = g.Key.CompanyName});
@@ -739,6 +748,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis23Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {Count = g.Count(), Customer = g.Key})
@@ -749,6 +759,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis24Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {Count = g.Count(), Customer = g.Key})
@@ -760,6 +771,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis212Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {Count = new {Count1 = g.Count(), Count2 = g.Count()}});
@@ -769,6 +781,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis21Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {Count = new {Count1 = g.Count(), Count2 = g.Count()}, Customer = g.Key});
@@ -788,6 +801,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithResultSelectorTest2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>().GroupBy(o => o.Customer, (c, g) =>
         new {
           Customer = c,
@@ -802,6 +816,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithResultSelectorTest3Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => new {
@@ -816,6 +831,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithResultSelectorTest4Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>().GroupBy(o => o.Customer, (c, g) =>
         new {
           // Customer = c,
@@ -830,6 +846,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithElementSelectorSumTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer, o => o.Freight)
         .Select(g => g.Sum());
@@ -839,6 +856,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithElementSelectorSumAnonymousTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer, o => o.Freight)
         .Select(g => new {A = g.Sum(), B = g.Sum()});
@@ -864,6 +882,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithAnonymousElementTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer, o => new {o.Freight})
         .Select(g => g.Sum(x => x.Freight));

@@ -780,6 +780,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
         "that are discontinued.")]
     public void DLinq48()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var q =
         from p in Session.Query.All<Product>()
         group p by p.Id

@@ -5,6 +5,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Disposing;
 using Xtensive.Orm.Linq;
+using Xtensive.Storage.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 
@@ -403,6 +404,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses Min to find the Products that have the lowest unit price in each category, and returns the result as an anonoymous type.")]
     public void LinqToEntities32()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
@@ -448,6 +450,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses MAX to find the Products that have the highest unit price in each category, and returns the result as an anonoymous type.")]
     public void LinqToEntities36()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = from p in Session.Query.All<Product>()
       group p by p.Category
       into g
@@ -497,6 +500,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the Products that have unit price higher than the average unit price of the category for each category.")]
     public void LinqToEntities40()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = from p in Session.Query.All<Product>()
       group p by p.Category
       into g
@@ -516,6 +520,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the average unit price of each category.")]
     public void LinqToEntities41()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
@@ -583,6 +588,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses DISTINCT to get all the categories of products.")]
     public void LinqToEntities45()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Session.Query.All<Product>().Select(o => o.Category).Distinct();
 
       QueryDumper.Dump(query);
@@ -605,6 +611,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses UNION and DISTINCT to get all the employees from orders where the shipping country was Mexico or Canada.")]
     public void LinqToEntities47()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var mexico = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
       var canada = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
       var union = mexico.Union(canada).Select(o => o.Employee);

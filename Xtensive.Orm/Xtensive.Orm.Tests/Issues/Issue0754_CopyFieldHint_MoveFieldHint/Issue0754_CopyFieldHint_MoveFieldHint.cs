@@ -10,7 +10,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Orm.Tests;
 
 
 namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
@@ -41,6 +40,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
     [Test]
     public void UpgradeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
       BuildDomain(typeof (ModelVersion2.A), DomainUpgradeMode.PerformSafely);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
