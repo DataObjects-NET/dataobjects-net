@@ -200,7 +200,10 @@ namespace Xtensive.Storage.Providers.Sql
         .Where(i => i >= 0)
         .ToList();
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
-      var pagingIsUsed = !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
+      var rowNumberIsUsed = calculatedColumnIndexes.Count > 0 && sourceSelect.Columns
+        .Select((c, i) => new { c, i })
+        .Any(a => calculatedColumnIndexes.Contains(a.i) && ExtractUserColumn(a.c).Expression is SqlRowNumber);
+      var pagingIsUsed = !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference() || rowNumberIsUsed;
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
@@ -236,7 +239,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (origin.Type==ProviderType.Take || origin.Type==ProviderType.Skip) {
         var sortProvider = origin.Sources[0] as SortProvider;
         var orderingOverCalculatedColumn = sortProvider!=null &&
-          sortProvider.ExpectedOrder
+          sortProvider.Header.Order
             .Select(order => order.Key)
             .Any(calculatedColumnIndexes.Contains);
         return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
@@ -262,7 +265,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       if (origin.Type == ProviderType.Sort) {
-        var orderingOverCalculatedColumn = origin.ExpectedOrder
+        var orderingOverCalculatedColumn = origin.Header.Order
           .Select(order => order.Key)
           .Any(calculatedColumnIndexes.Contains);
         return orderingOverCalculatedColumn;

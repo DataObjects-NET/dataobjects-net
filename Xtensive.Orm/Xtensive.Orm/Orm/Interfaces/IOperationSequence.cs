@@ -20,6 +20,7 @@ namespace Xtensive.Orm
     /// Applies this operation sequence to the <see cref="Session.Current"/> session.
     /// </summary>
     /// <returns>Key mapping.</returns>
+    [Obsolete("Use Replay(Session) method instead.")]
     KeyMapping Replay();
 
     /// <summary>

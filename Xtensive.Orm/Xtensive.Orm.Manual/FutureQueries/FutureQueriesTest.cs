@@ -40,6 +40,10 @@ namespace Xtensive.Orm.Manual.FutureQueries
     {
       return Name;
     }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -58,8 +62,8 @@ namespace Xtensive.Orm.Manual.FutureQueries
 
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var employee = new Person {Name = "Employee"};
-        var manager  = new Person {Name = "Manager"};
+        var employee = new Person(session) {Name = "Employee"};
+        var manager  = new Person(session) {Name = "Manager"};
         manager.Employees.Add(employee);
 
         var simpleCompiledQuery = session.Query.Execute(qe =>

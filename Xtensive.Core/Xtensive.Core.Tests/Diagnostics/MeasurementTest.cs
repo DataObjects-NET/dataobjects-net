@@ -17,6 +17,7 @@ namespace Xtensive.Tests.Diagnostics
   public class MeasurementTest
   {
     [Test]
+    [Ignore("TODO: AY check it ASAP")]
     public void CompoundTest()
     {
       // This part ensures everything below is JITter

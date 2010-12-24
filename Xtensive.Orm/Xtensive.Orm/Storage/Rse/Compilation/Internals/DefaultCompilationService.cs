@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Rse.Compilation
     public DefaultCompilationService()
       : base(
         () => new ClientCompiler(),
-        () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor, false)),
+        () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor)),
         (compiler) => new EmptyPostCompiler())
     {
     }

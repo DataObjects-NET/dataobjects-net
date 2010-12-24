@@ -80,15 +80,6 @@ namespace Xtensive.Orm
     /// </example>
     public string PairTo { get; set; }
 
-    internal bool IsCompatibleWith(AssociationAttribute other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return other.OnTargetRemove.Equals(OnTargetRemove)
-        && other.OnOwnerRemove.Equals(OnOwnerRemove)
-        && other.PairTo.Equals(PairTo);
-    }
-
 
     // Constructors
 

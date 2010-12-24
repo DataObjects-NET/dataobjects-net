@@ -266,10 +266,10 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(PersistenceState.New, snake.PersistenceState);
           Assert.AreEqual(32, snake.Length);
             
-          Key key = Key.Create<Snake>(IncludeTypeIdModifier.IsEnabled
+          Key key = Key.Create<Snake>(Domain, IncludeTypeIdModifier.IsEnabled
             ? Tuple.Create(snake.ID, snake.TypeId) : Tuple.Create(snake.ID));
           var keyString = key.Format();
-          Assert.AreEqual(Key.Parse(keyString), key);
+          Assert.AreEqual(Key.Parse(Domain, keyString), key);
           
           Assert.IsTrue(snake.Key.Equals(key));
           Assert.AreEqual(snake.Key, key);

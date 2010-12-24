@@ -32,6 +32,17 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void TakeTest()
+    {
+      var query = Query.All<Customer>()
+        .Where(c => c.Address.Country == "Germany")
+        .Select(c => c.Key)
+        .Take(10);
+      var list = query.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
     public void MultipleTakeSkipRandomTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);

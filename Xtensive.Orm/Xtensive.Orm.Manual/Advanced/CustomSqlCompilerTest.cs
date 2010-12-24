@@ -30,6 +30,10 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
 
     [Field(Length = 200)]
     public string Building { get; set; }
+
+    public Address(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -44,6 +48,10 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
 
     [Field]
     public Address Address { get; set; }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -139,13 +147,13 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
         using (var session = domain.OpenSession()) {
           using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
-            new Person {
-              Name = "Tereza", Address = new Address {
+            new Person(session) {
+              Name = "Tereza", Address = new Address (session) {
                 Country = "Czech Republic", City = "Prague", Street = "Vinohradska", Building = "34"
               }
             };
-            new Person {
-              Name = "Ivan", Address = new Address {
+            new Person(session) {
+              Name = "Ivan", Address = new Address (session) {
                 Country = "Russia", City = "Ekaterinburg", Street = "Lenina", Building = "11/2"
               }
             };

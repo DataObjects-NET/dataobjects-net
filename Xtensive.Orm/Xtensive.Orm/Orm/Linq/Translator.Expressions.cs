@@ -267,9 +267,16 @@ namespace Xtensive.Orm.Linq
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
-        if (!context.Model.Types[ma.Expression.Type].Fields.Contains(context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) ma.Member)))
+      else if (ma.Expression.GetMemberType() == MemberType.Entity && ma.Member.Name != "Key") {
+        var type = ma.Expression.Type;
+        var parameter = ma.Expression as ParameterExpression;
+        if (parameter != null) {
+          var projection = context.Bindings[parameter];
+          type = projection.ItemProjector.Item.Type;
+        }
+        if (!context.Model.Types[type].Fields.Contains(context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) ma.Member)))
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
+      }
       Expression source;
       using (state.CreateScope()) {
 //        state.BuildingProjection = false;
@@ -337,6 +344,8 @@ namespace Xtensive.Orm.Linq
             return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
           else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionElementAtOrDefault.Name)
             return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
+          else if (mc.Method.Name == WellKnownMembers.Queryable.ExtensionCount.Name)
+            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
           else
             throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         // Visit Collection extensions
@@ -405,9 +414,9 @@ namespace Xtensive.Orm.Linq
 
       var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
-      var rankExpression = ColumnExpression.Create(typeof (double), fullFeatured ? entityExpression.Fields.Max(field => field.Mapping.Offset + field.Mapping.Length) : entityExpression.Key.Mapping.Length);
-      var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured).Result;
+      var rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
+      var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }

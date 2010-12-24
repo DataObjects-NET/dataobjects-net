@@ -51,11 +51,11 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IsTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transactionn = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionn = session.OpenTransaction()) {
           var alex = new Alex();
           session.SaveChanges();
-          var query = Query.All<Developer>().Select(developer => new {IsSoloProfessional = developer is IAmSoloProfessional}).ToArray();
+          var query = session.Query.All<Developer>().Select(developer => new {IsSoloProfessional = developer is IAmSoloProfessional}).ToArray();
           Assert.AreEqual(1, query.Length);
           Assert.AreEqual(true, query[0].IsSoloProfessional);
         }
@@ -65,11 +65,11 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AsTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transactionn = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transactionn = session.OpenTransaction()) {
           var alex = new Alex();
           session.SaveChanges();
-          var query = Query.All<Developer>().Select(developer => new {SoloProfessional = developer as IAmSoloProfessional}).ToArray();
+          var query = session.Query.All<Developer>().Select(developer => new {SoloProfessional = developer as IAmSoloProfessional}).ToArray();
           Assert.AreEqual(1, query.Length);
           Assert.AreSame(alex, query[0].SoloProfessional);
         }

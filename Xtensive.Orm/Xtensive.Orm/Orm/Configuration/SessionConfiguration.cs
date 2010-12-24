@@ -193,19 +193,6 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets a value indicating whether session uses autoshortened transactions.
-    /// </summary>
-    public bool UseAutoShortenedTransactions {
-      get { return (options & SessionOptions.AutoShortenTransactions)==SessionOptions.AutoShortenTransactions; }
-      set {
-        this.EnsureNotLocked();
-        options = value
-          ? (options | SessionOptions.AutoShortenTransactions)
-          : (options & ~SessionOptions.AutoShortenTransactions);
-      }
-    }
-
-    /// <summary>
     /// Gets or sets the type of the service container.
     /// </summary>
     public Type ServiceContainerType {
@@ -297,18 +284,16 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="sessionOptions">The session options.</param>
     public SessionConfiguration(SessionOptions sessionOptions)
-      : this(null, sessionOptions)
-    {
-    }
+      : this(WellKnown.Sessions.Default, sessionOptions)
+    {}
 
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name)
-      : this(name, SessionOptions.LegacyProfile)
-    {
-    }
+      : this(name, SessionOptions.ServerProfile)
+    {}
 
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>

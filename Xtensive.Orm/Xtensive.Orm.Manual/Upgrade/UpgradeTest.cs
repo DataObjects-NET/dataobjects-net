@@ -50,9 +50,9 @@ namespace Xtensive.Orm.Manual.Upgrade
         using (var transactionScope = session.OpenTransaction()) {
 
           var mMorder = 
-            new Model_1.Order { ProductName = "Cheese",  Quantity = 10 };
-          new Model_1.Order { ProductName = "Wine", Quantity = 2 };
-          new Model_1.Order { ProductName = "Wine", Quantity = 5 };
+            new Model_1.Order(session) { ProductName = "Cheese",  Quantity = 10 };
+          new Model_1.Order(session) { ProductName = "Wine", Quantity = 2 };
+          new Model_1.Order(session) { ProductName = "Wine", Quantity = 5 };
 
           transactionScope.Complete();
         }
@@ -74,9 +74,9 @@ namespace Xtensive.Orm.Manual.Upgrade
           Assert.IsNotNull(cheeseOrder);
           Assert.AreEqual(10, cheeseOrder.Quantity);
           Assert.IsNull(cheeseOrder.Customer);
-          cheeseOrder.Customer = new Model_2.Customer {Name = "Michael"};
+          cheeseOrder.Customer = new Model_2.Customer(session) {Name = "Michael"};
           
-          var customer = new Model_2.Customer {Name = "Tony"};
+          var customer = new Model_2.Customer(session) {Name = "Tony"};
           foreach (var order in session.Query.All<Model_2.Order>())
             if (order.Customer==null)
               order.Customer = customer;

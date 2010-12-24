@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
         Assert.IsFalse(formattedKey.Contains("Child"));
         Assert.IsTrue(formattedKey.Contains("Base"));
         
-        var parsedKey = Key.Parse(formattedKey);
+        var parsedKey = Key.Parse(Domain, formattedKey);
         Assert.AreEqual(key, parsedKey);
       }
     }

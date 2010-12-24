@@ -283,6 +283,7 @@ namespace Xtensive.Orm
 
       IDisposable disposable = null;
       KeyMapping keyMapping;
+      EnsureNoTransaction();
       using (OpenDetachRegion())
       using (targetSession.Activate())
         try {
@@ -475,7 +476,7 @@ namespace Xtensive.Orm
         var tuple = entityState.Tuple;
         if (tuple==null)
           continue;
-        var version = GetVersion(entityState.Key.Type, tuple);
+        var version = GetVersion(entityState.Key.TypeInfo, tuple);
         if (version.IsVoid)
           continue;
         result.Add(entityState.Key, version, true);
@@ -667,7 +668,7 @@ namespace Xtensive.Orm
     {
       if (!IsAttached)
         return;
-      if (Session.Transaction!=null)
+      if (Session.Transaction != null && Session.Transaction.IsDisconnected)
         throw new InvalidOperationException(Strings.ExTransactionIsRunning);
     }
 

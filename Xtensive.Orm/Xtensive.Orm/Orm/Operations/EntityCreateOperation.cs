@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Operations
     {
       if (!key.HasExactType)
         throw Exceptions.InternalError(Strings.ExKeyMustHaveExactType, Log.Instance);
-      TypeName = key.Type.Name;
+      TypeName = key.TypeInfo.Name;
     }
 
     // Serialization

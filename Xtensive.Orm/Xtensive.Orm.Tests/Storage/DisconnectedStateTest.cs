@@ -424,6 +424,7 @@ namespace Xtensive.Orm.Tests.Storage
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Simple).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return config;
     }
     
@@ -547,7 +548,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (var transactionScope = session.OpenTransaction()) {
             using (state.Connect()) {
               session.Query.All<Simple>()
-                .Prefetch(item => item.Id)
+                .Prefetch(session, item => item.Id)
                 .Prefetch(item => item.VersionId)
                 .Prefetch(item => item.Value)
                 .ToList();
@@ -979,8 +980,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = session.OpenTransaction()) {
             using (state.Connect()) {
-              suppliers = session.Query.All<Supplier>().Prefetch(s => s.Products).ToList();
-              products = session.Query.All<Product>().Prefetch(p => p.Supplier).ToList();
+              suppliers = session.Query.All<Supplier>().Prefetch(session, s => s.Products).ToList();
+              products = session.Query.All<Product>().Prefetch(session, p => p.Supplier).ToList();
             }
             var supplier1 = suppliers.First(employee => employee.Name=="Supplier1");
             supplier1Key = supplier1.Key;
@@ -1211,7 +1212,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = session.OpenTransaction()) {
             using (state.Connect()) {
-              session.Query.All<Order>().Prefetch(o => o.Details).ToList();
+              session.Query.All<Order>().Prefetch(session, o => o.Details).ToList();
             }
             transactionScope.Complete();
           }
@@ -1236,7 +1237,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (var transactionScope = session.OpenTransaction()) {
             List<Order> orders = null;
             using (state.Connect()) {
-              orders = session.Query.All<Order>().Prefetch(o => o.Details).ToList();
+              orders = session.Query.All<Order>().Prefetch(session, o => o.Details).ToList();
               session.Query.All<Product>().ToList(); // Need for OrderDetails removing
             }
             var order1 = orders.First(order => order.Number==1);
@@ -1284,8 +1285,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = session.OpenTransaction()) {
             using (state.Connect()) {
-              authors = session.Query.All<Author>().Prefetch(a => a.Books).ToList();
-              books = session.Query.All<Book>().Prefetch(b => b.Authors).ToList();
+              authors = session.Query.All<Author>().Prefetch(session, a => a.Books).ToList();
+              books = session.Query.All<Book>().Prefetch(session, b => b.Authors).ToList();
             }
             var author1 = authors.First(author => author.Name=="Author1");
             var author2 = authors.First(author => author.Name=="Author2");
@@ -1686,7 +1687,7 @@ namespace Xtensive.Orm.Tests.Storage
             Container container = null;
             Item item = null;
             using (state.Connect()) {
-              session.Query.All<Container>().Prefetch(c => c.ManyToZero).ToList();
+              session.Query.All<Container>().Prefetch(session, c => c.ManyToZero).ToList();
               container = session.Query.Single<Container>(containerKey);
               item = session.Query.Single<Item>(itemKey);
             }
@@ -1737,7 +1738,7 @@ namespace Xtensive.Orm.Tests.Storage
             using (state.Connect()) {
               author1 = session.Query.All<Author>()
                 .Where(author => author.Name=="Author1")
-                .Prefetch(author => author.Books)
+                .Prefetch(session, author => author.Books)
                 .First();
             }
             Assert.IsTrue(author1.Books.Count > 0);
@@ -1787,7 +1788,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (var transactionScope = session.OpenTransaction()) {
             using (state.Connect()) {
               session.Query.All<Order>().ToList();
-              session.Query.All<Order>().Prefetch(o => o.Customer).ToList();
+              session.Query.All<Order>().Prefetch(session, o => o.Customer).ToList();
             }
             transactionScope.Complete();
           }
@@ -1798,7 +1799,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (var transactionScope = session.OpenTransaction()) {
             List<Customer> customers;
             using (state.Connect()) {
-              customers = session.Query.All<Customer>().Prefetch(c => c.Orders).ToList();
+              customers = session.Query.All<Customer>().Prefetch(session, c => c.Orders).ToList();
             }
             transactionScope.Complete();
           }

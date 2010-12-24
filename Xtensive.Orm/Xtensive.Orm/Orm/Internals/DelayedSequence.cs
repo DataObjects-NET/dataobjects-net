@@ -18,7 +18,8 @@ namespace Xtensive.Orm.Internals
   {
     public IEnumerator<T> GetEnumerator()
     {
-      return Materialize().GetEnumerator();
+      var session = Session.Current ?? transaction.Session;
+      return Materialize(session).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -29,8 +30,8 @@ namespace Xtensive.Orm.Internals
 
     // Constructors
 
-    public DelayedSequence(TranslatedQuery<IEnumerable<T>> translatedQuery, ParameterContext parameterContext) 
-      : base(translatedQuery, parameterContext)
+    public DelayedSequence(Session session, TranslatedQuery<IEnumerable<T>> translatedQuery, ParameterContext parameterContext) 
+      : base(session, translatedQuery, parameterContext)
     {}
   }
 }

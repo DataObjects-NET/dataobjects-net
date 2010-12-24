@@ -500,7 +500,7 @@ namespace Xtensive.Orm.Tests.Storage
     private void FetchEntitySet<T>(EntitySet<T> books) where T : IEntity
     {
       // fancy trick to force loading at most N items (currently N = 32)
-      books.Contains(Key.Create(typeof (T), -77));
+      books.Contains(Key.Create(Domain, typeof (T), -77));
     }
   }
 }

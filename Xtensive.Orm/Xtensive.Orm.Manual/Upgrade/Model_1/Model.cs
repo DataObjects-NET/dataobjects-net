@@ -21,5 +21,9 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_1
 
     [Field]
     public int Quantity { get; set; }
+
+    public Order(Session session)
+      : base(session)
+    {}
   }
 }

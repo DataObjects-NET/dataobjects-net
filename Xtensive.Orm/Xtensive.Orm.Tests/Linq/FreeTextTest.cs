@@ -123,6 +123,15 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void JoinCategory2PgSqlTest()
+    {
+      var keywords = "lager";
+      var result = Query.FreeText<Product>(keywords)
+        .Join(Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c});
+      var list = result.ToList();
+    }
+
+    [Test]
     public void JoinCategory3Test()
     {
 

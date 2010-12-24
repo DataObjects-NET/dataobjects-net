@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Xtensive.Sql.SqlServerCe.Resources {
+namespace Xtensive.Sql.Drivers.SqlServerCe.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Xtensive.Sql.SqlServerCe.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtensive.Sql.SqlServerCe.Resources.Strings", typeof(Strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtensive.Sql.Drivers.SqlServerCe.Resources.Strings", typeof(Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

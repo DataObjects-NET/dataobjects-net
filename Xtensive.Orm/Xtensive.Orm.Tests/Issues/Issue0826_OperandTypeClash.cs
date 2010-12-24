@@ -56,11 +56,11 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transaction = Transaction.Open(session)) {
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           var titles =
-            from vm in Query.All<VirtualMedia>()
-            join cm in Query.All<ConcreteMedia>() on vm equals cm.VirtualMedia
+            from vm in session.Query.All<VirtualMedia>()
+            join cm in session.Query.All<ConcreteMedia>() on vm equals cm.VirtualMedia
             where cm.Statuses.Any()
             select vm;
 

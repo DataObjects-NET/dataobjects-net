@@ -151,8 +151,6 @@ namespace Xtensive.Orm.Configuration
       keyGenerator = BuildConfiguration(WellKnown.Sessions.KeyGenerator);
       foreach (var item in this.Where(item => !item.IsLocked)) {
         // ApplyDefaultSettings(item);
-        if (item == system || item == keyGenerator)
-          item.UseAutoShortenedTransactions = false;
         item.Lock(recursive);
       }
       base.Lock(recursive);

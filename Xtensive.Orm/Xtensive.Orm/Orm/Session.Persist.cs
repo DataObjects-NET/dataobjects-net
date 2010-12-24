@@ -23,6 +23,32 @@ namespace Xtensive.Orm
     
     /// <summary>
     /// Saves all modified instances immediately to the database.
+    /// Obsolete, use <see cref="SaveChanges"/> method instead.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method should be called to ensure that all delayed
+    /// updates are flushed to the storage.
+    /// </para>
+    /// <para>
+    /// For non-disconnected (without <see cref="SessionOptions.Disconnected"/> option) session this method is called automatically when it's necessary,
+    /// e.g. before beginning, committing and rolling back a transaction, performing a
+    /// query and so further. So generally you should not worry
+    /// about calling this method.
+    /// </para>
+    /// <para>
+    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) you should call this method manually.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
+    [Obsolete("Use Session.SaveChanges() method instead")]
+    public void Persist()
+    {
+      SaveChanges();
+    }
+
+    /// <summary>
+    /// Saves all modified instances immediately to the database.
     /// </summary>
     /// <remarks>
     /// <para>

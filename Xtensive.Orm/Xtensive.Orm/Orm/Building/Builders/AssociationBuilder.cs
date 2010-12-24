@@ -69,7 +69,16 @@ namespace Xtensive.Orm.Building.Builders
           ? Multiplicity.ZeroToOne
           : Multiplicity.ZeroToMany;
 
-      var association = new AssociationInfo(field, origin.OwnerType, multiplicity, origin.OnTargetRemove, origin.OnOwnerRemove);
+      var onOwnerRemove = origin.OnTargetRemove;
+      var onTargetRemove = origin.OnOwnerRemove;
+      if (onOwnerRemove == null && onTargetRemove == null && field.Associations.Count > 0) {
+        var inheritedAssociation = field.Associations.FirstOrDefault(a => a.TargetType.UnderlyingType.IsAssignableFrom(origin.OwnerType.UnderlyingType));
+        if (inheritedAssociation != null && (inheritedAssociation.OnOwnerRemove != null || inheritedAssociation.OnTargetRemove != null)) {
+          onOwnerRemove = inheritedAssociation.OnOwnerRemove;
+          onTargetRemove = inheritedAssociation.OnTargetRemove;
+        }
+      }
+      var association = new AssociationInfo(field, origin.OwnerType, multiplicity, onOwnerRemove, onTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       AssociationInfo existing;
       if (!context.Model.Associations.TryGetValue(association.Name, out existing)) {

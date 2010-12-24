@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
             using (ds.Connect()) {
               var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
-                .Prefetch(s => s.OwnedItems) // Must not affect here
+                .Prefetch(session, s => s.OwnedItems) // Must not affect here
                 .Single();
               var anotherEntities = session.Query.All<OwnedEntity>().ToArray();
               session.Query.Single<OwnedEntity>(guidB).Name = "b2";
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
             using (ds.Connect()) {
               var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
-                .Prefetch(s => s.OwnedItems) // Must not affect here
+                .Prefetch(session, s => s.OwnedItems) // Must not affect here
                 .Single();
 
               // Must throw an exception, since there is no real entity
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
             using (ds.Connect()) {
               var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
-                .Prefetch(s => s.OwnedItems) // Must not affect here
+                .Prefetch(session, s => s.OwnedItems) // Must not affect here
                 .Single(); 
               session.Query.Single<OwnedEntity>(guidB).Name = "b2";
               session.Query.Single<OwnedEntity>(guidC).Name = "c2";
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
             using (ds.Connect()) {
               var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
-                .Prefetch(s => s.OwnedItems) // Must not affect here
+                .Prefetch(session, s => s.OwnedItems) // Must not affect here
                 .Single();
 
               Assert.AreEqual(session.Query.Single<OwnedEntity>(guidC).Name, "c2");
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
           Assert.IsNull(session.Query.All<OwnedEntity>().SingleOrDefault(i => i.Id == guidA));
           var doc = session.Query.All<TestEntity>()
             .Where(f => f.Integer == 1)
-            .Prefetch(s => s.OwnedItems) // Must not affect here
+            .Prefetch(session, s => s.OwnedItems) // Must not affect here
             .Single();
           Assert.IsFalse(doc.OwnedItems.Any(i => i.Id == guidA));
         }
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
             using (state.Connect()) {
               var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
-                .Prefetch(s => s.OwnedItems)
+                .Prefetch(session, s => s.OwnedItems)
                 .Single();
 
               var subs = doc.OwnedItems.Where(g => true).ToList();
@@ -270,7 +270,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
               // Exception here
               var doc = session.Query.All<TestEntity>()
                 .Where(f => f.Integer == 1)
-                .Prefetch(s => s.OwnedItems)
+                .Prefetch(session, s => s.OwnedItems)
                 .Single();
 
               var subs = doc.OwnedItems.Where(g => true).ToList();

@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
@@ -112,6 +113,42 @@ namespace Xtensive.Orm.Upgrade
     public MoveFieldHint(string sourceType, string field, Type targetType)
       : this(sourceType, field, targetType, field)
     {
+    }
+
+    /// <summary>
+    /// Creates the instance of this hint.
+    /// </summary>
+    /// <typeparam name="TTarget">The target type.</typeparam>
+    /// <param name="sourceType">The source type.</param>
+    /// <param name="sourceField">The source field.</param>
+    /// <param name="targetPropertyAccessExpression">The target field access expression.</param>
+    /// <returns>The newly created instance of this hint.</returns>
+    public static MoveFieldHint Create<TTarget>(
+      string sourceType, string sourceField,
+      Expression<Func<TTarget, object>> targetPropertyAccessExpression)
+      where TTarget: Entity
+    {
+      return new MoveFieldHint(
+        sourceType, sourceField, 
+        typeof(TTarget), targetPropertyAccessExpression.GetProperty().Name);
+    }
+
+    /// <summary>
+    /// Creates the instance of this hint.
+    /// </summary>
+    /// <typeparam name="TTarget">The target type.</typeparam>
+    /// <param name="sourceType">The source type.</param>
+    /// <param name="targetPropertyAccessExpression">The target field access expression.</param>
+    /// <returns>The newly created instance of this hint.</returns>
+    public static MoveFieldHint Create<TTarget>(
+      string sourceType,
+      Expression<Func<TTarget, object>> targetPropertyAccessExpression)
+      where TTarget: Entity
+    {
+      var targetField = targetPropertyAccessExpression.GetProperty().Name;
+      return new MoveFieldHint(
+        sourceType, targetField, 
+        typeof(TTarget), targetField);
     }
   }
 }

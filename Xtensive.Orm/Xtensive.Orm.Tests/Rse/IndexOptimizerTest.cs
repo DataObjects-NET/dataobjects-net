@@ -234,7 +234,6 @@ namespace Xtensive.Orm.Tests.Rse
       sb.Append("IX_");
       foreach (var name in fieldNames)
         sb.Append(name);
-      var storageView = ((SessionHandler) Session.Current.Handler).StorageView;
       return Domain.Model.Types[typeof (T)].Indexes.GetIndexesContainingAllData()
         .Where(indexInfo => indexInfo.Name.Contains(sb.ToString())).Single();
     }

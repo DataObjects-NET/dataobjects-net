@@ -42,7 +42,10 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         var testObject = new MySessionBound();
         testObject.CheckAutoTransactions();
-        new MyEntity();
+        using (var ts = session.OpenTransaction()) {
+          new MyEntity();
+          ts.Complete();
+        }
         try {
           foreach (var myEntity in session.Query.All<MyEntity>()) {
             throw new InvalidOperationException();

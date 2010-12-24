@@ -63,6 +63,7 @@ namespace Xtensive.Orm.Tests.Storage.DisconnectedStateTest2
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(Book).Assembly, typeof(Book).Namespace);
+      configuration.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return configuration;
     }
 

@@ -10,7 +10,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.SqlServerCe.Resources;
+using Xtensive.Sql.Drivers.SqlServerCe.Resources;
 
 namespace Xtensive.Sql.SqlServerCe.v3_5
 {

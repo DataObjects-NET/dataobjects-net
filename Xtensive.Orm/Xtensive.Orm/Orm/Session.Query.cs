@@ -72,9 +72,10 @@ namespace Xtensive.Orm
       /// </returns>
       public IQueryable All(Type elementType)
       {
-        var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
-        var queryable = (IQueryable)queryAll.Invoke(null, ArrayUtils<object>.EmptyArray);
-        return queryable;
+        var allMethod = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
+        var expression = Expression.Call(null, allMethod);
+        var provider = (IQueryProvider) Provider;
+        return provider.CreateQuery(expression);
       }
 
       /// <summary>
@@ -320,7 +321,7 @@ namespace Xtensive.Orm
       /// <returns>Query result.</returns>
       public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
-        var domain = Domain.Demand();
+        var domain = session.Domain;
         var target = query.Target;
         var cache = domain.QueryCache;
         Pair<object, TranslatedQuery> item;
@@ -384,7 +385,7 @@ namespace Xtensive.Orm
           }
         }
         var parameterContext = CreateParameterContext(target, parameterizedQuery);
-        var result = new Delayed<TResult>(parameterizedQuery, parameterContext);
+        var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }
@@ -417,7 +418,7 @@ namespace Xtensive.Orm
       {
         var parameterizedQuery = GetParameterizedQuery(key, query);
         var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
-        var result = new DelayedSequence<TElement>(parameterizedQuery, parameterContext);
+        var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }
@@ -459,7 +460,7 @@ namespace Xtensive.Orm
           if (keyValue is Entity)
             return (keyValue as Entity).Key;
         }
-        return Key.Create(typeof(T), keyValues);
+        return Key.Create(session.Domain, typeof(T), keyValues);
       }
 
       /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>

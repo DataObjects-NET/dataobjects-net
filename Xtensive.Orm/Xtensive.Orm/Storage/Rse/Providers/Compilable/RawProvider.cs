@@ -54,11 +54,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Source.ToString(true);
     }
 
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return header.Order;
-    }
-
 
     // Constructors
 

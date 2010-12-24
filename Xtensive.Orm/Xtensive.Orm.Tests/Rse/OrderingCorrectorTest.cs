@@ -109,9 +109,9 @@ namespace Xtensive.Orm.Tests.Rse
         var compiledProvider = new DefaultCompilationService().Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var lastSelect = (SelectProvider) compiledProvider.Origin;
-        Assert.AreEqual(typeof (DistinctProvider), lastSelect.Source.GetType());
-        var rootProvider = ((FilterProvider) ((DistinctProvider) lastSelect.Source).Source).Source;
-        Assert.AreEqual(typeof (SelectProvider), rootProvider.GetType());
+        Assert.AreEqual(typeof (SortProvider), lastSelect.Source.GetType());
+        var rootProvider = ((DistinctProvider) ((SortProvider) lastSelect.Source).Source).Source;
+        Assert.AreEqual(typeof (FilterProvider), rootProvider.GetType());
       }
     }
 

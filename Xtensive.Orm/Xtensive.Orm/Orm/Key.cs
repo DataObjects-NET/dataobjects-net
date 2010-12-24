@@ -63,7 +63,7 @@ namespace Xtensive.Orm
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
-    public TypeInfo Type {
+    public TypeInfo TypeInfo {
       get {
         if (TypeReference.Accuracy == TypeReferenceAccuracy.ExactType)
           return TypeReference.Type;
@@ -96,7 +96,6 @@ namespace Xtensive.Orm
           throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
         TypeReference = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
         return TypeReference.Type;
-
       }
     }
 
@@ -104,6 +103,7 @@ namespace Xtensive.Orm
     /// Determines whether this key is a temporary key 
     /// in the <see cref="Domain.Demand">current</see> <see cref="Domain"/>.
     /// </summary>
+    [Obsolete("Use IsTemporary(Domain) method instead.")]
     public bool IsTemporary()
     {
       return IsTemporary(Domain.Demand());
@@ -133,7 +133,7 @@ namespace Xtensive.Orm
     protected abstract int CalculateHashCode();
 
     /// <summary>
-    /// Determines whether <see cref="Type"/> property has exact type value or not.
+    /// Determines whether <see cref="TypeInfo"/> property has exact type value or not.
     /// </summary>
     internal bool HasExactType
     {
@@ -238,6 +238,7 @@ namespace Xtensive.Orm
     /// <returns><see cref="Key"/> instance corresponding to the specified
     /// <paramref name="source"/> string.</returns>
     /// <remarks>This method requires open <see cref="Session"/>.</remarks>
+    [Obsolete("Use Parse(Domain,string) method instead.")]
     public static Key Parse(string source)
     {
       return Parse(Domain.Demand(), source);
@@ -282,7 +283,7 @@ namespace Xtensive.Orm
     {
       if (HasExactType)
         return string.Format(Strings.KeyFormat,
-          Type.UnderlyingType.GetShortName(),
+          TypeInfo.UnderlyingType.GetShortName(),
           Value.ToRegular());
       else
         return string.Format(Strings.KeyFormatUnknownKeyType,
@@ -302,6 +303,7 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <returns>A newly created <see cref="Key"/> instance .</returns>
     /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
+    [Obsolete("Use Create<T>(Session) method instead.")]
     public static Key Create<T>()
       where T : Entity
     {
@@ -315,9 +317,10 @@ namespace Xtensive.Orm
     /// </summary>
     /// <returns>A newly created <see cref="Key"/> instance .</returns>
     /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
+    [Obsolete("Use Create(Session, Type) method instead.")]
     public static Key Create(Type type)
     {
-      return Create(Domain.Demand(), type);
+      return Create(Session.Demand(), type);
     }
 
     /// <summary>
@@ -326,14 +329,14 @@ namespace Xtensive.Orm
     /// with newly generated value.
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="domain">The domain.</param>
+    /// <param name="session">The session.</param>
     /// <returns>
     /// A newly created <see cref="Key"/> instance .
     /// </returns>
-    public static Key Create<T>(Domain domain)
+    public static Key Create<T>(Session session)
       where T : Entity
     {
-      return Create(domain, typeof (T));
+      return Create(session, typeof (T));
     }
 
     /// <summary>
@@ -341,17 +344,17 @@ namespace Xtensive.Orm
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// with newly generated value.
     /// </summary>
-    /// <param name="domain">The domain.</param>
+    /// <param name="session">The session.</param>
     /// <param name="type">The type.</param>
     /// <returns>
     /// A newly created <see cref="Key"/> instance .
     /// </returns>
-    public static Key Create(Domain domain, Type type)
+    public static Key Create(Session session, Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      return KeyFactory.Generate(domain, domain.Model.Types[type]);
+      return KeyFactory.Generate(session, session.Domain.Model.Types[type]);
     }
 
     #endregion
@@ -368,7 +371,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
-    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
+    /// <remarks>This method requires activated <see cref="Session"/> instance.</remarks>
+    [Obsolete("Use Create<T>(Domain, Tuple) method instead.")]
     public static Key Create<T>(Tuple value)
       where T : IEntity  
     {
@@ -382,7 +386,8 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="value">Key value.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
+    /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
+    [Obsolete("Use Create(Domain, Type, Tuple) method instead.")]
     public static Key Create(Type type, Tuple value)
     {
       return Create(Domain.Demand(), type, value);
@@ -439,7 +444,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
-    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
+    /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
+    [Obsolete("Use Create<T>(Domain, params object[]) method instead.")]
     public static Key Create<T>(params object[] values)
       where T : IEntity
     {
@@ -453,7 +459,8 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
+    /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
+    [Obsolete("Use Create(Domain, Type, params object[]) method instead.")]
     public static Key Create(Type type, params object[] values)
     {
       return Create(Domain.Demand(), type, values);

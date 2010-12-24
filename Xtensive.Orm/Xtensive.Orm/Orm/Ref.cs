@@ -38,7 +38,7 @@ namespace Xtensive.Orm
           return null;
         var key = keyOrString as Key;
         if (key==null) {
-          key = Key.Parse((string) keyOrString);
+          key = Key.Parse(Domain.Demand(), (string) keyOrString);
           keyOrString = key;
         }
         return key;

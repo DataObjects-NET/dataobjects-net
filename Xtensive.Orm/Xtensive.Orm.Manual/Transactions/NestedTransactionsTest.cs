@@ -47,6 +47,10 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
       Remove();
       throw new InvalidOperationException("Cancelled.");
     }
+
+    public User(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -61,6 +65,10 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
 
     [Field(Length = 200)]
     public string Url { get; set; }
+
+    public WebPage(Session session) 
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -78,6 +86,10 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
 
     [Field]
     public User Author { get; set;}
+
+    public BlogPost(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -101,7 +113,7 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
         using (var transactionScope = session.OpenTransaction()) {
 
           // Creating user
-          var dmitri = new User {
+          var dmitri = new User (session) {
             Name = "Dmitri"
           };
 

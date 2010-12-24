@@ -37,6 +37,7 @@ namespace Xtensive.Orm.Tests
         EnvironmentConfiguration.ForeignKeyMode);
       if (EnvironmentConfiguration.CustomConnectionInfo!=null)
         config.ConnectionInfo = EnvironmentConfiguration.CustomConnectionInfo;
+      config.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default, SessionOptions.ServerProfile | SessionOptions.AutoActivation));
       return config;
     }
 

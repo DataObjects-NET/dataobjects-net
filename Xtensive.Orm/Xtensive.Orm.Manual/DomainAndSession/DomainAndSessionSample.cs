@@ -22,6 +22,15 @@ namespace Xtensive.Orm.Manual.DomainAndSession
 
     [Field]
     public string Name { get; set; }
+
+    // Providing session explicitly
+    public Person(Session session)
+      : base(session)
+    {}
+
+    // Active session is required
+    public Person()
+    {}
   }
 
   #endregion
@@ -58,7 +67,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
 
-          var person = new Person();
+          var person = new Person(session);
           person.Name = "Barack Obama";
 
           transactionScope.Complete();
@@ -111,6 +120,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
         UpgradeMode = DomainUpgradeMode.Recreate
       };
+
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       // And finally building the domain
@@ -119,15 +129,34 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       int personId;
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          personId = new Person().Id;
+          personId = new Person(session).Id;
 
           transactionScope.Complete();
         }
       }
 
+      // Opens the session with default configuration - ServerProfile. Auto actiovation option is disabled.
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
 
+          // you need to provide session explicitly 
+          var newPerson = new Person(session);
+          var fetchedPerson = session.Query.Single<Person>(personId);
+
+          Console.WriteLine("Current session is null: {0}", Session.Current==null);
+          Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
+          Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
+
+          transactionScope.Complete();
+        }
+      }
+
+      // New session configuration with actiovation option enabled.
+      var sessionConfiguration = new SessionConfiguration(SessionOptions.AutoActivation);
+      using (var session = domain.OpenSession(sessionConfiguration)) {
+        using (var transactionScope = session.OpenTransaction()) {
+
+          // you don't need to provide session explicitly. Active session will be used instead.
           var newPerson = new Person();
           var fetchedPerson = session.Query.Single<Person>(personId);
 
@@ -144,7 +173,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
 
-          var person = new Person();
+          var person = new Person(session);
           person.Name = "Barack Obama";
 
           transactionScope.Complete();
@@ -170,7 +199,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
         BatchSize = 25,
         DefaultIsolationLevel = IsolationLevel.RepeatableRead,
         CacheSize = 16384,
-        Options = SessionOptions.LegacyProfile
+        Options = SessionOptions.ServerProfile
       };
 
       // Second named Session configuration

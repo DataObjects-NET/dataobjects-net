@@ -22,6 +22,10 @@ namespace Xtensive.Orm.Manual.Indexes
 
     [Field]
     public Person Owner { get; set; }
+
+    public Pet(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -45,6 +49,10 @@ namespace Xtensive.Orm.Manual.Indexes
 
     [Field]
     public string LastName { get; set; }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   #endregion

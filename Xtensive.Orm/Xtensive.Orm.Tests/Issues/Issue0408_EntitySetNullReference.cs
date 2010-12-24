@@ -25,10 +25,7 @@ namespace Xtensive.Orm.Tests.Issues
       Domain domain;
       try
       {
-        DomainConfiguration domainConfig = DomainConfigurationFactory.Create();
-        SessionConfiguration sessionConfig = new SessionConfiguration(WellKnown.Sessions.Default);
-        domainConfig.Sessions.Add(sessionConfig);
-
+        var domainConfig = DomainConfigurationFactory.Create();
         domainConfig.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
 
         // Load assemblies with persistent classes from configuration :

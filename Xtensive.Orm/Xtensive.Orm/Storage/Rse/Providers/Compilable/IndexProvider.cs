@@ -40,20 +40,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Index.ToString();
     }
 
-    /// <inheritdoc/>
-    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
-    {
-      return indexHeader.Order;
-    }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      SetActualOrdering(ExpectedOrder);
-    }
-
-
+ 
     // Factory method
 
     /// <summary>

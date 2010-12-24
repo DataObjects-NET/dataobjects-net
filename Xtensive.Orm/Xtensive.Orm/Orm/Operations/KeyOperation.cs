@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc/>
     protected KeyOperation(SerializationInfo info, StreamingContext context)
     {
-      Key = Key.Parse(info.GetString("Key"));
+      Key = Key.Parse(Domain.Demand(), info.GetString("Key"));
       Key.TypeReference = new TypeReference(Key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
     }
   }

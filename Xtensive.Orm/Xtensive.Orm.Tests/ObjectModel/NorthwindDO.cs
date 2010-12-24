@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 
 
@@ -454,7 +455,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
         cmd.CommandText = "Select * from [dbo].[Categories]";
         var reader = cmd.ExecuteReader();
 
-        using (var session = domain.OpenSession())
+        using (var session = domain.OpenSession(new SessionConfiguration("Legacy", SessionOptions.ServerProfile | SessionOptions.AutoActivation)))
         using (var tr = session.OpenTransaction(System.Transactions.IsolationLevel.ReadCommitted))
         {
           #region  Categories

@@ -16,22 +16,15 @@ namespace Xtensive.Orm.Configuration
   {
     /// <summary>
     /// Default option set.
-    /// The same as <see cref="LegacyProfile"/>.
+    /// The same as <see cref="ServerProfile"/>.
     /// </summary>
-    Default = LegacyProfile,
+    Default = ServerProfile,
 
     /// <summary>
     /// None of <see cref="SessionOptions"/> is on.
     /// Value is <see langword="0x0"/>.
     /// </summary>
     None = 0x0,
-
-    /// <summary>
-    /// Transactions will actually be opened just before execution of DB command. 
-    /// This option is ignored for non-SQL providers.
-    /// Value is <see langword="0x8" />.
-    /// </summary>
-    AutoShortenTransactions = 0x8,
 
     /// <summary>
     /// Enables activation of this <see cref="Session"/> from another session having this option.
@@ -71,59 +64,45 @@ namespace Xtensive.Orm.Configuration
     Disconnected = 0x40,
 
     /// <summary>
-    /// Consider <see cref="TransactionalBehavior.Auto"/> option 
     /// as <see cref="TransactionalBehavior.Suppress"/> when processing <see cref="TransactionalAttribute"/>.
     /// </summary>
     AutoTransactionSuppressMode = 0x80,
 
     /// <summary>
     /// Consider <see cref="TransactionalBehavior.Auto"/> option 
-    /// as <see cref="TransactionalBehavior.Open"/> when processing <see cref="TransactionalAttribute"/>.
     /// </summary>
     AutoTransactionOpenMode = 0x100,
+
+    /// <summary>
+    /// Enables reading of fields of removed objects.
+    /// By default this leads no an exception - only <see cref="Entity.Key"/>, <see cref="Entity.TypeId"/> and
+    /// few other system properties of removed objects can be accessed.
+    /// This option allows to read all the properties of removed objects, which values are available.
+    /// </summary>
+    ReadRemovedObjects = 0x200,
 
     // Profiles
 
     /// <summary>
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
-    /// Includes only
-    /// <see cref="AutoShortenTransactions"/> flag.
+    /// Includes only <see cref="None"/> flag.
     /// </summary>
-    ServerBaseProfile = AutoShortenTransactions,
-
-    /// <summary>
-    /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
-    /// Combines 
-    /// <see cref="ServerBaseProfile"/> | 
-    /// <see cref="AutoActivation"/> flags.
-    /// </summary>
-    ServerProfile = AutoShortenTransactions | AutoActivation,
+    ServerProfile = None,
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
     /// Combines 
-    /// <see cref="AutoShortenTransactions"/> | 
     /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="AllowSwitching"/> | 
     /// <see cref="Disconnected"/> flags.
     /// </summary>
-    ClientBaseProfile = AutoShortenTransactions | AutoTransactionOpenMode | AllowSwitching | Disconnected,
-
-    /// <summary>
-    /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
-    /// Combines 
-    /// <see cref="ClientBaseProfile"/> | 
-    /// <see cref="AutoActivation"/> flags.
-    /// </summary>
-    ClientProfile = ClientBaseProfile | AutoActivation,
+    ClientProfile = AutoTransactionOpenMode | Disconnected,
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
     /// Combines 
     /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="AutoActivation"/> | 
-    /// <see cref="AutoShortenTransactions"/> flags.
+    /// <see cref="AutoActivation"/> flags.
     /// </summary>
-    LegacyProfile = AutoShortenTransactions | AutoTransactionOpenMode | AutoActivation,
+    LegacyProfile = AutoTransactionOpenMode | AutoActivation,
   }
 }

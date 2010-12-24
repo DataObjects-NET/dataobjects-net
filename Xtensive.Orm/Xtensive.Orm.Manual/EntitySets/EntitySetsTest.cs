@@ -48,6 +48,10 @@ namespace Xtensive.Orm.Manual.EntitySets
     [Field]
     [Association(PairTo = "Participants")]
     public EntitySet<Meeting> Meetings { get; private set; }
+
+    public User(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -62,6 +66,10 @@ namespace Xtensive.Orm.Manual.EntitySets
 
     [Field(Length = 200)]
     public string Url { get; set; }
+
+    public WebPage(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -79,6 +87,10 @@ namespace Xtensive.Orm.Manual.EntitySets
 
     [Field]
     public User Author { get; set;}
+
+    public BlogPost(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -96,6 +108,10 @@ namespace Xtensive.Orm.Manual.EntitySets
 
     [Field]
     public EntitySet<User> Participants { get; private set; }
+
+    public Meeting(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -109,6 +125,10 @@ namespace Xtensive.Orm.Manual.EntitySets
       OnOwnerRemove = OnRemoveAction.Deny, 
       OnTargetRemove = OnRemoveAction.Cascade)]
     public User User { get; set; }
+
+    public Account(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -123,14 +143,14 @@ namespace Xtensive.Orm.Manual.EntitySets
 
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        var user = new User();
+        var user = new User(session);
 
-        var firstPost = new BlogPost {Title = "First post"};
+        var firstPost = new BlogPost(session) {Title = "First post"};
         user.BlogPosts.Add(firstPost);
 
         Assert.AreEqual(user, firstPost.Author);
 
-        var secondPost = new BlogPost {Title = "Second post"};
+        var secondPost = new BlogPost(session) {Title = "Second post"};
         secondPost.Author = user;
 
         Assert.IsTrue(user.BlogPosts.Contains(secondPost));
@@ -147,8 +167,8 @@ namespace Xtensive.Orm.Manual.EntitySets
       var domain = BuildDomain();
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        var user = new User();
-        var account = new Account();
+        var user = new User(session);
+        var account = new Account(session);
         user.Account = account;
 
         Assert.AreEqual(user, account.User);
@@ -172,10 +192,10 @@ namespace Xtensive.Orm.Manual.EntitySets
       var domain = BuildDomain();
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        var user = new User {Name = "Alex"};
+        var user = new User(session) {Name = "Alex"};
 
-        var xtensive = new WebPage {Title = "Xtensive company", Url = "http://www.x-tensive.com"};
-        var dataobjects = new WebPage {Title = "DataObjects.Net", Url = "http://www.dataobjects.net"};
+        var xtensive = new WebPage(session) {Title = "Xtensive company", Url = "http://www.x-tensive.com"};
+        var dataobjects = new WebPage(session) {Title = "DataObjects.Net", Url = "http://www.dataobjects.net"};
 
         user.FavoritePages.Add(xtensive);
         user.FavoritePages.Add(dataobjects);

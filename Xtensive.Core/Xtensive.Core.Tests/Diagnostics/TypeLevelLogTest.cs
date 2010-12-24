@@ -9,12 +9,12 @@ using Xtensive.Diagnostics;
 
 namespace Xtensive.Tests.Diagnostics
 {
-  [TestFixture]
   public class TypeLevelLogTestTest<T1, T2>
   {
     protected static ILog Log = LogProvider.GetLog(typeof (TypeLevelLogTestTest<,>));
   }
 
+  [TestFixture]
   public class TypeLevelLogTestTest : TypeLevelLogTestTest<int, string>
   {
     [Test]

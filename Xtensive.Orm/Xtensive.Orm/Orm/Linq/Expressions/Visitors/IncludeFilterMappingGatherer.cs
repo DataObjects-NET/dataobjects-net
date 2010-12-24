@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Linq;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
@@ -45,7 +46,9 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Tuple.GenericAccessor && mc.Arguments[0].StripCasts().NodeType==ExpressionType.Constant) {
+      if (mc.Method.IsGenericMethod 
+        && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Tuple.GenericAccessor 
+        && mc.Arguments[0].StripCasts().NodeType==ExpressionType.Constant) {
         if (mc.Object==tupleExpression)
           tupleIndex = (int) ((ConstantExpression) mc.Arguments[0].StripCasts()).Value;
         else

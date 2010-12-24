@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Linq;
 using Xtensive.Linq.SerializableExpressions;
 using Xtensive.Linq.SerializableExpressions.Internals;
@@ -40,17 +41,37 @@ namespace Xtensive.Core
     }
 
     /// <summary>
+    /// Determines whether the specified expression is <see cref="ConstantExpression"/> 
+    /// with <see langword="null" /> <see cref="ConstantExpression.Value"/>.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified expression is null; otherwise, <see langword="false" />.
+    /// </returns>
+    public static bool IsNull(this Expression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      if (expression.NodeType == ExpressionType.Constant) {
+        var constantExpression = (ConstantExpression)expression;
+        return constantExpression.Value == null;
+      }
+      return false;
+    }
+
+    /// <summary>
     /// Bind parameter expressions to <see cref="LambdaExpression"/>.
     /// </summary>
     /// <param name="lambdaExpression"><see cref="LambdaExpression"/> to bind parameters.</param>
     /// <param name="parameters"><see cref="Expression"/>s to bind to <paramref name="lambdaExpression"/></param>
-    /// <returns>Body of <paramref name="lambdaExpression"/> with lambda's parameters replaced with corresponding expression from <paramref name="parameters"/></returns>
+    /// <returns>Body of <paramref name="lambdaExpression"/> with lambda's parameters replaced 
+    /// with corresponding expression from <paramref name="parameters"/></returns>
     /// <exception cref="InvalidOperationException">Something went wrong :(.</exception>
     public static Expression BindParameters(this LambdaExpression lambdaExpression, params Expression[] parameters)
     {
       if (lambdaExpression.Parameters.Count!=parameters.Length)
         throw new InvalidOperationException(String.Format(
-          Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect, lambdaExpression.ToString(true)));
+          Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect, 
+          lambdaExpression.ToString(true)));
       var convertedParameters = new Expression[parameters.Length];
       for (int i = 0; i < lambdaExpression.Parameters.Count; i++) {
         var expressionParameter = lambdaExpression.Parameters[i];
@@ -60,11 +81,12 @@ namespace Xtensive.Core
             : Expression.Convert(parameters[i], expressionParameter.Type);
         else
           throw new InvalidOperationException(String.Format(
-            Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch, parameters[i].ToString(true), i , lambdaExpression.Parameters[i].ToString(true)));
+            Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch, 
+            parameters[i].ToString(true), i , lambdaExpression.Parameters[i].ToString(true)));
       }
-      return ExpressionReplacer.ReplaceAll(lambdaExpression.Body, lambdaExpression.Parameters.ToArray(), convertedParameters);
+      return ExpressionReplacer.ReplaceAll(
+        lambdaExpression.Body, lambdaExpression.Parameters.ToArray(), convertedParameters);
     }
-
 
     /// <summary>
     /// Converts specified <see cref="Expression"/> to <see cref="SerializableExpression"/>.
@@ -85,5 +107,151 @@ namespace Xtensive.Core
     {
       return new SerializableExpressionToExpressionConverter(expression).Convert();
     }
+
+    #region GetXxx methods
+
+    /// <summary>
+    /// Gets the <see cref="MemberInfo"/> from passed <paramref name="expression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to analyze.</param>
+    /// <returns><see cref="MemberInfo"/> the expression references by its root <see cref="MemberExpression"/>.</returns>
+    /// <exception cref="ArgumentException">The root node of expression isn't of <see cref="MemberExpression"/> type.</exception>
+    public static MemberInfo GetMember(this Expression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      expression = expression.StripLambda().StripCasts();
+      var me = expression as MemberExpression;
+      if (me == null)
+        throw new ArgumentException(
+          Strings.ExInvalidArgumentType.FormatWith(typeof (MemberExpression)), "expression");
+      return me.Member;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="FieldInfo"/> from passed <paramref name="expression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to analyze.</param>
+    /// <returns><see cref="MemberInfo"/> the expression references by its root <see cref="MemberExpression"/>.</returns>
+    /// <exception cref="ArgumentException">Expression must reference field.</exception>
+    public static FieldInfo GetField(this Expression expression)
+    {
+      var mi = GetMember(expression);
+      var fi = mi as FieldInfo;
+      if (fi == null)
+        throw new ArgumentException(
+          Strings.ExExpression0MustReferenceField.FormatWith(expression.ToString(true)));
+      return fi;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="PropertyInfo"/> from passed <paramref name="expression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to analyze.</param>
+    /// <returns><see cref="MemberInfo"/> the expression references by its root <see cref="MemberExpression"/>.</returns>
+    /// <exception cref="ArgumentException">Expression must reference property.</exception>
+    public static PropertyInfo GetProperty(this Expression expression)
+    {
+      var mi = GetMember(expression);
+      var pi = mi as PropertyInfo;
+      if (pi == null)
+        throw new ArgumentException(
+          Strings.ExExpression0MustReferenceProperty.FormatWith(expression.ToString(true)));
+      return pi;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="MethodInfo"/> from passed <paramref name="expression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to analyze.</param>
+    /// <returns><see cref="MethodInfo"/> the expression references by its root <see cref="MethodCallExpression"/>.</returns>
+    /// <exception cref="ArgumentException">Expression must reference event.</exception>
+    public static MethodInfo GetMethod(this Expression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      expression = expression.StripLambda().StripCasts();
+      var mce = expression as MethodCallExpression;
+      if (mce == null)
+        throw new ArgumentException(
+          Strings.ExInvalidArgumentType.FormatWith(typeof (MethodCallExpression)), "expression");
+      return mce.Method;
+    }
+
+#if NET40
+    /// <summary>
+    /// Gets the index <see cref="PropertyInfo"/> from passed <paramref name="expression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to analyze.</param>
+    /// <returns><see cref="PropertyInfo"/> the expression references by its root <see cref="IndexExpression"/>.</returns>
+    /// <exception cref="ArgumentException">Expression must reference event.</exception>
+    public static PropertyInfo GetIndexer(this Expression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      expression = expression.StripLambda().StripCasts();
+      var ie = expression as IndexExpression;
+      if (ie == null)
+        throw new ArgumentException(
+          Strings.ExInvalidArgumentType.FormatWith(typeof (IndexExpression)), "expression");
+      return ie.Indexer;
+    }
+#endif
+
+    /// <summary>
+    /// Gets the <see cref="ConstructorInfo"/> from passed <paramref name="expression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to analyze.</param>
+    /// <returns><see cref="ConstructorInfo"/> the expression references by its root <see cref="NewExpression"/>.</returns>
+    /// <exception cref="ArgumentException">Expression must reference event.</exception>
+    public static ConstructorInfo GetConstructor(this Expression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      expression = expression.StripLambda().StripCasts();
+      var ne = expression as NewExpression;
+      if (ne == null)
+        throw new ArgumentException(
+          Strings.ExInvalidArgumentType.FormatWith(typeof (NewExpression)), "expression");
+      return ne.Constructor;
+    }
+
+    #endregion
+
+    #region StripXxx methods
+
+    /// <summary>
+    /// Strips <see cref="Expression.Quote"/> expressions.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    public static LambdaExpression StripQuotes(this Expression expression)
+    {
+      while (expression.NodeType == ExpressionType.Quote)
+        expression = ((UnaryExpression)expression).Operand;
+      return (LambdaExpression) expression;
+    }
+
+    /// <summary>
+    /// Strips <see cref="ExpressionType.Convert"/> and <see cref="ExpressionType.TypeAs"/>.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    public static Expression StripCasts(this Expression expression)
+    {
+      while (expression.NodeType == ExpressionType.Convert
+             || expression.NodeType == ExpressionType.TypeAs)
+        expression = ((UnaryExpression) expression).Operand;
+      return expression;
+    }
+
+    /// <summary>
+    /// Strips the lambda.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    /// <returns></returns>
+    public static Expression StripLambda(this Expression expression)
+    {
+      if (expression.NodeType == ExpressionType.Lambda)
+        return ((LambdaExpression) expression).Body;
+      else
+        return expression;
+    }
+
+    #endregion
   }
 }

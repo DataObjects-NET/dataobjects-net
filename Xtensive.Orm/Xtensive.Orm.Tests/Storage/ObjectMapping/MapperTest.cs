@@ -14,6 +14,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.ObjectMapping;
+using Xtensive.ObjectMapping.Model;
 using Xtensive.Testing;
 using Xtensive.Orm.Disconnected;
 using Xtensive.Orm.ObjectMapping;
@@ -39,8 +40,8 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     public void SimpleEntitiesMappingTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      Mapper mapper;
-      var productDto = ServerCreateDtoGraphForSimpleEntitiesMappingTest(out mapper);
+      MappingDescription mapping;
+      var productDto = ServerCreateDtoGraphForSimpleEntitiesAndMapping(out mapping);
 
       var modifiedProductDto = (PersonalProductDto) productDto.Clone();
       var productNewName = modifiedProductDto.Name + "!!!";
@@ -55,8 +56,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var modificationSet = mapper.Compare(productDto, modifiedProductDto).Operations;
-        modificationSet.Replay();
+        modificationSet.Replay(session);
         tx.Complete();
       }
 
@@ -76,8 +78,8 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     public void CollectionMappingTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      Mapper mapper;
-      var publisherDto = ServerCreateDtoGraphForCollectionMappingTest(out mapper);
+      MappingDescription mapping;
+      var publisherDto = ServerCreateDtoGraphForCollectionAndMapping(out mapping);
 
       var removedBookShop = publisherDto.Distributors.First();
       var modifiedPublisherDto = Clone(publisherDto);
@@ -92,8 +94,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var modifications = mapper.Compare(publisherDto, modifiedPublisherDto).Operations;
-        modifications.Replay();
+        modifications.Replay(session);
         tx.Complete();
       }
 
@@ -122,8 +125,8 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     public void CustomEntitySetMappingTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      Mapper mapper;
-      var bookShopDto = ServerCreateDtoGraphForCustomEntitySetMappingTest(out mapper);
+      MappingDescription mapping;
+      var bookShopDto = ServerCreateDtoGraphForCustomEntitySetAndMapping(out mapping);
 
       Assert.IsNotNull(bookShopDto);
       Assert.IsTrue(bookShopDto.Suppliers.Any(s => s.Trademark=="A"));
@@ -138,8 +141,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var operations = mapper.Compare(bookShopDto, modifiedBookShopDto).Operations;
-        operations.Replay();
+        operations.Replay(session);
         var newPublisher = session.Query.All<Publisher>().Where(p => p.Trademark==newPublisherDto.Trademark).Single();
         Assert.AreEqual("D", newPublisher.Trademark);
         var bookShop = session.Query.All<AnotherBookShop>().Single();
@@ -156,9 +160,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       ApartmentDto originalApartmentDto1;
       Key apartment0Key;
       Key apartment1Key;
-      Mapper mapper;
-      ServerCreateDtoGraphForStructureMappingTest(out originalApartmentDto0, out originalApartmentDto1,
-        out apartment0Key, out apartment1Key, out mapper);
+      MappingDescription mapping;
+      ServerCreateDtoGraphForStructureAndMapping(out originalApartmentDto0, out originalApartmentDto1,
+        out apartment0Key, out apartment1Key, out mapping);
 
       var modifiedApartmentDto0 = Clone(originalApartmentDto0);
       var newDescription0 = new ApartmentDescriptionDto {
@@ -176,9 +180,10 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var operations = mapper.Compare(new[] {originalApartmentDto0, originalApartmentDto1},
           new[] {modifiedApartmentDto1, modifiedApartmentDto0}).Operations;
-        operations.Replay();
+        operations.Replay(session);
         var apartment0 = session.Query.Single<Apartment>(apartment0Key);
         ValidateApartment(modifiedApartmentDto0, apartment0);
         Assert.AreEqual(modifiedApartmentDto0.Description.Manager.Key,
@@ -194,8 +199,8 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     public void NewObjectKeysMappingTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      Mapper mapper;
-      var original = ServerCreateDtoGraphForKeysMappingTest(out mapper);
+      MappingDescription mapping;
+      var original = ServerCreateDtoGraphForKeysAndMapping(out mapping);
 
       var modified = Clone(original);
       var personDto2 = new SimplePersonDto {Key = Guid.NewGuid().ToString(), Name = "Person2"};
@@ -205,12 +210,13 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var comparisonResult = mapper.Compare(original, modified);
         var keyMapping = comparisonResult.KeyMapping;
         Assert.AreEqual(2, keyMapping.Count);
         var person2RealKey = Key.Parse(Domain, (string) keyMapping[personDto2.Key]);
         var person3RealKey = Key.Parse(Domain, (string) keyMapping[personDto3.Key]);
-        comparisonResult.Operations.Replay();
+        comparisonResult.Operations.Replay(session);
         session.Query.Single<SimplePerson>(person2RealKey);
         session.Query.Single<SimplePerson>(person3RealKey);
         modified.RemoveAt(2);
@@ -221,7 +227,7 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
         keyMapping = comparisonResult.KeyMapping;
         Assert.AreEqual(1, keyMapping.Count);
         var person4RealKey = Key.Parse(Domain, (string) keyMapping[personDto4.Key]);
-        comparisonResult.Operations.Replay();
+        comparisonResult.Operations.Replay(session);
         session.Query.Single<SimplePerson>(person4RealKey);
         session.Query.Single<SimplePerson>(person2RealKey);
         session.Query.Single<SimplePerson>(person3RealKey);
@@ -233,10 +239,10 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     public void OptimisticOfflineLockTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      Mapper mapper;
-      var original = ServerCreateDtoGraphForOptimisticLockTest(out mapper);
+      MappingDescription mapping;
+      var original = ServerCreateDtoGraphForOptimisticLockAndMapping(out mapping);
       var modified = ClientModifiyDtoGraph(original);
-      ServerApplyChanges(original, modified, mapper);
+      ServerApplyChanges(original, modified, mapping);
     }
 
     [Test]
@@ -247,10 +253,10 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       var mapping = new MappingBuilder()
         .MapType<CustomPerson, CustomPersonDto, string>(cp => cp.Key.Format(), cp => cp.Key,
           dto => new object[] {dto.Id}).TrackChanges(cp => cp.Id, false).Build();
-      var mapper = new Mapper(mapping);
       List<object> originalPersonDtos;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var customPerson0 = new CustomPerson(rnd.Next()) {AuxString = "Auxiliary0", Name = "Name0"};
         var customPerson1 = new CustomPerson(rnd.Next()) {AuxString = "Auxiliary1", Name = "Name1"};
         originalPersonDtos = (List<object>) mapper.Transform(new[] {customPerson0, customPerson1});
@@ -265,8 +271,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var result = mapper.Compare(originalPersonDtos, modifiedPersonDtos);
-        result.Operations.Replay();
+        result.Operations.Replay(session);
         Session.Current.SaveChanges();
 
         Action<CustomPersonDto, CustomPerson> validator = (personDto, person) => {
@@ -323,9 +330,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       ReadOnlyDictionary<object, object> keyMapping;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         using (var comparisonResult = mapper.Compare(null, target)) {
-          comparisonResult.Operations.Replay();
+          comparisonResult.Operations.Replay(session);
           keyMapping = comparisonResult.KeyMapping;
         }
         tx.Complete();
@@ -333,14 +340,14 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var root = session.Query.Single<CompositeKeyRoot>(Key.Parse((string) keyMapping[target.Key]));
+        var root = session.Query.Single<CompositeKeyRoot>(Key.Parse(Domain, (string) keyMapping[target.Key]));
         Assert.AreEqual(target.Aux, root.Aux);
-        Assert.AreEqual(Key.Parse((string) keyMapping[target.FirstId.Key]), root.FirstId.Key);
-        Assert.AreEqual(Key.Parse((string) keyMapping[target.SecondId.Key]), root.SecondId.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[target.FirstId.Key]), root.FirstId.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[target.SecondId.Key]), root.SecondId.Key);
         var firstLevel0 = root.FirstId;
         Assert.AreEqual(firstLevel0Dto.Aux, firstLevel0.Aux);
         Assert.AreEqual(firstLevel0Dto.FirstId, firstLevel0.FirstId);
-        Assert.AreEqual(Key.Parse((string) keyMapping[firstLevel0Dto.SecondId.Key]), firstLevel0.SecondId.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[firstLevel0Dto.SecondId.Key]), firstLevel0.SecondId.Key);
         var firstLevel1 = firstLevel0.SecondId;
         Assert.AreEqual(firstLevel1Dto.Aux, firstLevel1.Aux);
         Assert.AreEqual(firstLevel1Dto.FirstId, firstLevel1.FirstId);
@@ -349,7 +356,7 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
         Assert.AreEqual(secondLevel0Dto.Aux, secondLevel0.Aux);
         Assert.AreEqual(secondLevel0Dto.FirstId, secondLevel0.FirstId);
         Assert.AreEqual(secondLevel0Dto.SecondId, secondLevel0.SecondId);
-        Assert.AreEqual(Key.Parse((string) keyMapping[secondLevel0Dto.Reference.Key]), firstLevel0.Key);
+        Assert.AreEqual(Key.Parse(Domain, (string)keyMapping[secondLevel0Dto.Reference.Key]), firstLevel0.Key);
         Assert.AreSame(secondLevel0.Reference, firstLevel0);
       }
     }
@@ -357,8 +364,8 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     [Test]
     public void SerializationTest()
     {
-      Mapper mapper;
-      var productDto = ServerCreateDtoGraphForOptimisticLockTest(out mapper);
+      MappingDescription mapping;
+      var productDto = ServerCreateDtoGraphForOptimisticLockAndMapping(out mapping);
 
       var modifiedProductDto = Clone(productDto);
       var product = ((PersonWithVersionDto) modifiedProductDto[0]);
@@ -368,11 +375,12 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       modifiedProductDto[1] = newProductDto;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var comparisonResult = mapper.Compare(productDto, modifiedProductDto);
         Assert.IsFalse(comparisonResult.Operations.Count==0);
         var binaryFormatter = new BinaryFormatter();
         comparisonResult.VersionInfoProvider
-          .Invoke(Key.Parse(((PersonWithVersionDto) modifiedProductDto[0]).Key));
+          .Invoke(Key.Parse(Domain, ((PersonWithVersionDto)modifiedProductDto[0]).Key));
         TestSerialization(comparisonResult, binaryFormatter.Serialize, binaryFormatter.Deserialize);
         var dataContractSerializer = new DataContractSerializer(typeof (GraphComparisonResult),
           new[] {
@@ -417,16 +425,16 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       Assert.IsNotNull(actualResult.VersionInfoProvider);
     }
 
-    private PersonalProductDto ServerCreateDtoGraphForSimpleEntitiesMappingTest(out Mapper mapper)
+    private PersonalProductDto ServerCreateDtoGraphForSimpleEntitiesAndMapping(out MappingDescription mapping)
     {
       PersonalProductDto productDto;
-      var mapping = new MappingBuilder()
+      mapping = new MappingBuilder()
         .MapType<Entity, IdentifiableDto, string>(p => p.Key.Format(), p => p.Key)
         .Inherit<IdentifiableDto, PersonalProduct, PersonalProductDto>()
         .Inherit<IdentifiableDto, Employee, EmployeeDto>().Build();
-      mapper = new Mapper(mapping);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var employee = new Employee {Age = 25, Name = "A", Position = "B"};
         var product = new PersonalProduct {Employee = employee, Name = "C"};
         productDto = (PersonalProductDto) mapper.Transform(product);
@@ -435,15 +443,15 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       return productDto;
     }
 
-    private PublisherDto ServerCreateDtoGraphForCollectionMappingTest(out Mapper mapper)
+    private PublisherDto ServerCreateDtoGraphForCollectionAndMapping(out MappingDescription mapping)
     {
       PublisherDto publisherDto;
-      var mapping = new MappingBuilder()
+      mapping = new MappingBuilder()
         .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
         .MapType<BookShop, BookShopDto, string>(b => b.Key.Format(), b => b.Key).Build();
-      mapper = new Mapper(mapping);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var bookShop0 = new BookShop {Name = "B0"};
         var bookShop1 = new BookShop {Name = "B1"};
         var bookShop2 = new BookShop {Name = "B2"};
@@ -457,17 +465,17 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       return publisherDto;
     }
 
-    private BookShopDto ServerCreateDtoGraphForCustomEntitySetMappingTest(out Mapper mapper)
+    private BookShopDto ServerCreateDtoGraphForCustomEntitySetAndMapping(out MappingDescription mapping)
     {
-      var mapping = new MappingBuilder()
+      mapping = new MappingBuilder()
         .MapType<AnotherBookShop, BookShopDto, string>(abs => abs.Key.Format(), bs => bs.Key)
         .IgnoreProperty(bs => bs.Name).IgnoreProperty(bs => bs.Url)
         .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
         .IgnoreProperty(p => p.Distributors).Build();
-      mapper = new Mapper(mapping);
       BookShopDto bookShopDto;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         foreach (var publisher in session.Query.All<Publisher>())
           publisher.Remove();
         foreach (var bookShop in session.Query.All<BookShop>())
@@ -482,17 +490,21 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       return bookShopDto;
     }
 
-    private void ServerCreateDtoGraphForStructureMappingTest(out ApartmentDto originalApartmentDto0,
-      out ApartmentDto originalApartmentDto1, out Key apartment0Key, out Key apartment1Key, out Mapper mapper)
+    private void ServerCreateDtoGraphForStructureAndMapping(
+      out ApartmentDto originalApartmentDto0,
+      out ApartmentDto originalApartmentDto1, 
+      out Key apartment0Key, 
+      out Key apartment1Key, 
+      out MappingDescription mapping)
     {
-      var mapping = new MappingBuilder()
+      mapping = new MappingBuilder()
         .MapType<SimplePerson, SimplePersonDto, string>(p => p.Key.Format(), p => p.Key)
         .MapType<Apartment, ApartmentDto, string>(a => a.Key.Format(), a => a.Key)
         .MapStructure<Address, AddressDto>()
         .MapStructure<ApartmentDescription, ApartmentDescriptionDto>().Build();
-      mapper = new Mapper(mapping);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var person0 = new SimplePerson {Name = "Name0"};
         var address0 = new Address {
           Building = 1, City = "City0", Country = "Country0", Office = 10, Street = "Street0"
@@ -516,14 +528,14 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       }
     }
 
-    private List<object> ServerCreateDtoGraphForKeysMappingTest(out Mapper mapper)
+    private List<object> ServerCreateDtoGraphForKeysAndMapping(out MappingDescription mapping)
     {
-      var mapping = new MappingBuilder()
+      mapping = new MappingBuilder()
         .MapType<SimplePerson, SimplePersonDto, string>(sp => sp.Key.Format(), sp => sp.Key).Build();
-      mapper = new Mapper(mapping);
       List<object> original;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var mapper = new Mapper(session, mapping);
         var person0 = new SimplePerson {Name = "Person0"};
         var person1 = new SimplePerson {Name = "Person1"};
         original = (List<object>) mapper.Transform(new[] {person0, person1});
@@ -532,7 +544,7 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       return original;
     }
 
-    private List<object> ServerCreateDtoGraphForOptimisticLockTest(out Mapper mapper)
+    private List<object> ServerCreateDtoGraphForOptimisticLockAndMapping(out MappingDescription mapping)
     {
       var formatter = new BinaryFormatter();
       using (var stream = new MemoryStream()) {
@@ -544,13 +556,13 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
           stream.SetLength(0);
           return result;
         };
-        var mapping = new MappingBuilder()
+        mapping = new MappingBuilder()
           .MapType<SimplePerson, PersonWithVersionDto, string>(sp => sp.Key.Format(), sp => sp.Key)
           .MapProperty(p => serializer.Invoke(p.VersionInfo), p => p.Version).Build();
-        mapper = new Mapper(mapping);
         List<object> original;
         using (var session = Domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
+          var mapper = new Mapper(session, mapping);
           var person0 = new SimplePerson {Name = "Person0"};
           var person1 = new SimplePerson {Name = "Person1"};
           original = (List<object>) mapper.Transform(new[] {person0, person1});
@@ -568,13 +580,14 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       return modified;
     }
 
-    private void ServerApplyChanges(List<object> original, List<object> modified, Mapper mapper)
+    private void ServerApplyChanges(List<object> original, List<object> modified, MappingDescription mapping)
     {
       using (var session = Domain.OpenSession()) {
+        var mapper = new Mapper(session, mapping);
         using (var result = mapper.Compare(original, modified))
         using (VersionValidator.Attach(session, result.VersionInfoProvider))
         using (var tx = session.OpenTransaction()) {
-          result.Operations.Replay();
+          result.Operations.Replay(session);
           tx.Complete();
         }
       }
@@ -582,11 +595,12 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       // Validation of the stale object.
       ((PersonWithVersionDto) modified[0]).Name += "ModifiedAgain";
       using (var session = Domain.OpenSession()) {
+        var mapper = new Mapper(session, mapping);
         using (var result = mapper.Compare(original, modified))
         using (VersionValidator.Attach(session, result.VersionInfoProvider)) {
           AssertEx.Throws<VersionConflictException>(() => {
             using (var tx = session.OpenTransaction()) {
-              result.Operations.Replay();
+              result.Operations.Replay(session);
               tx.Complete();
             }
           });

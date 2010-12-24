@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Func<FieldInfo, bool> fieldSelector)
     {
       var state = session.EntityStateCache[key, true];
-      var realType = state.Key.Type;
+      var realType = state.Key.TypeInfo;
       Assert.IsTrue(realType.Equals(type) 
         || realType.GetAncestors().Contains(type) 
         || (type.IsInterface && realType.GetInterfaces(true).Contains(type)));

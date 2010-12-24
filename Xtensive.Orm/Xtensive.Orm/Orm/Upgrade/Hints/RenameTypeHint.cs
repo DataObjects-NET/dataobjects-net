@@ -83,5 +83,17 @@ namespace Xtensive.Orm.Upgrade
       OldType = oldType;
       NewType = newType;
     }
+
+    /// <summary>
+    /// Creates the instance of this hint.
+    /// </summary>
+    /// <typeparam name="T">The new type.</typeparam>
+    /// <param name="oldName">The old type name.</param>
+    /// <returns>The newly created instance of this hint.</returns>
+    public static RenameTypeHint Create<T>(string oldName)
+      where T: Entity
+    {
+      return new RenameTypeHint(oldName, typeof(T));
+    }
   }
 }

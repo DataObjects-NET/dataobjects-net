@@ -282,6 +282,7 @@ namespace Xtensive.Orm
     /// <typeparam name="T">The type of item in sequence.</typeparam>
     /// <param name="source">The sequence to convert.</param>
     /// <returns>"Transactional" version of sequence.</returns>
+    [Obsolete("Use ToTransactional<T>(IEnumerable<T>, Session) method instead.")]
     public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source)
     {
       return source.ToTransactional(Session.Demand(), IsolationLevel.Unspecified);
@@ -312,6 +313,7 @@ namespace Xtensive.Orm
     /// <param name="source">The sequence to convert.</param>
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>"Transactional" version of sequence.</returns>
+    [Obsolete("Use ToTransactional<T>(IEnumerable<T>, Session, IsolationLevel) method instead.")]
     public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, IsolationLevel isolationLevel)
     {
       return source.ToTransactional(Session.Demand(), isolationLevel);

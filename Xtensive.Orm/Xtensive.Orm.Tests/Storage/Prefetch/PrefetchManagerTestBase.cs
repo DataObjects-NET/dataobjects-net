@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
@@ -47,6 +48,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       var config = base.BuildConfiguration();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
+      config.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return config;
     }
 

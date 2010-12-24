@@ -29,15 +29,16 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = new DomainConfiguration("memory://localhost/DO40-Tests");
       config.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      config.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default, SessionOptions.LegacyProfile));
       return config;
     }
 
     [Test]
     public void CommitTest()
     {
-      using (Session.Open(Domain))
-      using (var ts = Transaction.Open()) {
-        using (var tx = Transaction.Open(TransactionOpenMode.New)) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
+        using (var tx = session.OpenTransaction(TransactionOpenMode.New)) {
           new MyEntity();
           tx.Complete();
         }
@@ -49,9 +50,9 @@ namespace Xtensive.Orm.Tests.Issues
     [ExpectedException(typeof(NotSupportedException))]
     public void RollbackTest()
     {
-      using (Session.Open(Domain))
-      using (var ts = Transaction.Open()) {
-        using (var tx = Transaction.Open(TransactionOpenMode.New)) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
+        using (var tx = session.OpenTransaction(TransactionOpenMode.New)) {
           new MyEntity();
           // tx.Complete();
         }
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void DisconnectedStateTest()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Domain.OpenSession()) {
         var ds = new DisconnectedState();
         using (ds.Attach(session)) {
           new MyEntity();

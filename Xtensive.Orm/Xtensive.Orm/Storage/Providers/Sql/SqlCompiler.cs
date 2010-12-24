@@ -303,25 +303,26 @@ namespace Xtensive.Storage.Providers.Sql
       var query = ExtractSqlSelect(provider, compiledSource);
       var rootSelectProvider = RootProvider as SelectProvider;
       var currentIsRoot = RootProvider==provider;
-      if (currentIsRoot || (rootSelectProvider!=null && rootSelectProvider.Source==provider)) {
-        query.OrderBy.Clear(); 
+
+      if (currentIsRoot || (rootSelectProvider != null && rootSelectProvider.Source == provider)) {
+        query.OrderBy.Clear();
         if (currentIsRoot) {
-          foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
-            query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
+          foreach (var pair in provider.Header.Order)
+            query.OrderBy.Add(query.Columns[pair.Key], pair.Value == Direction.Positive);
         }
         else {
           var columnExpressions = ExtractColumnExpressions(query, provider);
           var shouldUseColumnPosition = provider.Header.Order.Any(o => o.Key >= columnExpressions.Count);
           if (shouldUseColumnPosition)
-            foreach (KeyValuePair<int, Direction> pair in provider.Header.Order) {
+            foreach (var pair in provider.Header.Order) {
               if (pair.Key >= columnExpressions.Count)
-                query.OrderBy.Add(pair.Key + 1, pair.Value==Direction.Positive);
+                query.OrderBy.Add(pair.Key + 1, pair.Value == Direction.Positive);
               else
-                query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
+                query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
             }
           else
-            foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
-              query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
+            foreach (var pair in provider.Header.Order)
+              query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
         }
       }
       return CreateProvider(query, provider, compiledSource);
@@ -429,15 +430,17 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
     {
-      if (provider.Header.Order.Count==0)
-        throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
+      var directionCollection = provider.Header.Order;
+      if (directionCollection.Count == 0)
+        directionCollection = new DirectionCollection<int>(1);
+//        throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var source = Compile(provider.Source);
 
       var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
       query.Columns.Add(rowNumber, provider.Header.Columns.Last().Name);
       var columns = ExtractColumnExpressions(query, provider);
-      foreach (KeyValuePair<int, Direction> order in provider.Header.Order)
+      foreach (var order in directionCollection)
         rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);
       return CreateProvider(query, provider, source);
     }

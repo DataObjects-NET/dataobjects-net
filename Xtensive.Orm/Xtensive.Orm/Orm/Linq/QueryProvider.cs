@@ -54,8 +54,13 @@ namespace Xtensive.Orm.Linq
       var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
         ? typeof (IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
         : expression.Type;
-      var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
-      return executeMethod.Invoke(this, new[] {expression});
+      try {
+        var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
+        return executeMethod.Invoke(this, new[] {expression});
+      }
+      catch(TargetInvocationException te) {
+        throw te.InnerException;
+      }
     }
 
     /// <inheritdoc/>

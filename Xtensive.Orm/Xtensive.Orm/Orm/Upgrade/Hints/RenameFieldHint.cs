@@ -5,6 +5,7 @@
 // Created:    2009.04.29
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
@@ -89,6 +90,23 @@ namespace Xtensive.Orm.Upgrade
       TargetType = targetType;
       OldFieldName = oldFieldName;
       NewFieldName = newFieldName;
+    }
+
+    /// <summary>
+    /// Creates the instance of this hint.
+    /// </summary>
+    /// <typeparam name="T">The type.</typeparam>
+    /// <param name="oldFieldName">Old name of the field.</param>
+    /// <param name="newFieldAccessExpression">The new field access expression.</param>
+    /// <returns>The newly created instance of this hint.</returns>
+    public static RenameFieldHint Create<T>(
+      string oldFieldName,
+      Expression<Func<T, object>> newFieldAccessExpression)
+      where T: Entity
+    {
+      var field = newFieldAccessExpression.GetProperty();
+      return new RenameFieldHint(
+        field.ReflectedType, oldFieldName, field.Name);
     }
   }
 }

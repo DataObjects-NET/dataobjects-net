@@ -123,10 +123,14 @@ namespace Xtensive.Orm.Model
       {
         TNode result;
         if (!TryGetValue(key, out result))
-          throw new ArgumentException(
-            string.Format(Strings.ExItemWithKeyXWasNotFound, key));
+          throw new ArgumentException(GetExceptionMessage(key));
         return result;
       }
+    }
+
+    protected virtual string GetExceptionMessage(string key)
+    {
+      return string.Format(Strings.ExItemWithKeyXWasNotFound, key);
     }
 
     protected override void OnInserted(TNode value, int index)

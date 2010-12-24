@@ -58,8 +58,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transaction = Transaction.Open(session)) {
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           var interfacesDic = new Dictionary<int, Dictionary<Guid, string>>();
           var numeratorsDict = new Dictionary<int, List<NumeratorInfo>>();
           var fieldsDict = new Dictionary<int, List<DocFieldInfo>>();
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Issues
           };
           session.SaveChanges();
           var query =
-            Query.All<DocEntity>().Select(
+            session.Query.All<DocEntity>().Select(
               q =>
                 new DocEntityInfo() {
                   Caption = q.Name,
@@ -112,8 +112,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AdditionalTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var transaction = Transaction.Open(session)) {
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           var interfacesDic = new Dictionary<int, Dictionary<Guid, string>>();
           var numeratorsDict = new Dictionary<int, List<NumeratorInfo>>();
           var fieldsDict = new Dictionary<int, List<DocFieldInfo>>();
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Tests.Issues
             OwnerEntity = ownerEntity,
           };
           session.SaveChanges();
-          var q = Query.All<DocEntity>()
+          var q = session.Query.All<DocEntity>()
             .GroupBy(tpf => tpf.EnEntityType.Id)
             .Select(gr => new {
               V = gr.Select(a => new DynamicFilterInfo() {

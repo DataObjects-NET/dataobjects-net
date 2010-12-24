@@ -22,6 +22,10 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
 
     [Field]
     public string Name { get; set; }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -29,6 +33,10 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
   {
     [Field]
     public decimal Salary { get; set; }
+
+    public Employee(Session session) 
+      : base(session)
+    {}
   }
 
   #endregion
@@ -56,12 +64,13 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
       var domain = GetDomain();
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          var query = session.Query.All<Person>().Select(employee => 
-            new {
-              employee, 
-              Namesakes = session.Query.All<Person>()
-                .Where(person => person.Name == employee.Name)
-            });
+          var query = session.Query.All<Person>()
+            .Select(employee => 
+              new {
+                employee, 
+                Namesakes = session.Query.All<Person>()
+                  .Where(person => person.Name == employee.Name)
+              });
 
           // Enumerate query
           foreach (var employeeData in query) {
@@ -86,8 +95,8 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
         using (var session = domain.OpenSession()) {
           using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
-            new Person {Name = "John"};
-            new Person {Name = "Susan"};
+            new Person (session) {Name = "John"};
+            new Person (session) {Name = "Susan"};
 
             transactionScope.Complete();
           }

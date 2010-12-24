@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Operations
       var formattedKeys = info.GetString("Keys");
       var keys = new Set<Key>();
       foreach (var formattedKey in formattedKeys.RevertibleSplit('\\', ';')) {
-        var key = Key.Parse(formattedKey);
+        var key = Key.Parse(Domain.Demand(), formattedKey);
         key.TypeReference = new TypeReference(key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         keys.Add(key);
       }

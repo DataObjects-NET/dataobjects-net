@@ -49,8 +49,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain))
-      using (var ts = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
 
         var person = new Person();
         var typeInfo = person.TypeInfo;

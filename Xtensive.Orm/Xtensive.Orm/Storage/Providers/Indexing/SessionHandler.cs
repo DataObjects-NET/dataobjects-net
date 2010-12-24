@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Indexing
   public class SessionHandler : Providers.SessionHandler,
     IIndexResolver
   {
-    private IndexStorage storage;
+    protected IndexStorage storage;
     private bool isDebugLoggingEnabled;
 
     /// <summary>
@@ -198,9 +198,11 @@ namespace Xtensive.Storage.Providers.Indexing
     #region IIndexResolver members
 
     /// <inheritdoc/>
-    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
+    public virtual IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
     {
-      return StorageView.GetIndex(indexInfo);
+      return StorageView == null 
+        ? storage.GetRealIndexStatisticsAdapter(indexInfo) 
+        : StorageView.GetIndex(indexInfo);
     }
 
     #endregion

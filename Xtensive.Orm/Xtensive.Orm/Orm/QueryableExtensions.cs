@@ -22,6 +22,19 @@ namespace Xtensive.Orm
   public static class QueryableExtensions
   {
     /// <summary>
+    /// Returns the number of elements in a <see cref="source"/> sequence.
+    /// </summary>
+    /// <param name="source">The source sequence.</param>
+    public static int Count(this IQueryable source)
+    {
+      if (source == null) throw new ArgumentNullException("source");
+      return (int)source.Provider.Execute(
+        Expression.Call(
+          typeof(Queryable), "Count",
+          new[] { source.ElementType }, source.Expression));
+    }
+
+    /// <summary>
     /// Version of <see cref="Queryable.Take{TSource}"/>, where <paramref name="count"/> is specified as 
     /// <see cref="Expression"/>.
     /// </summary>

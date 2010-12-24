@@ -5,9 +5,10 @@
 // Created:    2009.10.27
 
 using System;
+using Xtensive.Orm.Tests._Manual.Validation;
 using Xtensive.Orm.Validation;
 
-namespace Xtensive.Orm.Manual.Validation
+namespace Xtensive.Orm.Tests._Manual.Validation
 {
   [Serializable]
   [HierarchyRoot]
@@ -52,6 +53,8 @@ namespace Xtensive.Orm.Manual.Validation
         throw new Exception("Can not subscribe on news (email is not specified).");
     }
 
-    
+    public Person(Session session)
+      : base(session)
+    {}
   }
 }

@@ -24,7 +24,7 @@ namespace Xtensive.Practices.Web
   /// &lt;configuration&gt;
   ///   &lt;system.web&gt;
   ///     &lt;httpModules&gt;
-  ///       &lt;add name="SessionManager" type="Xtensive.Orm.Web.SessionManager, Xtensive.Storage"/&gt;
+  ///       &lt;add name="SessionManager" type="Xtensive.Orm.Web.SessionManager, Xtensive.Orm"/&gt;
   ///     &lt;/httpModules&gt;
   ///   &lt;/system.web&gt;
   /// &lt;/configuration&gt;
@@ -261,7 +261,7 @@ namespace Xtensive.Practices.Web
       context.EndRequest += EndRequest;
       context.Error += Error;
       
-      if (Session.Resolver==null)
+      if (Session.Resolver == null)
         Session.Resolver = () => Current.Session;
     }
 
@@ -276,8 +276,16 @@ namespace Xtensive.Practices.Web
 
     private static void EnsureDomainIsBuilt()
     {
-      if (domain == null) lock (domainBuildLock) if (domain == null)
-        domain = DomainBuilder.Invoke();
+      if (domain == null) lock (domainBuildLock) if (domain == null) {
+        Session.Resolver = null;
+        try {
+          domain = DomainBuilder.Invoke();
+        }
+        finally {
+          if (Session.Resolver == null)
+            Session.Resolver = () => Current.Session;
+        }
+      }
     }
 
     private void EnsureSessionIsProvided()

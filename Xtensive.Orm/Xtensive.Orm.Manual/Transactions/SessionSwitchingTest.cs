@@ -38,6 +38,8 @@ namespace Xtensive.Orm.Manual.Transactions.SessionSwitching
       var domain = GetDomain();
 
       var sessionCfg = new SessionConfiguration();
+      sessionCfg.Options |= SessionOptions.AutoActivation;
+      sessionCfg.Options |= SessionOptions.AutoTransactionOpenMode;
       using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
         var personA = sessionA.Query.All<Person>().First();
         using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
@@ -66,6 +68,8 @@ namespace Xtensive.Orm.Manual.Transactions.SessionSwitching
 
       var sessionCfg = new SessionConfiguration();
       sessionCfg.Options |= SessionOptions.AllowSwitching;
+      sessionCfg.Options |= SessionOptions.AutoActivation;
+      sessionCfg.Options |= SessionOptions.AutoTransactionOpenMode;
       using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
         var personA = sessionA.Query.All<Person>().First();
         using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
@@ -85,7 +89,9 @@ namespace Xtensive.Orm.Manual.Transactions.SessionSwitching
         };
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         var domain = Domain.Build(config);
-        using (var session = domain.OpenSession()) {
+        var sessionCfg = new SessionConfiguration();
+        sessionCfg.Options |= SessionOptions.AutoActivation;
+        using (var session = domain.OpenSession(sessionCfg)) {
           using (var transactionScope = session.OpenTransaction()) {
             // Creating initial content
             new Person {Name = "Tereza"};

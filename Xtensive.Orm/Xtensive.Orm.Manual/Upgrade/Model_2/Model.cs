@@ -24,6 +24,10 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_2
 
     [Field]
     public int Quantity { get; set; }
+
+    public Order(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -35,5 +39,9 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_2
 
     [Field]
     public string Name { get; set; }
+
+    public Customer(Session session)
+      : base(session)
+    {}
   }
 }

@@ -126,7 +126,7 @@ namespace Xtensive.Orm
       Tuple tuple = null;
       if (key.HasExactType)
         // A tuple with all the fields set to default values rather then N/A
-        tuple = key.Type.CreateEntityTuple(key.Value);
+        tuple = key.TypeInfo.CreateEntityTuple(key.Value);
 
       if (result==null) {
         result = new EntityState(this, key, tuple) {

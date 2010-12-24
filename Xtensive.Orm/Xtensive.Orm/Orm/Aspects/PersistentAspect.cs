@@ -67,26 +67,6 @@ namespace Xtensive.Orm
       if (fieldAttribute == null)
         return result;
 
-      var associationAttribute = propertyInfo.GetAttribute<AssociationAttribute>();
-      var associationAttributes = propertyInfo.GetAttributes<AssociationAttribute>(AttributeSearchOptions.InheritFromAllBase); 
-      if (associationAttributes.Length > 1) {
-        if (associationAttribute == null)
-          associationAttribute = associationAttributes.First();
-        if (associationAttributes.Any(a => !a.IsCompatibleWith(associationAttribute))) {
-          var typeName = type.GetShortName();
-          var propName = propertyInfo.GetShortName(false);
-          var interfaceName = type.GetInterfaces()
-            .First(i => typeof (IEntity).IsAssignableFrom(i)&& i.GetProperty(propName, bindingFlags) != null)
-            .GetShortName();
-          ErrorLog.Write(
-            SeverityType.Error, 
-            "\"{0}.{1}\" has [Association] incompatible with \"{2}.{1}\"", 
-            typeName, 
-            propName, 
-            interfaceName);
-        }
-      }
-
       var keyAttribute = propertyInfo.GetAttribute<KeyAttribute>();
       var getter = propertyInfo.GetGetMethod(true);
       var setter = propertyInfo.GetSetMethod(true);

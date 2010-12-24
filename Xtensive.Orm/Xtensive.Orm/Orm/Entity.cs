@@ -24,6 +24,7 @@ using Xtensive.Tuples;
 using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
@@ -107,7 +108,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    #region Properties: Key, Type, Tuple, PersistenceState, VersionInfo, etc.
+    #region Properties: Key, TypeInfo, Tuple, PersistenceState, VersionInfo, etc.
 
     /// <summary>
     /// Gets the <see cref="Key"/> that identifies this entity.
@@ -418,6 +419,7 @@ namespace Xtensive.Orm
       if (tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable())
         return;
 
+      EnsureNotRemoved();
       Session.Handler.FetchField(Key, field);
     }
 
@@ -577,7 +579,8 @@ namespace Xtensive.Orm
 
     internal override sealed void SystemBeforeGetValue(FieldInfo field)
     {
-      EnsureNotRemoved();
+      if ((Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+        EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
       EnsureIsFetched(field);
@@ -767,7 +770,7 @@ namespace Xtensive.Orm
     protected Entity()
     {
       try {
-        var key = Key.Create(Session.Domain, GetType());
+        var key = Key.Create(Session, GetType());
         State = Session.CreateEntityState(key);
         SystemBeforeInitialize(false);
       }
@@ -789,7 +792,7 @@ namespace Xtensive.Orm
     {
       try
       {
-        var key = Key.Create(Session.Domain, GetType());
+        var key = Key.Create(Session, GetType());
         State = Session.CreateEntityState(key);
         SystemBeforeInitialize(false);
       }

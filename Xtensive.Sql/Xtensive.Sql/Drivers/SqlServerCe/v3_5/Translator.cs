@@ -14,7 +14,7 @@ using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.SqlServerCe.Resources;
+using Xtensive.Sql.Drivers.SqlServerCe.Resources;
 using Xtensive.Sql;
 
 namespace Xtensive.Sql.SqlServerCe.v3_5

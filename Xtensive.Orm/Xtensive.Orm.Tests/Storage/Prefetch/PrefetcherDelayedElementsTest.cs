@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = session.Query.All<Person>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
+        keys = session.Query.All<Person>().AsEnumerable().Select(p => Key.Create<Person>(Domain, p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           Assert.IsFalse(key.HasExactType);
           Assert.IsTrue(Domain.KeyCache.TryGetItem(key, true, out cachedKey));
           Assert.IsTrue(cachedKey.HasExactType);
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(keys.Count, count);
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Customer>().Where(c => c.Name == "Customer1").AsEnumerable()
-          .Select(p => Key.Create<Person>(p.Key.Value)).ToList();
+          .Select(p => Key.Create<Person>(Domain, p.Key.Value)).ToList();
         actualEmployeeCount = session.Query.All<Employee>().Where(e => e.Name == "Employee1").Count();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var key in keys) {
           customerCount++;
           var cachedKey = GetCachedKey(key, session);
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
           session.Handler.TryGetEntitySetState(key, ordersField, out state);
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             Assert.IsNotNull(orderState);
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
-            var employeeKey = Key.Create<Person>(employeeField.Associations.Last()
+            var employeeKey = Key.Create<Person>(Domain, employeeField.Associations.Last()
               .ExtractForeignKey(orderState.Type, orderState.Tuple));
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
@@ -129,7 +129,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = session.Query.All<Customer>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
+        keys = session.Query.All<Customer>().AsEnumerable().Select(p => Key.Create<Person>(Domain, p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var key in enumerable) {
           count++;
           var cachedKey = GetCachedKey(key, session);
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(15, count);
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var key in keys) {
           count++;
           var cachedKey = GetCachedKey(key, session);
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(keys.Count, count);
@@ -356,7 +356,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        keys = session.Query.All<T>().Take(count).AsEnumerable().Select(p => Key.Create<T>(p.Key.Value)).ToList();
+        keys = session.Query.All<T>().Take(count).AsEnumerable().Select(p => Key.Create<T>(Domain, p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -406,7 +406,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             return false;
           })
           : PrefetchTestHelper.IsFieldToBeLoadedByDefault;
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.Type, session,
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.TypeInfo, session,
           fieldSelector);
       }
     }

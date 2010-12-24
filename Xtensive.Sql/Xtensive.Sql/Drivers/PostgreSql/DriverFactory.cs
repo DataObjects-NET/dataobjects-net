@@ -9,7 +9,7 @@ using System.Security;
 using Npgsql;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.PostgreSql.Resources;
+using Xtensive.Sql.Drivers.PostgreSql.Resources;
 
 namespace Xtensive.Sql.PostgreSql
 {

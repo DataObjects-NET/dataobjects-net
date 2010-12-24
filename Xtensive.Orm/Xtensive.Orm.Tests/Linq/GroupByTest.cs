@@ -316,6 +316,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void AnonymousTypeEntityGroupTest()
     {
       var groupByResult = Session.Query.All<Product>().GroupBy(product => new {product.Category});
+      var list = groupByResult.ToList();
       var result = groupByResult
         .ToList()
         .Select(g => g.Key);

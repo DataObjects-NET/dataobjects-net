@@ -14,7 +14,7 @@ namespace Xtensive.Orm
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public sealed class TypeDiscriminatorValueAttribute : Attribute
+  public sealed class TypeDiscriminatorValueAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets or sets the value of type discriminator.

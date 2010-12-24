@@ -33,7 +33,7 @@ namespace Xtensive.Orm
   /// Storage access point.
   /// </summary>
   /// <sample>
-  /// <code lang="cs" source="..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
+  /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   public sealed class Domain :
     IDisposableContainer,

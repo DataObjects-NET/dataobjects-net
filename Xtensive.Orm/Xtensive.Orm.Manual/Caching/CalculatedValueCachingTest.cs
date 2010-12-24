@@ -40,6 +40,10 @@ namespace Xtensive.Orm.Manual.Caching
       return string.Format("Product #{0}, Name={1}, Orders.Count={2}",
         Id, Name, Orders.Count);
     }
+
+    public Product(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -107,6 +111,10 @@ namespace Xtensive.Orm.Manual.Caching
       return string.Format("Order #{0}, Product={1}, Quantity={2}",
         Id, Product.Name, Quantity);
     }
+
+    public Order(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -144,8 +152,8 @@ namespace Xtensive.Orm.Manual.Caching
 
       using (var session = domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var apple  = new Product {Name = "Apple", Price = 2.0};
-          var appleOrder = new Order {Product = apple, Quantity = 1};
+          var apple  = new Product (session) {Name = "Apple", Price = 2.0};
+          var appleOrder = new Order (session) {Product = apple, Quantity = 1};
           // var banana = new Product {Name = "Banana", Price = 1.0};
           // var bananaOrder = new Order {Product = banana, Quantity = 2};
           
@@ -184,7 +192,7 @@ namespace Xtensive.Orm.Manual.Caching
       Assert.AreEqual(totalPrice, order.TotalPriceCached);
       // Checking the value in LINQ query
       Assert.AreEqual(totalPrice,
-        Session.Demand().Query.All<Order>()
+        order.Session.Query.All<Order>()
         .Where(o => o==order)
         .Select(o => o.TotalPrice)
         .Single());

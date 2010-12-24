@@ -730,7 +730,10 @@ Schema difference:
     <value>Referential integrity violation.</value>
   </data>
   <data name="ReferentialIntegrityViolationOnAttemptToRemoveXKeyY" xml:space="preserve">
-    <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.</value>
+    <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.
+Association: {2}
+Referencing Entity Key: {3}
+Referenced Entity Key: {4}</value>
   </data>
   <data name="ExLeftJoinDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>LeftJoin does not support query provider of type '{0}'.</value>
@@ -1535,5 +1538,14 @@ Error: {1}</value>
   </data>
   <data name="XW0001" xml:space="preserve">
     <value>{0}</value>
+  </data>
+  <data name="ExUpgradeHintTargetFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Target field '{0}' not found.]]></value>
+  </data>
+  <data name="ExUpgradeHintSourceTypeNotFound">
+    <value><![CDATA[Upgrade hint error. Source type '{0}' not found.]]></value>
+  </data>
+  <data name="ExUpgradeHintSourceFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
   </data>
 </root>

@@ -31,6 +31,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(typeof (Document).Assembly, typeof (Document).Namespace);
+      config.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return config;
     }
 

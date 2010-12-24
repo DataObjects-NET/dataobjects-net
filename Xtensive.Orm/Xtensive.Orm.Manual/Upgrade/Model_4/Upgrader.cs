@@ -29,14 +29,15 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_4
 
     public override void OnUpgrade()
     {
-      foreach (var order in Session.Demand().Query.All<Order>()) {
-        var product = Session.Demand().Query.All<Product>()
+      var session = Session.Demand();
+      foreach (var order in session.Query.All<Order>()) {
+        var product = session.Query.All<Product>()
 #pragma warning disable 612,618
           .SingleOrDefault(p => p.Name==order.ProductName);
 #pragma warning restore 612,618
         if (product==null)
 #pragma warning disable 612,618
-          product = new Product { Name = order.ProductName };
+          product = new Product (session) { Name = order.ProductName };
 #pragma warning restore 612,618
         order.Product = product;
       }

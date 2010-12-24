@@ -26,7 +26,7 @@ namespace Xtensive.Orm.ObjectMapping
   public sealed class Mapper : MapperBase<GraphComparisonResult>
   {
     private OperationLog comparisonResult;
-    private Session session;
+    private readonly Session session;
     private Dictionary<object, Key> newObjectKeys;
     private Dictionary<object, Key> existingObjectKeys;
 
@@ -62,7 +62,6 @@ namespace Xtensive.Orm.ObjectMapping
         newObjectKeys.Clear();
       if (existingObjectKeys!=null)
         existingObjectKeys.Clear();
-      session = Session.Demand();
     }
 
     /// <inheritdoc/>
@@ -77,7 +76,6 @@ namespace Xtensive.Orm.ObjectMapping
       }
       var result = new GraphComparisonResult(originalObjects, modifiedObjects, comparisonResult,
         formattedKeyMapping!=null ? new ReadOnlyDictionary<object, object>(formattedKeyMapping, false) : null);
-      session = null;
       comparisonResult = null;
       if (existingObjectKeys!=null)
         existingObjectKeys.Clear();
@@ -139,7 +137,7 @@ namespace Xtensive.Orm.ObjectMapping
           TypeReferenceAccuracy.ExactType, customKeyFieldValues);
       }
       else
-        result = Key.Create(session.Domain, sourceType.SystemType);
+        result = Key.Create(session, sourceType.SystemType);
       newObjectKeys[dtoKey] = result;
       return result;
     }
@@ -206,18 +204,24 @@ namespace Xtensive.Orm.ObjectMapping
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="session">The session.</param>
     /// <param name="mappingDescription">The mapping description.</param>
-    public Mapper(MappingDescription mappingDescription)
+    public Mapper(Session session, MappingDescription mappingDescription)
       : base(mappingDescription, new MapperSettings())
-    {}
+    {
+      this.session = session;
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="session">The session.</param>
     /// <param name="mappingDescription">The mapping description.</param>
     /// <param name="settings">The mapper settings.</param>
-    public Mapper(MappingDescription mappingDescription, MapperSettings settings)
+    public Mapper(Session session, MappingDescription mappingDescription, MapperSettings settings)
       : base(mappingDescription, settings)
-    {}
+    {
+      this.session = session;
+    }
   }
 }

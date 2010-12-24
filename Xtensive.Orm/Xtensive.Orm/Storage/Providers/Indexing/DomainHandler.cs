@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.Indexing
     /// <summary>
     /// Gets the index storage.
     /// </summary>
-    public IndexStorage Storage { get; private set; }
+    protected internal IndexStorage Storage { get; private set; }
 
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
@@ -172,9 +172,9 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       return new CompositePreCompiler(
         new ApplyProviderCorrector(false),
-        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor, false),
+        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
-        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor, true)
+        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor)
         );
     }
 

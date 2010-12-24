@@ -912,4 +912,10 @@
   <data name="ExScopeBoundTransactionCanBeCommittedOnlyByItsScope" xml:space="preserve">
     <value>Scope-bound transaction can be committed only by its scope. Use TransactionScopeBase.Complete() \  Dispose() methods of  appropriate TransactionScopeBase descendant instance to do this.</value>
   </data>
+  <data name="ExExpression0MustReferenceField">
+    <value><![CDATA[Expression '{0}' must reference field.]]></value>
+  </data>
+  <data name="ExExpression0MustReferenceProperty">
+    <value><![CDATA[Expression '{0}' must reference property.]]></value>
+  </data>
 </root>

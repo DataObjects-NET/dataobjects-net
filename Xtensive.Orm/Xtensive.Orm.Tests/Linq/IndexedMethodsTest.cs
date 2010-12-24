@@ -22,7 +22,6 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
     }
     
-    //    public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector);
     [Test]
     public void SelectIndexedTest()
     {
@@ -31,7 +30,17 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
-//    public static IQueryable<TResult> SelectMany<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector);
+    [Test]
+    public void SelectIndexedWhereTest()
+    {
+      var result = Query.All<Customer>()
+        .Select((c, i) => new {Customer = c, Index = i})
+        .Where(a => a.Customer.Id == "SPLIR")
+        .ToList();
+      Assert.AreEqual(1, result.Count);
+      Assert.Greater(result[0].Index, 1);
+    }
+
     [Test]
     public void SelectManyIndexedTest()
     {

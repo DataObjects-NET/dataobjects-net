@@ -47,6 +47,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
     [Field]
     [Association(PairTo = "Friends")]
     public EntitySet<User> Friends { get; private set; }
+
+    public User(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -61,6 +65,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     [Field(Length = 200)]
     public string Url { get; set; }
+
+    public WebPage(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -78,6 +86,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     [Field]
     public User Author { get; set;}
+
+    public BlogPost(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -94,6 +106,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
     [Association(PairTo = "Author", OnOwnerRemove = OnRemoveAction.Clear,
       OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Book> Books { get; private set; }
+
+    public Author(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -108,6 +124,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     [Field]
     public string Title { get; set; }
+
+    public Book(Session session)
+      : base(session)
+    {}
   }
 
   public enum OrderPriority
@@ -134,6 +154,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
     [Association(PairTo = "Order", OnOwnerRemove = OnRemoveAction.Cascade,
       OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<OrderItem> Items { get; set; }
+
+    public Order(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -151,6 +175,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     [Field]
     public double Price { get; set; }
+
+    public OrderItem(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -168,6 +196,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     [Field]
     public Address Address { get; set; }
+
+    public Customer(Session session)
+      : base(session)
+    {}
   }
 
   public class Address : Structure
@@ -186,6 +218,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     [Field]
     public int Office { get; set; }
+
+    public Address(Session session)
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -197,6 +233,10 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     [Field]
     public string ProjectName { get; set; }
+
+    public Trunk(Session session) 
+      : base(session)
+    {}
   }
 
   [Serializable]
@@ -216,8 +256,8 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
     // Constructors
 
-    public Branch(int id, Trunk trunk)
-      : base(id, trunk)
+    public Branch(Session session, int id, Trunk trunk)
+      : base(session, id, trunk)
     {}
   }
 
@@ -381,15 +421,15 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       UserDto userDto;
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var user = new User();
-        var firstPost = new BlogPost {Title = "First post"};
+        var user = new User(session);
+        var firstPost = new BlogPost(session) {Title = "First post"};
         user.BlogPosts.Add(firstPost);
-        var secondPost = new BlogPost {Title = "Second post", Author = user};
+        var secondPost = new BlogPost(session) {Title = "Second post", Author = user};
         user.BlogPosts.Add(secondPost);
-        user.PersonalPage = new WebPage {Title = "Xtensive company", Url = "http://www.x-tensive.com"};
+        user.PersonalPage = new WebPage(session) {Title = "Xtensive company", Url = "http://www.x-tensive.com"};
 
         // The mapping decription is immutable and can be used multiple times
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         userDto = (UserDto) mapper.Transform(user);
         tx.Complete();
       }
@@ -418,14 +458,14 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         // Compare original and modified graphs
         using (var comparisonResult = mapper.Compare(originalUserDto, userDto)) {
           // Apply found changes to domain model objects
-          comparisonResult.Operations.Replay();
+          comparisonResult.Operations.Replay(session);
           // The property KeyMapping provides the mapping from simulated keys of 
           // new objects in the graph to real keys of these objects in the storage
-          var newFreind = session.Query.Single<User>(Key.Parse((string) comparisonResult.KeyMapping[newFriendDto.Key]));
+          var newFreind = session.Query.Single<User>(Key.Parse(domain, (string) comparisonResult.KeyMapping[newFriendDto.Key]));
         }
         tx.Complete();
       }
@@ -453,15 +493,15 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       };
       authorDto.Name = "John";
 
-      var mapper = new Mapper(mapping);
-
       // Validate version before applying changes
-      using (var session = domain.OpenSession())
-      using (var comparisonResult = mapper.Compare(originalAuthorDto, authorDto))
-      using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider))
-      using (var tx = session.OpenTransaction()) {
-        comparisonResult.Operations.Replay();
-        tx.Complete();
+      using (var session = domain.OpenSession()) {
+        var mapper = new Mapper(session, mapping);
+        using (var comparisonResult = mapper.Compare(originalAuthorDto, authorDto))
+        using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider))
+        using (var tx = session.OpenTransaction()) {
+          comparisonResult.Operations.Replay(session);
+          tx.Complete();
+        }
       }
 
       var staleAuthorDto = Clone(authorDto);
@@ -469,20 +509,22 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       staleAuthorDto.Name = "Eugene";
       
       // Trying to use the stale object
-      using (var session = domain.OpenSession())
-      using (var comparisonResult = mapper.Compare(originalAuthorDto, staleAuthorDto))
-      using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider)) {
-        var wasThrown = false;
-        try {
-          using (var tx = session.OpenTransaction()) {
-            comparisonResult.Operations.Replay();
-            tx.Complete();
+      using (var session = domain.OpenSession()) {
+        var mapper = new Mapper(session, mapping);
+        using (var comparisonResult = mapper.Compare(originalAuthorDto, staleAuthorDto))
+        using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider)) {
+          var wasThrown = false;
+          try {
+            using (var tx = session.OpenTransaction()) {
+              comparisonResult.Operations.Replay(session);
+              tx.Complete();
+            }
           }
+          catch (VersionConflictException) {
+            wasThrown = true;
+          }
+          Assert.IsTrue(wasThrown);
         }
-        catch (VersionConflictException) {
-          wasThrown = true;
-        }
-        Assert.IsTrue(wasThrown);
       }
 
       ValidateOptimisticOfflineLockTest(domain, authorDto);
@@ -515,13 +557,13 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDto, orderDto))
-          comparisonResult.Operations.Replay();
+          comparisonResult.Operations.Replay(session);
         tx.Complete();
       }
 
-      ValidateStructureTest(orderDto, domain);
+      ValidateStructureTest(domain, orderDto);
     }
 
     [Test]
@@ -546,19 +588,19 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       List<object> orderDtos;
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var customer = new Customer {
-          FirstName = "First", LastName = "Customer", Address = new Address {
+        var customer = new Customer(session) {
+          FirstName = "First", LastName = "Customer", Address = new Address (session) {
             State = "Russia", City = "Yekaterinburg", Street = "Nagornaya", Building = 12, Office = 316
           }
         };
-        var order0 = new Order {Priority = OrderPriority.High, Customer = customer};
-        order0.Items.Add(new OrderItem {Price = 1.5, ProductName = "Product0"});
-        order0.Items.Add(new OrderItem {Price = 3, ProductName = "Product1"});
-        var order1 = new Order {Priority = OrderPriority.Normal, Customer = customer};
-        order1.Items.Add(new OrderItem {Price = 1.5, ProductName = "Product0"});
-        order1.Items.Add(new OrderItem {Price = 10, ProductName = "Product2"});
+        var order0 = new Order(session) {Priority = OrderPriority.High, Customer = customer};
+        order0.Items.Add(new OrderItem(session) {Price = 1.5, ProductName = "Product0"});
+        order0.Items.Add(new OrderItem(session) {Price = 3, ProductName = "Product1"});
+        var order1 = new Order(session) {Priority = OrderPriority.Normal, Customer = customer};
+        order1.Items.Add(new OrderItem(session) {Price = 1.5, ProductName = "Product0"});
+        order1.Items.Add(new OrderItem(session) {Price = 10, ProductName = "Product2"});
         var orders = new HashSet<Order> {order0, order1};
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         // The graph root can be a descendant of ICollection<T>
         orderDtos = (List<object>) mapper.Transform(orders);
         tx.Complete();
@@ -580,16 +622,16 @@ namespace Xtensive.Orm.Manual.ObjectMapper
 
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDtos, orderDtos)) {
-          comparisonResult.Operations.Replay();
-          var order0 = session.Query.Single<Order>(Key.Parse(orderDto0.Key));
+          comparisonResult.Operations.Replay(session);
+          var order0 = session.Query.Single<Order>(Key.Parse(domain, orderDto0.Key));
           Assert.AreEqual(orderDto0.Priority, order0.Priority);
           Assert.AreNotEqual(orderDto0.Customer.FirstName, order0.Customer.FirstName);
           Assert.AreEqual("First", order0.Customer.FirstName);
           Assert.AreEqual(orderDto0.Customer.LastName, order0.Customer.LastName);
           Assert.AreEqual(2, order0.Items.Count);
-          var order1 = session.Query.Single<Order>(Key.Parse(orderDto1.Key));
+          var order1 = session.Query.Single<Order>(Key.Parse(domain, orderDto1.Key));
           Assert.AreEqual(orderDto1.Priority, order1.Priority);
           Assert.AreEqual(orderDto1.Customer.Key, order0.Customer.Key.Format());
           Assert.AreEqual(2, order0.Items.Count);
@@ -625,15 +667,15 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       IDictionary<object,object> newObjectKeys;
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         using (var comparisonResult = mapper.Compare(null, branchDto)) {
-          comparisonResult.Operations.Replay();
+          comparisonResult.Operations.Replay(session);
           newObjectKeys = comparisonResult.KeyMapping;
         }
         tx.Complete();
       }
 
-      ValidateCustomKeyGenerationTest(branchDto, newObjectKeys, domain);
+      ValidateCustomKeyGenerationTest(domain, branchDto, newObjectKeys);
     }
 
     private byte[] SerializeVersionInfo(VersionInfo versionInfo)
@@ -650,12 +692,12 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       AuthorDto result;
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var author = new Author {Name = "Jack"};
-        author.Books.Add(new Book {Title = "The greatest book"});
-        author.Books.Add(new Book {Title = "The another greatest book"});
+        var author = new Author(session) {Name = "Jack"};
+        author.Books.Add(new Book(session) {Title = "The greatest book"});
+        author.Books.Add(new Book(session) {Title = "The another greatest book"});
 
         // The mapping decription is immutable and can be used multiple times
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         result = (AuthorDto) mapper.Transform(author);
         tx.Complete();
       }
@@ -667,15 +709,15 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       OrderDto orderDto;
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var customer = new Customer {
-          FirstName = "John", LastName = "Smith", Address = new Address {
+        var customer = new Customer(session) {
+          FirstName = "John", LastName = "Smith", Address = new Address (session) {
             State = "Russia", City = "Yekaterinburg", Street = "Nagornaya", Building = 12, Office = 316
           }
         };
-        var orderItem = new OrderItem {Price = 99.99, ProductName = "Product"};
-        var order = new Order {Customer = customer, Priority = OrderPriority.Normal};
+        var orderItem = new OrderItem(session) {Price = 99.99, ProductName = "Product"};
+        var order = new Order(session) {Customer = customer, Priority = OrderPriority.Normal};
         order.Items.Add(orderItem);
-        var mapper = new Mapper(mapping);
+        var mapper = new Mapper(session, mapping);
         orderDto = (OrderDto) mapper.Transform(order);
         tx.Complete();
       }
@@ -704,7 +746,7 @@ namespace Xtensive.Orm.Manual.ObjectMapper
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var author = session.Query.Single<Author>(Key.Parse(authorDto.Key));
+        var author = session.Query.Single<Author>(Key.Parse(domain, authorDto.Key));
         Assert.AreEqual(authorDto.Name, author.Name);
         Assert.AreEqual(2, author.Books.Count);
         var firstBookDto = authorDto.Books[0];
@@ -718,11 +760,11 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       }
     }
 
-    private static void ValidateStructureTest(OrderDto orderDto, Domain domain)
+    private static void ValidateStructureTest(Domain domain, OrderDto orderDto)
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var order = session.Query.Single<Order>(Key.Parse(orderDto.Key));
+        var order = session.Query.Single<Order>(Key.Parse(domain, orderDto.Key));
         Assert.AreEqual(orderDto.Priority, order.Priority);
         var orderItemDto = orderDto.Items.Single();
         var orderItem = order.Items.Single();
@@ -743,13 +785,12 @@ namespace Xtensive.Orm.Manual.ObjectMapper
       }
     }
 
-    private static void ValidateCustomKeyGenerationTest(BranchDto branchDto,
-      IDictionary<object, object> newObjectKeys, Domain domain)
+    private static void ValidateCustomKeyGenerationTest(Domain domain, BranchDto branchDto, IDictionary<object, object> newObjectKeys)
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var branch = session.Query.Single<Branch>(Key.Parse((string) newObjectKeys[branchDto.Key]));
-        Assert.AreEqual(Key.Parse((string) newObjectKeys[branchDto.Trunk.Key]), branch.Trunk.Key);
+        var branch = session.Query.Single<Branch>(Key.Parse(domain, (string) newObjectKeys[branchDto.Key]));
+        Assert.AreEqual(Key.Parse(domain, (string) newObjectKeys[branchDto.Trunk.Key]), branch.Trunk.Key);
         Assert.AreEqual(branchDto.Id, branch.Id);
         Assert.AreEqual(branchDto.CreationDate.ToString(), branch.CreationDate.ToString());
         Assert.AreEqual(branchDto.Trunk.ProjectName, branch.Trunk.ProjectName);

@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Model.Stored
   /// <summary>
   /// A xml serializable representation of <see cref="MappingName"/>.
   /// </summary>
-  [DebuggerDisplay("{MappingName}")]
+  [DebuggerDisplay("{MappingName??Name}")]
   public abstract class StoredNode
   {
     /// <summary>

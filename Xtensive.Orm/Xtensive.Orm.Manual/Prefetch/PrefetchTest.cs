@@ -41,6 +41,10 @@ namespace Xtensive.Orm.Manual.Prefetch
     public Key ManagerKey { 
       get { return GetReferenceKey(TypeInfo.Fields["Manager"]); } 
     }
+
+    public Person(Session session)
+      : base(session)
+    {}
   }
 
   #endregion
@@ -60,8 +64,8 @@ namespace Xtensive.Orm.Manual.Prefetch
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
 
-        var employee = new Person {Name = "Employee", Photo = new byte[] {8, 0}};
-        var manager  = new Person {Name = "Manager",  Photo = new byte[] {8, 0}};
+        var employee = new Person(session) {Name = "Employee", Photo = new byte[] {8, 0}};
+        var manager  = new Person(session) {Name = "Manager",  Photo = new byte[] {8, 0}};
         manager.Employees.Add(employee);
         transactionScope.Complete();
       }
@@ -86,7 +90,7 @@ namespace Xtensive.Orm.Manual.Prefetch
         var prefetchedPersons = session.Query.Many<Person, int>(personIds)
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees // EntitySet Employees
-            .Prefetch(e => e.Photo)
+              .Prefetch(e => e.Photo)) // and lazy load field of each of its items
             .Prefetch(e => e.Manager)) // and lazy load field of each of its items
           .Prefetch(p => p.Manager.Photo); // Referenced entity
         foreach (var person in prefetchedPersons) {
@@ -130,7 +134,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       using (var transactionScope = session.OpenTransaction()) {
         var random = new Random(10);
         for (int i = 0; i < count; i++)
-          new Person {Name = i.ToString(), Photo = new[] {(byte) (i % 256)}};
+          new Person(session) {Name = i.ToString(), Photo = new[] {(byte) (i % 256)}};
         var persons = session.Query.All<Person>().OrderBy(p => p.Id).ToArray();
         for (int i = 0; i<count; i++) {
           var person = persons[i];
