@@ -489,7 +489,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample explictly joins two tables and projects results from both tables.")]
     public void DLinqJoin5()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var q =
         from c in Query.All<Customer>()
         join o in Query.All<Order>() on c.Id equals o.Customer.Id into orders
@@ -503,7 +503,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample explictly joins three tables and projects results from each of them.")]
     public void DLinqJoin6()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var q =
         from c in Query.All<Customer>()
         join o in Query.All<Order>() on c.Id equals o.Customer.Id into ords

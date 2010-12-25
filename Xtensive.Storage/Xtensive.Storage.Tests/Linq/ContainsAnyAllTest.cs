@@ -421,6 +421,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetAllTest()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle);
       var result = Query.All<Customer>()
         .Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
       var expected = Customers
@@ -455,6 +456,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetAnyStructureTest()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle);
       var result = Query.All<Customer>()
         .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));
       var expected = Customers

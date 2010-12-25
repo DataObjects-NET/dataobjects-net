@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SingleAggregateTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Query.All<Order>()
         .Select(o => o.OrderDetails.Count());
       QueryDumper.Dump(result);
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DualAggregateTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Query.All<Order>()
         .Select(o => new {SUM = o.OrderDetails.Count(), SUM2 = o.OrderDetails.Count()});
       QueryDumper.Dump(result);
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CountAfterFilterTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         Query.All<Customer>().Where(c => Query.All<Order>()
           .Where(o => o.Customer==c)
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereCountTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Query.All<Customer>()
         .Where(c => Query.All<Order>().Count(o => o.Customer==c) > 5);
       var expected = Customers
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereCountWithPredicateTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         from c in Query.All<Customer>()
         where Query.All<Order>().Count(o => o.Customer==c) > 10
@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereMaxWithSelectorTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         from c in Query.All<Customer>()
         where Query.All<Order>()
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereMinWithSelectorTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         from c in Query.All<Customer>()
         where Query.All<Order>()
@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereAverageWithSelectorTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         from c in Query.All<Customer>()
         where Query.All<Order>()
@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousCountTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         from c in Query.All<Customer>()
         select new {
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectMaxTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = from p in Query.All<Product>()
       select new {
         Product = p,
@@ -274,7 +274,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SumCountTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var expected = Query.All<Order>().ToList().Count();
       var count = Query.All<Customer>()
         .Sum(c => Query.All<Order>().Count(o => o.Customer==c));
@@ -284,7 +284,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SumMinTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Query.All<Customer>()
         .Where(c => c.Orders.Count > 0)
         .Sum(c => Query.All<Order>().Where(o => o.Customer==c).Min(o => o.Freight));
@@ -297,7 +297,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MaxCountTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Query.All<Customer>()
         .Max(c => Query.All<Order>().Count(o => o.Customer==c));
       var expected = Customers

@@ -66,6 +66,12 @@ namespace Xtensive.Storage.Tests.Issues
   [Serializable]
   public class Issue0624_EntitySetSubqueryError : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderIsNot(StorageProvider.Oracle);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

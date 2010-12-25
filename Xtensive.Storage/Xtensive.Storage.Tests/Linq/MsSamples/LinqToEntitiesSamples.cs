@@ -123,6 +123,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses WHERE and ANY to get employees who sold an order to any customer in Mexico.")]
     public void LinqToEntities9()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle);
       var query = from e in Query.All<Employee>()
       where e.Orders.Any(o => o.Customer.Address.Country=="Mexico")
       select e;
@@ -135,6 +136,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses ALL to get employees who sold orders only to customers not in Canada.")]
     public void LinqToEntities10()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle);
       var query = from e in Query.All<Employee>()
       where e.Orders.All(o => o.Customer.Address.Country!="Canada")
       select e;
@@ -888,7 +890,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region.")]
     public void LinqToEntities68()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions
@@ -903,7 +905,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region using LINQ operators.")]
     public void LinqToEntities69()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = Query.All<Customer>().GroupBy(c => c.Address.Region)
         .Select(g => new {
           Region = g.Key, FreightTotal = g
@@ -972,7 +974,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select a customer and the sum of the freight of thier orders.")]
     public void LinqToEntities73()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
         .Select(c => c.Orders.Sum(o => o.Freight));
 
@@ -995,7 +997,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Selects all regions with a customer, and shows the sum of orders for customers for each region.")]
     public void LinqToEntities76()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions

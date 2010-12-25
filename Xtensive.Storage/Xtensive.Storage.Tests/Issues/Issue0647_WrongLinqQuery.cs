@@ -210,6 +210,12 @@ namespace Xtensive.Storage.Tests.Issues
     private Guid globalId3 = new Guid("EC2F180E-48BB-445C-BE95-C384B069D60B");
     private Guid globalId4 = new Guid("07F0DF2A-B55F-44BE-BB9B-034A875BF0DE");
 
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderIsNot(StorageProvider.Oracle);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
