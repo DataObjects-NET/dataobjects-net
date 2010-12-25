@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectUsingContextTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var expectedCount = Session.Query.All<Order>().Count();
       var context = new Context();
       var actualCount = context.Orders.Count();

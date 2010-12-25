@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Tests.Interfaces
   {
     public interface IHasName : IEntity
     {
-      [Field]
+      [Field(Length = 100)]
       string Name { get; set; }
     }
 
     public interface ITagged : IHasName
     {
-      [Field]
+      [Field(Length = 100)]
       string Tag { get; set; }
     }
 
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Interfaces
       [Key, Field]
       public int Id { get; private set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string Name { get; set; }
     }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Interfaces
 
     public class C : A, ITagged
     {
-      [Field(Indexed = true)]
+      [Field(Length=100, Indexed = true)]
       public string Tag { get; set; }
     }
 
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Interfaces
       [Key, Field]
       public int Id { get; private set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string Title { get; set; }
 
       public string Name { get; set; }

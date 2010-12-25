@@ -46,6 +46,13 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class Issue0826_OperandTypeClash : AutoBuildTest
   {
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderIsNot(StorageProvider.Oracle);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

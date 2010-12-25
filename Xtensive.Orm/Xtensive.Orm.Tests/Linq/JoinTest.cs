@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupJoinAggregateTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         from c in Session.Query.All<Customer>()
         join o in Session.Query.All<Order>() on c equals o.Customer into ords
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupJoinAggregate2Test()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Session.Query.All<Customer>()
         .GroupJoin(Session.Query.All<Order>(),
           customer => customer.Id,

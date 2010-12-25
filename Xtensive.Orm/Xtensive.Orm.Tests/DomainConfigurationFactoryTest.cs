@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.05.19
 
+using System;
 using NUnit.Framework;
 using System.Text;
 using Xtensive.Orm.Configuration;
@@ -27,7 +28,7 @@ namespace Xtensive.Orm.Tests
       var result = new StringBuilder();
       result.Append("ConnectionString: ").AppendLine(config.ConnectionInfo.ToString());
       result.Append("ForeignKeyMode: ").AppendLine(config.ForeignKeyMode.ToString());
-      Log.Error(result.ToString());
+      Console.WriteLine(result.ToString());
     }
   }
 }
