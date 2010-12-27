@@ -89,7 +89,12 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS supports ROW_NUMBER window function.
     /// </summary>
     RowNumber = 0x2000,
-    
+
+    /// <summary>
+    /// Indicates whether RDBMS supports subqueries that return a scalar result.
+    /// </summary>
+    ScalarSubquery = 0x4000,
+
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>

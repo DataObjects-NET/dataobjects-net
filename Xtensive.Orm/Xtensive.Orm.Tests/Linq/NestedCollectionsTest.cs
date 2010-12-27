@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectNestedWithAggregateTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Session.Query.All<Customer>()
         .Select(c => Session.Query.All<Order>().Where(o => o.Customer==c).Count());
       QueryDumper.Dump(result);

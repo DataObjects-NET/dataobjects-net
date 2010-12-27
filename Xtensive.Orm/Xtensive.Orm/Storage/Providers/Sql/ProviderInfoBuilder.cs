@@ -65,6 +65,8 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.MultipleActiveResultSets;
       if (queryFeatures.Supports(QueryFeatures.DefaultValues))
         f |= ProviderFeatures.InsertDefaultValues;
+      if (queryFeatures.Supports(QueryFeatures.ScalarSubquery))
+        f |= ProviderFeatures.ScalarSubqueries;
 
       var tt = si.TemporaryTable;
       if (tt != null)

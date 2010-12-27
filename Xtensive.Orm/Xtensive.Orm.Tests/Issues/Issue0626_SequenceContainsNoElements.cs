@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Orm.Tests.Issues.Issue0624_EntitySetSubqueryError_Model;
 using Xtensive.Orm.Tests.Issues.Issue0626_SequenceContainsNoElements_Model;
 
@@ -68,6 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var person = new Person(Guid.NewGuid()) {Rank = 1};

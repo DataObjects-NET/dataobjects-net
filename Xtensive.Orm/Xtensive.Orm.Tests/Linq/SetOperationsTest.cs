@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleConcatTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customers = Session.Query.All<Customer>();;
       var result = customers.Where(c => c.Orders.Count <= 1).Concat(Session.Query.All<Customer>().Where(c => c.Orders.Count > 1));
       QueryDumper.Dump(result);

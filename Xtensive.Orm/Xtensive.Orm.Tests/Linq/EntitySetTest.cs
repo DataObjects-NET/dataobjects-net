@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CountTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var expected = Session.Query.All<Order>().Count();
       var count = Session.Query.All<Customer>()
         .Select(c => c.Orders.Count)

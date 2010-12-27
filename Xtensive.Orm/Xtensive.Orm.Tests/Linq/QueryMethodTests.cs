@@ -7,6 +7,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Linq;
+using Xtensive.Storage.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 
@@ -35,6 +36,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SingleSubqueryKeyTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
       var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -70,6 +72,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SingleOrDefaultSubqueryKeyTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
       var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
       Assert.AreEqual(0, expected.Except(query).Count());

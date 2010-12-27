@@ -5,6 +5,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Disposing;
 using Xtensive.Orm.Linq;
+using Xtensive.Storage.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 
@@ -122,6 +123,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses WHERE and ANY to get employees who sold an order to any customer in Mexico.")]
     public void LinqToEntities9()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle);
       var query = from e in Session.Query.All<Employee>()
       where e.Orders.Any(o => o.Customer.Address.Country=="Mexico")
       select e;
@@ -134,6 +136,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses ALL to get employees who sold orders only to customers not in Canada.")]
     public void LinqToEntities10()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle);
       var query = from e in Session.Query.All<Employee>()
       where e.Orders.All(o => o.Customer.Address.Country!="Canada")
       select e;
@@ -403,6 +406,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses Min to find the Products that have the lowest unit price in each category, and returns the result as an anonoymous type.")]
     public void LinqToEntities32()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
@@ -448,6 +452,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses MAX to find the Products that have the highest unit price in each category, and returns the result as an anonoymous type.")]
     public void LinqToEntities36()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = from p in Session.Query.All<Product>()
       group p by p.Category
       into g
@@ -497,6 +502,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the Products that have unit price higher than the average unit price of the category for each category.")]
     public void LinqToEntities40()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = from p in Session.Query.All<Product>()
       group p by p.Category
       into g
@@ -516,6 +522,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the average unit price of each category.")]
     public void LinqToEntities41()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
@@ -583,6 +590,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses DISTINCT to get all the categories of products.")]
     public void LinqToEntities45()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Session.Query.All<Product>().Select(o => o.Category).Distinct();
 
       QueryDumper.Dump(query);
@@ -605,6 +613,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses UNION and DISTINCT to get all the employees from orders where the shipping country was Mexico or Canada.")]
     public void LinqToEntities47()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var mexico = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
       var canada = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
       var union = mexico.Union(canada).Select(o => o.Employee);
@@ -881,7 +890,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region.")]
     public void LinqToEntities68()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = from c in Session.Query.All<Customer>()
       group c by c.Address.Region
       into regions
@@ -896,7 +905,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region using LINQ operators.")]
     public void LinqToEntities69()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = Session.Query.All<Customer>().GroupBy(c => c.Address.Region)
         .Select(g => new {
           Region = g.Key, FreightTotal = g
@@ -965,7 +974,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("Select a customer and the sum of the freight of thier orders.")]
     public void LinqToEntities73()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = Session.Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
         .Select(c => c.Orders.Sum(o => o.Freight));
 
@@ -988,7 +997,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("Selects all regions with a customer, and shows the sum of orders for customers for each region.")]
     public void LinqToEntities76()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = from c in Session.Query.All<Customer>()
       group c by c.Address.Region
       into regions

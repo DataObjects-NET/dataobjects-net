@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using System.Linq;
+using Xtensive.Storage.Providers;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model;
@@ -215,6 +216,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void PairTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
         .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
         .ToList();
@@ -227,6 +229,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Pair2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
         .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
         .ToList();

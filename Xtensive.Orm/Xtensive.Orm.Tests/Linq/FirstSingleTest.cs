@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Length2Test()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customers = Session.Query.All<Customer>()
         .Where(cutomer =>
           cutomer
@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectFirstTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var products = Session.Query.All<Product>();
       var orderDetails = Session.Query.All<OrderDetails>();
       var result = from p in products
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubqueryFirstTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customersCount = Session.Query.All<Customer>().Count(c => c.Orders.Count > 0);
       var result = Session.Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.First());
       var list = result.ToList();
@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubqueryFirstExpectedExceptionTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Session.Query.All<Customer>().Select(c => c.Orders.First());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubqueryFirstOrDefaultTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customersCount = Session.Query.All<Customer>().Count();
       var result = Session.Query.All<Customer>().Select(c => c.Orders.FirstOrDefault());
       var list = result.ToList();
@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubquerySingleTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customersCount = Session.Query.All<Customer>().Count(c => c.Orders.Count > 0);
       var result = Session.Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.Take(1).Single());
       var list = result.ToList();
@@ -198,7 +198,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubquerySingleExpectedException1Test()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Session.Query.All<Customer>().Select(c => c.Orders.Take(1).Single());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
@@ -223,7 +223,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubquerySingleOrDefaultTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customersCount = Session.Query.All<Customer>().Count();
       var result = Session.Query.All<Customer>().Select(c => c.Orders.Take(1).SingleOrDefault());
       var list = result.ToList();
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexSubquerySingleOrDefaultTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var categoriesCount = Session.Query.All<Category>().Count();
       var result = Session.Query.All<Category>().Select(
         c => new {
@@ -248,7 +248,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexSubquerySelectSingleOrDefaultTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var categoriesCount = Session.Query.All<Category>().Count();
       var result = Session.Query.All<Category>().Select(c => c.Products.Take(1).SingleOrDefault()).Select(
         p => new {
@@ -264,7 +264,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexSubqueryFirstTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var categoriesCount = Session.Query.All<Category>().Count();
       var result = Session.Query.All<Category>().Select(
         c => new {
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexSubquerySelectFirstTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var categoriesCount = Session.Query.All<Category>().Count();
       var result = Session.Query.All<Category>().Select(c => c.Products.First()).Select(p => new { Product = p, p.ProductName, p.Supplier });
       var list = result.ToList();

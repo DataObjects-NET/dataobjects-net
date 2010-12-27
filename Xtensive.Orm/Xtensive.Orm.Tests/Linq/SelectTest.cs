@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Tuples;
+using Xtensive.Storage.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
@@ -134,6 +135,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void StaticPropertyTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var customers = Session.Query.All<Customer>()
         .Where(cutomer =>
           cutomer
@@ -167,7 +169,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectUsingContextTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var expectedCount = Session.Query.All<Order>().Count();
       var context = new Context();
       var actualCount = context.Orders.Count();
@@ -937,12 +939,14 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ExternalPropertyCall()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>().Select(c => Customers.Single(c2 => c2==c)).ToList();
     }
 
     [Test]
     public void ExternalMethodCall()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers().Single(c2 => c2==c));
       var expected = Session.Query.All<Customer>()
@@ -954,6 +958,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ExternalMethodWithCorrectParams1Call()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers(1).Single(c2 => c2==c));
       var expected = Session.Query.All<Customer>()
@@ -965,6 +970,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ExternalMethodWithCorrectParams2Call()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       int count = 1;
       var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers(count).Single(c2 => c2==c));

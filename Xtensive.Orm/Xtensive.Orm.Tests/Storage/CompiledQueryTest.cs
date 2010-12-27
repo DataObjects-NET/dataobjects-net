@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Storage.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
@@ -27,6 +28,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void CachedSubquerySequenceTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var categoryNames = Session.Query.All<Category>()
         .Select(c => c.CategoryName)
         .ToList();

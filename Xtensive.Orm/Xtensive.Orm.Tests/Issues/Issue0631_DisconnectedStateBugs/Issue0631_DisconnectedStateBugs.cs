@@ -10,6 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
 {
@@ -61,6 +62,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
     [Test]
     public void CombinedTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
+
       var ds = new DisconnectedState(); 
 
       // Adding few items to DisconnectedState
@@ -235,6 +238,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
     [Test]
     public void SameEntitySelect()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
+
       var state = new DisconnectedState();
 
       using (var session = Domain.OpenSession()) {

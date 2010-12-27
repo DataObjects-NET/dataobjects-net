@@ -583,6 +583,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void InvalidChangesTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           new Author {
@@ -799,6 +800,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ModifyDataTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var state = new DisconnectedState();
       Key order1Key;
       Key newCustomerKey;
@@ -877,6 +879,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ModifyDataAfterSaveChangesTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var state = new DisconnectedState();
       Key order1Key = null;
 
@@ -964,6 +967,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MultipleTransactionsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var state = new DisconnectedState();
 
       Key supplier1Key;
@@ -1387,6 +1391,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void SerializationTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var state = new DisconnectedState();
       Key order1Key;
       Key newCustomerKey;
@@ -1472,6 +1477,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void CheckVersionTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var state = new DisconnectedState();
       Key customer1Key = null;
 
@@ -1810,6 +1816,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ApplyRemoveOperationTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       // Create data
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
@@ -1874,6 +1881,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MergeModeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Key key;
 
       // Create instances
@@ -1938,6 +1946,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MapCompositeKeyContainingEntityTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Key localFirstKey;
       Key secondKey;
       Key localCompositeKey;
@@ -1970,6 +1979,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MapKeyContainingOtherEntityTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Key localKey;
       Key localSimpleKey;
       KeyMapping keyMapping;
@@ -1997,6 +2007,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MapExplicitlySpecifiedKeyContainingSinglePrimitiveValueTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Key key;
       int value;
       KeyMapping keyMapping;
@@ -2024,6 +2035,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MapCompositeKeyContainingPrimitiveValuesOnlyTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Key key;
       int valueFirst;
       Guid valueSecond;

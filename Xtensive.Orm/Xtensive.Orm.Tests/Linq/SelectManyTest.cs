@@ -133,6 +133,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void EntitySetDefaultIfEmptyTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       int expectedCount =
         Session.Query.All<Order>().Count() + Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
       IQueryable<Order> result = Session.Query.All<Customer>().SelectMany(c => c.Orders.DefaultIfEmpty());
@@ -216,6 +217,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OuterJoinAnonymousTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       int assertCount =
         Session.Query.All<Order>().Count() +
           Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
@@ -235,6 +237,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OuterJoinAnonymousFieldTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       int assertCount =
         Session.Query.All<Order>().Count() +
           Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
@@ -250,6 +253,7 @@ namespace Xtensive.Orm.Tests.Linq
 //    [ExpectedException(typeof (NullReferenceException))]
     public void OuterJoinEntityTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       int assertCount =
         Session.Query.All<Order>().Count() +
           Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
@@ -265,6 +269,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OuterJoinValueTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       int assertCount =
         Session.Query.All<Order>().Count() +
           Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));

@@ -192,7 +192,8 @@ namespace Xtensive.Sql.SqlServer.v09
         QueryFeatures.UpdateFrom |
         QueryFeatures.Limit |
         QueryFeatures.DefaultValues |
-        QueryFeatures.RowNumber;
+        QueryFeatures.RowNumber |
+        QueryFeatures.ScalarSubquery;
       return queryInfo;
     }
 
