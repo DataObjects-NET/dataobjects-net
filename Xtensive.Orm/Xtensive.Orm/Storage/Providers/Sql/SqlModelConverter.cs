@@ -491,7 +491,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTemporaryTable(TemporaryTable temporaryTable)
     {
-      throw new NotSupportedException();
+      // http://support.x-tensive.com/question/3643/oracle-database-domainbuild-throws-notsupportedexception
+      return null;
     }
 
     /// <inheritdoc/>
