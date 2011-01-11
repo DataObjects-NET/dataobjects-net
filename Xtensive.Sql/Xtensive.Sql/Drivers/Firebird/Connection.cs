@@ -4,51 +4,75 @@
 // Created by: Csaba Beer
 // Created:    2011.01.08
 
-using System;
 using System.Data;
 using System.Data.Common;
+using FirebirdSql.Data.FirebirdClient;
 
 namespace Xtensive.Sql.Firebird
 {
-  internal class Connection : SqlConnection
-  {
-    public override DbConnection UnderlyingConnection
+    internal class Connection : SqlConnection
     {
-      get { throw new NotImplementedException(); }
+
+        private FbConnection underlyingConnection;
+        private FbTransaction activeTransaction;
+
+        /// <inheritdoc/>
+        public override DbConnection UnderlyingConnection
+        {
+            get { return underlyingConnection; }
+        }
+
+        /// <inheritdoc/>
+        public override DbTransaction ActiveTransaction
+        {
+            get { return activeTransaction; }
+        }
+
+        /// <inheritdoc/>
+        public override DbParameter CreateParameter()
+        {
+            return new FbParameter();
+        }
+
+        /// <inheritdoc/>
+        public override void BeginTransaction()
+        {
+            EnsureTrasactionIsNotActive();
+            activeTransaction = underlyingConnection.BeginTransaction();
+        }
+
+        /// <inheritdoc/>
+        public override void BeginTransaction(IsolationLevel isolationLevel)
+        {
+            EnsureTrasactionIsNotActive();
+            activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+        }
+
+        /// <inheritdoc/>
+        protected override void ClearActiveTransaction()
+        {
+            activeTransaction = null;
+        }
+
+        /// <inheritdoc/>
+        public override void MakeSavepoint(string name)
+        {
+            EnsureTransactionIsActive();
+            activeTransaction.Save(name);
+        }
+
+        /// <inheritdoc/>
+        public override void RollbackToSavepoint(string name)
+        {
+            EnsureTransactionIsActive();
+            activeTransaction.Rollback(name);
+        }
+
+        // Constructors
+        public Connection(SqlDriver driver, string connectionString)
+            : base(driver, connectionString)
+        {
+            underlyingConnection = new FbConnection(connectionString);
+        }
     }
-
-    public override DbTransaction ActiveTransaction
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override DbParameter CreateParameter()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void BeginTransaction()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void BeginTransaction(IsolationLevel isolationLevel)
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override void ClearActiveTransaction()
-    {
-      throw new NotImplementedException();
-    }
-
-
-    // Constructors
-
-    public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
-    {
-      // Create underlying connection here
-    }
-  }
 }
