@@ -11,11 +11,11 @@ using Xtensive.Orm.Model;
 namespace Xtensive.Orm.Internals.Prefetch
 {
   [Serializable]
-  internal class PrefetchNode
+  internal class PrefetchFieldNode
   {
     public FieldInfo Field { get; private set; }
 
-    public PrefetchNode(FieldInfo field)
+    public PrefetchFieldNode(FieldInfo field)
     {
       Field = field;
     }

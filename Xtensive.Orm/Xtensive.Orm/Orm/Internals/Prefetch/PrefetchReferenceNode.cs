@@ -12,12 +12,12 @@ using Xtensive.Orm.Model;
 namespace Xtensive.Orm.Internals.Prefetch
 {
   [Serializable]
-  internal class PrefetchReferenceNode : PrefetchNode
+  internal class PrefetchReferenceNode : PrefetchFieldNode
   {
     public TypeInfo ElementType { get; private set; }
-    public IEnumerable<PrefetchNode> NestedNodes { get; private set; }
+    public IEnumerable<PrefetchFieldNode> NestedNodes { get; private set; }
 
-    public PrefetchReferenceNode(TypeInfo elementType, FieldInfo field, IEnumerable<PrefetchNode> nestedNodes)
+    public PrefetchReferenceNode(TypeInfo elementType, FieldInfo field, IEnumerable<PrefetchFieldNode> nestedNodes)
       : base(field)
     {
       ElementType = elementType;

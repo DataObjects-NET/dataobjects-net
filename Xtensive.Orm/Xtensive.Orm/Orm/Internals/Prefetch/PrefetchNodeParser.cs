@@ -13,9 +13,9 @@ namespace Xtensive.Orm.Internals.Prefetch
   [Serializable]
   internal class PrefetchNodeParser : ExpressionVisitor
   {
-    public static PrefetchNode Parse<T,TValue>(Expression<Func<T, TValue>> expression)
+    public static PrefetchFieldNode Parse<T,TValue>(Expression<Func<T, TValue>> expression)
     {
-      throw new NotImplementedException();
+      return null;
     }
   }
 }

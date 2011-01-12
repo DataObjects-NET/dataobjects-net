@@ -8,7 +8,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Collections;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -16,27 +19,18 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     private readonly Session session;
     private readonly IEnumerable<T> source;
-    private readonly IEnumerable<Key> keySource;
-    private readonly Collections.LinkedList<PrefetchNode> nodes;
-
+    private readonly Collections.LinkedList<PrefetchFieldNode> nodes;
 
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
       var node = PrefetchNodeParser.Parse(expression);
-      return keySource == null
-        ? new PrefetchFacade<T>(session, source, nodes.AppendHead(node))
-        : new PrefetchFacade<T>(session, keySource, nodes.AppendHead(node));
+      return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
     }
 
     public IEnumerator<T> GetEnumerator()
     {
-      if (keySource != null) {
-        var sessionHandler = session.Handler;
-//        sessionHandler.Prefetch()
-//        var result = new RootElementsPrefetcher<T>(source, keyExtractor, modelType,
-//          fieldDescriptors, sessionHandler);
-      }
-      throw new NotImplementedException();
+      foreach (var item in source)
+        yield return item;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -45,21 +39,17 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public PrefetchFacade(Session session, IEnumerable<Key> keySource)
-      : this(session, keySource, Collections.LinkedList<PrefetchNode>.Empty)
-    {}
-
-    private PrefetchFacade(Session session, IEnumerable<Key> keySource, Collections.LinkedList<PrefetchNode> nodes)
     {
       this.session = session;
-      this.keySource = keySource;
-      this.nodes = nodes;
+      source = new PrefetchKeyIterator<T>(session, keySource);
+      nodes = Collections.LinkedList<PrefetchFieldNode>.Empty;
     }
 
     public PrefetchFacade(Session session, IEnumerable<T> source)
-      : this(session, source, Collections.LinkedList<PrefetchNode>.Empty)
+      : this(session, source, Collections.LinkedList<PrefetchFieldNode>.Empty)
     {}
 
-    private PrefetchFacade(Session session, IEnumerable<T> source, Collections.LinkedList<PrefetchNode> nodes)
+    private PrefetchFacade(Session session, IEnumerable<T> source, Collections.LinkedList<PrefetchFieldNode> nodes)
     {
       this.session = session;
       this.source = source;

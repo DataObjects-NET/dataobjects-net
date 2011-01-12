@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <value>The top.</value>
     public int? Top { get; private set; }
 
-    public PrefetchSetNode(TypeInfo elementType, FieldInfo field, int? top, IEnumerable<PrefetchNode> nestedNodes)
+    public PrefetchSetNode(TypeInfo elementType, FieldInfo field, int? top, IEnumerable<PrefetchFieldNode> nestedNodes)
       : base(elementType, field, nestedNodes)
     {
       Top = top;
