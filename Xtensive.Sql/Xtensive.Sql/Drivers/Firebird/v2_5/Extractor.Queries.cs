@@ -110,144 +110,94 @@ order by   rfr.rdb$relation_name, rfr.rdb$field_position";
 
         protected string GetExtractIndexesQuery()
         {
-            return
-      @"SELECT
-    indexes.TABLE_OWNER,
-    indexes.TABLE_NAME,
-    indexes.INDEX_NAME,
-    indexes.UNIQUENESS,
-    indexes.INDEX_TYPE,
-    indexes.PCT_FREE,
-    columns.COLUMN_POSITION,
-    columns.COLUMN_NAME,
-    columns.DESCEND
-FROM
-    SYS.ALL_IND_COLUMNS columns
-    JOIN SYS.ALL_INDEXES indexes
-        ON ((indexes.INDEX_NAME = columns.INDEX_NAME)
-        AND (indexes.OWNER = columns.INDEX_OWNER))
-WHERE
-    indexes.INDEX_TYPE IN ('NORMAL', 'BITMAP')
-    AND (indexes.TABLE_NAME {TABLE_FILTER})
-    AND (indexes.TABLE_OWNER {SCHEMA_FILTER})
-    AND ({INDEXES_FILTER})
-    AND ((indexes.OWNER, indexes.INDEX_NAME) NOT IN (
-        SELECT
-            constraints.INDEX_OWNER,
-            constraints.INDEX_NAME
-        FROM
-            SYS.ALL_CONSTRAINTS constraints
-            JOIN SYS.ALL_TABLES tables
-                ON ((constraints.OWNER = tables.OWNER)
-                AND (constraints.TABLE_NAME = tables.TABLE_NAME))
-        WHERE
-            (constraints.CONSTRAINT_TYPE IN ('P', 'U')
-            AND (constraints.OWNER {SCHEMA_FILTER}))))
-ORDER BY
-    indexes.TABLE_OWNER,
-    indexes.TABLE_NAME,
-    indexes.INDEX_NAME,
-    columns.COLUMN_POSITION";
+            return @"
+select     cast(null as varchar(30)) as schema
+          ,ri.rdb$relation_name as table_name
+          ,ri.rdb$index_name as index_name
+          ,coalesce(ri.rdb$unique_flag,0) as unique_flag
+          ,ri.rdb$index_id as index_seq
+          ,coalesce(ri.rdb$index_type,0) as descend
+          ,ris.rdb$field_name as column_name
+          ,ris.rdb$field_position as column_position
+from       rdb$indices ri join rdb$index_segments ris on ris.rdb$index_name = ri.rdb$index_name
+where      ri.rdb$system_flag = 0
+       and not exists
+              (select   1
+               from     rdb$relation_constraints rc
+               where    rc.rdb$constraint_type in ('PRIMARY KEY', 'FOREIGN KEY')
+                    and rc.rdb$relation_name = ri.rdb$relation_name
+                    and rc.rdb$index_name = ri.rdb$index_name)
+order by   ri.rdb$relation_name, ri.rdb$index_id, ris.rdb$field_position";
         }
 
         protected string GetExtractForeignKeysQuery()
         {
-            return
-      @"SELECT
-    constraints.OWNER,
-    constraints.TABLE_NAME,
-    constraints.CONSTRAINT_NAME,
-    constraints.""DEFERRABLE"",
-    constraints.""DEFERRED"",
-    constraints.DELETE_RULE,
-    columns.COLUMN_NAME,
-    columns.POSITION,
-    rel_columns.OWNER,
-    rel_columns.TABLE_NAME,
-    rel_columns.COLUMN_NAME
-FROM
-    SYS.ALL_CONSTRAINTS constraints
-    JOIN SYS.ALL_CONS_COLUMNS columns
-        ON ((constraints.CONSTRAINT_NAME = columns.CONSTRAINT_NAME)
-        AND (constraints.OWNER = columns.OWNER))
-    JOIN SYS.ALL_CONS_COLUMNS rel_columns
-        ON ((constraints.R_CONSTRAINT_NAME = rel_columns.CONSTRAINT_NAME)
-        AND (constraints.R_OWNER = rel_columns.OWNER)
-        AND (columns.POSITION = rel_columns.POSITION))
-    JOIN SYS.ALL_TABLES tables
-        ON ((constraints.OWNER = tables.OWNER)
-        AND (constraints.TABLE_NAME = tables.TABLE_NAME))
-WHERE
-    (constraints.CONSTRAINT_TYPE = 'R')
-    AND (constraints.OWNER {SCHEMA_FILTER})
-ORDER BY
-    constraints.OWNER, constraints.TABLE_NAME, constraints.CONSTRAINT_NAME, rel_columns.POSITION";
-        }
-
-        protected string GetExtractCheckConstraintsQuery()
-        {
-            return
-      @"SELECT
-    constraints.OWNER,
-    constraints.TABLE_NAME,
-    constraints.CONSTRAINT_NAME,
-    constraints.SEARCH_CONDITION,
-    constraints.""DEFERRABLE"",
-    constraints.""DEFERRED""
-FROM
-    SYS.ALL_CONSTRAINTS constraints
-    JOIN SYS.ALL_TABLES tables
-        ON ((constraints.OWNER = tables.OWNER)
-        AND (constraints.TABLE_NAME = tables.TABLE_NAME))
-WHERE
-    (constraints.CONSTRAINT_TYPE = 'C')
-    AND (constraints.GENERATED = 'USER NAME')
-    AND (constraints.OWNER {SCHEMA_FILTER})";
+            return @"
+select     cast(null as varchar(30)) as schema
+          ,co.rdb$relation_name as table_name
+          ,co.rdb$constraint_name as constraint_name
+          ,co.rdb$deferrable as is_deferrable
+          ,co.rdb$initially_deferred as deferred
+          ,ref.rdb$delete_rule as delete_rule
+          ,coidxseg.rdb$field_name as column_name
+          ,coidxseg.rdb$field_position as column_position
+          ,cast(null as varchar(30)) as referenced_schema
+          ,refidx.rdb$relation_name as referenced_table_name
+          ,refidxseg.rdb$field_name as referenced_column_name
+          ,ref.rdb$match_option as match_option
+          ,ref.rdb$update_rule as update_rule
+from       rdb$relation_constraints co join rdb$ref_constraints ref on co.rdb$constraint_name = ref.rdb$constraint_name
+           join rdb$indices tempidx
+              on co.rdb$index_name = tempidx.rdb$index_name
+           join rdb$index_segments coidxseg
+              on co.rdb$index_name = coidxseg.rdb$index_name
+           join rdb$relation_constraints unqc
+              on ref.rdb$const_name_uq = unqc.rdb$constraint_name and unqc.rdb$constraint_type = 'UNIQUE'
+           join rdb$indices refidx
+              on refidx.rdb$index_name = unqc.rdb$index_name and refidx.rdb$relation_name not starts with 'RDB$'
+           join rdb$index_segments refidxseg
+              on refidx.rdb$index_name = refidxseg.rdb$index_name
+             and coidxseg.rdb$field_position = refidxseg.rdb$field_position
+where      co.rdb$constraint_type = 'FOREIGN KEY'
+order by   co.rdb$relation_name as table_name, co.rdb$constraint_name, coidxseg.rdb$field_position";
         }
 
         protected string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
         {
-            return
-      @"SELECT
-    constraints.OWNER,
-    constraints.TABLE_NAME,
-    constraints.CONSTRAINT_NAME,
-    constraints.CONSTRAINT_TYPE,
-    columns.COLUMN_NAME,
-    columns.POSITION
-FROM
-    SYS.ALL_CONSTRAINTS constraints
-    JOIN SYS.ALL_CONS_COLUMNS columns
-        ON ((constraints.CONSTRAINT_NAME = columns.CONSTRAINT_NAME)
-        AND (constraints.OWNER = columns.OWNER))
-    JOIN SYS.ALL_TABLES tables
-        ON ((constraints.OWNER = tables.OWNER)
-        AND (constraints.TABLE_NAME = tables.TABLE_NAME))
-WHERE
-    (constraints.CONSTRAINT_TYPE IN ('P', 'U'))
-    AND (constraints.OWNER {SCHEMA_FILTER})
-    AND (constraints.TABLE_NAME {TABLE_FILTER})
-ORDER BY
-    constraints.OWNER,
-    constraints.TABLE_NAME,
-    constraints.CONSTRAINT_NAME,
-    columns.POSITION";
+            return @"
+select     cast(null as varchar(30)) as schema
+          ,rel.rdb$relation_name as table_name
+          ,rel.rdb$constraint_name as constraint_name
+          ,rel.rdb$constraint_type constraint_type
+          ,seg.rdb$field_name as column_name
+          ,seg.rdb$field_position as column_position
+from       rdb$relation_constraints rel left join rdb$indices idx on rel.rdb$index_name = idx.rdb$index_name
+           left join rdb$index_segments seg
+              on idx.rdb$index_name = seg.rdb$index_name
+where      rel.rdb$constraint_type in ('PRIMARY KEY', 'UNIQUE')
+order by   rel.rdb$relation_name, rel.rdb$constraint_name, seg.rdb$field_position";
+        }
+
+        protected string GetExtractCheckConstraintsQuery()
+        {
+            return @"
+select     cast(null as varchar(30)) as schema
+          ,chktb.rdb$relation_name as table_name
+          ,chktb.rdb$constraint_name as constraint_name
+          ,trig.rdb$trigger_source as check_clausule
+from       rdb$relation_constraints chktb inner join rdb$check_constraints chk
+              on (chktb.rdb$constraint_name = chk.rdb$constraint_name and chktb.rdb$constraint_type = 'CHECK')
+           inner join rdb$triggers trig
+              on chk.rdb$trigger_name = trig.rdb$trigger_name and trig.rdb$trigger_type = 1
+order by   chktb.rdb$relation_name, chktb.rdb$constraint_name";
         }
 
         protected virtual string GetExtractSequencesQuery()
         {
-            return
-      @"SELECT
-    SEQUENCE_OWNER,
-    SEQUENCE_NAME,
-    MIN_VALUE,
-    MAX_VALUE,
-    INCREMENT_BY,
-    CYCLE_FLAG
-FROM
-    SYS.ALL_SEQUENCES
-WHERE
-    SEQUENCE_OWNER {SCHEMA_FILTER}";
+            return @"
+select   cast(null as varchar(30)) as schema, rdb$generator_name as sequence_name
+from     rdb$generators
+where    rdb$system_flag = 0";
         }
     }
 }
