@@ -12,7 +12,7 @@ using Xtensive.Orm.Model;
 namespace Xtensive.Orm.Internals.Prefetch
 {
   [Serializable]
-  internal class PrefetchSetNode : PrefetchReferenceNode
+  internal class SetNode : ReferenceNode
   {
     /// <summary>
     /// Gets count of elements to be prefetched 0 means it should prefetch only Count. 
@@ -21,8 +21,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <value>The top.</value>
     public int? Top { get; private set; }
 
-    public PrefetchSetNode(TypeInfo elementType, FieldInfo field, int? top, IEnumerable<PrefetchFieldNode> nestedNodes)
-      : base(elementType, field, nestedNodes)
+    public SetNode(string path, TypeInfo elementType, FieldInfo field, int? top, IEnumerable<FieldNode> nestedNodes)
+      : base(path, elementType, field, nestedNodes)
     {
       Top = top;
     }

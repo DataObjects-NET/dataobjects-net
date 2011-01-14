@@ -6,16 +6,19 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq.Expressions;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
   [Serializable]
-  internal class PrefetchNodeParser : ExpressionVisitor
+  internal class FieldNode : Node
   {
-    public static PrefetchFieldNode Parse<T,TValue>(Expression<Func<T, TValue>> expression)
+    public FieldInfo Field { get; private set; }
+
+    public FieldNode(string path, FieldInfo field)
+      : base(path)
     {
-      return null;
+      Field = field;
     }
   }
 }

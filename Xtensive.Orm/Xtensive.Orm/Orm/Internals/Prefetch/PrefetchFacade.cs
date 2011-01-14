@@ -19,18 +19,25 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     private readonly Session session;
     private readonly IEnumerable<T> source;
-    private readonly Collections.LinkedList<PrefetchFieldNode> nodes;
+    private readonly Collections.LinkedList<KeyExtractorNode<T>> nodes;
 
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
-      var node = PrefetchNodeParser.Parse(expression);
+      var node = NodeParser.Parse(expression);
       return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
     }
 
     public IEnumerator<T> GetEnumerator()
     {
+      var aggregatedNodes = AggregateNodes();
       foreach (var item in source)
         yield return item;
+    }
+
+    private IList<KeyExtractorNode<T>> AggregateNodes()
+    {
+
+      throw new NotImplementedException();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -42,14 +49,14 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       this.session = session;
       source = new PrefetchKeyIterator<T>(session, keySource);
-      nodes = Collections.LinkedList<PrefetchFieldNode>.Empty;
+      nodes = Collections.LinkedList<KeyExtractorNode<T>>.Empty;
     }
 
     public PrefetchFacade(Session session, IEnumerable<T> source)
-      : this(session, source, Collections.LinkedList<PrefetchFieldNode>.Empty)
+      : this(session, source, Collections.LinkedList<KeyExtractorNode<T>>.Empty)
     {}
 
-    private PrefetchFacade(Session session, IEnumerable<T> source, Collections.LinkedList<PrefetchFieldNode> nodes)
+    private PrefetchFacade(Session session, IEnumerable<T> source, Collections.LinkedList<KeyExtractorNode<T>> nodes)
     {
       this.session = session;
       this.source = source;
