@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Csaba Beer
+// Created:    2011.01.10
+
+using System;
 using Xtensive.Sql.Firebird;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Compiler;
@@ -20,8 +26,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         protected override SqlTranslator CreateTranslator()
         {
-            throw new NotImplementedException("Firebird.v2_5.Translator");
-//            return new Translator(this);
+            return new Translator(this);
         }
 
         protected override Model.Extractor CreateExtractor()

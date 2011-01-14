@@ -10,6 +10,6 @@ namespace Xtensive.Sql.Drivers.Firebird
 {
     internal static class Constants
     {
-        public static readonly string DefaultSchemaName = "Firebird";
+        public const string DefaultSchemaName = "Firebird";
     }
 }

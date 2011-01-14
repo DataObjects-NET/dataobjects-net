@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Firebird
 
         private const string DataSourceFormat =
           "server={0};port={1};database={2};";
-        private readonly string DatabaseAndSchemaQuery =
+        private const string DatabaseAndSchemaQuery =
           "select mon$database_name, '" + Xtensive.Sql.Drivers.Firebird.Constants.DefaultSchemaName + "' from mon$database";
 
         /// <inheritdoc/>
@@ -54,6 +54,7 @@ namespace Xtensive.Sql.Firebird
         {
             SqlHelper.ValidateConnectionUrl(connectionUrl);
             ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl.Resource, "connectionUrl.Resource");
+            ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl.Host, "connectionUrl.Host");
 
             var builder = new FbConnectionStringBuilder();
 
@@ -61,10 +62,13 @@ namespace Xtensive.Sql.Firebird
             if (!string.IsNullOrEmpty(connectionUrl.Host))
             {
                 int port = connectionUrl.Port != 0 ? connectionUrl.Port : DefaultPort;
-                builder.DataSource = string.Format(DataSourceFormat, connectionUrl.Host, port, connectionUrl.Resource);
+//                builder.DataSource = string.Format(DataSourceFormat, connectionUrl.Host, port, connectionUrl.Resource);
+                builder.Database = connectionUrl.Resource;
+                builder.DataSource = connectionUrl.Host;
+                builder.Dialect = 3;
+                builder.Pooling = false;
+                builder.Port = port;
             }
-            else
-                builder.DataSource = connectionUrl.Resource;
 
             // user, password
             if (!string.IsNullOrEmpty(connectionUrl.User))

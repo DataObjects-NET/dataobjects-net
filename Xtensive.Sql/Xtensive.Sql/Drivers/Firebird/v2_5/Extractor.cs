@@ -2,16 +2,15 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Csaba Beer
-// Created:    2011.01.10
+// Created:    2011.01.13
 
 using System;
-using Xtensive.Sql.Model;
-using Constraint = Xtensive.Sql.Model.Constraint;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Sql.Drivers.Firebird.Resources;
-
+using Xtensive.Sql.Model;
+using Constraint = Xtensive.Sql.Model.Constraint;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
@@ -71,7 +70,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractTables()
         {
-            using (var reader = ExecuteReader(GetExtractTablesQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractTablesQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 while (reader.Read())
                 {
@@ -95,7 +94,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractTableColumns()
         {
-            using (var reader = ExecuteReader(GetExtractTableColumnsQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractTableColumnsQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 Table table = null;
                 int lastColumnId = int.MaxValue;
@@ -107,8 +106,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
                         var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
                         table = schema.Tables[reader.GetString(1)];
                     }
-                    if (table.Name.ToUpper().StartsWith("RDB$") || table.Name.ToUpper().StartsWith("MON$"))
-                        continue;
                     var column = table.CreateColumn(reader.GetString(3));
                     column.DataType = CreateValueType(reader, 4, 6, 7, 8);
                     column.IsNullable = ReadBool(reader, 9);
@@ -122,7 +119,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractViews()
         {
-            using (var reader = ExecuteReader(GetExtractViewsQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractViewsQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 while (reader.Read())
                 {
@@ -139,7 +136,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractViewColumns()
         {
-            using (var reader = ExecuteReader(GetExtractViewColumnsQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractViewColumnsQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 int lastColumnId = int.MaxValue;
                 View view = null;
@@ -159,34 +156,38 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractIndexes()
         {
-            using (var reader = ExecuteReader(GetExtractIndexesQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractIndexesQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
-                int lastColumnPosition = int.MaxValue;
+                string indexName = string.Empty;
+                string lastIndexName = string.Empty;
                 Table table = null;
                 Index index = null;
+
                 while (reader.Read())
                 {
-                    int columnPosition = reader.GetInt16(7);
-                    if (columnPosition <= lastColumnPosition)
+                    indexName = reader.GetString(2);
+                    if (indexName != lastIndexName)
                     {
                         var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
+                        if (!reader.IsDBNull(8))    // expression index
+                            continue;
                         table = schema.Tables[reader.GetString(1)];
-                        index = table.CreateIndex(reader.GetString(2));
-                        index.IsUnique = ReadBool(reader, 3);
+                        index = table.CreateIndex(indexName);
+                        index.IsUnique = ReadBool(reader, 5);
                         index.IsBitmap = false;
                         index.IsClustered = false;
                     }
                     var column = table.TableColumns[reader.GetString(6)];
-                    bool isAscending = ReadBool(reader, 5);
+                    bool isAscending = ReadBool(reader, 4);
                     index.CreateIndexColumn(column, isAscending);
-                    lastColumnPosition = columnPosition;
+                    lastIndexName = indexName;
                 }
             }
         }
 
         private void ExtractForeignKeys()
         {
-            using (var reader = ExecuteReader(GetExtractForeignKeysQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractForeignKeysQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 int lastColumnPosition = int.MaxValue;
                 ForeignKey constraint = null;
@@ -217,7 +218,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractUniqueAndPrimaryKeyConstraints()
         {
-            using (var reader = ExecuteReader(GetExtractUniqueAndPrimaryKeyConstraintsQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractUniqueAndPrimaryKeyConstraintsQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 Table table = null;
                 string constraintName = null;
@@ -249,7 +250,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractCheckConstaints()
         {
-            using (var reader = ExecuteReader(GetExtractCheckConstraintsQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractCheckConstraintsQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 while (reader.Read())
                 {
@@ -264,7 +265,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private void ExtractSequences()
         {
-            using (var reader = ExecuteReader(GetExtractSequencesQuery()))
+            using (var reader = Connection.CreateCommand(GetExtractSequencesQuery()).ExecuteReader(CommandBehavior.SingleResult))
             {
                 while (reader.Read())
                 {
@@ -272,7 +273,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
                     var sequence = schema.CreateSequence(reader.GetString(1));
                     sequence.DataType = new SqlValueType(SqlType.Int32);
                     var descriptor = sequence.SequenceDescriptor;
-                    descriptor.MinValue = reader.GetInt32(2);
+                    descriptor.MinValue = 0;
                     descriptor.Increment = 1;
                 }
             }
@@ -305,7 +306,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         private static void CreateIndexBasedConstraint(
           Table table, string constraintName, string constraintType, List<TableColumn> columns)
         {
-            switch (constraintType)
+            switch (constraintType.Trim())
             {
                 case "PRIMARY KEY":
                     table.CreatePrimaryKey(constraintName, columns.ToArray());
@@ -320,7 +321,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         private static bool ReadBool(IDataRecord row, int index)
         {
-            short value = Convert.ToInt16(row.GetString(index) ?? "0");
+            short value = row.IsDBNull(index) ? (short)0 : Convert.ToInt16(row.GetString(index) ?? "0");
             switch (value)
             {
                 case 1:
@@ -340,13 +341,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         private static void ReadConstraintProperties(Constraint constraint,
           IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
         {
-            constraint.IsDeferrable = row.GetString(isDeferrableIndex) == "YES";
-            constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex) == "YES";
+            constraint.IsDeferrable = row.GetString(isDeferrableIndex).Trim() == "YES";
+            constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex).Trim() == "YES";
         }
 
         private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
         {
-            var deleteRule = row.GetString(deleteRuleIndex);
+            var deleteRule = row.GetString(deleteRuleIndex).Trim();
             switch (deleteRule)
             {
                 case "CASCADE":
@@ -355,7 +356,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
                 case "SET NULL":
                     foreignKey.OnDelete = ReferentialAction.SetNull;
                     return;
-                case "NO ACTION": 
+                case "NO ACTION":
                     foreignKey.OnDelete = ReferentialAction.NoAction;
                     return;
                 case "RESTRICT": // behaves like NO ACTION
@@ -367,17 +368,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             }
         }
 
-        protected override DbDataReader ExecuteReader(string commandText)
-        {
-            return base.ExecuteReader(commandText);
-        }
-
         protected override DbDataReader ExecuteReader(ISqlCompileUnit statement)
         {
             var commandText = Connection.Driver.Compile(statement).GetCommandText();
-            return base.ExecuteReader(commandText);
+            // base.ExecuteReader(...) cannot be used because it disposes the DbCommand so it makes returned DbDataReader unusable
+            return Connection.CreateCommand(commandText).ExecuteReader();
         }
-
 
         // Constructors
 

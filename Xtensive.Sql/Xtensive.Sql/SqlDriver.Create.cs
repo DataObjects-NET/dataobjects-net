@@ -20,7 +20,8 @@ namespace Xtensive.Sql
       {"sqlserver", typeof(SqlServer.DriverFactory)},
       {"sqlserverce", typeof(SqlServerCe.DriverFactory)},
       {"oracle", typeof(Oracle.DriverFactory)},
-      {"postgresql", typeof(PostgreSql.DriverFactory)}
+      {"postgresql", typeof(PostgreSql.DriverFactory)},
+      {"firebird", typeof(Firebird.DriverFactory)},
     };
 
     /// <summary>
