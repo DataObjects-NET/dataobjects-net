@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -21,7 +22,23 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <value>The top.</value>
     public int? Top { get; private set; }
 
-    public SetNode(string path, TypeInfo elementType, FieldInfo field, int? top, IEnumerable<FieldNode> nestedNodes)
+    public override IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
+    {
+      return new SetNode(this, nestedNodes);
+    }
+
+    protected internal override Node Accept(NodeVisitor visitor)
+    {
+      return visitor.VisitSetNode(this);
+    }
+
+    public SetNode(SetNode source, ReadOnlyCollection<FieldNode> nestedNodes)
+      : base(source, nestedNodes)
+    {
+      Top = source.Top;
+    }
+
+    public SetNode(string path, TypeInfo elementType, FieldInfo field, int? top, ReadOnlyCollection<FieldNode> nestedNodes)
       : base(path, elementType, field, nestedNodes)
     {
       Top = top;

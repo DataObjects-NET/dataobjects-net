@@ -15,6 +15,11 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     public FieldInfo Field { get; private set; }
 
+    protected internal override Node Accept(NodeVisitor visitor)
+    {
+      return visitor.VisitFieldNode(this);
+    }
+
     public FieldNode(string path, FieldInfo field)
       : base(path)
     {

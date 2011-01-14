@@ -7,17 +7,35 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
   [Serializable]
-  internal class ReferenceNode : FieldNode
+  internal class ReferenceNode : FieldNode, IHasNestedNodes
   {
     public TypeInfo ElementType { get; private set; }
-    public IEnumerable<FieldNode> NestedNodes { get; private set; }
+    public ReadOnlyCollection<FieldNode> NestedNodes { get; private set; }
+    
+    public virtual IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
+    {
+      return new ReferenceNode(this, nestedNodes);
+    }
 
-    public ReferenceNode(string path, TypeInfo elementType, FieldInfo field, IEnumerable<FieldNode> nestedNodes)
+    protected internal override Node Accept(NodeVisitor visitor)
+    {
+      return visitor.VisitReferenceNode(this);
+    }
+
+    public ReferenceNode(ReferenceNode source, ReadOnlyCollection<FieldNode> nestedNodes)
+      : base(source.Path, source.Field)
+    {
+      ElementType = source.ElementType;
+      NestedNodes = nestedNodes;
+    }
+
+    public ReferenceNode(string path, TypeInfo elementType, FieldInfo field, ReadOnlyCollection<FieldNode> nestedNodes)
       : base(path, field)
     {
       ElementType = elementType;

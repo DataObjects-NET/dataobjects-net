@@ -1953,6 +1953,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only &apos;Prefetch(source, expression, params[] expressions)&apos; method is supported within prefetch expression. But found &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExOnlyPrefetchMethodSupportedButFoundX {
+            get {
+                return ResourceManager.GetString("ExOnlyPrefetchMethodSupportedButFoundX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}.{1}&apos; OnOwnerRemove action is not equal to &apos;{2}.{3}&apos; OnTargetRemove action..
         /// </summary>
         internal static string ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction {
@@ -2931,6 +2940,15 @@ namespace Xtensive.Orm.Resources {
         internal static string ExUnableToModifyDeletedObject {
             get {
                 return ResourceManager.GetString("ExUnableToModifyDeletedObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to parse prefetch expression &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExUnabletoParsePrefetchExpressionX {
+            get {
+                return ResourceManager.GetString("ExUnabletoParsePrefetchExpressionX", resourceCulture);
             }
         }
         

@@ -13,6 +13,8 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     public string Path { get; private set; }
 
+    protected internal abstract Node Accept(NodeVisitor visitor);
+
     public virtual bool Equals(Node other)
     {
       if (ReferenceEquals(null, other)) 

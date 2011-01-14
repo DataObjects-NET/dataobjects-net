@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal class KeyExtractorNode<T> : Node
+  internal class KeyExtractorNode<T> : Node, IHasNestedNodes
   {
     private Func<T, IEnumerable<Key>> extractKeys;
     private Expression<Func<T, IEnumerable<Key>>> extractKeysExpression;
@@ -22,9 +23,19 @@ namespace Xtensive.Orm.Internals.Prefetch
       get { return extractKeys ?? (extractKeys = extractKeysExpression.CachingCompile()); }
     }
 
-    public IEnumerable<FieldNode> NestedNodes { get; private set; }
+    public ReadOnlyCollection<FieldNode> NestedNodes { get; private set; }
 
-    public KeyExtractorNode(string path, Func<T, IEnumerable<Key>> extractor, IEnumerable<FieldNode> nestedNodes)
+    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
+    {
+      return new KeyExtractorNode<T>(Path, extractKeysExpression, nestedNodes);
+    }
+
+    protected internal override Node Accept(NodeVisitor visitor)
+    {
+      return visitor.VisitKeyExtractorNode(this);
+    }
+
+    public KeyExtractorNode(string path, Func<T, IEnumerable<Key>> extractor, ReadOnlyCollection<FieldNode> nestedNodes)
       : base(path)
     {
       ArgumentValidator.EnsureArgumentNotNull(path, "path");
@@ -35,7 +46,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       NestedNodes = nestedNodes;
     }
 
-    public KeyExtractorNode(string path, Expression<Func<T, IEnumerable<Key>>> extractor, IEnumerable<FieldNode> nestedNodes)
+    public KeyExtractorNode(string path, Expression<Func<T, IEnumerable<Key>>> extractor, ReadOnlyCollection<FieldNode> nestedNodes)
       : base(path)
     {
       extractKeysExpression = extractor;

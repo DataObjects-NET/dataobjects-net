@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
-      var node = NodeParser.Parse(expression);
+      var node = NodeParser.Parse(session.Domain.Model, expression);
       return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
     }
 

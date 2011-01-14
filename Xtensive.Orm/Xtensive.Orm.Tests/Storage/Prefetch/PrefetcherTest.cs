@@ -39,6 +39,19 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     }
 
     [Test]
+    public void PrefetchGraphTest()
+    {
+      var orders = Session.Query.All<Order>()
+        .Prefetch(o => o.Customer.CompanyName)
+        .Prefetch(o => o.Customer.Address)
+        .Prefetch(o => o.OrderDetails
+          .Prefetch(od => od.Product)
+          .Prefetch(od => od.Product.Category)
+          .Prefetch(od => od.Product.Category.Picture));
+      var result = orders.ToList();
+    }
+
+    [Test]
     public void EnumerableOfNonEntityTest()
     {
       List<Key> keys;
@@ -73,7 +86,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = session.Query.All<Order>().Prefetch(o => o.ProcessingTime).Prefetch(o => o.OrderDetails);
+        var prefetcher = session.Query.All<Order>()
+          .Prefetch(o => o.ProcessingTime)
+          .Prefetch(o => o.OrderDetails);
         var orderDetailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
         foreach (var order in prefetcher) {
           EntitySetState entitySetState;
