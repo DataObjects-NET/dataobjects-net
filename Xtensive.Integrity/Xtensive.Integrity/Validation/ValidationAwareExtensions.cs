@@ -6,6 +6,7 @@
 // Created:    2008.06.30
 
 using System;
+using System.Linq;
 using PostSharp.Extensibility;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
@@ -108,7 +109,7 @@ namespace Xtensive.Integrity.Validation
       var constraints = ConstraintRegistry.GetConstraints(target.GetType());
       if (constraints.Length > 0) {
         using (var ea = new ExceptionAggregator()) {
-          foreach (var constraint in constraints)
+          foreach (var constraint in constraints.Where(c => c.Mode == ConstrainMode.Default))
             ea.Execute(constraint.Check, target);
           ea.Complete();
         }
