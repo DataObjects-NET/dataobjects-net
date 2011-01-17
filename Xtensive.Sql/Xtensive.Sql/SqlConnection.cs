@@ -190,7 +190,9 @@ namespace Xtensive.Sql
     /// <param name="name">The name of the savepoint.</param>
     public virtual void MakeSavepoint(string name)
     {
-      throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
+      // That's ok to make a savepoint even if they aren't supported - 
+      // default impl. will fail on rollback
+      return;
     }
 
     /// <summary>
@@ -208,7 +210,9 @@ namespace Xtensive.Sql
     /// <param name="name">The name of the savepoint.</param>
     public virtual void ReleaseSavepoint(string name)
     {
-      throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
+      // That's ok to release a savepoint even if they aren't supported - 
+      // default impl. will fail on rollback
+      return;
     }
 
     /// <inheritdoc/>
