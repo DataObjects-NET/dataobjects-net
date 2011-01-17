@@ -24,20 +24,17 @@ namespace Xtensive.Orm.Internals.Prefetch
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
       var node = NodeParser.Parse(session.Domain.Model, expression);
-      return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
+      if (node != null)
+        return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
+      return this;
     }
 
     public IEnumerator<T> GetEnumerator()
     {
-      var aggregatedNodes = AggregateNodes();
-      foreach (var item in source)
-        yield return item;
-    }
-
-    private IList<KeyExtractorNode<T>> AggregateNodes()
-    {
-
-      throw new NotImplementedException();
+      var aggregatedNodes = NodeAggregator<T>.Aggregate(nodes);
+//      foreach (var item in source)
+//        yield return item;
+      return source.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

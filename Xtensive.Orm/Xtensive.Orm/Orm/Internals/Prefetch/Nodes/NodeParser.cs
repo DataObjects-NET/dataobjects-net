@@ -58,12 +58,12 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       if (typeof(IEntity).IsAssignableFrom(keyExtractorExpression.Type)) {
         Expression<Func<IEntity, IEnumerable<Key>>> extractor = e => Enumerable.Repeat(e.Key, 1);
-        var body = extractor.BindParameters(extractor, keyExtractorExpression);
+        var body = extractor.BindParameters(keyExtractorExpression);
         return Expression.Lambda<Func<T, IEnumerable<Key>>>(body, parameter);
       }
       if (typeof(IEnumerable).IsAssignableFrom(keyExtractorExpression.Type)) {
         Expression<Func<IEnumerable, IEnumerable<Key>>> extractor = enumerable => enumerable.OfType<IEntity>().Select(e => e.Key);
-        var body = extractor.BindParameters(extractor, keyExtractorExpression);
+        var body = extractor.BindParameters(keyExtractorExpression);
         return Expression.Lambda<Func<T, IEnumerable<Key>>>(body, parameter);
       }
       return _ => Enumerable.Empty<Key>();
@@ -88,7 +88,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         var entityType = model.Types[e.Expression.Type];
         var path = e.Member.Name;
         var field = entityType.Fields[path];
-        var nestedNodes = new ReadOnlyCollection<FieldNode>(nodes);
+        var nestedNodes = new ReadOnlyCollection<FieldNode>(nodes.ToList());
+        nodes.Clear();
         if (typeof (IEntity).IsAssignableFrom(e.Type))
           nodes.Add(new ReferenceNode(path, model.Types[field.ValueType], field, nestedNodes));
         else if (typeof (EntitySetBase).IsAssignableFrom(e.Type))
@@ -98,6 +99,13 @@ namespace Xtensive.Orm.Internals.Prefetch
         var visited = (MemberExpression)base.VisitMember(e);
         return visited;
       }
+      if (extractorExpression == null)
+        extractorExpression = e;
+      return e;
+    }
+
+    protected override Expression VisitParameter(ParameterExpression e)
+    {
       if (extractorExpression == null)
         extractorExpression = e;
       return e;

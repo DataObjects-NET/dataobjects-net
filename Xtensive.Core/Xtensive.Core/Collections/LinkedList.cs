@@ -53,7 +53,7 @@ namespace Xtensive.Collections
     /// <returns>New instance of <see cref="LinkedList{T}"/> with provided <paramref name="value"/> as a head node.</returns>
     public LinkedList<T> AppendHead(T value)
     {
-      return new LinkedList<T>(value);
+      return new LinkedList<T>(value, this);
     }
 
     /// <inheritdoc/>
@@ -98,19 +98,31 @@ namespace Xtensive.Collections
     /// <param name="source">The source elements.</param>
     public LinkedList(IEnumerable<T> source)
     {
-      var count = 0;
       using (var enumerator = source.GetEnumerator()) {
-        while (enumerator.MoveNext()) {
-          var value = enumerator.Current;
-          if (count++ == 0)
-            head = value;
-          else if (Tail == null)
-            Tail = new LinkedList<T>(value);
-          else
-            Tail = Tail.AppendHead(value);
-        }
+        if (!enumerator.MoveNext()) 
+          return;
+        head = enumerator.Current;
+        Tail = enumerator.MoveNext()
+          ? new LinkedList<T>(enumerator)
+          : Empty;
+        Count = 1 + Tail.Count;
       }
-      Count = count;
+    }
+
+    private LinkedList(IEnumerator<T> source)
+    {
+      head = source.Current;
+      Tail = source.MoveNext() 
+        ? new LinkedList<T>(source) 
+        : Empty;
+      Count = 1 + Tail.Count;
+    }
+
+    private LinkedList(T head, LinkedList<T> tail)
+    {
+      this.head = head;
+      Tail = tail;
+      Count = Tail.Count + 1;
     }
 
     /// <summary>
