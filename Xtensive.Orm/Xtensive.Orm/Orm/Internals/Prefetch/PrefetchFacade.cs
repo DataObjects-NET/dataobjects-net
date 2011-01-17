@@ -20,6 +20,9 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly Session session;
     private readonly IEnumerable<T> source;
     private readonly Collections.LinkedList<KeyExtractorNode<T>> nodes;
+    private readonly Queue<Key> unknownTypeQueue;
+    private readonly Dictionary<IHasNestedNodes, IList<PrefetchFieldDescriptor>> fieldDescriptorCache;
+    private int taskCount;
 
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
@@ -31,10 +34,40 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public IEnumerator<T> GetEnumerator()
     {
+      taskCount = session.Handler.PrefetchTaskExecutionCount;
       var aggregatedNodes = NodeAggregator<T>.Aggregate(nodes);
-//      foreach (var item in source)
-//        yield return item;
-      return source.GetEnumerator();
+      var resultQueue = new Queue<T>();
+      var container = new StrongReferenceContainer(null);
+      foreach (var item in source) {
+        resultQueue.Enqueue(item);
+        foreach (var ken in aggregatedNodes)
+          container.JoinIfPossible(RegisterPrefetch(ken.ExtractKeys(item), ken));
+      }
+      container.JoinIfPossible(session.Handler.ExecutePrefetchTasks());
+      while (resultQueue.Count > 0)
+        yield return resultQueue.Dequeue();
+    }
+
+    private StrongReferenceContainer RegisterPrefetch(IEnumerable<Key> keys, IHasNestedNodes fieldContainer)
+    {
+      var container = new StrongReferenceContainer(null);
+      var modelType = ((ReferenceNode) fieldContainer).ElementType;
+      foreach (var key in keys) {
+        var type = key.HasExactType || modelType == null
+            ? key.TypeReference.Type
+            : modelType;
+        if (!key.HasExactType && !type.IsLeaf)
+          unknownTypeQueue.Enqueue(key);
+        IList<PrefetchFieldDescriptor> fieldDescriptors;
+        if (!fieldDescriptorCache.TryGetValue(fieldContainer, out fieldDescriptors)) {
+          fieldDescriptors = PrefetchHelper
+            .GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type)
+            .Concat(fieldDescriptors).ToList();
+          fieldDescriptorCache.Add(fieldContainer, fieldDescriptors);
+        }
+        container.JoinIfPossible(session.Handler.Prefetch(key, type, fieldDescriptors));
+      }
+      return container;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -47,6 +80,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.session = session;
       source = new PrefetchKeyIterator<T>(session, keySource);
       nodes = Collections.LinkedList<KeyExtractorNode<T>>.Empty;
+      unknownTypeQueue = new Queue<Key>();
+      fieldDescriptorCache = new Dictionary<IHasNestedNodes, IList<PrefetchFieldDescriptor>>();
     }
 
     public PrefetchFacade(Session session, IEnumerable<T> source)
@@ -58,6 +93,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.session = session;
       this.source = source;
       this.nodes = nodes;
+      unknownTypeQueue = new Queue<Key>();
+      fieldDescriptorCache = new Dictionary<IHasNestedNodes, IList<PrefetchFieldDescriptor>>();
     }
   }
 }

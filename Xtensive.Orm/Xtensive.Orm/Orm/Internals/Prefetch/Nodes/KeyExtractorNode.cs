@@ -23,6 +23,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       get { return extractKeys ?? (extractKeys = extractKeysExpression.CachingCompile()); }
     }
 
+    IEnumerable<Key> IHasNestedNodes.ExtractKeys(object target)
+    {
+      return ExtractKeys((T) target);
+    }
+
     public ReadOnlyCollection<FieldNode> NestedNodes { get; private set; }
 
     public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)

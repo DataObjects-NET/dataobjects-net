@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -17,7 +18,18 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     public TypeInfo ElementType { get; private set; }
     public ReadOnlyCollection<FieldNode> NestedNodes { get; private set; }
-    
+
+    public virtual IEnumerable<Key> ExtractKeys(object target)
+    {
+      if (target == null)
+        return Enumerable.Empty<Key>();
+      var entity = (Entity)target;
+      var referenceKey = entity.GetReferenceKey(Field);
+      return referenceKey == null 
+        ? Enumerable.Empty<Key>() 
+        : Enumerable.Repeat(referenceKey, 1);
+    }
+
     public virtual IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
     {
       return new ReferenceNode(this, nestedNodes);

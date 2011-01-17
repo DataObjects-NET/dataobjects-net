@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -21,6 +22,18 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// </summary>
     /// <value>The top.</value>
     public int? Top { get; private set; }
+
+    public override IEnumerable<Key> ExtractKeys(object target)
+    {
+      if (target == null)
+        return Enumerable.Empty<Key>();
+      var entity = (Entity)target;
+      var entitySet = (EntitySetBase) entity.GetFieldValue(Field);
+      return entitySet == null
+        ? Enumerable.Empty<Key>()
+        : entitySet.Entities.Select(e => e.Key).ToList();
+
+    }
 
     public override IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
     {

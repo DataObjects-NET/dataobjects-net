@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2011.01.14
 
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -11,6 +12,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   internal interface IHasNestedNodes
   {
     ReadOnlyCollection<FieldNode> NestedNodes { get; }
+    IEnumerable<Key> ExtractKeys(object target);
     IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes);
   }
 }
