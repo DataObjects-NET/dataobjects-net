@@ -6,6 +6,7 @@
 // Created:    2008.06.30
 
 using System;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Validation.Resources;
@@ -106,7 +107,7 @@ namespace Xtensive.Orm.Validation
       var constraints = ConstraintRegistry.GetConstraints(target.GetType());
       if (constraints.Length > 0) {
         using (var ea = new ExceptionAggregator()) {
-          foreach (var constraint in constraints)
+          foreach (var constraint in constraints.Where(c => c.Mode == ConstrainMode.Default))
             ea.Execute(constraint.Check, target);
           ea.Complete();
         }
