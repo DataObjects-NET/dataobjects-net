@@ -20,8 +20,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         protected override SqlCompiler CreateCompiler()
         {
-            throw new NotImplementedException("Firebird.v2_5.Compiler");
-//            return new Compiler(this);
+//            throw new NotImplementedException("Firebird.v2_5.Compiler");
+            return new Compiler(this);
         }
 
         protected override SqlTranslator CreateTranslator()
@@ -38,7 +38,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         {
             return new ServerInfoProvider(this);
         }
-
 
         // Constructors
 

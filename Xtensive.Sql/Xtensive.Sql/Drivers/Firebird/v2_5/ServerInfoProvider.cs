@@ -225,8 +225,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
             var dtc = new DataTypeCollection();
 
-            //dtc.Boolean = DataTypeInfo.Range(SqlType.Boolean, commonFeatures,
-            //  ValueRange.Bool);
+            dtc.Boolean = DataTypeInfo.Range(SqlType.Boolean, commonFeatures,
+              ValueRange.Bool);
 
             dtc.Int16 = DataTypeInfo.Range(SqlType.Int16, commonFeatures,
               ValueRange.Int16,
@@ -254,6 +254,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "varchar");
             dtc.VarCharMax = DataTypeInfo.Stream(SqlType.VarCharMax, lobFeatures, MaxTextLength, "blob sub type 1");
             dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, lobFeatures, MaxTextLength, "blob sub type 0");
+
+            dtc.UInt64 = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, 30);
 
             return dtc;
         }
