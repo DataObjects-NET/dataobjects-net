@@ -122,11 +122,36 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       }
     }
 
+    [HierarchyRoot]
+    public class ValidationTarget : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field, NotNullOrEmptyConstraint(Mode = ConstrainMode.OnSetValue)]
+      public string Name { get; set; }
+
+      [Field, NotNullOrEmptyConstraint(Mode = ConstrainMode.OnSetValue)]
+      public string Description { get; set; }
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof(Mouse).Namespace);
       return config;
+    }
+
+    [Test]
+    public void OnSetValueModeTest()
+    {
+      using (var session = Session.Open(Domain)) {
+        using (var t = Transaction.Open(session)) {
+
+          var target = new ValidationTarget();
+          target.Name = "name";
+        }
+      }
     }
 
     [Test]
