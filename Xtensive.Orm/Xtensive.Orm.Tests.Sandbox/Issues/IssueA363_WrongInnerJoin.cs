@@ -8,10 +8,10 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.IssueA363_WrongInnerJoin_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.IssueA363_WrongInnerJoin_Model;
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueA363_WrongInnerJoin_Model
   {

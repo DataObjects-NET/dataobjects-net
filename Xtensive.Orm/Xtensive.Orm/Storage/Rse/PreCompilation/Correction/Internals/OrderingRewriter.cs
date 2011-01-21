@@ -124,6 +124,37 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return result;
     }
 
+    protected override Provider VisitIndex(IndexProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
+    protected override Provider VisitFreeText(FreeTextProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
+    protected override Provider VisitRaw(RawProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
+    protected override Provider VisitReindex(ReindexProvider provider)
+    {
+      var reindex = base.VisitReindex(provider);
+      sortOrder = reindex.Header.Order;
+      return reindex;
+    }
+
+    protected override Provider VisitStore(StoreProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
     protected override Provider VisitApply(ApplyProvider provider)
     {
       var left = VisitCompilable(provider.Left);
@@ -133,19 +164,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var result = left == provider.Left && right == provider.Right
         ? provider
         : new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
-      ComputeBinaryOrder(provider, leftOrder, rightOrder);
+      sortOrder = ComputeBinaryOrder(provider, leftOrder, rightOrder);
       return result;
-    }
-
-    private void ComputeBinaryOrder(BinaryProvider provider, DirectionCollection<int> leftOrder, DirectionCollection<int> rightOrder)
-    {
-      if (leftOrder.Count > 0) {
-        var leftHeaderLength = provider.Left.Header.Length;
-        sortOrder = new DirectionCollection<int>(leftOrder
-          .Concat(rightOrder.Select(p => new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
-      }
-      else
-        sortOrder = new DirectionCollection<int>();
     }
 
     protected override Provider VisitJoin(JoinProvider provider)
@@ -157,7 +177,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var result = left == provider.Left && right == provider.Right
         ? provider
         : new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm, provider.EqualIndexes);
-      ComputeBinaryOrder(provider, leftOrder, rightOrder);
+      sortOrder = ComputeBinaryOrder(provider, leftOrder, rightOrder);
       return result;
     }
 
@@ -170,7 +190,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var result = left == provider.Left && right == provider.Right
         ? provider
         : new PredicateJoinProvider(left, right, provider.Predicate, provider.JoinType);
-      ComputeBinaryOrder(provider, leftOrder, rightOrder);
+      sortOrder = ComputeBinaryOrder(provider, leftOrder, rightOrder);
       return result;
     }
 
@@ -197,6 +217,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
           result = InsertSortProvider(visited);
       }
       return result;
+    }
+
+    private static DirectionCollection<int> ComputeBinaryOrder(BinaryProvider provider, DirectionCollection<int> leftOrder, DirectionCollection<int> rightOrder)
+    {
+      if (leftOrder.Count > 0)
+        return new DirectionCollection<int>(
+          leftOrder.Concat(
+            rightOrder.Select(p => new KeyValuePair<int, Direction>(p.Key + provider.Left.Header.Length, p.Value))));
+      return new DirectionCollection<int>();
     }
 
     #endregion
