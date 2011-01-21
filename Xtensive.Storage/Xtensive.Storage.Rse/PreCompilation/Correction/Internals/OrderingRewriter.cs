@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var result = left == provider.Left && right == provider.Right
         ? provider
         : new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm, provider.EqualIndexes);
-      ComputeBinaryOrder(provider, leftOrder, rightOrder);
+      sortOrder = ComputeBinaryOrder(provider, leftOrder, rightOrder);
       return result;
     }
 
@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var result = left == provider.Left && right == provider.Right
         ? provider
         : new PredicateJoinProvider(left, right, provider.Predicate, provider.JoinType);
-      ComputeBinaryOrder(provider, leftOrder, rightOrder);
+      sortOrder = ComputeBinaryOrder(provider, leftOrder, rightOrder);
       return result;
     }
 

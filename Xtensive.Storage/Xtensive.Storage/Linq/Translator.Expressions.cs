@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Linq
         if (u.GetMemberType()==MemberType.Entity) {
           if (u.Type==u.Operand.Type
             || u.Type.IsAssignableFrom(u.Operand.Type)
-              || !typeof (IEntity).IsAssignableFrom(u.Operand.Type))
+            || !typeof (IEntity).IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
@@ -1001,7 +1001,7 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
 
       // Expression is already of requested type.
-      Expression visitedSource = Visit(source);
+      var visitedSource = Visit(source);
       if (source.Type==targetType)
         return visitedSource;
 
@@ -1011,28 +1011,28 @@ namespace Xtensive.Storage.Linq
 
       // Cast to subclass or interface.
       using (state.CreateScope()) {
-        TypeInfo targetTypeInfo = context.Model.Types[targetType];
-        ParameterExpression parameter = state.Parameters[0];
+        var targetTypeInfo = context.Model.Types[targetType];
+        var parameter = state.Parameters[0];
         var entityExpression = visitedSource.StripCasts() as IEntityExpression;
 
         if (entityExpression==null)
           throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
 
         // Replace original recordset. New recordset is left join with old recordset
-        ProjectionExpression originalResultExpression = context.Bindings[parameter];
-        RecordSet originalRecordset = originalResultExpression.ItemProjector.DataSource;
+        var originalResultExpression = context.Bindings[parameter];
+        var originalRecordset = originalResultExpression.ItemProjector.DataSource;
         int offset = originalRecordset.Header.Columns.Count;
 
         // Join primary index of target type
-        IndexInfo joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-        RecordSet joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-        IEnumerable<int> keySegment = entityExpression.Key.Mapping.GetItems();
-        Pair<int>[] keyPairs = keySegment
+        var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
+        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+        var keySegment = entityExpression.Key.Mapping.GetItems();
+        var keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
 
         // Replace recordset.
-        RecordSet joinedRecordSet = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
+        var joinedRecordSet = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
           joinedRecordSet,
           context);
@@ -1040,7 +1040,8 @@ namespace Xtensive.Storage.Linq
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression
-        EntityExpression result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+        var result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+        result.IsNullable = true;
         return result;
       }
     }
