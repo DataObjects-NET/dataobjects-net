@@ -127,7 +127,32 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     protected override Provider VisitIndex(IndexProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
-      return base.VisitIndex(provider);
+      return provider;
+    }
+
+    protected override Provider VisitFreeText(FreeTextProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
+    protected override Provider VisitRaw(RawProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
+    protected override Provider VisitReindex(ReindexProvider provider)
+    {
+      var reindex = base.VisitReindex(provider);
+      sortOrder = reindex.Header.Order;
+      return reindex;
+    }
+
+    protected override Provider VisitStore(StoreProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
     }
 
     protected override Provider VisitApply(ApplyProvider provider)
