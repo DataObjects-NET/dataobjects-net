@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
         private const int MaxIdentifierLength = 30;
         private const int DoNotKnow = int.MaxValue;
-        private const int MaxCharLength = 32767;
+        private const int MaxCharLength = 32762;
         private const int MaxTextLength = int.MaxValue;
 
         private readonly string databaseName;
@@ -225,9 +225,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
             var dtc = new DataTypeCollection();
 
-            dtc.Boolean = DataTypeInfo.Range(SqlType.Boolean, commonFeatures,
-              ValueRange.Bool);
-
             dtc.Int16 = DataTypeInfo.Range(SqlType.Int16, commonFeatures,
               ValueRange.Int16,
               "smallint");
@@ -239,7 +236,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
               ValueRange.Int64, "bigint");
 
             dtc.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, commonFeatures,
-              ValueRange.Decimal, 1000, "numeric", "decimal");
+              ValueRange.Decimal, 18, "numeric", "decimal");
 
             dtc.Float = DataTypeInfo.Range(SqlType.Float, commonFeatures,
               ValueRange.Float, "float");
@@ -252,10 +249,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
             dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, MaxCharLength, "char");
             dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "varchar");
-            dtc.VarCharMax = DataTypeInfo.Stream(SqlType.VarCharMax, lobFeatures, MaxTextLength, "blob sub type 1");
-            dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, lobFeatures, MaxTextLength, "blob sub type 0");
-
-            dtc.UInt64 = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, 30);
+            dtc.VarCharMax = DataTypeInfo.Stream(SqlType.VarCharMax, lobFeatures, MaxTextLength, "blob sub_type 1");
+            dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, lobFeatures, MaxTextLength, "blob sub_type 0");
 
             return dtc;
         }

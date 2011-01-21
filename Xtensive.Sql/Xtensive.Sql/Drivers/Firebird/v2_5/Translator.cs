@@ -9,6 +9,7 @@ using System;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Ddl;
 
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
@@ -16,8 +17,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     internal class Translator : SqlTranslator
     {
-        public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\.MM\.dd HH\:mm\:ss\'' as timestamp)'"; } }
-        public override string TimeSpanFormatString { get { return @"'{0}{1},{2},{3},{4},{5:000}'"; } }
+        public override string DateTimeFormatString { get { return Constants.DateTimeFormatString; } }
+        public override string TimeSpanFormatString { get { return Constants.TimeSpanFormatString; } }
         public override string QuoteIdentifier(params string[] names)
         {
             return SqlHelper.QuoteIdentifierWithQuotes(names);
@@ -25,26 +26,33 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         public override string Translate(SqlValueType type)
         {
+            if (type.TypeName != null)
+                return type.TypeName;
             if (type.Type == SqlType.Interval)
                 return "VARCHAR(30)";
+            if (type.Type == SqlType.Boolean)
+                return "smallint";
+            if (type.Type == SqlType.Int8)
+                return "smallint";
+            if (type.Type == SqlType.UInt8)
+                return "smallint";
+            if (type.Type == SqlType.UInt16)
+                return "integer";
+            if (type.Type == SqlType.UInt32)
+                return "bigint";
+            if (type.Type == SqlType.UInt64)
+                return "varchar(30)";
+            if (type.Type == SqlType.Guid)
+                return "varchar(36)";
             return base.Translate(type);
         }
 
-        public override string Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
+        public override string Translate(SqlCompilerContext context, SqlDropTable node)
         {
-            switch (section)
-            {
-                case TableSection.Entry:
-                    return string.Empty; // node.Query is SqlFreeTextTable ? String.Empty : "(";
-                case TableSection.Exit:
-                    return string.Empty; // node.Query is SqlFreeTextTable ? String.Empty : ")";
-                case TableSection.AliasDeclaration:
-                    string alias = context.TableNameProvider.GetName(node);
-                    return (string.IsNullOrEmpty(alias)) ? string.Empty : QuoteIdentifier(alias);
-            }
-            return string.Empty;
+            return "DROP TABLE " + Translate(node.Table);
         }
-        
+
+
         public override string Translate(SqlCompilerContext context, object literalValue)
         {
             var literalType = literalValue.GetType();
@@ -53,7 +61,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
                 case TypeCode.Boolean:
                     return (bool)literalValue ? "1" : "0";
                 case TypeCode.UInt64:
-                    return QuoteString(((UInt64)literalValue).ToString()); 
+                    return QuoteString(((UInt64)literalValue).ToString());
             }
             if (literalType == typeof(byte[]))
             {
@@ -66,6 +74,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             }
             if (literalType == typeof(Guid))
                 return QuoteString(SqlHelper.GuidToString((Guid)literalValue));
+            if (literalType == typeof(TimeSpan))
+                return QuoteString(SqlHelper.TimeSpanToString((TimeSpan)literalValue, Constants.TimeSpanFormatString));
             return base.Translate(context, literalValue);
         }
 

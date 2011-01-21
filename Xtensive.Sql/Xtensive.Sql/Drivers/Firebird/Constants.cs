@@ -10,6 +10,9 @@ namespace Xtensive.Sql.Drivers.Firebird
 {
     internal static class Constants
     {
-        public const string DefaultSchemaName = "Firebird";
+        public const string DefaultSchemaName = ""; // "Firebird";
+
+        public const string TimeSpanFormatString = @"{0}{1},{2},{3},{4},{5:000}";
+        public const string DateTimeFormatString = @"'cast ('\'yyyy\.MM\.dd HH\:mm\:ss\'' as timestamp)'";
     }
 }

@@ -26,19 +26,23 @@ namespace Xtensive.Sql.Tests.Firebird
 
         protected override void CheckEquality(object expected, object actual)
         {
-            var arrayValue = expected as byte[];
-            var stringValue = expected as string;
-            var charValue = expected as char?;
-
-            bool nullExpected =
-              arrayValue != null && arrayValue.Length == 0 ||
-              stringValue != null && stringValue.Length == 0 ||
-              charValue != null && charValue == default(char);
-
-            if (nullExpected)
-                Assert.IsNull(actual);
+            if (expected is char || actual is char)
+                base.CheckEquality(expected ?? default(char), actual ?? default(char));
             else
                 base.CheckEquality(expected, actual);
+            //var arrayValue = expected as byte[];
+            //var stringValue = expected as string;
+            //var charValue = expected as char?;
+
+            //bool nullExpected =
+            //  arrayValue != null && arrayValue.Length == 0 ||
+            //  stringValue != null && stringValue.Length == 0 ||
+            //  charValue != null && charValue == default(char);
+
+            //if (nullExpected)
+            //    Assert.IsNull(actual);
+            //else
+            //    base.CheckEquality(expected, actual);
         }
     }
 }

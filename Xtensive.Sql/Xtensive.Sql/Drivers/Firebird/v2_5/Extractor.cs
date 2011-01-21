@@ -45,7 +45,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             targetSchema = schemaName.ToUpperInvariant();
             theCatalog.CreateSchema(targetSchema);
             ExtractCatalogContents();
-            return theCatalog.Schemas[targetSchema];
+            return theCatalog.Schemas[0];
+//            return theCatalog.Schemas[targetSchema];
         }
 
         private void ExtractCatalogContents()
