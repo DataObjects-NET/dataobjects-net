@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Linq
         if (u.GetMemberType()==MemberType.Entity) {
           if (u.Type==u.Operand.Type
             || u.Type.IsAssignableFrom(u.Operand.Type)
-              || !typeof (IEntity).IsAssignableFrom(u.Operand.Type))
+            || !typeof (IEntity).IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
@@ -987,7 +987,7 @@ namespace Xtensive.Orm.Linq
         throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
 
       // Expression is already of requested type.
-      Expression visitedSource = Visit(source);
+      var visitedSource = Visit(source);
       if (source.Type==targetType)
         return visitedSource;
 
@@ -997,8 +997,8 @@ namespace Xtensive.Orm.Linq
 
       // Cast to subclass or interface.
       using (state.CreateScope()) {
-        TypeInfo targetTypeInfo = context.Model.Types[targetType];
-        ParameterExpression parameter = state.Parameters[0];
+        var targetTypeInfo = context.Model.Types[targetType];
+        var parameter = state.Parameters[0];
         var entityExpression = visitedSource.StripCasts() as IEntityExpression;
 
         if (entityExpression==null)
@@ -1026,7 +1026,8 @@ namespace Xtensive.Orm.Linq
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression
-        EntityExpression result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+        var result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+        result.IsNullable = true;
         return result;
       }
     }
