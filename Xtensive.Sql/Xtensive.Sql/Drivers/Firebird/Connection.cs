@@ -37,15 +37,27 @@ namespace Xtensive.Sql.Firebird
         /// <inheritdoc/>
         public override void BeginTransaction()
         {
-            EnsureTrasactionIsNotActive();
-            activeTransaction = underlyingConnection.BeginTransaction();
+            BeginTransaction(IsolationLevel.Serializable);
         }
 
         /// <inheritdoc/>
         public override void BeginTransaction(IsolationLevel isolationLevel)
         {
             EnsureTrasactionIsNotActive();
-            activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+//            activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+            FbTransactionOptions transactionOptions = new FbTransactionOptions();
+            transactionOptions.WaitTimeout = 10;
+            IsolationLevel innerIsolationLevel = SqlHelper.ReduceIsolationLevel(isolationLevel);
+            switch (innerIsolationLevel)
+            {
+                case IsolationLevel.ReadCommitted: transactionOptions.TransactionBehavior = FbTransactionBehavior.ReadCommitted | FbTransactionBehavior.NoRecVersion | FbTransactionBehavior.Write | FbTransactionBehavior.NoWait;
+                    break;
+                case IsolationLevel.Serializable: transactionOptions.TransactionBehavior = FbTransactionBehavior.Concurrency | FbTransactionBehavior.Write | FbTransactionBehavior.Wait;
+                    break;
+                default:
+                    throw new System.NotImplementedException("Isolation level " + innerIsolationLevel + " is not supported!");
+            }
+            activeTransaction = underlyingConnection.BeginTransaction(transactionOptions);
         }
 
         /// <inheritdoc/>
@@ -75,4 +87,4 @@ namespace Xtensive.Sql.Firebird
             underlyingConnection = new FbConnection(connectionString);
         }
     }
-}
+};

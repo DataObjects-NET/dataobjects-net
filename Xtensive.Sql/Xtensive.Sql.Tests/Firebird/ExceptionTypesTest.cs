@@ -2,32 +2,28 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Csaba Beer
-// Created:    2011.01.19
+// Created:    2011.01.21
 
 using NUnit.Framework;
-using System.Diagnostics;
 
-namespace Xtensive.Sql.Tests.Firebird.v2_5
+namespace Xtensive.Sql.Tests.Firebird
 {
-    [TestFixture, Explicit]
-    public class TypeMappingTest : Firebird.TypeMappingTest
+    public abstract class ExceptionTypesTest : Tests.ExceptionTypesTest
     {
-        protected override string Url { get { return TestUrl.Firebird25; } }
-
         public override void SetUp()
         {
-            base.SetUp();
             TestHelpers.StartTraceToLogFile(this);
+            base.SetUp();
+            // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
+            RealTestFixtureSetUp();
         }
 
         public override void TearDown()
         {
             base.TearDown();
+            // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
+            RealTestFixtureTearDown();
             TestHelpers.StopTraceToLogFile(this);
-        }
-
-        public TypeMappingTest()
-        {
         }
     }
 }

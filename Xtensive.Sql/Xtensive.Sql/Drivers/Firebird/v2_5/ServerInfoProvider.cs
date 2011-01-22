@@ -13,7 +13,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
         private const int MaxIdentifierLength = 30;
         private const int DoNotKnow = int.MaxValue;
-        private const int MaxCharLength = 32762;
+        private const int MaxCharLength = 2000;  // physical constraint=32762, but because of http://tracker.firebirdsql.org/browse/CORE-1117;
+        // The limit is 64kB for statement text, 64kB for compiled BLR and 48kB for execution plan.
         private const int MaxTextLength = int.MaxValue;
 
         private readonly string databaseName;

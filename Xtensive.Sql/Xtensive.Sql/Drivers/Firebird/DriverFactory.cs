@@ -68,6 +68,7 @@ namespace Xtensive.Sql.Firebird
                 builder.Dialect = 3;
                 builder.Pooling = false;
                 builder.Port = port;
+                builder.ReturnRecordsAffected = true;
             }
 
             // user, password

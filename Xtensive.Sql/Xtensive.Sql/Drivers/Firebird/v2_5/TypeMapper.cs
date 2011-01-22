@@ -10,6 +10,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
     internal class TypeMapper : Sql.TypeMapper
     {
+        public override bool IsParameterCastRequired(Type type)
+        {
+            return true;
+        }
 
         public override SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
         {
