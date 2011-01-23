@@ -5,6 +5,7 @@
 // Created:    2011.01.10
 using System;
 using System.Data.Common;
+using System.Data;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
@@ -15,6 +16,26 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             return true;
         }
 
+        public override bool IsLiteralCastRequired(Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                    return true;
+            }
+            if (type == typeof(TimeSpan))
+                return true;
+            if (type == typeof(Guid))
+                return true;
+            return base.IsLiteralCastRequired(type);
+        }
+
+
         public override SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
         {
             return new SqlValueType(SqlType.Int16);
@@ -22,7 +43,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         public override SqlValueType BuildTimeSpanSqlType(int? length, int? precision, int? scale)
         {
-            return base.BuildStringSqlType(30, null, null);
+            return new SqlValueType(SqlType.Int64);
         }
 
         public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
@@ -45,20 +66,26 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             return new SqlValueType(SqlType.Char, 1);
         }
 
+        public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
+        {
+            return base.BuildStringSqlType(36, null, null); ;
+        }
+
+        public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
+        {
+            return base.BuildShortSqlType(length, precision, scale);
+        }
+
+        public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
+        {
+            return base.BuildShortSqlType(length, precision, scale);
+        }
+
         public override object ReadTimeSpan(DbDataReader reader, int index)
         {
-            string s = reader.GetString(index);
-            if (string.IsNullOrWhiteSpace(s))
-                return null;
-            int sign = 1;
-            if (s[0] == '-')
-            {
-                s = s.Substring(1);
-                sign = -1;
-            }
-            string[] ss = s.Split(',');
-            
-            return new TimeSpan(sign * Convert.ToInt32(ss[0]), sign * Convert.ToInt32(ss[1]), sign * Convert.ToInt32(ss[2]), sign * Convert.ToInt32(ss[3]), sign * Convert.ToInt32(ss[4]));
+            long value = 0L;
+            value = reader.GetInt64(index);
+            return TimeSpan.FromTicks(value / 100);
         }
 
         public override object ReadGuid(DbDataReader reader, int index)
@@ -71,10 +98,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
         {
-            if (value == null)
-                SetStringParameterValue(parameter, null);
+            parameter.DbType = DbType.Int64;
+            if (value != null)
+            {
+                var timeSpan = (TimeSpan)value;
+                parameter.Value = timeSpan.Ticks * 100;
+            }
             else
-                SetStringParameterValue(parameter, SqlHelper.TimeSpanToString((TimeSpan)value, Constants.TimeSpanFormatString));
+                parameter.Value = DBNull.Value;
         }
 
         public override object ReadChar(DbDataReader reader, int index)

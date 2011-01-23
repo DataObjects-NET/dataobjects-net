@@ -18,33 +18,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     internal class Translator : SqlTranslator
     {
         public override string DateTimeFormatString { get { return Constants.DateTimeFormatString; } }
-        public override string TimeSpanFormatString { get { return Constants.TimeSpanFormatString; } }
+        public override string TimeSpanFormatString { get { return string.Empty; } }
+//        public override string TimeSpanFormatString { get { return Constants.TimeSpanFormatString; } }
+  
         public override string QuoteIdentifier(params string[] names)
         {
             return SqlHelper.QuoteIdentifierWithQuotes(names);
-        }
-
-        public override string Translate(SqlValueType type)
-        {
-            if (type.TypeName != null)
-                return type.TypeName;
-            if (type.Type == SqlType.Interval)
-                return "VARCHAR(30)";
-            if (type.Type == SqlType.Boolean)
-                return "smallint";
-            if (type.Type == SqlType.Int8)
-                return "smallint";
-            if (type.Type == SqlType.UInt8)
-                return "smallint";
-            if (type.Type == SqlType.UInt16)
-                return "integer";
-            if (type.Type == SqlType.UInt32)
-                return "bigint";
-            if (type.Type == SqlType.UInt64)
-                return "varchar(30)";
-            if (type.Type == SqlType.Guid)
-                return "varchar(36)";
-            return base.Translate(type);
         }
 
         public override string Translate(SqlCompilerContext context, SqlDropTable node)
@@ -75,9 +54,85 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             if (literalType == typeof(Guid))
                 return QuoteString(SqlHelper.GuidToString((Guid)literalValue));
             if (literalType == typeof(TimeSpan))
-                return QuoteString(SqlHelper.TimeSpanToString((TimeSpan)literalValue, Constants.TimeSpanFormatString));
+                return Convert.ToString((long)((TimeSpan)literalValue).Ticks * 100);
             return base.Translate(context, literalValue);
         }
+
+        public override string Translate(SqlNodeType type)
+        {
+            switch (type)
+            {
+                case SqlNodeType.Equals:
+                    return "IS NOT DISTINCT FROM";
+                case SqlNodeType.NotEquals:
+                    return "IS DISTINCT FROM";
+                case SqlNodeType.Modulo:
+                    return "MOD";
+                case SqlNodeType.DateTimeMinusDateTime:
+                    return "-";
+                case SqlNodeType.Except:
+                    throw SqlHelper.NotSupported(type.ToString());
+                case SqlNodeType.DateTimePlusInterval:
+                case SqlNodeType.DateTimeMinusInterval:
+                    throw SqlHelper.NotSupported(type.ToString());  // handled in compiler
+                case SqlNodeType.BitAnd:
+                    return "BIT_AND";
+                case SqlNodeType.BitOr:
+                    return "BIT_OR";
+                case SqlNodeType.BitXor:
+                    return "BIT_XOR";
+                case SqlNodeType.BitNot:
+                    throw SqlHelper.NotSupported(type.ToString());  // handled in compiler
+                case SqlNodeType.Overlaps:
+                    throw SqlHelper.NotSupported(type.ToString());
+                default:
+                    return base.Translate(type);
+            }
+        }
+
+        public override string Translate(SqlFunctionType type)
+        {
+            switch (type)
+            {
+                case SqlFunctionType.CharLength:
+                    return "CHAR_LENGTH";
+                case SqlFunctionType.BinaryLength:
+                    return "OCTET_LENGTH";
+                case SqlFunctionType.Truncate:
+                    return "TRUNC";
+                case SqlFunctionType.IntervalNegate:
+                    return "-";
+                case SqlFunctionType.Log:
+                    return "LN";
+                case SqlFunctionType.Log10:
+                    return "LOG10";
+                case SqlFunctionType.Ceiling:
+                    return "CEIL";
+                case SqlFunctionType.PadLeft:
+                    return "LPAD";
+                case SqlFunctionType.PadRight:
+                    return "RPAD";
+                case SqlFunctionType.Concat:
+                    return "||";
+                case SqlFunctionType.SystemUser:
+                case SqlFunctionType.SessionUser:
+                    return base.Translate(SqlFunctionType.CurrentUser);
+                case SqlFunctionType.Degrees:
+                case SqlFunctionType.Radians:
+                case SqlFunctionType.Square:
+                    throw SqlHelper.NotSupported(type.ToString());
+                default:
+                    return base.Translate(type);
+            }
+        }
+
+        public override string Translate(SqlLockType lockType)
+        {
+            if (lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked))
+                return base.Translate(lockType);
+            return "WITH LOCK";
+        }
+
 
         // Constructors
 
