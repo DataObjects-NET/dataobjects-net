@@ -271,9 +271,17 @@ namespace Xtensive.Storage.Configuration.Elements
           Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements);
       if (connectionUrlSpecified)
         return new ConnectionInfo(ConnectionUrl);
-      if (connectionStringSpecified)
-        return new ConnectionInfo(Provider, ConnectionString);
-      return null;
+      // By default
+      string realConnectionString = ConnectionString;
+      if (connectionStringSpecified) {
+        if (ConnectionString.StartsWith("#")) {
+          string connectionStringName = ConnectionString.Substring(1);
+          realConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
+          if (string.IsNullOrEmpty(realConnectionString))
+            throw new ArgumentNullException();
+        }
+        return new ConnectionInfo(Provider, realConnectionString);
+      }      return null;
     }
   }
 }
