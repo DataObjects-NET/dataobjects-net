@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class EncryptedConnectionStringTest
   {
-    [Test]
+    [Test, Explicit]
     public void MainTest()
     {
       var config = DomainConfiguration.Load("encrypted");
