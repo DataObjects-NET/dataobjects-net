@@ -760,39 +760,39 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return "FOR UPDATE";
     }
 
-    private static string TranslateClrType(Type type)
+    protected virtual string TranslateClrType(Type type)
     {
       switch (Type.GetTypeCode(type)) {
-      case TypeCode.Boolean:
-        return "bool";
-      case TypeCode.Byte:
-      case TypeCode.SByte:
-      case TypeCode.Int16:
-        return "int2";
-      case TypeCode.UInt16:
-      case TypeCode.Int32:
-        return "int4";
-      case TypeCode.UInt32:
-      case TypeCode.Int64:
-        return "int8";
-      case TypeCode.UInt64:
-      case TypeCode.Decimal:
-        return "numeric";
-      case TypeCode.Single:
-        return "float4";
-      case TypeCode.Double:
-        return "float8";
-      case TypeCode.Char:
-      case TypeCode.String:
-        return "text";
-      case TypeCode.DateTime:
-        return "timestamp";
-      default:
-        if (type==typeof (TimeSpan))
-          return "interval";
-        if (type==typeof(Guid))
-          return "bytea";
-        return "text";
+        case TypeCode.Boolean:
+          return "bool";
+        case TypeCode.Byte:
+        case TypeCode.SByte:
+        case TypeCode.Int16:
+          return "int2";
+        case TypeCode.UInt16:
+        case TypeCode.Int32:
+          return "int4";
+        case TypeCode.UInt32:
+        case TypeCode.Int64:
+          return "int8";
+        case TypeCode.UInt64:
+        case TypeCode.Decimal:
+          return "numeric";
+        case TypeCode.Single:
+          return "float4";
+        case TypeCode.Double:
+          return "float8";
+        case TypeCode.Char:
+        case TypeCode.String:
+          return "text";
+        case TypeCode.DateTime:
+          return "timestamp";
+        default:
+          if (type==typeof (TimeSpan))
+            return "interval";
+          if (type==typeof(Guid))
+            return "bytea";
+          return "text";
       }
     }
 

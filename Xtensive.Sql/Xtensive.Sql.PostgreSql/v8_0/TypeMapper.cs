@@ -11,8 +11,7 @@ using System.Security;
 using Npgsql;
 using NpgsqlTypes;
 
-
-namespace Xtensive.Sql.PostgreSql
+namespace Xtensive.Sql.PostgreSql.v8_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
