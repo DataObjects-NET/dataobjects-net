@@ -14,6 +14,11 @@ namespace Xtensive.Sql.PostgreSql.v8_1
 {
   internal class Driver : PostgreSql.Driver
   {
+    protected override Sql.TypeMapper CreateTypeMapper()
+    {
+      return new TypeMapper(this);
+    }
+
     protected override SqlCompiler CreateCompiler()
     {
       return new Compiler(this);
