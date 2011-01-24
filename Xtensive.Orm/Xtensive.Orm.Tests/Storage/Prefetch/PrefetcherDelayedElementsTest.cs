@@ -60,13 +60,13 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var persons =  session.Query.Many<Person>(keys);
         var count = 0;
-        foreach (var key in keys) {
+        foreach (var person in persons) {
           count++;
           Key cachedKey;
-          Assert.IsFalse(key.HasExactType);
-          Assert.IsTrue(Domain.KeyCache.TryGetItem(key, true, out cachedKey));
+          Assert.IsFalse(person.Key.HasExactType);
+          Assert.IsTrue(Domain.KeyCache.TryGetItem(person.Key, true, out cachedKey));
           Assert.IsTrue(cachedKey.HasExactType);
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.TypeInfo, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(person.Key, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(keys.Count, count);

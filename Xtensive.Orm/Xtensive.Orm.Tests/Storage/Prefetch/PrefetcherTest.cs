@@ -133,9 +133,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var employeeType = typeof (Employee).GetTypeInfo();
         Func<FieldInfo, bool> fieldSelector = field => field.IsPrimaryKey || field.IsSystem
           || !field.IsLazyLoad && !field.IsEntitySet;
-        foreach (var key in keys) {
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.TypeInfo, session, fieldSelector);
-          var orderState = session.EntityStateCache[key, true];
+        foreach (var order in orders) {
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, order.Key.TypeInfo, session, fieldSelector);
+          var orderState = session.EntityStateCache[order.Key, true];
           var employeeKey = Key.Create(Domain, typeof(Employee).GetTypeInfo(Domain),
             TypeReferenceAccuracy.ExactType, employeeField.Associations.Last()
               .ExtractForeignKey(orderState.Type, orderState.Tuple));
@@ -230,12 +230,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var orders = session.Query.Many<Order>(keys)
           .Prefetch(o => o.Employee.Orders);
         var count = 0;
-        foreach (var orderKey in keys) {
-          Assert.AreEqual(keys[count], orderKey);
+        foreach (var order in orders) {
+          Assert.AreEqual(keys[count], order.Key);
           count++;
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, orderType, session,
             field => PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
-          var state = session.EntityStateCache[orderKey, true];
+          var state = session.EntityStateCache[order.Key, true];
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(
             state.Entity.GetFieldValue<Employee>(employeeField).Key,
             employeeType, session, field =>
@@ -342,12 +342,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var prefetcher = session.Query.All<Model.Book>().AsEnumerable()
+          var books = session.Query.All<Model.Book>().AsEnumerable()
             .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title);
           var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
           var titleType = typeof (Model.Title).GetTypeInfo();
           var count = 0;
-          foreach (var book in prefetcher) {
+          foreach (var book in books) {
             count++;
             if (book != null) {
               var titleKey = book.GetReferenceKey(titleField);
@@ -393,12 +393,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var prefetcher = session.Query.All<Model.Book>().AsEnumerable().Concat(EnumerableUtils.One<Model.Book>(null))
+          var books = session.Query.All<Model.Book>().AsEnumerable().Concat(EnumerableUtils.One<Model.Book>(null))
             .Prefetch(b => b.Title.Book);
           var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
           var titleType = typeof (Model.Title).GetTypeInfo();
           var count = 0;
-          foreach (var book in prefetcher) {
+          foreach (var book in books) {
             count++;
             if (book!=null) {
               var titleKey = book.GetReferenceKey(titleField);

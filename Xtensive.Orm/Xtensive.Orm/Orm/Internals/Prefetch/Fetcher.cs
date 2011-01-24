@@ -20,8 +20,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private readonly PrefetchManager manager;
 
-    public void ExecuteTasks(IEnumerable<GraphContainer> containers, bool skipPersist)
+    public bool ExecuteTasks(IEnumerable<GraphContainer> containers, bool skipPersist)
     {
+      var batchExecuted = false;
       try {
         var rootEntityContainers = containers
           .Where(container => container.RootEntityContainer!=null)
@@ -31,7 +32,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
-        manager.Owner.Session.ExecuteDelayedQueries(skipPersist);
+        batchExecuted |= manager.Owner.Session.ExecuteDelayedQueries(skipPersist);
         UpdateCacheFromAllEntityGroupTasks();
         UpdateCacheFromAllEntitySetTasks(containers);
 
@@ -45,11 +46,12 @@ namespace Xtensive.Orm.Internals.Prefetch
           AddTask(container);
 
         if (tasks.Count==0)
-          return;
+          return batchExecuted;
         RegisterAllEntityGroupTasks();
 
-        manager.Owner.Session.ExecuteDelayedQueries(skipPersist);
+        batchExecuted |= manager.Owner.Session.ExecuteDelayedQueries(skipPersist);
         UpdateCacheFromAllEntityGroupTasks();
+        return batchExecuted;
       }
       finally {
         tasks.Clear();

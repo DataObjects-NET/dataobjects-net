@@ -47,9 +47,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           container.JoinIfPossible(RegisterPrefetch(ken.ExtractKeys(item), ken));
         if (currentTaskCount == session.Handler.PrefetchTaskExecutionCount) 
           continue;
-        do
-          container.JoinIfPossible(ProcessFetchedElements()); 
-        while (container.JoinIfPossible(session.Handler.ExecutePrefetchTasks()));
+        while (container.JoinIfPossible(session.Handler.ExecutePrefetchTasks()))
+          container.JoinIfPossible(ProcessFetchedElements());
         while (resultQueue.Count > 0)
           yield return resultQueue.Dequeue();
         currentTaskCount = session.Handler.PrefetchTaskExecutionCount;
