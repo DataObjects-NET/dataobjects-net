@@ -5,7 +5,7 @@
 // Created:    2011.01.24
 
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
+using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage
 {
