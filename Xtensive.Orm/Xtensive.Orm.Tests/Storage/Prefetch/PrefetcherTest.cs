@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Collections;
+using Xtensive.Diagnostics;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -41,14 +42,76 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [Test]
     public void PrefetchGraphTest()
     {
-      var orders = Session.Query.All<Order>()
-        .Prefetch(o => o.Customer.CompanyName)
-        .Prefetch(o => o.Customer.Address)
-        .Prefetch(o => o.OrderDetails
-          .Prefetch(od => od.Product)
-          .Prefetch(od => od.Product.Category)
-          .Prefetch(od => od.Product.Category.Picture));
-      var result = orders.ToList();
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var orders = session.Query.All<Order>()
+          .Prefetch(o => o.Customer.CompanyName)
+          .Prefetch(o => o.Customer.Address)
+          .Prefetch(o => o.OrderDetails
+            .Prefetch(od => od.Product)
+            .Prefetch(od => od.Product.Category)
+            .Prefetch(od => od.Product.Category.Picture));
+        var result = orders.ToList();
+        foreach (var order in result) {
+          Console.Out.WriteLine(string.Format("Order: {0}, Customer: {1}, City {2}, Items count: {3}", order.Id, order.Customer.CompanyName, order.Customer.Address.City, order.OrderDetails.Count));
+          foreach (var orderDetail in order.OrderDetails)
+            Console.Out.WriteLine(string.Format("\tProduct: {0}, Category: {1}, Pucture Length: {2}", 
+              orderDetail.Product.ProductName,
+              orderDetail.Product.Category.CategoryName,
+              orderDetail.Product.Category.Picture.Length));
+        }
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void PrefetchGraphPerformanceTest()
+    {
+      using (var mx = new Measurement("Query graph of orders without prefetch."))
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var orders = session.Query.All<Order>();
+        foreach (var order in orders) {
+          var id = order.Id;
+          var name = order.Customer.CompanyName;
+          var city = order.Customer.Address.City;
+          var count = order.OrderDetails.Count;
+          foreach (var orderDetail in order.OrderDetails) {
+            var productName = orderDetail.Product.ProductName;
+            var category = orderDetail.Product.Category.CategoryName;
+            var picture = orderDetail.Product.Category.Picture;
+          }
+        }
+        mx.Complete();
+        t.Complete();
+        Console.Out.WriteLine(mx.ToString());
+      }
+
+      using (var mx = new Measurement("Query graph of orders with prefetch."))
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var orders = session.Query.All<Order>()
+          .Prefetch(o => o.Customer.CompanyName)
+          .Prefetch(o => o.Customer.Address)
+          .Prefetch(o => o.OrderDetails
+            .Prefetch(od => od.Product)
+            .Prefetch(od => od.Product.Category)
+            .Prefetch(od => od.Product.Category.Picture));
+        foreach (var order in orders) {
+          var id = order.Id;
+          var name = order.Customer.CompanyName;
+          var city = order.Customer.Address.City;
+          var count = order.OrderDetails.Count;
+          foreach (var orderDetail in order.OrderDetails) {
+            var productName = orderDetail.Product.ProductName;
+            var category = orderDetail.Product.Category.CategoryName;
+            var picture = orderDetail.Product.Category.Picture;
+          }
+        }
+        mx.Complete();
+        t.Complete();
+        Console.Out.WriteLine(mx.ToString());
+      }
     }
 
     [Test]
