@@ -1962,6 +1962,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only persistented property access, calls of Prefetch method or anonymous type constructors are supported, but found &apos;{0}&apos; expression..
+        /// </summary>
+        internal static string ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX {
+            get {
+                return ResourceManager.GetString("ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}.{1}&apos; OnOwnerRemove action is not equal to &apos;{2}.{3}&apos; OnTargetRemove action..
         /// </summary>
         internal static string ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction {

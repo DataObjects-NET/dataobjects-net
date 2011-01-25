@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       using (var ss = session.Activate()) {
         var batches = info.ChangedEntities.Batch(); // To avoid further GCs, if set is large
         foreach (var changedEntities in batches) {
-          session.Query.Many<AuditRecord>(changedEntities).Run();
+          session.Query.Many<Entity>(changedEntities).Run();
           foreach (var key in changedEntities) {
             var entity = session.Query.SingleOrDefault(key);
             bool isRemoved = entity.IsRemoved();

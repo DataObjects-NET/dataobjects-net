@@ -21,7 +21,7 @@ using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
   [TestFixture]
-  public sealed class PrefetcherTest : NorthwindDOModelTest
+  public sealed class PrefetchTest : NorthwindDOModelTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             PrefetchTestHelper.AssertReferencedEntityIsLoaded(detailKey, session, productField);
           }
         }
-        Assert.AreEqual(24, session.Handler.PrefetchTaskExecutionCount);
+        Assert.AreEqual(11, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
               PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(ordersField));
         }
         Assert.AreEqual(keys.Count, count);
-        Assert.GreaterOrEqual(11, session.Handler.PrefetchTaskExecutionCount);
+        Assert.AreEqual(15, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
@@ -300,15 +300,22 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void InvalidArgumentsTest()
+    public void ArgumentsTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>().Prefetch(t => new {t.Id, t.Region}));
-        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>().Prefetch(t => t.Region.RegionDescription));
-        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>().Prefetch(t => t.PersistenceState));
-        AssertEx.Throws<ArgumentException>(() => session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(Key.Create<Model.OfferContainer>(Domain, 1)))
-          .Prefetch(oc => oc.IntermediateOffer.AnotherContainer.RealOffer.Book));
+        var a = session.Query.All<Territory>()
+          .Prefetch(t => new {t.Id, t.Region})
+          .ToList();
+        var b = session.Query.All<Territory>()
+          .Prefetch(t => t.Region.RegionDescription)
+          .ToList();
+        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>()
+          .Prefetch(t => t.PersistenceState)
+          .ToList());
+        var d = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(Key.Create<Model.OfferContainer>(Domain, 1)))
+          .Prefetch(oc => oc.IntermediateOffer.AnotherContainer.RealOffer.Book)
+          .ToList();
       }
     }
 
@@ -451,8 +458,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Prefetch(oc => oc.IntermediateOffer);
         foreach (var key in containers) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.TypeInfo, session,
-            field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field)
-              || field.Name.StartsWith("IntermediateOffer"));
+            field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field) || field.Name.StartsWith("IntermediateOffer"));
         }
       }
     }

@@ -18,7 +18,7 @@ using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
   [TestFixture]
-  public sealed class PrefetcherDelayedElementsTest : AutoBuildTest
+  public sealed class PrefetchDelayedElementsTest : AutoBuildTest
   {
     private TypeInfo orderType;
     private TypeInfo customerType;
@@ -63,7 +63,6 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var person in persons) {
           count++;
           Key cachedKey;
-          Assert.IsFalse(person.Key.HasExactType);
           Assert.IsTrue(Domain.KeyCache.TryGetItem(person.Key, true, out cachedKey));
           Assert.IsTrue(cachedKey.HasExactType);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(person.Key, cachedKey.TypeInfo, session,
@@ -397,17 +396,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Assert.IsTrue(setState.IsFullyLoaded);
       foreach (var itemKey in setState) {
         isOneItemPresentAtLeast = true;
-        var fieldSelector = referencingField.IsEntitySet && referencingField.ItemType.IsInterface
-          ? (Func<FieldInfo, bool>)(fi => {
-            var rt = fi.ReflectedType;
-            var implemented = rt.FieldMap.GetImplementedInterfaceFields(fi).ToList();
-            if (implemented.Count > 0)
-              return implemented.Any(i => i.ReflectedType.UnderlyingType == referencingField.ItemType);
-            return false;
-          })
-          : PrefetchTestHelper.IsFieldToBeLoadedByDefault;
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.TypeInfo, session,
-          fieldSelector);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.TypeInfo, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
     }
   }

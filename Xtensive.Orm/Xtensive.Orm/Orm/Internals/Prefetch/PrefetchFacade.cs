@@ -22,9 +22,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly Session session;
     private readonly IEnumerable<T> source;
     private readonly Collections.LinkedList<KeyExtractorNode<T>> nodes;
-    private readonly Queue<Key> unknownTypeQueue;
-    private readonly Queue<Pair<IEnumerable<Key>, IHasNestedNodes>> prefetchQueue;
-    private readonly Dictionary<IHasNestedNodes, IList<PrefetchFieldDescriptor>> fieldDescriptorCache;
+
+    private Queue<Key> unknownTypeQueue;
+    private Queue<Pair<IEnumerable<Key>, IHasNestedNodes>> prefetchQueue;
+    private Dictionary<Pair<IHasNestedNodes, TypeInfo>, IList<PrefetchFieldDescriptor>> fieldDescriptorCache;
     private int taskCount;
 
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
@@ -37,14 +38,16 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public IEnumerator<T> GetEnumerator()
     {
+      Initialize();
       var currentTaskCount = taskCount = session.Handler.PrefetchTaskExecutionCount;
       var aggregatedNodes = NodeAggregator<T>.Aggregate(nodes);
       var resultQueue = new Queue<T>();
       var container = new StrongReferenceContainer(null);
       foreach (var item in source) {
         resultQueue.Enqueue(item);
-        foreach (var ken in aggregatedNodes)
-          container.JoinIfPossible(RegisterPrefetch(ken.ExtractKeys(item), ken));
+        if (item != null)
+          foreach (var ken in aggregatedNodes)
+            container.JoinIfPossible(RegisterPrefetch(ken.ExtractKeys(item), ken));
         if (currentTaskCount == session.Handler.PrefetchTaskExecutionCount) 
           continue;
         while (container.JoinIfPossible(session.Handler.ExecutePrefetchTasks()))
@@ -73,11 +76,12 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (!key.HasExactType && !type.IsLeaf)
           unknownTypeQueue.Enqueue(key);
         IList<PrefetchFieldDescriptor> fieldDescriptors;
-        if (!fieldDescriptorCache.TryGetValue(fieldContainer, out fieldDescriptors)) {
+        var cacheKey = new Pair<IHasNestedNodes, TypeInfo>(fieldContainer, type);
+        if (!fieldDescriptorCache.TryGetValue(cacheKey, out fieldDescriptors)) {
           fieldDescriptors = PrefetchHelper
             .GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type)
-            .Concat(fieldContainer.NestedNodes.Select(fn => new PrefetchFieldDescriptor(fn.Field, false, false))).ToList();
-          fieldDescriptorCache.Add(fieldContainer, fieldDescriptors);
+            .Concat(fieldContainer.NestedNodes.Select(fn => new PrefetchFieldDescriptor(fn.Field, false, true))).ToList();
+          fieldDescriptorCache.Add(cacheKey, fieldDescriptors);
         }
         container.JoinIfPossible(session.Handler.Prefetch(key, type, fieldDescriptors));
         if (taskCount != session.Handler.PrefetchTaskExecutionCount)
@@ -126,14 +130,21 @@ namespace Xtensive.Orm.Internals.Prefetch
       return GetEnumerator();
     }
 
+    private void Initialize()
+    {
+      unknownTypeQueue = new Queue<Key>();
+      prefetchQueue = new Queue<Pair<IEnumerable<Key>, IHasNestedNodes>>();
+      fieldDescriptorCache = new Dictionary<Pair<IHasNestedNodes, TypeInfo>, IList<PrefetchFieldDescriptor>>();
+    }
+
+
+    // Constructors
+
     public PrefetchFacade(Session session, IEnumerable<Key> keySource)
     {
       this.session = session;
       source = new PrefetchKeyIterator<T>(session, keySource);
       nodes = Collections.LinkedList<KeyExtractorNode<T>>.Empty;
-      unknownTypeQueue = new Queue<Key>();
-      prefetchQueue = new Queue<Pair<IEnumerable<Key>, IHasNestedNodes>>();
-      fieldDescriptorCache = new Dictionary<IHasNestedNodes, IList<PrefetchFieldDescriptor>>();
     }
 
     public PrefetchFacade(Session session, IEnumerable<T> source)
@@ -145,9 +156,6 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.session = session;
       this.source = source;
       this.nodes = nodes;
-      unknownTypeQueue = new Queue<Key>();
-      prefetchQueue = new Queue<Pair<IEnumerable<Key>, IHasNestedNodes>>();
-      fieldDescriptorCache = new Dictionary<IHasNestedNodes, IList<PrefetchFieldDescriptor>>();
     }
   }
 }

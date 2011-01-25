@@ -1557,4 +1557,7 @@ Error: {1}</value>
 	<data name="ExUnabletoParsePrefetchExpressionX">
 		<value><![CDATA[Unable to parse prefetch expression '{0}'.]]></value>
 	</data>
+	<data name="ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX">
+		<value><![CDATA[Only persistented property access, calls of Prefetch method or anonymous type constructors are supported, but found '{0}' expression.]]></value>
+	</data>
 </root>

@@ -18,8 +18,8 @@ using Xtensive.Orm.Model;
 using Xtensive.Core;
 using Xtensive.Orm.Resources;
 using Xtensive.Parameters;
-using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 using Xtensive.Reflection;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   internal class NodeParser : ExpressionVisitor
   {
     private readonly DomainModel model;
+    private readonly ParameterExpression parameter;
     private Expression extractorExpression;
     private int? top;
     private readonly List<FieldNode> nodes;
@@ -36,7 +37,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var parameter = expression.Parameters.Single();
       if (expression.Body == parameter)
         return null;
-      var parser = new NodeParser(model);
+      var parser = new NodeParser(model, parameter);
       parser.Visit(expression.Body);
       if (parser.extractorExpression == null)
         return null;
@@ -74,12 +75,19 @@ namespace Xtensive.Orm.Internals.Prefetch
       var parameter = expression.Parameters.Single();
       if (expression.Body == parameter)
         return null;
-      var parser = new NodeParser(model);
+      var parser = new NodeParser(model, parameter);
       parser.Visit(expression.Body);
       return parser.nodes.SingleOrDefault();
     }
 
-    protected override Expression VisitMember(MemberExpression e)
+    protected override Expression Visit(Expression e)
+    {
+      if (!e.NodeType.In(ExpressionType.MemberAccess, ExpressionType.Call, ExpressionType.New, ExpressionType.Lambda, ExpressionType.Parameter))
+        throw new NotSupportedException(string.Format(Strings.ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX, e));
+      return base.Visit(e);
+    }
+
+    protected override Expression VisitMemberAccess(MemberExpression e)
     {
       if (e.Expression == null)
         return e;
@@ -96,12 +104,23 @@ namespace Xtensive.Orm.Internals.Prefetch
           nodes.Add(new SetNode(path, model.Types[field.ItemType], field, top, nestedNodes));
         else
           nodes.Add(new FieldNode(path, field));
-        var visited = (MemberExpression)base.VisitMember(e);
+        var visited = (MemberExpression)base.VisitMemberAccess(e);
         return visited;
       }
       if (extractorExpression == null)
         extractorExpression = e;
       return e;
+    }
+
+    protected override Expression VisitNew(NewExpression n)
+    {
+      foreach (var argument in n.Arguments) {
+        var lambda = Expression.Lambda(argument, parameter);
+        var fieldNode = Parse(model, lambda);
+        if (fieldNode != null)
+          nodes.Add(fieldNode);
+      }
+      return n;
     }
 
     protected override Expression VisitParameter(ParameterExpression e)
@@ -129,9 +148,10 @@ namespace Xtensive.Orm.Internals.Prefetch
       return e;
     }
 
-    private NodeParser(DomainModel model)
+    private NodeParser(DomainModel model, ParameterExpression parameter)
     {
       this.model = model;
+      this.parameter = parameter;
       nodes = new List<FieldNode>();
     }
   }

@@ -156,8 +156,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         return null;
       }
       try {
-        if (fetcher.ExecuteTasks(graphContainers, skipPersist))
-          IncrementTaskCount();
+        var batchExecuted = fetcher.ExecuteTasks(graphContainers, skipPersist);
+        TaskExecutionCount += batchExecuted;
         foreach (var graphContainer in graphContainers)
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         return referenceContainer;
@@ -252,14 +252,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     #region Private \ internal methods
-
-    private void IncrementTaskCount()
-    {
-      if (TaskExecutionCount < int.MaxValue)
-        TaskExecutionCount++;
-      else
-        TaskExecutionCount = int.MinValue;
-    }
 
     private static void EnsureKeyTypeCorrespondsToSpecifiedType(Key key, TypeInfo type)
     {

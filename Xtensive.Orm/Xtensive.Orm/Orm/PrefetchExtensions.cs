@@ -20,14 +20,13 @@ namespace Xtensive.Orm
   public static class PrefetchExtensions
   {
     /// <summary>
-    /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/> and 
-    /// registers the prefetch of the field specified by <paramref name="expression"/>.
+    /// Registers fields specified by <paramref name="expression"/> for prefetch.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
-    /// <param name="source">The source sequence.</param>
+    /// <param name="source">The source query.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
-    /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
+    /// <returns>An <see cref="IEnumerable{TElement}"/> of source items.</returns>
     public static IEnumerable<TElement> Prefetch<TElement, TFieldValue>(
       this IQueryable<TElement> source,
       Expression<Func<TElement, TFieldValue>> expression)
@@ -39,14 +38,13 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/> and
-    /// registers the prefetch of the field specified by <paramref name="expression"/>.
+    /// Registers fields specified by <paramref name="expression"/> for prefetch.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
     /// <param name="source">The source sequence.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
-    /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
+    /// <returns>An <see cref="IEnumerable{TElement}"/> of source items.</returns>
     public static IEnumerable<TElement> Prefetch<TElement, TFieldValue>(
       this IEnumerable<TElement> source,
       Expression<Func<TElement, TFieldValue>> expression)
