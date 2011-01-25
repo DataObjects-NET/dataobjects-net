@@ -70,14 +70,14 @@ namespace Xtensive.Orm.Internals.Prefetch
       return _ => Enumerable.Empty<Key>();
     }
 
-    private static FieldNode Parse(DomainModel model, LambdaExpression expression)
+    private static IList<FieldNode> Parse(DomainModel model, LambdaExpression expression)
     {
       var parameter = expression.Parameters.Single();
       if (expression.Body == parameter)
         return null;
       var parser = new NodeParser(model, parameter);
       parser.Visit(expression.Body);
-      return parser.nodes.SingleOrDefault();
+      return parser.nodes;
     }
 
     protected override Expression Visit(Expression e)
@@ -116,9 +116,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       foreach (var argument in n.Arguments) {
         var lambda = Expression.Lambda(argument, parameter);
-        var fieldNode = Parse(model, lambda);
-        if (fieldNode != null)
-          nodes.Add(fieldNode);
+        var fieldNodes = Parse(model, lambda);
+        nodes.AddRange(fieldNodes);
       }
       return n;
     }
@@ -141,9 +140,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
       var source = e.Arguments[0];
       var lambda = e.Arguments[1].StripQuotes();
-      var fieldNode = Parse(model, lambda);
-      if (fieldNode != null)
-        nodes.Add(fieldNode);
+      var fieldNodes = Parse(model, lambda);
+      nodes.AddRange(fieldNodes);
       Visit(source);
       return e;
     }
