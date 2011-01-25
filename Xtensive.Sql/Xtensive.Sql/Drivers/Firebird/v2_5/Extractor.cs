@@ -11,6 +11,7 @@ using System.Data.Common;
 using Xtensive.Sql.Drivers.Firebird.Resources;
 using Xtensive.Sql.Model;
 using Constraint = Xtensive.Sql.Model.Constraint;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
@@ -166,21 +167,30 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
                 while (reader.Read())
                 {
+                    SqlExpression expression = null;
                     indexName = reader.GetString(2);
                     if (indexName != lastIndexName)
                     {
                         var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
-                        if (!reader.IsDBNull(8))    // expression index
-                            continue;
                         table = schema.Tables[reader.GetString(1)];
                         index = table.CreateIndex(indexName);
                         index.IsUnique = ReadBool(reader, 5);
                         index.IsBitmap = false;
                         index.IsClustered = false;
+                        if (!reader.IsDBNull(8))    // expression index
+                            expression = SqlDml.Native(reader.GetString(8));
                     }
-                    var column = table.TableColumns[reader.GetString(6)];
-                    bool isAscending = ReadBool(reader, 4);
-                    index.CreateIndexColumn(column, isAscending);
+                    if (expression == null)
+                    {
+                        var column = table.TableColumns[reader.GetString(6)];
+                        bool isAscending = ReadBool(reader, 4);
+                        index.CreateIndexColumn(column, isAscending);
+                    }
+                    else
+                    {
+                        bool isAscending = ReadBool(reader, 4);
+                        index.CreateIndexColumn(expression, isAscending);
+                    }
                     lastIndexName = indexName;
                 }
             }

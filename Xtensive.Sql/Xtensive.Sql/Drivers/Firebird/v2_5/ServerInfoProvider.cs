@@ -150,7 +150,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             indexInfo.MaxIdentifierLength = MaxIdentifierLength;
             indexInfo.Features =
               IndexFeatures.Unique |
-              IndexFeatures.SortOrder |
               IndexFeatures.Expressions;
             indexInfo.MaxNumberOfColumns = 10;  // just my opinion
             indexInfo.MaxLength = 4096; // PageSize/4/CharacterSetSizeInByte

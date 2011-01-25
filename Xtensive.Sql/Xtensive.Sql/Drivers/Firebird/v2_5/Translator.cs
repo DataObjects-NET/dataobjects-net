@@ -10,6 +10,7 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Ddl;
+using Xtensive.Sql.Model;
 
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
@@ -19,19 +20,31 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
         public override string DateTimeFormatString { get { return Constants.DateTimeFormatString; } }
         public override string TimeSpanFormatString { get { return string.Empty; } }
-//        public override string TimeSpanFormatString { get { return Constants.TimeSpanFormatString; } }
-  
+
+        /// <inheritdoc/>
         public override string QuoteIdentifier(params string[] names)
         {
             return SqlHelper.QuoteIdentifierWithQuotes(names);
         }
 
+        /// <inheritdoc/>
+        public virtual string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+        {
+            switch (section)
+            {
+                case AlterTableSection.RenameColumn:
+                    return "ALTER COLUMN";
+            }
+            return base.Translate(context, node, section);
+        }
+
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlDropTable node)
         {
             return "DROP TABLE " + Translate(node.Table);
         }
 
-
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, object literalValue)
         {
             var literalType = literalValue.GetType();
@@ -58,31 +71,29 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             return base.Translate(context, literalValue);
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlNodeType type)
         {
             switch (type)
             {
                 case SqlNodeType.Equals:
-                    return "IS NOT DISTINCT FROM";
+                    return "=";
+                    //return "IS NOT DISTINCT FROM";
                 case SqlNodeType.NotEquals:
-                    return "IS DISTINCT FROM";
+                    return "<>";
+                    //return "IS DISTINCT FROM";
                 case SqlNodeType.Modulo:
                     return "MOD";
                 case SqlNodeType.DateTimeMinusDateTime:
                     return "-";
                 case SqlNodeType.Except:
                     throw SqlHelper.NotSupported(type.ToString());
-                case SqlNodeType.DateTimePlusInterval:
-                case SqlNodeType.DateTimeMinusInterval:
-                    throw SqlHelper.NotSupported(type.ToString());  // handled in compiler
                 case SqlNodeType.BitAnd:
                     return "BIT_AND";
                 case SqlNodeType.BitOr:
                     return "BIT_OR";
                 case SqlNodeType.BitXor:
                     return "BIT_XOR";
-                case SqlNodeType.BitNot:
-                    throw SqlHelper.NotSupported(type.ToString());  // handled in compiler
                 case SqlNodeType.Overlaps:
                     throw SqlHelper.NotSupported(type.ToString());
                 default:
@@ -90,6 +101,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             }
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlFunctionType type)
         {
             switch (type)
@@ -121,11 +133,27 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
                 case SqlFunctionType.Radians:
                 case SqlFunctionType.Square:
                     throw SqlHelper.NotSupported(type.ToString());
+                case SqlFunctionType.IntervalAbs:
+                    return Translate(SqlFunctionType.Abs);
                 default:
                     return base.Translate(type);
             }
         }
 
+        /// <inheritdoc/>
+        public virtual string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
+        {
+            switch (section)
+            {
+                case NodeSection.Entry:
+                    return "GEN_ID(";
+                case NodeSection.Exit:
+                    return ",1)";
+            }
+            return string.Empty;
+        }
+
+        /// <inheritdoc/>
         public override string Translate(SqlLockType lockType)
         {
             if (lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked))
@@ -133,6 +161,56 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             return "WITH LOCK";
         }
 
+        /// <inheritdoc/>
+        public override string Translate(SqlDateTimePart dateTimePart)
+        {
+            switch (dateTimePart)
+            {
+                case SqlDateTimePart.DayOfYear:
+                    return "YEARDAY";
+                case SqlDateTimePart.DayOfWeek:
+                    return "WEEKDAY";
+            }
+            return base.Translate(dateTimePart);
+        }
+
+        /// <inheritdoc/>
+        public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+        {
+            switch (section)
+            {
+                case SelectSection.Limit:
+                    return "ROWS";
+                case SelectSection.Offset:
+                    return "TO";
+            }
+            return base.Translate(context, node, section);
+        }
+
+        /// <inheritdoc/>
+        public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+        {
+            switch (section)
+            {
+                case CreateIndexSection.Entry:
+                    Index index = node.Index;
+                    var builder = new StringBuilder();
+                    builder.Append("CREATE ");
+                    if (index.IsUnique)
+                        builder.Append("UNIQUE ");
+                    //else if (!index.IsAscending)
+                    //    builder.Append("DESC ");
+                    builder.Append("INDEX " + QuoteIdentifier(index.DbName));
+                    builder.Append(" ON " + Translate(index.DataTable));
+                    return builder.ToString();
+                case CreateIndexSection.ColumnsEnter:
+                    if (node.Index.Columns[0].Expression != null)
+                        return "COMPUTED BY (";
+                    else
+                        return "(";
+            }
+            return base.Translate(context, node, section);
+        }
 
         // Constructors
 
