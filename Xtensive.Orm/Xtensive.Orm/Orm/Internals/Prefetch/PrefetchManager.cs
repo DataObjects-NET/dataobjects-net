@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public int TaskExecutionCount { get; private set; }
 
-    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, FieldDescriptorCollection descriptors)
+    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
@@ -103,10 +103,6 @@ namespace Xtensive.Orm.Internals.Prefetch
         return null;
 
       try {
-        StrongReferenceContainer prevContainer = null;
-        if (graphContainers.Count >= MaxContainerCount)
-          prevContainer = ExecuteTasks();
-
         EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
 
         EntityState ownerState;
@@ -131,13 +127,16 @@ namespace Xtensive.Orm.Internals.Prefetch
           var hierarchyRoot = currentKey.TypeReference.Type;
           selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
         }
-        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState,
-          ReferenceEquals(descriptors, selectedFields));
+        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState, ReferenceEquals(descriptors, selectedFields));
+
+        StrongReferenceContainer container = null;
+        if (graphContainers.Count >= MaxContainerCount)
+          container = ExecuteTasks();
         if (referenceContainer!=null) {
-          referenceContainer.JoinIfPossible(prevContainer);
+          referenceContainer.JoinIfPossible(container);
           return referenceContainer;
         }
-        return prevContainer;
+        return container;
       }
       catch {
         CancelTasks();
@@ -157,17 +156,14 @@ namespace Xtensive.Orm.Internals.Prefetch
         return null;
       }
       try {
-        fetcher.ExecuteTasks(graphContainers, skipPersist);
+        var batchExecuted = fetcher.ExecuteTasks(graphContainers, skipPersist);
+        TaskExecutionCount += batchExecuted;
         foreach (var graphContainer in graphContainers)
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         return referenceContainer;
       }
       finally {
         CancelTasks();
-        if (TaskExecutionCount < int.MaxValue)
-          TaskExecutionCount++;
-        else
-          TaskExecutionCount = int.MinValue;
       }
     }
 
@@ -272,15 +268,13 @@ namespace Xtensive.Orm.Internals.Prefetch
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
-    private static void EnsureAllFieldsBelongToSpecifiedType(FieldDescriptorCollection descriptors,
-      TypeInfo type)
+    private static void EnsureAllFieldsBelongToSpecifiedType(IList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
     {
       for (int i = 0; i < descriptors.Count; i++) {
         var declaringType = descriptors[i].Field.DeclaringType;
         if (type!=declaringType && !declaringType.UnderlyingType.IsAssignableFrom(type.UnderlyingType))
           throw new InvalidOperationException(
-            String.Format(Strings.ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors,
-              descriptors[i].Field, type));
+            String.Format(Strings.ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors, descriptors[i].Field, type));
       }
     }
 

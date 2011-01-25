@@ -74,9 +74,7 @@ namespace Xtensive.Orm
           foreach (var operation in operations)
             operation.Prepare(executionContext);
 
-          executionContext.KeysToPrefetch
-            .Prefetch(session)
-            .Run();
+          session.Query.Many<Entity>(executionContext.KeysToPrefetch).Run();
 
           foreach (var operation in operations) {
             var identifierToKey = new Dictionary<string, Key>();

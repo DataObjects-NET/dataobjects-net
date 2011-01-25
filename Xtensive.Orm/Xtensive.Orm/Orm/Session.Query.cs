@@ -12,20 +12,32 @@ using System.Reflection;
 using System.Transactions;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Parameters;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Resources;
 using Xtensive.Reflection;
+using Tuple = Xtensive.Tuples.Tuple;
 using Activator = System.Activator;
 
 namespace Xtensive.Orm
 {
   partial class Session
   {
+    /// <summary>
+    /// Single access point allowing to run LINQ queries,
+    /// create future (delayed) and compiled queries,
+    /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
+    /// </summary>
     public QueryEndpoint Query { get; private set; }
 
+    /// <summary>
+    /// Provides methods allowing to run LINQ queries,
+    /// create future (delayed) and compiled queries,
+    /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
+    /// </summary>
     public class QueryEndpoint
     {
       private readonly Session session;
@@ -223,6 +235,37 @@ namespace Xtensive.Orm
       }
 
       /// <summary>
+      /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
+      /// </summary>
+      /// <param name="keys">The source sequence.</param>
+      /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
+      public IEnumerable<T> Many<T>(IEnumerable<Key> keys)
+        where T : class, IEntity
+      {
+        return new PrefetchFacade<T>(session, keys);
+      }
+
+      /// <summary>
+      /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
+      /// </summary>
+      /// <param name="keys">The source sequence.</param>
+      /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
+      public IEnumerable<T> Many<T,TElement>(IEnumerable<TElement> keys)
+        where T : class, IEntity
+      {
+        var elementType = typeof (TElement);
+        Func<TElement, Key> selector = null;
+        if (elementType == typeof(object[]))
+          selector = e => Key.Create<T>(session.Domain, (object[]) (object) e);
+        else if (typeof (Tuple).IsAssignableFrom(elementType))
+          selector = e => Key.Create<T>(session.Domain, (Tuple) (object) e);
+        else
+          selector = e => Key.Create<T>(session.Domain, new object[] {e} );
+
+        return new PrefetchFacade<T>(session, keys.Select(selector));
+      }
+
+      /// <summary>
       /// Finds compiled query in cache by provided <paramref name="query"/> delegate
       /// (in fact, by its <see cref="MethodInfo"/> instance)
       /// and executes them if it's already cached;
@@ -317,7 +360,7 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public FutureScalar<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
+      public Delayed<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
         var domain = session.Domain;
         var target = query.Target;
@@ -343,7 +386,7 @@ namespace Xtensive.Orm
           }
         }
         var parameterContext = CreateParameterContext(target, parameterizedQuery);
-        var result = new FutureScalar<TResult>(session, parameterizedQuery, parameterContext);
+        var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }
@@ -357,7 +400,7 @@ namespace Xtensive.Orm
       /// <returns>
       /// The future that will be executed when its result is requested.
       /// </returns>
-      public FutureScalar<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
+      public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
       {
         return ExecuteDelayed(query.Method, query);
       }
@@ -376,7 +419,7 @@ namespace Xtensive.Orm
       {
         var parameterizedQuery = GetParameterizedQuery(key, query);
         var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
-        var result = new FutureSequence<TElement>(session, parameterizedQuery, parameterContext);
+        var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
         session.RegisterDelayedQuery(result.Task);
         return result;
       }

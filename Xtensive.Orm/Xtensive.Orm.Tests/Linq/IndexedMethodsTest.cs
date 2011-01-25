@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectIndexedWhereTest()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .Select((c, i) => new {Customer = c, Index = i})
         .Where(a => a.Customer.Id == "SPLIR")
         .ToList();

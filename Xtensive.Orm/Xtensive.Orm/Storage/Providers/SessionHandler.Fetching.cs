@@ -5,6 +5,8 @@
 // Created:    2009.08.19
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
@@ -28,8 +30,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
-    public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type,
-      FieldDescriptorCollection descriptors)
+    public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       EnsureTransactionIsOpened();
       return prefetchManager.Prefetch(key, type, descriptors);
@@ -82,8 +83,9 @@ namespace Xtensive.Storage.Providers
     {
       EnsureTransactionIsOpened();
       var type = key.TypeReference.Type;
-      prefetchManager.Prefetch(key, type,
-        new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, false, false)));
+      var descriptor = new PrefetchFieldDescriptor(field, false, false);
+      var descriptors = new List<PrefetchFieldDescriptor> {descriptor};
+      prefetchManager.Prefetch(key, type, descriptors);
       prefetchManager.ExecuteTasks(true);
     }
 
@@ -96,8 +98,9 @@ namespace Xtensive.Storage.Providers
     {
       EnsureTransactionIsOpened();
       var ownerType = ownerKey.TypeReference.Type;
-      Session.Handler.Prefetch(ownerKey, ownerType,
-        new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, itemCountLimit)));
+      var descriptor = new PrefetchFieldDescriptor(field, itemCountLimit);
+      var descriptors = new List<PrefetchFieldDescriptor> { descriptor };
+      Session.Handler.Prefetch(ownerKey, ownerType, descriptors);
       Session.Handler.ExecutePrefetchTasks();
     }
   }

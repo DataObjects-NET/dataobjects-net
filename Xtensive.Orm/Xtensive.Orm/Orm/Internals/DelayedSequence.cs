@@ -13,7 +13,7 @@ using Xtensive.Orm.Linq;
 namespace Xtensive.Orm.Internals
 {
   [Serializable]
-  internal sealed class FutureSequence<T> : FutureBase<IEnumerable<T>>,
+  internal sealed class DelayedSequence<T> : DelayedQueryResult<IEnumerable<T>>,
     IEnumerable<T>
   {
     public IEnumerator<T> GetEnumerator()
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Internals
 
     // Constructors
 
-    public FutureSequence(Session session, TranslatedQuery<IEnumerable<T>> translatedQuery, ParameterContext parameterContext) 
+    public DelayedSequence(Session session, TranslatedQuery<IEnumerable<T>> translatedQuery, ParameterContext parameterContext) 
       : base(session, translatedQuery, parameterContext)
     {}
   }

@@ -24,6 +24,11 @@ namespace Xtensive.Orm.Linq
   {
     private readonly Session session;
 
+    public Session Session
+    {
+      get { return session; }
+    }
+    
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {

@@ -160,8 +160,7 @@ namespace Xtensive.Orm.Linq.Materialization
       context.Session.Handler.Prefetch(
         entitySet.Owner.Key, 
         entitySet.Owner.TypeInfo, 
-        new FieldDescriptorCollection(
-          new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)));
+        new List<PrefetchFieldDescriptor>{new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)});
       return entitySet;
     }
 

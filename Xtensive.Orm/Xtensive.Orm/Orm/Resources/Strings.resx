@@ -1542,10 +1542,22 @@ Error: {1}</value>
   <data name="ExUpgradeHintTargetFieldNotFound">
     <value><![CDATA[Upgrade hint error. Target field '{0}' not found.]]></value>
   </data>
+  <data name="ExUpgradeHintTargetTypeNotFound">
+    <value><![CDATA[Upgrade hint error. Target type '{0}' not found.]]></value>
+  </data>
   <data name="ExUpgradeHintSourceTypeNotFound">
     <value><![CDATA[Upgrade hint error. Source type '{0}' not found.]]></value>
   </data>
   <data name="ExUpgradeHintSourceFieldNotFound">
     <value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
   </data>
+	<data name="ExOnlyPrefetchMethodSupportedButFoundX">
+		<value><![CDATA[Only 'Prefetch(source, expression, params[] expressions)' method is supported within prefetch expression. But found '{0}'.]]></value>
+	</data>
+	<data name="ExUnabletoParsePrefetchExpressionX">
+		<value><![CDATA[Unable to parse prefetch expression '{0}'.]]></value>
+	</data>
+	<data name="ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX">
+		<value><![CDATA[Only persistented property access, calls of Prefetch method or anonymous type constructors are supported, but found '{0}' expression.]]></value>
+	</data>
 </root>

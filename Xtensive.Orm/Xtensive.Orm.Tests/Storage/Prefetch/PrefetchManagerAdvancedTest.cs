@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [Test]
     public void TasksAreExecutedAutomaticallyWhenCountLimitIsReachedTest()
     {
-      const int entityCount = 121;
+      const int entityCount = 120;
       var keys = new List<Key>(entityCount);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -257,8 +257,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           Assert.AreEqual(i % entityCount, graphContainers.Count);
         }
         prefetchManager.InvokePrefetch(keys[entityCount - 1], null, new PrefetchFieldDescriptor(idField));
-        Assert.AreEqual(1, graphContainers.Count);
-        for (var i = 0; i < entityCount - 1; i++)
+        Assert.AreEqual(0, graphContainers.Count);
+        for (var i = 0; i < entityCount; i++)
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(keys[i], BookType, session,
             IsFieldKeyOrSystem);
       }

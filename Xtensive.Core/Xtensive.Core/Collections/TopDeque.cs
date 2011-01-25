@@ -23,7 +23,7 @@ namespace Xtensive.Collections
   [DebuggerDisplay("Count = {Count}")]
   public class TopDeque<K, V> : ITopDeque<K, V>
   {
-    private readonly LinkedList<Pair<K,V>> list;
+    private readonly System.Collections.Generic.LinkedList<Pair<K,V>> list;
     private readonly Dictionary<K, LinkedListNode<Pair<K,V>>> map;
 
     /// <inheritdoc/>
@@ -302,7 +302,7 @@ namespace Xtensive.Collections
     /// </summary>
     public TopDeque()
     {
-      list = new LinkedList<Pair<K, V>>();
+      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
       map = new Dictionary<K, LinkedListNode<Pair<K, V>>>();
     }
 
@@ -312,7 +312,7 @@ namespace Xtensive.Collections
     /// <param name="capacity">The initial capacity.</param>
     public TopDeque(int capacity)
     {
-      list = new LinkedList<Pair<K, V>>();
+      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
       map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(capacity);
     }
 
@@ -322,7 +322,7 @@ namespace Xtensive.Collections
     /// <param name="keyComparer">The key comparer.</param>
     public TopDeque(IEqualityComparer<K> keyComparer)
     {
-      list = new LinkedList<Pair<K, V>>();
+      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
       map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(keyComparer);
     }
 
@@ -333,7 +333,7 @@ namespace Xtensive.Collections
     /// <param name="capacity">The initial capacity.</param>
     public TopDeque(IEqualityComparer<K> keyComparer, int capacity)
     {
-      list = new LinkedList<Pair<K, V>>();
+      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
       map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(capacity, keyComparer);
     }
   }

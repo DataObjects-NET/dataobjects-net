@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm.Model;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Storage.Providers;
@@ -97,9 +99,7 @@ namespace Xtensive.Orm.Internals
       ChainedHandler.Persist(persistActions, allowPartialExecution);
     }
 
-    /// <inheritdoc/>
-    public override StrongReferenceContainer Prefetch(Key key, Model.TypeInfo type,
-      FieldDescriptorCollection descriptors)
+    public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return ChainedHandler.Prefetch(key, type, descriptors);
     }

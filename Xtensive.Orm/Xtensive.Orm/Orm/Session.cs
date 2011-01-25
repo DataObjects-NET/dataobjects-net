@@ -297,7 +297,7 @@ namespace Xtensive.Orm
     {
       using (Activate())
       using (var tx = OpenAutoTransaction()) {
-        var entities = keys.Prefetch(this);
+        var entities = Query.Many<Entity>(keys);
         var result = new VersionSet();
         foreach (var entity in entities)
           if (entity!=null)

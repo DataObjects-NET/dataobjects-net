@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
@@ -52,15 +53,16 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Order, Key>(session, key => key).Prefetch(o => o.Employee);
+        var orders = session.Query.Many<Order>(keys)
+          .Prefetch(o => o.Employee);
         var orderType = typeof (Order).GetTypeInfo();
         var employeeType = typeof (Employee).GetTypeInfo();
         var employeeField = orderType.Fields["Employee"];
-        foreach (var key in prefetcher) {
+        foreach (var order in orders) {
           GC.Collect(2, GCCollectionMode.Forced);
           GC.WaitForPendingFinalizers();
-          var orderState = session.EntityStateCache[key, true];
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderType, session,
+          var orderState = session.EntityStateCache[order.Key, true];
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, orderType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           var employeeKey = Key.Create<Person>(Domain, employeeField.Associations.Last()
             .ExtractForeignKey(orderState.Type, orderState.Tuple));
@@ -84,16 +86,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Person, Key>(session, key => key)/*.Prefetch(p => p.Name)*/
-          .PrefetchSingle(p => new Customer {Name = p.Name}, customer => {
-            customer.First().Remove();
-            CollectGarbadge();
-            return customer;
-          });
-        foreach (var key in prefetcher) {
-          var orderState = session.EntityStateCache[key, true];
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderState.Key, orderState.Key.TypeInfo,
-            session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        var persons = session.Query.Many<Person>(keys)
+          .Prefetch(p => p.Name);
+        foreach (var person in persons) {
+          var orderState = session.EntityStateCache[person.Key, true];
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderState.Key, orderState.Key.TypeInfo, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }
     }
@@ -111,21 +108,20 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetcher = keys.Prefetch<Order, Key>(session, key => key).Prefetch(o => o.Details);
+        var orders = session.Query.Many<Order>(keys)
+          .Prefetch(o => o.Details);
         var orderType = typeof (Order).GetTypeInfo();
         var detailsField = orderType.Fields["Details"];
-        foreach (var key in prefetcher) {
+        foreach (var order in orders) {
           CollectGarbadge();
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderType, session,
-            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, orderType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
-          session.Handler.TryGetEntitySetState(key, detailsField, out state);
+          session.Handler.TryGetEntitySetState(order.Key, detailsField, out state);
           Assert.IsTrue(state.IsFullyLoaded);
           foreach (var detailKey in state) {
             Assert.IsTrue(detailKey.HasExactType);
             var detailState = session.EntityStateCache[detailKey, false];
-            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.TypeInfo, session,
-              PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.TypeInfo, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           }
         }
       }

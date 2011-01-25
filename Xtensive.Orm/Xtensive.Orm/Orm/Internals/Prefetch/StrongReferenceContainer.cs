@@ -25,23 +25,27 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// if <paramref name="other"/> is not <see langword="null" /> and is the root of other containers' chain.
     /// </summary>
     /// <param name="other">The other container.</param>
-    public void JoinIfPossible(StrongReferenceContainer other)
+    public bool JoinIfPossible(StrongReferenceContainer other)
     {
-      if (other != null && other.IsRoot)
-        Join(other);
+      if (other != null) {
+        if (other.IsRoot)
+          Join(other);
+        return true;
+      }
+      return false;
     }
 
     /// <summary>
     /// Joins this instance with <paramref name="other"/>.
     /// </summary>
     /// <param name="other">The other container.</param>
-    public void Join(StrongReferenceContainer other)
+    public bool Join(StrongReferenceContainer other)
     {
       if (other == null)
-        return;
+        return false;
       if (!IsRoot) {
         root.Join(other);
-        return;
+        return true;
       }
       if (!other.IsRoot)
         throw new InvalidOperationException();
@@ -53,6 +57,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       else
         lastJoinedContainer.nextJoinedContainer = other;
       lastJoinedContainer = other.lastJoinedContainer ?? other;
+      return true;
     }
 
     private bool IsRoot { get { return root==null; } }

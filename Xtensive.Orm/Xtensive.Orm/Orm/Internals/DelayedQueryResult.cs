@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   /// <typeparam name="TResult">The type of the result.</typeparam>
   [Serializable]
-  public abstract class FutureBase<TResult>
+  public abstract class DelayedQueryResult<TResult>
   {
     private readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="session"></param>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    protected FutureBase(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
+    protected DelayedQueryResult(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
     {
       transaction = session.Transaction;
       if (transaction == null)

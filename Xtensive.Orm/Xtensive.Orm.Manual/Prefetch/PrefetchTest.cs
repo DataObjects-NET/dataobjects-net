@@ -72,14 +72,12 @@ namespace Xtensive.Orm.Manual.Prefetch
   
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var persons = session.Query.All<Person>();
-        var prefetchedPersons = persons
-          .Prefetch(session, p => p.Photo) // Lazy load field
-          .Prefetch(p => p.Employees, // EntitySet Employees
-            employees => employees
-              .Prefetch(session, e => e.Photo)) // and lazy load field of each of its items
+        var persons = session.Query.All<Person>()
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees // EntitySet Employees
+            .Prefetch(e => e.Photo)) // and lazy load field of each of its items
           .Prefetch(p => p.Manager); // Referenced entity
-        foreach (var person in prefetchedPersons) {
+        foreach (var person in persons) {
           // some code here...
         }
         transactionScope.Complete();
@@ -88,12 +86,10 @@ namespace Xtensive.Orm.Manual.Prefetch
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
         var personIds = session.Query.All<Person>().Select(p => p.Id);
-        var prefetchedPersons = personIds.Prefetch<Person, int>(session, id => Key.Create<Person>(domain, id))
-          .Prefetch(p => p.Photo) // Lazy load field
-          .Prefetch(p => p.Employees, // EntitySet Employees
-            employees => employees
-              .Prefetch(session, e => e.Photo)) // and lazy load field of each of its items
-          .Prefetch(p => p.Manager); // Referenced entity
+        var prefetchedPersons = session.Query.Many<Person, int>(personIds)
+          .Prefetch(p => new { p.Photo, p.Manager }) // Lazy load field and Referenced entity
+          .Prefetch(p => p.Employees // EntitySet Employees
+            .Prefetch(e => new { e.Photo, e.Manager })); // and lazy load field and referenced entity of each of its items
         foreach (var person in prefetchedPersons) {
           // some code here...
         }
@@ -102,21 +98,11 @@ namespace Xtensive.Orm.Manual.Prefetch
 
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var persons = session.Query.All<Person>();
-        var prefetchedPersons = persons
-          .Prefetch(session, p => p.Photo) // Lazy load field
-          .Prefetch(p => p.Employees, // EntitySet Employees
-            employees => employees
-              .Prefetch(session, e => e.Photo)) // and lazy load field of each of its items
-          .Prefetch(p => p.Manager) // Referenced entity
-          .PrefetchSingle(p => p.Manager, // 1-to-1 association
-            managers => managers
-              .Prefetch(session, p => p.Photo)) // And lazy load field of each of its items
-          .PrefetchMany(p => p.Employees, // Again, EntitySet
-            employees => employees
-              .Prefetch(session, e => e.Photo)) // and lazy load field of each of its items
-          .Prefetch(p => p.Employees, 40); // EntitySet with the limit on number of items to be loaded
-        foreach (var person in prefetchedPersons) {
+        var persons = session.Query.All<Person>()
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
+          .Prefetch(p => p.Manager.Photo); // Referenced entity and lazy load field for each of them
+        foreach (var person in persons) {
           Assert.IsTrue(DirectStateAccessor.Get(person).GetFieldState("Photo")==PersistentFieldState.Loaded);
           Assert.IsTrue(DirectStateAccessor.Get(person).GetFieldState("Manager")==PersistentFieldState.Loaded);
           if (person.ManagerKey != null) {
@@ -156,15 +142,14 @@ namespace Xtensive.Orm.Manual.Prefetch
 
       using (var session = domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
-        var persons =
+        var prefetchedPersons = (
           from person in session.Query.All<Person>()
           orderby person.Name
-          select person;
-        var prefetchedPersons = persons.Take(100)
-          .Prefetch(session, p => p.Photo) // Lazy load field
-          .Prefetch(p => p.Employees, // EntitySet Employees
-            employees => employees
-              .Prefetch(session, e => e.Photo)) // and lazy load field of each of its items
+          select person)
+          .Take(100)
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees // EntitySet Employees
+            .Prefetch(e => e.Photo)) // and lazy load field of each of its items
           .Prefetch(p => p.Manager); // Referenced entity
         foreach (var person in prefetchedPersons) {
           Assert.IsTrue(DirectStateAccessor.Get(person).GetFieldState("Photo")==PersistentFieldState.Loaded);

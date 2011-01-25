@@ -22,21 +22,22 @@ namespace Xtensive.Orm
       queryTasks.Add(task);
     }
 
-    internal void ExecuteDelayedQueries(bool skipPersist)
+    internal bool ExecuteDelayedQueries(bool skipPersist)
     {
       if (!skipPersist)
         Persist(PersistReason.Query);
-      ProcessDelayedQueries(false);
+      return ProcessDelayedQueries(false);
     }
 
-    private void ProcessDelayedQueries(bool allowPartialExecution)
+    private bool ProcessDelayedQueries(bool allowPartialExecution)
     {
       if (IsDelayedQueryRunning || queryTasks.Count==0)
-        return;
+        return false;
       EnsureTransactionIsStarted();
       try {
         IsDelayedQueryRunning = true;
         Handler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
+        return true;
       }
       finally {
         queryTasks.Clear();
