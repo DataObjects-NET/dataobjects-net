@@ -17,7 +17,25 @@ namespace Xtensive.Sql.PostgreSql.v8_3
     {
       return new FullTextSearchInfo {Features = FullTextSearchFeatures.Full};
     }
-    
+
+    public override DataTypeCollection GetDataTypesInfo()
+    {
+      var commonFeatures =
+      DataTypeFeatures.Clustering |
+      DataTypeFeatures.Grouping |
+      DataTypeFeatures.Indexing |
+      DataTypeFeatures.KeyConstraint |
+      DataTypeFeatures.Nullable |
+      DataTypeFeatures.Ordering |
+      DataTypeFeatures.Multiple |
+      DataTypeFeatures.Default;
+
+
+      DataTypeCollection dtc =  base.GetDataTypesInfo();
+      dtc.Guid = DataTypeInfo.Regular(SqlType.Guid, commonFeatures, "uuid");
+
+      return dtc;
+    }
 
     // Constructors
 

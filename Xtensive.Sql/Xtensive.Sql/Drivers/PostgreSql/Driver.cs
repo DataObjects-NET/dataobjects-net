@@ -11,11 +11,6 @@ namespace Xtensive.Sql.PostgreSql
 {
   internal abstract class Driver : SqlDriver
   {
-    protected override Sql.TypeMapper CreateTypeMapper()
-    {
-      return new TypeMapper(this);
-    }
-
 #if NET40
     [SecuritySafeCritical]
 #endif

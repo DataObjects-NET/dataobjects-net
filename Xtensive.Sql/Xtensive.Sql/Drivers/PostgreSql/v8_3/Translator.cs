@@ -70,6 +70,13 @@ namespace Xtensive.Sql.PostgreSql.v8_3
       return sb.ToString();
     }
 
+    protected override string TranslateClrType(Type type)
+    {
+      if (type == typeof(Guid))
+        return "uuid";
+      return base.TranslateClrType(type);
+    }
+
     // Constuctors
 
     public Translator(SqlDriver driver)
