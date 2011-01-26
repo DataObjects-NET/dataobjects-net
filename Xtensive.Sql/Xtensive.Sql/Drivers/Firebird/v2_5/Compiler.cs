@@ -193,7 +193,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
         public override void Visit(SqlRenameTable node)
         {
-            
+            SqlHelper.NotSupported("Rename table");
         }
 
         #region Static helpers

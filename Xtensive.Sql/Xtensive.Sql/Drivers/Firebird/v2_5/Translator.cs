@@ -28,7 +28,35 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         }
 
         /// <inheritdoc/>
-        public virtual string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+        public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
+        {
+            switch (section)
+            {
+                case SequenceDescriptorSection.StartValue:
+                    return string.Empty;
+                case SequenceDescriptorSection.RestartValue:
+                    if (descriptor.StartValue.HasValue)
+                        return "RESTART WITH " + descriptor.StartValue.Value;
+                    return string.Empty;
+                case SequenceDescriptorSection.Increment:
+                    return string.Empty;
+                case SequenceDescriptorSection.MaxValue:
+                    return string.Empty;
+                case SequenceDescriptorSection.MinValue:
+                    return string.Empty;
+                case SequenceDescriptorSection.AlterMaxValue:
+                    return string.Empty;
+                case SequenceDescriptorSection.AlterMinValue:
+                    return string.Empty;
+                case SequenceDescriptorSection.IsCyclic:
+                    return string.Empty;
+                default:
+                    return string.Empty;
+            }
+        }
+
+        /// <inheritdoc/>
+        public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
         {
             switch (section)
             {
@@ -78,10 +106,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             {
                 case SqlNodeType.Equals:
                     return "=";
-                    //return "IS NOT DISTINCT FROM";
                 case SqlNodeType.NotEquals:
                     return "<>";
-                    //return "IS DISTINCT FROM";
                 case SqlNodeType.Modulo:
                     return "MOD";
                 case SqlNodeType.DateTimeMinusDateTime:
@@ -141,7 +167,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         }
 
         /// <inheritdoc/>
-        public virtual string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
+        public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
         {
             switch (section)
             {
@@ -205,11 +231,36 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
                     return builder.ToString();
                 case CreateIndexSection.ColumnsEnter:
                     if (node.Index.Columns[0].Expression != null)
+                    {
+                        if (node.Index.Columns.Count > 1)
+                            SqlHelper.NotSupported("expression index with multiple column");
                         return "COMPUTED BY (";
+                    }
                     else
                         return "(";
             }
             return base.Translate(context, node, section);
+        }
+
+        /// <inheritdoc/>
+        public override string Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
+        {
+            switch (section)
+            {
+                case ConstraintSection.Exit:
+                    ForeignKey fk = constraint as ForeignKey;
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append(")");
+                    if (fk != null)
+                    {
+                        if (fk.OnUpdate != ReferentialAction.NoAction)
+                            sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
+                        if (fk.OnDelete != ReferentialAction.NoAction)
+                            sb.Append(" ON DELETE " + Translate(fk.OnDelete));
+                    }
+                    return sb.ToString();
+            }
+            return base.Translate(context, constraint, section);
         }
 
         // Constructors

@@ -162,6 +162,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             var foreignKeyConstraintInfo = new ForeignKeyConstraintInfo();
             foreignKeyConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
             foreignKeyConstraintInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+            foreignKeyConstraintInfo.Features = ForeignKeyConstraintFeatures.None;
             foreignKeyConstraintInfo.Actions =
               ForeignKeyConstraintActions.Cascade |
               ForeignKeyConstraintActions.NoAction |
