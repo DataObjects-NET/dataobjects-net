@@ -13,7 +13,7 @@ using Xtensive.Sql.Model;
 using Constraint = Xtensive.Sql.Model.Constraint;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.Drivers.Firebird.v2_5
+namespace Xtensive.Sql.Firebird.v2_5
 {
     internal partial class Extractor : Model.Extractor
     {

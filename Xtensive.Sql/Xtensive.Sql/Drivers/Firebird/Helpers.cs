@@ -5,7 +5,7 @@
 // Created:    2011.01.13
 
 
-namespace Xtensive.Sql.Drivers.Firebird.Helpers
+namespace Xtensive.Sql.Firebird.Helpers
 {
     public static class ModelExtensions
     {

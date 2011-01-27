@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Sql.Drivers.Firebird
+namespace Xtensive.Sql.Firebird
 {
     internal static class Constants
     {

@@ -9,7 +9,7 @@ using Xtensive.Sql.Dml;
 using System;
 using Xtensive.Sql.Ddl;
 
-namespace Xtensive.Sql.Drivers.Firebird.v2_5
+namespace Xtensive.Sql.Firebird.v2_5
 {
     internal class Compiler : SqlCompiler
     {

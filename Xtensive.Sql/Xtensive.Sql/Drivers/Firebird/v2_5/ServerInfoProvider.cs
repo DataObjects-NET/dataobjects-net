@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Drivers.Firebird.v2_5
+namespace Xtensive.Sql.Firebird.v2_5
 {
     internal class ServerInfoProvider : Info.ServerInfoProvider
     {
