@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Sql.Drivers.Firebird.Resources;
+using Xtensive.Sql.Firebird.Resources;
 using Xtensive.Sql.Model;
 using Constraint = Xtensive.Sql.Model.Constraint;
 using Xtensive.Sql.Dml;

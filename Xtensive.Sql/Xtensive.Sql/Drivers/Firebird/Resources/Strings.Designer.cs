@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Xtensive.Sql.Drivers.Firebird.Resources {
+namespace Xtensive.Sql.Firebird.Resources {
     using System;
     
     
