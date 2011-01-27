@@ -5,13 +5,12 @@
 // Created:    2011.01.10
 
 using System;
-using Xtensive.Sql.Firebird;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Sql.Firebird.v2_5
 {
-    internal class Driver : Xtensive.Sql.Firebird.Driver
+    internal class Driver : Firebird.Driver
     {
         protected override Sql.TypeMapper CreateTypeMapper()
         {

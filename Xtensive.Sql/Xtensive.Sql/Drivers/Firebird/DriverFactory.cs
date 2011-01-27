@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Firebird
         private const string DataSourceFormat =
           "server={0};port={1};database={2};";
         private const string DatabaseAndSchemaQuery =
-          "select mon$database_name, '" + Xtensive.Sql.Drivers.Firebird.Constants.DefaultSchemaName + "' from mon$database";
+          "select mon$database_name, '" + Constants.DefaultSchemaName + "' from mon$database";
 
         /// <inheritdoc/>
         public override SqlDriver CreateDriver(string connectionString)
@@ -44,7 +44,7 @@ namespace Xtensive.Sql.Firebird
                 //if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 1)
                 //    return new v2_1.Driver(coreServerInfo);
                 if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 5)
-                    return new Xtensive.Sql.Drivers.Firebird.v2_5.Driver(coreServerInfo);
+                    return new v2_5.Driver(coreServerInfo);
                 return null;
             }
         }

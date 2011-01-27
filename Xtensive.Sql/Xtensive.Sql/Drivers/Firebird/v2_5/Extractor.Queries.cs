@@ -5,7 +5,7 @@
 // Created:    2011.01.13
 using System;
 
-namespace Xtensive.Sql.Drivers.Firebird.v2_5
+namespace Xtensive.Sql.Firebird.v2_5
 {
     partial class Extractor
     {
