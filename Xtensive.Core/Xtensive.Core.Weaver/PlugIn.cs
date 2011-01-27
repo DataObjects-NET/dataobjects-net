@@ -71,7 +71,7 @@ namespace Xtensive.Core.Weaver
     {
       base.Initialize();
       var licenseInfo = LicenseValidator.GetLicense();
-      var isXtensiveAssembly = base.Project.Module.Assembly.IsStronglyNamed 
+      var isXtensiveAssembly = base.Project.Module.Assembly.IsStronglyNamed
         && IsPublicTokenConsistent(base.Project.Module.Assembly.GetPublicKeyToken());
       if (!isXtensiveAssembly) {
         CurrentLicense = licenseInfo;
@@ -83,7 +83,7 @@ namespace Xtensive.Core.Weaver
         if (isXtensiveAssembly) {
           var assemblyVersions = declarations
             .Select(r => r.GetSystemAssembly())
-            .Select(a => a.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).Single())
+            .Select(a => a.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false).Single())
             .Cast<AssemblyInformationalVersionAttribute>()
             .Select(av => av.InformationalVersion)
             .ToList();
@@ -103,24 +103,24 @@ namespace Xtensive.Core.Weaver
         return;
       }
 
-      if (licenseInfo != null)
+      if (licenseInfo!=null)
         try {
-          if (licenseInfo.IsValid && licenseInfo.HardwareKeyIsValid) {
-            var random = new Random(DateTime.Now.Millisecond);
-            if (random.Next(0, 100)==31) {
-              var licensesPath = LicenseValidator.GetLicensesPath();
-              var companyLicenseData = LicenseValidator.GetCompanyLicenseData(licensesPath);
-              var hardwareId = LicenseValidator.TrialLicense.HardwareId;
-              var request = new InternetActivationRequest(companyLicenseData, hardwareId);
-              var result = InternetActivator.Check(request);
-              if (result.Data.HasValue && !result.Data.Value) {
-                LicenseValidator.InvalidateLicense(licenseInfo.HardwareId);
-                licenseInfo.HardwareKeyIsValid = false;
-              }
+          if (licenseInfo.IsValid && LicenseValidator.WeaverLicenseCheckIsRequired()) {
+            var companyLicenseData = licenseInfo.EvaluationMode
+              ? null
+              : LicenseValidator.GetCompanyLicenseData(LicenseValidator.GetLicensesPath());
+            var hardwareId = LicenseValidator.TrialLicense.HardwareId;
+            var request = new InternetCheckRequest(
+              companyLicenseData, licenseInfo.ExpireOn,
+              LicenseValidator.GetProductVersion(), hardwareId);
+            var result = InternetActivator.Check(request);
+            if (result.IsValid==false) {
+              LicenseValidator.InvalidateLicense(licenseInfo.HardwareId);
+              licenseInfo.HardwareKeyIsValid = false;
             }
           }
         }
-        catch {}
+        catch { }
 
       RunLicensingAgent(licenseInfo);
       if (licenseInfo == null || !licenseInfo.IsValid) {
@@ -154,6 +154,7 @@ namespace Xtensive.Core.Weaver
 
     public PlugIn()
       : base(StandardPriorities.User)
-    {}
+    {
+    }
   }
 }
