@@ -140,10 +140,9 @@ namespace Xtensive.Orm.Linq
           .MakeGenericMethod(elementType);
         body = Expression.Call(enumerableMethod, body);
       }
-      else
-        body = body.Type==typeof (TResult)
-          ? body
-          : Expression.Convert(body, typeof (TResult));
+      body = body.Type==typeof (TResult)
+        ? body
+        : Expression.Convert(body, typeof (TResult));
 
       var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, session, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
