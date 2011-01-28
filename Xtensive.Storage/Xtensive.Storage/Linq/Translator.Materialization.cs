@@ -136,10 +136,9 @@ namespace Xtensive.Storage.Linq
           .MakeGenericMethod(elementType);
         body = Expression.Call(enumerableMethod, body);
       }
-      else
-        body = body.Type==typeof (TResult)
-          ? body
-          : Expression.Convert(body, typeof (TResult));
+      body = body.Type==typeof (TResult)
+        ? body
+        : Expression.Convert(body, typeof (TResult));
 
       var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
