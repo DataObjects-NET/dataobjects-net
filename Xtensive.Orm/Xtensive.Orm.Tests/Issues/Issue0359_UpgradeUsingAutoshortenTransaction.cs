@@ -39,11 +39,7 @@ namespace Xtensive.Orm.Tests.Issues
       config.UpgradeMode = DomainUpgradeMode.Recreate;
 
       config.Types.Register(typeof (Class1).Assembly, typeof (Class1).Namespace);
-
-      var sessionConfig = new SessionConfiguration("Default") {
-        DefaultIsolationLevel = IsolationLevel.Serializable, 
-      };
-      config.Sessions.Add(sessionConfig);
+      config.Sessions.Default.DefaultIsolationLevel = IsolationLevel.Serializable;
 
       return config;
     }
