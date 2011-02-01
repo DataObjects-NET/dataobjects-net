@@ -102,12 +102,12 @@ namespace Xtensive.Core.Weaver
       {
         var typeDef = (TypeDefDeclaration) context.TargetElement;
         var currentLicense = PlugIn.CurrentLicense;
-        if (currentLicense != null && new []{LicenseType.Basic, LicenseType.Standard, LicenseType.Trial}.Contains(currentLicense.LicenseType)) {
+        if (currentLicense != null && new []{LicenseType.Basic, LicenseType.Trial}.Contains(currentLicense.LicenseType)) {
           var severityType = currentLicense.LicenseType == LicenseType.Trial 
             ? SeverityType.Info 
             : SeverityType.Error;
           if (typeDef.GenericParameters.Count > 0) {
-            var genericMessage = string.Format("Unsupported type \"{1}\". DataObjects.Net {0} edition does not support generic types. Please acquire at least Professional edition.",
+            var genericMessage = string.Format("Unsupported type \"{1}\". DataObjects.Net {0} edition does not support generic types. Please acquire at least Standard edition.",
               currentLicense.LicenseType, typeDef.Name);
             if (!PlugIn.ErrorMessages.Contains(genericMessage)) {
               PlugIn.ErrorMessages.Add(genericMessage);
@@ -124,7 +124,7 @@ namespace Xtensive.Core.Weaver
               var persistentInterface = interfaces
                 .FirstOrDefault(i => !i.MatchesReference(iEntity) && i.IsAssignableTo(iEntity));
               if (persistentInterface != null) {
-                var interfaceMessage = string.Format("Unsupported type \"{1}\". DataObjects.Net {0} edition does not support persistent interfaces. Please acquire at least Professional edition.",
+                var interfaceMessage = string.Format("Unsupported type \"{1}\". DataObjects.Net {0} edition does not support persistent interfaces. Please acquire at least Standard edition.",
                   currentLicense.LicenseType, ((NamedMetadataDeclaration)persistentInterface).Name);
                 if (!PlugIn.ErrorMessages.Contains(interfaceMessage)) {
                   PlugIn.ErrorMessages.Add(interfaceMessage);
