@@ -67,6 +67,8 @@ namespace Xtensive.Sql.Firebird.v2_5
       switch (section) {
         case AlterTableSection.RenameColumn:
           return "ALTER COLUMN";
+      case AlterTableSection.DropBehavior:
+        return string.Empty;
       }
       return base.Translate(context, node, section);
     }
@@ -174,7 +176,7 @@ namespace Xtensive.Sql.Firebird.v2_5
         case NodeSection.Entry:
           return "GEN_ID(";
         case NodeSection.Exit:
-          return ",1)";
+          return "," + node.Increment + ")";
       }
       return string.Empty;
     }

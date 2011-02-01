@@ -80,14 +80,9 @@ namespace Xtensive.Storage.Providers.Sql
     private DbDataReader ExecuteQuery(SqlQueryTask task)
     {
       AllocateCommand();
-      try {
-        var part = factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
-        activeCommand.AddPart(part);
-        return activeCommand.ExecuteReader();
-      }
-      finally {
-        DisposeCommand();
-      }
+      var part = factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
+      activeCommand.AddPart(part);
+      return activeCommand.ExecuteReader();
     }
 
     #endregion

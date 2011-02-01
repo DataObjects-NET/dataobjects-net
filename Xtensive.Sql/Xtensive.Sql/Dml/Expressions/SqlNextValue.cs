@@ -15,15 +15,24 @@ namespace Xtensive.Sql.Dml
   public class SqlNextValue : SqlExpression
   {
     private Sequence sequence;
+    private int increment = 1;
+
+    /// <summary>
+    /// Gets the increment.
+    /// </summary>
+    /// <value>The increment.</value>
+    public int Increment
+    {
+      get { return increment; }
+    }
 
     /// <summary>
     /// Gets the sequence.
     /// </summary>
     /// <value>The sequence.</value>
-    public Sequence Sequence {
-      get {
-        return sequence;
-      }
+    public Sequence Sequence
+    {
+      get { return sequence; }
     }
 
     public override void ReplaceWith(SqlExpression expression)
@@ -32,6 +41,7 @@ namespace Xtensive.Sql.Dml
       ArgumentValidator.EnsureArgumentIs<SqlNextValue>(expression, "expression");
       SqlNextValue replacingExpression = expression as SqlNextValue;
       sequence = replacingExpression.Sequence;
+      increment = replacingExpression.Increment;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -39,7 +49,7 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlNextValue clone = new SqlNextValue(sequence);
+      SqlNextValue clone = new SqlNextValue(sequence, increment);
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -47,6 +57,12 @@ namespace Xtensive.Sql.Dml
     internal SqlNextValue(Sequence sequence) : base(SqlNodeType.NextValue)
     {
       this.sequence = sequence;
+    }
+
+    internal SqlNextValue(Sequence sequence, int increment) : base(SqlNodeType.NextValue)
+    {
+      this.sequence = sequence;
+      this.increment = increment;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

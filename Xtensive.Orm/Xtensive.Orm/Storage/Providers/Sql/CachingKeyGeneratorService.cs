@@ -71,6 +71,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var domainHandler = (DomainHandler)handlers.DomainHandler;
       var sqlNext = GetNextImplementation(
+        generator,
         domainHandler.ProviderInfo, 
         domainHandler.Schema, 
         generator.KeyInfo.MappingName);
@@ -97,12 +98,27 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="schema">The schema.</param>
     /// <param name="sequenceMappingName">Name of the sequence mapping.</param>
     /// <returns>SQL compile unit making the necessary action.</returns>
-    protected internal virtual ISqlCompileUnit GetNextImplementation(ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
+    protected internal virtual ISqlCompileUnit GetCurrentValueImplementation(ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
     {
       if (providerInfo.Supports(ProviderFeatures.Sequences))
-        return GetSequenceBasedNextImplementation(providerInfo, schema, sequenceMappingName);
+        return GetSequenceBasedNextImplementation(null, providerInfo, schema, sequenceMappingName);
       else
-        return GetTableBasedNextImplementation(providerInfo, schema, sequenceMappingName);
+        return GetTableBasedNextImplementation(null, providerInfo, schema, sequenceMappingName);
+    }
+
+    /// <summary>
+    /// Gets the "next sequence number" implementation.
+    /// </summary>
+    /// <param name="providerInfo">The provider info.</param>
+    /// <param name="schema">The schema.</param>
+    /// <param name="sequenceMappingName">Name of the sequence mapping.</param>
+    /// <returns>SQL compile unit making the necessary action.</returns>
+    protected internal virtual ISqlCompileUnit GetNextImplementation(KeyGenerator generator, ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
+    {
+      if (providerInfo.Supports(ProviderFeatures.Sequences))
+        return GetSequenceBasedNextImplementation(generator, providerInfo, schema, sequenceMappingName);
+      else
+        return GetTableBasedNextImplementation(generator, providerInfo, schema, sequenceMappingName);
     }
 
     /// <summary>
@@ -113,13 +129,15 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="sequenceMappingName">Name of the sequence mapping.</param>
     /// <returns>SQL compile unit making the necessary action.</returns>
     /// <exception cref="InvalidOperationException">Required sequence is not found.</exception>
-    protected virtual ISqlCompileUnit GetSequenceBasedNextImplementation(ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
+    protected virtual ISqlCompileUnit GetSequenceBasedNextImplementation(KeyGenerator generator, ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
     {
       var sequence = schema.Sequences
         .FirstOrDefault(s => s.Name==sequenceMappingName);
       if (sequence==null)
         throw new InvalidOperationException(
           string.Format(Strings.ExSequenceXIsNotFoundInStorage, sequenceMappingName));
+      if (generator != null)
+        return SqlDml.Select(SqlDml.NextValue(sequence, (int) generator.SequenceIncrement.Value));
       return SqlDml.Select(SqlDml.NextValue(sequence));
     }
 
@@ -132,7 +150,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="sequenceMappingName">Name of the sequence mapping.</param>
     /// <returns>SQL compile unit making the necessary action.</returns>
     /// <exception cref="InvalidOperationException">Required schema object is not found.</exception>
-    protected virtual ISqlCompileUnit GetTableBasedNextImplementation(ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
+    protected virtual ISqlCompileUnit GetTableBasedNextImplementation(KeyGenerator generator, ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
     {
       var table = schema.Tables
         .FirstOrDefault(t => t.Name==sequenceMappingName);

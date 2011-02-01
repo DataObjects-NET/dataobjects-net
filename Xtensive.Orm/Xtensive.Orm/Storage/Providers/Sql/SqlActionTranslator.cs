@@ -1180,9 +1180,9 @@ namespace Xtensive.Storage.Providers.Sql
       var type = columnInfo.Type.Type;
       if (type.IsNullable())
         type = type.GetGenericArguments()[0];
-      var mapping = driver.GetTypeMapping(type);
-      if (mapping.ParameterCastRequired)
-        result = SqlDml.Cast(result, mapping.BuildSqlType(columnInfo.Type.Length, null, null));
+//      var mapping = driver.GetTypeMapping(type);
+//      if (mapping.ParameterCastRequired)
+//        result = SqlDml.Cast(result, mapping.BuildSqlType(columnInfo.Type.Length, null, null));
       return result;
     }
 

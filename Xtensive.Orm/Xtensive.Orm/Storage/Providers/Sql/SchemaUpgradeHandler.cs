@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         queryExecutor.ExecuteScalar, 
         queryExecutor.ExecuteNonQuery,
-        cachingKeyGeneratorService.GetNextImplementation);
+        cachingKeyGeneratorService.GetCurrentValueImplementation);
 
       translator.Translate();
 
