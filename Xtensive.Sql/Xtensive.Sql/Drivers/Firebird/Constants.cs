@@ -12,6 +12,6 @@ namespace Xtensive.Sql.Firebird
     {
         public const string DefaultSchemaName = ""; // "Firebird";
 
-        public const string DateTimeFormatString = @"'cast ('\'yyyy\.MM\.dd HH\:mm\:ss\:FFF\'' as timestamp)'";
+        public const string DateTimeFormatString = @"''\'yyyy\.MM\.dd HH\:mm\:ss\:FFF\'''";
     }
 }

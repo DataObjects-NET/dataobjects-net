@@ -259,6 +259,17 @@ namespace Xtensive.Sql.Firebird.v2_5
       return base.Translate(context, constraint, section);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlAlterSequence node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Entry:
+          return "SET GENERATOR " + Translate(node.Sequence);
+        default:
+          return "TO " + (node.SequenceDescriptor.LastValue.HasValue ? node.SequenceDescriptor.LastValue : 0);
+      }
+
+    }
+
     public override string Translate(SqlCompilerContext context, SqlDropSequence node)
     {
       return "DROP SEQUENCE " + Translate(node.Sequence);
