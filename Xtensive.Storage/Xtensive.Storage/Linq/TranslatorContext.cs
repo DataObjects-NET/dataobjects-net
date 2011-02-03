@@ -82,6 +82,14 @@ namespace Xtensive.Storage.Linq
       return parameter;
     }
 
+    internal void RebindApplyParameter(RecordSet old, RecordSet @new)
+    {
+      ApplyParameter parameter;
+      if (applyParameters.TryGetValue(old.Provider, out parameter)) {
+        applyParameters[@new.Provider] = parameter;
+      }
+    }
+
     public Parameter<Tuple> GetTupleParameter(ParameterExpression expression)
     {
       Parameter<Tuple> parameter;

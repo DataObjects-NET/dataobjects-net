@@ -250,7 +250,7 @@ namespace Xtensive.Storage.Linq.Materialization
         ? newExpression 
         : (Expression) Expression.MemberInit(newExpression, expression
         .Bindings
-        .Where(kvp => ((kvp.Key.MemberType==MemberTypes.Field && !((FieldInfo)kvp.Key).IsInitOnly) || (kvp.Key.MemberType==MemberTypes.Property && ((PropertyInfo)kvp.Key).CanWrite)))
+        .Where(kvp => Translator.FilterBindings(kvp.Key, kvp.Key.Name, kvp.Value.Type))
         .Select(kvp => Expression.Bind(kvp.Key, Visit(kvp.Value))).Cast<MemberBinding>());
     }
 
