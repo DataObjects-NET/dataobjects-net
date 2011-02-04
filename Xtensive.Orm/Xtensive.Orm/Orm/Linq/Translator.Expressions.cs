@@ -444,11 +444,11 @@ namespace Xtensive.Orm.Linq
       var bindings = new Dictionary<MemberInfo, Expression>();
       for (int i = 0; i < constructorParameters.Length; i++) {
         int parameterIndex = i;
+        var constructorParameter = constructorParameters[parameterIndex];
         var members = newExpression
           .Type
           .GetMembers()
-          .Where(memberInfo => (memberInfo.MemberType==MemberTypes.Field || memberInfo.MemberType==MemberTypes.Property)
-            && String.Equals(memberInfo.Name, constructorParameters[parameterIndex].Name, StringComparison.InvariantCultureIgnoreCase))
+          .Where(mi => FilterBindings(mi, constructorParameter.Name, constructorParameter.ParameterType))
           .ToList();
         if (members.Count()==1 && !duplicateMembers.Contains(members[0])) {
           if (bindings.ContainsKey(members[0])) {
@@ -461,6 +461,25 @@ namespace Xtensive.Orm.Linq
       }
 
       return new ConstructorExpression(newExpression.Type, bindings, newExpression.Constructor, arguments);
+    }
+
+    internal static bool FilterBindings(MemberInfo mi, string name, Type type)
+    {
+      var result = String.Equals(mi.Name, name, StringComparison.InvariantCultureIgnoreCase);
+      if (!result)
+        return false;
+
+      result = mi.MemberType == MemberTypes.Field || mi.MemberType == MemberTypes.Property;
+      if (!result)
+        return false;
+
+      var field = mi as FieldInfo;
+      if (field != null)
+        return field.FieldType == type && !field.IsInitOnly;
+      var property = mi as PropertyInfo;
+      if (property == null)
+        return false;
+      return property.PropertyType == type && property.CanWrite;
     }
 
     #region Private helper methods
@@ -1040,7 +1059,7 @@ namespace Xtensive.Orm.Linq
       EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
     }
 
-    public static void EnsureEntityFieldsAreJoined(EntityExpression entityExpression, ItemProjectorExpression itemProjector)
+    public void EnsureEntityFieldsAreJoined(EntityExpression entityExpression, ItemProjectorExpression itemProjector)
     {
       TypeInfo typeInfo = entityExpression.PersistentType;
       if (
@@ -1053,10 +1072,13 @@ namespace Xtensive.Orm.Linq
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
       int offset = itemProjector.DataSource.Header.Length;
-      itemProjector.DataSource = entityExpression.IsNullable
+      var oldDataSource = itemProjector.DataSource;
+      var newDataSource = entityExpression.IsNullable
         ? itemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
         : itemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      itemProjector.DataSource = newDataSource;
       EntityExpression.Fill(entityExpression, offset);
+      context.RebindApplyParameter(oldDataSource, newDataSource);
     }
 
     private void EnsureEntityReferenceIsJoined(EntityFieldExpression entityFieldExpression)
@@ -1074,10 +1096,13 @@ namespace Xtensive.Orm.Linq
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
       int offset = originalItemProjector.DataSource.Header.Length;
-      originalItemProjector.DataSource = entityFieldExpression.IsNullable
+      var oldDataSource = originalItemProjector.DataSource;
+      var newDataSource = entityFieldExpression.IsNullable
         ? originalItemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
         : originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      originalItemProjector.DataSource = newDataSource;
       entityFieldExpression.RegisterEntityExpression(offset);
+      context.RebindApplyParameter(oldDataSource, newDataSource);
     }
 
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right,
@@ -1108,7 +1133,7 @@ namespace Xtensive.Orm.Linq
       var recordset = new StoreProvider(rawProvider).Result;
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
       if (translator.state.JoinLocalCollectionEntity)
-        itemProjector = EntityExpressionJoiner.JoinEntities(itemProjector);
+        itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
       return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 

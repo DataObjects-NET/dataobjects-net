@@ -11,22 +11,24 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
   internal class EntityExpressionJoiner : ExtendedExpressionVisitor
   {
+    private readonly Translator translator;
     private readonly ItemProjectorExpression itemProjectorExpression;
 
     protected override System.Linq.Expressions.Expression VisitEntityExpression(EntityExpression expression)
     {
-      Translator.EnsureEntityFieldsAreJoined(expression, itemProjectorExpression);
+      translator.EnsureEntityFieldsAreJoined(expression, itemProjectorExpression);
       return base.VisitEntityExpression(expression);
     }
 
-    public static ItemProjectorExpression JoinEntities(ItemProjectorExpression itemProjectorExpression)
+    public static ItemProjectorExpression JoinEntities(Translator translator, ItemProjectorExpression itemProjectorExpression)
     {
-      var item = new EntityExpressionJoiner(itemProjectorExpression).Visit(itemProjectorExpression.Item);
+      var item = new EntityExpressionJoiner(translator, itemProjectorExpression).Visit(itemProjectorExpression.Item);
       return new ItemProjectorExpression(item, itemProjectorExpression.DataSource, itemProjectorExpression.Context);
     }
 
-    private EntityExpressionJoiner(ItemProjectorExpression itemProjectorExpression)
+    private EntityExpressionJoiner(Translator translator, ItemProjectorExpression itemProjectorExpression)
     {
+      this.translator = translator;
       this.itemProjectorExpression = itemProjectorExpression;
     }
   }

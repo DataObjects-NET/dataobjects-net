@@ -83,6 +83,14 @@ namespace Xtensive.Orm.Linq
       return parameter;
     }
 
+    internal void RebindApplyParameter(RecordQuery old, RecordQuery @new)
+    {
+      ApplyParameter parameter;
+      if (applyParameters.TryGetValue(old.Provider, out parameter)) {
+        applyParameters[@new.Provider] = parameter;
+      }
+    }
+
     public Parameter<Tuple> GetTupleParameter(ParameterExpression expression)
     {
       Parameter<Tuple> parameter;
