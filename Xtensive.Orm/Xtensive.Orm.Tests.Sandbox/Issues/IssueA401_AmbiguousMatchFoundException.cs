@@ -7,12 +7,12 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Integrity.Aspects.Constraints;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.IssueA401_AmbiguousMatchFoundException_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.IssueA401_AmbiguousMatchFoundException_Model;
 using System.Linq;
+using Xtensive.Orm.Validation;
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueA401_AmbiguousMatchFoundException_Model
   {

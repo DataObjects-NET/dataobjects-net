@@ -15,6 +15,7 @@ using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.IoC;
 using Xtensive.Orm.Validation;
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Orm;
 using Xtensive.Orm.Internals;
@@ -136,21 +137,24 @@ namespace Xtensive.Orm
     /// or calls <see cref="GetFieldValue{T}(string)"/> directly if there is no property declared for this field.
     /// </remarks>
     /// <seealso cref="SetProperty{T}"/>
-    /// <exception cref="InvalidOperationException">Property does not have public getter.</exception>
+    /// <exception cref="ArgumentException">There is no persistent property with provided name.</exception>
     [Infrastructure]
     public T GetProperty<T>(string fieldName)
     {
-      FieldInfo field = TypeInfo.Fields[fieldName];
+      object value;
+      var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
+      var field = TypeInfo.Fields[pair.First];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null) {
-        // Public accessor check
-        var mi = field.UnderlyingProperty.GetGetMethod();
-        if (mi == null)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExPropertyXDoesnTHavePublicGetter, fieldName));
-        return (T) field.UnderlyingProperty.GetValue(this, null);
+        var mi = field.UnderlyingProperty.GetGetMethod(true);
+        value = mi.Invoke(this, null);
       }
-      return (T) GetFieldValue(fieldName); // Untyped, since T might be wrong
+      else
+        value = GetFieldValue(pair.First); // Untyped, since T might be wrong
+      if (pair.Second == null) // There is no tail, so we are going to return a value here
+        return (T) value;
+      var persistent = (Persistent) value;
+      return persistent.GetProperty<T>(pair.Second);
     }
 
     /// <summary>
@@ -164,22 +168,25 @@ namespace Xtensive.Orm
     /// or calls <see cref="SetFieldValue{T}(string,T)"/> directly if there is no property declared for this field.
     /// </remarks>
     /// <seealso cref="GetProperty{T}"/>
-    /// <exception cref="InvalidOperationException">Property does not have public setter.</exception>
+    /// <exception cref="ArgumentException">There is no persistent property with provided name.</exception>
     [Infrastructure]
     public void SetProperty<T>(string fieldName, T value)
     {
-      FieldInfo field = TypeInfo.Fields[fieldName];
-      // TODO: Improve (use DelegateHelper)
-      if (field.UnderlyingProperty!=null) {
-        // Public accessor check
-        var mi = field.UnderlyingProperty.GetSetMethod();
-        if (mi == null)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExPropertyXDoesnTHavePublicSetter, fieldName));
-        field.UnderlyingProperty.SetValue(this, value, null);
+      var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
+      if (pair.Second == null) { // There is no tail, so we are setting a value on the current instance
+        var field = TypeInfo.Fields[pair.First];
+        // TODO: Improve (use DelegateHelper)
+        if (field.UnderlyingProperty != null) {
+          var mi = field.UnderlyingProperty.GetSetMethod(true);
+          mi.Invoke(this, new object[]{value});
+        }
+        else
+          SetFieldValue(pair.First, (object)value); // Untyped, since T might be wrong
       }
-      else
-        SetFieldValue(fieldName, (object) value); // Untyped, since T might be wrong
+      else {
+        var persistent = GetProperty<Persistent>(pair.First);
+        persistent.SetProperty(pair.Second, value);
+      }
     }
 
     #endregion
