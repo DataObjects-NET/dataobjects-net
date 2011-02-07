@@ -7,14 +7,15 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Linq;
 using Xtensive.Orm;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
-namespace Xtensive.Practices.Localization.Internals
+namespace Xtensive.Practices.Localization
 {
-  internal class LocalizationExpressionVisitor : ExpressionVisitor
+  public class LocalizationExpressionVisitor : ExpressionVisitor
   {
+    public Domain Domain { get; private set; }
+
     public Expression VisitExpression(Expression query)
     {
       return Visit(query);
@@ -23,8 +24,7 @@ namespace Xtensive.Practices.Localization.Internals
     /// <inheritdoc/>
     protected override Expression VisitMemberAccess(MemberExpression me)
     {
-      var domain = Domain.Demand();
-      var map = domain.Extensions.Get<TypeLocalizationMap>();
+      var map = Domain.Extensions.Get<TypeLocalizationMap>();
       if (map == null)
         return me;
 
@@ -36,6 +36,11 @@ namespace Xtensive.Practices.Localization.Internals
       var localizationExpression = LocalizationExpressionBuilder.BuildExpression(localizationInfo, me);
       
       return localizationExpression.BindParameters(localizationSetExpression);
+    }
+
+    public LocalizationExpressionVisitor(Domain domain)
+    {
+      Domain = domain;
     }
   }
 }

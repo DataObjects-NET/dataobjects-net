@@ -8,11 +8,10 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Practices.Localization.Model;
 
-namespace Xtensive.Practices.Localization.Internals
+namespace Xtensive.Practices.Localization
 {
-  internal static class LocalizationExpressionBuilder
+  public static class LocalizationExpressionBuilder
   {
     private static readonly MethodInfo BuildExpressionMethodInfo = typeof (LocalizationExpressionBuilder).GetMethod("BuildExpression", BindingFlags.NonPublic | BindingFlags.Static);
 
@@ -26,7 +25,7 @@ namespace Xtensive.Practices.Localization.Internals
 
     // Helper method for building lambda expression in generic way
     private static LambdaExpression BuildExpression<TLocalization>(string propertyName)
-      where TLocalization : Model.Localization
+      where TLocalization : Localization
     {
       Expression<Func<LocalizationSet<TLocalization>, string>> result =
         set => set.Where(localization => localization.CultureName==LocalizationContext.Current.CultureName)

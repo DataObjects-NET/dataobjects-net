@@ -10,7 +10,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Practices.Localization.Model
+namespace Xtensive.Practices.Localization
 {
   /// <summary>
   /// Set of localizations of <typeparamref name="TItem"/> type.
@@ -28,7 +28,7 @@ namespace Xtensive.Practices.Localization.Model
       get
       {
         var key = Key.Create(Session.Domain, typeof (TItem), culture.Name, Owner.Key);
-        var result = Xtensive.Orm.Query.SingleOrDefault<TItem>(key);
+        var result = Session.Query.SingleOrDefault<TItem>(key);
         if (result!=null)
           return result;
 
@@ -66,7 +66,7 @@ namespace Xtensive.Practices.Localization.Model
     private TItem Create(CultureInfo culture)
     {
       // TODO: Cache delegate on type initialization stage
-      return (TItem) Activator.CreateInstance(typeof (TItem), culture, Owner);
+      return (TItem) Activator.CreateInstance(typeof (TItem), Session, culture, Owner);
     }
 
 

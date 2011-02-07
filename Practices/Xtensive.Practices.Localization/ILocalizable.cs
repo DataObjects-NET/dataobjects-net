@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.12.22
 
-namespace Xtensive.Practices.Localization.Model
+namespace Xtensive.Practices.Localization
 {
   /// <summary>
   /// Defines localization contract.

@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Practices.Localization.Internals
+namespace Xtensive.Practices.Localization
 {
-  internal class TypeLocalizationMap
+  public class TypeLocalizationMap
   {
     private readonly Dictionary<Type, TypeLocalizationInfo> map = new Dictionary<Type, TypeLocalizationInfo>();
 

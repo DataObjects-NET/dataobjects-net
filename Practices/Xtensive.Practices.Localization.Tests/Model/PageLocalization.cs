@@ -8,7 +8,7 @@ using System;
 using System.Globalization;
 using Xtensive.Orm;
 
-namespace Xtensive.Practices.Localization.Model
+namespace Xtensive.Practices.Localization.Tests.Model
 {
   [Serializable]
   [HierarchyRoot]
@@ -23,8 +23,8 @@ namespace Xtensive.Practices.Localization.Model
     [Field]
     public string MyContent { get; set; }
 
-    public PageLocalization(CultureInfo culture, Page target)
-      : base(culture, target)
+    public PageLocalization(Session session, CultureInfo culture, Page target)
+      : base(session, culture, target)
     {
     }
   }

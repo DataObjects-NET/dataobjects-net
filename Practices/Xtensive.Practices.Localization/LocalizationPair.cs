@@ -14,7 +14,7 @@ namespace Xtensive.Practices.Localization
   /// </summary>
   /// <typeparam name="TTarget">The type of the target.</typeparam>
   /// <typeparam name="TLocalization">The type of the localization.</typeparam>
-  public struct LocalizationPair<TTarget, TLocalization> where TTarget: Entity where TLocalization: Model.Localization<TTarget>
+  public struct LocalizationPair<TTarget, TLocalization> where TTarget: Entity where TLocalization: Localization<TTarget>
   {
     /// <summary>
     /// Gets or sets the localizable entity.

@@ -12,7 +12,7 @@ namespace Xtensive.Practices.Localization
   /// <summary>
   /// Query root for localizable & localization entities.
   /// </summary>
-  public static class Query
+  public static class QueryExtensions
   {
     /// <summary>
     /// Starting point for every query for localizable entities.
@@ -20,10 +20,10 @@ namespace Xtensive.Practices.Localization
     /// <typeparam name="TTarget">The type of the target.</typeparam>
     /// <typeparam name="TLocalization">The type of the localization.</typeparam>
     /// <returns></returns>
-    public static IQueryable<LocalizationPair<TTarget, TLocalization>> All<TTarget, TLocalization>() where TTarget: Entity where TLocalization: Model.Localization<TTarget>
+    public static IQueryable<LocalizationPair<TTarget, TLocalization>> All<TTarget, TLocalization>(this Session.QueryEndpoint query) where TTarget: Entity where TLocalization: Localization<TTarget>
     {
-      return from target in Xtensive.Orm.Query.All<TTarget>()
-      join localization in Xtensive.Orm.Query.All<TLocalization>()
+      return from target in query.All<TTarget>()
+      join localization in query.All<TLocalization>()
         on target equals localization.Target
       where localization.CultureName==LocalizationContext.Current.CultureName
       select new LocalizationPair<TTarget, TLocalization>(target, localization);

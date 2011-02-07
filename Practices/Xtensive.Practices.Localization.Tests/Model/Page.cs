@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Orm;
 
-namespace Xtensive.Practices.Localization.Model
+namespace Xtensive.Practices.Localization.Tests.Model
 {
   [Serializable]
   [HierarchyRoot]
@@ -16,12 +16,14 @@ namespace Xtensive.Practices.Localization.Model
     [Field, Key]
     public int Id { get; private set; }
 
+    // Non-persistent field
     public string Title
     {
       get { return Localizations.Current.Title; }
       set { Localizations.Current.Title = value; }
     }
 
+    // Non-persistent field
     public string Content
     {
       get { return Localizations.Current.Content; }
@@ -31,5 +33,10 @@ namespace Xtensive.Practices.Localization.Model
     /// <inheritdoc/>
     [Field]
     public LocalizationSet<PageLocalization> Localizations { get; private set; }
+
+    public Page(Session session)
+      : base(session)
+    {
+    }
   }
 }

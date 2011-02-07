@@ -9,7 +9,7 @@ using System.Globalization;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm;
 
-namespace Xtensive.Practices.Localization.Model
+namespace Xtensive.Practices.Localization
 {
   /// <summary>
   /// Base localization class.
@@ -28,12 +28,13 @@ namespace Xtensive.Practices.Localization.Model
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="session">The session.</param>
     /// <param name="culture">The culture.</param>
     /// <param name="target">The target.</param>
-    protected Localization(CultureInfo culture, Entity target)
-      : base(culture.Name, target)
+    protected Localization(Session session, CultureInfo culture, Entity target)
+      : base(session, culture.Name, target)
     {
     }
   }
@@ -58,12 +59,13 @@ namespace Xtensive.Practices.Localization.Model
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="session">The session.</param>
     /// <param name="culture">The culture.</param>
     /// <param name="target">The target.</param>
-    protected Localization(CultureInfo culture, T target)
-      : base(culture, target)
+    protected Localization(Session session, CultureInfo culture, T target)
+      : base(session, culture, target)
     {
     }
   }

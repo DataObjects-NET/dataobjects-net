@@ -8,9 +8,9 @@ using System;
 using System.Reflection;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Practices.Localization.Internals
+namespace Xtensive.Practices.Localization
 {
-  internal class TypeLocalizationInfo
+  public class TypeLocalizationInfo
   {
     public Type LocalizableType { get; private set; }
 

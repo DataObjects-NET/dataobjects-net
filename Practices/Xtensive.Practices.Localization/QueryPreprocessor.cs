@@ -8,25 +8,31 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.IoC;
 using Xtensive.Orm;
-using Xtensive.Practices.Localization.Internals;
 
 namespace Xtensive.Practices.Localization
 {
   [Service(typeof(IQueryPreprocessor))]
-  public class QueryPreprocessor : IQueryPreprocessor
+  public class QueryPreprocessor : DomainBound, IQueryPreprocessor
   {
-    private static readonly LocalizationExpressionVisitor Visitor = new LocalizationExpressionVisitor();
+    private readonly LocalizationExpressionVisitor visitor;
 
     /// <inheritdoc/>
     public Expression Apply(Expression query)
     {
-      return Visitor.VisitExpression(query);
+      return visitor.VisitExpression(query);
     }
 
     /// <inheritdoc/>
     public bool IsDependentOn(IQueryPreprocessor other)
     {
       return false;
+    }
+
+    [ServiceConstructor]
+    public QueryPreprocessor(Domain domain)
+      : base(domain)
+    {
+      visitor = new LocalizationExpressionVisitor(domain);
     }
   }
 }
