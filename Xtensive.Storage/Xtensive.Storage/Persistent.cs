@@ -136,7 +136,7 @@ namespace Xtensive.Storage
     /// or calls <see cref="GetFieldValue{T}(string)"/> directly if there is no property declared for this field.
     /// </remarks>
     /// <seealso cref="SetProperty{T}"/>
-    /// <exception cref="InvalidOperationException">Property does not have public getter.</exception>
+    /// <exception cref="ArgumentException">There is no persistent property with provided name.</exception>
     [Infrastructure]
     public T GetProperty<T>(string fieldName)
     {
@@ -145,11 +145,8 @@ namespace Xtensive.Storage
       var field = TypeInfo.Fields[pair.First];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null) {
-        // Public accessor check
-        var mi = field.UnderlyingProperty.GetGetMethod();
-        if (mi == null)
-          throw new InvalidOperationException(string.Format(Strings.ExPropertyXYDoesnTHavePublicGetter, TypeInfo.Name, pair.First));
-        value = field.UnderlyingProperty.GetValue(this, null);
+        var mi = field.UnderlyingProperty.GetGetMethod(true);
+        value = mi.Invoke(this, null);
       }
       else
         value = GetFieldValue(pair.First); // Untyped, since T might be wrong
@@ -170,7 +167,7 @@ namespace Xtensive.Storage
     /// or calls <see cref="SetFieldValue{T}(string,T)"/> directly if there is no property declared for this field.
     /// </remarks>
     /// <seealso cref="GetProperty{T}"/>
-    /// <exception cref="InvalidOperationException">Property does not have public setter.</exception>
+    /// <exception cref="ArgumentException">There is no persistent property with provided name.</exception>
     [Infrastructure]
     public void SetProperty<T>(string fieldName, T value)
     {
@@ -179,11 +176,8 @@ namespace Xtensive.Storage
         var field = TypeInfo.Fields[pair.First];
         // TODO: Improve (use DelegateHelper)
         if (field.UnderlyingProperty != null) {
-          // Public accessor check
-          var mi = field.UnderlyingProperty.GetSetMethod();
-          if (mi == null)
-            throw new InvalidOperationException(string.Format(Strings.ExPropertyXYDoesnTHavePublicGetter, TypeInfo.Name, pair.First));
-          field.UnderlyingProperty.SetValue(this, value, null);
+          var mi = field.UnderlyingProperty.GetSetMethod(true);
+          mi.Invoke(this, new object[]{value});
         }
         else
           SetFieldValue(pair.First, (object)value); // Untyped, since T might be wrong
