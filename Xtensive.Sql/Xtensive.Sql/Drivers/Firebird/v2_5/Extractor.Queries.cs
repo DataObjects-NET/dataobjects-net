@@ -90,7 +90,7 @@ from     (select   cast(null as varchar(30)) as schema
             return @"
 select cast(null as varchar(30)) as schema
       ,trim(rdb$relation_name) as table_name
-      ,trim(cast(rdb$view_source as varchar(30000))) as view_source
+      ,rdb$view_source as view_source
 from rdb$relations
 where rdb$relation_type = 1";
         }

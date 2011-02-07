@@ -77,7 +77,7 @@ namespace Xtensive.Sql.Firebird.v2_5
                 while (reader.Read())
                 {
                     var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
-                    string tableName = reader.GetString(1);
+                    string tableName = reader.GetString(1).Trim();
                     int tableType = reader.GetInt16(2);
                     bool isTemporary = tableType == 4 || tableType == 5;
                     if (isTemporary)
@@ -106,7 +106,7 @@ namespace Xtensive.Sql.Firebird.v2_5
                     if (columnSeq <= lastColumnId)
                     {
                         var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
-                        table = schema.Tables[reader.GetString(1)];
+                        table = schema.Tables[reader.GetString(1).Trim()];
                     }
                     var column = table.CreateColumn(reader.GetString(3));
                     column.DataType = CreateValueType(reader, 4, 6, 7, 8);
@@ -126,7 +126,7 @@ namespace Xtensive.Sql.Firebird.v2_5
                 while (reader.Read())
                 {
                     var schema = theCatalog.DefaultSchema;  // theCatalog.Schemas[reader.GetString(0)];
-                    var view = reader.GetString(1);
+                    var view = reader.GetString(1).Trim();
                     var definition = ReadStringOrNull(reader, 2);
                     if (string.IsNullOrEmpty(definition))
                         schema.CreateView(view);
@@ -148,9 +148,9 @@ namespace Xtensive.Sql.Firebird.v2_5
                     if (columnId <= lastColumnId)
                     {
                         var schema = theCatalog.DefaultSchema;  // theCatalog.Schemas[reader.GetString(0)];
-                        view = schema.Views[reader.GetString(1)];
+                        view = schema.Views[reader.GetString(1).Trim()];
                     }
-                    view.CreateColumn(reader.GetString(2));
+                    view.CreateColumn(reader.GetString(2).Trim());
                     lastColumnId = columnId;
                 }
             }
@@ -168,21 +168,21 @@ namespace Xtensive.Sql.Firebird.v2_5
                 while (reader.Read())
                 {
                     SqlExpression expression = null;
-                    indexName = reader.GetString(2);
+                    indexName = reader.GetString(2).Trim();
                     if (indexName != lastIndexName)
                     {
                         var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
-                        table = schema.Tables[reader.GetString(1)];
+                        table = schema.Tables[reader.GetString(1).Trim()];
                         index = table.CreateIndex(indexName);
                         index.IsUnique = ReadBool(reader, 5);
                         index.IsBitmap = false;
                         index.IsClustered = false;
                         if (!reader.IsDBNull(8))    // expression index
-                            expression = SqlDml.Native(reader.GetString(8));
+                            expression = SqlDml.Native(reader.GetString(8).Trim());
                     }
                     if (expression == null)
                     {
-                        var column = table.TableColumns[reader.GetString(6)];
+                        var column = table.TableColumns[reader.GetString(6).Trim()];
                         bool isAscending = ReadBool(reader, 4);
                         index.CreateIndexColumn(column, isAscending);
                     }
@@ -210,16 +210,16 @@ namespace Xtensive.Sql.Firebird.v2_5
                     if (columnPosition <= lastColumnPosition)
                     {
                         var referencingSchema = theCatalog.DefaultSchema;  // theCatalog.Schemas[reader.GetString(0)];
-                        referencingTable = referencingSchema.Tables[reader.GetString(1)];
-                        constraint = referencingTable.CreateForeignKey(reader.GetString(2));
+                        referencingTable = referencingSchema.Tables[reader.GetString(1).Trim()];
+                        constraint = referencingTable.CreateForeignKey(reader.GetString(2).Trim());
                         ReadConstraintProperties(constraint, reader, 3, 4);
                         ReadCascadeAction(constraint, reader, 5);
                         var referencedSchema = theCatalog.DefaultSchema;  // theCatalog.Schemas[reader.GetString(8)];
-                        referencedTable = referencedSchema.Tables[reader.GetString(9)];
+                        referencedTable = referencedSchema.Tables[reader.GetString(9).Trim()];
                         constraint.ReferencedTable = referencedTable;
                     }
-                    var referencingColumn = referencingTable.TableColumns[reader.GetString(6)];
-                    var referencedColumn = referencedTable.TableColumns[reader.GetString(10)];
+                    var referencingColumn = referencingTable.TableColumns[reader.GetString(6).Trim()];
+                    var referencedColumn = referencedTable.TableColumns[reader.GetString(10).Trim()];
                     constraint.Columns.Add(referencingColumn);
                     constraint.ReferencedColumns.Add(referencedColumn);
                     lastColumnPosition = columnPosition;
@@ -247,11 +247,11 @@ namespace Xtensive.Sql.Firebird.v2_5
                     if (columns.Count == 0)
                     {
                         var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
-                        table = schema.Tables[reader.GetString(1)];
-                        constraintName = reader.GetString(2);
-                        constraintType = reader.GetString(3);
+                        table = schema.Tables[reader.GetString(1).Trim()];
+                        constraintName = reader.GetString(2).Trim();
+                        constraintType = reader.GetString(3).Trim();
                     }
-                    columns.Add(table.TableColumns[reader.GetString(4)]);
+                    columns.Add(table.TableColumns[reader.GetString(4).Trim()]);
                     lastColumnPosition = columnPosition;
                 }
                 if (columns.Count > 0)
@@ -266,9 +266,9 @@ namespace Xtensive.Sql.Firebird.v2_5
                 while (reader.Read())
                 {
                     var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
-                    var table = schema.Tables[reader.GetString(1)];
-                    var name = reader.GetString(2);
-                    var condition = reader.GetString(3);
+                    var table = schema.Tables[reader.GetString(1).Trim()];
+                    var name = reader.GetString(2).Trim();
+                    var condition = reader.GetString(3).Trim();
                     var constraint = table.CreateCheckConstraint(name, condition);
                 }
             }
@@ -281,7 +281,7 @@ namespace Xtensive.Sql.Firebird.v2_5
                 while (reader.Read())
                 {
                     var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
-                    var sequence = schema.CreateSequence(reader.GetString(1));
+                    var sequence = schema.CreateSequence(reader.GetString(1).Trim());
                     sequence.DataType = new SqlValueType(SqlType.Int32);
                     var descriptor = sequence.SequenceDescriptor;
                     descriptor.MinValue = 0;
@@ -293,7 +293,7 @@ namespace Xtensive.Sql.Firebird.v2_5
         private SqlValueType CreateValueType(IDataRecord row,
           int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
         {
-            string typeName = row[typeNameIndex].ToString().ToUpper();
+            string typeName = row[typeNameIndex].ToString().Trim().ToUpper();
             if (typeName == "NUMERIC" || typeName == "DECIMAL")
             {
                 int precision = Convert.ToInt32(row[precisionIndex]);
@@ -346,19 +346,19 @@ namespace Xtensive.Sql.Firebird.v2_5
 
         private static string ReadStringOrNull(IDataRecord row, int index)
         {
-            return row.IsDBNull(index) ? null : row.GetString(index);
+            return row.IsDBNull(index) ? null : row.GetString(index).Trim();
         }
 
         private static void ReadConstraintProperties(Constraint constraint,
           IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
         {
-            constraint.IsDeferrable = row.GetString(isDeferrableIndex).Trim() == "YES";
-            constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex).Trim() == "YES";
+            constraint.IsDeferrable = ReadStringOrNull(row, isDeferrableIndex) == "YES";
+            constraint.IsInitiallyDeferred = ReadStringOrNull(row, isInitiallyDeferredIndex) == "YES";
         }
 
         private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
         {
-            var deleteRule = row.GetString(deleteRuleIndex).Trim();
+            var deleteRule = ReadStringOrNull(row, deleteRuleIndex);
             switch (deleteRule)
             {
                 case "CASCADE":
