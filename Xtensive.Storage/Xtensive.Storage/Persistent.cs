@@ -13,6 +13,7 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.IoC;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage;
@@ -139,17 +140,23 @@ namespace Xtensive.Storage
     [Infrastructure]
     public T GetProperty<T>(string fieldName)
     {
-      FieldInfo field = TypeInfo.Fields[fieldName];
+      object value;
+      var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
+      var field = TypeInfo.Fields[pair.First];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null) {
         // Public accessor check
         var mi = field.UnderlyingProperty.GetGetMethod();
         if (mi == null)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExPropertyXDoesnTHavePublicGetter, fieldName));
-        return (T) field.UnderlyingProperty.GetValue(this, null);
+          throw new InvalidOperationException(string.Format(Strings.ExPropertyXYDoesnTHavePublicGetter, TypeInfo.Name, pair.First));
+        value = field.UnderlyingProperty.GetValue(this, null);
       }
-      return (T) GetFieldValue(fieldName); // Untyped, since T might be wrong
+      else
+        value = GetFieldValue(pair.First); // Untyped, since T might be wrong
+      if (pair.Second == null) // There is no tail, so we are going to return a value here
+        return (T) value;
+      var persistent = (Persistent) value;
+      return persistent.GetProperty<T>(pair.Second);
     }
 
     /// <summary>
@@ -167,18 +174,24 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void SetProperty<T>(string fieldName, T value)
     {
-      FieldInfo field = TypeInfo.Fields[fieldName];
-      // TODO: Improve (use DelegateHelper)
-      if (field.UnderlyingProperty!=null) {
-        // Public accessor check
-        var mi = field.UnderlyingProperty.GetSetMethod();
-        if (mi == null)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExPropertyXDoesnTHavePublicSetter, fieldName));
-        field.UnderlyingProperty.SetValue(this, value, null);
+      var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
+      if (pair.Second == null) { // There is no tail, so we are setting a value on the current instance
+        var field = TypeInfo.Fields[pair.First];
+        // TODO: Improve (use DelegateHelper)
+        if (field.UnderlyingProperty != null) {
+          // Public accessor check
+          var mi = field.UnderlyingProperty.GetSetMethod();
+          if (mi == null)
+            throw new InvalidOperationException(string.Format(Strings.ExPropertyXYDoesnTHavePublicGetter, TypeInfo.Name, pair.First));
+          field.UnderlyingProperty.SetValue(this, value, null);
+        }
+        else
+          SetFieldValue(pair.First, (object)value); // Untyped, since T might be wrong
       }
-      else
-        SetFieldValue(fieldName, (object) value); // Untyped, since T might be wrong
+      else {
+        var persistent = GetProperty<Persistent>(pair.First);
+        persistent.SetProperty(pair.Second, value);
+      }
     }
 
     #endregion

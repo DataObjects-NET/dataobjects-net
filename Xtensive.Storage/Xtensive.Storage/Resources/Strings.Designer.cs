@@ -2124,15 +2124,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Property &apos;{0}&apos; doesn&apos;t have public getter..
-        /// </summary>
-        internal static string ExPropertyXDoesnTHavePublicGetter {
-            get {
-                return ResourceManager.GetString("ExPropertyXDoesnTHavePublicGetter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Property &apos;{0}&apos; doesn&apos;t have public setter..
         /// </summary>
         internal static string ExPropertyXDoesnTHavePublicSetter {
@@ -2147,6 +2138,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExPropertyXMustBeDeclaredInTypeY {
             get {
                 return ResourceManager.GetString("ExPropertyXMustBeDeclaredInTypeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &apos;{0}.{1}&apos; doesn&apos;t have public getter..
+        /// </summary>
+        internal static string ExPropertyXYDoesnTHavePublicGetter {
+            get {
+                return ResourceManager.GetString("ExPropertyXYDoesnTHavePublicGetter", resourceCulture);
             }
         }
         
