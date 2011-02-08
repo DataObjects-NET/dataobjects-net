@@ -50,23 +50,9 @@ namespace Xtensive.Orm
       if (allFieldAttributes != null && allFieldAttributes.Length > 0) {
         if (fieldAttribute == null)
           fieldAttribute = allFieldAttributes.First();
-        if (allFieldAttributes.Any(a => !a.IsCompatibleWith(fieldAttribute))) {
-          var typeName = type.GetShortName();
-          var propName = propertyInfo.GetShortName(false);
-          var interfaceName = type.GetInterfaces()
-            .First(i => typeof (IEntity).IsAssignableFrom(i)&& i.GetProperty(propName, bindingFlags) != null)
-            .GetShortName();
-          ErrorLog.Write(
-            SeverityType.Error, 
-            "\"{0}.{1}\" has [Field] incompatible with \"{2}.{1}\"", 
-            typeName, 
-            propName, 
-            interfaceName);
-        }
       }
       if (fieldAttribute == null)
         return result;
-
       var keyAttribute = propertyInfo.GetAttribute<KeyAttribute>();
       var getter = propertyInfo.GetGetMethod(true);
       var setter = propertyInfo.GetSetMethod(true);
