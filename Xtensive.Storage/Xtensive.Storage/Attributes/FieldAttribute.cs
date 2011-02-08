@@ -107,16 +107,5 @@ namespace Xtensive.Storage
     /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
     /// </remarks>
     public bool LazyLoad { get; set; }
-
-    internal bool IsCompatibleWith(FieldAttribute other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return other.length.Equals(length) 
-        && other.scale.Equals(scale) 
-        && other.precision.Equals(precision) 
-        && other.nullable.Equals(nullable) 
-        && other.LazyLoad.Equals(LazyLoad);
-    }
   }
 }
