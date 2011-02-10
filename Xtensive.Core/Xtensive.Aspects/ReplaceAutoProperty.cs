@@ -16,6 +16,7 @@ using Xtensive.Aspects.Helpers;
 using Xtensive.Aspects.Resources;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
+using System.Linq;
 
 namespace Xtensive.Aspects
 {
@@ -66,7 +67,29 @@ namespace Xtensive.Aspects
         .GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.Default);
       var debuggerNonUserCodeAttribute = accessorInfo
         .GetAttribute<DebuggerNonUserCodeAttribute>(AttributeSearchOptions.Default);
-      return compilerGeneratedAttribute != null || debuggerNonUserCodeAttribute != null;
+
+      var result = compilerGeneratedAttribute != null || debuggerNonUserCodeAttribute != null;
+      if (!result) {
+        // Validation fo VB
+        var property = method.ReflectedType.FindMembers(MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic,
+          delegate(MemberInfo mi, object state) {
+              var getOrSet = (MethodInfo)state;
+              var pi = mi as PropertyInfo;
+              if (pi == null)
+                return false;
+
+              return pi.GetGetMethod(true) == getOrSet ||
+                      pi.GetSetMethod(true) == getOrSet;
+            }, accessorInfo)
+          .SingleOrDefault();
+        if (property != null) {
+          var field = method.ReflectedType.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, Type.FilterName, string.Format("_{0}", property.Name))
+            .SingleOrDefault();
+          if (field != null)
+            result = field.GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.Default) != null;
+        }
+      }
+      return result;
     }
 
 

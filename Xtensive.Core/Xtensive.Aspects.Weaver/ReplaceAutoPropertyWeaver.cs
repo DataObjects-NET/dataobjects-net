@@ -5,6 +5,8 @@
 // Created:    2010.03.29
 
 using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using PostSharp.Extensibility;
 using PostSharp.Reflection;
 using PostSharp.Sdk.AspectInfrastructure;
@@ -164,6 +166,14 @@ namespace Xtensive.Aspects.Weaver
           if (fieldDef == null)
             return;
         }
+
+        var compilerGeneratedAttribute = module.FindType(typeof(CompilerGeneratedAttribute), BindingOptions.Default);
+        var compilerGeneratedAttributeDeclaration = new CustomAttributeDeclaration(module.FindMethod(compilerGeneratedAttribute, ".ctor", 0));
+        targetMethod.CustomAttributes.Add(compilerGeneratedAttributeDeclaration);
+
+        var debuggerNonUserCodeAttribute = module.FindType(typeof(DebuggerNonUserCodeAttribute), BindingOptions.Default);
+        var debuggerNonUserCodeAttributeDeclaration = new CustomAttributeDeclaration(module.FindMethod(debuggerNonUserCodeAttribute, ".ctor", 0));
+        targetMethod.CustomAttributes.Add(debuggerNonUserCodeAttributeDeclaration);
 
         var methodBody = targetMethod.MethodBody;
         methodBody.MaxStack = 8;
