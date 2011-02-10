@@ -118,7 +118,7 @@ select     cast(null as varchar(30)) as schema
           ,ri.rdb$unique_flag as unique_flag
           ,trim(ris.rdb$field_name) as column_name
           ,ris.rdb$field_position as column_position
-          ,trim(cast(ri.rdb$expression_source as varchar(20000))) as expression_source
+          ,ri.rdb$expression_source as expression_source
 from       rdb$indices ri left join rdb$index_segments ris on ris.rdb$index_name = ri.rdb$index_name
 where      ri.rdb$system_flag = 0
        and not exists
