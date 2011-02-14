@@ -7,6 +7,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
+using Xtensive.Core;
+using System.Linq;
 
 namespace Xtensive.Storage.Model.Stored
 {
@@ -115,6 +117,46 @@ namespace Xtensive.Storage.Model.Stored
         var arguments = UnderlyingType.Substring(indexOfGenericSection);
         arguments = arguments.Substring(1, arguments.Length - 2);
         return arguments.Split(',');
+      }
+    }
+
+    /// <summary>
+    /// Gets the field info by field name (possibly, dotted).
+    /// </summary>
+    /// <param name="fieldName">The field name.</param>
+    /// <returns>Specified field info, if found;
+    /// otherwise, <see langword="null" />.</returns>
+    public StoredFieldInfo GetField(string fieldName)
+    {
+      return GetField(fieldName, false);
+    }
+
+    /// <summary>
+    /// Gets the field info by field name (possibly, dotted).
+    /// </summary>
+    /// <param name="fieldName">The field name.</param>
+    /// <param name="useAllFields">Search in <see cref="AllFields"/> rather then <see cref="Fields"/>.</param>
+    /// <returns>
+    /// Specified field info, if found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public StoredFieldInfo GetField(string fieldName, bool useAllFields)
+    {
+      var fields = useAllFields ? AllFields : Fields;
+      var startIndex = 0;
+
+      while (true) {
+        var dotIndex = fieldName.IndexOf('.', startIndex);
+        if (dotIndex < 0)
+          return fields.SingleOrDefault(f => f.Name == fieldName);
+
+        startIndex = dotIndex + 1;
+        var structureFieldName = fieldName.Substring(0, dotIndex);
+        var field = fields.SingleOrDefault(f => f.Name == structureFieldName);
+        if (field == null)
+          return null;
+
+        fields = field.Fields;
       }
     }
 

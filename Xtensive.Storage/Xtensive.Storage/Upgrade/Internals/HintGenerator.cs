@@ -133,9 +133,9 @@ namespace Xtensive.Storage.Upgrade
           throw TypeNotFound(targetTypeName);
         var sourceType = reverseTypeMapping[targetType];
         var sourceTypeName = sourceType.UnderlyingType;
-        if (!sourceType.Fields.Any(field => field.Name==hint.OldFieldName))
+        if (sourceType.GetField(hint.OldFieldName)==null)
           throw FieldNotFound(sourceTypeName, hint.OldFieldName);
-        if (!targetType.Fields.Any(field => field.Name==hint.NewFieldName))
+        if (targetType.GetField(hint.NewFieldName)==null)
           throw FieldNotFound(targetTypeName, hint.NewFieldName);
         // Each source field should be used only once
         // Each destination field should be used only once
