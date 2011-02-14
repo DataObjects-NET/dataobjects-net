@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Storage.Configuration;
 using M1 = Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules.Model.Version2;
 using NUnit.Framework;
@@ -32,6 +33,7 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules
       using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
           var person = new M1.Person();
+          person.Friend = person;
           tx.Complete();
         }
       }
@@ -43,7 +45,9 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (Session.Open(domain)) {
         using (Transaction.Open()) {
-          Assert.AreEqual(1, Query.All<M2.Person>().Count());
+          var person = Query.All<M2.Person>().SingleOrDefault();
+          Assert.NotNull(person);
+          Assert.AreSame(person, person.NewFriend);
         }
       }
     }
@@ -60,6 +64,7 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
+      configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
 
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);

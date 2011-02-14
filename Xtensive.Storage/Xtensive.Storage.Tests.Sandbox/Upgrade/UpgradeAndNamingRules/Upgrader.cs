@@ -52,8 +52,10 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules
 
     protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
     {
-      if (runningVersion=="2")
+      if (runningVersion=="2") {
         Version1To2Hints.ForEach(hint => hints.Add(hint));
+        hints.Add(new RenameFieldHint(typeof (M2.Person), "Friend", "NewFriend"));
+      }
     }
 
     public override void OnUpgrade()

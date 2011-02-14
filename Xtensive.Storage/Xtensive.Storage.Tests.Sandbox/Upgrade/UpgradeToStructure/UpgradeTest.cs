@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeToStructure
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
-          var person = new M1.Person();
+          var person = new M1.Person {Title = "Alex"};
           tx.Complete();
         }
       }
@@ -43,7 +43,9 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeToStructure
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (Session.Open(domain)) {
         using (Transaction.Open()) {
-          Assert.AreEqual(1, Query.All<M2.Person>().Count());
+          var person = Query.All<M2.Person>().SingleOrDefault();
+          Assert.NotNull(person);
+          Assert.AreEqual("Alex", person.Info.Title);
         }
       }
     }

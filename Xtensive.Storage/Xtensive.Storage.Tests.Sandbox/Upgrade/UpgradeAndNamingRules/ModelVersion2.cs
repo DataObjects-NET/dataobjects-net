@@ -19,5 +19,8 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules.Model.Version2
   {
     [Key, Field]
     public long Id { get; private set; }
+
+    [Field]
+    public Person NewFriend { get; set; }
   }
 }
