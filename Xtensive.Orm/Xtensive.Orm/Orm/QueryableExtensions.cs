@@ -22,7 +22,7 @@ namespace Xtensive.Orm
   public static class QueryableExtensions
   {
     /// <summary>
-    /// Returns the number of elements in a <see cref="source"/> sequence.
+    /// Returns the number of elements in <paramref name="source"/> sequence.
     /// </summary>
     /// <param name="source">The source sequence.</param>
     public static int Count(this IQueryable source)

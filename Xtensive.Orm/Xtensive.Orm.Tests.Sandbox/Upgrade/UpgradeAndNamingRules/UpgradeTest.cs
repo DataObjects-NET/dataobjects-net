@@ -8,12 +8,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Storage.Configuration;
-using M1 = Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules.Model.Version1;
-using M2 = Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules.Model.Version2;
+using Xtensive.Orm.Configuration;
+using M1 = Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules.Model.Version1;
+using M2 = Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules.Model.Version2;
 using NUnit.Framework;
 
-namespace Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules
+namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules
 {
   [TestFixture]
   public class UpgradeTest

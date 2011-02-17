@@ -56,7 +56,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified <paramref name="source"/> and
+    /// Creates <see cref="PrefetchFacade{T}"/> for the specified <paramref name="source"/> and
     /// registers the prefetch of the field specified by <paramref name="expression"/>.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
@@ -64,7 +64,7 @@ namespace Xtensive.Orm
     /// <param name="source">The source sequence.</param>
     /// <param name="session">The session.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
-    /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
+    /// <returns>A newly created <see cref="PrefetchFacade{T}"/>.</returns>
     public static IEnumerable<TElement> Prefetch<TElement, TFieldValue>(
       this IEnumerable<TElement> source,
       Session session,

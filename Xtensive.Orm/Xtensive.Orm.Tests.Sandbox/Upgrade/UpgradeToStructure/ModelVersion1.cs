@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Tests.Upgrade.UpgradeToStructure.Model.Version1
+namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure.Model.Version1
 {
   [Serializable]
   [HierarchyRoot]

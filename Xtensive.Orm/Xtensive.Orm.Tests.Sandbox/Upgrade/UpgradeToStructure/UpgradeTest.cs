@@ -8,11 +8,11 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using M1 = Xtensive.Storage.Tests.Upgrade.UpgradeToStructure.Model.Version1;
-using M2 = Xtensive.Storage.Tests.Upgrade.UpgradeToStructure.Model.Version2;
+using M1 = Xtensive.Orm.Tests.Upgrade.UpgradeToStructure.Model.Version1;
+using M2 = Xtensive.Orm.Tests.Upgrade.UpgradeToStructure.Model.Version2;
 using NUnit.Framework;
 
-namespace Xtensive.Storage.Tests.Upgrade.UpgradeToStructure
+namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure
 {
   [TestFixture]
   [Explicit("This functionality was requested internally + there is a workaround with custom upgrade handler.")]

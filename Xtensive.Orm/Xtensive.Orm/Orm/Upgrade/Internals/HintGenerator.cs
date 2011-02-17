@@ -14,8 +14,9 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Resources;
-using Xtensive.Storage.Model;
 using Xtensive.Orm.Building;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -1143,7 +1144,7 @@ namespace Xtensive.Orm.Upgrade
 
     public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
     {
-      nameBuilder = Domain.Demand().NameBuilder;
+      nameBuilder = Domain.Demand().Handlers.NameBuilder;
       reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       reverseTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();

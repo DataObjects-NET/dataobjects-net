@@ -4,14 +4,9 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
-using System.Collections;
-using System.Linq;
-using Xtensive.Core.Collections;
-using Xtensive.Core;
-using Xtensive.Storage.Upgrade;
 using System;
 
-namespace Xtensive.Storage.Tests.Upgrade.UpgradeAndNamingRules.Model.Version2
+namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules.Model.Version2
 {
   [Serializable]
   [HierarchyRoot]

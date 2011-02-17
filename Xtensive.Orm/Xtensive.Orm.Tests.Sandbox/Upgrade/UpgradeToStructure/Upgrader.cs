@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Disposing;
-using Xtensive.Storage.Upgrade;
-using M1 = Xtensive.Storage.Tests.Upgrade.UpgradeToStructure.Model.Version1;
-using M2 = Xtensive.Storage.Tests.Upgrade.UpgradeToStructure.Model.Version2;
+using Xtensive.Disposing;
+using Xtensive.Orm.Upgrade;
+using M1 = Xtensive.Orm.Tests.Upgrade.UpgradeToStructure.Model.Version1;
+using M2 = Xtensive.Orm.Tests.Upgrade.UpgradeToStructure.Model.Version2;
 
-namespace Xtensive.Storage.Tests.Upgrade.UpgradeToStructure
+namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure
 {
   [Serializable]
   public class Upgrader : UpgradeHandler
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeToStructure
       return true;
     }
 
-    protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2") {
         Version1To2Hints.ForEach(hint => hints.Add(hint));
