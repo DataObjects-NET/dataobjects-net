@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Building.Builders
               case InheritanceSchema.ConcreteTable: {
                 var grouping = hierarchy;
                 var allImplementors = @interface.GetImplementors(true)
-                  .Where(t => t.Hierarchy == grouping.Key)
+                  .Where(t => t.Hierarchy == grouping.Key && !t.IsAbstract)
                   .ToList();
                 var primaryIndexes = allImplementors
                   .Select(t => new {Index = t.Indexes.Single(i => i.IsPrimary && !i.IsVirtual), Type = t})
