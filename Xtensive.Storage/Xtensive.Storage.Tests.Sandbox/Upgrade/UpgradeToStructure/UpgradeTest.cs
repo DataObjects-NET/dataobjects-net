@@ -15,6 +15,7 @@ using NUnit.Framework;
 namespace Xtensive.Storage.Tests.Upgrade.UpgradeToStructure
 {
   [TestFixture]
+  [Explicit("This functionality was requested internally + there is a workaround with custom upgrade handler.")]
   public class UpgradeTest
   {
     private Domain domain;

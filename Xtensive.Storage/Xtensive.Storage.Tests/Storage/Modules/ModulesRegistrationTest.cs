@@ -14,7 +14,7 @@ using NUnit.Framework;
 namespace Xtensive.Storage.Tests.Storage.Modules
 {
   [TestFixture, Category("Upgrade")]
-  [Explicit("Requires specific file path")]
+  [Explicit("Requires specific file path.")]
   public sealed class ModulesRegistrationTest
   {
     [TestFixtureSetUp]
