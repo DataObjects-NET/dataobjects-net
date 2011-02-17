@@ -13,6 +13,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Building;
@@ -21,6 +22,8 @@ namespace Xtensive.Storage.Upgrade
 {
   internal sealed class HintGenerator
   {
+    private readonly NameBuilder nameBuilder;
+
     private readonly StoredDomainModel storedModel;
     private readonly StoredDomainModel currentModel;
     private readonly StorageInfo extractedModel;
@@ -539,8 +542,10 @@ namespace Xtensive.Storage.Upgrade
         StoredTypeInfo oldTargetType;
         if (!reverseTypeMapping.TryGetValue(newTargetType, out oldTargetType))
           continue;
+        string oldColumnMappingName = nameBuilder.ApplyNamingRules(oldField.MappingName);
+        string newColumnMappingName = nameBuilder.ApplyNamingRules(newField.MappingName);
         RegisterRenameFieldHint(oldTargetType.MappingName, newTargetType.MappingName,
-          oldField.MappingName, newField.MappingName);
+          oldColumnMappingName, newColumnMappingName);
       }
     }
     
@@ -1139,6 +1144,7 @@ namespace Xtensive.Storage.Upgrade
 
     public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
     {
+      nameBuilder = Domain.Demand().NameBuilder;
       reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       reverseTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
