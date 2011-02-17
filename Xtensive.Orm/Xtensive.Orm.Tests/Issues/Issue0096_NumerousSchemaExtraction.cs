@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0096_NumerousSchemaExtraction_Model
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  [Explicit("Manual usage only")]
+  [Explicit("Manual usage only.")]
   public class Issue0096_NumerousSchemaExtraction
   {
     public class ModelChanger : IModule

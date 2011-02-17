@@ -21,6 +21,8 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class HintGenerator
   {
+    private readonly NameBuilder nameBuilder;
+
     private readonly StoredDomainModel storedModel;
     private readonly StoredDomainModel currentModel;
     private readonly StorageInfo extractedModel;
@@ -133,9 +135,9 @@ namespace Xtensive.Orm.Upgrade
           throw TypeNotFound(targetTypeName);
         var sourceType = reverseTypeMapping[targetType];
         var sourceTypeName = sourceType.UnderlyingType;
-        if (!sourceType.Fields.Any(field => field.Name==hint.OldFieldName))
+        if (sourceType.GetField(hint.OldFieldName)==null)
           throw FieldNotFound(sourceTypeName, hint.OldFieldName);
-        if (!targetType.Fields.Any(field => field.Name==hint.NewFieldName))
+        if (targetType.GetField(hint.NewFieldName)==null)
           throw FieldNotFound(targetTypeName, hint.NewFieldName);
         // Each source field should be used only once
         // Each destination field should be used only once
@@ -539,8 +541,10 @@ namespace Xtensive.Orm.Upgrade
         StoredTypeInfo oldTargetType;
         if (!reverseTypeMapping.TryGetValue(newTargetType, out oldTargetType))
           continue;
+        string oldColumnMappingName = nameBuilder.ApplyNamingRules(oldField.MappingName);
+        string newColumnMappingName = nameBuilder.ApplyNamingRules(newField.MappingName);
         RegisterRenameFieldHint(oldTargetType.MappingName, newTargetType.MappingName,
-          oldField.MappingName, newField.MappingName);
+          oldColumnMappingName, newColumnMappingName);
       }
     }
     
@@ -1139,6 +1143,7 @@ namespace Xtensive.Orm.Upgrade
 
     public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
     {
+      nameBuilder = Domain.Demand().NameBuilder;
       reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       reverseTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();

@@ -14,7 +14,7 @@ using NUnit.Framework;
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeHandlersSorting
 {
   [TestFixture, Category("Upgrade")]
-  [Explicit("Requires specific file path")]
+  [Explicit("Requires specific file path.")]
   public sealed class UpgradeHandlersSortingTest
   {
     [TestFixtureSetUp]
