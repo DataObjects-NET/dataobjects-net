@@ -7,10 +7,10 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.StructureReferencesAnEntityTest_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Storage.StructureReferencesAnEntityTest_Model;
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   namespace StructureReferencesAnEntityTest_Model
   {

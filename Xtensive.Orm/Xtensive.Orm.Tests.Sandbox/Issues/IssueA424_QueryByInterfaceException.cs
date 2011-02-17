@@ -7,12 +7,12 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Tests.Issues.IssueA424_QueryByInterfaceException_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model;
+using Xtensive.Orm.Tests.Issues.IssueA424_QueryByInterfaceException_Model;
 using System.Linq;
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueA424_QueryByInterfaceException_Model
   {
