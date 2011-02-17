@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using System.Linq;
 
 namespace Xtensive.ObjectMapping.Model
 {
@@ -17,11 +18,9 @@ namespace Xtensive.ObjectMapping.Model
 
     public override IEnumerable<SourceTypeDescription> SourceTypes
     {
-      get {
-        foreach (var type in immutableDescription.SourceTypes)
-          yield return type;
-        foreach (var type in base.SourceTypes)
-          yield return type;
+      get
+      {
+        return immutableDescription.SourceTypes.Concat(base.SourceTypes);
       }
     }
 
@@ -29,25 +28,35 @@ namespace Xtensive.ObjectMapping.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(sourceType, "sourceType");
       SourceTypeDescription result;
-      if (immutableDescription.TryGetSourceType(sourceType, out result))
-        return result;
       if (TryGetSourceType(sourceType, out result))
         return result;
+      ThrowTypeHasNotBeenRegistered(sourceType);
+      return null;
+    }
+
+    internal override bool TryGetSourceType(Type sourceType, out SourceTypeDescription result)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sourceType, "sourceType");
+
+      if (immutableDescription.TryGetSourceType(sourceType, out result))
+        return true;
+      if (base.TryGetSourceType(sourceType, out result))
+        return true;
       var ancestor = sourceType;
       SourceTypeDescription ancestorDescription;
       do {
         ancestor = ancestor.BaseType;
-        if (ancestor==null || ancestor==typeof (object))
-          ThrowTypeHasNotBeenRegistered(sourceType);
+        if (ancestor == null || ancestor == typeof(object))
+          return false;
       } while (!immutableDescription.TryGetSourceType(ancestor, out ancestorDescription));
       result = new SourceTypeDescription(sourceType, ancestorDescription.KeyExtractor) {
         TargetType = ancestorDescription.TargetType
       };
       foreach (var property in ancestorDescription.Properties.Values)
-        result.AddProperty((SourcePropertyDescription) property);
+        result.AddProperty((SourcePropertyDescription)property);
       result.Lock();
       AddSourceType(result);
-      return result;
+      return true;
     }
 
 

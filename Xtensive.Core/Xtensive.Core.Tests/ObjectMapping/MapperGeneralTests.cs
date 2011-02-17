@@ -499,18 +499,38 @@ namespace Xtensive.Tests.ObjectMapping
     {
       var settings = new MapperSettings {EnableDynamicSourceHierarchies = true};
       var mapping = new MappingBuilder()
-        .MapType<CreatureBase, CreatureDto, Guid>(c => c.Id, c => c.Id).Build();
+        .MapType<CreatureBase, CreatureDto, Guid>(c => c.Id, c => c.Id)
+        .Build();
 
       var source = new List<Creature> {
-        new Creature {Id = Guid.NewGuid(), Name = "Name0"}, new LongBee {Id = Guid.NewGuid(), Name = "Name1"},
+        new Creature {Id = Guid.NewGuid(), Name = "Name0"}, 
+        new LongBee {Id = Guid.NewGuid(), Name = "Name1"},
         new Mammal {Id = Guid.NewGuid(), Name = "Name2"}
       };
-      var target = ((List<object>) new DefaultMapper(mapping, settings).Transform(source))
-        .Cast<CreatureDto>().ToList();
+      var mapper = new DefaultMapper(mapping, settings);
+      var target = ((List<object>) mapper.Transform(source))
+        .Cast<CreatureDto>()
+        .ToList();
       for (var i = 0; i < source.Count; i++) {
         Assert.AreEqual(source[i].Id, target[i].Id);
         Assert.AreEqual(source[i].Name, target[i].Name);
       }
+    }
+
+    [Test]
+    public void DynamicExpansionOfSourceHierarchy2Test()
+    {
+      var settings = new MapperSettings { EnableDynamicSourceHierarchies = true };
+      var mapping = new MappingBuilder()
+        .MapType<CreatureBase, CreatureDto, Guid>(c => c.Id, c => c.Id)
+        .Build();
+
+      var source = new Mammal {Id = Guid.NewGuid(), Name = "Name2"};
+      
+      var mapper = new DefaultMapper(mapping, settings);
+      var target = (CreatureDto) mapper.Transform(source);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(source.Name, target.Name);
     }
 
     [Test]
