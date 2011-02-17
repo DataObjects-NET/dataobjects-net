@@ -211,7 +211,7 @@ namespace Xtensive.ObjectMapping.Model
       return targetTypes.TryGetValue(type, out result);
     }
 
-    internal bool TryGetSourceType(Type type, out SourceTypeDescription result)
+    internal virtual bool TryGetSourceType(Type type, out SourceTypeDescription result)
     {
       return sourceTypes.TryGetValue(type, out result);
     }
