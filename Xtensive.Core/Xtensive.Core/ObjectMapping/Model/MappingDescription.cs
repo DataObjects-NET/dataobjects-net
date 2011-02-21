@@ -206,9 +206,9 @@ namespace Xtensive.ObjectMapping.Model
       ((TargetPropertyDescription) propertyDescription).IsChangeTrackingDisabled = !isEnabled;
     }
 
-    internal bool TryGetTargetType(Type type, out TargetTypeDescription result)
+    internal virtual bool TryGetTargetType(Type targetType, out TargetTypeDescription result)
     {
-      return targetTypes.TryGetValue(type, out result);
+      return targetTypes.TryGetValue(targetType, out result);
     }
 
     internal virtual bool TryGetSourceType(Type type, out SourceTypeDescription result)

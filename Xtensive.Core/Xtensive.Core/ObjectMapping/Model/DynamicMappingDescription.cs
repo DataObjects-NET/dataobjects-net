@@ -59,6 +59,24 @@ namespace Xtensive.ObjectMapping.Model
       return true;
     }
 
+    public override TargetTypeDescription GetTargetType(Type targetType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
+      TargetTypeDescription result;
+      if (TryGetTargetType(targetType, out result))
+        return result;
+      ThrowTypeHasNotBeenRegistered(targetType);
+      return null;
+    }
+
+    internal override bool TryGetTargetType(Type targetType, out TargetTypeDescription result)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(targetType, "sourceType");
+      if (immutableDescription.TryGetTargetType(targetType, out result))
+        return true;
+      return false;
+    }
+
 
     // Constructors
 
