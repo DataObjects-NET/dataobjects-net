@@ -24,7 +24,7 @@ namespace Xtensive.Sql.MySql.v5
                     t.table_name, 
                     t.table_type
                 from information_schema.tables t
-                where t.table_schema {SCHEMA_FILTER})";
+                where t.table_schema {SCHEMA_FILTER}";
         }
 
         protected string GetExtractTableColumnsQuery()
