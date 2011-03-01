@@ -133,12 +133,16 @@ namespace Xtensive.Storage.Providers.Sql
     protected IEnumerator<Tuple> RunTupleReader(DbDataReader reader, TupleDescriptor descriptor)
     {
       var accessor = domainHandler.GetDataReaderAccessor(descriptor);
-      using (reader) {
-        while (driver.ReadRow(reader)) {
-          var tuple = Tuple.Create(descriptor);
-          accessor.Read(reader, tuple);
-          yield return tuple;
-        }
+      try {
+        using (reader)
+          while (driver.ReadRow(reader)) {
+            var tuple = Tuple.Create(descriptor);
+            accessor.Read(reader, tuple);
+            yield return tuple;
+          }
+      }
+      finally {
+        DisposeCommand();
       }
     }
 

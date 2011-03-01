@@ -152,6 +152,8 @@ namespace Xtensive.Orm.Tests
         return StorageProvider.PostgreSql;
       case WellKnown.Provider.Oracle:
         return  StorageProvider.Oracle;
+      case WellKnown.Provider.Firebird:
+        return  StorageProvider.Firebird;
       default:
         throw new ArgumentOutOfRangeException("provider");
       }

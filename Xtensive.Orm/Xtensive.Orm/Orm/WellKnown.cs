@@ -198,11 +198,15 @@ namespace Xtensive.Orm
       /// Oracle.
       /// </summary>
       public const string Oracle = "oracle";
+      /// <summary>
+      /// Firebird.
+      /// </summary>
+      public const string Firebird = "firebird";
 
       /// <summary>
       /// All supported protocols (for exception messages, etc).
       /// </summary>
-      public const string All = "'memory', 'sqlserver', 'sqlserverce', 'postgresql', 'oracle'";
+      public const string All = "'memory', 'sqlserver', 'sqlserverce', 'postgresql', 'oracle', 'firebird'";
     }
 
     /// <summary>
