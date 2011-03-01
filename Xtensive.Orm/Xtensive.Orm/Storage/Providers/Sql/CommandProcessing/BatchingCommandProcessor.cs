@@ -99,10 +99,9 @@ namespace Xtensive.Storage.Providers.Sql
         return lastRequest!=null ? reader : null;
       }
       finally {
-        if (reader!=null && lastRequest==null) {
+        if (reader != null && lastRequest == null)
           reader.Dispose();
-          DisposeCommand();
-        }
+        DisposeCommand();
       }
     }
 
