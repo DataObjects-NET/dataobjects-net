@@ -1,10 +1,10 @@
 ﻿using System;
 using MySql.Data.MySqlClient;
+using Xtensive.Sql.Drivers.MySql;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Drivers.MySql
+namespace Xtensive.Sql.MySql
 {
-
     internal abstract class Driver : SqlDriver
     {
         protected override SqlConnection CreateConnection(string connectionString)

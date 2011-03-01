@@ -4,7 +4,7 @@ using global::MySql.Data.MySqlClient;
 using Xtensive.Core;
 
 
-namespace Xtensive.Sql.Drivers.MySql
+namespace Xtensive.Sql.MySql
 {
     using Xtensive.Sql.Drivers.MySql.Resources;
     using Xtensive.Sql.Info;
@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Drivers.MySql
     public class DriverFactory : SqlDriverFactory
     {
         private const string DataSourceFormat = "{0}:{1}/{2}";
-        private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
+        private const string DatabaseAndSchemaQuery = "select database(), schema()";
 
         /// <inheritdoc/>
 #if NET40
@@ -58,7 +58,6 @@ namespace Xtensive.Sql.Drivers.MySql
             using (var connection = new MySqlConnection(connectionString))
             {
                 connection.Open();
-                //TODO: Ensure that 'connection.ServerVersion' does not return null
                 var version = new System.Version(connection.ServerVersion);
 
                 var builder = new MySqlConnectionStringBuilder(connectionString);

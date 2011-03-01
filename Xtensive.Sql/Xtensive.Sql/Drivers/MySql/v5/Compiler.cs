@@ -9,7 +9,7 @@ using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.Drivers.MySql.v5
+namespace Xtensive.Sql.MySql.v5
 {
     internal class Compiler : SqlCompiler
     {

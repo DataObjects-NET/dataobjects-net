@@ -2,9 +2,8 @@
 using System.Data;
 using System.Data.Common;
 using System.Security;
-using global::MySql.Data.MySqlClient;
 
-namespace Xtensive.Sql.Drivers.MySql
+namespace Xtensive.Sql.MySql
 {
     internal class TypeMapper : Sql.TypeMapper
     {

@@ -7,7 +7,7 @@ using Xtensive.Sql.Model;
 using Constraint = Xtensive.Sql.Model.Constraint;
 
 
-namespace Xtensive.Sql.Drivers.MySql.v5
+namespace Xtensive.Sql.MySql.v5
 {
     internal partial class Extractor : Model.Extractor
     {

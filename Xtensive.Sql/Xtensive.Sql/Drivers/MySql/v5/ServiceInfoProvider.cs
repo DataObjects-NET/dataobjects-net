@@ -1,6 +1,6 @@
 ﻿using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Drivers.MySql.v5
+namespace Xtensive.Sql.MySql.v5
 {
     internal class ServerInfoProvider : Info.ServerInfoProvider
     {
