@@ -150,6 +150,7 @@ namespace Xtensive.Storage.Providers
         new ServiceRegistration(typeof (Domain), Domain),
         new ServiceRegistration(typeof (DomainConfiguration), Domain.Configuration),
         new ServiceRegistration(typeof (HandlerAccessor), Handlers),
+        new ServiceRegistration(typeof (NameBuilder), Handlers.NameBuilder),
         new ServiceRegistration(typeof (DomainHandler), this),
       };
       AddBaseServiceRegistrations(registrations);
