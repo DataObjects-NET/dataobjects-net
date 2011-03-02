@@ -27,6 +27,14 @@ namespace Xtensive.Storage.Disconnected
     private Dictionary<TypeInfo, List<FieldInfo>> referencingFields = 
       new Dictionary<TypeInfo, List<FieldInfo>>();
 
+    private static FieldInfo GetTypeField(TypeInfo typeInfo, FieldInfo candidate)
+    {
+      FieldInfo typeField;
+      return typeInfo.FieldMap.TryGetValue(candidate, out typeField) 
+               ? typeField 
+               : candidate;
+    }
+
 
     /// <summary>
     /// Gets the references from state.
@@ -98,7 +106,9 @@ namespace Xtensive.Storage.Disconnected
       if (!entitySets.TryGetValue(typeInfo, out result)) {
         result = typeInfo.GetOwnerAssociations()
           .Where(association => association.Multiplicity==Multiplicity.ManyToOne)
-          .Select(association => new Pair<FieldInfo>(association.OwnerField, association.Reversed.OwnerField))
+          .Select(association => new Pair<FieldInfo>(
+            GetTypeField(typeInfo, association.OwnerField), 
+            GetTypeField(typeInfo, association.Reversed.OwnerField)))
           .ToList();
         entitySets.Add(typeInfo, result);
       }
@@ -132,7 +142,7 @@ namespace Xtensive.Storage.Disconnected
         result = typeInfo.GetOwnerAssociations()
           .Where(association => association.Multiplicity==Multiplicity.ZeroToOne
             || association.Multiplicity==Multiplicity.ManyToOne)
-          .Select(association => association.OwnerField)
+          .Select(association => GetTypeField(typeInfo, association.OwnerField))
           .ToList();
         referencingFields.Add(typeInfo, result);
       }
