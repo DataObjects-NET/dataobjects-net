@@ -2,20 +2,25 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Model;
-using Constraint = Xtensive.Sql.Model.Constraint;
 
 
 namespace Xtensive.Sql.MySql.v5
 {
+
     internal partial class Extractor : Model.Extractor
     {
         private const int DefaultPrecision = 38;
+
         private const int DefaultScale = 0;
 
         private Catalog theCatalog;
+
         private string targetSchema;
+
+        private string[] notSupportedTypes = new string[] { "SET", "ENUM", "BIT" };
 
         private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
@@ -50,11 +55,11 @@ namespace Xtensive.Sql.MySql.v5
             ExtractTableColumns();
             ExtractViews();
             ExtractViewColumns();
-            ExtractIndexes();
+            //ExtractIndexes();
             ExtractForeignKeys();
-            ExtractCheckConstaints();
+            //ExtractCheckConstaints();
             ExtractUniqueAndPrimaryKeyConstraints();
-            ExtractSequences();
+            //ExtractSequences();
         }
 
         private void ExtractSchemas()
@@ -70,19 +75,40 @@ namespace Xtensive.Sql.MySql.v5
             theCatalog.DefaultSchema = defaultSchema;
         }
 
+        // ---- ExtractTables
+        //  0   table_schema, 
+        //  1   table_name, 
+        //  2   table_type
+
         private void ExtractTables()
         {
             using (var reader = ExecuteReader(GetExtractTablesQuery()))
             {
                 while (reader.Read())
                 {
-                    //TODO : Think about temporary tables (Malisa)
-                    var schema = theCatalog.Schemas[reader.GetString(0)];
+                    var schemaName = reader.GetString(0);
+                    var schema = theCatalog.Schemas[schemaName];
                     string tableName = reader.GetString(1);
                     schema.CreateTable(tableName);
                 }
             }
         }
+
+        // ---- ExtractTableColumns
+        //    0     table_schema
+        //    1     table_name
+        //    2     ordinal_position
+        //    3     column_name
+        //    4     data_type
+        //    5     is_nullable
+        //    6     column_type
+        //    7     character_maximum_length
+        //    8     numeric_precision
+        //    9     numeric_scale
+        //   10    collation_name
+        //   11    column_key
+        //   12    column_default
+        //   13    Extra
 
         private void ExtractTableColumns()
         {
@@ -92,16 +118,18 @@ namespace Xtensive.Sql.MySql.v5
                 int lastColumnId = int.MaxValue;
                 while (reader.Read())
                 {
-                    int columnId = ReadInt(reader, 9);
+                    int columnId = ReadInt(reader, 2);
                     if (columnId <= lastColumnId)
                     {
                         var schema = theCatalog.Schemas[reader.GetString(0)];
                         table = schema.Tables[reader.GetString(1)];
                     }
-                    var column = table.CreateColumn(reader.GetString(2));
-                    column.DataType = CreateValueType(reader, 3, 4, 5, 6);
-                    column.IsNullable = ReadBool(reader, 7);
-                    var defaultValue = ReadStringOrNull(reader, 8);
+
+                    var column = table.CreateColumn(reader.GetString(3));
+                    column.DataType = CreateValueType(reader, 4, 8, 9, 7);
+                    column.IsNullable = ReadBool(reader, 5);
+
+                    var defaultValue = ReadStringOrNull(reader, 12);
                     if (!string.IsNullOrEmpty(defaultValue))
                         column.DefaultValue = SqlDml.Native(defaultValue);
                     lastColumnId = columnId;
@@ -109,6 +137,10 @@ namespace Xtensive.Sql.MySql.v5
             }
         }
 
+        //---- ExtractViews
+        //   0      table_schema,
+        //   1      table_name,
+        //   2      view_definition
         private void ExtractViews()
         {
             using (var reader = ExecuteReader(GetExtractViewsQuery()))
@@ -126,6 +158,12 @@ namespace Xtensive.Sql.MySql.v5
             }
         }
 
+        //---- ExtractViewColumns
+        //   0      table_schema,
+        //   1      table_name,
+        //   2      column_name,
+        //   3      ordinal_position,
+        //   4      view_definition
         private void ExtractViewColumns()
         {
             using (var reader = ExecuteReader(GetExtractViewColumnsQuery()))
@@ -179,6 +217,16 @@ namespace Xtensive.Sql.MySql.v5
             }
         }
 
+        //....  ExtractForeignKeys
+        //  0       constraint_schema,
+        //  1       table_name,
+        //  2       constraint_name,
+        //  3       delete_rule,
+        //  4       column_name,
+        //  5       ordinal_position,
+        //  6       referenced_table_schema,
+        //  7       referenced_table_name,
+        //  8       referenced_column_name
         private void ExtractForeignKeys()
         {
             using (var reader = ExecuteReader(GetExtractForeignKeysQuery()))
@@ -189,20 +237,20 @@ namespace Xtensive.Sql.MySql.v5
                 Table referencedTable = null;
                 while (reader.Read())
                 {
-                    int columnPosition = ReadInt(reader, 7);
+                    int columnPosition = ReadInt(reader, 5);
                     if (columnPosition <= lastColumnPosition)
                     {
                         var referencingSchema = theCatalog.Schemas[reader.GetString(0)];
                         referencingTable = referencingSchema.Tables[reader.GetString(1)];
                         constraint = referencingTable.CreateForeignKey(reader.GetString(2));
-                        ReadConstraintProperties(constraint, reader, 3, 4);
-                        ReadCascadeAction(constraint, reader, 5);
-                        var referencedSchema = theCatalog.Schemas[reader.GetString(8)];
-                        referencedTable = referencedSchema.Tables[reader.GetString(9)];
+                        //ReadConstraintProperties(constraint, reader, 3, 4);
+                        ReadCascadeAction(constraint, reader, 3);
+                        var referencedSchema = theCatalog.Schemas[reader.GetString(0)]; //Scchema same as current
+                        referencedTable = referencedSchema.Tables[reader.GetString(7)];
                         constraint.ReferencedTable = referencedTable;
                     }
-                    var referencingColumn = referencingTable.TableColumns[reader.GetString(6)];
-                    var referencedColumn = referencedTable.TableColumns[reader.GetString(10)];
+                    var referencingColumn = referencingTable.TableColumns[reader.GetString(4)];
+                    var referencedColumn = referencedTable.TableColumns[reader.GetString(8)];
                     constraint.Columns.Add(referencingColumn);
                     constraint.ReferencedColumns.Add(referencedColumn);
                     lastColumnPosition = columnPosition;
@@ -210,6 +258,13 @@ namespace Xtensive.Sql.MySql.v5
             }
         }
 
+        //---- ExtractUniqueAndPrimaryKeyConstraints
+        //   0      constraint_schema,
+        //   1      table_name,
+        //   2      constraint_name,
+        //  3       constraint_type,
+        //  4       column_name,
+        //  5       ordinal_position
         private void ExtractUniqueAndPrimaryKeyConstraints()
         {
             using (var reader = ExecuteReader(GetExtractUniqueAndPrimaryKeyConstraintsQuery()))
@@ -251,13 +306,13 @@ namespace Xtensive.Sql.MySql.v5
                     var schema = theCatalog.Schemas[reader.GetString(0)];
                     var table = schema.Tables[reader.GetString(1)];
                     var name = reader.GetString(2);
-                    // It looks like ODP.NET sometimes fail to read a LONG column via GetString
+
                     // It returns empty string instead of the actual value.
                     var condition = string.IsNullOrEmpty(reader.GetString(3))
                       ? null
                       : SqlDml.Native(reader.GetString(3));
                     var constraint = table.CreateCheckConstraint(name, condition);
-                    ReadConstraintProperties(constraint, reader, 4, 5);
+                    // ReadConstraintProperties(constraint, reader, 4, 5);
                 }
             }
         }
@@ -280,33 +335,97 @@ namespace Xtensive.Sql.MySql.v5
             }
         }
 
+        //TODO: Enum, Set are are not supported by .NET.
         private SqlValueType CreateValueType(IDataRecord row,
           int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
         {
             string typeName = row.GetString(typeNameIndex);
-            if (typeName == "NUMBER")
+            typeName = typeName.ToUpper();
+
+            if (notSupportedTypes.Contains(typeName))
+            {
+                throw new NotSupportedException(string.Format(Strings.ExCannotSupportEnum, typeName));
+            }
+
+            if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE")
             {
                 int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
                 int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
                 return new SqlValueType(SqlType.Decimal, precision, scale);
             }
-            if (typeName.StartsWith("INTERVAL DAY"))
+
+            if (typeName.StartsWith("TINYINT"))
             {
                 // ignoring "day precision" and "second precision"
                 // although they can be read as "scale" and "precision"
-                return new SqlValueType(SqlType.Interval);
+                return new SqlValueType(SqlType.Int8);
             }
-            if (typeName.StartsWith("TIMESTAMP"))
+
+            if (typeName.StartsWith("SMALLINT"))
+            {
+                // ignoring "day precision" and "second precision"
+                // although they can be read as "scale" and "precision"
+                return new SqlValueType(SqlType.Int16);
+            }
+
+            if (typeName.StartsWith("MEDIUMINT")) //There is not 34bit Int in SqlType
+            {
+                // ignoring "day precision" and "second precision"
+                // although they can be read as "scale" and "precision"
+                return new SqlValueType(SqlType.Int32);
+            }
+
+            if (typeName.StartsWith("INT"))
+            {
+                // ignoring "day precision" and "second precision"
+                // although they can be read as "scale" and "precision"
+                return new SqlValueType(SqlType.Int32);
+            }
+
+            if (typeName.StartsWith("BIGINT"))
+            {
+                // ignoring "day precision" and "second precision"
+                // although they can be read as "scale" and "precision"
+                return new SqlValueType(SqlType.Int64);
+            }
+
+            if (typeName.StartsWith("TIME"))
             {
                 // "timestamp precision" is saved as "scale", ignoring too
                 return new SqlValueType(SqlType.DateTime);
             }
-            if (typeName == "NVARCHAR2" || typeName == "NCHAR")
+            if (typeName.StartsWith("YEAR"))
+            {
+                // "timestamp precision" is saved as "scale", ignoring too
+                return new SqlValueType(SqlType.Decimal, 4, 0);
+            }
+
+            if (typeName.Contains("TEXT"))
             {
                 int length = ReadInt(row, charLengthIndex);
                 var sqlType = typeName.Length == 5 ? SqlType.Char : SqlType.VarChar;
                 return new SqlValueType(sqlType, length);
             }
+
+            if (typeName.StartsWith("NVARCHAR"))
+            {
+                // ignoring "day precision" and "second precision"
+                // although they can be read as "scale" and "precision"
+                return new SqlValueType(SqlType.VarChar);
+            }
+
+            if (typeName.StartsWith("NCHAR"))
+            {
+                // ignoring "day precision" and "second precision"
+                // although they can be read as "scale" and "precision"
+                return new SqlValueType(SqlType.Char);
+            }
+
+            if (typeName.Contains("BLOB"))
+            {
+                return new SqlValueType(SqlType.VarBinaryMax);
+            }
+
             var typeInfo = Driver.ServerInfo.DataTypes[typeName];
             return typeInfo != null
               ? new SqlValueType(typeInfo.Type)
@@ -318,10 +437,10 @@ namespace Xtensive.Sql.MySql.v5
         {
             switch (constraintType)
             {
-                case "P":
+                case "PRIMARY KEY":
                     table.CreatePrimaryKey(constraintName, columns.ToArray());
                     return;
-                case "U":
+                case "UNIQUE":
                     table.CreateUniqueConstraint(constraintName, columns.ToArray());
                     return;
                 default:
@@ -366,12 +485,12 @@ namespace Xtensive.Sql.MySql.v5
             return row.IsDBNull(index) ? null : row.GetString(index);
         }
 
-        private static void ReadConstraintProperties(Constraint constraint,
-          IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
-        {
-            constraint.IsDeferrable = row.GetString(isDeferrableIndex) == "DEFERRABLE";
-            constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex) == "DEFERRED";
-        }
+        //private static void ReadConstraintProperties(Constraint constraint,
+        //  IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
+        //{
+        //    constraint.IsDeferrable = row.GetString(isDeferrableIndex) == "DEFERRABLE";
+        //    constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex) == "DEFERRED";
+        //}
 
         private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
         {
@@ -394,7 +513,7 @@ namespace Xtensive.Sql.MySql.v5
         {
             var schemaFilter = targetSchema != null
               ? "= " + SqlHelper.QuoteString(targetSchema)
-              : "NOT IN ('SYS', 'SYSTEM')";
+              : "NOT IN ('information_schema', 'mysql', 'performance_schema')";
 
             replacements[SchemaFilterPlaceholder] = schemaFilter;
             replacements[IndexesFilterPlaceholder] = "1 > 0";

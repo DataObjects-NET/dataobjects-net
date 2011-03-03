@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Drivers.MySql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Date type {0} is not supported..
+        /// </summary>
+        internal static string ExCannotSupportEnum {
+            get {
+                return ResourceManager.GetString("ExCannotSupportEnum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid Boolean String.
         /// </summary>
         internal static string ExInvalidBooleanStringX {

@@ -35,11 +35,14 @@ namespace Xtensive.Sql.MySql.v5
                     c.ordinal_position,
                     c.column_name,
                     c.data_type,
+                    c.is_nullable,
                     c.column_type,
                     c.character_maximum_length,
                     c.numeric_precision,
                     c.numeric_scale,
                     c.collation_name,
+                    c.column_key,
+                    c.column_default,
                     c.Extra
                 from information_schema.columns c
                 where c.table_schema {SCHEMA_FILTER}
@@ -105,9 +108,10 @@ namespace Xtensive.Sql.MySql.v5
             from 
                 information_schema.referential_constraints r join
                 information_schema.key_column_usage c
-                on ((r.table_name = c.table_name) and (r.constraint_schema = c.table_schema))
+                on ((r.table_name = c.table_name) and (r.constraint_schema = c.table_schema) and (r.constraint_name = c.constraint_name))
             WHERE
                  (r.constraint_schema {SCHEMA_FILTER})
+                 AND c.constraint_name <> 'PRIMARY'
             ORDER BY
                 r.constraint_schema, r.table_name, r.constraint_name, c.ordinal_position";
         }
@@ -131,10 +135,11 @@ namespace Xtensive.Sql.MySql.v5
                 from
                 information_schema.table_constraints t join
                 information_schema.key_column_usage c
-                on ((t.table_name = c.table_name) and (t.constraint_schema = c.table_schema))
+                on ((t.table_name = c.table_name) and (t.constraint_schema = c.table_schema) and (t.constraint_name = c.constraint_name))
                 WHERE
-                    AND (t.constraint_schema {SCHEMA_FILTER})
+                    (t.constraint_schema {SCHEMA_FILTER})
                     AND (t.table_name {TABLE_FILTER})
+                    AND t.constraint_type in('PRIMARY KEY', 'UNIQUE')
                 ORDER BY
                     t.constraint_schema,
                     t.table_name,
