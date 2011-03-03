@@ -324,7 +324,7 @@ namespace Xtensive.Sql.SqlServer.v09
       string query = "select t.schema_id, fic.object_id, fi.unique_index_id, fc.name, fc.is_default, fic.column_id, fic.type_column_id, fl.name, i.name from sys.tables t inner join sys.fulltext_index_columns as fic on t.object_id = fic.object_id inner join sys.fulltext_languages as fl on fic.language_id = fl.lcid inner join sys.fulltext_indexes fi on fic.object_id = fi.object_id inner join sys.fulltext_catalogs fc on fc.fulltext_catalog_id = fi.fulltext_catalog_id inner join sys.indexes as i on fic.object_id = i.object_id and fi.unique_index_id = i.index_id";
       if (schema!=null)
         query += " where t.schema_id = " + schemaId;
-      query += " order by t.schema_id, object_id, column_id";
+      query += " order by t.schema_id, fic.object_id, fic.column_id";
 
       int currentTableId = 0;
       ColumnResolver table = null;
