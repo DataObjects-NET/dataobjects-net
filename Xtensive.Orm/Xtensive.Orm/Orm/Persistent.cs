@@ -25,6 +25,7 @@ using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Services;
+using Activator = Xtensive.Orm.Internals.Activator;
 using AggregateException = Xtensive.Core.AggregateException;
 using OperationType = Xtensive.Orm.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -386,6 +387,13 @@ namespace Xtensive.Orm
       SystemSetValueAttempt(field, value);
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = GetFieldValue(field);
+
+      // Handling 'OldValue != NewValue' problem for structures
+      var o = oldValue as Structure;
+      if (o != null) {
+        oldValue = Activator.CreateStructure(Session, o.GetType(), o.Tuple.ToRegular());
+      }
+
       try {
         var operations = Session.Operations;
         var scope = operations.BeginRegistration(Operations.OperationType.System);
