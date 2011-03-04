@@ -8,37 +8,59 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.MySql.v5
 {
+    using System.Linq;
+
     internal class Translator : SqlTranslator
     {
-        public override string DateTimeFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
-        public override string TimeSpanFormatString { get { return "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval"; } }
+        public override string DateTimeFormatString { get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\.ffffff\'"; } }
+        public override string TimeSpanFormatString { get { return string.Empty; } }
 
-        public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
-        public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
+        public override string FloatFormatString { get { return base.FloatFormatString; } }
+        public override string DoubleFormatString { get { return base.DoubleFormatString; } }
 
         public override void Initialize()
         {
             base.Initialize();
             FloatNumberFormat.NumberDecimalSeparator = ".";
             FloatNumberFormat.NumberGroupSeparator = "";
-            FloatNumberFormat.NaNSymbol = "'Nan'::float4";
-            FloatNumberFormat.NegativeInfinitySymbol = "'-Infinity'::float4";
-            FloatNumberFormat.PositiveInfinitySymbol = "'Infinity'::float4";
 
             DoubleNumberFormat.NumberDecimalSeparator = ".";
             DoubleNumberFormat.NumberGroupSeparator = "";
-            DoubleNumberFormat.NaNSymbol = "'Nan'::float8";
-            DoubleNumberFormat.NegativeInfinitySymbol = "'-Infinity'::float8";
-            DoubleNumberFormat.PositiveInfinitySymbol = "'Infinity'::float8";
         }
 
         public override string DdlStatementDelimiter { get { return ";"; } }
         public override string BatchItemDelimiter { get { return ";\r\n"; } }
 
+        private string Quote(string openingBracket, string closingBracket, string delimiter, string escapedClosingBracket, string[] names)
+        {
+            var tokens = names.Where(name => !string.IsNullOrEmpty(name)).ToArray();
+            var builder = new StringBuilder();
+            for (int i = 0; i < tokens.Length - 1; i++)
+            {
+                builder.Append(openingBracket);
+                builder.Append(tokens[i].Replace(closingBracket, escapedClosingBracket));
+                builder.Append(closingBracket);
+                builder.Append(delimiter);
+            }
+            builder.Append(openingBracket);
+            builder.Append(tokens[tokens.Length - 1].Replace(closingBracket, escapedClosingBracket));
+            builder.Append(closingBracket);
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Quotes the specified identifier with square brackets (i.e. ``).
+        /// </summary>
+        /// <returns>Quoted indentifier.</returns>
+        public string QuoteIdentifierWithBackTick(string[] names)
+        {
+            return Quote("`", "`", ".", "``", names);
+        }
+
         [DebuggerStepThrough]
         public override string QuoteIdentifier(params string[] names)
         {
-            return SqlHelper.QuoteIdentifierWithQuotes(names);
+            return QuoteIdentifierWithBackTick(names);
         }
 
         [DebuggerStepThrough]
@@ -192,12 +214,13 @@ namespace Xtensive.Sql.MySql.v5
 
         public override string Translate(SchemaNode node)
         {
-            TemporaryTable tmp = node as TemporaryTable;
+            //TemporaryTable tmp = node as TemporaryTable;
+            //--- We do not need Schema qualifier in MySQL
             //temporary tables need no schema qualifier
-            if (tmp == null && node.Schema != null)
-            {
-                return QuoteIdentifier(new[] { node.Schema.Name, node.Name });
-            }
+            //if (tmp == null && node.Schema != null)
+            //{
+            //    return QuoteIdentifier(new[] { node.Schema.Name, node.Name });
+            //}
             return QuoteIdentifier(new[] { node.Name });
         }
 
@@ -287,6 +310,19 @@ namespace Xtensive.Sql.MySql.v5
         {
             return string.Empty;
         }
+
+        //public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section) TODO : LIMIT x, y Implement. (Malisa)
+        //{
+        //    switch (section)
+        //    {
+        //        case SelectSection.Limit:
+        //            return "TOP";
+        //        case SelectSection.Offset:
+        //            throw new NotSupportedException();
+        //    }
+
+        //    return base.Translate(context, node, section);
+        //}
 
         public override string Translate(SqlCompilerContext context, object literalValue)
         {

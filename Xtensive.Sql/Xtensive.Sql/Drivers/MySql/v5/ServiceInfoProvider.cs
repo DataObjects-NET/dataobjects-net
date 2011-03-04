@@ -2,263 +2,201 @@
 
 namespace Xtensive.Sql.MySql.v5
 {
+    using System;
+
     internal class ServerInfoProvider : Info.ServerInfoProvider
     {
-        // These two options are actually compile-time configurable.
-        private const int MaxIdentifierLength = 63;
-        private const int MaxIndexKeys = 32;
+        private const int MaxIdentifierLength = 128;
 
-        private const int MaxTextLength = (int.MaxValue >> 1) - 1000;
-        private const int MaxCharLength = 10485760;
-
-        private readonly string defaultSchemaName;
         private readonly string databaseName;
+        private readonly string defaultSchemaName;
 
-        protected virtual IndexFeatures GetIndexFeatures()
+        public override EntityInfo GetCollationInfo()
         {
-            return IndexFeatures.Clustered | IndexFeatures.Unique | IndexFeatures.Filtered | IndexFeatures.Expressions;
+            EntityInfo collationInfo = new EntityInfo();
+            collationInfo.MaxIdentifierLength = MaxIdentifierLength;
+            collationInfo.AllowedDdlStatements = DdlStatements.None;
+            return collationInfo;
         }
 
-        protected virtual int GetMaxTextLength()
+        public override EntityInfo GetCharacterSetInfo()
         {
-            return MaxTextLength;
+            EntityInfo characterSetInfo = new EntityInfo();
+            characterSetInfo.MaxIdentifierLength = MaxIdentifierLength;
+            characterSetInfo.AllowedDdlStatements = DdlStatements.None;
+            return characterSetInfo;
         }
 
-        protected virtual int GetMaxCharLength()
+        public override EntityInfo GetTranslationInfo()
         {
-            return MaxCharLength;
-        }
-
-        public virtual short GetMaxDateTimePrecision()
-        {
-            return 6;
-        }
-
-
-        public override EntityInfo GetDatabaseInfo()
-        {
-            var info = new EntityInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override EntityInfo GetSchemaInfo()
-        {
-            var info = new EntityInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override TableInfo GetTableInfo()
-        {
-            var info = new TableInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            info.PartitionMethods = PartitionMethods.None;
-            return info;
-        }
-
-        public override TemporaryTableInfo GetTemporaryTableInfo()
-        {
-            var info = new TemporaryTableInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.Features = TemporaryTableFeatures.Local
-              | TemporaryTableFeatures.DeleteRowsOnCommit
-              | TemporaryTableFeatures.PreserveRowsOnCommit;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override IndexInfo GetIndexInfo()
-        {
-            var info = new IndexInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.Features = GetIndexFeatures();
-            info.MaxNumberOfColumns = MaxIndexKeys;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            // Pg 8.2: 8191 byte
-            info.MaxLength = 2000;
-            return info;
-        }
-
-        public override ColumnInfo GetColumnInfo()
-        {
-            var info = new ColumnInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.Features = ColumnFeatures.None;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override CheckConstraintInfo GetCheckConstraintInfo()
-        {
-            var info = new CheckConstraintInfo();
-            info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            info.Features = CheckConstraintFeatures.None;
-            // TODO: more exactly
-            info.MaxExpressionLength = GetMaxTextLength();
-            return info;
-        }
-
-        public override PrimaryKeyConstraintInfo GetPrimaryKeyInfo()
-        {
-            var info = new PrimaryKeyConstraintInfo();
-            info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-            info.Features = PrimaryKeyConstraintFeatures.Clustered;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override FullTextSearchInfo GetFullTextInfo()
-        {
-            return null;
-        }
-
-        public override UniqueConstraintInfo GetUniqueConstraintInfo()
-        {
-            var info = new UniqueConstraintInfo();
-            info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-            info.Features = UniqueConstraintFeatures.Nullable | UniqueConstraintFeatures.Clustered;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
-        {
-            var info = new ForeignKeyConstraintInfo();
-            info.Actions =
-              ForeignKeyConstraintActions.Cascade |
-              ForeignKeyConstraintActions.NoAction |
-              ForeignKeyConstraintActions.Restrict |
-              ForeignKeyConstraintActions.SetDefault |
-              ForeignKeyConstraintActions.SetNull;
-            info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-            info.Features = ForeignKeyConstraintFeatures.Deferrable;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override EntityInfo GetViewInfo()
-        {
-            var info = new EntityInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-
-        public override DataTypeCollection GetDataTypesInfo()
-        {
-            var commonFeatures =
-              DataTypeFeatures.Clustering |
-              DataTypeFeatures.Grouping |
-              DataTypeFeatures.Indexing |
-              DataTypeFeatures.KeyConstraint |
-              DataTypeFeatures.Nullable |
-              DataTypeFeatures.Ordering |
-              DataTypeFeatures.Multiple |
-              DataTypeFeatures.Default;
-
-            var dtc = new DataTypeCollection();
-
-            dtc.Boolean = DataTypeInfo.Range(SqlType.Boolean, commonFeatures,
-              ValueRange.Bool, "boolean", "bool");
-
-            dtc.Int16 = DataTypeInfo.Range(SqlType.Int16, commonFeatures,
-              ValueRange.Int16,
-              "smallint", "int2");
-
-            dtc.Int32 = DataTypeInfo.Range(SqlType.Int32, commonFeatures,
-              ValueRange.Int32, "integer", "int4");
-
-            dtc.Int64 = DataTypeInfo.Range(SqlType.Int64, commonFeatures,
-              ValueRange.Int64, "bigint", "int8");
-
-            dtc.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, commonFeatures,
-              ValueRange.Decimal, 1000, "numeric", "decimal");
-
-            dtc.Float = DataTypeInfo.Range(SqlType.Float, commonFeatures,
-              ValueRange.Float, "real", "float4");
-
-            dtc.Double = DataTypeInfo.Range(SqlType.Double, commonFeatures,
-              ValueRange.Double, "double precision", "float8");
-
-            dtc.DateTime = DataTypeInfo.Range(SqlType.DateTime, commonFeatures,
-              ValueRange.DateTime, "timestamp");
-
-            dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
-              ValueRange.TimeSpan, "interval");
-
-            dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, MaxCharLength, "character", "char", "bpchar");
-            dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "character varying", "varchar");
-            dtc.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, commonFeatures, "text");
-            dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, commonFeatures, MaxTextLength, "bytea");
-
-            return dtc;
-        }
-
-
-        public override EntityInfo GetDomainInfo()
-        {
-            var info = new EntityInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override SequenceInfo GetSequenceInfo()
-        {
-            var info = new SequenceInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.Features = SequenceFeatures.Cache;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
-        }
-
-        public override EntityInfo GetStoredProcedureInfo()
-        {
-            EntityInfo info = new EntityInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
+            EntityInfo translationInfo = new EntityInfo();
+            translationInfo.MaxIdentifierLength = MaxIdentifierLength;
+            translationInfo.AllowedDdlStatements = DdlStatements.None;
+            return translationInfo;
         }
 
         public override EntityInfo GetTriggerInfo()
         {
-            EntityInfo info = new EntityInfo();
-            info.AllowedDdlStatements = DdlStatements.All;
-            info.MaxIdentifierLength = MaxIdentifierLength;
-            return info;
+            EntityInfo triggerInfo = new EntityInfo();
+            triggerInfo.MaxIdentifierLength = MaxIdentifierLength;
+            triggerInfo.AllowedDdlStatements = DdlStatements.All;
+            return triggerInfo;
         }
 
-
-        public override IsolationLevels GetIsolationLevels()
+        public override EntityInfo GetStoredProcedureInfo()
         {
-            return IsolationLevels.ReadCommitted | IsolationLevels.Serializable;
+            EntityInfo procedureInfo = new EntityInfo();
+            procedureInfo.MaxIdentifierLength = MaxIdentifierLength;
+            procedureInfo.AllowedDdlStatements = DdlStatements.All;
+            return procedureInfo;
+        }
+
+        public override SequenceInfo GetSequenceInfo()
+        {
+            return null;
+        }
+
+        public override EntityInfo GetDatabaseInfo()
+        {
+            EntityInfo databaseInfo = new EntityInfo();
+            databaseInfo.MaxIdentifierLength = MaxIdentifierLength;
+            databaseInfo.AllowedDdlStatements = DdlStatements.All;
+            return databaseInfo;
+        }
+
+        public override ColumnInfo GetColumnInfo()
+        {
+            ColumnInfo columnInfo = new ColumnInfo();
+            columnInfo.MaxIdentifierLength = MaxIdentifierLength;
+            columnInfo.Features = ColumnFeatures.Identity | ColumnFeatures.Computed;
+            columnInfo.AllowedDdlStatements = DdlStatements.All;
+            return columnInfo;
+        }
+
+        public override EntityInfo GetViewInfo()
+        {
+            EntityInfo viewInfo = new EntityInfo();
+            viewInfo.MaxIdentifierLength = MaxIdentifierLength;
+            viewInfo.AllowedDdlStatements = DdlStatements.All;
+            return viewInfo;
+        }
+
+        public override EntityInfo GetSchemaInfo()
+        {
+            EntityInfo schemaInfo = new EntityInfo();
+            schemaInfo.MaxIdentifierLength = MaxIdentifierLength;
+            schemaInfo.AllowedDdlStatements = DdlStatements.All;
+            return schemaInfo;
+        }
+
+        public override TableInfo GetTableInfo()
+        {
+            var tableInfo = new TableInfo();
+            tableInfo.MaxIdentifierLength = MaxIdentifierLength;
+            tableInfo.AllowedDdlStatements = DdlStatements.All;
+            tableInfo.PartitionMethods = PartitionMethods.List | PartitionMethods.Range | PartitionMethods.Hash;
+            return tableInfo;
+        }
+
+        public override TemporaryTableInfo GetTemporaryTableInfo()
+        {
+            var temporaryTableInfo = new TemporaryTableInfo();
+            temporaryTableInfo.MaxIdentifierLength = 116;
+            temporaryTableInfo.Features = TemporaryTableFeatures.Global | TemporaryTableFeatures.Local;
+            temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
+            return temporaryTableInfo;
+        }
+
+        public override CheckConstraintInfo GetCheckConstraintInfo()
+        {
+            var checkConstraintInfo = new CheckConstraintInfo();
+            checkConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+            checkConstraintInfo.MaxExpressionLength = 4000;
+            checkConstraintInfo.Features = CheckConstraintFeatures.None;
+            checkConstraintInfo.AllowedDdlStatements = DdlStatements.All;
+            return checkConstraintInfo;
+        }
+
+        public override PrimaryKeyConstraintInfo GetPrimaryKeyInfo()
+        {
+            var primaryKeyInfo = new PrimaryKeyConstraintInfo();
+            primaryKeyInfo.MaxIdentifierLength = MaxIdentifierLength;
+            primaryKeyInfo.Features = PrimaryKeyConstraintFeatures.Clustered;
+            primaryKeyInfo.AllowedDdlStatements = DdlStatements.All;
+            return primaryKeyInfo;
+        }
+
+        public override UniqueConstraintInfo GetUniqueConstraintInfo()
+        {
+            var uniqueConstraintInfo = new UniqueConstraintInfo();
+            uniqueConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+            uniqueConstraintInfo.Features = UniqueConstraintFeatures.Clustered | UniqueConstraintFeatures.Nullable;
+            uniqueConstraintInfo.AllowedDdlStatements = DdlStatements.All;
+            return uniqueConstraintInfo;
+        }
+
+        public override IndexInfo GetIndexInfo()
+        {
+            var indexInfo = new IndexInfo();
+            indexInfo.MaxIdentifierLength = MaxIdentifierLength;
+            indexInfo.MaxNumberOfColumns = 16;
+            indexInfo.MaxLength = 900;
+            indexInfo.AllowedDdlStatements = DdlStatements.All;
+            indexInfo.Features =
+              IndexFeatures.Clustered |
+              IndexFeatures.FillFactor |
+              IndexFeatures.Unique |
+              IndexFeatures.NonKeyColumns |
+              IndexFeatures.SortOrder |
+              IndexFeatures.FullText;
+            indexInfo.PartitionMethods = PartitionMethods.Range;
+            return indexInfo;
+        }
+
+        public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
+        {
+            var referenceConstraintInfo = new ForeignKeyConstraintInfo();
+            referenceConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+            referenceConstraintInfo.Actions =
+              ForeignKeyConstraintActions.NoAction |
+              ForeignKeyConstraintActions.Cascade |
+              ForeignKeyConstraintActions.SetDefault |
+              ForeignKeyConstraintActions.SetNull;
+            referenceConstraintInfo.AllowedDdlStatements = DdlStatements.All;
+            return referenceConstraintInfo;
+        }
+
+        public override FullTextSearchInfo GetFullTextInfo()
+        {
+            var info = new FullTextSearchInfo();
+            info.Features = FullTextSearchFeatures.SingleKeyRankTable;
+            return info;
         }
 
         public override QueryInfo GetQueryInfo()
         {
-            var info = new QueryInfo();
-            info.Features =
-              QueryFeatures.Batches |
+            var queryInfo = new QueryInfo();
+            queryInfo.MaxLength = 60000 * 4000;
+            queryInfo.MaxComparisonOperations = 1000;
+            queryInfo.MaxNestedSubqueriesAmount = 32;
+            queryInfo.ParameterPrefix = "?";
+            queryInfo.Features =
               QueryFeatures.NamedParameters |
               QueryFeatures.ParameterPrefix |
-              QueryFeatures.FullBooleanExpressionSupport |
+              QueryFeatures.Batches |
               QueryFeatures.UpdateFrom |
               QueryFeatures.Limit |
-              QueryFeatures.Offset |
-              QueryFeatures.MulticolumnIn |
               QueryFeatures.DefaultValues |
+              QueryFeatures.RowNumber |
               QueryFeatures.ScalarSubquery;
-            info.ParameterPrefix = "@";
-            info.MaxComparisonOperations = 1000000;
-            info.MaxLength = 1000000;
-            info.MaxNestedSubqueriesAmount = 100;
-            return info;
+
+            #region Some disabled Features for consideration
+            //              QueryFeatures.CrossApply |     TODO: Investigate http://www.youdidwhatwithtsql.com/comparing-tsql-cross-apply-mysql-groupconcat/280 (Malisa)
+            //                                                                                       http://dev.mysql.com/doc/refman/5.1/en/group-by-functions.html#function_group-concat 
+
+            #endregion
+
+            return queryInfo;
         }
 
         public override ServerFeatures GetServerFeatures()
@@ -268,27 +206,89 @@ namespace Xtensive.Sql.MySql.v5
 
         public override IdentityInfo GetIdentityInfo()
         {
-            return null;
+            var identityInfo = new IdentityInfo();
+            identityInfo.Features = IdentityFeatures.StartValue | IdentityFeatures.Increment;
+            return identityInfo;
+        }
+
+        public override DataTypeCollection GetDataTypesInfo()
+        {
+            var types = new DataTypeCollection();
+
+            var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.NonKeyIndexing |
+              DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
+
+            var index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering |
+              DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
+
+            var identity = DataTypeFeatures.Identity;
+
+            //types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
+            //  ValueRange.Bool, "bit");
+
+            types.UInt8 = DataTypeInfo.Range(SqlType.UInt8, common | index | identity,
+              ValueRange.Byte, "tinyint");
+
+            types.Int16 = DataTypeInfo.Range(SqlType.Int16, common | index | identity,
+              ValueRange.Int16, "smallint");
+
+            types.Int32 = DataTypeInfo.Range(SqlType.Int32, common | index | identity,
+              ValueRange.Int32, "integer", "int");
+
+            types.Int64 = DataTypeInfo.Range(SqlType.Int64, common | index | identity,
+              ValueRange.Int64, "bigint");
+
+            types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
+              ValueRange.Decimal, 38, "decimal", "numeric", "year");
+
+            types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
+              ValueRange.Float, "real");
+
+            types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
+              ValueRange.Double, "float");
+
+            types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
+              new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12, 31)),
+              "datetime", "time");
+
+            types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar", "char");
+            types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar", "varchar");
+            types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nvarchar(max)", "ntext", "varchar(max)", "text");
+
+            types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "binary");
+            types.VarBinary = DataTypeInfo.Stream(SqlType.VarBinary, common | index, 4000, "varbinary");
+            types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "varbinary(max)", "image");
+
+            types.Guid = DataTypeInfo.Regular(SqlType.Guid, common | index, "uniqueidentifier");
+
+            return types;
+        }
+
+        public override IsolationLevels GetIsolationLevels()
+        {
+            var levels =
+              IsolationLevels.ReadUncommitted |
+              IsolationLevels.ReadCommitted |
+              IsolationLevels.RepeatableRead |
+              IsolationLevels.Serializable |
+              IsolationLevels.Snapshot;
+            return levels;
+        }
+
+        public override EntityInfo GetDomainInfo()
+        {
+            var domainInfo = new EntityInfo();
+            domainInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+            domainInfo.MaxIdentifierLength = MaxIdentifierLength;
+            return domainInfo;
         }
 
         public override AssertConstraintInfo GetAssertionInfo()
         {
-            return null;
-        }
-
-        public override EntityInfo GetCharacterSetInfo()
-        {
-            return null;
-        }
-
-        public override EntityInfo GetCollationInfo()
-        {
-            return null;
-        }
-
-        public override EntityInfo GetTranslationInfo()
-        {
-            return null;
+            var assertConstraintInfo = new AssertConstraintInfo();
+            assertConstraintInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+            assertConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+            return assertConstraintInfo;
         }
 
         public override int GetStringIndexingBase()

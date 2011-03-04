@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Model;
 
@@ -34,9 +33,12 @@ namespace Xtensive.Sql.MySql.v5
             targetSchema = null;
 
             RegisterReplacements(replacementsRegistry);
-            ExtractSchemas();
-            ExtractCatalogContents();
-            return theCatalog;
+            //ExtractSchemas();
+            //targetSchema = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
+            //ExtractCatalogContents();
+            //return theCatalog;
+            var schema = this.ExtractSchema(Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant());
+            return schema.Catalog;
         }
 
         public override Schema ExtractSchema(string schemaName)
@@ -87,6 +89,7 @@ namespace Xtensive.Sql.MySql.v5
                 while (reader.Read())
                 {
                     var schemaName = reader.GetString(0);
+                    schemaName = schemaName.ToUpperInvariant();
                     var schema = theCatalog.Schemas[schemaName];
                     string tableName = reader.GetString(1);
                     schema.CreateTable(tableName);
@@ -340,14 +343,14 @@ namespace Xtensive.Sql.MySql.v5
           int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
         {
             string typeName = row.GetString(typeNameIndex);
-            typeName = typeName.ToUpper();
+            typeName = typeName.ToUpperInvariant();
 
-            if (notSupportedTypes.Contains(typeName))
-            {
-                throw new NotSupportedException(string.Format(Strings.ExCannotSupportEnum, typeName));
-            }
+            //if (notSupportedTypes.Contains(typeName))
+            //{
+            //    throw new NotSupportedException(string.Format(Strings.ExCannotSupportEnum, typeName));
+            //}
 
-            if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE")
+            if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL")
             {
                 int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
                 int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
