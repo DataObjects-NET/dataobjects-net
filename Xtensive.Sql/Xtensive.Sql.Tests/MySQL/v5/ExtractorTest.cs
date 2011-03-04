@@ -1,34 +1,42 @@
-﻿
+﻿using System;
+using System.Data.Common;
+using NUnit.Framework;
+using Xtensive.Sql.Model;
+    
 namespace Xtensive.Sql.Tests.MySQL.v5
 {
-    using System.Data.Common;
 
-    using NUnit.Framework;
-
-    using Xtensive.Sql.Model;
 
     [TestFixture]
     public class ExtractorTest : SqlTest
     {
         protected override string Url { get { return TestUrl.MySQL50; } }
 
-        [Test]
-        public void Extract()
-        {
-            var catalog = ExtractCatalog();
-            Assert.IsNotNull(catalog);
-        }
+        #region Test DDL
 
-        [Test]
-        public void MainTableTest()
-        {
-            string dropTableQuery = @"drop table if exists dataTypesTestTable";
+        const string DropBadSetTableQuery = @"drop table if exists dataTypesBadSetTable";
+        private const string CreateBadSetTableQuery =
+            @"CREATE TABLE dataTypesBadSetTable (
+                    set_162 SET('a', 'b', 'c', 'd')
+            )";
 
-            string createTableQuery =
-                @"CREATE TABLE dataTypesTestTable (
+        const string DropBadEnumTableQuery = @"drop table if exists dataTypesBadEnumTable";
+        private const string CreateBadEnumTableQuery =
+            @"CREATE TABLE dataTypesBadEnumTable (
+                            num_231 ENUM('small', 'medium', 'large')
+                        )";
+
+        const string DropBadBitTableQuery = @"drop table if exists dataTypesBadBitTable";
+        private const string CreateBadBitTableQuery =
+            @"CREATE TABLE dataTypesBadBitTable (
+                            bit_l1 bit NULL
+            )";
+
+        const string DropGoodTableQuery = @"drop table if exists dataTypesGoodTable";
+        const string CreateGoodTableQuery =
+            @"CREATE TABLE dataTypesGoodTable (
                     int_l4 int NULL ,
                     binary_l50 binary (50) NULL ,
-                    bit_l1 bit NULL , 
                     char_10 char (10) COLLATE utf8_unicode_ci NULL ,
                     datetime_l8 datetime NULL ,
                     decimal_p18_s0 decimal(18, 0) NULL ,
@@ -57,26 +65,111 @@ namespace Xtensive.Sql.Tests.MySQL.v5
                     timestamp_l8 timestamp NULL ,
                     tinyint_1_p3_s0_l1 tinyint NULL ,
                     varbinary_l150 varbinary (150) NULL ,
-                    enum_231 ENUM('small', 'medium', 'large'),
-                    set_162 SET('a', 'b', 'c', 'd'),
                     varchar_l50 varchar (50) COLLATE utf8_unicode_ci NULL
                )";
 
-            ExecuteNonQuery(dropTableQuery);
-            ExecuteNonQuery(createTableQuery);
+        #endregion
 
-            var model = ExtractCatalog();
-
-            Table table = model.DefaultSchema.Tables["dataTypesTestTable"];
-            Assert.IsTrue(table.TableColumns["int_l4"].DataType.Type == SqlType.Int32);
+        private void DropBadTables()
+        {
+            this.ExecuteNonQuery(DropBadSetTableQuery);
+            this.ExecuteNonQuery(DropBadEnumTableQuery);
+            this.ExecuteNonQuery(DropBadBitTableQuery);
         }
 
         [Test]
-        public void TestExtractCatalog()
+        public void DefaultSchemaIsAvailable()
         {
-            var catalog = ExtractCatalog();
-            Assert.GreaterOrEqual(catalog.Schemas.Count, 1);
+            this.DropBadTables();
+
+            var schema = this.ExtractDefaultSchema();
+            Assert.IsNotNull(schema);
         }
+
+        //[Test]
+        //public void TestCatalogExtraction()
+        //{
+        //    var catalog = ExtractCatalog();
+        //    Assert.GreaterOrEqual(catalog.Schemas.Count, 1);
+        //}
+
+
+        [Test]
+        public void ExtractObjectsFromDefaultSchema()
+        {
+            this.DropBadTables();
+
+            var schema = this.ExtractDefaultSchema();
+            var catalog = this.ExtractSchema(schema.Name);
+            Assert.IsNotNull(catalog);
+        }
+
+        [Test]
+        public void TestForSupportedDataTypes()
+        {
+            this.DropBadTables();
+
+            ExecuteNonQuery(DropGoodTableQuery);
+            ExecuteNonQuery(CreateGoodTableQuery);
+
+            var schema = ExtractDefaultSchema();
+            var catalog = schema.Catalog;
+
+            Table table = catalog.DefaultSchema.Tables["dataTypesGoodTable"];
+            Assert.IsTrue(table.TableColumns["int_l4"].DataType.Type == SqlType.Int32);
+        }
+
+
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void TestForUnsupportedSETDatatypes()
+        {
+            this.DropBadTables();
+
+            ExecuteNonQuery(DropBadSetTableQuery);
+            ExecuteNonQuery(CreateBadSetTableQuery);
+
+            var schema = ExtractDefaultSchema();
+            var catalog = schema.Catalog;
+
+            Table table = catalog.DefaultSchema.Tables["dataTypesBadSetTable"];
+            Assert.IsNotNull(table);
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void TestForUnsupportedENUMDatatypes()
+        {
+            this.DropBadTables();
+
+            ExecuteNonQuery(DropBadEnumTableQuery);
+            ExecuteNonQuery(CreateBadEnumTableQuery);
+
+            var schema = ExtractDefaultSchema();
+            var catalog = schema.Catalog;
+
+            Table table = catalog.DefaultSchema.Tables["dataTypesBadEnumTable"];
+            Assert.IsNotNull(table);
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void TestForUnsupportedBITDatatypes()
+        {
+            this.DropBadTables();
+
+            ExecuteNonQuery(DropBadBitTableQuery);
+            ExecuteNonQuery(CreateBadBitTableQuery);
+
+            var schema = ExtractDefaultSchema();
+            var catalog = schema.Catalog;
+
+            Table table = catalog.DefaultSchema.Tables["dataTypesBadBitTable"];
+            Assert.IsNotNull(table);
+        }
+
 
 
     }
