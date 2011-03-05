@@ -8,12 +8,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Diagnostics;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Caching
+namespace Xtensive.Caching
 {
   /// <summary>
   /// A set of items limited by the maximal count of them.

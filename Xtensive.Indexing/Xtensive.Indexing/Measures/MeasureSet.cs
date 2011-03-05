@@ -5,8 +5,8 @@
 // Created:    2008.02.14
 
 using System;
+using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Configuration;
 
 namespace Xtensive.Indexing.Measures
 {
@@ -44,9 +44,9 @@ namespace Xtensive.Indexing.Measures
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       Clear();
       var set = (MeasureSet<TItem>)source;
       foreach (IMeasure<TItem> measure in set)

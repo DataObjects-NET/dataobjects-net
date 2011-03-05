@@ -8,15 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.ObjectMapping;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tests.ObjectMapping.SourceModel;
-using Xtensive.Core.Tests.ObjectMapping.TargetModel;
+using Xtensive.ObjectMapping;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Testing;
+using Xtensive.Tests.ObjectMapping.SourceModel;
+using Xtensive.Tests.ObjectMapping.TargetModel;
 
-namespace Xtensive.Core.Tests.ObjectMapping
+namespace Xtensive.Tests.ObjectMapping
 {
   [TestFixture]
   public sealed class MapperGeneralTests : MapperTestBase
@@ -206,6 +206,27 @@ namespace Xtensive.Core.Tests.ObjectMapping
         source.Add(author);
       }
       var transformedList = (List<object>) mapper.Transform(source);
+      var target = transformedList.Cast<AuthorDto>().ToList();
+      Assert.AreEqual(source.Count, target.Count);
+      EnumerableExtensions.ForEach(target, ta => Assert.IsTrue(source.Any(sa => sa.Id == ta.Id && sa.Name + "!!!" == ta.Name
+        && sa.Book.ISBN == ta.Book.ISBN && sa.Book.Price == ta.Book.Price
+        && sa.Book.Title.Id == ta.Book.Title.Id && sa.Book.Title.Text == ta.Book.Title.Text
+        && sa.Book.Title.Text == ta.Book.TitleText)));
+    }
+
+    [Test]
+    public void TransformationWhenGraphRootIsEnumerableButNotCollectionTest()
+    {
+      var mapper = GetAuthorBookMapper();
+      var source = new HashSet<Author>();
+      for (int i = 0; i < 5; i++) {
+        var author = GetSourceAuthor();
+        author.Name += i;
+        author.Book.Price += i * 100;
+        author.Book.Title.Text += i;
+        source.Add(author);
+      }
+      var transformedList = (List<object>) mapper.Transform(source.AsQueryable());
       var target = transformedList.Cast<AuthorDto>().ToList();
       Assert.AreEqual(source.Count, target.Count);
       EnumerableExtensions.ForEach(target, ta => Assert.IsTrue(source.Any(sa => sa.Id == ta.Id && sa.Name + "!!!" == ta.Name
@@ -478,18 +499,38 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var settings = new MapperSettings {EnableDynamicSourceHierarchies = true};
       var mapping = new MappingBuilder()
-        .MapType<CreatureBase, CreatureDto, Guid>(c => c.Id, c => c.Id).Build();
+        .MapType<CreatureBase, CreatureDto, Guid>(c => c.Id, c => c.Id)
+        .Build();
 
       var source = new List<Creature> {
-        new Creature {Id = Guid.NewGuid(), Name = "Name0"}, new LongBee {Id = Guid.NewGuid(), Name = "Name1"},
+        new Creature {Id = Guid.NewGuid(), Name = "Name0"}, 
+        new LongBee {Id = Guid.NewGuid(), Name = "Name1"},
         new Mammal {Id = Guid.NewGuid(), Name = "Name2"}
       };
-      var target = ((List<object>) new DefaultMapper(mapping, settings).Transform(source))
-        .Cast<CreatureDto>().ToList();
+      var mapper = new DefaultMapper(mapping, settings);
+      var target = ((List<object>) mapper.Transform(source))
+        .Cast<CreatureDto>()
+        .ToList();
       for (var i = 0; i < source.Count; i++) {
         Assert.AreEqual(source[i].Id, target[i].Id);
         Assert.AreEqual(source[i].Name, target[i].Name);
       }
+    }
+
+    [Test]
+    public void DynamicExpansionOfSourceHierarchy2Test()
+    {
+      var settings = new MapperSettings { EnableDynamicSourceHierarchies = true };
+      var mapping = new MappingBuilder()
+        .MapType<CreatureBase, CreatureDto, Guid>(c => c.Id, c => c.Id)
+        .Build();
+
+      var source = new Mammal {Id = Guid.NewGuid(), Name = "Name2"};
+      
+      var mapper = new DefaultMapper(mapping, settings);
+      var target = (CreatureDto) mapper.Transform(source);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(source.Name, target.Name);
     }
 
     [Test]

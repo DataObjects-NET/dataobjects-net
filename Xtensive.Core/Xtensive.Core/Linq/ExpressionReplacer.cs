@@ -6,7 +6,7 @@
 
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Replaces references to one specific instance of an expression node with another node

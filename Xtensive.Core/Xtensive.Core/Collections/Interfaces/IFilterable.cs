@@ -6,7 +6,7 @@
 
 using Xtensive.Core;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Defines contract for a filterable collection of <typeparamref name="TItem"/>s.

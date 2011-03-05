@@ -6,7 +6,7 @@
 
 using System.Reflection;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Log for this namespace.

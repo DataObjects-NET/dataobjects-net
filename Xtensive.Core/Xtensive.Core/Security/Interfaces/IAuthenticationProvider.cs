@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
-namespace Xtensive.Core.Security
+namespace Xtensive.Security
 {
   /// <summary>
   /// Underlying authentication provider.

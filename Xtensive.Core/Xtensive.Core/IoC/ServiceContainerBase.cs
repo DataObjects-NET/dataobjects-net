@@ -7,11 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Abstract base class for <see cref="IServiceContainer"/>

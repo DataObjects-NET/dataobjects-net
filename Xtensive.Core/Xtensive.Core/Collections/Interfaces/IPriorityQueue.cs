@@ -6,9 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Threading;
+using Xtensive.Core;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Priority queue interface.

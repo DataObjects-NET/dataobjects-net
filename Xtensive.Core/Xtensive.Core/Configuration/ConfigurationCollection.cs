@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 
-namespace Xtensive.Core.Configuration
+namespace Xtensive.Configuration
 {
   /// <summary>
   /// A typed version of <see cref="ConfigurationElementCollection"/>.

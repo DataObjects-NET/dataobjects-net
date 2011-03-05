@@ -10,13 +10,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Tests.ObjectMapping.SourceModel;
-using Xtensive.Core.Tests.ObjectMapping.TargetModel;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Linq;
+using Xtensive.Diagnostics;
+using Xtensive.Tests.ObjectMapping.SourceModel;
+using Xtensive.Tests.ObjectMapping.TargetModel;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
   [TestFixture]
   public class CachingExpressionCompilerTest
@@ -163,7 +164,7 @@ namespace Xtensive.Core.Tests.Linq
 
     private static void ClearCompilerCache()
     {
-      var type = typeof(Pair<>).Assembly.GetType("Xtensive.Core.Linq.CachingExpressionCompiler");
+      var type = typeof(Pair<>).Assembly.GetType("Xtensive.Linq.CachingExpressionCompiler");
       var instance = type.InvokeMember("Instance",
         BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty,
         null, null, ArrayUtils<object>.EmptyArray);

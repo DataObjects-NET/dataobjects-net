@@ -5,7 +5,7 @@
 // Created:    2009.08.21
 
 
-namespace Xtensive.Core.Parameters
+namespace Xtensive.Parameters
 {
   /// <summary>
   /// Various extension methods related to this namespace.

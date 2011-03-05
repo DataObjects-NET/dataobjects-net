@@ -9,11 +9,12 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Testing;
-using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
+using Xtensive.Core;
+using Xtensive.IoC;
+using Xtensive.Testing;
+using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
 
-namespace Xtensive.Core.Tests.IoC
+namespace Xtensive.Tests.IoC
 {
   public interface IPrintService
   {
@@ -96,7 +97,7 @@ namespace Xtensive.Core.Tests.IoC
     [Test]
     public void CustomContainerTest()
     {
-      var config = (ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Core.IoC");
+      var config = (Xtensive.IoC.Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.IoC");
       var container = ServiceContainer.Create("second");
 
       var ps = container.Get<IPrintService>();

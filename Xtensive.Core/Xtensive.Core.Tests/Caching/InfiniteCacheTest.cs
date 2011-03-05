@@ -8,10 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Testing;
+using Xtensive.Caching;
+using Xtensive.Core;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Caching
+namespace Xtensive.Tests.Caching
 {
   internal class TestItem :
     IIdentified<string>,

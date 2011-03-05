@@ -7,10 +7,11 @@
 using System;
 using System.Diagnostics;
 using System.Security;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Provides access to the thread-bound stack of contextual information 
@@ -96,11 +97,11 @@ namespace Xtensive.Core.IoC
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="context">The context of this scope.</param>
-    protected internal Scope(TContext context)
+    /// <param name="service">The context of this scope.</param>
+    protected internal Scope(TContext service)
       : this()
     {
-      Activate(context);
+      Activate(service);
     }
 
     /// <summary>

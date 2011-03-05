@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// <see cref="Attribute"/> related helper \ extension methods.

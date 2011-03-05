@@ -6,10 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Disposing;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   internal sealed class DefaultExistanceInfoProvider : IExistanceInfoProvider
   {

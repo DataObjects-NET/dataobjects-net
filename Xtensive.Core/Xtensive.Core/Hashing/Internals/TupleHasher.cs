@@ -5,25 +5,26 @@
 // Created:    2008.01.29
 
 using System;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.IoC;
+using Xtensive.Reflection;
+using Xtensive.Threading;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
-  internal class TupleHasher : WrappingHasher<Tuple, object>,
+  internal class TupleHasher : WrappingHasher<Tuples.Tuple, object>,
     IFinalAssociate
   {
     #region Nested types: SingleHashData, ArrayHashData
 
     internal struct SingleHashData
     {
-      public Tuple X;
+      public Tuples.Tuple X;
       public long Result;
 
-      public SingleHashData(Tuple x)
+      public SingleHashData(Tuples.Tuple x)
       {
         X = x;
         Result = 0;
@@ -32,11 +33,11 @@ namespace Xtensive.Core.Hashing
 
     internal struct ArrayHashData
     {
-      public Tuple X;
+      public Tuples.Tuple X;
       public int HashCount;
       public long[] Result;
 
-      public ArrayHashData(Tuple x, int hashCount)
+      public ArrayHashData(Tuples.Tuple x, int hashCount)
       {
         X = x;
         HashCount = hashCount;
@@ -74,7 +75,7 @@ namespace Xtensive.Core.Hashing
 
 
     /// <inheritdoc/>
-    public override long GetHash(Tuple value)
+    public override long GetHash(Tuples.Tuple value)
     {
       if (value==null)
         return BaseHasher.GetHash(null);
@@ -85,7 +86,7 @@ namespace Xtensive.Core.Hashing
     }
 
     /// <inheritdoc/>
-    public override long[] GetHashes(Tuple value, int count)
+    public override long[] GetHashes(Tuples.Tuple value, int count)
     {
       if (value==null)
         return BaseHasher.GetHashes(null, count);

@@ -7,12 +7,12 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Serialization.Binary;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class ReadOnlySetTest

@@ -10,11 +10,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Resources;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Builder of mapping for <see cref="MapperBase{TComparisonResult}"/>.
@@ -308,7 +308,7 @@ namespace Xtensive.Core.ObjectMapping
         return foundItem;
       if (property.SystemProperty.PropertyType.IsArray)
         return GenerateArrayCacheItem(property.SystemProperty);
-      if (MappingHelper.IsCollectionCandidate(property.SystemProperty.PropertyType))
+      if (MappingHelper.IsEnumerable(property.SystemProperty.PropertyType))
         return GenerateCollectionCacheItem(property.SystemProperty);
       return null;
     }

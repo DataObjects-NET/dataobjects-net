@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Tuples.Transform
+namespace Xtensive.Tuples.Transform
 {
   /// <summary>
   /// Base class for any transformed tuples.

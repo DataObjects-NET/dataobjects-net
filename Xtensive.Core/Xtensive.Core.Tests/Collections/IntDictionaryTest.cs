@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public sealed class IntDictionaryTest

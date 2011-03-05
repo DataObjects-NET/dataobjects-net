@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Core.Caching;
+using Xtensive.Caching;
 using System.Linq;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Caching
+namespace Xtensive.Tests.Caching
 {
   [TestFixture]
   public class WeakestCacheTest

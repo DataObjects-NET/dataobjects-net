@@ -5,9 +5,10 @@
 // Created:    2007.11.28
 
 using System;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class BooleanComparer : ValueTypeComparer<bool>

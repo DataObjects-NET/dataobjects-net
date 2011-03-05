@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Delegate-based implementation.

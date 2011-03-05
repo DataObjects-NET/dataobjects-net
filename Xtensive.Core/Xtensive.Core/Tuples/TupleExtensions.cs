@@ -6,17 +6,17 @@
 
 using System;
 using System.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Tuples;
+using Xtensive.Reflection;
+using Xtensive.Resources;
+using Xtensive.Threading;
+using Xtensive.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
 
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Various extension methods for <see cref="Tuple"/> and <see cref="Tuple"/> types.

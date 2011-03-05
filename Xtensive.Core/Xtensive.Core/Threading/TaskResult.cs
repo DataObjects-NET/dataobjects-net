@@ -7,7 +7,7 @@
 using System;
 using System.Threading;
 
-namespace Xtensive.Core.Threading
+namespace Xtensive.Threading
 {
   /// <summary>
   /// Result of a task executed by <see cref="AsyncProcessor"/>.

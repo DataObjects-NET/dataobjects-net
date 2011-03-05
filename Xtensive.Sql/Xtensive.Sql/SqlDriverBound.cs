@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.12.25
 
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sql
 {

@@ -5,8 +5,9 @@
 // Created:    2007.06.13
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Describes a collection containing expiring items.

@@ -7,11 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Comparison;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Manages <see cref="IReference"/> objects during 

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   [Serializable]
   internal class NullableNullableAdvancedConverter<TFrom, TTo> : WrappingAdvancedConverter<TFrom?, TFrom, TTo?, TTo>

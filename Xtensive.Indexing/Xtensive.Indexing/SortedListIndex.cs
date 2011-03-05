@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
 using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Resources;
 

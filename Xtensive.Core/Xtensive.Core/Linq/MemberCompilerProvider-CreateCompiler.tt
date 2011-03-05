@@ -1,9 +1,9 @@
-<#@ output extension="cs"
+﻿<#@ output extension="cs"
 #><#@ template language="C#" hostspecific="True"
 #><#@ assembly name="System.Core"
 #><#@ import namespace="System"
 #><#@ import namespace="System.Linq"
-#><#@ include file="..\DelegateGenerator.ttinclude"
+#><#@ include file="..\Core\DelegateGenerator.ttinclude"
 #>// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
@@ -12,9 +12,10 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Reflection;
+using Xtensive.Core;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   partial class MemberCompilerProvider<T>
   {

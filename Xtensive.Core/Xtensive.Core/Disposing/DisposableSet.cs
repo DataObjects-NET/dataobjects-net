@@ -7,10 +7,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Helpers;
+using Xtensive.Core;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Disposing
+namespace Xtensive.Disposing
 {
   /// <summary>
   /// Ensures all the <see cref="IDisposable"/> objects added to it are disposed

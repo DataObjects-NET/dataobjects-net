@@ -6,12 +6,13 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Base class for any <see cref="IObjectSerializer{T}"/>.

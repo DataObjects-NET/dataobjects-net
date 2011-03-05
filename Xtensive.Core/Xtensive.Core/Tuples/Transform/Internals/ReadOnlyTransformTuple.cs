@@ -6,11 +6,12 @@
 
 using System;
 using System.Collections;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples.Transform.Internals
+namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
   /// A tuple wrapper for <see cref="ReadOnlyTransform"/>.

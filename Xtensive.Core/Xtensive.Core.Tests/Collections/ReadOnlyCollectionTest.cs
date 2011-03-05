@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class ReadOnlyCollectionTest

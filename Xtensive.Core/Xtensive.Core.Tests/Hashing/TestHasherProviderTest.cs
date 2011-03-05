@@ -6,9 +6,9 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Hashing;
+using Xtensive.Hashing;
 
-namespace Xtensive.Core.Tests.Hashing
+namespace Xtensive.Tests.Hashing
 {
   [TestFixture]
   public class TestHasherProviderTest

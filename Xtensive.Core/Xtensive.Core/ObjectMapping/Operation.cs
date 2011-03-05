@@ -8,10 +8,11 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   /// <summary>
   /// Provides information about an operation that modified state of mapped object.

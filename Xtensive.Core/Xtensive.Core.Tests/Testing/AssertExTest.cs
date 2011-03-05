@@ -5,9 +5,9 @@
 // Created:    2007.10.20
 
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Testing
+namespace Xtensive.Tests.Testing
 {
   [TestFixture]
   public class AssertExTest

@@ -6,8 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   /// <summary>
   /// Information about a comparison operation.

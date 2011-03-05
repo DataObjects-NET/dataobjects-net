@@ -8,11 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Provides delegates allowing to call hashing methods faster.

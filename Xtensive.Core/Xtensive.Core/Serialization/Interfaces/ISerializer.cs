@@ -6,7 +6,7 @@
 
 using System.IO;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Serializer contract.

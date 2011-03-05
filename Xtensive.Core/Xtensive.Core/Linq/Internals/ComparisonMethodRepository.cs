@@ -8,9 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core.Helpers;
+using Xtensive.Core;
+using Xtensive.Helpers;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   internal static class ComparisonMethodRepository
   {

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Xtensive.Core.Linq.SerializableExpressions.Internals
+namespace Xtensive.Linq.SerializableExpressions.Internals
 {
   internal sealed class SerializableExpressionToExpressionConverter
   {

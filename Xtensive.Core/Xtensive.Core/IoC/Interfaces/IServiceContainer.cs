@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// Inversion of control container contract.

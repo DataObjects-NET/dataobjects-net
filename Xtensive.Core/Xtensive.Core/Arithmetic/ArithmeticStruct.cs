@@ -8,21 +8,22 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
+using A=Xtensive.Arithmetic;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// A struct providing faster access for key 
-  /// <see cref="Xtensive.Core.Arithmetic.Arithmetic{T}"/> delegates.
+  /// <see cref="Xtensive.Arithmetic.Arithmetic{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IArithmetic{T}"/> generic argument.</typeparam>
   [Serializable]
   public struct ArithmeticStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="ArithmeticStruct{T}"/> for 
-    /// <see cref="Xtensive.Core.Arithmetic.Arithmetic{T}.Default"/> arithmetic.
+    /// Gets <see cref="A.ArithmeticStruct{T}"/> for 
+    /// <see cref="A.Arithmetic{T}.Default"/> arithmetic.
     /// </summary>
     public static readonly ArithmeticStruct<T> Default = new ArithmeticStruct<T>(Arithmetic<T>.Default);
 
@@ -82,15 +83,13 @@ namespace Xtensive.Core.Arithmetic
     public readonly Func<T, T, T> Subtract;
 
     /// <summary>
-    /// Creates a new instance of 
-    /// <see cref="Xtensive.Core.Arithmetic.Arithmetic{T}"/> 
+    /// Creates a new instance of <see cref="A.Arithmetic{T}"/> 
     /// with specified arithmetic rules applied.
     /// </summary>
     public Func<ArithmeticRules, Arithmetic<T>> ApplyRules;
 
     /// <summary>
-    /// Implicit conversion of 
-    /// <see cref="Xtensive.Core.Arithmetic.Arithmetic{T}"/> to 
+    /// Implicit conversion of <see cref="A.Arithmetic{T}"/> to 
     /// <see cref="ArithmeticStruct{T}"/>.
     /// </summary>
     /// <param name="arithmetic">Arithmetic to provide the struct for.</param>

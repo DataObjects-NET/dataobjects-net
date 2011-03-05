@@ -8,10 +8,10 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core.Internals.DocTemplates;
-using S=Xtensive.Core.SizeCalculators;
+using Xtensive.Internals.DocTemplates;
+using S=Xtensive.SizeCalculators;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// A struct providing faster access for key <see cref="S.SizeCalculator{T}"/> delegates.

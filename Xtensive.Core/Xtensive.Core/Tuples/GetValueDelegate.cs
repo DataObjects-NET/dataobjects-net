@@ -7,10 +7,10 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
-  /// Incapsulates <see cref="Tuple.GetValue{T}(int,out Xtensive.Core.Tuples.TupleFieldState)" /> method.
+  /// Incapsulates <see cref="Tuple.GetValue{T}(int,out TupleFieldState)" /> method.
   /// </summary>
   public delegate TResult GetValueDelegate<TResult>(Tuple tuple, out TupleFieldState fieldState);
 }

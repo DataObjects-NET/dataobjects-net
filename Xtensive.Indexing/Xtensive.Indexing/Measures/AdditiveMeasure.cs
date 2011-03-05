@@ -6,8 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core.Arithmetic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Arithmetic;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Measures
 {

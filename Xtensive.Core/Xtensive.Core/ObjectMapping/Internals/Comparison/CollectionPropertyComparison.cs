@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Resources;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.ObjectMapping.Comparison
+namespace Xtensive.ObjectMapping.Comparison
 {
   internal sealed class CollectionPropertyComparison : ProcessingCollectionState
   {

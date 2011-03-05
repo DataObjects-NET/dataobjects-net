@@ -5,11 +5,11 @@
 // Created:    2008.05.13
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   /// <summary>
   /// Base class for any wrapping <see cref="ISizeCalculator{T}"/>s.

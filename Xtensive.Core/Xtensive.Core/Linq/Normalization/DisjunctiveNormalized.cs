@@ -9,8 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Linq.Normalization
+namespace Xtensive.Linq.Normalization
 {
   /// <summary>
   /// A disjunctive normalized expression 

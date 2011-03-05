@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml

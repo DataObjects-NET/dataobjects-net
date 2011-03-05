@@ -8,13 +8,13 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// A struct providing faster access for key 
-  /// <see cref="Xtensive.Core.Hashing.Hasher{T}"/> delegates.
+  /// <see cref="Xtensive.Hashing.Hasher{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IHasher{T}"/> generic argument.</typeparam>
   [Serializable]
@@ -22,7 +22,7 @@ namespace Xtensive.Core.Hashing
   {
     /// <summary>
     /// Gets <see cref="HasherStruct{T}"/> for 
-    /// <see cref="Xtensive.Core.Hashing.Hasher{T}.Default"/> hasher.
+    /// <see cref="Xtensive.Hashing.Hasher{T}.Default"/> hasher.
     /// </summary>
     public static readonly HasherStruct<T> Default = new HasherStruct<T>(Hasher<T>.Default);
 
@@ -33,18 +33,18 @@ namespace Xtensive.Core.Hashing
     public readonly Hasher<T> Hasher;
 
     /// <summary>
-    /// Gets <see cref="IHasher{T}.GetHash"/> method delegate.
+    /// Gets <see cref="Xtensive.Hashing.IHasher{T}.GetHash"/> method delegate.
     /// </summary>
     public readonly Func<T, long> GetHash;
 
     /// <summary>
-    /// Gets <see cref="IHasher{T}.GetHashes"/> method delegate.
+    /// Gets <see cref="Xtensive.Hashing.IHasher{T}.GetHashes"/> method delegate.
     /// </summary>
     public readonly Func<T, int, long[]> GetHashes;
 
     /// <summary>
-    /// Implicit conversion of <see cref="Xtensive.Core.Hashing.Hasher{T}"/> 
-    /// to <see cref="HasherStruct{T}"/>.
+    /// Implicit conversion of <see cref="Xtensive.Hashing.Hasher{T}"/> 
+    /// to <see cref="Xtensive.Hashing.HasherStruct{T}"/>.
     /// </summary>
     /// <param name="hasher">Hasher to provide the struct for.</param>
     public static implicit operator HasherStruct<T>(Hasher<T> hasher)

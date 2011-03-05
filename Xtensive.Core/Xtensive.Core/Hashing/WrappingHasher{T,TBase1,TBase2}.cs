@@ -5,10 +5,10 @@
 // Created:    2008.01.23
 
 using System;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
+using Xtensive.IoC;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Base class for any wrapping <see cref="IHasher{T}"/>s.

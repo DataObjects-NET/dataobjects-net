@@ -5,12 +5,13 @@
 // Created:    2008.08.27
 
 using NUnit.Framework;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.Serialization.Binary;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Serialization
+namespace Xtensive.Tests.Serialization
 {
   [TestFixture]
   public class TupleSerializationTest
@@ -67,9 +68,9 @@ namespace Xtensive.Core.Tests.Serialization
       Assert.AreEqual(2, dt2Clone.GetValue(0));
     }
 
-    private static Tuple CloneBySerialization(Tuple source)
+    private static Xtensive.Tuples.Tuple CloneBySerialization(Xtensive.Tuples.Tuple source)
     {
-      return (Tuple) LegacyBinarySerializer.Instance.Clone(source);
+      return (Xtensive.Tuples.Tuple) LegacyBinarySerializer.Instance.Clone(source);
     }
   }
 }

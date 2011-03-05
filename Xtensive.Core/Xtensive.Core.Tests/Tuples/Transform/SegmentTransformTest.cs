@@ -6,14 +6,15 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Comparison;
+using Xtensive.Core;
+using Xtensive.Tuples;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
+using Xtensive.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples.Transform
+namespace Xtensive.Tests.Tuples.Transform
 {
   [TestFixture]
   public class SegmentTransformTest
@@ -23,18 +24,18 @@ namespace Xtensive.Core.Tests.Tuples.Transform
     [Test]
     public void BaseTest()
     {
-      Tuple t  = Tuple.Create(1, "2", 3, 4.0);
+      Xtensive.Tuples.Tuple t  = Xtensive.Tuples.Tuple.Create(1, "2", 3, 4.0);
       Log.Info("Original: {0}", t);
 
       SegmentTransform st   = new SegmentTransform(false, t.Descriptor, new Segment<int>(1,2));
       SegmentTransform stro = new SegmentTransform(true,  t.Descriptor, new Segment<int>(1,2));
 
-      Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, t);
+      Xtensive.Tuples.Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, t);
       Log.Info("Wrapper:  {0}", wt1);
-      Tuple ct1 = st.Apply(TupleTransformType.Tuple, t);
+      Xtensive.Tuples.Tuple ct1 = st.Apply(TupleTransformType.Tuple, t);
       Log.Info("Copy:     {0}", ct1);
-      Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, t);
-      Tuple ct2 = st.Apply(TupleTransformType.Tuple, t);
+      Xtensive.Tuples.Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, t);
+      Xtensive.Tuples.Tuple ct2 = st.Apply(TupleTransformType.Tuple, t);
 
       Assert.AreEqual(wt1, wt2);
       Assert.AreEqual(wt2, ct1);
@@ -52,7 +53,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       Assert.AreEqual(wt2, ct1);
       Assert.AreNotEqual(ct1, ct2);
 
-      Tuple wtro = stro.Apply(TupleTransformType.TransformedTuple, t);
+      Xtensive.Tuples.Tuple wtro = stro.Apply(TupleTransformType.TransformedTuple, t);
       AssertEx.Throws<NotSupportedException>(delegate {
         wtro.SetValue(1, 1);
       });
@@ -63,13 +64,13 @@ namespace Xtensive.Core.Tests.Tuples.Transform
     [Category("Performance")]
     public void PerformanceTest()
     {
-      AdvancedComparerStruct<Tuple> comparer = AdvancedComparerStruct<Tuple>.Default;
-      Tuple t   = Tuple.Create(1, 2, 3, 4);
+      AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
+      Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1, 2, 3, 4);
       SegmentTransform st = new SegmentTransform(false, t.Descriptor, new Segment<int>(1,2));
-      Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, t);
-      Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, t);
-      Tuple ct1 = st.Apply(TupleTransformType.Tuple, t);
-      Tuple ct2 = st.Apply(TupleTransformType.Tuple, t);
+      Xtensive.Tuples.Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, t);
+      Xtensive.Tuples.Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, t);
+      Xtensive.Tuples.Tuple ct1 = st.Apply(TupleTransformType.Tuple, t);
+      Xtensive.Tuples.Tuple ct2 = st.Apply(TupleTransformType.Tuple, t);
       int count = IterationCount;
 
       comparer.Compare(ct1, ct2);

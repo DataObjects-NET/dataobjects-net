@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
 
-namespace Xtensive.Core.Serialization.Binary
+namespace Xtensive.Serialization.Binary
 {
   /// <summary>
   /// A context specific to binary serialization.

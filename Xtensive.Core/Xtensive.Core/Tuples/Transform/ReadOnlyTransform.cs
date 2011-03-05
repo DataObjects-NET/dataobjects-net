@@ -7,10 +7,11 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples.Transform.Internals;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Tuples.Transform.Internals;
 
-namespace Xtensive.Core.Tuples.Transform
+namespace Xtensive.Tuples.Transform
 {
   /// <summary>
   /// Describes read-only tuple transformation.

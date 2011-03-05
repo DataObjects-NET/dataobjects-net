@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   internal class GuidSizeCalculator : SizeCalculatorBase<Guid>
   {

@@ -7,11 +7,11 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
+using Xtensive.Reflection;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.DotNetFramework
+namespace Xtensive.Tests.DotNetFramework
 {
   [TestFixture]
   public class ThreadingTest

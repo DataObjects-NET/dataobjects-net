@@ -7,10 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Notifications;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Notifications;
 using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Optimization;
 using Xtensive.Indexing.Resources;

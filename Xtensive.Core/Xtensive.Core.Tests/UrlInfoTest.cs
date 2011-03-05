@@ -5,8 +5,9 @@
 // Created:    2007.07.18
 
 using NUnit.Framework;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Tests
+namespace Xtensive.Tests
 {
   [TestFixture]
   public class UrlInfoTest

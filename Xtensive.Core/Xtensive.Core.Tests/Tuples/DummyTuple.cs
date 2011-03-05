@@ -6,12 +6,13 @@
 
 using System;
 using System.Collections;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
-  public class DummyTuple: Tuple
+  public class DummyTuple: Xtensive.Tuples.Tuple
   {
     private TupleDescriptor descriptor;
     private BitArray available;
@@ -28,12 +29,12 @@ namespace Xtensive.Core.Tests.Tuples
       set { SetValue(fieldIndex, value); }
     }
 
-    public override Tuple CreateNew()
+    public override Xtensive.Tuples.Tuple CreateNew()
     {
       return new DummyTuple(descriptor);
     }
 
-    public override Tuple Clone()
+    public override Xtensive.Tuples.Tuple Clone()
     {
       DummyTuple tuple = (DummyTuple)CreateNew();
       tuple.values = (object[])values.Clone();

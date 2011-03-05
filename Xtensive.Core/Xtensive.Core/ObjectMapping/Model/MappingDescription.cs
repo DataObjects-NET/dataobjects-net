@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Resources;
+using Xtensive.Helpers;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.ObjectMapping.Model
+namespace Xtensive.ObjectMapping.Model
 {
   /// <summary>
   /// Description of a mapping.
@@ -206,12 +206,12 @@ namespace Xtensive.Core.ObjectMapping.Model
       ((TargetPropertyDescription) propertyDescription).IsChangeTrackingDisabled = !isEnabled;
     }
 
-    internal bool TryGetTargetType(Type type, out TargetTypeDescription result)
+    internal virtual bool TryGetTargetType(Type targetType, out TargetTypeDescription result)
     {
-      return targetTypes.TryGetValue(type, out result);
+      return targetTypes.TryGetValue(targetType, out result);
     }
 
-    internal bool TryGetSourceType(Type type, out SourceTypeDescription result)
+    internal virtual bool TryGetSourceType(Type type, out SourceTypeDescription result)
     {
       return sourceTypes.TryGetValue(type, out result);
     }

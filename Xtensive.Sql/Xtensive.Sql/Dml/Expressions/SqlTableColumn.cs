@@ -27,7 +27,12 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      var clone = new SqlTableColumn((SqlTable) SqlTable.Clone(context), Name);
+      var table = SqlTable;
+      SqlNode clonedTable;
+      if (context.NodeMapping.TryGetValue(SqlTable, out clonedTable))
+        table = (SqlTable) clonedTable;
+      
+      var clone = new SqlTableColumn(table, Name);
       context.NodeMapping[this] = clone;
       return clone;
     }

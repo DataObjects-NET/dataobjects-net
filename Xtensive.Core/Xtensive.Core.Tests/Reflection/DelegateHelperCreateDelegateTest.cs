@@ -7,16 +7,16 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Comparison;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Diagnostics;
+using Xtensive.Reflection;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Reflection
+namespace Xtensive.Tests.Reflection
 {
   internal struct ExecutionData
   {

@@ -8,11 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Helpers;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   /// <summary>
   /// Provides delegates allowing to call <see cref="IArithmetic{T}"/> methods faster.

@@ -6,13 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.ObjectMapping.Comparison;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Threading;
+using Xtensive.ObjectMapping.Comparison;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   internal sealed class GraphComparer
   {

@@ -7,10 +7,10 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   public sealed class ExpressionComparer
   {

@@ -7,10 +7,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.ObjectMapping.Model;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.ObjectMapping
+namespace Xtensive.ObjectMapping
 {
   internal sealed class ObjectExtractor
   {

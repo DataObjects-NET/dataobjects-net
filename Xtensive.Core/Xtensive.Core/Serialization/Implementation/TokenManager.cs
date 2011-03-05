@@ -5,9 +5,9 @@
 // Created:    2008.08.28
 
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Serialization.Implementation
 {
   /// <summary>
   /// Manages <see cref="Token"/>s in the <see cref="SerializationContext"/>.

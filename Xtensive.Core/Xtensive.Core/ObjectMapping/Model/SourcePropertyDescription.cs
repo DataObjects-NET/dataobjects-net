@@ -6,9 +6,9 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.ObjectMapping.Model
+namespace Xtensive.ObjectMapping.Model
 {
   /// <summary>
   /// Descriptor of a property of a source mapped type.

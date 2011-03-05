@@ -5,8 +5,9 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal sealed class PairComparer<T1, T2>: WrappingComparer<Pair<T1, T2>, T1, T2>

@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Notifications;
+using Xtensive.Notifications;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   [Serializable]
   internal class CollectionEventBroker<T>

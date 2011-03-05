@@ -5,10 +5,10 @@
 // Created:    2007.10.11
 
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.IoC;
+using Xtensive.IoC;
+using Xtensive.Diagnostics;
 
-namespace Xtensive.Core.Tests.Diagnostics
+namespace Xtensive.Tests.Diagnostics
 {
   [TestFixture]
   public class LogPerformanceTest

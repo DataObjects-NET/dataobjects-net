@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.03.08
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   internal interface IHasSizeCalculator
   {

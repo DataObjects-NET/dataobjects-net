@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Configuration;
-using Xtensive.Core.Helpers;
+using Xtensive.Helpers;
 
 namespace Xtensive.Indexing
 {
@@ -54,9 +54,9 @@ namespace Xtensive.Indexing
       return new NonUniqueIndexConfiguration<TKey, TUniqueKey, TItem>();
     }
 
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       NonUniqueIndexConfiguration<TKey, TUniqueKey, TItem> indexConfiguration = (NonUniqueIndexConfiguration<TKey,TUniqueKey,TItem>)source;
       entireConverter = indexConfiguration.entireConverter;
     }

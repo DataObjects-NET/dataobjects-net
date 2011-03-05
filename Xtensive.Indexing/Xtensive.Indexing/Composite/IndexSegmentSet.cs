@@ -4,9 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.04
 
-using Xtensive.Core.Configuration;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Configuration;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Indexing.Composite
 {
@@ -32,9 +32,9 @@ namespace Xtensive.Indexing.Composite
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       IndexSegmentSet<TKey, TItem> set = (IndexSegmentSet<TKey, TItem>) source;
       foreach (IndexSegment<TKey, TItem> segment in set)
         Add(segment);

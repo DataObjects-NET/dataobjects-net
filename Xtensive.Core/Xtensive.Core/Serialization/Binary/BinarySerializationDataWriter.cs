@@ -5,12 +5,10 @@
 // Created:    2008.08.27
 
 using System;
-using System.Diagnostics;
-using System.IO;
-using Xtensive.Core.Serialization.Implementation;
-using Xtensive.Core.IO;
+using Xtensive.Core;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization.Binary
+namespace Xtensive.Serialization.Binary
 {
   /// <summary>
   /// Binary <see cref="SerializationData"/> writer.

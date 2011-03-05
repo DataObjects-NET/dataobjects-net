@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   internal class EnumHasher<TEnum, TUnderlyingType> : WrappingHasher<TEnum, TUnderlyingType>
     where TEnum : struct

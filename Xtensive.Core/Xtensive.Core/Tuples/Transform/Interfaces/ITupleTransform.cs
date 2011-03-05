@@ -4,9 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.04.30
 
-using Xtensive.Core.Tuples.Transform;
+using Xtensive.Tuples.Transform;
 
-namespace Xtensive.Core.Tuples
+namespace Xtensive.Tuples
 {
   /// <summary>
   /// Tuple transformation definition.

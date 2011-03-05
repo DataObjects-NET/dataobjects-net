@@ -4,11 +4,11 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Testing;
+using Xtensive.Collections;
+using Xtensive.Testing;
 
 
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
 
   [TestFixture]

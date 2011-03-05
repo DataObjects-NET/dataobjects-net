@@ -8,11 +8,12 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Core.Arithmetic;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Arithmetic;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Base class for <see cref="IAdvancedComparer{T}"/> implementations.

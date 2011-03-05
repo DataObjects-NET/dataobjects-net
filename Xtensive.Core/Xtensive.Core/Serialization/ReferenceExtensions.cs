@@ -6,10 +6,10 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Resources;
+using Xtensive.Helpers;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// <see cref="IReference"/> related extension methods.

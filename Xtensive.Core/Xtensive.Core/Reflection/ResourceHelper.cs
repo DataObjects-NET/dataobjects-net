@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// Resources-related helper.

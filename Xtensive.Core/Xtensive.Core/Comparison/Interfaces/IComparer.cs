@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.03
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Coompares type <typeparamref name="TX"/> with <typeparamref name="TY"/>.

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
-using Xtensive.Core.Conversion;
+using Xtensive.Conversion;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   internal class DictionaryEnumerator<TKey, TValue> : 
     ConvertingEnumerator<KeyValuePair<TKey,TValue>, object>,

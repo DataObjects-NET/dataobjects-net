@@ -9,9 +9,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using System;
-namespace Xtensive.Core.Tests.Collections
+namespace Xtensive.Tests.Collections
 {
   [TestFixture]
   public class ReadOnlyListTest

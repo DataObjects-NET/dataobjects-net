@@ -5,8 +5,9 @@
 // Created:    2008.05.20
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// A helper static type to use in conjunction with <see cref="OrderBy{T}"/>.

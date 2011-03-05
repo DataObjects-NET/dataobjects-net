@@ -5,10 +5,10 @@
 // Created:    2007.06.14
 
 using System.Collections.Generic;
-using Xtensive.Core;
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   internal class PriorityQueueItemComparer<T, P> : IComparer<Pair<T, P>> where P:IComparable<P>
   {

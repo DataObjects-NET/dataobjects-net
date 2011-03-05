@@ -8,9 +8,9 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Linq;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples.Internals
+namespace Xtensive.Tuples.Internals
 {
   /// <summary>
   /// Used to describe tuples, which length is longer then

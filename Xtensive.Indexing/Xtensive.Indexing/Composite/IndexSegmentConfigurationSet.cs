@@ -5,9 +5,9 @@
 // Created:    2008.03.03
 
 using System;
-using Xtensive.Core.Configuration;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Configuration;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Indexing.Composite
 {
@@ -35,9 +35,9 @@ namespace Xtensive.Indexing.Composite
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       IndexSegmentConfigurationSet<TKey, TItem> set = (IndexSegmentConfigurationSet<TKey, TItem>)source;
       foreach (IndexSegmentConfiguration<TKey, TItem> configuration in set)
         Add((IndexSegmentConfiguration<TKey, TItem>)configuration.Clone());

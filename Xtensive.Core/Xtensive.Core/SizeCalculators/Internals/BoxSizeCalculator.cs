@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.05.13
 
-namespace Xtensive.Core.SizeCalculators
+namespace Xtensive.SizeCalculators
 {
   internal class BoxSizeCalculator<T>: WrappingSizeCalculator<T, T>,
     ISizeCalculatorBase

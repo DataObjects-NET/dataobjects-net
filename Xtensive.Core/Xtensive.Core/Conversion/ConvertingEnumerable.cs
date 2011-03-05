@@ -7,9 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// An <see cref="IEnumerable{T}"/> implementor performing

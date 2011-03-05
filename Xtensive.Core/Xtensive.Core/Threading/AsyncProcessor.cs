@@ -7,9 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Threading
+namespace Xtensive.Threading
 {
   /// <summary>
   /// Executes provided delegates at separate thread.

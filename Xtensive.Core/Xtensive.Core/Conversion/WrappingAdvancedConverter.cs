@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
   /// Base class for any wrapping <see cref="IAdvancedConverter{TFrom,TTo}"/>s.

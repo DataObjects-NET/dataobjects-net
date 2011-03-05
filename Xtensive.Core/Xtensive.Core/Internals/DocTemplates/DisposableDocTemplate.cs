@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 
-namespace Xtensive.Core.Internals.DocTemplates
+namespace Xtensive.Internals.DocTemplates
 {
   /// <summary>
   /// Disposable class documentation template.

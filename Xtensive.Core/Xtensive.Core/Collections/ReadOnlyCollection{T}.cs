@@ -9,11 +9,11 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.Resources;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Read-only collection (<see cref="ICollection{T}"/>) wrapper.

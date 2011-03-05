@@ -8,13 +8,14 @@ using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using Xtensive.Core.Diagnostics.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.IoC;
-using DiagnosticsSection=Xtensive.Core.Diagnostics.Configuration.ConfigurationSection;
+using Xtensive.Helpers;
+using Xtensive.Diagnostics.Configuration;
+using Xtensive.IoC;
+using ConfigurationSection = Xtensive.Diagnostics.Configuration.ConfigurationSection;
+using DiagnosticsSection=Xtensive.Diagnostics.Configuration.ConfigurationSection;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Default <see cref="ILogProvider"/> implementation.
@@ -36,8 +37,8 @@ namespace Xtensive.Core.Diagnostics
     protected override IRealLog GetRealLog(string key)
     {
       // Looking for configuration section
-      var settings = (DiagnosticsSection) ConfigurationManager.GetSection(
-        DiagnosticsSection.DefaultSectionName);
+      var settings = (ConfigurationSection) ConfigurationManager.GetSection(
+        ConfigurationSection.DefaultSectionName);
       if (settings==null || settings.Logs==null)
         return GetDefaultRealLog(key); // Nothing is found, fallback to default.
 

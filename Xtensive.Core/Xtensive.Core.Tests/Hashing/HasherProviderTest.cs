@@ -7,13 +7,14 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Hashing;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Core;
+using Xtensive.Tuples;
+using Xtensive.Diagnostics;
+using Xtensive.Hashing;
+using Xtensive.Testing;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Core.Tests.Hashing
+namespace Xtensive.Tests.Hashing
 {
   [TestFixture]
   public class HasherProviderTest
@@ -77,7 +78,7 @@ namespace Xtensive.Core.Tests.Hashing
       MethodsEquivalenceTest<string>();
       MethodsEquivalenceTest<Guid>();
       MethodsEquivalenceTest<DateTime>();
-      MethodsEquivalenceTest<Tuple>();
+      MethodsEquivalenceTest<Xtensive.Tuples.Tuple>();
       MethodsEquivalenceTest<Pair<string, double>>();
       MethodsEquivalenceTest<Triplet<float, int?, string>>();
       MethodsEquivalenceTest<KeyValuePair<int, string>>();
@@ -93,9 +94,9 @@ namespace Xtensive.Core.Tests.Hashing
     {
       SpecialCasesTest<Triplet<float, int?, string>>();
       SpecialCasesTest<KeyValuePair<int, string>>();
-      SpecialCasesTest<Tuple>();
-      SpecialCasesTest<Triplet<Tuple, Tuple, string>>();
-      SpecialCasesTest<KeyValuePair<int, Tuple>>();
+      SpecialCasesTest<Xtensive.Tuples.Tuple>();
+      SpecialCasesTest<Triplet<Xtensive.Tuples.Tuple, Xtensive.Tuples.Tuple, string>>();
+      SpecialCasesTest<KeyValuePair<int, Xtensive.Tuples.Tuple>>();
       SpecialCasesTest<int?>();
     }
 
@@ -121,7 +122,7 @@ namespace Xtensive.Core.Tests.Hashing
       MultiHashPerformanceTest<string>(repeats, count);
       MultiHashPerformanceTest<Guid>(repeats, count);
       MultiHashPerformanceTest<DateTime>(repeats, count);
-      MultiHashPerformanceTest<Tuple>(repeats, count);
+      MultiHashPerformanceTest<Xtensive.Tuples.Tuple>(repeats, count);
       MultiHashPerformanceTest<Pair<int, string>>(repeats, count);
       MultiHashPerformanceTest<Guid?>(repeats, count);
       MultiHashPerformanceTest<int?>(repeats, count);      
@@ -148,7 +149,7 @@ namespace Xtensive.Core.Tests.Hashing
       SingleHashPerformanceTest<string>(repeats);
       SingleHashPerformanceTest<Guid>(repeats);
       SingleHashPerformanceTest<DateTime>(repeats);
-      SingleHashPerformanceTest<Tuple>(repeats);
+      SingleHashPerformanceTest<Xtensive.Tuples.Tuple>(repeats);
     }
 
     [Test]

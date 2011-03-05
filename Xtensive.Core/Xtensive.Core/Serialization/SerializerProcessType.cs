@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.26
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   /// <summary>
   /// Enumerates possible serialization process types.

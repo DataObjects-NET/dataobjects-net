@@ -8,17 +8,17 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Resources;
+using Xtensive.Threading;
 
-//using Xtensive.Core.SizeCalculators;
+//using Xtensive.SizeCalculators;
 
-namespace Xtensive.Core.Hashing
+namespace Xtensive.Hashing
 {
   /// <summary>
   /// Default <see cref="IHasher{T}"/> provider. 

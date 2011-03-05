@@ -6,9 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
+using Xtensive.Core;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Helpers
+namespace Xtensive.Tests.Helpers
 {
   [TestFixture]
   public class StringExtensionsTest

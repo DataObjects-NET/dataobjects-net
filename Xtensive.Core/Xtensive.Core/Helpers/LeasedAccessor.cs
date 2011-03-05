@@ -6,10 +6,10 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Disposing;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Helpers
+namespace Xtensive.Helpers
 {
   /// <summary>
   /// Provides access to some <see cref="Leased"/> object of type <typeparamref name="T"/>

@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
+using Xtensive.Caching;
 using Xtensive.Core;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 using System.Linq;
 
-namespace Xtensive.Core.Tuples.Internals
+namespace Xtensive.Tuples.Internals
 {
   internal static class TupleDescriptorCache
   {

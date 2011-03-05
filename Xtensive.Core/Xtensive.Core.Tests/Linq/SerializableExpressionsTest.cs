@@ -10,14 +10,13 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Linq.SerializableExpressions;
+using Xtensive.Linq;
+using Xtensive.Diagnostics;
+using Xtensive.Linq.SerializableExpressions;
 
-namespace Xtensive.Core.Tests.Linq
+namespace Xtensive.Tests.Linq
 {
-
   [TestFixture]
   public class SerializableExpressionsTest : ExpressionTestBase
   {

@@ -783,10 +783,139 @@
   <data name="ExPropertiesXAndYHaveDifferentPrimitiveTypes" xml:space="preserve">
     <value>The properties {0} and {1} have different primitive types.</value>
   </data>
-	<data name="ExExpression0MustReferenceField">
-		<value><![CDATA[Expression '{0}' must reference field.]]></value>
-	</data>
-	<data name="ExExpression0MustReferenceProperty">
-		<value><![CDATA[Expression '{0}' must reference property.]]></value>
-	</data>
+  <data name="ExInvalidParentValue" xml:space="preserve">
+    <value>Invalid Parent value.</value>
+  </data>
+  <data name="ExItemWithNameXAlreadyExists" xml:space="preserve">
+    <value>Item with name '{0}' already exists.</value>
+  </data>
+  <data name="ExItemWithNameXIsNotFound" xml:space="preserve">
+    <value>Item with Name '{0}' is not found.</value>
+  </data>
+  <data name="ExModelObjectCannotBeRemoved" xml:space="preserve">
+    <value>Model object cannot be removed.</value>
+  </data>
+  <data name="ExTypeOfXPropertyMustBeY" xml:space="preserve">
+    <value>Type of {0} property must be {1}.</value>
+  </data>
+  <data name="ExInvalidNodeState" xml:space="preserve">
+    <value>Invalid node state.</value>
+  </data>
+  <data name="ExBindingFailedForX" xml:space="preserve">
+    <value>Binding has failed for {0}. Check property declaration.</value>
+  </data>
+  <data name="ExNoNesting" xml:space="preserve">
+    <value>Nesting must be created for any node.</value>
+  </data>
+  <data name="NodeInfoFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="ExTargetObjectExistsX" xml:space="preserve">
+    <value>Target object already exists: "{0}". To assign a new one, you must remove the old one first.</value>
+  </data>
+  <data name="ExCannotFindConstructorToExecuteX" xml:space="preserve">
+    <value>Can't find a constructor to execute {0}.</value>
+  </data>
+  <data name="ExPathXNotFound" xml:space="preserve">
+    <value>Node with path "{0}" is not found.</value>
+  </data>
+  <data name="ExItemAlreadyExists" xml:space="preserve">
+    <value>Item already exists.</value>
+  </data>
+  <data name="ExMultipleHintsFound" xml:space="preserve">
+    <value>Multiple hints found.</value>
+  </data>
+  <data name="DifferenceFormat" xml:space="preserve">
+    <value>"{1}" != "{2}" ({0}): {3}</value>
+  </data>
+  <data name="PropertyChangeFormat" xml:space="preserve">
+    <value>+{0}: {1}</value>
+  </data>
+  <data name="ItemChangeFormat" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="ItemChangeCountFormat" xml:space="preserve">
+    <value>{0} change(s)</value>
+  </data>
+  <data name="ExBothSourceAndTargetAreNull" xml:space="preserve">
+    <value>Both Source and Target are null.</value>
+  </data>
+  <data name="DifferencePropertyNamePrefix" xml:space="preserve">
+    <value>+{0}: </value>
+  </data>
+  <data name="ExPropertyValueMustBelongToTheSameModel" xml:space="preserve">
+    <value>Property value must belong to the same Model.</value>
+  </data>
+  <data name="ExLoopInActionDependencyChain" xml:space="preserve">
+    <value>Loop in action dependency chain is detected.</value>
+  </data>
+  <data name="ExNoCurrentComparer" xml:space="preserve">
+    <value>Comparer.Current is null.</value>
+  </data>
+  <data name="ExInvalidContextDeactivationSequence" xml:space="preserve">
+    <value>Invalid context deactivation sequence.</value>
+  </data>
+  <data name="ExInvalidContextActivationSequence" xml:space="preserve">
+    <value>Invalid context activation sequence.</value>
+  </data>
+  <data name="ExInvalidAfterPathPropertyValue" xml:space="preserve">
+    <value>Invalid AfterPath property value.</value>
+  </data>
+  <data name="ExInvalidNestingOfNodeX" xml:space="preserve">
+    <value>Invalid Nesting of node "{0}".</value>
+  </data>
+  <data name="ExNoCurrentUpgrader" xml:space="preserve">
+    <value>Upgarder.Current is null.</value>
+  </data>
+  <data name="LogAutomaticUpgradeSequenceValidation" xml:space="preserve">
+    <value>Automatic upgrade sequence validation</value>
+  </data>
+  <data name="LogValidationFailed" xml:space="preserve">
+    <value>Validation failed.</value>
+  </data>
+  <data name="Difference" xml:space="preserve">
+    <value>Difference</value>
+  </data>
+  <data name="LogItemFormat" xml:space="preserve">
+    <value>{0}:</value>
+  </data>
+  <data name="ExpectedTargetModel" xml:space="preserve">
+    <value>Expected target model</value>
+  </data>
+  <data name="ActualTargetModel" xml:space="preserve">
+    <value>Actual target model</value>
+  </data>
+  <data name="ExUpgradeSequenceValidationFailure" xml:space="preserve">
+    <value>Upgrade sequence validation failure.</value>
+  </data>
+  <data name="ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ" xml:space="preserve">
+    <value>Node "{0}" must be processed before being compared as reference (value of "{1}".{2}).</value>
+  </data>
+  <data name="UpgradeSequence" xml:space="preserve">
+    <value>Upgrade sequence</value>
+  </data>
+  <data name="ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack" xml:space="preserve">
+    <value>Difference related to {0} type is not found on the UpgradeContext stack.</value>
+  </data>
+  <data name="ExPropertyXYIsNotFound" xml:space="preserve">
+    <value>Property "{0}.{1}" is not found.</value>
+  </data>
+  <data name="ExInvalidTransactionState" xml:space="preserve">
+    <value>Invalid transaction state ('{0}'). Expected state(s) is (are) '{1}'.</value>
+  </data>
+  <data name="ExTransactionIsAlreadyActivated" xml:space="preserve">
+    <value>Transaction is already activated.</value>
+  </data>
+  <data name="ExTransactionScopeIsCompletedCanNotBeSetToFalse" xml:space="preserve">
+    <value>TransactionScope.IsCompleted can not be set to 'false'.</value>
+  </data>
+  <data name="ExScopeBoundTransactionCanBeCommittedOnlyByItsScope" xml:space="preserve">
+    <value>Scope-bound transaction can be committed only by its scope. Use TransactionScopeBase.Complete() \  Dispose() methods of  appropriate TransactionScopeBase descendant instance to do this.</value>
+  </data>
+  <data name="ExExpression0MustReferenceField">
+    <value><![CDATA[Expression '{0}' must reference field.]]></value>
+  </data>
+  <data name="ExExpression0MustReferenceProperty">
+    <value><![CDATA[Expression '{0}' must reference property.]]></value>
+  </data>
 </root>

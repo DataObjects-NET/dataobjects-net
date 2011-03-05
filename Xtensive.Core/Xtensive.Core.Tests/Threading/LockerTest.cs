@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Tests.Threading
+namespace Xtensive.Tests.Threading
 {
   [TestFixture]
   public class LockerTest

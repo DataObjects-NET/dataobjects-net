@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Testing;
+using Xtensive.Diagnostics;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Hashing
+namespace Xtensive.Tests.Hashing
 {
   [TestFixture]
   public class AlgorithmTests

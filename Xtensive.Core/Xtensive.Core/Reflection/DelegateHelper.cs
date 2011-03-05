@@ -10,12 +10,12 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
+using Xtensive.Resources;
+using Xtensive.Threading;
 
-namespace Xtensive.Core.Reflection
+namespace Xtensive.Reflection
 {
   /// <summary>
   /// Delegate helper \ extension methods. 
@@ -41,19 +41,19 @@ namespace Xtensive.Core.Reflection
     /// Aspected private field getter prefix.
     /// </summary>
     public static readonly string AspectedPrivateFieldGetterPrefix =
-      "~Xtensive.Core.Aspects.PrivateFieldAccessorAspect~Get_";
+      "~Xtensive.Aspects.PrivateFieldAccessorAspect~Get_";
 
     /// <summary>
     /// Aspected private field setter prefix.
     /// </summary>
     public static readonly string AspectedPrivateFieldSetterPrefix =
-      "~Xtensive.Core.Aspects.PrivateFieldAccessorAspect~Set_";
+      "~Xtensive.Aspects.PrivateFieldAccessorAspect~Set_";
 
     /// <summary>
     /// Aspected factory method name.
     /// </summary>
     public static readonly string AspectedFactoryMethodName = 
-      "~Xtensive.Core.Aspects.FactoryMethod";
+      "~Xtensive.Aspects.FactoryMethod";
 
     #endregion
 

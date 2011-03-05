@@ -7,10 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Notifications;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Notifications;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Collections
 {
   /// <summary>
   /// A set of items (with event-handling support).
@@ -211,7 +212,7 @@ namespace Xtensive.Core.Collections
     /// Called when item is about to be changed.
     /// </summary>
     /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="Xtensive.Core.Notifications.ChangeNotifierEventArgs"/> instance containing the event data.</param>
+    /// <param name="e">The <see cref="ChangeNotifierEventArgs"/> instance containing the event data.</param>
     protected virtual void OnItemChanging(object sender, ChangeNotifierEventArgs e)
     {
       if (EventBrokerExists)
@@ -222,7 +223,7 @@ namespace Xtensive.Core.Collections
     /// Called when item was changed.
     /// </summary>
     /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="Xtensive.Core.Notifications.ChangeNotifierEventArgs"/> instance containing the event data.</param>
+    /// <param name="e">The <see cref="ChangeNotifierEventArgs"/> instance containing the event data.</param>
     protected virtual void OnItemChanged(object sender, ChangeNotifierEventArgs e)
     {
       if (EventBrokerExists)

@@ -5,7 +5,7 @@
 // Created:    2007.12.14
 
 using System;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 
 namespace Xtensive.Indexing.Measures
 {

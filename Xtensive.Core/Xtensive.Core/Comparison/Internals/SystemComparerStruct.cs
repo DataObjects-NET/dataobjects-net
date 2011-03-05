@@ -7,8 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   internal struct SystemComparerStruct<T>
   {

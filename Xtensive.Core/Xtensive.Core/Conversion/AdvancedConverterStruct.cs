@@ -8,19 +8,20 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Core.Internals.DocTemplates;
-using C=Xtensive.Core.Conversion;
+using Xtensive.Internals.DocTemplates;
+using C=Xtensive.Conversion;
 
-namespace Xtensive.Core.Conversion
+namespace Xtensive.Conversion
 {
   /// <summary>
-  /// A struct providing faster access for key <see cref="C.AdvancedConverter{TFrom, TTo}"/> delegates.
+  /// A struct providing faster access for key <see cref="C.AdvancedConverter{TFrom,TTo}"/> delegates.
   /// </summary>
   [Serializable]
   public struct AdvancedConverterStruct<TFrom, TTo> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="AdvancedConverterStruct{TFrom, TTo}"/> for <see cref="C.AdvancedConverter{TFrom, TTo}.Default"/> hasher.
+    /// Gets <see cref="AdvancedConverterStruct{TFrom, TTo}"/> for 
+    /// <see cref="C.AdvancedConverter{TFrom,TTo}.Default"/> hasher.
     /// </summary>
     public static readonly AdvancedConverterStruct<TFrom, TTo> Default = new AdvancedConverterStruct<TFrom, TTo>(AdvancedConverter<TFrom, TTo>.Default);
 
@@ -41,7 +42,8 @@ namespace Xtensive.Core.Conversion
     public readonly bool IsRough;
 
     /// <summary>
-    /// Implicit conversion of <see cref="C.AdvancedConverter{TFrom, TTo}"/> to <see cref="AdvancedConverterStruct{TFrom, TTo}"/>.
+    /// Implicit conversion of <see cref="C.AdvancedConverter{TFrom,TTo}"/> to 
+    /// <see cref="AdvancedConverterStruct{TFrom, TTo}"/>.
     /// </summary>
     /// <param name="advancedConverter">Converter to provide the struct for.</param>
     public static implicit operator AdvancedConverterStruct<TFrom, TTo>(AdvancedConverter<TFrom, TTo> advancedConverter)

@@ -7,10 +7,10 @@
 using System.Diagnostics;
 using System.Text;
 using System;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Threading;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Diagnostics
+namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Log writing all events to <see cref="StringBuilder"/> <see cref="Output"/>.

@@ -6,8 +6,8 @@
 
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
 
 namespace Xtensive.Indexing.Tests
 {

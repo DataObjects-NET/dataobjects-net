@@ -8,15 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
-using Tuple = Xtensive.Core.Tuples.Tuple;
+using Xtensive.Collections;
+using Xtensive.Diagnostics;
+using Xtensive.Reflection;
+using Xtensive.Testing;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 using MethodInfo=System.Reflection.MethodInfo;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Tests.Tuples
 {
   public abstract class TupleBehaviorTestBase
   {
@@ -33,9 +33,9 @@ namespace Xtensive.Core.Tests.Tuples
 
     private const int MaxFieldCount = 100;
 
-    protected abstract Tuple CreateTestTuple(TupleDescriptor descriptor);
+    protected abstract Xtensive.Tuples.Tuple CreateTestTuple(TupleDescriptor descriptor);
 
-    protected virtual Tuple CreateTestTuple(Tuple source)
+    protected virtual Xtensive.Tuples.Tuple CreateTestTuple(Xtensive.Tuples.Tuple source)
     {
       return source;
     }
@@ -65,7 +65,7 @@ namespace Xtensive.Core.Tests.Tuples
       }
     }
 
-    protected static void PopulateData(IList<Type> types, Tuple tuple)
+    protected static void PopulateData(IList<Type> types, Xtensive.Tuples.Tuple tuple)
     {
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
       MethodInfo setValueMethodGeneric =
@@ -87,7 +87,7 @@ namespace Xtensive.Core.Tests.Tuples
       TestTuple(new DummyTuple(d));
     }
 
-    private static void TestTuple(Tuple tuple)
+    private static void TestTuple(Xtensive.Tuples.Tuple tuple)
     {
       Assert.IsFalse(tuple.GetFieldState(0).IsAvailable());
 
@@ -228,7 +228,7 @@ namespace Xtensive.Core.Tests.Tuples
       tuple.SetValue(fieldIndex, instance);
     }
 
-    private static void InternalSetValue<T>(Tuple tuple, int fieldIndex, Random random)
+    private static void InternalSetValue<T>(Xtensive.Tuples.Tuple tuple, int fieldIndex, Random random)
     {
       IInstanceGenerator<T> generator = InstanceGeneratorProvider.Default.GetInstanceGenerator<T>();
       T instance = generator.GetInstance(random);

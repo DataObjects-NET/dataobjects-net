@@ -6,9 +6,9 @@
 
 using System;
 using System.IO;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Serialization
 {
   [Serializable]
   internal class TokenValueSerializer<T> : WrappingValueSerializer<Token<T>, int, T>

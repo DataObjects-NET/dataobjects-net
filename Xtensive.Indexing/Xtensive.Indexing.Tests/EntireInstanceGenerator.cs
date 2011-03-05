@@ -7,7 +7,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Testing;
+using Xtensive.Testing;
 
 namespace Xtensive.Indexing.Testing
 {

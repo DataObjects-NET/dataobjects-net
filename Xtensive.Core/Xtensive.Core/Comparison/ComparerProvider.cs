@@ -9,13 +9,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.IoC;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Collections;
+using Xtensive.Reflection;
+using Xtensive.Collections;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.IoC;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   /// <summary>
   /// Default <see cref="IComparer{T}"/> provider. 

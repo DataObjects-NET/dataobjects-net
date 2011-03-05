@@ -6,13 +6,14 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Reflection;
+using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 
 
-namespace Xtensive.Core.Tuples.Transform
+namespace Xtensive.Tuples.Transform
 {
   /// <summary>
   /// Cuts out specified <see cref="Segment"/> from the <see cref="Tuple"/>.

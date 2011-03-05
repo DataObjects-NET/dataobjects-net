@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,9 +6,10 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Reflection;
+using Xtensive.Core;
+using Xtensive.Reflection;
 
-namespace Xtensive.Core.Linq
+namespace Xtensive.Linq
 {
   partial class MemberCompilerProvider<T>
   {

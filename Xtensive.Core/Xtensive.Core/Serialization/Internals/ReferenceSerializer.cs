@@ -5,9 +5,9 @@
 // Created:    2008.08.26
 
 using System;
-using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization.Internals
+namespace Xtensive.Serialization.Internals
 {
   internal sealed class ReferenceSerializer : ObjectSerializerBase<Reference>
   {

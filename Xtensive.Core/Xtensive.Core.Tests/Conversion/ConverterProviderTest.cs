@@ -5,9 +5,9 @@
 // Created:    2008.01.21
 
 using NUnit.Framework;
-using Xtensive.Core.Conversion;
+using Xtensive.Conversion;
 
-namespace Xtensive.Core.Tests.Conversion
+namespace Xtensive.Tests.Conversion
 {
   [TestFixture]
   public class ConverterProviderTest

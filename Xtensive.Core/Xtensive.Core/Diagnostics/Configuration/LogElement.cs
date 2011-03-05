@@ -6,9 +6,9 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Core.Configuration;
+using Xtensive.Configuration;
 
-namespace Xtensive.Core.Diagnostics.Configuration
+namespace Xtensive.Diagnostics.Configuration
 {
   /// <summary>
   /// Log configuration element.

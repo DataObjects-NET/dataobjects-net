@@ -13,11 +13,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Security;
-using Xtensive.Core.Testing;
-using Xtensive.Core.Serialization.Binary;
+using Xtensive.Security;
+using Xtensive.Serialization.Binary;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.Security
+namespace Xtensive.Tests.Security
 {
   [Serializable]
   public static class CryptoTranformGenerator

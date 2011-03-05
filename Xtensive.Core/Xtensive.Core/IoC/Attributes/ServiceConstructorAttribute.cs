@@ -5,9 +5,9 @@
 // Created:    2010.01.30
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.IoC
+namespace Xtensive.IoC
 {
   /// <summary>
   /// An attribute tagging default service constructor to use.

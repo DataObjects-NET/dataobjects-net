@@ -5,9 +5,9 @@
 // Created:    2008.02.06
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Arithmetic
+namespace Xtensive.Arithmetic
 {
   [Serializable]
   internal class NullableArithmetic<T>

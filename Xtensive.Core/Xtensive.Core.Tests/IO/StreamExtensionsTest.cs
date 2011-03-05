@@ -8,11 +8,11 @@ using System;
 using NUnit.Framework;
 using System.IO;
 using Xtensive.Core;
-using Xtensive.Core.IO;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
+using Xtensive.IO;
+using Xtensive.Reflection;
+using Xtensive.Testing;
 
-namespace Xtensive.Core.Tests.IO
+namespace Xtensive.Tests.IO
 {
   [TestFixture]
   public class StreamExtensionsTest

@@ -5,9 +5,9 @@
 // Created:    2007.10.22
 
 using System;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Collections;
+using Xtensive.Comparison;
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Indexing
 {

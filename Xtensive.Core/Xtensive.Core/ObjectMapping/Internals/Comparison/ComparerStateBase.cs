@@ -5,10 +5,11 @@
 // Created:    2010.01.22
 
 using System;
-using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Resources;
+using Xtensive.Core;
+using Xtensive.Resources;
+using Xtensive.ObjectMapping.Model;
 
-namespace Xtensive.Core.ObjectMapping.Comparison
+namespace Xtensive.ObjectMapping.Comparison
 {
   internal abstract class ComparerStateBase
   {

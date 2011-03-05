@@ -6,12 +6,12 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using Xtensive.Collections;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Resources;
+using Xtensive.Resources;
 
-namespace Xtensive.Core.Sorting
+namespace Xtensive.Sorting
 {
   /// <summary>
   /// Topological sorter for oriented graph of the items.

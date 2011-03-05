@@ -8,9 +8,10 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
+using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core.Security
+namespace Xtensive.Security
 {
   /// <summary>
   /// Implementation of encrypting signature provider.

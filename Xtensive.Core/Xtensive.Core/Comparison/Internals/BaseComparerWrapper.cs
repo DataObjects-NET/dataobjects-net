@@ -5,8 +5,9 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core;
 
-namespace Xtensive.Core.Comparison
+namespace Xtensive.Comparison
 {
   [Serializable]
   internal class BaseComparerWrapper<T, TBase>: WrappingComparer<T, TBase>
