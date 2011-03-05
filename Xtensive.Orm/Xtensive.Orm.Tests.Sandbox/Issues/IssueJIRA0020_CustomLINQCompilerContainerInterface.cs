@@ -41,11 +41,11 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
       [Field]
       public Region Region { get; set; }
 
-      public string RegionName { get { return exprComp(Region); } }
+      public string RegionName { get { return exprComp(this); } }
 
-      private static readonly Expression<Func<Region, string>> expr = r => r.Name;
+      private static readonly Expression<Func<Person, string>> expr = p => p.Region.Name;
 
-      private static readonly Func<Region, string> exprComp = expr.Compile();
+      private static readonly Func<Person, string> exprComp = expr.Compile();
 
       /// <summary>
       /// The custom linq compiler container.
@@ -53,18 +53,17 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
       [CompilerContainer(typeof(Expression))]
       public static class CustomLinqCompilerContainer
       {
-        /// <summary>
-        /// The current.
-        /// </summary>
-        /// <param name="assignmentExpression">
-        /// The assignment expression.
-        /// </param>
-        /// <returns>
-        /// </returns>
         [Compiler(typeof(Person), "RegionName", TargetKind.PropertyGet)]
-        public static Expression Current(Expression assignmentExpression)
+        public static Expression PersonRegionName(Expression assignmentExpression)
         {
           return expr.BindParameters(assignmentExpression);
+        }
+
+        [Compiler(typeof(ITest), "RegionName", TargetKind.PropertyGet)]
+        public static Expression ITestRegionName(Expression assignmentExpression)
+        {
+          Expression<Func<ITest, string>> le = it => it is Person ? (it as Person).Region.Name : null;
+          return le.BindParameters(assignmentExpression);
         }
       }
     }
@@ -87,38 +86,18 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
   }
 
   [Serializable]
-  public class IssueJIRA0020_CustomLINQCompilerContainerInterface
+  public class IssueJIRA0020_CustomLINQCompilerContainerInterface : AutoBuildTest
   {
-    private Domain domain;
-
-    [TestFixtureSetUp]
-    public virtual void Setup()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var cfg = new DomainConfiguration("sqlserver", "Data Source=.; Initial Catalog=DO40-Tests; Integrated Security=True;Connection Timeout=300")
-      {
-        UpgradeMode = DomainUpgradeMode.Recreate,
-        ValidationMode = ValidationMode.OnDemand,
-        NamingConvention = new NamingConvention { NamingRules = NamingRules.UnderscoreDots }
-      };
-
-      cfg.Sessions.Add(new SessionConfiguration("Default")
-      {
-        BatchSize = 25,
-        DefaultIsolationLevel = IsolationLevel.ReadCommitted,
-        CacheSize = 1000,
-        Options = SessionOptions.Default | SessionOptions.AutoTransactionOpenMode | SessionOptions.AutoActivation
-      });
-
-      cfg.Types.Register(Assembly.GetExecutingAssembly());
-
-      domain = Domain.Build(cfg);
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof(ITest).Assembly, typeof(ITest).Namespace);
+      config.Sessions.Default.Options = SessionOptions.AutoActivation;
+      return config;
     }
 
-    /// <summary>
-    /// Проверка виртуальных полей
-    /// </summary>
     [Test]
-    [Transactional(ActivateSession = true)]
+//    [Transactional(ActivateSession = true)]
     public void VirtualFieldSelect1()
     {
     }
@@ -129,23 +108,25 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
     [Test]
     public void VirtualFieldSelect2()
     {
-      using (var s = domain.OpenSession())
-      {
+      using (var s = Domain.OpenSession())
+      using (var t = s.OpenTransaction()) {
         var r = new Region { Name = "13123123121" };
         var p = new Person { Age = 1, Region = r };
 
-        var queryable = Query.All<Person>();
+        var queryable = s.Query.All<Person>();
 
         var qwe = from person in queryable
-                  where person.RegionName != null
+                  where person.RegionName == "13123123121"
                   select person;
-        Assert.DoesNotThrow(() => qwe.ToArray());
+        var result = qwe.ToList();
+        Assert.AreEqual(1, result.Count);
 
         var q = queryable as IQueryable<ITest>;
         var qq = from test in q
-                 where test.RegionName != null
+                 where test.RegionName == "13123123121"
                  select test;
-        Assert.DoesNotThrow(() => qq.ToArray());
+        var interfaceResult = qq.ToList();
+        Assert.AreEqual(1, interfaceResult.Count);
       }
     }
   }
