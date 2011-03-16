@@ -147,6 +147,19 @@ namespace Xtensive.Sql.Tests.MySQL.v5
         [Test]
         public void Test000()
         {
+            string nativeSql =
+                        @"SELECT 
+                          actor.actor_id,
+                          actor.first_name,
+                          actor.last_name,
+                          actor.last_update
+                        FROM
+                          actor
+                        WHERE
+                          actor.first_name = 'ADAM'
+                        ORDER BY
+                          actor.last_name";
+
             var p = sqlCommand.CreateParameter();
             p.ParameterName = "p1";
             p.DbType = DbType.String;
@@ -159,18 +172,20 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             select.Where = actor["first_name"] == SqlDml.ParameterRef(p.ParameterName);
             select.OrderBy.Add(actor["last_name"]);
 
-            sqlCommand.CommandText = Compile(select).GetCommandText();
-            sqlCommand.Prepare();
-
-            DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);
-            Assert.AreEqual(r.RowCount, 2);
-            Console.WriteLine(r);
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
-
 
         [Test]
         public void Test001()
         {
+            string nativeSql =
+                @"SELECT DISTINCT
+                      actor.first_name
+                    FROM
+                      actor
+                    WHERE
+                      actor.first_name = 'ADAM'";
+
             var p = sqlCommand.CreateParameter();
             p.ParameterName = "p1";
             p.DbType = DbType.String;
@@ -183,12 +198,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             select.Columns.AddRange(actor["first_name"]);
             select.Where = actor["first_name"] == SqlDml.ParameterRef(p.ParameterName);
 
-            sqlCommand.CommandText = Compile(select).GetCommandText();
-            sqlCommand.Prepare();
-
-            DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);
-            Assert.AreEqual(r.RowCount, 1);
-            Console.WriteLine(r);
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
@@ -231,7 +241,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             sqlCommand.Prepare();
 
             DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);
-            Assert.AreEqual(r.RowCount, 2);
+            Assert.AreEqual(r.RowCount, 0);
         }
 
         [Test]
@@ -249,11 +259,9 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             Assert.AreEqual(r.RowCount, 10);
         }
 
-
         [Test]
         public void Test008()
         {
-
             string nativeSql = @"SELECT 
                                       t.city_id,
                                       t.city,
@@ -281,7 +289,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5
         [Test]
         public void Test009() //TODO : Validate this query (Malisa)
         {
-
             string nativeSql = @"SELECT 
                                   c.customer_id,
                                   c.first_name,
@@ -305,8 +312,8 @@ namespace Xtensive.Sql.Tests.MySQL.v5
 
 
             SqlSelect select = SqlDml.Select(customer.InnerJoin(rental, customer["customer_id"] == rental["customer_id"])
-                                                     .InnerJoin(inventory, rental["inventory_id"] == inventory["inventory_id"])
-                                                     .InnerJoin(film, inventory["inventory"] == film["film_id"])
+                                                     .InnerJoin(inventory, inventory["inventory_id"] == rental["inventory_id"])
+                                                     .InnerJoin(film, film["film_id"] == inventory["inventory"])
                                                      );
             select.Columns.Add(customer["customer_id"]);
             select.Columns.Add(customer["first_name"]);
@@ -320,7 +327,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
-
 
         [Test]
         public void Test010()
@@ -340,6 +346,169 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             select.Columns.Add(SqlDml.Round(payment["amount"] * 12, 2), "Rounded");
             select.Where = payment["payment_id"] == 12;
 
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test011()
+        {
+            string nativeSql = @"SELECT 
+                                  c.customer_id,
+                                  c.first_name,
+                                  c.last_name,
+                                  SUM(p.amount) AS Total
+                                FROM
+                                  customer c
+                                  INNER JOIN payment p ON (c.customer_id = p.customer_id)
+                                GROUP BY
+                                  c.customer_id,
+                                  c.first_name,
+                                  c.last_name
+                                ORDER BY c.customer_id";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+
+            SqlSelect select = SqlDml.Select(customer);
+            select.Columns.AddRange(customer["customer_id"], customer["first_name"], customer["last_name"]);
+            SqlTableRef payment = SqlDml.TableRef(schema.Tables["payment"], "p");
+            SqlSelect sumOfPayment = SqlDml.Select(payment);
+            sumOfPayment.Columns.Add(SqlDml.Sum(payment["amount"]));
+            sumOfPayment.Where = customer["customer_id"] == payment["customer_id"];
+            select.Columns.Add(sumOfPayment, "Total");
+
+            select.OrderBy.Add(customer["customer_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test012()
+        {
+            string nativeSql = @"SELECT 
+                                  CASE p.staff_id
+                                  WHEN 1 THEN 'STAFF_1'
+                                  WHEN 2 THEN 'STAFF_2'
+                                  ELSE 'STAFF_OTHER'
+                                  END AS Staff,
+                                  SUM(p.amount) AS Total
+                                FROM
+                                  payment p
+                                GROUP BY
+                                  p.staff_id";
+
+            SqlTableRef payment = SqlDml.TableRef(schema.Tables["payment"], "p");
+
+            SqlSelect select = SqlDml.Select(payment);
+            SqlCase totalPayment = SqlDml.Case(payment["staff_id"]);
+            totalPayment[1] = SqlDml.Literal("STAFF_1");
+            totalPayment[2] = SqlDml.Literal("STAFF_2");
+            totalPayment.Else = SqlDml.Literal("STAFF_OTHER");
+            select.Columns.Add(totalPayment, "Staff");
+
+            select.Columns.Add(SqlDml.Sum(payment["amount"]),"Total");
+            select.GroupBy.AddRange(payment["staff_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test013()
+        {
+            string nativeSql = @"SELECT 
+                                  r.inventory_id,
+                                  r.return_date, r.rental_date
+                                FROM
+                                  rental r
+                                WHERE
+                                  r.return_date IS NOT NULL
+                                ORDER BY
+                                  r.inventory_id";
+
+            SqlTableRef rental = SqlDml.TableRef(schema.Tables["rental"], "r");
+            SqlSelect select = SqlDml.Select(rental);
+            select.Columns.AddRange(rental["inventory_id"], rental["return_date"], rental["rental_date"]);
+
+            select.Where = SqlDml.IsNotNull(rental["return_date"]);
+            select.OrderBy.Add(rental["inventory_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014()
+        {
+            string nativeSql = @"SELECT 
+                                  r.inventory_id,
+                                  r.return_date, r.rental_date,
+                                  DATEDIFF(r.return_date, r.rental_date) Days
+                                FROM
+                                  rental r
+                                WHERE
+                                  r.return_date IS NOT NULL
+                                ORDER BY
+                                  r.inventory_id";
+
+            SqlTableRef rental = SqlDml.TableRef(schema.Tables["rental"], "r");
+            SqlSelect select = SqlDml.Select(rental);
+            select.Columns.AddRange(rental["inventory_id"], rental["return_date"], rental["rental_date"]);
+            select.Columns.Add(
+                              SqlDml.FunctionCall("DATEDIFF", rental["return_date"], rental["rental_date"]),
+                              "Days"
+                              );
+            select.Where = SqlDml.IsNotNull(rental["return_date"]);
+            select.OrderBy.Add(rental["inventory_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test015()
+        {
+            string nativeSql = @"SELECT  
+                                  r.rental_id,
+                                  DATEDIFF(CURDATE(), r.rental_date) TimeToToday
+                                FROM 
+                                  rental r
+                                WHERE
+                                  r.return_date IS NOT NULL";
+
+            SqlTableRef rental = SqlDml.TableRef(schema.Tables["rental"], "r");
+            SqlSelect select = SqlDml.Select(rental);
+            select.Columns.AddRange(rental["rental_id"]);
+            select.Columns.Add(
+                              SqlDml.FunctionCall("DATEDIFF", SqlDml.CurrentDate(), rental["rental_date"]),
+                              "TimeToToday"
+                              );
+            select.Where = SqlDml.IsNotNull(rental["return_date"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test016()
+        {
+            string nativeSql = "SELECT SUM(p.amount) AS sum FROM payment p";
+
+            SqlTableRef payment = SqlDml.TableRef(schema.Tables["payment"], "p");
+
+            SqlSelect select = SqlDml.Select(payment);
+            select.Columns.Add(SqlDml.Sum(payment["amount"]), "sum");
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test017()
+        {
+            string nativeSql = "SELECT c.customer_id, CONCAT(c.first_name, ', ', c.last_name) as FullName FROM customer c";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+
+            SqlSelect select = SqlDml.Select(customer);
+            select.Columns.Add(customer["customer_id"]);
+            select.Columns.Add(SqlDml.Concat(customer["first_name"], SqlDml.Literal(", "),  customer["last_name"]),
+                               "FullName"
+                               );
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 

@@ -119,8 +119,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             Assert.IsTrue(table.TableColumns["int_l4"].DataType.Type == SqlType.Int32);
         }
 
-
-
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void TestForUnsupportedSETDatatypes()
@@ -136,7 +134,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             Table table = catalog.DefaultSchema.Tables["dataTypesBadSetTable"];
             Assert.IsNotNull(table);
         }
-
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
@@ -169,9 +166,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             Table table = catalog.DefaultSchema.Tables["dataTypesBadBitTable"];
             Assert.IsNotNull(table);
         }
-
-
-
     }
 
     public abstract class MySqlExtractorTestBase
