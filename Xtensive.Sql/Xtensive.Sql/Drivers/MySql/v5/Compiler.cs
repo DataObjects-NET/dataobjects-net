@@ -5,6 +5,7 @@
 // Created:    2011.02.25
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
@@ -40,10 +41,41 @@ namespace Xtensive.Sql.MySql.v5
                 base.Visit(node);
         }
 
+        /// <inheritdoc/>
+        public override void Visit(SqlQueryExpression node)
+        {
+            using (context.EnterScope(node))
+            {
+                bool needOpeningParenthesis = false;
+                bool needClosingParenthesis = false;
+                context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
+                if (needOpeningParenthesis) context.Output.AppendText("(");
+                node.Left.AcceptVisitor(this);
+                if (needClosingParenthesis) context.Output.AppendText(")");
+                context.Output.AppendText(translator.Translate(node.NodeType));
+                context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
+                if (needOpeningParenthesis) context.Output.AppendText("(");
+                node.Right.AcceptVisitor(this);
+                if (needClosingParenthesis) context.Output.AppendText(")");
+                context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
+            }
+        }
+
         public override void Visit(SqlFunctionCall node)
         {
             switch (node.FunctionType)
             {
+                case SqlFunctionType.Concat:
+                    SqlExpression[] exprs = new SqlExpression[node.Arguments.Count];
+                    node.Arguments.CopyTo(exprs, 0);
+                    Visit(SqlDml.Concat(exprs));
+                    return;
+                case SqlFunctionType.Position:
+                    Position(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+                    return;
+                case SqlFunctionType.CharLength:
+                    SqlDml.Coalesce(SqlDml.FunctionCall("LENGTH", node.Arguments[0]), 0).AcceptVisitor(this);
+                    return;
                 case SqlFunctionType.PadLeft:
                 case SqlFunctionType.PadRight:
                     SqlHelper.GenericPad(node).AcceptVisitor(this);
@@ -84,6 +116,12 @@ namespace Xtensive.Sql.MySql.v5
                     return;
             }
             base.Visit(node);
+        }
+
+
+        private static SqlExpression Position(SqlExpression substring, SqlExpression _string)
+        {
+            return SqlDml.FunctionCall("LOCATE", _string, substring) - 1;
         }
 
         // Constructors

@@ -81,7 +81,6 @@ namespace Xtensive.Sql.MySql.v5
         //  0   table_schema, 
         //  1   table_name, 
         //  2   table_type
-
         private void ExtractTables()
         {
             using (var reader = ExecuteReader(GetExtractTablesQuery()))
@@ -112,7 +111,6 @@ namespace Xtensive.Sql.MySql.v5
         //   11    column_key
         //   12    column_default
         //   13    Extra
-
         private void ExtractTableColumns()
         {
             using (var reader = ExecuteReader(GetExtractTableColumnsQuery()))

@@ -74,12 +74,12 @@ namespace Xtensive.Sql.MySql.v5
             switch (type)
             {
                 case SqlFunctionType.SystemUser:
-                    return "system_user";
+                    return "system_user()";
                 case SqlFunctionType.User:
                 case SqlFunctionType.CurrentUser:
-                    return "current_user";
+                    return "current_user()";
                 case SqlFunctionType.SessionUser:
-                    return "session_user";
+                    return "session_user()";
                 case SqlFunctionType.NullIf:
                     return "ifnull";
                 case SqlFunctionType.Coalesce:
@@ -90,9 +90,9 @@ namespace Xtensive.Sql.MySql.v5
                 //datetime/timespan
 
                 case SqlFunctionType.CurrentDate:
-                    return "current_date";
+                    return "curdate()";
                 case SqlFunctionType.CurrentTimeStamp:
-                    return "current_timestamp";
+                    return "now()";
                 case SqlFunctionType.IntervalNegate:
                     return "-";
 
@@ -101,16 +101,17 @@ namespace Xtensive.Sql.MySql.v5
                 case SqlFunctionType.CharLength:
                     return "char_length";
                 case SqlFunctionType.Lower:
-                    return "lower";
+                    return "lcase";
                 case SqlFunctionType.Position:
-                    return "position";
+                    return "locate";
                 case SqlFunctionType.Substring:
                     return "substring";
                 case SqlFunctionType.Upper:
-                    return "upper";
+                    return "ucase";
+                //case SqlFunctionType.Concat:
+                //    return "concat";
                 case SqlFunctionType.Concat:
-                    return "concat";
-
+                    return "CONCAT()";
                 //math
 
                 case SqlFunctionType.Abs:
@@ -185,6 +186,8 @@ namespace Xtensive.Sql.MySql.v5
         {
             switch (type)
             {
+                case SqlNodeType.Concat:
+                    return ",";
                 case SqlNodeType.BitXor:
                     return "^";
                 case SqlNodeType.Modulo:
@@ -198,6 +201,32 @@ namespace Xtensive.Sql.MySql.v5
                     return "-";
                 default:
                     return base.Translate(type);
+            }
+        }
+
+        //TODO: Concat Fix and not introduce problems with numerics. a+b. Translate 'a' + 'b' => concat('a', 'b')
+        //public override string Translate(SqlCompilerContext context, SqlBinary node, NodeSection section)
+        //{
+        //    switch (section)
+        //    {
+        //        case NodeSection.Entry:
+        //            return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : "CONCAT(";
+        //        case NodeSection.Exit:
+        //            return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : ClosingParenthesis;
+        //    }
+        //    return string.Empty;
+        //}
+
+        public override string Translate(SqlCompilerContext context, SqlConcat node, NodeSection section)
+        {
+            switch (section)
+            {
+                case NodeSection.Entry:
+                    return "CONCAT(";
+                case NodeSection.Exit:
+                    return ")";
+                default:
+                    return string.Empty;
             }
         }
 
@@ -362,7 +391,7 @@ namespace Xtensive.Sql.MySql.v5
                 case ExtractSection.Entry:
                     return "(extract(";
                 case ExtractSection.Exit:
-                    return isMillisecond ? ")::int8 % 1000)" : ")::int8)";
+                    return isMillisecond ? ") % 1000)" : "))";
                 default:
                     return base.Translate(context, node, section);
             }
@@ -810,14 +839,25 @@ namespace Xtensive.Sql.MySql.v5
 
         public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
         {
-            // casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
-            switch (section)
+            switch (node.Type.Type)
             {
-                case NodeSection.Entry:
-                    return "(";
-
-                case NodeSection.Exit:
-                    return ")::" + Translate(node.Type);
+                case SqlType.Binary:
+                case SqlType.Char:
+                case SqlType.Decimal:
+                case SqlType.Double:
+                case SqlType.DateTime:
+                case SqlType.Int32:
+                    switch (section)
+                    {
+                        case NodeSection.Entry:
+                            return "CAST(";
+                        case NodeSection.Exit:
+                            return " AS " + Translate(node.Type) + ")"; ;
+                        default:
+                            throw new ArgumentOutOfRangeException("section");
+                    }
+                //default:
+                //    return base.Translate(context, node, section);
             }
             return string.Empty;
         }
@@ -827,11 +867,21 @@ namespace Xtensive.Sql.MySql.v5
             switch (part)
             {
                 case SqlDateTimePart.Millisecond:
-                    return "MILLISECONDS";
+                    return "SECOND";
                 case SqlDateTimePart.DayOfYear:
-                    return "DOY";
+                    return "DAYOFYEAR";
+                case SqlDateTimePart.Day:
+                    return "DAY";
                 case SqlDateTimePart.DayOfWeek:
-                    return "DOW";
+                    return "DAYOFWEEK";
+                case SqlDateTimePart.Year:
+                    return "YEAR";
+                case SqlDateTimePart.Month:
+                    return "MONTH";
+                case SqlDateTimePart.Hour:
+                    return "HOUR";
+                case SqlDateTimePart.Minute:
+                    return "MINUTE";
             }
 
             return base.Translate(part);
