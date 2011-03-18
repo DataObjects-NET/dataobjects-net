@@ -9,10 +9,8 @@ using System.Data.Common;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
     
-namespace Xtensive.Sql.Tests.MySQL.v5
+namespace Xtensive.Sql.Tests.MySQL.v5_0
 {
-
-
     [TestFixture]
     public class ExtractorTest : SqlTest
     {
@@ -92,13 +90,12 @@ namespace Xtensive.Sql.Tests.MySQL.v5
             Assert.IsNotNull(schema);
         }
 
-        //[Test]
-        //public void TestCatalogExtraction()
-        //{
-        //    var catalog = ExtractCatalog();
-        //    Assert.GreaterOrEqual(catalog.Schemas.Count, 1);
-        //}
-
+        [Test]
+        public void TestCatalogExtraction()
+        {
+            var catalog = ExtractCatalog();
+            Assert.GreaterOrEqual(catalog.Schemas.Count, 1);
+        }
 
         [Test]
         public void ExtractObjectsFromDefaultSchema()

@@ -6,7 +6,7 @@
 
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.MySql.v5
+namespace Xtensive.Sql.MySql.v5_0
 {
     using System;
 

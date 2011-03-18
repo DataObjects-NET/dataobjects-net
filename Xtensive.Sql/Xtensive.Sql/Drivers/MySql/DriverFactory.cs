@@ -80,8 +80,8 @@ namespace Xtensive.Sql.MySql
                 if (version.Major < 5)
                     throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
                 if (version.Major == 5 && version.Minor == 0)
-                    return new v5.Driver(coreServerInfo);
-                return new v5.Driver(coreServerInfo);
+                    return new v5_0.Driver(coreServerInfo);
+                return new v5_0.Driver(coreServerInfo);
             }
         }
     }

@@ -15,7 +15,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
 
-namespace Xtensive.Sql.Tests.MySQL.v5
+namespace Xtensive.Sql.Tests.MySQL.v5_0
 {
     public class SakilaExtractorTest : Sakila
     {

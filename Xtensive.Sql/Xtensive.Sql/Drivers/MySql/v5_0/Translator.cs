@@ -12,7 +12,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.MySql.v5
+namespace Xtensive.Sql.MySql.v5_0
 {
     using System.Linq;
 

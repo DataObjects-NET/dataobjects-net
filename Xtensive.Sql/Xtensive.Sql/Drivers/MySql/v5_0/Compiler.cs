@@ -11,7 +11,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.MySql.v5
+namespace Xtensive.Sql.MySql.v5_0
 {
     internal class Compiler : SqlCompiler
     {

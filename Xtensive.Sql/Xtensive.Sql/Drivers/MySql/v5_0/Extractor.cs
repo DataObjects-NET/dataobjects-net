@@ -11,7 +11,7 @@ using System.Data.Common;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.MySql.v5
+namespace Xtensive.Sql.MySql.v5_0
 {
 
     internal partial class Extractor : Model.Extractor
