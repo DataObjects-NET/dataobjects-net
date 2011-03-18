@@ -17,6 +17,7 @@ namespace Xtensive.Sql.MySql.v5_0
         private readonly string databaseName;
         private readonly string defaultSchemaName;
 
+        /// <inheritdoc/>
         public override EntityInfo GetCollationInfo()
         {
             EntityInfo collationInfo = new EntityInfo();
@@ -25,6 +26,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return collationInfo;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetCharacterSetInfo()
         {
             EntityInfo characterSetInfo = new EntityInfo();
@@ -33,6 +35,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return characterSetInfo;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetTranslationInfo()
         {
             EntityInfo translationInfo = new EntityInfo();
@@ -41,6 +44,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return translationInfo;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetTriggerInfo()
         {
             EntityInfo triggerInfo = new EntityInfo();
@@ -49,6 +53,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return triggerInfo;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetStoredProcedureInfo()
         {
             EntityInfo procedureInfo = new EntityInfo();
@@ -57,11 +62,13 @@ namespace Xtensive.Sql.MySql.v5_0
             return procedureInfo;
         }
 
+        /// <inheritdoc/>
         public override SequenceInfo GetSequenceInfo()
         {
             return null;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetDatabaseInfo()
         {
             EntityInfo databaseInfo = new EntityInfo();
@@ -70,6 +77,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return databaseInfo;
         }
 
+        /// <inheritdoc/>
         public override ColumnInfo GetColumnInfo()
         {
             ColumnInfo columnInfo = new ColumnInfo();
@@ -79,6 +87,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return columnInfo;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetViewInfo()
         {
             EntityInfo viewInfo = new EntityInfo();
@@ -87,6 +96,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return viewInfo;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetSchemaInfo()
         {
             EntityInfo schemaInfo = new EntityInfo();
@@ -95,6 +105,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return schemaInfo;
         }
 
+        /// <inheritdoc/>
         public override TableInfo GetTableInfo()
         {
             var tableInfo = new TableInfo();
@@ -104,6 +115,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return tableInfo;
         }
 
+        /// <inheritdoc/>
         public override TemporaryTableInfo GetTemporaryTableInfo()
         {
             var temporaryTableInfo = new TemporaryTableInfo();
@@ -113,6 +125,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return temporaryTableInfo;
         }
 
+        /// <inheritdoc/>
         public override CheckConstraintInfo GetCheckConstraintInfo()
         {
             var checkConstraintInfo = new CheckConstraintInfo();
@@ -123,6 +136,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return checkConstraintInfo;
         }
 
+        /// <inheritdoc/>
         public override PrimaryKeyConstraintInfo GetPrimaryKeyInfo()
         {
             var primaryKeyInfo = new PrimaryKeyConstraintInfo();
@@ -132,6 +146,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return primaryKeyInfo;
         }
 
+        /// <inheritdoc/>
         public override UniqueConstraintInfo GetUniqueConstraintInfo()
         {
             var uniqueConstraintInfo = new UniqueConstraintInfo();
@@ -141,6 +156,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return uniqueConstraintInfo;
         }
 
+        /// <inheritdoc/>
         public override IndexInfo GetIndexInfo()
         {
             var indexInfo = new IndexInfo();
@@ -159,6 +175,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return indexInfo;
         }
 
+        /// <inheritdoc/>
         public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
         {
             var referenceConstraintInfo = new ForeignKeyConstraintInfo();
@@ -172,6 +189,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return referenceConstraintInfo;
         }
 
+        /// <inheritdoc/>
         public override FullTextSearchInfo GetFullTextInfo()
         {
             var info = new FullTextSearchInfo();
@@ -179,12 +197,13 @@ namespace Xtensive.Sql.MySql.v5_0
             return info;
         }
 
+        /// <inheritdoc/>
         public override QueryInfo GetQueryInfo()
         {
             var queryInfo = new QueryInfo();
             queryInfo.MaxLength = 60000 * 4000;
             queryInfo.MaxComparisonOperations = 1000;
-            queryInfo.MaxNestedSubqueriesAmount = 32;
+            queryInfo.MaxNestedSubqueriesAmount = 32; //TODO: Determine max nested sub queries and variables.
             queryInfo.ParameterPrefix = "?";
             queryInfo.Features =
               QueryFeatures.NamedParameters |
@@ -205,11 +224,13 @@ namespace Xtensive.Sql.MySql.v5_0
             return queryInfo;
         }
 
+        /// <inheritdoc/>
         public override ServerFeatures GetServerFeatures()
         {
             return ServerFeatures.Savepoints;
         }
 
+        /// <inheritdoc/>
         public override IdentityInfo GetIdentityInfo()
         {
             var identityInfo = new IdentityInfo();
@@ -217,6 +238,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return identityInfo;
         }
 
+        /// <inheritdoc/>
         public override DataTypeCollection GetDataTypesInfo()
         {
             var types = new DataTypeCollection();
@@ -260,7 +282,7 @@ namespace Xtensive.Sql.MySql.v5_0
               new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12, 31)),
               "datetime", "time");
 
-            types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar", "char");
+            types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "char");
             types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "varchar");
 
             types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "text");
@@ -273,6 +295,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return types;
         }
 
+        /// <inheritdoc/>
         public override IsolationLevels GetIsolationLevels()
         {
             var levels =
@@ -284,6 +307,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return levels;
         }
 
+        /// <inheritdoc/>
         public override EntityInfo GetDomainInfo()
         {
             var domainInfo = new EntityInfo();
@@ -292,6 +316,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return domainInfo;
         }
 
+        /// <inheritdoc/>
         public override AssertConstraintInfo GetAssertionInfo()
         {
             var assertConstraintInfo = new AssertConstraintInfo();
@@ -300,6 +325,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return assertConstraintInfo;
         }
 
+        /// <inheritdoc/>
         public override int GetStringIndexingBase()
         {
             return 1;

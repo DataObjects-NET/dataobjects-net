@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -63,18 +64,21 @@ namespace Xtensive.Sql.MySql.v5_0
             return Quote("`", "`", ".", "``", names);
         }
 
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public override string QuoteIdentifier(params string[] names)
         {
             return QuoteIdentifierWithBackTick(names);
         }
 
+        /// <inheritdoc/>
         [DebuggerStepThrough]
         public override string QuoteString(string str)
         {
             return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlFunctionType type)
         {
             switch (type)
@@ -155,23 +159,23 @@ namespace Xtensive.Sql.MySql.v5_0
                 case SqlFunctionType.Radians:
                     return "RADIANS";
                 case SqlFunctionType.Rand:
-                    return "RANDOM";
+                    return "RAND";
                 case SqlFunctionType.Round:
                     return "ROUND";
                 case SqlFunctionType.Truncate:
-                    return "TRUNC";
+                    return "TRUNCATE";
                 case SqlFunctionType.Sign:
                     return "SIGN";
                 case SqlFunctionType.Sqrt:
                     return "SQRT";
                 case SqlFunctionType.Tan:
                     return "TAN";
-
                 default:
                     return base.Translate(type);
             }
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
         {
             switch (section)
@@ -183,6 +187,7 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
+        /// <inheritdoc/>
         public override string Translate(ReferentialAction action)
         {
             switch (action)
@@ -201,23 +206,34 @@ namespace Xtensive.Sql.MySql.v5_0
             return string.Empty;
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlNodeType type)
         {
             switch (type)
             {
                 case SqlNodeType.Concat:
-                    return ",";
-                case SqlNodeType.BitXor:
-                    return "^";
-                case SqlNodeType.Modulo:
-                    return "%";
-                case SqlNodeType.Overlaps:
-                    return "OVERLAPS";
+                    return string.Empty;
                 case SqlNodeType.DateTimePlusInterval:
                     return "+";
                 case SqlNodeType.DateTimeMinusInterval:
                 case SqlNodeType.DateTimeMinusDateTime:
                     return "-";
+                case SqlNodeType.Equals:
+                    return "=";
+                case SqlNodeType.NotEquals:
+                    return "<>";
+                case SqlNodeType.Modulo:
+                    return "MOD";
+                case SqlNodeType.Except:
+                    throw SqlHelper.NotSupported(type.ToString());
+                case SqlNodeType.BitAnd:
+                    return "BIT_AND";
+                case SqlNodeType.BitOr:
+                    return "BIT_OR";
+                case SqlNodeType.BitXor:
+                    return "BIT_XOR";
+                case SqlNodeType.Overlaps:
+                    throw SqlHelper.NotSupported(type.ToString());
                 default:
                     return base.Translate(type);
             }
@@ -283,9 +299,6 @@ namespace Xtensive.Sql.MySql.v5_0
                     }
                     return builder.ToString();
                 case CreateTableSection.Exit:
-                    //string result = string.IsNullOrEmpty(node.Table.Filegroup)
-                    //  ? string.Empty
-                    //  : " ON " + QuoteIdentifier(node.Table.Filegroup);
                     return string.Empty;
             }
             return base.Translate(context, node, section);
@@ -350,29 +363,34 @@ namespace Xtensive.Sql.MySql.v5_0
             return string.Empty;
         }
 
-        //public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section) TODO : LIMIT x, y Implement. (Malisa)
-        //{
-        //    switch (section)
-        //    {
-        //        case SelectSection.Limit:
-        //            return "TOP";
-        //        case SelectSection.Offset:
-        //            throw new NotSupportedException();
-        //    }
-
-        //    return base.Translate(context, node, section);
-        //}
-
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, object literalValue)
         {
             var literalType = literalValue.GetType();
+            switch (Type.GetTypeCode(literalType))
+            {
+                case TypeCode.Boolean:
+                    return (bool)literalValue ? "1" : "0";
+                case TypeCode.UInt64:
+                    return QuoteString(((UInt64)literalValue).ToString());
+            }
             if (literalType == typeof(byte[]))
-                return TranslateByteArrayLiteral((byte[])literalValue);
+            {
+                var values = (byte[])literalValue;
+                var builder = new StringBuilder(2 * (values.Length + 1));
+                builder.Append("'");
+                builder.AppendHexArray(values);
+                builder.Append("'");
+                return builder.ToString();
+            }
             if (literalType == typeof(Guid))
                 return QuoteString(SqlHelper.GuidToString((Guid)literalValue));
+            if (literalType == typeof(TimeSpan))
+                return Convert.ToString((long)((TimeSpan)literalValue).Ticks * 100);
             return base.Translate(context, literalValue);
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
         {
             switch (section)
@@ -388,6 +406,7 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
         {
             bool isSecond = node.DateTimePart == SqlDateTimePart.Second
@@ -407,6 +426,7 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
         {
             switch (section)
@@ -432,6 +452,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return base.Translate(context, node, section);
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
         {
             switch (section)
@@ -446,12 +467,14 @@ namespace Xtensive.Sql.MySql.v5_0
             return base.Translate(context, node, section);
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlOpenCursor node)
         {
             // DECLARE CURSOR already opens it
             return string.Empty;
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
         {
             switch (section)
@@ -788,7 +811,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return q0;
         }
 
-
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
         {
             switch (section)
@@ -810,6 +833,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return base.Translate(context, node, section, position);
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
         {
             //substitute UNIQUE predicate with a more complex EXISTS predicate,
@@ -838,6 +862,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return base.Translate(context, node, section);
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
         {
             if (section == NodeSection.Entry)
@@ -847,6 +872,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return string.Empty;
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
         {
             switch (node.Type.Type)
@@ -872,6 +898,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return string.Empty;
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlDateTimePart part)
         {
             switch (part)
@@ -897,6 +924,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return base.Translate(part);
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlLockType lockType)
         {
             if (lockType.Supports(SqlLockType.SkipLocked)
@@ -943,32 +971,32 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
-        private static string TranslateByteArrayLiteral(byte[] array)
-        {
-            if (array.Length == 0)
-                return "''::bytea";
+        //private static string TranslateByteArrayLiteral(byte[] array)
+        //{
+        //    if (array.Length == 0)
+        //        return "''::bytea";
 
-            var chars = new char[1 + 5 * array.Length + 8];
-            chars[0] = '\'';
-            chars[chars.Length - 1] = 'a';
-            chars[chars.Length - 2] = 'e';
-            chars[chars.Length - 3] = 't';
-            chars[chars.Length - 4] = 'y';
-            chars[chars.Length - 5] = 'b';
-            chars[chars.Length - 6] = ':';
-            chars[chars.Length - 7] = ':';
-            chars[chars.Length - 8] = '\'';
+        //    var chars = new char[1 + 5 * array.Length + 8];
+        //    chars[0] = '\'';
+        //    chars[chars.Length - 1] = 'a';
+        //    chars[chars.Length - 2] = 'e';
+        //    chars[chars.Length - 3] = 't';
+        //    chars[chars.Length - 4] = 'y';
+        //    chars[chars.Length - 5] = 'b';
+        //    chars[chars.Length - 6] = ':';
+        //    chars[chars.Length - 7] = ':';
+        //    chars[chars.Length - 8] = '\'';
 
-            for (int n = 1, i = 0; i < array.Length; i++, n += 5)
-            {
-                chars[n] = chars[n + 1] = '\\';
-                chars[n + 2] = (char)('0' + (7 & (array[i] >> 6)));
-                chars[n + 3] = (char)('0' + (7 & (array[i] >> 3)));
-                chars[n + 4] = (char)('0' + (7 & (array[i] >> 0)));
-            }
+        //    for (int n = 1, i = 0; i < array.Length; i++, n += 5)
+        //    {
+        //        chars[n] = chars[n + 1] = '\\';
+        //        chars[n + 2] = (char)('0' + (7 & (array[i] >> 6)));
+        //        chars[n + 3] = (char)('0' + (7 & (array[i] >> 3)));
+        //        chars[n + 4] = (char)('0' + (7 & (array[i] >> 0)));
+        //    }
 
-            return new string(chars);
-        }
+        //    return new string(chars);
+        //}
 
         // Constructors
 

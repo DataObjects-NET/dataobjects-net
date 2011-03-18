@@ -13,6 +13,7 @@ namespace Xtensive.Sql.MySql
 {
     internal class TypeMapper : Sql.TypeMapper
     {
+        /// <inheritdoc/>
         public override bool IsLiteralCastRequired(Type type)
         {
             switch (Type.GetTypeCode(type))
@@ -28,6 +29,7 @@ namespace Xtensive.Sql.MySql
             return false;
         }
 
+        /// <inheritdoc/>
         public override bool IsParameterCastRequired(Type type)
         {
             switch (Type.GetTypeCode(type))
@@ -50,30 +52,35 @@ namespace Xtensive.Sql.MySql
             return false;
         }
 
+        /// <inheritdoc/>
         public override void SetSByteParameterValue(DbParameter parameter, object value)
         {
             parameter.DbType = DbType.Int16;
             parameter.Value = value ?? DBNull.Value;
         }
 
+        /// <inheritdoc/>
         public override void SetUShortParameterValue(DbParameter parameter, object value)
         {
             parameter.DbType = DbType.Int32;
             parameter.Value = value ?? DBNull.Value;
         }
 
+        /// <inheritdoc/>
         public override void SetUIntParameterValue(DbParameter parameter, object value)
         {
             parameter.DbType = DbType.Int64;
             parameter.Value = value ?? DBNull.Value;
         }
 
+        /// <inheritdoc/>
         public override void SetULongParameterValue(DbParameter parameter, object value)
         {
             parameter.DbType = DbType.Decimal;
             parameter.Value = value ?? DBNull.Value;
         }
 
+        /// <inheritdoc/>
 #if NET40
         [SecuritySafeCritical]
 #endif
@@ -84,41 +91,49 @@ namespace Xtensive.Sql.MySql
             parameter.Value = value == null ? (object)DBNull.Value : SqlHelper.GuidToString((Guid)value);
         }
 
+        /// <inheritdoc/>
         public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
         {
             return new SqlValueType(SqlType.Int16);
         }
 
+        /// <inheritdoc/>
         public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
         {
             return new SqlValueType(SqlType.Int16);
         }
 
+        /// <inheritdoc/>
         public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
         {
             return new SqlValueType(SqlType.Int32);
         }
 
+        /// <inheritdoc/>
         public override SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
         {
             return new SqlValueType(SqlType.Int64);
         }
 
+        /// <inheritdoc/>
         public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
         {
             return new SqlValueType(SqlType.Decimal, 20, 0);
         }
 
+        /// <inheritdoc/>
         public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
         {
             return new SqlValueType(SqlType.VarChar, 32);
         }
 
+        /// <inheritdoc/>
         public override object ReadByte(DbDataReader reader, int index)
         {
             return Convert.ToByte(reader[index]);
         }
 
+        /// <inheritdoc/>
         public override object ReadGuid(DbDataReader reader, int index)
         {
             return SqlHelper.GuidFromString(reader.GetString(index));

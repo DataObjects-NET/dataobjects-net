@@ -33,19 +33,17 @@ namespace Xtensive.Sql.MySql.v5_0
             theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
         }
 
+        /// <inheritdoc/>
         public override Catalog ExtractCatalog()
         {
             targetSchema = null;
 
             RegisterReplacements(replacementsRegistry);
-            //ExtractSchemas();
-            //targetSchema = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
-            //ExtractCatalogContents();
-            //return theCatalog;
             var schema = this.ExtractSchema(Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant());
             return schema.Catalog;
         }
 
+        /// <inheritdoc/>
         public override Schema ExtractSchema(string schemaName)
         {
             targetSchema = schemaName.ToUpperInvariant();
@@ -413,20 +411,6 @@ namespace Xtensive.Sql.MySql.v5_0
                 return new SqlValueType(sqlType, length);
             }
 
-            if (typeName.StartsWith("NVARCHAR"))
-            {
-                // ignoring "day precision" and "second precision"
-                // although they can be read as "scale" and "precision"
-                return new SqlValueType(SqlType.VarChar);
-            }
-
-            if (typeName.StartsWith("NCHAR"))
-            {
-                // ignoring "day precision" and "second precision"
-                // although they can be read as "scale" and "precision"
-                return new SqlValueType(SqlType.Char);
-            }
-
             if (typeName.Contains("BLOB"))
             {
                 return new SqlValueType(SqlType.VarBinaryMax);
@@ -519,7 +503,7 @@ namespace Xtensive.Sql.MySql.v5_0
         {
             var schemaFilter = targetSchema != null
               ? "= " + SqlHelper.QuoteString(targetSchema)
-              : "NOT IN ('information_schema', 'mysql', 'performance_schema')";
+              : "NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA')";
 
             replacements[SchemaFilterPlaceholder] = schemaFilter;
             replacements[IndexesFilterPlaceholder] = "1 > 0";

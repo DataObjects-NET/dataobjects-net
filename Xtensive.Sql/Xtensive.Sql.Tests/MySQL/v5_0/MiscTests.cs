@@ -260,7 +260,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
             SqlSelect select = SqlDml.Select();
             select.Columns.Add(SqlDml.Substring("abc", 1, 1));
             select.Columns.Add(SqlDml.Substring("Xtensive", 2));
-            //      select.Columns.Add(Sql.Power(2, 2));
             Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
         }
 
@@ -302,13 +301,15 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         [Test]
         public void JoinTest()
         {
-            //SqlTableRef tr1 = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-            //SqlTableRef tr2 = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-            //SqlTableRef tr3 = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+            SqlTableRef tr1 = SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]);
+            SqlTableRef tr2 = SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]);
+            SqlTableRef tr3 = SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]);
 
-            //SqlSelect select = SqlDml.Select(tr1.InnerJoin(tr2, tr1[0] == tr2[0]).InnerJoin(tr3, tr2[0] == tr3[0]));
-            //sqlCommand.CommandText = sqlDriver.Compile(select).GetCommandText();
-            //sqlCommand.Prepare();
+            SqlSelect select = SqlDml.Select(tr1.InnerJoin(tr2, tr1[0] == tr2[0]).InnerJoin(tr3, tr2[0] == tr3[0]));
+            select.Columns.Add(SqlDml.Asterisk);
+            sqlCommand.CommandText = sqlDriver.Compile(select).GetCommandText();
+            Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+            sqlCommand.Prepare();
 
             //int i = 0;
             //SqlTableRef[] refs = new[] { tr1, tr2, tr3 };
@@ -317,13 +318,14 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        [Ignore]
         public void UniqueTest()
         {
-            //SqlSelect s1 = SqlDml.Select();
-            //SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["customer"]));
-            //s2.Columns.Add(SqlDml.Asterisk);
-            //s1.Columns.Add(SqlDml.Unique(s2) == true);
-            //Console.WriteLine(sqlDriver.Compile(s1).GetCommandText());
+            SqlSelect s1 = SqlDml.Select();
+            SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["customer"]));
+            s2.Columns.Add(SqlDml.Asterisk);
+            s1.Columns.Add(SqlDml.Unique(s2) == true);
+            Console.WriteLine(sqlDriver.Compile(s1).GetCommandText());
         }
 
         [Test]
@@ -377,6 +379,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        [Ignore]
         public void IntersectTest() //TODO: Relook into the keyword for INTERSECT
         {
             SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
@@ -396,6 +399,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        [Ignore]
         public void IntersectAllTest()//TODO: Relook into the keyword for INTERSECT ALL
         {
             SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
@@ -415,6 +419,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        [Ignore]
         public void ExceptTest()
         {
             //SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
@@ -434,6 +439,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        [Ignore]
         public void ExceptAllTest()
         {
             //SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
@@ -453,6 +459,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        [Ignore]
         public void FreeTextTest()
         {
             SqlSelect select = SqlDml.Select();
@@ -463,6 +470,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        [Ignore]
         public void FreeTextCreateTest()
         {
             //var table = Catalog.Schemas["Person"].Tables["Address"];

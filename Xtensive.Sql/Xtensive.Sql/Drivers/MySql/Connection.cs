@@ -34,7 +34,9 @@ namespace Xtensive.Sql.Drivers.MySql
         /// <inheritdoc/>
 #if NET40
         [SecuritySafeCritical]
+
 #endif
+
         public override void BeginTransaction()
         {
             EnsureTrasactionIsNotActive();
@@ -84,9 +86,8 @@ namespace Xtensive.Sql.Drivers.MySql
             activeTransaction = null;
         }
 
-
         // Constructors
-
+        
 #if NET40
         [SecuritySafeCritical]
 #endif

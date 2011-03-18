@@ -20,16 +20,18 @@ namespace Xtensive.Sql.MySql.v5_0
         private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
         private static readonly SqlNative OneMillisecondInterval = SqlDml.Native("interval '0.001 second'");
 
-
+        /// <inheritdoc/>
         public override void Visit(SqlDeclareCursor node)
         {
         }
 
+        /// <inheritdoc/>
         public override void Visit(SqlOpenCursor node)
         {
             base.Visit(node.Cursor.Declare());
         }
 
+        /// <inheritdoc/>
         public override void Visit(SqlBinary node)
         {
             var right = node.Right as SqlArray;
@@ -62,6 +64,7 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
+        /// <inheritdoc/>
         public override void Visit(SqlFunctionCall node)
         {
             switch (node.FunctionType)
@@ -125,6 +128,7 @@ namespace Xtensive.Sql.MySql.v5_0
             return SqlDml.FunctionCall("LOCATE", _string, substring) - 1;
         }
 
+        /// <inheritdoc/>
         public override void Visit(SqlFreeTextTable node)
         {
             //FreeText Indexes not supported on InnoDB

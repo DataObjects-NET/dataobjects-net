@@ -781,6 +781,20 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         [Test]
         public void Test028()
         {
+            string nativeSql = @"select * FROM customer c limit 0, 10";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"]);
+            SqlSelect select = SqlDml.Select(customer);
+            select.Limit = 10;
+            select.Offset = 0;
+            select.Columns.Add(SqlDml.Asterisk);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test029()
+        {
           string nativeSql = "UPDATE film "
             + "SET rental_rate = rental_rate * 1.1 "
               + "WHERE film_id = 1;";
@@ -797,9 +811,48 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         public void Test150()
         {
             SqlCreateTable create = SqlDdl.Create(Catalog.Schemas["Sakila"].Tables["customer"]);
-            create.Table.Filegroup = "xxx";
             Console.Write(Compile(create));
         }
+
+        [Test]
+        public void Test151()
+        {
+            SqlDropTable drop = SqlDdl.Drop(Catalog.Schemas["Sakila"].Tables["customer"]);
+            Console.Write(Compile(drop));
+        }
+
+        [Test]
+        public void Test152()
+        {
+            SqlDropSchema drop = SqlDdl.Drop(Catalog.Schemas["Sakila"]);
+            Console.Write(Compile(drop));
+        }
+
+        [Test]
+        public void Test153()
+        {
+            SqlCreateView create = SqlDdl.Create(Catalog.Schemas["Sakila"].Views["customer_list"]);
+            Console.Write(Compile(create));
+        }
+
+        [Test]
+        public void Test154()
+        {
+            SqlCreateSchema create = SqlDdl.Create(Catalog.Schemas["Sakila"]);
+            Console.Write(Compile(create));
+        }
+
+        [Test]
+        public void Test155()
+        {
+            SqlAlterTable alter =
+              SqlDdl.Alter(
+                Catalog.Schemas["Sakila"].Tables["customer"],
+                SqlDdl.AddColumn(Catalog.Schemas["Sakila"].Tables["customer"].TableColumns["first_name"]));
+
+            Console.Write(Compile(alter));
+        }
+
 
     }
 }

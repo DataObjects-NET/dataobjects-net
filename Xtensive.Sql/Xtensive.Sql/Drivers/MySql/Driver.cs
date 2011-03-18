@@ -13,11 +13,13 @@ namespace Xtensive.Sql.MySql
 {
     internal abstract class Driver : SqlDriver
     {
+        /// <inheritdoc/>
         protected override SqlConnection CreateConnection(string connectionString)
         {
             return new Connection(this, connectionString);
         }
 
+        /// <inheritdoc/>
         public override SqlExceptionType GetExceptionType(Exception exception)
         {
             var nativeException = exception as MySqlException;

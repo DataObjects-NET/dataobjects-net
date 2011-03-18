@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         private DbCommand dbCommand;
         private DbCommand sqlCommand;
 
-        private Schema schema = null;
+       // private Schema schema = null;
 
         protected override string Url
         {
