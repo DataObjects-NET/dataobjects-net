@@ -1,10 +1,10 @@
 using System;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests;
-using Xtensive.Storage.Tests.Issues.InterfaceEntitySetTest_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
+using Xtensive.Orm.Tests.Issues.InterfaceEntitySetTest_Model;
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace InterfaceEntitySetTest_Model
   {
