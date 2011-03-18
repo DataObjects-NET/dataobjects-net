@@ -9,7 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Security;
 
-namespace Xtensive.Sql.MySql
+namespace Xtensive.Sql.MySql.v5_0
 {
     internal class TypeMapper : Sql.TypeMapper
     {
