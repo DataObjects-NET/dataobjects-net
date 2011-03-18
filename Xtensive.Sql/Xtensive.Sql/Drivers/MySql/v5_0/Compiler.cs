@@ -21,6 +21,23 @@ namespace Xtensive.Sql.MySql.v5_0
         private static readonly SqlNative OneMillisecondInterval = SqlDml.Native("interval '0.001 second'");
 
         /// <inheritdoc/>
+        public override void Visit(SqlSelect node)
+        {
+            using (context.EnterScope(node))
+            {
+                context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+                VisitSelectColumns(node);
+                VisitSelectFrom(node);
+                VisitSelectHints(node);
+                VisitSelectWhere(node);
+                VisitSelectGroupBy(node);
+                VisitSelectOrderBy(node);
+                VisitSelectLimitOffset(node);
+                VisitSelectLock(node);
+                context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+            }
+        }
+        /// <inheritdoc/>
         public override void Visit(SqlDeclareCursor node)
         {
         }

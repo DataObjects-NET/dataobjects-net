@@ -338,7 +338,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         [Test]
         public void Test010()
         {
-
             string nativeSql = @"SELECT 
                                       p.payment_id,
                                       round(p.amount * 12, 2) Rounded
@@ -852,7 +851,5 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
 
             Console.Write(Compile(alter));
         }
-
-
     }
 }

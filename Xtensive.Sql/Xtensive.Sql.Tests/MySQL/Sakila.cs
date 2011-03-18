@@ -8,6 +8,7 @@ using System.Data;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
 using Constraint = Xtensive.Sql.Model.Constraint;
+
 namespace Xtensive.Sql.Tests.MySQL
 {
     [TestFixture]
@@ -102,7 +103,7 @@ namespace Xtensive.Sql.Tests.MySQL
             TableColumn c;
             Constraint cs;
 
-            t = Catalog.Schemas["Production"].CreateTable("Malisa");
+            t = Catalog.Schemas["Sakila"].CreateTable("Malisa");
             t.CreateColumn("TransactionID", new SqlValueType(SqlType.Int32));
             t.CreateColumn("ProductID", new SqlValueType(SqlType.Int32));
             t.CreateColumn("ReferenceOrderID", new SqlValueType(SqlType.Int32));

@@ -28,6 +28,7 @@ namespace Xtensive.Sql.MySql.v5_0
 
         private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
+        /// <inheritdoc/>
         protected override void Initialize()
         {
             theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
@@ -60,11 +61,10 @@ namespace Xtensive.Sql.MySql.v5_0
             ExtractTableColumns();
             ExtractViews();
             ExtractViewColumns();
-            //ExtractIndexes();
+            ExtractIndexes();
             ExtractForeignKeys();
-            //ExtractCheckConstaints();
+            ExtractCheckConstaints();
             ExtractUniqueAndPrimaryKeyConstraints();
-            //ExtractSequences();
         }
 
         private void ExtractSchemas()
@@ -136,6 +136,7 @@ namespace Xtensive.Sql.MySql.v5_0
                     var defaultValue = ReadStringOrNull(reader, 12);
                     if (!string.IsNullOrEmpty(defaultValue))
                         column.DefaultValue = SqlDml.Native(defaultValue);
+                    //column.
                     lastColumnId = columnId;
                 }
             }
@@ -188,10 +189,19 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
+        //---- ExtractIndexes
+        //   0      table_schema,
+        //  1       table_name,
+        //  2       index_name,
+        //  3       non_unique,
+        //  4       index_type,
+        //  5       seq_in_index,
+        //  6       column_name,
+        //  7       cardinality,
+        //  8       sub_part,
+        //  9       nullable
         private void ExtractIndexes()
         {
-            // it's possible to have table and index in different schemas in oracle.
-            // we silently ignore this, indexes are always belong to the same schema as its table.
             using (var reader = ExecuteReader(GetExtractIndexesQuery()))
             {
                 int lastColumnPosition = int.MaxValue;
@@ -199,23 +209,18 @@ namespace Xtensive.Sql.MySql.v5_0
                 Index index = null;
                 while (reader.Read())
                 {
-                    int columnPosition = ReadInt(reader, 6);
+                    int columnPosition = ReadInt(reader, 5);
                     if (columnPosition <= lastColumnPosition)
                     {
                         var schema = theCatalog.Schemas[reader.GetString(0)];
                         table = schema.Tables[reader.GetString(1)];
                         index = table.CreateIndex(reader.GetString(2));
-                        index.IsUnique = ReadBool(reader, 3);
-                        index.IsBitmap = reader.GetString(4) == "BITMAP";
-                        if (!reader.IsDBNull(5))
-                        {
-                            int pctFree = ReadInt(reader, 5);
-                            index.FillFactor = (byte)(100 - pctFree);
-                        }
+                        index.IsUnique = reader.GetInt32(3) == 0;
+                        //index.IsFullText = reader.GetString(4) == "FULLTEXT";
                     }
-                    var column = table.TableColumns[reader.GetString(7)];
-                    bool isAscending = reader.GetString(8) == "ASC";
-                    index.CreateIndexColumn(column, isAscending);
+                    var column = table.TableColumns[reader.GetString(6)];
+                    //bool isAscending = reader.GetString(8) == "ASC";
+                    index.CreateIndexColumn(column);
                     lastColumnPosition = columnPosition;
                 }
             }
@@ -249,7 +254,7 @@ namespace Xtensive.Sql.MySql.v5_0
                         constraint = referencingTable.CreateForeignKey(reader.GetString(2));
                         //ReadConstraintProperties(constraint, reader, 3, 4);
                         ReadCascadeAction(constraint, reader, 3);
-                        var referencedSchema = theCatalog.Schemas[reader.GetString(0)]; //Scchema same as current
+                        var referencedSchema = theCatalog.Schemas[reader.GetString(0)]; //Schema same as current
                         referencedTable = referencedSchema.Tables[reader.GetString(7)];
                         constraint.ReferencedTable = referencedTable;
                     }
@@ -301,55 +306,40 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
+        //--- ExtractCheckConstaints
+        //  0   -   constraint_schema,
+        //  1   -   constraint_name,
+        //  2   -   table_schema,
+        //  3   -   table_name,
+        //  4   -   constraint_type
         private void ExtractCheckConstaints()
         {
-            using (var reader = ExecuteReader(GetExtractCheckConstraintsQuery()))
-            {
-                while (reader.Read())
-                {
-                    var schema = theCatalog.Schemas[reader.GetString(0)];
-                    var table = schema.Tables[reader.GetString(1)];
-                    var name = reader.GetString(2);
+            #region Commented Code
+            //NOT yet supported!
+            //using (var reader = ExecuteReader(GetExtractCheckConstraintsQuery()))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        var schema = theCatalog.Schemas[reader.GetString(0)];
+            //        var table = schema.Tables[reader.GetString(3)];
+            //        var name = reader.GetString(1);
 
-                    // It returns empty string instead of the actual value.
-                    var condition = string.IsNullOrEmpty(reader.GetString(3))
-                      ? null
-                      : SqlDml.Native(reader.GetString(3));
-                    var constraint = table.CreateCheckConstraint(name, condition);
-                    // ReadConstraintProperties(constraint, reader, 4, 5);
-                }
-            }
+            //        // It returns empty string instead of the actual value.
+            //        var condition = string.IsNullOrEmpty(reader.GetString(3))
+            //          ? null
+            //          : SqlDml.Native(reader.GetString(3));
+            //        var constraint = table.CreateCheckConstraint(name, condition);
+            //        // ReadConstraintProperties(constraint, reader, 4, 5);
+            //    }
+            //}
+            #endregion
         }
 
-        private void ExtractSequences()
-        {
-            using (var reader = ExecuteReader(GetExtractSequencesQuery()))
-            {
-                while (reader.Read())
-                {
-                    var schema = theCatalog.Schemas[reader.GetString(0)];
-                    var sequence = schema.CreateSequence(reader.GetString(1));
-                    sequence.DataType = new SqlValueType(SqlType.Decimal, DefaultPrecision, DefaultScale);
-                    var descriptor = sequence.SequenceDescriptor;
-                    descriptor.MinValue = ReadLong(reader, 2);
-                    descriptor.MaxValue = ReadLong(reader, 3);
-                    descriptor.Increment = ReadLong(reader, 4);
-                    descriptor.IsCyclic = ReadBool(reader, 5);
-                }
-            }
-        }
-
-        //TODO: Enum, Set are are not supported by .NET.
         private SqlValueType CreateValueType(IDataRecord row,
           int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
         {
             string typeName = row.GetString(typeNameIndex);
             typeName = typeName.ToUpperInvariant();
-
-            //if (notSupportedTypes.Contains(typeName))
-            //{
-            //    throw new NotSupportedException(string.Format(Strings.ExCannotSupportEnum, typeName));
-            //}
 
             if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL")
             {
@@ -475,13 +465,6 @@ namespace Xtensive.Sql.MySql.v5_0
             return row.IsDBNull(index) ? null : row.GetString(index);
         }
 
-        //private static void ReadConstraintProperties(Constraint constraint,
-        //  IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
-        //{
-        //    constraint.IsDeferrable = row.GetString(isDeferrableIndex) == "DEFERRABLE";
-        //    constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex) == "DEFERRED";
-        //}
-
         private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
         {
             var deleteRule = row.GetString(deleteRuleIndex);
@@ -527,7 +510,6 @@ namespace Xtensive.Sql.MySql.v5_0
             var commandText = Connection.Driver.Compile(statement).GetCommandText();
             return base.ExecuteReader(PerformReplacements(commandText));
         }
-
 
         // Constructors
 
