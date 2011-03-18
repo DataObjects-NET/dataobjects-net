@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
@@ -510,6 +511,288 @@ namespace Xtensive.Sql.Tests.MySQL.v5
                                "FullName"
                                );
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test018()
+        {
+            string nativeSql = @"SELECT 
+                                  c.customer_id,
+                                  c.first_name,
+                                  c.last_name,
+                                  SUM(p.amount) AS Total
+                                FROM
+                                  customer c
+                                  INNER JOIN payment p ON (c.customer_id = p.customer_id)
+                                GROUP BY
+                                  c.customer_id,
+                                  c.first_name,
+                                  c.last_name
+                                HAVING SUM(p.amount) > 140";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlTableRef payment = SqlDml.TableRef(schema.Tables["payment"], "p");
+
+            SqlSelect select = SqlDml.Select(customer.InnerJoin(payment, customer["customer_id"] == payment["customer_id"]));
+
+            select.Columns.Add(customer["customer_id"]);
+            select.Columns.Add(customer["first_name"]);
+            select.Columns.Add(customer["last_name"]);
+            select.Columns.Add(SqlDml.Sum(payment["amount"]), "Total");
+
+            select.GroupBy.Add(customer["customer_id"]);
+            select.GroupBy.Add(customer["first_name"]);
+            select.GroupBy.Add(customer["last_name"]);
+
+            select.Having = SqlDml.Sum(payment["amount"]) > 140;
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test019()
+        {
+            string nativeSql = @"SELECT 
+                                    c.customer_id,
+                                    c.first_name,
+                                    c.last_name
+                                FROM
+                                    customer c
+                                WHERE c.customer_id IN (SELECT r.customer_id FROM rental r WHERE r.inventory_id = 239)
+                                GROUP BY c.customer_id,
+                                    c.first_name,
+                                    c.last_name";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlTableRef rental = SqlDml.TableRef(schema.Tables["rental"], "r");
+
+            SqlSelect innerSelect = SqlDml.Select(rental);
+            innerSelect.Columns.Add(rental["customer_id"]);
+            innerSelect.Where = rental["inventory_id"] == 239;
+
+            SqlSelect select = SqlDml.Select(customer);
+
+            select.Columns.Add(customer["customer_id"]);
+            select.Columns.Add(customer["first_name"]);
+            select.Columns.Add(customer["last_name"]);
+
+            select.Where = SqlDml.In(customer["customer_id"], innerSelect);
+
+            select.GroupBy.Add(customer["customer_id"]);
+            select.GroupBy.Add(customer["first_name"]);
+            select.GroupBy.Add(customer["last_name"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test020()
+        {
+            string nativeSql = @"SELECT 
+                                  f.film_id,
+                                  f.title,
+                                  f.description,
+                                  f.release_year,
+                                  f.rental_rate
+                                FROM
+                                  film f
+                                WHERE
+                                  f.rental_duration BETWEEN 4 AND 5
+                                ORDER BY f.film_id";
+
+            SqlTableRef film = SqlDml.TableRef(schema.Tables["film"], "f");
+            SqlSelect select = SqlDml.Select(film);
+            select.Columns.AddRange(film["film_id"], film["title"], film["description"], film["release_year"], film["rental_rate"]);
+            select.Where = SqlDml.Between(film["rental_duration"], 4, 5);
+            select.OrderBy.Add(film["film_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+
+        [Test]
+        public void Test021()
+        {
+            string nativeSql = @"SELECT 
+                                  f.film_id,
+                                  f.title,
+                                  f.description,
+                                  f.release_year,
+                                  f.rating
+                                FROM
+                                  film f
+                                WHERE
+                                  f.rating in ('PG', 'PG-13', 'R')
+                                ORDER BY f.film_id";
+
+            SqlTableRef film = SqlDml.TableRef(schema.Tables["film"], "f");
+            SqlSelect select = SqlDml.Select(film);
+            select.Columns.AddRange(film["film_id"], film["title"], film["description"], film["release_year"], film["rating"]);
+            select.Where = SqlDml.In(film["rating"], SqlDml.Row("PG", "PG-13", "R"));
+            select.OrderBy.Add(film["film_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test022()
+        {
+            string nativeSql = @"SELECT 
+                                  f.film_id,
+                                  f.title,
+                                  f.description,
+                                  f.release_year,
+                                  f.rating
+                                FROM
+                                  film f
+                                WHERE
+                                  f.rating LIKE 'PG%'
+                                ORDER BY f.film_id";
+
+            SqlTableRef film = SqlDml.TableRef(schema.Tables["film"], "f");
+            SqlSelect select = SqlDml.Select(film);
+            select.Columns.AddRange(film["film_id"], film["title"], film["description"], film["release_year"], film["rating"]);
+            select.Where = SqlDml.Like(film["rating"], "PG%");
+            select.OrderBy.Add(film["film_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test023()
+        {
+            string nativeSql = @"SELECT 
+                                  f.film_id,
+                                  f.title,
+                                  f.description,
+                                  f.length
+                                FROM
+                                  film f
+                                WHERE
+                                  (f.rating = 'PG' OR 
+                                  f.rating = 'PG-13') AND 
+                                  f.length < 100
+                                ORDER BY
+                                  f.film_id";
+
+            SqlTableRef film = SqlDml.TableRef(schema.Tables["film"], "f");
+            SqlSelect select = SqlDml.Select(film);
+            select.Columns.AddRange(film["film_id"], film["title"], film["description"], film["length"]);
+            select.Where = (film["rating"] == "PG" || film["rating"] == "PG-13") && film["length"] < 100;
+            select.OrderBy.Add(film["film_id"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test024()
+        {
+            string nativeSql = @"SELECT YEAR(r.rental_date) as Year, COUNT(*) Rented
+                                    FROM rental r
+                                    GROUP BY YEAR(r.rental_date)";
+
+            SqlTableRef rental = SqlDml.TableRef(schema.Tables["rental"], "r");
+
+            SqlSelect select = SqlDml.Select(rental);
+            select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, rental["rental_date"]), "Year");
+            select.Columns.Add(SqlDml.Count(), "Rented");
+
+            select.GroupBy.Add(SqlDml.Extract(SqlDateTimePart.Year, rental["rental_date"]));
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        [Ignore] //MySQL reference Manual , Topic: "10.10. Character Sets and Collations That MySQL Supports"
+        public void Test025()
+        {
+            string nativeSql = @"SELECT last_name FROM customer
+                                    ORDER BY last_name 
+                                    COLLATE utf8_spanish_ci ASC";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlSelect select = SqlDml.Select(customer);
+            select.Columns.Add(customer["last_name"]);
+            select.OrderBy.Add(SqlDml.Collate(customer["last_name"], Catalog.Schemas["Sakila"].Collations["utf8_spanish_ci"]));
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test026()
+        {
+            string nativeSql = @"SELECT 
+                                  p.customer_id,
+                                  p.amount
+                                FROM
+                                  payment p
+                                WHERE
+                                  p.amount = (SELECT MAX(amount) AS LowestPayment FROM payment)";
+
+            SqlTableRef payment1 = SqlDml.TableRef(schema.Tables["payment"], "p1");
+            SqlTableRef payment2 = SqlDml.TableRef(schema.Tables["payment"], "p2");
+
+            SqlSelect innerSelect = SqlDml.Select(payment2);
+            innerSelect.Columns.Add(SqlDml.Max(payment2["amount"]));
+
+            SqlSelect select = SqlDml.Select(payment1);
+
+            select.Columns.Add(payment1["customer_id"]);
+            select.Columns.Add(payment1["amount"]);
+
+            select.Where = SqlDml.Equals(payment1["amount"], innerSelect);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test027()
+        {
+            string nativeSql = @"SELECT 
+                                  c.customer_id,
+                                  c.first_name
+                                FROM
+                                  customer c
+                                WHERE EXISTS
+                                    (SELECT * FROM payment p WHERE p.amount > 11.00 AND p.customer_id = c.customer_id )";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlTableRef payment = SqlDml.TableRef(schema.Tables["payment"], "p");
+
+            SqlSelect innerSelect = SqlDml.Select(payment);
+            SqlSelect select = SqlDml.Select(customer);
+
+            innerSelect.Columns.Add(SqlDml.Asterisk);
+            innerSelect.Where = payment["amount"] > 11.00 && payment["customer_id"] == customer["customer_id"];
+
+            select.Columns.Add(customer["customer_id"]);
+            select.Columns.Add(customer["first_name"]);
+            select.Where = SqlDml.Exists(innerSelect);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test028()
+        {
+          string nativeSql = "UPDATE film "
+            + "SET rental_rate = rental_rate * 1.1 "
+              + "WHERE film_id = 1;";
+
+          SqlTableRef film = SqlDml.TableRef(schema.Tables["film"], "f");
+          SqlUpdate update = SqlDml.Update(film);
+          update.Values[film["rental_rate"]] = film["rental_rate"] * 1.1;
+          update.Where = film["film_id"] == 1;
+
+          Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+        }
+
+        [Test]
+        public void Test150()
+        {
+            SqlCreateTable create = SqlDdl.Create(Catalog.Schemas["Sakila"].Tables["customer"]);
+            create.Table.Filegroup = "xxx";
+            Console.Write(Compile(create));
         }
 
     }

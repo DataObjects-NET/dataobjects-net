@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.MySql.v5
 {
@@ -122,6 +123,12 @@ namespace Xtensive.Sql.MySql.v5
         private static SqlExpression Position(SqlExpression substring, SqlExpression _string)
         {
             return SqlDml.FunctionCall("LOCATE", _string, substring) - 1;
+        }
+
+        public override void Visit(SqlFreeTextTable node)
+        {
+            //FreeText Indexes not supported on InnoDB
+            base.Visit(node);
         }
 
         // Constructors

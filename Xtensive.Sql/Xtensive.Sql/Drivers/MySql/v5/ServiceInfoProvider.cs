@@ -226,8 +226,11 @@ namespace Xtensive.Sql.MySql.v5
             //types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
             //  ValueRange.Bool, "bit");
 
-            types.UInt8 = DataTypeInfo.Range(SqlType.UInt8, common | index | identity,
-              ValueRange.Byte, "tinyint");
+            types.Int8 = DataTypeInfo.Range(SqlType.Int8, common | index | identity,
+             ValueRange.Byte, "tinyint");
+
+            //types.UInt8 = DataTypeInfo.Range(SqlType.UInt8, common | index | identity,
+            //  ValueRange.Byte, "tinyint");
 
             types.Int16 = DataTypeInfo.Range(SqlType.Int16, common | index | identity,
               ValueRange.Int16, "smallint");
@@ -252,15 +255,15 @@ namespace Xtensive.Sql.MySql.v5
               "datetime", "time");
 
             types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar", "char");
-            types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar", "varchar");
-            types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nvarchar(max)", "ntext", "varchar(max)", "text");
+            types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "varchar");
+
+            types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "text");
 
             types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "binary");
             types.VarBinary = DataTypeInfo.Stream(SqlType.VarBinary, common | index, 4000, "varbinary");
-            types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "varbinary(max)", "image");
-
-            types.Guid = DataTypeInfo.Regular(SqlType.Guid, common | index, "uniqueidentifier");
-
+            types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "longblob");
+            //types.Guid = DataTypeInfo.Regular(SqlType.Guid, common | index, "uuid()");
+   
             return types;
         }
 
