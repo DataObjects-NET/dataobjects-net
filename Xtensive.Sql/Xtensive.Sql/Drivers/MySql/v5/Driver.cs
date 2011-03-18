@@ -1,4 +1,10 @@
-﻿using Xtensive.Sql.Compiler;
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Malisa Ncube
+// Created:    2011.02.25
+
+using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.MySql.v5

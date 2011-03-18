@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Malisa Ncube
+// Created:    2011.02.25
+
+using System;
 using MySql.Data.MySqlClient;
 using Xtensive.Sql.Drivers.MySql;
 using Xtensive.Sql.Info;
