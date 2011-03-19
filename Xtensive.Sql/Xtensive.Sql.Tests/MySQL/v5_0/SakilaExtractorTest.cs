@@ -294,7 +294,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
-        public void Test009() //TODO : Validate this query (Malisa)
+        public void Test009() 
         {
             string nativeSql = @"SELECT 
                                   c.customer_id,
@@ -320,7 +320,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
 
             SqlSelect select = SqlDml.Select(customer.InnerJoin(rental, customer["customer_id"] == rental["customer_id"])
                                                      .InnerJoin(inventory, inventory["inventory_id"] == rental["inventory_id"])
-                                                     .InnerJoin(film, film["film_id"] == inventory["inventory"])
+                                                     .InnerJoin(film, film["film_id"] == inventory["film_id"])
                                                      );
             select.Columns.Add(customer["customer_id"]);
             select.Columns.Add(customer["first_name"]);
@@ -713,12 +713,12 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         {
             string nativeSql = @"SELECT last_name FROM customer
                                     ORDER BY last_name 
-                                    COLLATE utf8_spanish_ci ASC";
+                                    COLLATE utf8_general_ci ASC";
 
             SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
             SqlSelect select = SqlDml.Select(customer);
             select.Columns.Add(customer["last_name"]);
-            select.OrderBy.Add(SqlDml.Collate(customer["last_name"], Catalog.Schemas["Sakila"].Collations["utf8_spanish_ci"]));
+            select.OrderBy.Add(SqlDml.Collate(customer["last_name"], Catalog.Schemas["Sakila"].Collations["utf8_general_ci"]));
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }

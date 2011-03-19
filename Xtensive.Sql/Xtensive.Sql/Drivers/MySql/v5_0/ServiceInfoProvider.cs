@@ -252,13 +252,10 @@ namespace Xtensive.Sql.MySql.v5_0
             var identity = DataTypeFeatures.Identity;
 
             //types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
-            //  ValueRange.Bool, "bit");
+            //  ValueRange.Bool, "tinyint");
 
             types.Int8 = DataTypeInfo.Range(SqlType.Int8, common | index | identity,
              ValueRange.Byte, "tinyint");
-
-            //types.UInt8 = DataTypeInfo.Range(SqlType.UInt8, common | index | identity,
-            //  ValueRange.Byte, "tinyint");
 
             types.Int16 = DataTypeInfo.Range(SqlType.Int16, common | index | identity,
               ValueRange.Int16, "smallint");

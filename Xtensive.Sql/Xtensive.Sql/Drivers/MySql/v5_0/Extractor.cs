@@ -24,8 +24,6 @@ namespace Xtensive.Sql.MySql.v5_0
 
         private string targetSchema;
 
-        private string[] notSupportedTypes = new string[] { "SET", "ENUM", "BIT" };
-
         private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
         /// <inheritdoc/>
@@ -119,24 +117,45 @@ namespace Xtensive.Sql.MySql.v5_0
             using (var reader = ExecuteReader(GetExtractTableColumnsQuery()))
             {
                 Table table = null;
+                Schema schema = null;
+                TableColumn column = null;
                 int lastColumnId = int.MaxValue;
                 while (reader.Read())
                 {
                     int columnId = ReadInt(reader, 2);
                     if (columnId <= lastColumnId)
                     {
-                        var schema = theCatalog.Schemas[reader.GetString(0)];
+                        //Schema
+                        schema = theCatalog.Schemas[reader.GetString(0)];
+
+                        //Table
                         table = schema.Tables[reader.GetString(1)];
                     }
 
-                    var column = table.CreateColumn(reader.GetString(3));
+                    //Column
+                    column = table.CreateColumn(reader.GetString(3));
+
+                    //Collation
+                    var collationName = ReadStringOrNull(reader, 10);
+                    if (!string.IsNullOrEmpty(collationName))
+                        column.Collation = schema.Collations[collationName] ?? schema.CreateCollation(collationName);
+                    
+                    //Data type
                     column.DataType = CreateValueType(reader, 4, 8, 9, 7);
+
+                    //Nullable
                     column.IsNullable = ReadBool(reader, 5);
 
+                    //Default
                     var defaultValue = ReadStringOrNull(reader, 12);
                     if (!string.IsNullOrEmpty(defaultValue))
                         column.DefaultValue = SqlDml.Native(defaultValue);
-                    //column.
+
+                    // AutoIncrement
+                    if (ReadAutoIncrement(reader, 13))
+                        column.SequenceDescriptor = new SequenceDescriptor(column);
+                    
+                    //Column number.
                     lastColumnId = columnId;
                 }
             }
@@ -214,13 +233,20 @@ namespace Xtensive.Sql.MySql.v5_0
                     {
                         var schema = theCatalog.Schemas[reader.GetString(0)];
                         table = schema.Tables[reader.GetString(1)];
-                        index = table.CreateIndex(reader.GetString(2));
-                        index.IsUnique = reader.GetInt32(3) == 0;
-                        //index.IsFullText = reader.GetString(4) == "FULLTEXT";
+                        if (IsFullTextIndex(reader, 4))
+                        {
+                            table.CreateFullTextIndex(reader.GetString(2));
+                        }
+                        else
+                        {
+                            index = table.CreateIndex(reader.GetString(2));
+                            index.IsUnique = reader.GetInt32(3) == 0;
+                        }
                     }
                     var column = table.TableColumns[reader.GetString(6)];
                     //bool isAscending = reader.GetString(8) == "ASC";
                     index.CreateIndexColumn(column);
+                    
                     lastColumnPosition = columnPosition;
                 }
             }
@@ -445,6 +471,34 @@ namespace Xtensive.Sql.MySql.v5_0
                     return false;
                 default:
                     throw new ArgumentOutOfRangeException(string.Format(Strings.ExInvalidBooleanStringX, value));
+            }
+        }
+
+        private static bool IsFullTextIndex(IDataRecord row, int index)
+        {
+            var value = ReadStringOrNull(row, index);
+            if (!string.IsNullOrEmpty(value))
+            {
+                value = value.ToUpperInvariant();
+                return value == "FULLTEXT";
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static bool ReadAutoIncrement(IDataRecord row, int index)
+        {
+            var value = ReadStringOrNull(row, index);
+            if (!string.IsNullOrEmpty(value))
+            {
+                value = value.ToUpperInvariant();
+                return value == "AUTO_INCREMENT";
+            }
+            else
+            {
+                return false;
             }
         }
 

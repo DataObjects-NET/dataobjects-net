@@ -933,7 +933,24 @@ namespace Xtensive.Sql.MySql.v5_0
                 return base.Translate(lockType);
             return "FOR UPDATE";
         }
-
+        
+        //----------------------- Other Vendor Type MySQL Type
+        //BOOL TINYINT
+        //BOOLEAN TINYINT
+        //CHARACTER VARYING(M) VARCHAR(M)
+        //FIXED DECIMAL
+        //FLOAT4 FLOAT
+        //FLOAT8 DOUBLE
+        //INT1 TINYINT
+        //INT2 SMALLINT
+        //INT3 MEDIUMINT
+        //INT4 INT
+        //INT8 BIGINT
+        //LONG VARBINARY MEDIUMBLOB
+        //LONG VARCHAR MEDIUMTEXT
+        //LONG MEDIUMTEXT
+        //MIDDLEINT MEDIUMINT
+        //NUMERIC DECIMAL
         protected virtual string TranslateClrType(Type type)
         {
             switch (Type.GetTypeCode(type))
