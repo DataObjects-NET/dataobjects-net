@@ -153,7 +153,7 @@ namespace Xtensive.Sql.MySql.v5_0
 
                     // AutoIncrement
                     if (ReadAutoIncrement(reader, 13))
-                        column.SequenceDescriptor = new SequenceDescriptor(column);
+                        column.SequenceDescriptor = new SequenceDescriptor(column, 0, int.MaxValue);
                     
                     //Column number.
                     lastColumnId = columnId;
@@ -367,10 +367,11 @@ namespace Xtensive.Sql.MySql.v5_0
             string typeName = row.GetString(typeNameIndex);
             typeName = typeName.ToUpperInvariant();
 
+            int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
+            int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
+  
             if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL")
             {
-                int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
-                int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
                 return new SqlValueType(SqlType.Decimal, precision, scale);
             }
 
@@ -423,8 +424,7 @@ namespace Xtensive.Sql.MySql.v5_0
             if (typeName.Contains("TEXT"))
             {
                 int length = ReadInt(row, charLengthIndex);
-                var sqlType = typeName.Length == 5 ? SqlType.Char : SqlType.VarChar;
-                return new SqlValueType(sqlType, length);
+                return new SqlValueType(SqlType.VarCharMax, length);
             }
 
             if (typeName.Contains("BLOB"))
@@ -432,6 +432,12 @@ namespace Xtensive.Sql.MySql.v5_0
                 return new SqlValueType(SqlType.VarBinaryMax);
             }
 
+            if (typeName == "VARCHAR" || typeName == "CHAR")
+            {
+                int length = Convert.ToInt32(row[charLengthIndex]);
+                var sqlType = typeName.Length == 4 ? SqlType.Char : SqlType.VarChar;
+                return new SqlValueType(sqlType, length);
+            }
             var typeInfo = Driver.ServerInfo.DataTypes[typeName];
             return typeInfo != null
               ? new SqlValueType(typeInfo.Type)

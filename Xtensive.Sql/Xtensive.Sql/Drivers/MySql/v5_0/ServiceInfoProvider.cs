@@ -111,7 +111,7 @@ namespace Xtensive.Sql.MySql.v5_0
             var tableInfo = new TableInfo();
             tableInfo.MaxIdentifierLength = MaxIdentifierLength;
             tableInfo.AllowedDdlStatements = DdlStatements.All;
-            tableInfo.PartitionMethods = PartitionMethods.List | PartitionMethods.Range | PartitionMethods.Hash;
+            tableInfo.PartitionMethods = PartitionMethods.None;
             return tableInfo;
         }
 
@@ -165,13 +165,11 @@ namespace Xtensive.Sql.MySql.v5_0
             indexInfo.MaxLength = 900;
             indexInfo.AllowedDdlStatements = DdlStatements.All;
             indexInfo.Features =
-              IndexFeatures.Clustered |
-              IndexFeatures.FillFactor |
               IndexFeatures.Unique |
               IndexFeatures.NonKeyColumns |
               IndexFeatures.SortOrder |
               IndexFeatures.FullText;
-            indexInfo.PartitionMethods = PartitionMethods.Range;
+            indexInfo.PartitionMethods = PartitionMethods.None;
             return indexInfo;
         }
 
@@ -193,7 +191,7 @@ namespace Xtensive.Sql.MySql.v5_0
         public override FullTextSearchInfo GetFullTextInfo()
         {
             var info = new FullTextSearchInfo();
-            info.Features = FullTextSearchFeatures.SingleKeyRankTable;
+            info.Features = FullTextSearchFeatures.None;
             return info;
         }
 
@@ -208,18 +206,10 @@ namespace Xtensive.Sql.MySql.v5_0
             queryInfo.Features =
               QueryFeatures.NamedParameters |
               QueryFeatures.ParameterPrefix |
-              QueryFeatures.Batches |
               QueryFeatures.UpdateFrom |
               QueryFeatures.Limit |
               QueryFeatures.DefaultValues |
-              QueryFeatures.RowNumber |
               QueryFeatures.ScalarSubquery;
-
-            #region Some disabled Features for consideration
-            //              QueryFeatures.CrossApply |     TODO: Investigate http://www.youdidwhatwithtsql.com/comparing-tsql-cross-apply-mysql-groupconcat/280 (Malisa)
-            //                                                                                       http://dev.mysql.com/doc/refman/5.1/en/group-by-functions.html#function_group-concat 
-
-            #endregion
 
             return queryInfo;
         }
@@ -246,8 +236,7 @@ namespace Xtensive.Sql.MySql.v5_0
             var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.NonKeyIndexing |
               DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
 
-            var index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering |
-              DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
+            var index = DataTypeFeatures.Indexing | DataTypeFeatures.KeyConstraint;
 
             var identity = DataTypeFeatures.Identity;
 

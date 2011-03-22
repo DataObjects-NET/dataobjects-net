@@ -194,7 +194,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
                       actor.first_name = 'ADAM'";
 
             var p = sqlCommand.CreateParameter();
-            p.ParameterName = "p1";
+            p.ParameterName = "p10";
             p.DbType = DbType.String;
             p.Value = "ADAM";
             sqlCommand.Parameters.Add(p);
@@ -506,13 +506,13 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         [Test]
         public void Test017()
         {
-            string nativeSql = "SELECT c.customer_id, CONCAT(c.first_name, ', ', c.last_name) as FullName FROM customer c";
+            string nativeSql = "SELECT c.customer_id, CONCAT(c.first_name, CONCAT(', ', c.last_name)) as FullName FROM customer c";
 
             SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
 
             SqlSelect select = SqlDml.Select(customer);
             select.Columns.Add(customer["customer_id"]);
-            select.Columns.Add(SqlDml.Concat(customer["first_name"], SqlDml.Literal(", "),  customer["last_name"]),
+            select.Columns.Add(SqlDml.Concat(customer["first_name"], SqlDml.Concat(SqlDml.Literal(", "),  customer["last_name"])),
                                "FullName"
                                );
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -708,7 +708,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
-        [Ignore] //MySQL reference Manual , Topic: "10.10. Character Sets and Collations That MySQL Supports"
         public void Test025()
         {
             string nativeSql = @"SELECT last_name FROM customer
@@ -807,6 +806,29 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
         [Test]
+        public void Test030()
+        {
+            string nativeSql = @"SELECT  
+                                  r.rental_id,
+                                  DATEDIFF(CURDATE(), r.rental_date) TimeToToday
+                                FROM 
+                                  rental r
+                                WHERE
+                                  r.return_date IS NOT NULL";
+
+            SqlTableRef rental = SqlDml.TableRef(schema.Tables["rental"], "r");
+            SqlSelect select = SqlDml.Select(rental);
+            select.Columns.AddRange(rental["rental_id"]);
+            select.Columns.Add(
+                              SqlDml.FunctionCall("DATEDIFF", SqlDml.CurrentDate(), rental["rental_date"]),
+                              "TimeToToday"
+                              );
+            select.Where = SqlDml.IsNotNull(rental["return_date"]);
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
         public void Test150()
         {
             SqlCreateTable create = SqlDdl.Create(Catalog.Schemas["Sakila"].Tables["customer"]);
@@ -851,5 +873,141 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
 
             Console.Write(Compile(alter));
         }
+
+        [Test]
+        public void Test156()
+        {
+            SqlAlterTable alter =
+              SqlDdl.Alter(
+                Catalog.Schemas["Sakila"].Tables["customer"],
+                SqlDdl.DropColumn(Catalog.Schemas["Sakila"].Tables["customer"].TableColumns["first_name"]));
+
+            Console.Write(Compile(alter));
+        }
+
+        [Test]
+        public void Test157()
+        {
+            var renameColumn = SqlDdl.Rename(Catalog.Schemas["Sakila"].Tables["customer"].TableColumns["first_name"], "FirstName");
+
+            Console.Write(Compile(renameColumn));
+        }
+
+        [Test]
+        public void Test158()
+        {
+            var t = Catalog.Schemas["Sakila"].Tables["customer"];
+            Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["email"]);
+            SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
+
+            Console.Write(Compile(stmt));
+        }
+
+        [Test]
+        [Ignore("Works")]
+        public void Test159()
+        {
+            var t = Catalog.Schemas["Sakila"].Tables["customer"];
+            Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["email"]);
+            SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(uc));
+
+            Console.Write(Compile(stmt));
+        }
+
+        [Test]
+        public void Test160()
+        {
+            var t = Catalog.Schemas["Sakila"].Tables["customer"];
+            Index index = t.CreateIndex("MegaIndex195");
+            index.CreateIndexColumn(t.TableColumns[0]);
+            SqlCreateIndex create = SqlDdl.Create(index);
+
+            Console.Write(Compile(create));
+        }
+
+        [Test]
+        public void Test161()
+        {
+            var t = Catalog.Schemas["Sakila"].Tables["customer"];
+            Index index = t.CreateIndex("MegaIndex196");
+            index.CreateIndexColumn(t.TableColumns[0]);
+            SqlDropIndex drop = SqlDdl.Drop(index);
+
+            Console.Write(Compile(drop));
+        }
+
+
+        [Test]
+        public void Test200()
+        {
+            string nativeSql =
+              @"SELECT 
+                  c.customer_id,
+                  c.store_id,
+                  c.first_name,
+                  c.last_name,
+                  c.email
+                FROM 
+                  customer c
+                USE INDEX(idx_last_name)
+                WHERE c.last_name > 'JOHNSON'";
+
+            SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Sakila"].Tables["customer"]);
+            SqlSelect select = SqlDml.Select(c);
+            select.Columns.AddRange(c["customer_id"], c["store_id"], c["first_name"], c["last_name"], c["email"]);
+            select.Where = c["last_name"] > "JOHNSON";
+
+            select.Hints.Add(SqlDml.NativeHint("idx_last_name"));
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void Test201()
+        {
+            string nativeSql = "SELECT a.f FROM ((SELECT 1 as f UNION SELECT 2) EXCEPT (SELECT 3 UNION SELECT 4)) a";
+
+            SqlSelect s1 = SqlDml.Select();
+            SqlSelect s2 = SqlDml.Select();
+            SqlSelect s3 = SqlDml.Select();
+            SqlSelect s4 = SqlDml.Select();
+            SqlSelect select;
+            s1.Columns.Add(1, "f");
+            s2.Columns.Add(2);
+            s3.Columns.Add(3);
+            s4.Columns.Add(4);
+            SqlQueryRef qr = SqlDml.QueryRef(s1.Union(s2).Except(s3.Union(s4)), "a");
+            select = SqlDml.Select(qr);
+            select.Columns.Add(qr["f"]);
+
+            Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+        }
+
+        [Test]
+        [Ignore("ALTER Sequences are not supported")]
+        public void Test177()
+        {
+            Sequence s =  Catalog.Schemas["Sakila"].CreateSequence("Generator177");
+            SqlDropSequence drop = SqlDdl.Drop(s);
+
+            Console.Write(Compile(drop));
+        }
+
+
+        [Test]
+        public void Test165()
+        {
+            //Note: The PRIMARY KEY does not have a name in MySQL
+            var t = Catalog.Schemas["Sakila"].Tables["table1"];
+            var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["field1"]);
+            SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
+
+            Console.Write(Compile(stmt));
+        }
+
+
+
+
     }
 }

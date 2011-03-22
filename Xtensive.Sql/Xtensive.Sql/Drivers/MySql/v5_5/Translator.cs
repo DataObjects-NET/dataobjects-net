@@ -10,7 +10,8 @@ namespace Xtensive.Sql.MySql.v5_5
 {
     internal class Translator : v5_1.Translator
     {
-   
+
+
         /// <inheritdoc/>
         public override string Translate(SqlFunctionType type)
         {

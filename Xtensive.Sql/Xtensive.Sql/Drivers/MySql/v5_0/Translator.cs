@@ -5,6 +5,7 @@
 // Created:    2011.02.25
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
@@ -12,6 +13,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Sql.Drivers.MySql.Resources;
 
 namespace Xtensive.Sql.MySql.v5_0
 {
@@ -78,6 +80,27 @@ namespace Xtensive.Sql.MySql.v5_0
             return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
         }
 
+        public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+        {
+            switch (section)
+            {
+                case SelectSection.HintsEntry:
+                    return string.Empty;
+                case SelectSection.HintsExit:
+                    if (node.Hints.Count==0)
+                      return string.Empty;
+                    var hints = new List<string>(node.Hints.Count);
+                    foreach (var hint in node.Hints) 
+                    {
+                       if (hint is SqlNativeHint)
+                        hints.Add( QuoteIdentifier((hint as SqlNativeHint).HintText));
+                    }
+                    return hints.Count > 0 ? "USE INDEX (" + string.Join(", ", hints.ToArray()) + ")" : string.Empty;
+                default:
+                    return base.Translate(context, node, section);
+            }
+        }
+
         /// <inheritdoc/>
         public override string Translate(SqlFunctionType type)
         {
@@ -120,8 +143,6 @@ namespace Xtensive.Sql.MySql.v5_0
                     return "SUBSTRING";
                 case SqlFunctionType.Upper:
                     return "UCASE";
-                //case SqlFunctionType.Concat:
-                //    return "concat";
                 case SqlFunctionType.Concat:
                     return "CONCAT()";
                 //math
@@ -178,13 +199,8 @@ namespace Xtensive.Sql.MySql.v5_0
         /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
         {
-            switch (section)
-            {
-                case SequenceDescriptorSection.StartValue:
-                    return "AUTO_INCREMENT()";
-                default:
-                    return String.Empty;
-            }
+            return string.Empty;
+            //throw new NotSupportedException(Strings.ExDoesNotSupportSequences);
         }
 
         /// <inheritdoc/>
@@ -198,7 +214,7 @@ namespace Xtensive.Sql.MySql.v5_0
                     return "NO ACTION";
                 case ReferentialAction.Restrict:
                     return "RESTRICT";
-                case ReferentialAction.SetDefault: //TODO: Verify existence of SET Default (Malisa)
+                case ReferentialAction.SetDefault:
                     return "SET DEFAULT";
                 case ReferentialAction.SetNull:
                     return "SET NULL";
@@ -212,7 +228,7 @@ namespace Xtensive.Sql.MySql.v5_0
             switch (type)
             {
                 case SqlNodeType.Concat:
-                    return string.Empty;
+                    return ",";
                 case SqlNodeType.DateTimePlusInterval:
                     return "+";
                 case SqlNodeType.DateTimeMinusInterval:
@@ -257,7 +273,7 @@ namespace Xtensive.Sql.MySql.v5_0
             switch (section)
             {
                 case NodeSection.Entry:
-                    return "CONCAT(";
+                    return "CONCAT("; 
                 case NodeSection.Exit:
                     return ")";
                 default:
@@ -265,21 +281,11 @@ namespace Xtensive.Sql.MySql.v5_0
             }
         }
 
-        public override string Translate(SqlMatchType mt)
-        {
-            switch (mt)
-            {
-                case SqlMatchType.Full:
-                    return "FULL";
-                default:
-                    return "SIMPLE";
-            }
-        }
-
         public override string Translate(SchemaNode node)
         {
             return QuoteIdentifier(new[] { node.Name });
         }
+
 
         public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
         {
@@ -300,6 +306,7 @@ namespace Xtensive.Sql.MySql.v5_0
                     return builder.ToString();
                 case CreateTableSection.Exit:
                     return string.Empty;
+
             }
             return base.Translate(context, node, section);
         }
@@ -310,10 +317,9 @@ namespace Xtensive.Sql.MySql.v5_0
             switch (section)
             {
                 case TableColumnSection.Exit:
-                case TableColumnSection.SetIdentityInfoElement:
-                case TableColumnSection.GenerationExpressionExit:
-                case TableColumnSection.Collate:
                     return string.Empty;
+                case TableColumnSection.GeneratedExit:
+                   return "AUTO_INCREMENT"; //Workaround based on fake sequence.
                 default:
                     return base.Translate(context, column, section);
             }
@@ -325,42 +331,79 @@ namespace Xtensive.Sql.MySql.v5_0
             switch (section)
             {
                 case CreateIndexSection.Entry:
-                    return string.Format("CREATE {0}INDEX {1} ON {2} ("
-                      , index.IsUnique ? "UNIQUE " : String.Empty
+                    return string.Format("CREATE {0}INDEX {1} USING BTREE ON {2} "
+                      , index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty)
                       , QuoteIdentifier(index.Name)
                       , Translate(index.DataTable));
+
+                case CreateIndexSection.Exit:
+                    return string.Empty;
                 default:
                     return base.Translate(context, node, section);
             }
         }
 
-        protected virtual void AppendIndexStorageParameters(StringBuilder builder, Index index)
-        {
-        }
-
         public override string Translate(SqlCompilerContext context, SqlDropIndex node)
         {
-            return string.Format("DROP INDEX {0} ON {1}", node.Index.Name, node.Index.DataTable.Schema.Name);
+            return string.Format("DROP INDEX {0} ON {1}", QuoteIdentifier(node.Index.Name), QuoteIdentifier(node.Index.DataTable.Name));
         }
+
+        public override string Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
+        {
+            switch (section)
+            {
+                case ConstraintSection.Entry:
+                    {
+                        if (constraint is PrimaryKey)
+                            return string.Empty;
+                        
+                        if (constraint is ForeignKey)
+                        {
+                            if (!String.IsNullOrEmpty(constraint.DbName))
+                                return "CONSTRAINT " + QuoteIdentifier(constraint.DbName);
+                        }
+
+                        if (!String.IsNullOrEmpty(constraint.DbName))
+                            return QuoteIdentifier(constraint.DbName);
+                        return String.Empty;
+                    }
+                default:
+                    return base.Translate(context, constraint, section);
+            }
+        }
+
+        public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+        {
+            switch(section)
+            {
+                case AlterTableSection.DropConstraint:
+                    //var action = node.Action as SqlDropConstraint;
+                    //if (action != null)
+                    //{
+                    //    var constraint = action.Constraint as TableConstraint;
+                    //    constraint.
+                    //}
+                    return "DROP INDEX";
+                    break;
+                case AlterTableSection.DropBehavior:
+                    var cascadableAction = node.Action as SqlCascadableAction;
+                    if (cascadableAction==null || !cascadableAction.Cascade)
+                      return string.Empty;
+                    if (cascadableAction is SqlDropConstraint)
+                      return string.Empty;
+                    return cascadableAction.Cascade ? "CASCADE" : "RESTRICT";
+                    break;
+                default:
+                    return base.Translate(context, node, section);
+                    break;
+            }
+        }
+
 
         public override string Translate(SqlCompilerContext context, SqlBreak node)
         {
-            return "EXIT";
-        }
-
-        public override string Translate(SqlCompilerContext context, SqlContinue node)
-        {
             return string.Empty;
-        }
-
-        public override string Translate(SqlCompilerContext context, SqlDeclareVariable node)
-        {
-            return string.Empty;
-        }
-
-        public override string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
-        {
-            return string.Empty;
+            //throw new NotSupportedException(Strings.ExCursorsOnlyForProcsAndFuncs);
         }
 
         /// <inheritdoc/>
@@ -391,28 +434,10 @@ namespace Xtensive.Sql.MySql.v5_0
         }
 
         /// <inheritdoc/>
-        public override string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
-        {
-            switch (section)
-            {
-                case ArraySection.Entry:
-                    return "ARRAY[";
-                case ArraySection.Exit:
-                    return "]";
-                case ArraySection.EmptyArray:
-                    return string.Format("'{{}}'::{0}[]", TranslateClrType(node.ItemType));
-                default:
-                    throw new ArgumentOutOfRangeException("section");
-            }
-        }
-
-        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
         {
-            bool isSecond = node.DateTimePart == SqlDateTimePart.Second
-              || node.IntervalPart == SqlIntervalPart.Second;
-            bool isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
-              || node.IntervalPart == SqlIntervalPart.Millisecond;
+            bool isSecond = node.DateTimePart == SqlDateTimePart.Second  || node.IntervalPart == SqlIntervalPart.Second;
+            bool isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond || node.IntervalPart == SqlIntervalPart.Millisecond;
             if (!(isSecond || isMillisecond))
                 return base.Translate(context, node, section);
             switch (section)
@@ -427,391 +452,6 @@ namespace Xtensive.Sql.MySql.v5_0
         }
 
         /// <inheritdoc/>
-        public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
-        {
-            switch (section)
-            {
-                case DeclareCursorSection.Entry:
-                    return ("DECLARE " + QuoteIdentifier(node.Cursor.Name));
-                case DeclareCursorSection.Sensivity:
-                    return "";
-                case DeclareCursorSection.Scrollability:
-                    return node.Cursor.Scroll ? "SCROLL" : "NO SCROLL";
-                case DeclareCursorSection.Cursor:
-                    return "CURSOR";
-                case DeclareCursorSection.Holdability:
-                    return node.Cursor.WithHold ? "WITH HOLD" : "";
-                case DeclareCursorSection.Returnability:
-                case DeclareCursorSection.Updatability:
-                case DeclareCursorSection.Exit:
-                    return "";
-
-                case DeclareCursorSection.For:
-                    return "FOR";
-            }
-            return base.Translate(context, node, section);
-        }
-
-        /// <inheritdoc/>
-        public override string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
-        {
-            switch (section)
-            {
-                case FetchSection.Entry:
-                    return "FETCH " + node.Option.ToString().ToUpper();
-                case FetchSection.Targets:
-                    return "FROM " + QuoteIdentifier(node.Cursor.Name);
-                case FetchSection.Exit:
-                    break;
-            }
-            return base.Translate(context, node, section);
-        }
-
-        /// <inheritdoc/>
-        public override string Translate(SqlCompilerContext context, SqlOpenCursor node)
-        {
-            // DECLARE CURSOR already opens it
-            return string.Empty;
-        }
-
-        /// <inheritdoc/>
-        public override string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
-        {
-            switch (section)
-            {
-                case MatchSection.Entry:
-                    //MATCH is not supported by PostgreSQL, we need some workaround
-                    SqlRow row = node.Value as SqlRow;
-                    if (row != null)
-                    {
-                        SqlSelect finalQuery = SqlDml.Select();
-                        finalQuery.Columns.Add(5);
-                        switch (node.MatchType)
-                        {
-                            #region SIMPLE
-
-                            case SqlMatchType.None:
-                                {
-                                    bool existsNull = false;
-                                    SqlCase c = SqlDml.Case();
-                                    {
-                                        bool subQueryNeeded = true;
-                                        //if any of the row elements is NULL then true
-                                        if (row.Count > 0)
-                                        {
-                                            bool allLiteral = true; //if true then there is no NULL element
-                                            SqlExpression when1 = null;
-                                            for (int i = 0; i < row.Count; i++)
-                                            {
-                                                bool elementIsNotLiteral = row[i].NodeType != SqlNodeType.Literal;
-                                                //if the row element is the NULL value
-                                                if (row[i].NodeType == SqlNodeType.Null)
-                                                {
-                                                    existsNull = true;
-                                                    break;
-                                                }
-                                                if (allLiteral && elementIsNotLiteral)
-                                                    allLiteral = false;
-                                                if (elementIsNotLiteral)
-                                                {
-                                                    if (when1 == null)
-                                                        when1 = SqlDml.IsNull(row[i]);
-                                                    else
-                                                        when1 = when1 || SqlDml.IsNull(row[i]);
-                                                }
-                                            }
-                                            if (existsNull)
-                                            {
-                                                //Some row element is the NULL value, MATCH result is true
-                                                subQueryNeeded = false;
-                                            }
-                                            else if (allLiteral)
-                                            {
-                                                //No row element is the NULL value
-                                                subQueryNeeded = true;
-                                            }
-                                            else //(!whenNotNeeded)
-                                            {
-                                                //Check if any row element is NULL
-                                                c.Add(when1 == null ? true : when1, true);
-                                                subQueryNeeded = true;
-                                            }
-                                        }
-                                        //find row in subquery
-                                        if (subQueryNeeded)
-                                        {
-                                            SqlQueryRef originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
-                                            SqlSelect q1 = SqlDml.Select(originalQuery);
-                                            q1.Columns.Add(1);
-                                            {
-                                                SqlTableColumnCollection columns = originalQuery.Columns;
-                                                SqlExpression where = null;
-                                                for (int i = 0; i < columns.Count; i++)
-                                                {
-                                                    if (i == 0)
-                                                        where = columns[i] == row[i];
-                                                    else
-                                                        where = where && columns[i] == row[i];
-                                                    if (node.Unique)
-                                                        q1.GroupBy.Add(columns[i]);
-                                                }
-                                                q1.Where = where;
-                                                if (node.Unique)
-                                                    q1.Having = SqlDml.Count(SqlDml.Asterisk) == 1;
-                                            }
-                                            //c.Add(Sql.Exists(q1), true);
-                                            c.Else = SqlDml.Exists(q1);
-                                        }
-                                    }
-                                    if (c.Else == null)
-                                        c.Else = false;
-                                    if (existsNull)
-                                        finalQuery.Where = null;
-                                    else if (c.Count > 0)
-                                        finalQuery.Where = c;
-                                    else
-                                        finalQuery.Where = c.Else;
-                                    break;
-                                }
-
-                            #endregion
-
-                            #region FULL
-
-                            case SqlMatchType.Full:
-                                {
-                                    SqlCase c1 = SqlDml.Case();
-                                    {
-                                        bool noMoreWhenNeeded = false;
-                                        bool allNull = true;
-                                        SqlExpression when1 = true;
-                                        //if all row elements are null then true
-                                        if (row.Count > 0)
-                                        {
-                                            bool whenNotNeeded = false;
-                                            for (int i = 0; i < row.Count; i++)
-                                            {
-                                                //if any row element is surely not the NULL value
-                                                if (row[i].NodeType == SqlNodeType.Literal)
-                                                {
-                                                    whenNotNeeded = true;
-                                                    break;
-                                                }
-                                                if (allNull && row[i].NodeType != SqlNodeType.Null)
-                                                {
-                                                    allNull = false;
-                                                }
-                                                if (i == 0)
-                                                    when1 = SqlDml.IsNull(row[i]);
-                                                else
-                                                    when1 = when1 && SqlDml.IsNull(row[i]);
-                                            }
-                                            if (allNull)
-                                            {
-                                                when1 = true;
-                                            }
-                                            if (!whenNotNeeded)
-                                                c1.Add(when1, true);
-                                        }
-                                        if (!noMoreWhenNeeded)
-                                        {
-                                            bool whenNotNeeded = false;
-                                            bool allLiteral = true;
-                                            SqlExpression when2 = true;
-                                            //if no row elements are null then subcase
-                                            for (int i = 0; i < row.Count; i++)
-                                            {
-                                                if (row[i].NodeType == SqlNodeType.Null)
-                                                {
-                                                    whenNotNeeded = true;
-                                                    when2 = false;
-                                                    break;
-                                                }
-                                                if (allLiteral && row[i].NodeType != SqlNodeType.Literal)
-                                                    allLiteral = false;
-                                                if (i == 0)
-                                                    when2 = SqlDml.IsNotNull(row[i]);
-                                                else
-                                                    when2 = when2 && SqlDml.IsNotNull(row[i]);
-                                            }
-                                            if (allLiteral)
-                                            {
-                                                when2 = true;
-                                            }
-                                            if (!whenNotNeeded)
-                                            {
-                                                //find row in subquery
-                                                SqlQueryRef originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
-                                                SqlSelect q1 = SqlDml.Select(originalQuery);
-                                                q1.Columns.Add(1);
-                                                {
-                                                    SqlTableColumnCollection columns = originalQuery.Columns;
-                                                    SqlExpression where = null;
-                                                    for (int i = 0; i < columns.Count; i++)
-                                                    {
-                                                        if (i == 0)
-                                                            where = columns[i] == row[i];
-                                                        else
-                                                            where = where && columns[i] == row[i];
-                                                        if (node.Unique)
-                                                            q1.GroupBy.Add(columns[i]);
-                                                    }
-                                                    q1.Where = where;
-                                                    if (node.Unique)
-                                                        q1.Having = SqlDml.Count(SqlDml.Asterisk) == 1;
-                                                }
-                                                c1.Add(when2, SqlDml.Exists(q1));
-                                            }
-                                        }
-                                        //else false
-                                        c1.Else = false;
-                                    }
-                                    if (c1.Count > 0)
-                                        finalQuery.Where = c1;
-                                    else
-                                        finalQuery.Where = false;
-                                    break;
-                                }
-
-                            #endregion
-
-                            #region PARTIAL
-
-                            case SqlMatchType.Partial:
-                                {
-                                    bool allNull = true;
-                                    SqlCase c1 = SqlDml.Case();
-                                    {
-                                        SqlExpression when1 = true;
-                                        //if all row elements are null then true
-                                        if (row.Count > 0)
-                                        {
-                                            bool whenNotNeeded = false;
-                                            for (int i = 0; i < row.Count; i++)
-                                            {
-                                                //if any row element is surely not the NULL value
-                                                if (row[i].NodeType == SqlNodeType.Literal)
-                                                {
-                                                    allNull = false;
-                                                    whenNotNeeded = true;
-                                                    break;
-                                                }
-                                                if (allNull && row[i].NodeType != SqlNodeType.Null)
-                                                {
-                                                    allNull = false;
-                                                }
-                                                if (i == 0)
-                                                    when1 = SqlDml.IsNull(row[i]);
-                                                else
-                                                    when1 = when1 && SqlDml.IsNull(row[i]);
-                                            }
-                                            if (allNull)
-                                            {
-                                                when1 = true;
-                                            }
-                                            if (!whenNotNeeded)
-                                                c1.Add(when1, true);
-                                        }
-                                        //otherwise
-                                        if (!allNull)
-                                        {
-                                            //find row in subquery
-                                            SqlQueryRef originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
-                                            SqlSelect q1 = SqlDml.Select(originalQuery);
-                                            q1.Columns.Add(8);
-                                            {
-                                                SqlTableColumnCollection columns = originalQuery.Columns;
-                                                SqlExpression where = null;
-                                                for (int i = 0; i < columns.Count; i++)
-                                                {
-                                                    //if row[i] would be NULL then c3 would result in true,
-                                                    if (row[i].NodeType != SqlNodeType.Null)
-                                                    {
-                                                        SqlCase c3 = SqlDml.Case();
-                                                        c3.Add(SqlDml.IsNull(row[i]), true);
-                                                        c3.Else = row[i] == columns[i];
-
-                                                        if (where == null)
-                                                            where = c3;
-                                                        else
-                                                            where = where && c3;
-                                                    }
-                                                    if (node.Unique)
-                                                    {
-                                                        SqlCase c4 = SqlDml.Case();
-                                                        c4.Add(SqlDml.IsNull(row[i]), 0);
-                                                        c4.Else = columns[i];
-                                                        q1.GroupBy.Add(c4);
-                                                    }
-                                                }
-                                                q1.Where = where;
-                                                if (node.Unique)
-                                                    q1.Having = SqlDml.Count(SqlDml.Asterisk) == 1;
-                                            }
-                                            c1.Else = SqlDml.Exists(q1);
-                                        }
-                                    }
-                                    if (c1.Else == null)
-                                        c1.Else = false;
-                                    if (allNull)
-                                        finalQuery.Where = null;
-                                    else if (c1.Count > 0)
-                                        finalQuery.Where = c1;
-                                    else
-                                        finalQuery.Where = c1.Else;
-                                }
-                                break;
-
-                            #endregion
-                        }
-                        SqlMatch newNode = SqlDml.Match(SqlDml.Row(), SqlDml.SubQuery(finalQuery).Query, node.Unique, node.MatchType);
-                        node.ReplaceWith(newNode);
-                        return "EXISTS(SELECT '";
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Strings.ExSqlMatchValueMustBeAnSqlRowInstance"); //TODO : Investigate (Malisa)
-                    }
-                case MatchSection.Specification:
-                    return "' WHERE EXISTS";
-                case MatchSection.Exit:
-                    return ")";
-            }
-            return string.Empty;
-        }
-
-        private SqlSelect CreateSelectForUniqueMatchNoneOrFull(SqlRow row, SqlSelect query)
-        {
-            /*
-            select exists(select 1
-                    from (original subquery) x 
-                    where x.a1=r.a1 and x.a2=r.a2 
-                    group by x.a1, x.a2
-                    having count(*)=1
-                    )                    }
-             */
-            SqlSelect q0 = SqlDml.Select();
-            {
-                SqlQueryRef originalQuery = SqlDml.QueryRef(query);
-                SqlSelect q1 = SqlDml.Select(originalQuery);
-                q1.Columns.Add(1);
-                q1.Where = true; //initially true
-                {
-                    int index = 0;
-                    foreach (SqlColumn col in originalQuery.Columns)
-                    {
-                        q1.Where = q1.Where && col == row[index];
-                        q1.GroupBy.Add(col);
-                        index++;
-                    }
-                    q1.Having = SqlDml.Count(SqlDml.Asterisk) == 1;
-                }
-                q0.Columns.Add(SqlDml.Exists(q1));
-            }
-            return q0;
-        }
-
-        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
         {
             switch (section)
@@ -819,6 +459,7 @@ namespace Xtensive.Sql.MySql.v5_0
                 case FunctionCallSection.Entry:
                     switch (node.FunctionType)
                     {
+                        case SqlFunctionType.LastAutoGeneratedId:
                         case SqlFunctionType.CurrentUser:
                         case SqlFunctionType.SessionUser:
                         case SqlFunctionType.SystemUser:
@@ -834,42 +475,9 @@ namespace Xtensive.Sql.MySql.v5_0
         }
 
         /// <inheritdoc/>
-        public override string Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
-        {
-            //substitute UNIQUE predicate with a more complex EXISTS predicate,
-            //because UNIQUE is not supported
-
-            if (node.NodeType == SqlNodeType.Unique)
-            {
-                var origSubselect = node.Operand as SqlSubQuery;
-                if (origSubselect != null)
-                {
-                    SqlQueryRef origQuery = SqlDml.QueryRef(origSubselect.Query);
-                    SqlSelect existsOp = SqlDml.Select(origQuery);
-                    existsOp.Columns.Add(1);
-                    existsOp.Where = true;
-                    foreach (SqlColumn col in origQuery.Columns)
-                    {
-                        existsOp.Where = existsOp.Where && SqlDml.IsNotNull(col);
-                        existsOp.GroupBy.Add(col);
-                    }
-                    existsOp.Having = SqlDml.Count(SqlDml.Asterisk) > 1;
-                    existsOp.Limit = 1;
-
-                    node.ReplaceWith(SqlDml.Not(SqlDml.Exists(existsOp)));
-                }
-            }
-            return base.Translate(context, node, section);
-        }
-
-        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
         {
-            if (section == NodeSection.Entry)
-                return "nextval('";
-            if (section == NodeSection.Exit)
-                return "')";
-            return string.Empty;
+            throw new NotSupportedException(Strings.ExDoesNotSupportSequences);
         }
 
         /// <inheritdoc/>
@@ -904,7 +512,7 @@ namespace Xtensive.Sql.MySql.v5_0
             switch (part)
             {
                 case SqlDateTimePart.Millisecond:
-                    return "SECOND";
+                    return "MICROSECOND";
                 case SqlDateTimePart.DayOfYear:
                     return "DAYOFYEAR";
                 case SqlDateTimePart.Day:
@@ -927,9 +535,9 @@ namespace Xtensive.Sql.MySql.v5_0
         /// <inheritdoc/>
         public override string Translate(SqlLockType lockType)
         {
-            if (lockType.Supports(SqlLockType.SkipLocked)
-              || lockType.Supports(SqlLockType.Shared)
-              || lockType.Supports(SqlLockType.ThrowIfLocked))
+            if (lockType.Supports(SqlLockType.Shared))
+                return "LOCK IN SHARE MODE";
+            if (lockType.Supports(SqlLockType.SkipLocked) || lockType.Supports(SqlLockType.ThrowIfLocked))
                 return base.Translate(lockType);
             return "FOR UPDATE";
         }
@@ -983,37 +591,31 @@ namespace Xtensive.Sql.MySql.v5_0
                     if (type == typeof(TimeSpan))
                         return "interval";
                     if (type == typeof(Guid))
-                        return "bytea";
+                        return "text";
                     return "text";
             }
         }
 
-        //private static string TranslateByteArrayLiteral(byte[] array)
-        //{
-        //    if (array.Length == 0)
-        //        return "''::bytea";
+        public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action) //TODO: Work on this.
+        {
+            string schemaName = action.Column.Table.Schema.DbName;
+            string tableName = action.Column.Table.DbName;
+            string columnName = action.Column.DbName;
 
-        //    var chars = new char[1 + 5 * array.Length + 8];
-        //    chars[0] = '\'';
-        //    chars[chars.Length - 1] = 'a';
-        //    chars[chars.Length - 2] = 'e';
-        //    chars[chars.Length - 3] = 't';
-        //    chars[chars.Length - 4] = 'y';
-        //    chars[chars.Length - 5] = 'b';
-        //    chars[chars.Length - 6] = ':';
-        //    chars[chars.Length - 7] = ':';
-        //    chars[chars.Length - 8] = '\'';
+            //alter table `actor` change column last_name1 last_name varchar(45)
 
-        //    for (int n = 1, i = 0; i < array.Length; i++, n += 5)
-        //    {
-        //        chars[n] = chars[n + 1] = '\\';
-        //        chars[n + 2] = (char)('0' + (7 & (array[i] >> 6)));
-        //        chars[n + 3] = (char)('0' + (7 & (array[i] >> 3)));
-        //        chars[n + 4] = (char)('0' + (7 & (array[i] >> 0)));
-        //    }
+            var builder = new StringBuilder();
+            builder.Append("ALTER TABLE ");
+            builder.Append(QuoteIdentifier(tableName));
+            builder.Append(" CHANGE COLUMN ");
+            builder.Append(QuoteIdentifier(columnName));
+            builder.Append(" ");
+            builder.Append(QuoteIdentifier(action.NewName));
+            builder.Append(" ");
+            builder.Append(Translate(action.Column.DataType));
 
-        //    return new string(chars);
-        //}
+            return builder.ToString();
+        }
 
         // Constructors
 

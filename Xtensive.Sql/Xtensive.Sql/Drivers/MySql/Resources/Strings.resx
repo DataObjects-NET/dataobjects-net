@@ -120,6 +120,12 @@
   <data name="ExCannotSupportEnum" xml:space="preserve">
     <value>Date type {0} is not supported.</value>
   </data>
+  <data name="ExCursorsOnlyForProcsAndFuncs" xml:space="preserve">
+    <value>MySQL supports CURSORS only on stores procedures and functions.</value>
+  </data>
+  <data name="ExDoesNotSupportSequences" xml:space="preserve">
+    <value>MySQL does not support sequences.</value>
+  </data>
   <data name="ExInvalidBooleanStringX" xml:space="preserve">
     <value>Invalid Boolean String</value>
   </data>
