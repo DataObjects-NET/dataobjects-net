@@ -994,7 +994,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
             Console.Write(Compile(drop));
         }
 
-
         [Test]
         public void Test165()
         {
@@ -1004,11 +1003,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
 
             Console.Write(Compile(stmt));
         }
-
-
-
-  
-
 
     }
 }

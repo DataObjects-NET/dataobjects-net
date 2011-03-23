@@ -18,7 +18,6 @@ namespace Xtensive.Sql.MySql.v5_0
 {
     internal class Compiler : SqlCompiler
     {
-
         protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
         protected static readonly long NanosecondsPerSecond = 1000000000;
         protected static readonly long NanosecondsPerMillisecond = 1000000;
@@ -57,18 +56,8 @@ namespace Xtensive.Sql.MySql.v5_0
         /// <inheritdoc/>
         public override void Visit(SqlFreeTextTable node)
         {
-            //mysql> CREATE TABLE articles (
-            //    ->   id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
-            //    ->   title VARCHAR(200),
-            //    ->   body TEXT,
-            //    ->   FULLTEXT (title,body)
-            //    -> );
-
-            //mysql> SELECT * FROM articles
-            //    -> WHERE MATCH (title,body)
-            //    -> AGAINST ('database' IN NATURAL LANGUAGE MODE);
-
-            throw SqlHelper.NotSupported("Will Implement");
+            //See Readme.txt point 6.
+            throw SqlHelper.NotSupported("FreeText");
         }
 
         /// <inheritdoc/>
@@ -114,6 +103,7 @@ namespace Xtensive.Sql.MySql.v5_0
         }
 
         /// <inheritdoc/>
+        /// //Thanks to Csaba Beer.
         public override void Visit(SqlQueryExpression node)
         {
             using (context.EnterScope(node))
@@ -159,16 +149,6 @@ namespace Xtensive.Sql.MySql.v5_0
                 case SqlFunctionType.Square:
                     SqlDml.Power(node.Arguments[0], 2).AcceptVisitor(this);
                     return;
-                case SqlFunctionType.Substring:
-                    if (node.Arguments.Count == 2)
-                    {
-                        node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
-                        SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
-                        node.Arguments.Add(len);
-                        Visit(node);
-                        return;
-                    }
-                    break;
                 case SqlFunctionType.IntervalToMilliseconds:
                     Visit(CastToLong(node.Arguments[0])/NanosecondsPerMillisecond);
                     return;

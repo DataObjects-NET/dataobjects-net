@@ -11,19 +11,6 @@ namespace Xtensive.Sql.MySql.v5_5
     internal class Translator : v5_1.Translator
     {
 
-
-        /// <inheritdoc/>
-        public override string Translate(SqlFunctionType type)
-        {
-            switch (type)
-            {
-                case SqlFunctionType.CurrentTimeStamp:
-                    return "NOW()";
-                default:
-                    return base.Translate(type);
-            }
-        }
-
         // Constructors
 
         public Translator(SqlDriver driver)

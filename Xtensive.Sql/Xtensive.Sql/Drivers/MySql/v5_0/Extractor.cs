@@ -13,7 +13,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.MySql.v5_0
 {
-
     internal partial class Extractor : Model.Extractor
     {
         private const int DefaultPrecision = 38;
@@ -67,8 +66,8 @@ namespace Xtensive.Sql.MySql.v5_0
 
         private void ExtractSchemas()
         {
-            // oracle does not clearly distinct users and schemas.
-            // so we extract just users.
+            // In MySQL schemas are databases,  so we extract databases, 
+            // but ensure we get into the context of a default database entered in the connection string.
             using (var reader = ExecuteReader(GetExtractSchemasQuery()))
                 while (reader.Read())
                     theCatalog.CreateSchema(reader.GetString(0));
@@ -244,7 +243,6 @@ namespace Xtensive.Sql.MySql.v5_0
                         }
                     }
                     var column = table.TableColumns[reader.GetString(6)];
-                    //bool isAscending = reader.GetString(8) == "ASC";
                     index.CreateIndexColumn(column);
                     
                     lastColumnPosition = columnPosition;

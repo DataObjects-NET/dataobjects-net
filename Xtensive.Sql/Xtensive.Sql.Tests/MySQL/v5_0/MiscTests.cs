@@ -288,7 +288,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         {
             SqlSelect select = SqlDml.Select();
             select.Columns.Add(SqlDml.Concat("a", "b"));
-            //select.Columns.Add("User: " + SqlDml.SessionUser()); //TODO: Implement pattern (Malisa)
+            //select.Columns.Add("User: " + SqlDml.SessionUser()); //NOTE: Not supported by MySQL.
             Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
         }
 
