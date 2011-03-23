@@ -998,7 +998,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         [Test]
         public void Test165()
         {
-            //Note: The PRIMARY KEY does not have a name in MySQL
             var t = Catalog.Schemas["Sakila"].Tables["table1"];
             var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["field1"]);
             SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
@@ -1007,6 +1006,8 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         }
 
 
+
+  
 
 
     }

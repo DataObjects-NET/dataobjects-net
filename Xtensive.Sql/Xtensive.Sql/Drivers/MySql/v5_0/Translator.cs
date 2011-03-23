@@ -130,7 +130,12 @@ namespace Xtensive.Sql.MySql.v5_0
                     return "NOW()";
                 case SqlFunctionType.IntervalNegate:
                     return "-";
-
+                case SqlFunctionType.DateTimeAddYears:
+                case SqlFunctionType.DateTimeAddMonths:
+                case SqlFunctionType.DateTimeConstruct:
+                case SqlFunctionType.DateTimeTruncate:
+                case SqlFunctionType.IntervalToMilliseconds:
+                    return string.Empty;
                 //string
 
                 case SqlFunctionType.CharLength:
@@ -406,6 +411,14 @@ namespace Xtensive.Sql.MySql.v5_0
             //throw new NotSupportedException(Strings.ExCursorsOnlyForProcsAndFuncs);
         }
 
+        public override string Translate(SqlValueType type)
+        {
+            // we need to explicitly specify maximum interval precision
+            if (type.Type == SqlType.Interval)
+                return "decimal(18, 18)";
+            return base.Translate(type);
+        }
+
         /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, object literalValue)
         {
@@ -589,7 +602,7 @@ namespace Xtensive.Sql.MySql.v5_0
                     return "timestamp";
                 default:
                     if (type == typeof(TimeSpan))
-                        return "interval";
+                        return "numeric";
                     if (type == typeof(Guid))
                         return "text";
                     return "text";

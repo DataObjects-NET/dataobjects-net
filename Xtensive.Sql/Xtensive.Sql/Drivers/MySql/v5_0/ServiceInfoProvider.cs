@@ -240,8 +240,8 @@ namespace Xtensive.Sql.MySql.v5_0
 
             var identity = DataTypeFeatures.Identity;
 
-            //types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
-            //  ValueRange.Bool, "tinyint");
+            types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
+              ValueRange.Bool, "boolean");
 
             types.Int8 = DataTypeInfo.Range(SqlType.Int8, common | index | identity,
              ValueRange.Byte, "tinyint");
