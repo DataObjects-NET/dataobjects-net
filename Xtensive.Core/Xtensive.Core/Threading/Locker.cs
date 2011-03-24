@@ -1,6 +1,8 @@
-﻿// Copyright (C) 2003-2007 Xtensive LLC, INLINE GmbH.
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2008.07.24
 
 using System;
 using System.Diagnostics;
@@ -541,7 +543,7 @@ namespace Xtensive.Core.Threading
         return;
       var rwLock = toLock as ReaderWriterLockSlim;
       if (rwLock != null)
-        ReleaseWriteLock(rwLock);
+        ReleaseReadLock(rwLock);
       else
         Monitor.Exit(toLock);
     }
