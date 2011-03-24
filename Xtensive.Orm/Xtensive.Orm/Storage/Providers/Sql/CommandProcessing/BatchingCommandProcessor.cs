@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -22,16 +23,15 @@ namespace Xtensive.Storage.Providers.Sql
   public sealed class BatchingCommandProcessor : CommandProcessor
   {
     private readonly int batchSize;
+    /// <summary>
+    /// Number of recursive enters in query execution methods.
+    /// </summary>
+    private int reenterCount;
 
-    /// <inheritdoc/>
-    public override void ExecuteRequests(bool allowPartialExecution)
-    {
-      while (tasks.Count >= batchSize)
-        ExecuteBatch(batchSize, null);
-
-      if (!allowPartialExecution)
-        ExecuteBatch(tasks.Count, null);
-    }
+    /// <summary>
+    /// Active command.
+    /// </summary>
+    private Command activeCommand;
 
     /// <inheritdoc/>
     public override void ProcessTask(SqlQueryTask task)
@@ -49,15 +49,50 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
+    public override void ExecuteRequests(bool allowPartialExecution)
+    {
+      while (tasks.Count >= batchSize)
+        ExecuteBatch(batchSize, null);
+
+      if (!allowPartialExecution)
+        ExecuteBatch(tasks.Count, null);
+    }
+
+    /// <inheritdoc/>
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest request)
     {
       while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      return RunTupleReader(ExecuteBatch(tasks.Count, request), request.TupleDescriptor);
+      return RunTupleReader(ExecuteBatch(tasks.Count, request), request.TupleDescriptor, DisposeCommand);
     }
 
     #region Private / internal methods
+
+    /// <summary>
+    /// Allocates the active command.
+    /// </summary>
+    private void AllocateCommand()
+    {
+      if (activeCommand != null)
+        reenterCount++;
+      else
+        activeCommand = CreateCommand();
+    }
+
+    /// <summary>
+    /// Disposes the active command.
+    /// </summary>
+    private void DisposeCommand()
+    {
+      activeCommand.DisposeSafely();
+      if (reenterCount > 0) {
+        reenterCount--;
+        activeCommand = CreateCommand();
+      }
+      else
+        activeCommand = null;
+    }
 
     private DbDataReader ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
@@ -108,6 +143,11 @@ namespace Xtensive.Storage.Providers.Sql
     private string GetParameterPrefix()
     {
       return string.Format("p{0}_", activeCommand.Statements.Count + 1);
+    }
+
+    public override void Dispose()
+    {
+      DisposeCommand();
     }
 
     #endregion

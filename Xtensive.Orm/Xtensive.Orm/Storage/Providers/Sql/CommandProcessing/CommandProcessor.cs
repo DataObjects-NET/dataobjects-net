@@ -14,6 +14,7 @@ using Xtensive.Orm;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
+using Action = System.Action;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -56,16 +57,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// Connection this command processor is bound to.
     /// </summary>
     protected readonly SqlConnection connection;
-
-    /// <summary>
-    /// Number of recursive enters in query execution methods.
-    /// </summary>
-    protected int reenterCount;
-
-    /// <summary>
-    /// Active command.
-    /// </summary>
-    protected Command activeCommand;
 
     /// <summary>
     /// Processes the specified task.
@@ -130,7 +121,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="reader">The reader to wrap.</param>
     /// <param name="descriptor">The descriptor of a result.</param>
     /// <returns>Created <see cref="IEnumerator{Tuple}"/>.</returns>
-    protected IEnumerator<Tuple> RunTupleReader(DbDataReader reader, TupleDescriptor descriptor)
+    protected IEnumerator<Tuple> RunTupleReader(DbDataReader reader, TupleDescriptor descriptor, Action dispose)
     {
       var accessor = domainHandler.GetDataReaderAccessor(descriptor);
       try {
@@ -142,44 +133,12 @@ namespace Xtensive.Storage.Providers.Sql
           }
       }
       finally {
-        DisposeCommand();
+        if (dispose!=null)
+          dispose();
       }
     }
 
-    /// <summary>
-    /// Allocates the active command.
-    /// </summary>
-    protected void AllocateCommand()
-    {
-      if (activeCommand!=null)
-        reenterCount++;
-      else 
-        activeCommand = CreateCommand();
-    }
-
-    /// <summary>
-    /// Disposes the active command.
-    /// </summary>
-    protected void DisposeCommand()
-    {
-      activeCommand.DisposeSafely();
-      if (reenterCount > 0) {
-        reenterCount--;
-        activeCommand = CreateCommand();
-      }
-      else
-        activeCommand = null;
-    }
-
-    /// <inheritdoc/>
-    public void Dispose()
-    {
-      DisposeCommand();
-    }
-
-    #region Private / internal methods
-
-    private Command CreateCommand()
+    public Command CreateCommand()
     {
       var dbCommand = connection.CreateCommand();
       if (session.CommandTimeout!=null)
@@ -187,7 +146,9 @@ namespace Xtensive.Storage.Providers.Sql
       return new Command(driver, session, dbCommand);
     }
 
-    #endregion
+    /// <inheritdoc/>
+    public virtual void Dispose()
+    {}
 
 
     // Constructors
