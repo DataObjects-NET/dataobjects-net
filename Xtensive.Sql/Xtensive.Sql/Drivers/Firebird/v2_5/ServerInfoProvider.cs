@@ -192,7 +192,6 @@ namespace Xtensive.Sql.Firebird.v2_5
               QueryFeatures.ParameterPrefix |
               QueryFeatures.ScalarSubquery |
               QueryFeatures.RowNumber |
-              QueryFeatures.FullBooleanExpressionSupport |
               QueryFeatures.Paging |
               QueryFeatures.Limit |
               QueryFeatures.Offset;

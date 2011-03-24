@@ -206,9 +206,9 @@ namespace Xtensive.Sql.Firebird.v2_5
     {
       switch (section) {
         case SelectSection.Limit:
-          return "ROWS";
+          return "FIRST";
         case SelectSection.Offset:
-          return "TO";
+          return "SKIP";
       }
       return base.Translate(context, node, section);
     }
