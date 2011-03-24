@@ -54,6 +54,14 @@ namespace Xtensive.Storage.Rse.Compilation
         compiledSource);
     }
 
+    protected override ExecutableProvider VisitPaging(PagingProvider provider)
+    {
+      var compiledSource = Compile(provider.Source);
+      return new Providers.Executable.PagingProvider(
+        provider,
+        compiledSource);
+    }
+
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSelect(SelectProvider provider)
     {

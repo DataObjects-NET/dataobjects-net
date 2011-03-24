@@ -40,5 +40,6 @@ namespace Xtensive.Storage.Rse.Providers
     Lock,
     Include,
     FreeText,
+    Paging
   }
 }

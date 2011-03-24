@@ -5,38 +5,54 @@
 // Created:    2010.01.21
 
 using System;
-using System.Linq.Expressions;
 using Xtensive.Disposing;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   internal sealed class SkipTakeRewriterState
   {
-    private static readonly Expression ZeroExpression = Expression.Constant(0, typeof (int));
-    
     private readonly SkipTakeRewriter rewriter;
 
-    public Expression SkipExpression { get; private set; }
-    public Expression TakeExpression { get; private set; }
+    public Func<int> Skip { get; private set; }
+    public Func<int> Take { get; private set; }
 
     public bool IsSkipTakeChain { get; set; }
 
-    public void AddSkip(Func<int> skipCount)
+    public void AddSkip(Func<int> skip)
     {
-      var additionalSkip = SelectMaximal(ZeroExpression, skipCount);
-      SkipExpression = SkipExpression==null 
-        ? additionalSkip 
-        : Expression.Add(SkipExpression, additionalSkip);
-      if (TakeExpression!=null)
-        TakeExpression = Expression.Subtract(TakeExpression, SkipExpression);
+      var value = PositiveSelector(skip);
+      var oldSkip = Skip;
+      var oldTake = Take;
+      Skip = Skip == null
+        ? value
+        : () => oldSkip() + value();
+      if (Take != null) 
+        Take = () => oldTake() - value();
     }
 
-    public void AddTake(Func<int> takeCount)
+    public void AddTake(Func<int> take)
     {
-      var additionalTake = SelectMaximal(ZeroExpression, takeCount);
-      TakeExpression = TakeExpression==null 
-        ? additionalTake 
-        : SelectMiminal(TakeExpression, additionalTake);
+      var value = PositiveSelector(take);
+      Take = Take == null
+        ? value
+        : MinimumSelector(Take, value);
+    }
+
+    private static Func<int> MinimumSelector(Func<int> takeSelector, Func<int> valueSelector)
+    {
+      return () => {
+        var take = takeSelector();
+        var value = valueSelector();
+        return value > take ? take : value;
+      };
+    }
+
+    private static Func<int> PositiveSelector(Func<int> valueSelector)
+    {
+      return () => {
+        var value = valueSelector();
+        return value > 0 ? value : 0;
+      };
     }
 
     public IDisposable CreateScope()
@@ -47,21 +63,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return new Disposable(_ => rewriter.State = currentState);
     }
 
-    private static Expression SelectMaximal(Expression oldValue, Func<int> newValue)
-    {
-      var newExp = CreateDelegateInvocation(newValue);
-      return Expression.Condition(Expression.GreaterThan(newExp, oldValue), newExp, oldValue);
-    }
 
-    private static Expression SelectMiminal(Expression oldValue, Expression newValue)
-    {
-      return Expression.Condition(Expression.LessThan(newValue, oldValue), newValue, oldValue);
-    }
-
-    private static MethodCallExpression CreateDelegateInvocation(Func<int> arg)
-    {
-      return Expression.Call(Expression.Constant(arg), "Invoke", null);
-    }
+    // Constructors
 
     private SkipTakeRewriterState(SkipTakeRewriterState state)
     {

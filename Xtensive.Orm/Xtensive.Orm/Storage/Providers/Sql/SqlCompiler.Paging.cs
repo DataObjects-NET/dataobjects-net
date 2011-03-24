@@ -32,12 +32,23 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var compiledSource = Compile(provider.Source);
 
-      var queryRef = compiledSource.PermanentReference;
-      var query = SqlDml.Select(queryRef);
+      var query = ExtractSqlSelect(provider, compiledSource);
       var binding = CreateLimitOffsetParameterBinding(provider.Count);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = binding.ParameterReference;
       return CreateProvider(query, binding, provider, compiledSource);
+    }
+
+    /// <inheritdoc/>
+    protected override SqlProvider VisitPaging(PagingProvider provider)
+    {
+      var compiledSource = Compile(provider.Source);
+
+      var query = ExtractSqlSelect(provider, compiledSource);
+      var skipBinding = CreateLimitOffsetParameterBinding(provider.Skip);
+      var takeBinding = CreateLimitOffsetParameterBinding(provider.Take);
+      query.Offset = skipBinding.ParameterReference;
+      query.Limit = takeBinding.ParameterReference;
+      return CreateProvider(query, new []{skipBinding, takeBinding}, provider, compiledSource);
     }
 
     protected static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)

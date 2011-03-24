@@ -70,6 +70,17 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <inheritdoc/>
+    protected override Provider VisitPaging(PagingProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      if (source == provider.Source)
+        return provider;
+      return new PagingProvider(source, provider);
+    }
+
+    /// <inheritdoc/>
     protected override Provider VisitSelect(SelectProvider provider)
     {
       OnRecursionEntrance(provider);

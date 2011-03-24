@@ -16,6 +16,7 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -75,7 +76,7 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    protected SqlSelect ExtractSqlSelect(CompilableProvider origin, SqlProvider compiledSource)
+    protected static SqlSelect ExtractSqlSelect(CompilableProvider origin, SqlProvider compiledSource)
     {
       var sourceSelect = compiledSource.Request.SelectStatement;
       if (ShouldUseQueryReference(origin, compiledSource)) {
@@ -236,7 +237,7 @@ namespace Xtensive.Storage.Providers.Sql
         return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || columnCountIsNotSame;
       }
 
-      if (origin.Type==ProviderType.Take || origin.Type==ProviderType.Skip) {
+      if (origin.Type.In(ProviderType.Take,ProviderType.Skip,ProviderType.Paging)) {
         var sortProvider = origin.Sources[0] as SortProvider;
         var orderingOverCalculatedColumn = sortProvider!=null &&
           sortProvider.Header.Order
