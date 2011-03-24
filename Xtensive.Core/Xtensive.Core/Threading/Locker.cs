@@ -79,7 +79,6 @@ namespace Xtensive.Core.Threading
       : IDisposable
     {
       private readonly ReaderWriterLockSlim rwLock;
-      private readonly LockCookie? lockCookie;
 
 
       // Constructors
@@ -91,7 +90,7 @@ namespace Xtensive.Core.Threading
       public WriteController(ReaderWriterLockSlim rwLock)
       {
         this.rwLock = rwLock;
-        lockCookie = AcquireWriteLock(rwLock);
+        AcquireWriteLock(rwLock);
       }
 
       // Destructor
@@ -101,7 +100,7 @@ namespace Xtensive.Core.Threading
       /// </summary>
       public void Dispose()
       {
-        ReleaseWriteLock(rwLock, lockCookie);
+        ReleaseWriteLock(rwLock);
       }
     }
 
@@ -109,7 +108,6 @@ namespace Xtensive.Core.Threading
       : IDisposable
     {
       private readonly object toLock;
-      private readonly LockCookie? lockCookie;
 
 
       // Constructors
@@ -121,7 +119,7 @@ namespace Xtensive.Core.Threading
       public WriteLockController(object toLock)
       {
         this.toLock = toLock;
-        lockCookie = AcquireWriteLock(toLock);
+        AcquireWriteLock(toLock);
       }
 
       // Destructor
@@ -131,25 +129,24 @@ namespace Xtensive.Core.Threading
       /// </summary>
       public void Dispose()
       {
-        ReleaseWriteLock(toLock, lockCookie);
+        ReleaseWriteLock(toLock);
       }
     }
 
     private class SuspendController
       : IDisposable
     {
-      private readonly LockCookie lockCookie;
       private readonly ReaderWriterLockSlim rwLock;
 
       public void Dispose()
       {
-        RestoreLock(rwLock, lockCookie);
+        AcquireWriteLock(rwLock);
       }
 
       public SuspendController(ReaderWriterLockSlim rwLock)
       {
         this.rwLock = rwLock;
-        lockCookie = ReleaseWriteLock(this.rwLock);
+        ReleaseWriteLock(this.rwLock);
       }
     }
 
@@ -324,12 +321,12 @@ namespace Xtensive.Core.Threading
 
     public static void ExecuteWriter(this ReaderWriterLockSlim rwLock, Action writer)
     {
-      LockCookie? lockCookieHolder = AcquireWriteLock(rwLock);
+      AcquireWriteLock(rwLock);
       try {
         writer();
       }
       finally {
-        ReleaseWriteLock(rwLock, lockCookieHolder);
+        ReleaseWriteLock(rwLock);
       }
     }
 
@@ -341,23 +338,23 @@ namespace Xtensive.Core.Threading
     /// <param name="writer">A writer delegate.</param>
     public static void ExecuteWriter(object toLock, Action writer)
     {
-      LockCookie? lockCookieHolder = AcquireWriteLock(toLock);
+      AcquireWriteLock(toLock);
       try {
         writer();
       }
       finally {
-        ReleaseWriteLock(toLock, lockCookieHolder);
+        ReleaseWriteLock(toLock);
       }
     }
 
     public static T ExecuteWriter<T>(this ReaderWriterLockSlim rwLock, Func<T> writer)
     {
-      LockCookie? lockCookieHolder = AcquireWriteLock(rwLock);
+      AcquireWriteLock(rwLock);
       try {
         return writer();
       }
       finally {
-        ReleaseWriteLock(rwLock, lockCookieHolder);
+        ReleaseWriteLock(rwLock);
       }
     }
 
@@ -372,19 +369,17 @@ namespace Xtensive.Core.Threading
     /// </returns>
     public static T ExecuteWriter<T>(object toLock, Func<T> writer)
     {
-      LockCookie? lockCookieHolder;
-      lockCookieHolder = AcquireWriteLock(toLock);
+      AcquireWriteLock(toLock);
       try {
         return writer();
       }
       finally {
-        ReleaseWriteLock(toLock, lockCookieHolder);
+        ReleaseWriteLock(toLock);
       }
     }
 
     public static void ExecuteSuspender(this ReaderWriterLockSlim rwLock, Action suspender)
     {
-      // LockCookie lockCookie = 
       bool isWriter = rwLock.IsWriteLockHeld;
       if (isWriter)
         rwLock.ExitWriteLock();
@@ -403,12 +398,12 @@ namespace Xtensive.Core.Threading
 
     public static T ExecuteSuspender<T>(this ReaderWriterLockSlim rwLock, Func<T> suspender)
     {
-      LockCookie lockCookie = ReleaseWriteLock(rwLock);
+      ReleaseWriteLock(rwLock);
       try {
         return suspender();
       }
       finally {
-        RestoreLock(rwLock, lockCookie);
+        AcquireWriteLock(rwLock);
       }
     }
 
@@ -474,23 +469,22 @@ namespace Xtensive.Core.Threading
     /// Attempts to acquire the lock in write mode.
     /// </summary>
     /// <param name="toLock">The object to acquire the lock on.</param>
-    public static LockCookie? BeginWrite(object toLock)
+    public static void BeginWrite(object toLock)
     {
       if (toLock == null)
-        return null;
+        return;
       var rwLock = toLock as ReaderWriterLockSlim;
       if (rwLock == null)
         Monitor.Enter(toLock);
       else
-        return AcquireWriteLock(rwLock);
-      return null;
+        AcquireWriteLock(rwLock);
     }
 
     /// <summary>
     /// Releases the write lock.
     /// </summary>
     /// <param name="toLock">The object to release the lock from.</param>
-    public static void EndWrite(object toLock, LockCookie? lockCookieHolder)
+    public static void EndWrite(object toLock)
     {
       if (toLock == null)
         return;
@@ -498,31 +492,30 @@ namespace Xtensive.Core.Threading
       if (rwLock == null)
         Monitor.Exit(toLock);
       else
-        ReleaseWriteLock(rwLock, lockCookieHolder);
+        ReleaseWriteLock(rwLock);
     }
 
     /// <summary>
     /// Attempts to acquire the lock in write mode.
     /// </summary>
     /// <param name="rwLock">The object to acquire the lock on.</param>
-    public static LockCookie? BeginWrite(this ReaderWriterLockSlim rwLock)
+    public static void BeginWrite(this ReaderWriterLockSlim rwLock)
     {
       if (rwLock == null)
-        return null;
-      
-      return AcquireWriteLock(rwLock);
+        return;
+      AcquireWriteLock(rwLock);
     }
 
     /// <summary>
     /// Releases the write lock.
     /// </summary>
     /// <param name="rwLock">The object to release the lock from.</param>
-    public static void EndWrite(this ReaderWriterLockSlim rwLock, LockCookie? lockCookieHolder)
+    public static void EndWrite(this ReaderWriterLockSlim rwLock)
     {
       if (rwLock == null)
         return;
 
-      ReleaseWriteLock(rwLock, lockCookieHolder);
+      ReleaseWriteLock(rwLock);
     }
 
     #endregion
@@ -553,36 +546,24 @@ namespace Xtensive.Core.Threading
         Monitor.Exit(toLock);
     }
 
-    private static LockCookie? AcquireWriteLock(object toLock)
+    private static void AcquireWriteLock(object toLock)
     {
       if (toLock == null)
-        return null;
+        return;
       var rwLock = toLock as ReaderWriterLockSlim;
       if (rwLock != null)
-        return AcquireWriteLock(rwLock);
+        AcquireWriteLock(rwLock);
       else
         Monitor.Enter(toLock);
-      return null;
     }
 
     private static void ReleaseWriteLock(object toLock)
     {
       if (toLock == null)
         return;
-      ReaderWriterLockSlim rwLock = toLock as ReaderWriterLockSlim;
-      if (rwLock != null)
-        ReleaseWriteLock(rwLock);
-      else
-        Monitor.Exit(toLock);
-    }
-
-    private static void ReleaseWriteLock(object toLock, LockCookie? lockCookieHolder)
-    {
-      if (toLock == null)
-        return;
       var rwLock = toLock as ReaderWriterLockSlim;
       if (rwLock != null)
-        ReleaseWriteLock(rwLock, lockCookieHolder);
+        ReleaseWriteLock(rwLock);
       else
         Monitor.Exit(toLock);
     }
@@ -593,63 +574,28 @@ namespace Xtensive.Core.Threading
     {
       if (rwLock == null)
         return;
-      rwLock.EnterReadLock();
+      rwLock.EnterUpgradeableReadLock();
     }
 
     private static void ReleaseReadLock(ReaderWriterLockSlim rwLock)
     {
       if (rwLock == null)
         return;
-      if (rwLock.IsWriteLockHeld)
-        rwLock.ExitWriteLock();
-      else if (rwLock.IsReadLockHeld)
-        rwLock.ExitReadLock();
+      rwLock.ExitUpgradeableReadLock();
     }
 
-    private static LockCookie? AcquireWriteLock(ReaderWriterLockSlim rwLock)
-    {
-      if (rwLock == null)
-        return null;
-      LockCookie? lockCookieHolder = null;
-      if (rwLock.IsReadLockHeld) {
-        rwLock.ExitReadLock();
-        rwLock.EnterWriteLock();
-      }
-      else if (!rwLock.IsWriteLockHeld)
-        rwLock.EnterWriteLock();
-      return lockCookieHolder;
-    }
-
-    // TODO: Fix (rwLock.ReleaseWriterLock is called despite of rwLock.IsWriterLockHeld == false)
-    private static void ReleaseWriteLock(ReaderWriterLockSlim rwLock, LockCookie? lockCookieHolder)
+    private static void AcquireWriteLock(ReaderWriterLockSlim rwLock)
     {
       if (rwLock == null)
         return;
-      if (rwLock.IsWriteLockHeld)
-        rwLock.ExitWriteLock();
-      else if (rwLock.IsReadLockHeld)
-        rwLock.ExitReadLock();
+      rwLock.EnterWriteLock();
     }
 
-    private static LockCookie ReleaseWriteLock(ReaderWriterLockSlim rwLock)
-    {
-      if (rwLock == null)
-        return new LockCookie();
-      if (rwLock.IsWriteLockHeld)
-        rwLock.ExitWriteLock();
-      else if (rwLock.IsReadLockHeld)
-        rwLock.ExitReadLock();
-      return new LockCookie();
-    }
-
-    private static void RestoreLock(ReaderWriterLockSlim rwLock, LockCookie lockCookie)
+    private static void ReleaseWriteLock(ReaderWriterLockSlim rwLock)
     {
       if (rwLock == null)
         return;
-      if (rwLock.IsWriteLockHeld)
-        rwLock.EnterWriteLock();
-      else if (rwLock.IsReadLockHeld)
-        rwLock.ExitReadLock();
+      rwLock.ExitWriteLock();
     }
 
     #endregion
