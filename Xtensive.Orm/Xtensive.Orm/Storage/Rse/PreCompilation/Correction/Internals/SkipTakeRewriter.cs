@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
+using Xtensive.Orm;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
@@ -30,11 +31,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     protected override Provider Visit(CompilableProvider cp)
     {
-      if ((cp.Type==ProviderType.Take || cp.Type==ProviderType.Skip) && !State.IsSkipTakeChain) {
+      var isPagingProvider = cp.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Paging);
+      if (isPagingProvider && !State.IsSkipTakeChain) {
         var visitedProvider = (CompilableProvider) base.Visit(cp);
 
-        bool requiresRowNumber = (State.TakeExpression!=null && !takeSupported)
-          || (State.SkipExpression!=null && !skipSupported);
+        var requiresRowNumber = (State.Take!=null && !takeSupported) || (State.Skip!=null && !skipSupported);
 
         // add rownumber column (if needed)
         if (requiresRowNumber) {
@@ -44,19 +45,14 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
             columnName[0] = String.Format(Strings.RowNumberX, rowNumberCount++);
           visitedProvider = new RowNumberProvider(visitedProvider, columnName[0]);
         }
-        // Add take
-        if (State.TakeExpression!=null) {
-          var takeExpression = State.TakeExpression;
-          if (State.SkipExpression!=null)
-            takeExpression = Expression.Add(takeExpression, State.SkipExpression);
-          var count = Expression.Lambda<Func<int>>(takeExpression).CachingCompile();
-          visitedProvider = new TakeProvider(visitedProvider, count);
-        }
-        // add skip
-        if (State.SkipExpression!=null) {
-          var count = Expression.Lambda<Func<int>>(State.SkipExpression).CachingCompile();
-          visitedProvider = new SkipProvider(visitedProvider, count);
-        }
+
+        if (State.Take != null && State.Skip != null)
+          visitedProvider = new PagingProvider(visitedProvider, State.Skip, State.Take);
+        else if (State.Take != null)
+          visitedProvider = new TakeProvider(visitedProvider, State.Take);
+        else
+          visitedProvider = new SkipProvider(visitedProvider, State.Skip);
+
         // add select removing RowNumber column
         if (requiresRowNumber)
           visitedProvider = new SelectProvider(
@@ -66,7 +62,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
         return visitedProvider;
       }
 
-      if (cp.Type!=ProviderType.Take && cp.Type!=ProviderType.Skip && State.IsSkipTakeChain)
+      if (!isPagingProvider && State.IsSkipTakeChain)
         using (State.CreateScope())
           return base.Visit(cp);
 
@@ -88,6 +84,16 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       State.AddTake(provider.Count);
       return visitedSource;
     }
+
+    protected override Provider VisitPaging(PagingProvider provider)
+    {
+      State.IsSkipTakeChain = true;
+      var visitedSource = VisitCompilable(provider.Source);
+      State.AddSkip(provider.Skip);
+      State.AddTake(provider.Take);
+      return visitedSource;
+    }
+
 
     // Constructors
 
