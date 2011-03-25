@@ -154,12 +154,12 @@ namespace Xtensive.Indexing.Providers
     public override void AddToCache(Page<TKey, TItem> page)
     {
       if (pageCache!=null) {
-        LockCookie? cookie = pageCacheLock.BeginWrite();
+        pageCacheLock.BeginWrite();
         try {
           pageCache.Add(page);
         }
         finally {
-          pageCacheLock.EndWrite(cookie);
+          pageCacheLock.EndWrite();
         }
       }
     }
@@ -168,7 +168,7 @@ namespace Xtensive.Indexing.Providers
     public override void RemoveFromCache(Page<TKey, TItem> page)
     {
       if (pageCache!=null) {
-        LockCookie? cookie = pageCacheLock.BeginWrite();
+        pageCacheLock.BeginWrite();
         try {
           pageCache.Remove(page);
         }
@@ -176,7 +176,7 @@ namespace Xtensive.Indexing.Providers
           return;
         }
         finally {
-          pageCacheLock.EndWrite(cookie);
+          pageCacheLock.EndWrite();
         }
       }
     }
