@@ -583,8 +583,8 @@ namespace Xtensive.Storage.Linq
       case MemberType.Array:
         // Special case. ArrayIndex expression. 
         if (binaryExpression.NodeType==ExpressionType.ArrayIndex) {
-          Expression arrayExpression = Visit(left);
-          Expression arrayIndex = Visit(right);
+          var arrayExpression = Visit(left);
+          var arrayIndex = Visit(right);
           return Expression.ArrayIndex(arrayExpression, arrayIndex);
         }
 
@@ -608,18 +608,17 @@ namespace Xtensive.Storage.Linq
         return binaryExpression;
       }
 
-      if (leftExpressions.Count!=rightExpressions.Count
-        || leftExpressions.Count==0)
+      if (leftExpressions.Count!=rightExpressions.Count || leftExpressions.Count==0)
         throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, Log.Instance);
 
       // Combine new binary expression from subexpression pairs.
       Expression resultExpression = null;
-      for (int i = 0; i < leftExpressions.Count; i++) {
+      for (var i = 0; i < leftExpressions.Count; i++) {
         BinaryExpression pairExpression;
-        Expression leftItem = leftExpressions[i];
-        Expression rightItem = rightExpressions[i];
-        bool leftIsNullable = leftItem.Type.IsNullable();
-        bool rightIsNullable = rightItem.Type.IsNullable();
+        var leftItem = leftExpressions[i];
+        var rightItem = rightExpressions[i];
+        var leftIsNullable = leftItem.Type.IsNullable();
+        var rightIsNullable = rightItem.Type.IsNullable();
         leftItem = leftIsNullable
           ? leftItem
           : leftItem.LiftToNullable();
@@ -627,14 +626,6 @@ namespace Xtensive.Storage.Linq
           ? rightItem
           : rightItem.LiftToNullable();
 
-//        if (leftIsNullable ^ rightIsNullable) {
-//          leftItem = leftIsNullable
-//            ? leftItem
-//            : leftItem.LiftToNullable();
-//          rightItem = rightIsNullable
-//            ? rightItem
-//            : rightItem.LiftToNullable();
-//        }
         switch (binaryExpression.NodeType) {
         case ExpressionType.Equal:
           pairExpression = Expression.Equal(leftItem, rightItem);
@@ -648,7 +639,7 @@ namespace Xtensive.Storage.Linq
         }
 
         // visit new expression recursively
-        Expression visitedResultExpression = VisitBinaryRecursive(pairExpression, originalBinaryExpression);
+        var visitedResultExpression = VisitBinaryRecursive(pairExpression, originalBinaryExpression);
 
         // Combine expression chain with AndAlso
         resultExpression = resultExpression==null
