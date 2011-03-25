@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual ISqlCompileUnit GetTableBasedNextImplementation(ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
     {
       var table = schema.Tables
-        .FirstOrDefault(t => t.Name==sequenceMappingName);
+        .FirstOrDefault(t => StringComparer.OrdinalIgnoreCase.Compare(t.Name, sequenceMappingName) == 0);
       if (table==null)
         throw new InvalidOperationException(
           string.Format(Strings.ExTableXIsNotFound, sequenceMappingName));

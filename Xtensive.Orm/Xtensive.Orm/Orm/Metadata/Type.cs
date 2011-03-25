@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Metadata
     /// <summary>
     /// Gets or sets the full type name.
     /// </summary>
-    [Field(Length = 1000)]
+    [Field(Length = 500)]
     public string Name { get; set; }
 
     /// <inheritdoc/>

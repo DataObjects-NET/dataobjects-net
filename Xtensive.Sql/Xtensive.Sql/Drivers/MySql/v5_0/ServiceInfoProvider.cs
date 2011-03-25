@@ -166,7 +166,6 @@ namespace Xtensive.Sql.MySql.v5_0
             indexInfo.AllowedDdlStatements = DdlStatements.All;
             indexInfo.Features =
               IndexFeatures.Unique |
-              IndexFeatures.NonKeyColumns |
               IndexFeatures.SortOrder |
               IndexFeatures.FullText;
             indexInfo.PartitionMethods = PartitionMethods.None;
