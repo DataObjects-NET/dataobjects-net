@@ -6,14 +6,12 @@
 
 namespace Xtensive.Sql.MySql.v5_1
 {
-    internal class TypeMapper: v5_0.TypeMapper
-    {
+  internal class TypeMapper : v5_0.TypeMapper
+  {
+    // Constructors
 
-        // Constructors
-
-        public TypeMapper(SqlDriver driver)
-            : base(driver)
-        {
-        }
-    }
+    public TypeMapper(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }

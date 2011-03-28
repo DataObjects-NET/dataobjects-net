@@ -6,36 +6,36 @@
 
 namespace Xtensive.Sql.MySql.v5_0
 {
-    partial class Extractor
-    {
-        protected const string SchemaFilterPlaceholder = "{SCHEMA_FILTER}";
-        protected const string TableFilterPlaceholder = "{TABLE_FILTER}";
-        protected const string IndexesFilterPlaceholder = "{INDEXES_FILTER}";
+  internal partial class Extractor
+  {
+    protected const string SchemaFilterPlaceholder = "{SCHEMA_FILTER}";
+    protected const string TableFilterPlaceholder = "{TABLE_FILTER}";
+    protected const string IndexesFilterPlaceholder = "{INDEXES_FILTER}";
 
-        protected string GetExtractSchemasQuery()
-        {
-            return
-              @"SELECT 
+    protected string GetExtractSchemasQuery()
+    {
+      return
+        @"SELECT 
                     u.user 
                 FROM mysql.user u 
                 WHERE user <> ''";
-        }
+    }
 
-        protected string GetExtractTablesQuery()
-        {
-            return
-              @"SELECT 
+    protected string GetExtractTablesQuery()
+    {
+      return
+        @"SELECT 
                     t.table_schema, 
                     t.table_name, 
                     t.table_type
                 FROM information_schema.tables t
                 WHERE t.table_schema {SCHEMA_FILTER}";
-        }
+    }
 
-        protected string GetExtractTableColumnsQuery()
-        {
-            return
-                @"SELECT 
+    protected string GetExtractTableColumnsQuery()
+    {
+      return
+        @"SELECT 
                     c.table_schema,
                     c.table_name,
                     c.ordinal_position,
@@ -57,24 +57,24 @@ namespace Xtensive.Sql.MySql.v5_0
                     c.table_schema, 
                     c.table_name, 
                     c.ordinal_position";
-        }
+    }
 
-        protected string GetExtractViewsQuery()
-        {
-            return
-              @"SELECT
+    protected string GetExtractViewsQuery()
+    {
+      return
+        @"SELECT
                     v.table_schema,
                     v.table_name,
                     v.view_definition
                 FROM information_schema.views v
                 WHERE
                     v.table_schema {SCHEMA_FILTER}";
-        }
+    }
 
-        protected string GetExtractViewColumnsQuery()
-        {
-            return
-              @"SELECT
+    protected string GetExtractViewColumnsQuery()
+    {
+      return
+        @"SELECT
                     v.table_schema,
                     v.table_name,
                     c.column_name,
@@ -90,12 +90,12 @@ namespace Xtensive.Sql.MySql.v5_0
                     c.table_schema,
                     v.table_name,
                     c.ordinal_position";
-        }
+    }
 
-        protected string GetExtractIndexesQuery()
-        {
-            return
-                @"SELECT 
+    protected string GetExtractIndexesQuery()
+    {
+      return
+        @"SELECT 
                        s.table_schema,
                        s.table_name,
                        s.index_name,
@@ -115,12 +115,12 @@ namespace Xtensive.Sql.MySql.v5_0
                       s.table_name,
                       s.index_name,
                       s.seq_in_index";
-        }
+    }
 
-        protected string GetExtractForeignKeysQuery()
-        {
-            return
-              @"SELECT 
+    protected string GetExtractForeignKeysQuery()
+    {
+      return
+        @"SELECT 
                      r.constraint_schema,
                      r.table_name,
                      r.constraint_name,
@@ -139,12 +139,12 @@ namespace Xtensive.Sql.MySql.v5_0
                 AND c.constraint_name <> 'PRIMARY'
                 ORDER BY
                     r.constraint_schema, r.table_name, r.constraint_name, c.ordinal_position";
-        }
+    }
 
-        protected string GetExtractCheckConstraintsQuery()
-        {
-            return
-            @"SELECT 
+    protected string GetExtractCheckConstraintsQuery()
+    {
+      return
+        @"SELECT 
                   t.constraint_schema,
                   t.constraint_name,
                   t.table_schema,
@@ -155,12 +155,12 @@ namespace Xtensive.Sql.MySql.v5_0
               WHERE
                   (t.constraint_schema {SCHEMA_FILTER})
               AND t.constraint_type = 'CHECK'";
-        }
+    }
 
-        protected string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
-        {
-            return
-            @"SELECT 
+    protected string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
+    {
+      return
+        @"SELECT 
                 t.constraint_schema,
                 t.table_name,
                 t.constraint_name,
@@ -180,12 +180,12 @@ namespace Xtensive.Sql.MySql.v5_0
                 t.table_name,
                 t.constraint_name,
                 c.ordinal_position";
-        }
-
-        protected virtual string GetExtractSequencesQuery()
-        {
-            return
-                @"";
-        }
     }
+
+    protected virtual string GetExtractSequencesQuery()
+    {
+      return
+        @"";
+    }
+  }
 }

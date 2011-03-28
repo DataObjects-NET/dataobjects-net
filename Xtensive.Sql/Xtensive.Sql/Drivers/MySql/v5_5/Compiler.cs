@@ -6,13 +6,12 @@
 
 namespace Xtensive.Sql.MySql.v5_5
 {
-    internal class Compiler : v5_1.Compiler
-    {
-        // Constructors
+  internal class Compiler : v5_1.Compiler
+  {
+    // Constructors
 
-        public Compiler(SqlDriver driver)
-            : base(driver)
-        {
-        }
-    }
+    public Compiler(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }

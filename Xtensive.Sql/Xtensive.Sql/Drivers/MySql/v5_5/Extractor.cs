@@ -4,23 +4,14 @@
 // Created by: Malisa Ncube
 // Created:    2011.03.20
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using Xtensive.Sql.Drivers.MySql.Resources;
-using Xtensive.Sql.Model;
-
 namespace Xtensive.Sql.MySql.v5_5
 {
-    internal class Extractor : v5_1.Extractor
-    {
+  internal class Extractor : v5_1.Extractor
+  {
+    // Constructors
 
-        // Constructors
-
-        public Extractor(SqlDriver driver)
-            : base(driver)
-        {
-        }
-    }
+    public Extractor(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }

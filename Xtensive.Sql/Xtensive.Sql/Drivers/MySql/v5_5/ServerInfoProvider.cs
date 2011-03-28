@@ -8,27 +8,26 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.MySql.v5_5
 {
-    internal class ServerInfoProvider : v5_1.ServerInfoProvider
+  internal class ServerInfoProvider : v5_1.ServerInfoProvider
+  {
+    private const int MaxIdentifierLength = 128;
+
+
+    /// <inheritdoc/>
+    public override TableInfo GetTableInfo()
     {
-        private const int MaxIdentifierLength = 128;
-
-
-        /// <inheritdoc/>
-        public override TableInfo GetTableInfo()
-        {
-            var tableInfo = new TableInfo();
-            tableInfo.MaxIdentifierLength = MaxIdentifierLength;
-            tableInfo.AllowedDdlStatements = DdlStatements.All;
-            //From version  5.1.14
-            tableInfo.PartitionMethods = PartitionMethods.Hash | PartitionMethods.Range | PartitionMethods.List;
-            return tableInfo;
-        }
-
-        // Constructors
-
-        public ServerInfoProvider(SqlDriver driver)
-            : base(driver)
-        {
-        }
+      var tableInfo = new TableInfo();
+      tableInfo.MaxIdentifierLength = MaxIdentifierLength;
+      tableInfo.AllowedDdlStatements = DdlStatements.All;
+      //From version  5.1.14
+      tableInfo.PartitionMethods = PartitionMethods.Hash | PartitionMethods.Range | PartitionMethods.List;
+      return tableInfo;
     }
+
+    // Constructors
+
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }

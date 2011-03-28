@@ -370,18 +370,19 @@ namespace Xtensive.Sql.MySql.v5_0
           if (constraint is PrimaryKey)
             return string.Empty;
           return base.Translate(context, constraint, section);
-        case ConstraintSection.Exit: {
-          var fk = constraint as ForeignKey;
-          var sb = new StringBuilder();
-          sb.Append(")");
-          if (fk != null) {
-            if (fk.OnUpdate != ReferentialAction.NoAction)
-              sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
-            if (fk.OnDelete != ReferentialAction.NoAction)
-              sb.Append(" ON DELETE " + Translate(fk.OnDelete));
+        case ConstraintSection.Exit:
+          {
+            var fk = constraint as ForeignKey;
+            var sb = new StringBuilder();
+            sb.Append(")");
+            if (fk != null) {
+              if (fk.OnUpdate != ReferentialAction.NoAction)
+                sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
+              if (fk.OnDelete != ReferentialAction.NoAction)
+                sb.Append(" ON DELETE " + Translate(fk.OnDelete));
+            }
+            return sb.ToString();
           }
-          return sb.ToString();
-        }
         default:
           return base.Translate(context, constraint, section);
       }

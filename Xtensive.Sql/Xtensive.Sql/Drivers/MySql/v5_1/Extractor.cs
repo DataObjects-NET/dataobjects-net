@@ -6,14 +6,12 @@
 
 namespace Xtensive.Sql.MySql.v5_1
 {
-    internal class Extractor : v5_0.Extractor
-    {
+  internal class Extractor : v5_0.Extractor
+  {
+    // Constructors
 
-        // Constructors
-
-        public Extractor(SqlDriver driver)
-            : base(driver)
-        {
-        }
-    }
+    public Extractor(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }

@@ -57,12 +57,21 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       var increment = generator.SequenceIncrement.Value;
-      var current = 
-        generator.Arithmetic.Subtract(hiValue, 
-          generator.Arithmetic.Multiply(generator.Arithmetic.One, increment));
+      var domainHandler = (DomainHandler)handlers.DomainHandler;
+
+      TFieldType current;
+      var arithmetic = generator.Arithmetic;
+
+      if (domainHandler.ProviderInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement)) {
+        // 256 - 1 * 128
+        current = arithmetic.Subtract(hiValue, arithmetic.Multiply(arithmetic.One, increment));
+      }
+      else
+        // (2 -1) * 128
+        current = arithmetic.Multiply(arithmetic.Subtract(hiValue, arithmetic.One), increment);
 
       for (int i = 0; i < increment; i++) {
-        current = generator.Arithmetic.Add(current, generator.Arithmetic.One);
+        current = arithmetic.Add(current, arithmetic.One);
         yield return current;
       }
     }

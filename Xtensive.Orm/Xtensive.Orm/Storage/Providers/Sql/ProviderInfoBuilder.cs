@@ -41,6 +41,10 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.KeyColumnSortOrder;
       if (si.Sequence!=null)
         f |= ProviderFeatures.Sequences;
+      else {
+        if (si.Identity != null && si.Identity.Features.Supports(IdentityFeatures.Increment))
+          f |= ProviderFeatures.ArbitraryIdentityIncrement;
+      }
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
         f |= ProviderFeatures.Apply;
       if (serverFeatures.Supports(ServerFeatures.LargeObjects))

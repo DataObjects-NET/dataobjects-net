@@ -6,14 +6,12 @@
 
 namespace Xtensive.Sql.MySql.v5_1
 {
-    internal class ServerInfoProvider : v5_0.ServerInfoProvider
-    {
+  internal class ServerInfoProvider : v5_0.ServerInfoProvider
+  {
+    // Constructors
 
-        // Constructors
-
-        public ServerInfoProvider(SqlDriver driver)
-            : base(driver)
-        {
-        }
-    }
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }

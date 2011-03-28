@@ -9,43 +9,42 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.MySql.v5_0
 {
-    internal class Driver : MySql.Driver
+  internal class Driver : MySql.Driver
+  {
+    /// <inheritdoc/>
+    protected override Sql.TypeMapper CreateTypeMapper()
     {
-        /// <inheritdoc/>
-        protected override Sql.TypeMapper CreateTypeMapper()
-        {
-            return new TypeMapper(this);
-        }
-
-        /// <inheritdoc/>
-        protected override SqlCompiler CreateCompiler()
-        {
-            return new Compiler(this);
-        }
-
-        /// <inheritdoc/>
-        protected override Model.Extractor CreateExtractor()
-        {
-            return new Extractor(this);
-        }
-
-        /// <inheritdoc/>
-        protected override SqlTranslator CreateTranslator()
-        {
-            return new Translator(this);
-        }
-
-        /// <inheritdoc/>
-        protected override Info.ServerInfoProvider CreateServerInfoProvider()
-        {
-            return new ServerInfoProvider(this);
-        }
-
-        // Constructors
-
-        public Driver(CoreServerInfo coreServerInfo)
-            : base(coreServerInfo)
-        {
-        }
+      return new TypeMapper(this);
     }
+
+    /// <inheritdoc/>
+    protected override SqlCompiler CreateCompiler()
+    {
+      return new Compiler(this);
+    }
+
+    /// <inheritdoc/>
+    protected override Model.Extractor CreateExtractor()
+    {
+      return new Extractor(this);
+    }
+
+    /// <inheritdoc/>
+    protected override SqlTranslator CreateTranslator()
+    {
+      return new Translator(this);
+    }
+
+    /// <inheritdoc/>
+    protected override Info.ServerInfoProvider CreateServerInfoProvider()
+    {
+      return new ServerInfoProvider(this);
+    }
+
+    // Constructors
+
+    public Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
+    {}
+  }
 }

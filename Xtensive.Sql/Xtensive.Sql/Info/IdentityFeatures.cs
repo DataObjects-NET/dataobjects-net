@@ -19,33 +19,21 @@ namespace Xtensive.Sql.Info
     None = 0x0,
 
     /// <summary>
-    /// Indicates that RDBMS allows to specify start value
-    /// for an identity column.
+    /// Indicates that RDBMS allows to specify seed value
+    /// for identity columns.
     /// </summary>
-    StartValue = 0x1,
+    Seed = 0x1,
 
     /// <summary>
-    /// Indicates that RDBMS supports automaticaly incrementing
-    /// identity columns.
+    /// Indicates that RDBMS allows to specify increment value
+    /// for identity columns.
     /// </summary>
     Increment = 0x2,
 
     /// <summary>
-    /// Indicates that RDBMS allows to specify minimum value
-    /// for an identity column.
+    /// Indicates that RDBMS supports automatically incrementing
+    /// identity columns.
     /// </summary>
-    Minimum = 0x4,
-
-    /// <summary>
-    /// Indicates that RDBMS allows to specify maximun value
-    /// for an identity column.
-    /// </summary>
-    Maximum = 0x8,
-
-    /// <summary>
-    /// Indicates that RDBMS allows cycles in generated
-    /// sequences of identity column values.
-    /// </summary>
-    Cycle = 0x10,
+    AutoIncrement = 0x4,
   }
 }

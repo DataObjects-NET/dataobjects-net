@@ -6,13 +6,11 @@
 
 namespace Xtensive.Sql.MySql.v5_1
 {
-    internal class Translator : v5_0.Translator
-    {
-
-        // Constructors
-        public Translator(SqlDriver driver)
-            : base(driver)
-        {
-        }
-    }
+  internal class Translator : v5_0.Translator
+  {
+    // Constructors
+    public Translator(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }

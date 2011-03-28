@@ -4,18 +4,14 @@
 // Created by: Malisa Ncube
 // Created:    2011.03.20
 
-using Xtensive.Sql.Dml;
-
 namespace Xtensive.Sql.MySql.v5_5
 {
-    internal class Translator : v5_1.Translator
-    {
+  internal class Translator : v5_1.Translator
+  {
+    // Constructors
 
-        // Constructors
-
-        public Translator(SqlDriver driver)
-            : base(driver)
-        {
-        }
-    }
+    public Translator(SqlDriver driver)
+      : base(driver)
+    {}
+  }
 }
