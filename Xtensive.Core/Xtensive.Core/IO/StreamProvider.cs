@@ -37,7 +37,6 @@ namespace Xtensive.IO
     private Pool<Stream> pool;
 
     private Stream writeStream;
-    private LockCookie? lockCookie;
 
     /// <summary>
     /// Gets the name of the file to provide streams for.
@@ -92,14 +91,14 @@ namespace Xtensive.IO
     {
       EnsureNotDisposed();
       if ((lockType & LockType.Write)!=0) {
-        lockCookie = rwLock.BeginWrite();
+        rwLock.BeginWrite();
         try {
           if (writeStream==null)
             writeStream = CreateStream();
           return writeStream;
         }
         catch (Exception) {
-          rwLock.EndWrite(lockCookie);
+          rwLock.EndWrite();
           throw;
         }
       }
@@ -126,7 +125,7 @@ namespace Xtensive.IO
       if (ReferenceEquals(stream, writeStream)) {
         if (ResetStream(stream)!=null)
           writeStream = null;
-        rwLock.EndWrite(lockCookie);
+        rwLock.EndWrite();
       }
       else {
         if (ResetStream(stream)!=null) {

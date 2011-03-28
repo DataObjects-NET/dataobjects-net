@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Configuration
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
     /// Includes only <see cref="None"/> flag.
     /// </summary>
-    ServerProfile = None,
+    ServerProfile = None | 0x400,
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).

@@ -27,5 +27,7 @@ namespace Xtensive.Sql.Tests
         public const string SqlServerCe35Northwind = "sqlserverce://localhost/SqlServerCe/Northwind.sdf";
 
         public const string MySQL50 = "mysql://root:admin@127.0.0.1:3306/sakila?Connection Timeout=5";
+    public const string Firebird25 = @"firebird://do4:do4@127.0.0.1:3050/do4test1"; // proto://[[user[:password]@]host[:port]]/resource
+    public const string Firebird25_AgentThompson = @"firebird://SYSDBA:masterkey@agentthompson/C:\Program Files\Firebird\Firebird_2_5\do40test.fdb?Port=3050&Dialect=3&Charset=NONE&Role=&Connection lifetime=15&Pooling=true&MinPoolSize=0&MaxPoolSize=50&Packet Size=8192&ServerType=0"; // proto://[[user[:password]@]host[:port]]/resource
     }
 }

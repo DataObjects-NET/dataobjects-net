@@ -132,6 +132,7 @@ namespace Xtensive.Orm.Building.Builders
       case WellKnown.Provider.SqlServerCe:
       case WellKnown.Provider.PostgreSql:
       case WellKnown.Provider.Oracle:
+	  case WellKnown.Provider.Firebird:
       case WellKnown.Provider.MySql:
         return WellKnown.ProviderAssembly.Sql;
       default:

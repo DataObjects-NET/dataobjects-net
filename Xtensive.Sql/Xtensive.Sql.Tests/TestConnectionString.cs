@@ -21,5 +21,9 @@ namespace Xtensive.Sql.Tests
 
         public const string MySQL50 =
             "Server=localhost;Database=do40test;Uid=root;Pwd=admin;";
+
+        public const string Firebird25 = 
+            @"firebird://do4:do4@127.0.0.1:3050/do4test1"; // proto://[[user[:password]@]host[:port]]/resource
+
     }
 }

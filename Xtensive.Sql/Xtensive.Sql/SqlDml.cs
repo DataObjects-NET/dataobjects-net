@@ -1197,6 +1197,12 @@ namespace Xtensive.Sql
       return new SqlNextValue(sequence);
     }
 
+    public static SqlNextValue NextValue(Sequence sequence, int increment)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sequence, "sequence");
+      return new SqlNextValue(sequence, increment);
+    }
+
     public static SqlStatementBlock StatementBlock()
     {
       return new SqlStatementBlock();

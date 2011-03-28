@@ -202,11 +202,14 @@ namespace Xtensive.Orm
       /// MySQL.
       /// </summary>
       public const string MySql = "mysql";
-
+      /// <summary>
+      /// Firebird.
+      /// </summary>
+      public const string Firebird = "firebird";
       /// <summary>
       /// All supported protocols (for exception messages, etc).
       /// </summary>
-      public const string All = "'memory', 'sqlserver', 'sqlserverce', 'postgresql', 'oracle', 'mysql'";
+      public const string All = "'memory', 'sqlserver', 'sqlserverce', 'postgresql', 'oracle', 'mysql', 'firebird'";
     }
 
     /// <summary>

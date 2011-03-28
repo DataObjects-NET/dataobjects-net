@@ -153,6 +153,7 @@ namespace Xtensive.Orm.Building.Builders
           var parentIsPaired = false;
           var interfaceIsPaired = false;
           var interfaceAssociations = new List<AssociationInfo>();
+          var inheritedAssociations = new List<AssociationInfo>();
           if (refField.IsDeclared && refField.IsInterfaceImplementation) {
             var implementedInterfaceFields = typeInfo.FieldMap
               .GetImplementedInterfaceFields(refField);
@@ -166,6 +167,7 @@ namespace Xtensive.Orm.Building.Builders
           if (refField.IsInherited) {
             var ancestor = typeInfo.GetAncestor();
             var field = ancestor.Fields[refField.Name];
+            inheritedAssociations.AddRange(field.Associations);
             parentIsPaired |= context.PairedAssociations.Any(pa => field.Associations.Contains(pa.First));
           }
 
@@ -229,6 +231,10 @@ namespace Xtensive.Orm.Building.Builders
               interfaceAssociations.Remove(interfaceAssociation);
           }
           refField.Associations.AddRange(interfaceAssociations);
+          foreach (var association in inheritedAssociations) {
+            if (!refField.Associations.Contains(association.Name))
+              refField.Associations.Add(association);
+          }
         }
       }
     }

@@ -28,9 +28,9 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
-    private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
-    private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
-    private Driver Driver { get { return DomainHandler.Driver; } }
+    protected DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
+    protected SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
+    protected Driver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         queryExecutor.ExecuteScalar, 
         queryExecutor.ExecuteNonQuery,
-        cachingKeyGeneratorService.GetNextImplementation);
+        cachingKeyGeneratorService.GetCurrentValueImplementation);
 
       translator.Translate();
 
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Providers.Sql
         sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
     }
 
-    private void Execute(IEnumerable<string> batch)
+    protected virtual void Execute(IEnumerable<string> batch)
     {
       if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
         IEnumerable<IEnumerable<string>> subbatches = SplitToSubbatches(batch);

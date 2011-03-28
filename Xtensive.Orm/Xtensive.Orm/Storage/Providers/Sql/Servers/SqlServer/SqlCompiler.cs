@@ -43,8 +43,6 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       var query = ExtractSqlSelect(provider, compiledSource);
       var binding = CreateLimitOffsetParameterBinding(provider.Count);
       query.Limit = binding.ParameterReference;
-//      if (!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
-//        AddOrderByStatement(provider, query);
       return CreateProvider(query, binding, provider, compiledSource);
     }
 

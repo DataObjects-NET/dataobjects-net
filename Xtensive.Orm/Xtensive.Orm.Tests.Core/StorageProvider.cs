@@ -17,8 +17,9 @@ namespace Xtensive.Orm.Tests
     PostgreSql = 0x8,
     Oracle = 0x10,
     MySql = 0x40,
+    Firebird = 0x20,
 
-    Sql = SqlServer | PostgreSql | Oracle | SqlServerCe | MySql,
+    Sql = SqlServer | PostgreSql | Oracle | SqlServerCe | Firebird | MySql,
     Index = Memory,
   }
 }
