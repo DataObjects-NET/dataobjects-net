@@ -5,6 +5,7 @@
 // Created:    2010.02.11
 
 using System;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Storage.Providers.Indexing
 {
@@ -21,7 +22,11 @@ namespace Xtensive.Storage.Providers.Indexing
         ProviderFeatures.FullFeaturedBooleanExpressions |
         ProviderFeatures.Apply |
         ProviderFeatures.RowNumber;
-      return new ProviderInfo(new Version(0, 3), features, int.MaxValue);
+
+      const TemporaryTableFeatures temporaryTableFeatures = TemporaryTableFeatures.Local 
+        | TemporaryTableFeatures.Global 
+        | TemporaryTableFeatures.DeleteRowsOnCommit;
+      return new ProviderInfo(new Version(0, 3), features, temporaryTableFeatures, int.MaxValue);
     }
   }
 }

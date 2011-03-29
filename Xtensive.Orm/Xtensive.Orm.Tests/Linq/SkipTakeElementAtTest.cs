@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MultipleTakeSkipRandomTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       IQueryable<Customer> query = Session.Query.All<Customer>().OrderBy(customer=>customer.Id);
       int count = query.Count();
       var expected = query.AsEnumerable();
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ReuseSkip2Test()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var totalCount = Session.Query.All<Customer>().Count();
       var result1 = SkipCustomersCorrect(1).Count();
       Assert.AreEqual(totalCount - 1, result1);

@@ -11,6 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0624_EntitySetSubqueryError_Model;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Orm.Tests.Issues
 {

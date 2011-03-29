@@ -92,6 +92,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AllWithLocalCollectionTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       var patterns = new[] {"a", "e"};
       var result = Session.Query.All<Customer>().Where(c => patterns.All(p => c.ContactName.Contains(p)));
       var list = result.ToList();

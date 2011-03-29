@@ -92,16 +92,16 @@ namespace Xtensive.Storage.Providers.Sql
 
       var storageVersion = csi.ServerVersion;
       var maxIdentifierLength = new EntityInfo[] {
-        si.Column,
-        si.ForeignKey,
-        si.Index,
-        si.PrimaryKey,
-        si.Sequence,
-        si.Table,
-        si.TemporaryTable,
-        si.UniqueConstraint
-      }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
-      return new ProviderInfo(storageVersion, f, maxIdentifierLength);      
+          si.Column,
+          si.ForeignKey,
+          si.Index,
+          si.PrimaryKey,
+          si.Sequence,
+          si.Table,
+          si.TemporaryTable,
+          si.UniqueConstraint
+        }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
+      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength);
     }
   }
 }

@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SkipTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Order>()
         .OrderBy(o => o.OrderDate)
         .Skip(5)
@@ -302,7 +302,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void DistinctSkipTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Customer>()
         .Distinct()
         .OrderBy(c => c.ContactName)
@@ -319,7 +319,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SkipTakeTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Order>()
         .OrderBy(o => o.OrderDate)
         .Skip(5)
@@ -340,7 +340,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TakeSkipTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Order>()
         .OrderBy(o => o.OrderDate)
         .Take(10)
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void DistinctSkipTakeTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Customer>()
         .Select(c => c.ContactName)
         .Distinct()

@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override void CheckRequirements()
     {
       base.CheckRequirements();
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
     }
 
     [Test]

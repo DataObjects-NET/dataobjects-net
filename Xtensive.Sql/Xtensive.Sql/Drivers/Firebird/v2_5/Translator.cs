@@ -118,12 +118,14 @@ namespace Xtensive.Sql.Firebird.v2_5
           return "-";
         case SqlNodeType.Except:
           throw SqlHelper.NotSupported(type.ToString());
+        case SqlNodeType.Intersect:
+          throw SqlHelper.NotSupported(type.ToString());
         case SqlNodeType.BitAnd:
-          return "BIT_AND";
+          return "BIN_AND";
         case SqlNodeType.BitOr:
-          return "BIT_OR";
+          return "BIN_OR";
         case SqlNodeType.BitXor:
-          return "BIT_XOR";
+          return "BIN_XOR";
         case SqlNodeType.Overlaps:
           throw SqlHelper.NotSupported(type.ToString());
         default:

@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void IntersectTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
       var productFirstChars =
@@ -64,6 +65,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SimpleIntersectTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var query = Session.Query.All<Order>()
         .Select(o => o.Employee)
         .Intersect(Session.Query.All<Order>().Select(o => o.Employee));
@@ -75,6 +77,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SimpleExceptTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
       var productFirstChars =
@@ -139,6 +142,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void IntersectDifferentTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = (
@@ -155,6 +159,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void ExceptDifferentTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = (
