@@ -52,7 +52,7 @@ select   schema
         ,numeric_precision
         ,-numeric_scale as numeric_scale
         ,character_max_length
-        ,column_nullable
+        ,(1 - coalesce(column_nullable,0)) as column_nullable
         ,column_default
 from     (select   cast(null as varchar(30)) as schema
                   ,trim(rfr.rdb$relation_name) as table_name

@@ -65,10 +65,16 @@ namespace Xtensive.Sql.Firebird.v2_5
     public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
+        case AlterTableSection.AddColumn:
+          return "ADD";
+        case AlterTableSection.AlterColumn:
+          return "ALTER";
+        case AlterTableSection.DropColumn:
+          return "DROP";
         case AlterTableSection.RenameColumn:
-          return "ALTER COLUMN";
-      case AlterTableSection.DropBehavior:
-        return string.Empty;
+          return "ALTER";
+        case AlterTableSection.DropBehavior:
+          return string.Empty;
       }
       return base.Translate(context, node, section);
     }
@@ -261,6 +267,7 @@ namespace Xtensive.Sql.Firebird.v2_5
       return base.Translate(context, constraint, section);
     }
 
+    /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlAlterSequence node, NodeSection section)
     {
       switch (section) {
@@ -272,13 +279,24 @@ namespace Xtensive.Sql.Firebird.v2_5
 
     }
 
+    /// <inheritdoc/>
+    public override string Translate(SqlCompilerContext context, SqlDropIndex node)
+    {
+      if (!node.Index.IsFullText)
+        return "DROP INDEX " + QuoteIdentifier(node.Index.DbName);
+      else 
+        return "DROP FULLTEXT INDEX ON " + Translate(node.Index.DataTable);
+    }
+
     public override string Translate(SqlCompilerContext context, SqlDropSequence node)
     {
       return "DROP SEQUENCE " + Translate(node.Sequence);
     }
 
+
     // Constructors
 
+    /// <inheritdoc/>
     public Translator(SqlDriver driver)
       : base(driver)
     {
