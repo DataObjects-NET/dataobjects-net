@@ -248,7 +248,7 @@ namespace Xtensive.Sql.MySql.v5_0
                                        ValueRange.Int16, "smallint");
 
       types.Int32 = DataTypeInfo.Range(SqlType.Int32, common | index | identity,
-                                       ValueRange.Int32, "integer", "int");
+                                       ValueRange.Int32, "int");
 
       types.Int64 = DataTypeInfo.Range(SqlType.Int64, common | index | identity,
                                        ValueRange.Int64, "bigint");

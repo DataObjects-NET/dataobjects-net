@@ -146,7 +146,8 @@ namespace Xtensive.Sql.MySql.v5_0
           Position(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
           return;
         case SqlFunctionType.CharLength:
-          SqlDml.CharLength(node.Arguments[0]).AcceptVisitor(this);
+          SqlDml.FunctionCall(translator.Translate(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);
+//          SqlDml.CharLength(node.Arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
