@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Storage.Providers
 {
@@ -16,7 +17,8 @@ namespace Xtensive.Storage.Providers
   public sealed class ProviderInfo
   {
     private readonly Version storageVersion;
-    private readonly ProviderFeatures features;
+    private readonly ProviderFeatures providerFeatures;
+    private readonly TemporaryTableFeatures temporaryTableFeatures;
 
     /// <summary>
     /// Determines whether the specified features are supported.
@@ -24,7 +26,16 @@ namespace Xtensive.Storage.Providers
     /// <param name="required">The required feature set.</param>
     public bool Supports(ProviderFeatures required)
     {
-      return (features & required)==required;
+      return (providerFeatures & required)==required;
+    }
+
+    /// <summary>
+    /// Determines whether the specified features are supported.
+    /// </summary>
+    /// <param name="required">The required feature set.</param>
+    public bool Supports(TemporaryTableFeatures required)
+    {
+      return (temporaryTableFeatures & required) == required;
     }
 
     /// <summary>
@@ -35,7 +46,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets the features.
     /// </summary>
-    public ProviderFeatures Features { get { return features; } }
+    public ProviderFeatures ProviderFeatures { get { return providerFeatures; } }
 
     /// <summary>
     /// Maximal identifier length.
@@ -48,10 +59,11 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ProviderInfo(Version storageVersion, ProviderFeatures features, int maxIdentifierLength)
+    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, TemporaryTableFeatures temporaryTableFeatures, int maxIdentifierLength)
     {
       this.storageVersion = storageVersion;
-      this.features = features;
+      this.providerFeatures = providerFeatures;
+      this.temporaryTableFeatures = temporaryTableFeatures;
       MaxIdentifierLength = maxIdentifierLength;
     }
   }

@@ -216,6 +216,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [Test]
     public void PrefetchSingleTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction())

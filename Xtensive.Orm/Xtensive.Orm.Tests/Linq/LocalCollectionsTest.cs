@@ -166,6 +166,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinWithLazyLoadFieldTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       // Category.Picture is LazyLoad field.
       var categories = Session.Query.All<Category>().Take(10).ToList();
       var result =
@@ -216,6 +217,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void PairTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
         .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
@@ -229,6 +231,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Pair2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
         .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
@@ -255,6 +258,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Poco2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var pocos = Session.Query.All<Customer>()
         .Select(customer => new Poco<string, string>(){Value1 = customer.Id, Value2 = customer.Id})
         .ToList();
@@ -361,6 +365,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AllTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localOrderFreights = Session.Query.All<Order>().Select(order => order.Freight).Take(5).ToList();
       var query = Session.Query.All<Order>().Where(order => localOrderFreights.All(freight=>freight==order.Freight));
       QueryDumper.Dump(query);
@@ -382,6 +387,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localOrders = Session.Query.All<Order>().Take(5).ToList();
       var query = Session.Query.All<Order>().Join(localOrders, order => order, localOrder => localOrder, (order, localOrder) => new {order, localOrder});
       QueryDumper.Dump(query);
@@ -392,6 +398,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityFieldTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localOrders = Session.Query.All<Order>().Take(5).ToList();
       var query = Session.Query.All<Order>().Join(localOrders, order => order.Freight, localOrder => localOrder.Freight, (order, localOrder) => new {order, localOrder});
       QueryDumper.Dump(query);
@@ -402,6 +409,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityField2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localFreights = Session.Query.All<Order>().Take(5).Select(order => order.Freight).ToList();
       var query = Session.Query.All<Order>().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight});
       QueryDumper.Dump(query);
@@ -412,6 +420,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityField2MaterializeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localFreights = Session.Query.All<Order>().Take(5).Select(order => order.Freight).ToList();
       var query = Session.Query.All<Order>().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x => x.freight);
       QueryDumper.Dump(query);
@@ -423,6 +432,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleConcatTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customers = Session.Query.All<Customer>();
       var result = customers.Where(c => c.Orders.Count <= 1).Concat(Session.Query.All<Customer>().ToList().Where(c => c.Orders.Count > 1));
@@ -433,6 +443,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleUnionTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
@@ -444,6 +455,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void IntersectTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
@@ -456,6 +468,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleIntersectTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Session.Query.All<Order>()
         .Select(o => o.Employee.BirthDate)
@@ -472,6 +485,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleIntersectEntityTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Session.Query.All<Order>()
         .Select(o => o.Employee)
@@ -488,6 +502,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleExceptTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
@@ -500,6 +515,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ConcatDifferentTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = customers
@@ -512,6 +528,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ConcatDifferentTest2()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = customers
@@ -523,6 +540,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionDifferentTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var employees = Session.Query.All<Employee>();
       var result = employees
         .Select(c => c.Id)
@@ -533,6 +551,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionCollationsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = customers
@@ -544,6 +563,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void IntersectDifferentTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
@@ -556,6 +576,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ExceptDifferentTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
@@ -568,6 +589,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionAnonymousTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var customers = Session.Query.All<Order>();
       var result = customers.Select(c => new {c.Freight, c.OrderDate})
         .Union(customers.ToList().Select(c => new {Freight = c.Freight+10, c.OrderDate}));
@@ -579,6 +601,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionAnonymousCollationsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName})
         .Take(10)
@@ -589,6 +612,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionAnonymous2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})
         .Where(c => c.Address.StreetAddress.Length < 10)
@@ -601,6 +625,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionAnonymous3Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var customers = Session.Query.All<Customer>();
       var shipper = Session.Query.All<Shipper>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})
@@ -615,6 +640,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Grouping1Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localItems = GetLocalItems(10);
       var queryable = Session.Query.Store(localItems);
       var result = queryable.GroupBy(keySelector => keySelector.Value3.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
@@ -638,6 +664,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Grouping2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localItems = GetLocalItems(10);
       var queryable = Session.Query.Store(localItems);
       var result = queryable.GroupBy(keySelector => keySelector.Value3[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
@@ -655,6 +682,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Subquery1Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localItems = GetLocalItems(10);
       var queryable = Session.Query.Store(localItems);
       var result = queryable.Select(poco=> Session.Query.All<Order>().Where(order=>order.Freight > poco.Value1)).AsEnumerable().Cast<IEnumerable<Order>>();
@@ -673,6 +701,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Subquery2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localItems = GetLocalItems(10);
       var queryable = Session.Query.Store(localItems);
       var result = queryable.Select(poco=> queryable.Where(poco2=>poco2.Value2 > poco.Value2).Select(p=>p.Value3)).AsEnumerable().Cast<IEnumerable<string>>();
@@ -689,6 +718,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Aggregate1Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       var localItems = GetLocalItems(100);
       var queryable = Session.Query.Store(localItems);
       var result = queryable.Average(selector => selector.Value1);
@@ -700,6 +730,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Aggregate2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var localItems = GetLocalItems(100);
       var queryable = Session.Query.Store(localItems);

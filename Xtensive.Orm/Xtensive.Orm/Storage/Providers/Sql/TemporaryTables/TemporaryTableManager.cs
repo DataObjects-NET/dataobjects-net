@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Sql.Info;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
@@ -26,6 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
+//    private SqlDriver Driver { get { return DomainHandler.Driver; } }
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
 
     /// <summary>
@@ -60,10 +62,10 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       // table
-      string tableName = string.Format(TableNamePattern, name);
+      var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, name));
       var table = CreateTemporaryTable(schema, tableName);
       var typeMappings = source
-        .Select(type => driver.GetTypeMapping(type))
+        .Select(driver.GetTypeMapping)
         .ToArray();
       int fieldIndex = 0;
       foreach (var mapping in typeMappings) {
@@ -142,7 +144,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Created table.</returns>
     protected virtual Table CreateTemporaryTable(Schema schema, string tableName)
     {
-      return schema.CreateTemporaryTable(tableName);
+      var table = schema.CreateTemporaryTable(tableName);
+      if (!DomainHandler.ProviderInfo.Supports(TemporaryTableFeatures.Local))
+        table.IsGlobal = true;
+      return table;
     }
 
     /// <summary>

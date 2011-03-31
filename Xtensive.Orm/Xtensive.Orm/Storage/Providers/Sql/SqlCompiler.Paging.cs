@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = ExtractSqlSelect(provider, compiledSource);
       var binding = CreateLimitOffsetParameterBinding(provider.Count);
       query.Limit = binding.ParameterReference;
+      AddOrderByStatement(provider, query);
       return CreateProvider(query, binding, provider, compiledSource);
     } 
 
@@ -35,6 +36,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = ExtractSqlSelect(provider, compiledSource);
       var binding = CreateLimitOffsetParameterBinding(provider.Count);
       query.Offset = binding.ParameterReference;
+      AddOrderByStatement(provider, query);
       return CreateProvider(query, binding, provider, compiledSource);
     }
 
@@ -48,7 +50,15 @@ namespace Xtensive.Storage.Providers.Sql
       var takeBinding = CreateLimitOffsetParameterBinding(provider.Take);
       query.Offset = skipBinding.ParameterReference;
       query.Limit = takeBinding.ParameterReference;
+      AddOrderByStatement(provider, query);
       return CreateProvider(query, new []{skipBinding, takeBinding}, provider, compiledSource);
+    }
+
+    protected void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
+    {
+      var columnExpressions = ExtractColumnExpressions(query, provider);
+      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
+        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
     }
 
     protected static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)

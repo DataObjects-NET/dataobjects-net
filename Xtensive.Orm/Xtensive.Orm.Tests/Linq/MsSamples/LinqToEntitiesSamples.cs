@@ -652,6 +652,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void LinqToEntities49()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var mexico = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee);
       var canada = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o.Employee);
 
@@ -666,6 +667,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void LinqToEntities50()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var query = Session.Query.All<Order>()
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
@@ -682,6 +684,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void LinqToEntities51()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var query = Session.Query.All<Order>()
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
@@ -698,6 +701,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void LinqToEntities52()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var query = Session.Query.All<Employee>().Select(e => e)
         .Except(Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee));
 

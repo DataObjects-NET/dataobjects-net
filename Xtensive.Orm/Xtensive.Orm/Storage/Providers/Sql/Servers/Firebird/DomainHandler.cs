@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2011.01.27
 
+using System;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.Firebird

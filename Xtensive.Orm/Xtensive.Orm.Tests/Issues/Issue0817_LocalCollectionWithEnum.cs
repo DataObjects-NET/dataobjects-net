@@ -2,6 +2,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues_Issue0817_LocalCollectionWithEnum;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Orm.Tests.Issues_Issue0817_LocalCollectionWithEnum
 {
@@ -52,6 +53,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Query2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var itemStates = session.Query.Store(new[] {ItemState.Registering});
@@ -66,6 +69,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Query3Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var itemStates = session.Query.Store(new[] {ItemState.Registering});

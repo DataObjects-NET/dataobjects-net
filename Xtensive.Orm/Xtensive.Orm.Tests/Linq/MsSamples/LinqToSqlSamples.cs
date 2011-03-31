@@ -946,6 +946,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq58()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var q = (
         from c in Session.Query.All<Customer>()
         select c.Address.Country
@@ -964,6 +965,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq59()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var q = (
         from c in Session.Query.All<Customer>()
         select c.Address.Country
@@ -994,7 +996,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses Skip to select all but the 10 most expensive Products.")]
     public void DLinq61()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var q = (
         from p in Session.Query.All<Product>()
         orderby p.UnitPrice descending
@@ -1011,7 +1013,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
         "providing the data for page 6 of the Products table.")]
     public void DLinq62()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var q = (
         from c in Session.Query.All<Customer>()
         orderby c.ContactName

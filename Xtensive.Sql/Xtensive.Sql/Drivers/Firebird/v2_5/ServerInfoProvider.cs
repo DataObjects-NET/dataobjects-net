@@ -105,14 +105,7 @@ namespace Xtensive.Sql.Firebird.v2_5
 
         public override TemporaryTableInfo GetTemporaryTableInfo()
         {
-            var temporaryTableInfo = new TemporaryTableInfo();
-            temporaryTableInfo.Features =
-              TemporaryTableFeatures.Global |
-              TemporaryTableFeatures.DeleteRowsOnCommit |
-              TemporaryTableFeatures.PreserveRowsOnCommit;
-            temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
-            temporaryTableInfo.MaxIdentifierLength = MaxIdentifierLength;
-            return temporaryTableInfo;
+          return null;
         }
 
         public override CheckConstraintInfo GetCheckConstraintInfo()
@@ -191,7 +184,6 @@ namespace Xtensive.Sql.Firebird.v2_5
               QueryFeatures.NamedParameters |
               QueryFeatures.ParameterPrefix |
               QueryFeatures.ScalarSubquery |
-              QueryFeatures.RowNumber |
               QueryFeatures.Paging |
               QueryFeatures.Limit |
               QueryFeatures.Offset;

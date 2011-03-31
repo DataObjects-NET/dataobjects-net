@@ -62,9 +62,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var source = VisitCompilable(provider.Source);
       sortOrder = provider.Order;
       if (consumerDescriptor.IsOrderSensitive)
-        return source == provider.Source 
-          ? provider 
-          : new SortProvider(source, provider.Order);
+        return new SortProvider(source, provider.Order);
       return source;
     }
 
