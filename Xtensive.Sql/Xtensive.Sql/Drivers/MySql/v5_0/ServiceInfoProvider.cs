@@ -206,6 +206,7 @@ namespace Xtensive.Sql.MySql.v5_0
         QueryFeatures.ParameterPrefix |
         QueryFeatures.UpdateFrom |
         QueryFeatures.Limit |
+        QueryFeatures.Offset |
         QueryFeatures.DefaultValues |
         QueryFeatures.ScalarSubquery;
 
