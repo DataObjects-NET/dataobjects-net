@@ -237,6 +237,17 @@ namespace Xtensive.Storage.Providers.Sql
         return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || columnCountIsNotSame;
       }
 
+      if (origin.Type == ProviderType.Aggregate) {
+        var aggregateProvider = (AggregateProvider)origin;
+        var columnGatherer = new TupleAccessGatherer();
+        var usedColumnIndexes = (aggregateProvider.AggregateColumns ?? Enumerable.Empty<AggregateColumn>())
+          .Select(ac => ac.SourceIndex)
+          .Concat(aggregateProvider.GroupColumnIndexes)
+          .ToList();
+
+        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+      }
+
       if (origin.Type.In(ProviderType.Take,ProviderType.Skip,ProviderType.Paging)) {
         var sortProvider = origin.Sources[0] as SortProvider;
         var orderingOverCalculatedColumn = sortProvider!=null &&
