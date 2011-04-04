@@ -170,7 +170,6 @@ namespace Xtensive.Sql.Firebird.v2_5
             //      var info = new FullTextSearchInfo();
             //      info.Features = FullTextSearchFeatures.Full;
             //      return info;
-
         }
 
         public override QueryInfo GetQueryInfo()
