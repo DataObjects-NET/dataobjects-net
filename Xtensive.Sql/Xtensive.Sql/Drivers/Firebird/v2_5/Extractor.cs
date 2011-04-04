@@ -183,13 +183,13 @@ namespace Xtensive.Sql.Firebird.v2_5
                     if (expression == null)
                     {
                         var column = table.TableColumns[reader.GetString(6).Trim()];
-                        bool isAscending = ReadBool(reader, 4);
-                        index.CreateIndexColumn(column, isAscending);
+                        bool isDescending = ReadBool(reader, 4);
+                        index.CreateIndexColumn(column, !isDescending);
                     }
                     else
                     {
-                        bool isAscending = ReadBool(reader, 4);
-                        index.CreateIndexColumn(expression, isAscending);
+                        bool isDescending = ReadBool(reader, 4);
+                        index.CreateIndexColumn(expression, !isDescending);
                     }
                     lastIndexName = indexName;
                 }
