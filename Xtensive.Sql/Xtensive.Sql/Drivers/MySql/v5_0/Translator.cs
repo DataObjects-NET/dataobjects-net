@@ -497,25 +497,34 @@ namespace Xtensive.Sql.MySql.v5_0
       switch (node.Type.Type) {
         case SqlType.Binary:
         case SqlType.Char:
-        case SqlType.Decimal:
-        case SqlType.Double:
+        case SqlType.Interval:
         case SqlType.DateTime:
           switch (section) {
             case NodeSection.Entry:
               return "CAST(";
             case NodeSection.Exit:
-              return " AS " + Translate(node.Type) + ")";
+              return "AS " + Translate(node.Type) + ")";
             default:
               throw new ArgumentOutOfRangeException("section");
           }
         case SqlType.Int16:
         case SqlType.Int32:
-        case SqlType.Int64:
           switch (section) {
             case NodeSection.Entry:
               return "CAST(";
             case NodeSection.Exit:
-              return " AS SIGNED " + Translate(node.Type) + ")";
+              return "AS SIGNED " + Translate(node.Type) + ")";
+            default:
+              throw new ArgumentOutOfRangeException("section");
+          }
+        case SqlType.Decimal:
+        case SqlType.Double:
+        case SqlType.Float:
+          switch (section) {
+            case NodeSection.Entry:
+              return string.Empty;
+            case NodeSection.Exit:
+              return "+ 0.0";
             default:
               throw new ArgumentOutOfRangeException("section");
           }

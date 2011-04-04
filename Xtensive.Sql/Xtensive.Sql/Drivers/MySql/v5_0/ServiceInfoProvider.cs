@@ -11,7 +11,7 @@ namespace Xtensive.Sql.MySql.v5_0
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private const int MaxIdentifierLength = 128;
+    private const int MaxIdentifierLength = 64;
 
     private readonly string databaseName;
     private readonly string defaultSchemaName;

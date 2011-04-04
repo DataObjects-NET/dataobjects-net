@@ -245,7 +245,7 @@ namespace Xtensive.Storage.Providers.Sql
           .Concat(aggregateProvider.GroupColumnIndexes)
           .ToList();
 
-        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || pagingIsUsed || distinctIsUsed;
+        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || pagingIsUsed || distinctIsUsed || groupByIsUsed;
       }
 
       if (origin.Type.In(ProviderType.Take,ProviderType.Skip,ProviderType.Paging)) {
