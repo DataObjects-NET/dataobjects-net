@@ -261,6 +261,7 @@ namespace Xtensive.Sql.MySql.v5_0
           return "<>";
         case SqlNodeType.Modulo:
           return "MOD";
+        case SqlNodeType.Intersect:
         case SqlNodeType.Except:
           throw SqlHelper.NotSupported(type.ToString());
         case SqlNodeType.BitAnd:

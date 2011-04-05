@@ -48,6 +48,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
       var productFirstChars =
@@ -66,6 +67,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var query = Session.Query.All<Order>()
         .Select(o => o.Employee)
         .Intersect(Session.Query.All<Order>().Select(o => o.Employee));
@@ -78,6 +80,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
       var productFirstChars =
@@ -143,6 +146,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = (
@@ -160,6 +164,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = (

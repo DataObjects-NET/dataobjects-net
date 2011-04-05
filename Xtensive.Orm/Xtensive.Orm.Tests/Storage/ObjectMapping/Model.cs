@@ -379,7 +379,7 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping.Model
     [Key(0), Field]
     public int FirstId { get; private set; }
 
-    [Key(1), Field]
+    [Key(1), Field(Length = 128)]
     public string SecondId { get; private set; }
 
     [Field]

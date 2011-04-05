@@ -261,19 +261,25 @@ namespace Xtensive.Storage.Providers.Sql
         return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
 
       if (origin.Type == ProviderType.Join) {
-        var shouldUseQueryReference = containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+        var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
         if (shouldUseQueryReference)
           return true;
         var joinProvider = (JoinProvider) origin;
-        return joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed; 
+        var isRight = joinProvider.Right == compiledSource.Origin;
+        var indexes = joinProvider.EqualIndexes.Select(p => isRight ? p.Second : p.First);
+        return (joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed && isRight)
+          || (containsCalculatedColumns && indexes.Any(calculatedColumnIndexes.Contains)); 
       }
 
       if (origin.Type == ProviderType.PredicateJoin) {
-        var shouldUseQueryReference = containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+        var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
         if (shouldUseQueryReference)
           return true;
         var joinProvider = (PredicateJoinProvider) origin;
-        return joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed;
+        var isRight = joinProvider.Right == compiledSource.Origin;
+        var indexes = new TupleAccessGatherer().Gather(joinProvider.Predicate.Body, joinProvider.Predicate.Parameters[isRight ? 1 : 0]);
+        return (joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed && isRight)
+          || (containsCalculatedColumns && indexes.Any(calculatedColumnIndexes.Contains)); 
       }
 
       if (origin.Type == ProviderType.Sort) {

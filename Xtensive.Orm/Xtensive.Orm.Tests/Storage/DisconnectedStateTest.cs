@@ -59,7 +59,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     [Key, Field]
     public int Id { get; private set; }
     
-    [Field]
+    [Field(Length = 255)]
     public string Name { get; set; }
 
     [Field]
