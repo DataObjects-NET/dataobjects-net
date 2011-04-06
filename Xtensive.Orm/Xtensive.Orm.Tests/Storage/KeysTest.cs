@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Storage.Keys
     [HierarchyRoot]
     public class Test : Entity
     {
-      [Field, Key(0)]
+      [Field(Length = 50), Key(0)]
       public string Key1 { get; private set; }
       [Field, Key(1)]
       public Byte Key2 { get; private set; }
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Storage.Keys
       [Field, Key]
       public Guid ID { get; private set; }
       
-      [Field]
+      [Field(Length = 128)]
       public Key StringKey { get; set; } 
     }
 
