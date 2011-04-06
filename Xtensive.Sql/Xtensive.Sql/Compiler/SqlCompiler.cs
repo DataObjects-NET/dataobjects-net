@@ -883,9 +883,13 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlJoinExpression node)
     {
+      var leftIsJoin = node.Left is SqlJoinedTable;
+      if (leftIsJoin)
+        node.Left.AcceptVisitor(this);
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, JoinSection.Entry));
-        node.Left.AcceptVisitor(this);
+        if (!leftIsJoin)
+          node.Left.AcceptVisitor(this);
         context.Output.AppendText(translator.Translate(context, node, JoinSection.Specification));
         node.Right.AcceptVisitor(this);
         if (!node.Expression.IsNullReference()) {

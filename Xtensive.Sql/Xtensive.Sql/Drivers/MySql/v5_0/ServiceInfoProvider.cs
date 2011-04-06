@@ -208,6 +208,7 @@ namespace Xtensive.Sql.MySql.v5_0
         QueryFeatures.Limit |
         QueryFeatures.Offset |
         QueryFeatures.DefaultValues |
+        QueryFeatures.ExplicitJoinOrder |
         QueryFeatures.ScalarSubquery;
 
       return queryInfo;
