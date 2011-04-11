@@ -134,7 +134,14 @@ namespace Xtensive.Sql
 
     public virtual void SetTimeSpanParameterValue(DbParameter parameter, object value)
     {
-      throw new NotSupportedException();
+        parameter.DbType = DbType.Int64;
+        if (value != null)
+        {
+            var timeSpan = (TimeSpan)value;
+            parameter.Value = timeSpan.Ticks * 100;
+        }
+        else
+            parameter.Value = DBNull.Value;
     }
 
     public virtual void SetGuidParameterValue(DbParameter parameter, object value)

@@ -225,7 +225,7 @@ namespace Xtensive.Sql.Oracle.v09
       return -1 - operand;
     }
 
-    private static SqlExpression Position(SqlExpression substring, SqlExpression _string)
+    private static SqlExpression Position(SqlExpression substring, SqlExpression _string) //TODO : look into this (Malisa)
     {
       return SqlDml.FunctionCall("INSTR", _string, substring) - 1;
     }

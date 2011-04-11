@@ -68,6 +68,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var result = Session.Query.All<Order>()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g, (grouping, order)=>new {Count = grouping.Count(), order});

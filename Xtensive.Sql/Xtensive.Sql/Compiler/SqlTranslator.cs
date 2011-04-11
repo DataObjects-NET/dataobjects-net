@@ -979,7 +979,8 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
-      bool explicitJoinOrder = Driver.ServerInfo.Query.Features.Supports(QueryFeatures.ExplicitJoinOrder);
+      var traversalPath = context.GetTraversalPath().Skip(1);
+      var explicitJoinOrder = Driver.ServerInfo.Query.Features.Supports(QueryFeatures.ExplicitJoinOrder) && traversalPath.FirstOrDefault() is SqlJoinExpression;
       switch (section) {
       case JoinSection.Entry:
         return explicitJoinOrder ? "(" : string.Empty;

@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ReuseElementAt2Test()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++)
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ReuseElementAtOrDefaultTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ElementAtOrDefaultIsNotRootTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ElementAtIsNotRootTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ElementAtIsRootTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
