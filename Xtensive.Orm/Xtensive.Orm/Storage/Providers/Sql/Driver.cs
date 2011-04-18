@@ -4,15 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.14
 
-using System.Linq;
 using Xtensive.Core;
-using Xtensive.Orm;
 using Xtensive.Diagnostics;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
-using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
-using System;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -26,7 +22,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
     
-    private readonly bool isDebugLoggingEnabled;
+    private readonly bool isLoggingEnabled;
 
     public string BatchBegin { get { return translator.BatchBegin; } }
     public string BatchEnd { get { return translator.BatchEnd; } }
@@ -87,7 +83,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       StorageLocation = underlyingDriver.CoreServerInfo.ServerLocation;
 
-      isDebugLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
     }
   }
 }
