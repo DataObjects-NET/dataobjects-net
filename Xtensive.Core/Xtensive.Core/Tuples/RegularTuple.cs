@@ -21,6 +21,7 @@ namespace Xtensive.Tuples
     [IgnoreDataMember] 
     protected TupleDescriptor descriptor;
 
+    /// <inheritdoc/>
     public sealed override TupleDescriptor Descriptor {
       get {
         if (descriptor==null)
@@ -29,30 +30,42 @@ namespace Xtensive.Tuples
       }
     }
 
+    /// <summary>
+    /// Builds <see cref="Descriptor"/> value, if it isn't set yet.
+    /// Useful on deserialization.
+    /// </summary>
+    /// <returns></returns>
     protected virtual TupleDescriptor BuildDescriptor()
     {
       return null;
     }
 
+    /// <inheritdoc/>
     protected sealed override Delegate GetGetValueDelegate(int fieldIndex)
     {
       return Descriptor.GetValueDelegates[fieldIndex];
     }
 
+    /// <inheritdoc/>
     protected sealed override Delegate GetGetNullableValueDelegate(int fieldIndex)
     {
       return Descriptor.GetNullableValueDelegates[fieldIndex];
     }
 
+    /// <inheritdoc/>
     protected sealed override Delegate GetSetValueDelegate(int fieldIndex)
     {
       return Descriptor.SetValueDelegates[fieldIndex];
     }
 
+    /// <inheritdoc/>
     protected sealed override Delegate GetSetNullableValueDelegate(int fieldIndex)
     {
       return Descriptor.SetNullableValueDelegates[fieldIndex];
     }
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
