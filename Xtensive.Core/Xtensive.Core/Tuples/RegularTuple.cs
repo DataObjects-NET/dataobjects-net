@@ -21,29 +21,37 @@ namespace Xtensive.Tuples
     [IgnoreDataMember] 
     protected TupleDescriptor descriptor;
 
-    public sealed override TupleDescriptor Descriptor
+    public sealed override TupleDescriptor Descriptor {
+      get {
+        if (descriptor==null)
+          descriptor = BuildDescriptor();
+        return descriptor;
+      }
+    }
+
+    protected virtual TupleDescriptor BuildDescriptor()
     {
-      get { return descriptor; }
+      return null;
     }
 
     protected sealed override Delegate GetGetValueDelegate(int fieldIndex)
     {
-      return descriptor.GetValueDelegates[fieldIndex];
+      return Descriptor.GetValueDelegates[fieldIndex];
     }
 
     protected sealed override Delegate GetGetNullableValueDelegate(int fieldIndex)
     {
-      return descriptor.GetNullableValueDelegates[fieldIndex];
+      return Descriptor.GetNullableValueDelegates[fieldIndex];
     }
 
     protected sealed override Delegate GetSetValueDelegate(int fieldIndex)
     {
-      return descriptor.SetValueDelegates[fieldIndex];
+      return Descriptor.SetValueDelegates[fieldIndex];
     }
 
     protected sealed override Delegate GetSetNullableValueDelegate(int fieldIndex)
     {
-      return descriptor.SetNullableValueDelegates[fieldIndex];
+      return Descriptor.SetNullableValueDelegates[fieldIndex];
     }
 
     /// <summary>

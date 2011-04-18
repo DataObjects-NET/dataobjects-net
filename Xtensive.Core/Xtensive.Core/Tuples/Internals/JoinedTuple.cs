@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Linq;
+using System.Security;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Tuples.Internals
@@ -40,13 +41,20 @@ namespace Xtensive.Tuples.Internals
     /// <inheritdoc/>
     public override int Count
     {
-      get { return descriptor.Count; }
+      get { return Descriptor.Count; }
+    }
+
+    protected override TupleDescriptor BuildDescriptor()
+    {
+      return TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
     }
 
     /// <inheritdoc/>
     public override Tuple CreateNew()
     {
-      return new JoinedTuple(descriptor, (RegularTuple) First.CreateNew(), (RegularTuple) Second.CreateNew());
+      return new JoinedTuple(Descriptor, 
+        (RegularTuple) First.CreateNew(), 
+        (RegularTuple) Second.CreateNew());
     }
 
     /// <inheritdoc/>
@@ -89,12 +97,6 @@ namespace Xtensive.Tuples.Internals
         Second.SetValue(fieldIndex - FirstCount, fieldValue);
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
-    {
-      descriptor = TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
-    }
-
 
     // Constructors
 
@@ -112,7 +114,7 @@ namespace Xtensive.Tuples.Internals
     }
 
     private JoinedTuple(JoinedTuple template)
-      : base(template.descriptor)
+      : base(template.Descriptor)
     {
       First = template.First;
       Second = template.Second;
