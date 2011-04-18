@@ -30,13 +30,13 @@ namespace Xtensive.Tuples.Internals
     /// The first tuple.
     /// </summary>
     [DataMember]
-    public readonly RegularTuple First;
+    public readonly Tuple First;
 
     /// <summary>
     /// The second tuple.
     /// </summary>
     [DataMember]
-    public readonly RegularTuple Second;
+    public readonly Tuple Second;
 
     /// <inheritdoc/>
     public override int Count
@@ -106,7 +106,7 @@ namespace Xtensive.Tuples.Internals
     /// <param name="descriptor">The descriptor.</param>
     /// <param name="first">The first tuple.</param>
     /// <param name="second">The second tuple.</param>
-    public JoinedTuple(TupleDescriptor descriptor, RegularTuple first, RegularTuple second)
+    public JoinedTuple(TupleDescriptor descriptor, Tuple first, Tuple second)
       : base(descriptor)
     {
       First = first;
