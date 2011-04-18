@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Providers.Sql
         options |= RequestOptions.AllowBatching;
 
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
-        tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
+        tupleDescriptor = origin.Header.TupleDescriptor.Head(statement.Columns.Count);
       
       var request = new QueryRequest(statement, tupleDescriptor, options, parameterBindings);
 
