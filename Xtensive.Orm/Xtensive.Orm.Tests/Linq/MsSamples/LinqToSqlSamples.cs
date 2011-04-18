@@ -947,6 +947,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var q = (
         from c in Session.Query.All<Customer>()
         select c.Address.Country
@@ -966,6 +967,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var q = (
         from c in Session.Query.All<Customer>()
         select c.Address.Country

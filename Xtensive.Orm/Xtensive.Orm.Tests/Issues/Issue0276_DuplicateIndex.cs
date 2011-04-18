@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0276_DuplicateIndex_Model
     [Field]
     public MyEntity Left { get; set; }
 
-    [Field]
+    [Field(Length = 128)]
     public Key Right { get; set; }
   }
 

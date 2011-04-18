@@ -399,6 +399,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void JoinEntityFieldTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var localOrders = Session.Query.All<Order>().Take(5).ToList();
       var query = Session.Query.All<Order>().Join(localOrders, order => order.Freight, localOrder => localOrder.Freight, (order, localOrder) => new {order, localOrder});
       QueryDumper.Dump(query);
@@ -457,6 +458,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
@@ -470,6 +472,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var query = Session.Query.All<Order>()
         .Select(o => o.Employee.BirthDate)
         .Intersect(Session.Query.All<Order>().ToList().Select(o => o.Employee.BirthDate));
@@ -487,6 +490,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var query = Session.Query.All<Order>()
         .Select(o => o.Employee)
         .Intersect(Session.Query.All<Order>().ToList().Select(o => o.Employee));
@@ -504,6 +508,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var products = Session.Query.All<Product>();
       var customers = Session.Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
@@ -565,6 +570,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = customers
@@ -578,6 +584,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.MySql);
       var customers = Session.Query.All<Customer>();
       var employees = Session.Query.All<Employee>();
       var result = customers
