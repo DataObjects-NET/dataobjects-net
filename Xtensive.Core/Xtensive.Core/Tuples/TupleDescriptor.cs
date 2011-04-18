@@ -431,28 +431,27 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// Trims the field's set of the current tuple to the specified length.
+    /// Creates tuple descriptor containing head of the current one.
     /// </summary>
-    /// <param name="newTupleFieldCount">The length of the field's set
-    /// of the new <see cref="TupleDescriptor"/>.</param>
+    /// <param name="headFieldCount">Head field count.</param>
     /// <returns>Either new or existing tuple descriptor
     /// describing the specified set of fields.</returns>
-    public TupleDescriptor TrimFields(int newTupleFieldCount)
+    public TupleDescriptor Head(int headFieldCount)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(newTupleFieldCount, 1, Count, "newTupleFieldCount");
-      return Create(fieldTypes.Take(newTupleFieldCount));
+      ArgumentValidator.EnsureArgumentIsInRange(headFieldCount, 1, Count, "headFieldCount");
+      return Create(fieldTypes.Take(headFieldCount));
     }
 
     /// <summary>
-    /// Skips first fields of the current tuple.
+    /// Creates tuple descriptor containing tail of the current one.
     /// </summary>
-    /// <param name="skipFieldCount">The length of the fields to skip.</param>
+    /// <param name="tailFieldCount">Tail field count.</param>
     /// <returns>Either new or existing tuple descriptor
     /// describing the specified set of fields.</returns>
-    public TupleDescriptor SkipFields(int skipFieldCount)
+    public TupleDescriptor Tail(int tailFieldCount)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(skipFieldCount, 0, Count-1, "skipFieldCount");
-      return Create(fieldTypes.Skip(skipFieldCount));
+      ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, "tailFieldCount");
+      return Create(fieldTypes.Skip(Count - tailFieldCount));
     }
 
     #endregion
