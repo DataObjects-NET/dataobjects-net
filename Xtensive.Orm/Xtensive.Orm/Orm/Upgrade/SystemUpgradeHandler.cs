@@ -164,30 +164,24 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private Pair<IUpgradeHandler, M.Assembly>[] GetAssemblies()
+    private IEnumerable<Pair<IUpgradeHandler, Assembly>> GetAssemblies()
     {
-      var context = UpgradeContext;
+      var assemblies = Session.Demand().Query.All<M.Assembly>().ToDictionary(a => a.Name);
+      var oldNames = assemblies.Keys;
 
-      var oldAssemblies = Session.Demand().Query.All<M.Assembly>().ToArray();
-      var oldAssemblyByName = new Dictionary<string, M.Assembly>();
-      foreach (var oldAssembly in oldAssemblies)
-        oldAssemblyByName.Add(oldAssembly.Name, oldAssembly);
-      var oldNames = oldAssemblies.Select(a => a.Name);
+      var handlers = UpgradeContext.UpgradeHandlers.Values.ToDictionary(h => h.AssemblyName);
+      if (oldNames.Contains("Xtensive.Storage"))
+        handlers["Xtensive.Storage"] = new SystemUpgradeHandler();
+      var handledAssemblyNames = handlers.Keys;
       
-      var handlers = context.UpgradeHandlers.Values.ToArray();
-      var handlerByName = new Dictionary<string, IUpgradeHandler>();
-      foreach (var handler in handlers)
-        handlerByName.Add(handler.AssemblyName, handler);
-      var names = handlers.Select(a => a.AssemblyName);
-      
-      var commonNames = names.Intersect(oldNames);
-      var addedNames = names.Except(commonNames);
+      var commonNames = handledAssemblyNames.Intersect(oldNames);
+      var addedNames = handledAssemblyNames.Except(commonNames);
       var removedNames = oldNames.Except(commonNames);
 
       return 
-        addedNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(handlerByName[n], null))
-          .Concat(commonNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(handlerByName[n], oldAssemblyByName[n])))
-          .Concat(removedNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(null, oldAssemblyByName[n])))
+        addedNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(handlers[n], null))
+          .Concat(commonNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(handlers[n], assemblies[n])))
+          .Concat(removedNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(null, assemblies[n])))
           .ToArray();
     }
 
