@@ -883,9 +883,13 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlJoinExpression node)
     {
+      var leftIsJoin = node.Left is SqlJoinedTable;
+      if (leftIsJoin)
+        node.Left.AcceptVisitor(this);
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, JoinSection.Entry));
-        node.Left.AcceptVisitor(this);
+        if (!leftIsJoin)
+          node.Left.AcceptVisitor(this);
         context.Output.AppendText(translator.Translate(context, node, JoinSection.Specification));
         node.Right.AcceptVisitor(this);
         if (!node.Expression.IsNullReference()) {
@@ -1171,6 +1175,10 @@ namespace Xtensive.Sql.Compiler
         node.Limit.AcceptVisitor(this);
       }
       if (!node.Offset.IsNullReference()) {
+        if (node.Limit.IsNullReference()) {
+          context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
+          context.Output.AppendText(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
+        }
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
         node.Offset.AcceptVisitor(this);
       }

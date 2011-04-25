@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MultipleTakeSkipRandomTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       IQueryable<Customer> query = Session.Query.All<Customer>().OrderBy(customer=>customer.Id);
       int count = query.Count();
       var expected = query.AsEnumerable();
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ReuseSkip2Test()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var totalCount = Session.Query.All<Customer>().Count();
       var result1 = SkipCustomersCorrect(1).Count();
       Assert.AreEqual(totalCount - 1, result1);
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ReuseElementAt2Test()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++)
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ReuseElementAtOrDefaultTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ElementAtOrDefaultIsNotRootTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ElementAtIsNotRootTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ElementAtIsRootTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {

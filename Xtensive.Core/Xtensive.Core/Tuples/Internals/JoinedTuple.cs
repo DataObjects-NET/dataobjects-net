@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Linq;
+using System.Security;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Tuples.Internals
@@ -29,24 +30,31 @@ namespace Xtensive.Tuples.Internals
     /// The first tuple.
     /// </summary>
     [DataMember]
-    public readonly RegularTuple First;
+    public readonly Tuple First;
 
     /// <summary>
     /// The second tuple.
     /// </summary>
     [DataMember]
-    public readonly RegularTuple Second;
+    public readonly Tuple Second;
 
     /// <inheritdoc/>
     public override int Count
     {
-      get { return descriptor.Count; }
+      get { return Descriptor.Count; }
+    }
+
+    protected override TupleDescriptor BuildDescriptor()
+    {
+      return TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
     }
 
     /// <inheritdoc/>
     public override Tuple CreateNew()
     {
-      return new JoinedTuple(descriptor, (RegularTuple) First.CreateNew(), (RegularTuple) Second.CreateNew());
+      return new JoinedTuple(Descriptor, 
+        (RegularTuple) First.CreateNew(), 
+        (RegularTuple) Second.CreateNew());
     }
 
     /// <inheritdoc/>
@@ -89,12 +97,6 @@ namespace Xtensive.Tuples.Internals
         Second.SetValue(fieldIndex - FirstCount, fieldValue);
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
-    {
-      descriptor = TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
-    }
-
 
     // Constructors
 
@@ -104,7 +106,7 @@ namespace Xtensive.Tuples.Internals
     /// <param name="descriptor">The descriptor.</param>
     /// <param name="first">The first tuple.</param>
     /// <param name="second">The second tuple.</param>
-    public JoinedTuple(TupleDescriptor descriptor, RegularTuple first, RegularTuple second)
+    public JoinedTuple(TupleDescriptor descriptor, Tuple first, Tuple second)
       : base(descriptor)
     {
       First = first;
@@ -112,7 +114,7 @@ namespace Xtensive.Tuples.Internals
     }
 
     private JoinedTuple(JoinedTuple template)
-      : base(template.descriptor)
+      : base(template.Descriptor)
     {
       First = template.First;
       Second = template.Second;

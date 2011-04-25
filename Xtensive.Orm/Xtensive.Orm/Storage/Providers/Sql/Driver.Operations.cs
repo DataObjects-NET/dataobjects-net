@@ -12,7 +12,6 @@ using Xtensive.Orm;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Storage.Providers.Sql.Resources;
-using SyntaxErrorException = System.Data.SyntaxErrorException;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -22,8 +21,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         var connectionInfo = GetConnectionInfo(session);
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCreatingConnectionY,
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXCreatingConnectionY,
             session.ToStringSafely(), connectionInfo);
         var connection = underlyingDriver.CreateConnection(connectionInfo);
         connection.CommandTimeout = session.CommandTimeout;
@@ -37,8 +36,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void OpenConnection(Session session, SqlConnection connection)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXOpeningConnectionY,
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXOpeningConnectionY,
             session.ToStringSafely(), GetConnectionInfo(session));
         connection.Open();
       }
@@ -50,8 +49,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void CloseConnection(Session session, SqlConnection connection)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXClosingConnectionY, 
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXClosingConnectionY, 
             session.ToStringSafely(), GetConnectionInfo(session));
         if (connection.State==ConnectionState.Open)
           connection.Close();
@@ -65,8 +64,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
             session.ToStringSafely(), isolationLevel);
         connection.BeginTransaction(isolationLevel);
       }
@@ -78,8 +77,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void CommitTransaction(Session session, SqlConnection connection)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
         connection.Commit();
       }
       catch (Exception exception) {
@@ -90,8 +89,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void RollbackTransaction(Session session, SqlConnection connection)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
         connection.Rollback();
       }
       catch (Exception exception) {
@@ -102,8 +101,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
         if ((connection.Driver.ServerInfo.ServerFeatures & ServerFeatures.Savepoints)!=ServerFeatures.Savepoints)
           return; // Driver does not support savepoints, so let's fail later (on rollback)
         connection.MakeSavepoint(name);
@@ -116,8 +115,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void RollbackToSavepoint(Session session, SqlConnection connection, string name)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
         if ((connection.Driver.ServerInfo.ServerFeatures & ServerFeatures.Savepoints)!=ServerFeatures.Savepoints)
           throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
         connection.RollbackToSavepoint(name);
@@ -130,8 +129,8 @@ namespace Xtensive.Storage.Providers.Sql
     public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
     {
       try {
-        if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
+        if (isLoggingEnabled)
+          Log.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
         connection.ReleaseSavepoint(name);
       }
       catch (Exception exception) {
@@ -142,7 +141,7 @@ namespace Xtensive.Storage.Providers.Sql
     public int ExecuteNonQuery(Session session, DbCommand command)
     {
       try {
-        if (isDebugLoggingEnabled)
+        if (isLoggingEnabled)
           LogCommand(session, command);
         return command.ExecuteNonQuery();
       }
@@ -154,7 +153,7 @@ namespace Xtensive.Storage.Providers.Sql
     public object ExecuteScalar(Session session, DbCommand command)
     {
       try {
-        if (isDebugLoggingEnabled)
+        if (isLoggingEnabled)
           LogCommand(session, command);
         return command.ExecuteScalar();
       }
@@ -166,7 +165,7 @@ namespace Xtensive.Storage.Providers.Sql
     public DbDataReader ExecuteReader(Session session, DbCommand command)
     {
       try {
-        if (isDebugLoggingEnabled)
+        if (isLoggingEnabled)
           LogCommand(session, command);
         return command.ExecuteReader();
       }
@@ -226,7 +225,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void LogCommand(Session session, DbCommand command)
     {
-      Log.Debug(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+      Log.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
     }
   }
 }

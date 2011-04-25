@@ -24,8 +24,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = ExtractSqlSelect(provider, compiledSource);
       var binding = CreateLimitOffsetParameterBinding(provider.Count);
       query.Limit = binding.ParameterReference;
-//      if (!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
-//        AddOrderByStatement(provider, query);
+      AddOrderByStatement(provider, query);
       return CreateProvider(query, binding, provider, compiledSource);
     } 
 
@@ -34,21 +33,33 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var compiledSource = Compile(provider.Source);
 
-      var queryRef = compiledSource.PermanentReference;
-      var query = SqlDml.Select(queryRef);
+      var query = ExtractSqlSelect(provider, compiledSource);
       var binding = CreateLimitOffsetParameterBinding(provider.Count);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = binding.ParameterReference;
-//      AddOrderByStatement(provider, query);
+      AddOrderByStatement(provider, query);
       return CreateProvider(query, binding, provider, compiledSource);
     }
 
-//    protected void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
-//    {
-//      var columnExpressions = ExtractColumnExpressions(query, provider);
-//      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
-//        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
-//    }
+    /// <inheritdoc/>
+    protected override SqlProvider VisitPaging(PagingProvider provider)
+    {
+      var compiledSource = Compile(provider.Source);
+
+      var query = ExtractSqlSelect(provider, compiledSource);
+      var skipBinding = CreateLimitOffsetParameterBinding(provider.Skip);
+      var takeBinding = CreateLimitOffsetParameterBinding(provider.Take);
+      query.Offset = skipBinding.ParameterReference;
+      query.Limit = takeBinding.ParameterReference;
+      AddOrderByStatement(provider, query);
+      return CreateProvider(query, new []{skipBinding, takeBinding}, provider, compiledSource);
+    }
+
+    protected void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
+    {
+      var columnExpressions = ExtractColumnExpressions(query, provider);
+      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
+        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
+    }
 
     protected static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
     {

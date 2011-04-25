@@ -126,17 +126,18 @@ namespace Xtensive.Orm.Building.Builders
     private static string GetProviderAssemblyName(string providerName)
     {
       switch (providerName) {
-        case WellKnown.Provider.Memory:
-          return WellKnown.ProviderAssembly.Indexing;
-        case WellKnown.Provider.SqlServer:
-        case WellKnown.Provider.SqlServerCe:
-        case WellKnown.Provider.PostgreSql:
-        case WellKnown.Provider.Oracle:
-        case WellKnown.Provider.Firebird:
-          return WellKnown.ProviderAssembly.Sql;
-        default:
-          throw new NotSupportedException(
-            string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
+      case WellKnown.Provider.Memory:
+        return WellKnown.ProviderAssembly.Indexing;
+      case WellKnown.Provider.SqlServer:
+      case WellKnown.Provider.SqlServerCe:
+      case WellKnown.Provider.PostgreSql:
+      case WellKnown.Provider.Oracle:
+	  case WellKnown.Provider.Firebird:
+      case WellKnown.Provider.MySql:
+        return WellKnown.ProviderAssembly.Sql;
+      default:
+        throw new NotSupportedException(
+          string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
       }
     }
 

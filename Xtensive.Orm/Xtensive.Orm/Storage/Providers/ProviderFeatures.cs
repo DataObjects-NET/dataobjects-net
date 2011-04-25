@@ -48,6 +48,7 @@ namespace Xtensive.Storage.Providers
     NativeSkip = 0x40000000,
     Savepoints = 0x80000000,
     ScalarSubqueries = 0x100000000,
+    ArbitraryIdentityIncrement = 0x200000000,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,

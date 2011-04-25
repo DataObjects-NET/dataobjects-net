@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     [Test]
     public void CombinedTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       using (var session = Domain.OpenSession())
         for (int i = 0; i < iterationCount; i++)
           GetAction().Invoke();

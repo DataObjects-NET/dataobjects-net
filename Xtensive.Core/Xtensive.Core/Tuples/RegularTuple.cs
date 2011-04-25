@@ -21,30 +21,51 @@ namespace Xtensive.Tuples
     [IgnoreDataMember] 
     protected TupleDescriptor descriptor;
 
-    public sealed override TupleDescriptor Descriptor
-    {
-      get { return descriptor; }
+    /// <inheritdoc/>
+    public sealed override TupleDescriptor Descriptor {
+      get {
+        if (descriptor==null)
+          descriptor = BuildDescriptor();
+        return descriptor;
+      }
     }
 
+    /// <summary>
+    /// Builds <see cref="Descriptor"/> value, if it isn't set yet.
+    /// Useful on deserialization.
+    /// </summary>
+    /// <returns></returns>
+    protected virtual TupleDescriptor BuildDescriptor()
+    {
+      return null;
+    }
+
+    /// <inheritdoc/>
     protected sealed override Delegate GetGetValueDelegate(int fieldIndex)
     {
-      return descriptor.GetValueDelegates[fieldIndex];
+      return Descriptor.GetValueDelegates[fieldIndex];
     }
 
+    /// <inheritdoc/>
     protected sealed override Delegate GetGetNullableValueDelegate(int fieldIndex)
     {
-      return descriptor.GetNullableValueDelegates[fieldIndex];
+      return Descriptor.GetNullableValueDelegates[fieldIndex];
     }
 
+    /// <inheritdoc/>
     protected sealed override Delegate GetSetValueDelegate(int fieldIndex)
     {
-      return descriptor.SetValueDelegates[fieldIndex];
+      return Descriptor.SetValueDelegates[fieldIndex];
     }
 
+    /// <inheritdoc/>
     protected sealed override Delegate GetSetNullableValueDelegate(int fieldIndex)
     {
-      return descriptor.SetNullableValueDelegates[fieldIndex];
+      return Descriptor.SetNullableValueDelegates[fieldIndex];
     }
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

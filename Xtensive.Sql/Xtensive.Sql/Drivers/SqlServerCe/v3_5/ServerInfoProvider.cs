@@ -190,7 +190,7 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
     public override IdentityInfo GetIdentityInfo()
     {
       var identityInfo = new IdentityInfo();
-      identityInfo.Features = IdentityFeatures.StartValue | IdentityFeatures.Increment;
+      identityInfo.Features = IdentityFeatures.Seed | IdentityFeatures.Increment | IdentityFeatures.AutoIncrement;
       return identityInfo;
     }
 

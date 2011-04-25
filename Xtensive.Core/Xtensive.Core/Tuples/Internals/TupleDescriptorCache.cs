@@ -38,9 +38,10 @@ namespace Xtensive.Tuples.Internals
         if (existing != null)
           return existing;
 
-        if (descriptor.Count > MaxGeneratedTupleLength.Value) {
-          descriptor.TrimFields(MaxGeneratedTupleLength.Value);
-          descriptor.SkipFields(MaxGeneratedTupleLength.Value);
+        int fieldCount = descriptor.Count;
+        if (fieldCount > MaxGeneratedTupleLength.Value) {
+          descriptor.Head(MaxGeneratedTupleLength.Value);
+          descriptor.Tail(fieldCount - MaxGeneratedTupleLength.Value);
         }
 
         initializationQueue.Enqueue(descriptor);

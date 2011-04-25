@@ -8,6 +8,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using System;
 using Xtensive.Sql.Ddl;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Firebird.v2_5
 {
@@ -27,12 +28,12 @@ namespace Xtensive.Sql.Firebird.v2_5
             using (context.EnterScope(node))
             {
                 context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+                VisitSelectLimitOffset(node);
                 VisitSelectColumns(node);
                 VisitSelectFrom(node);
                 VisitSelectWhere(node);
                 VisitSelectGroupBy(node);
                 VisitSelectOrderBy(node);
-                VisitSelectLimitOffset(node);
                 VisitSelectLock(node);
                 context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
             }

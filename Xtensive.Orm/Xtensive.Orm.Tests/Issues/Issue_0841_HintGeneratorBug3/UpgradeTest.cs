@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
     [TestFixtureSetUp]
     public void TestSetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Memory);
+      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.SqlServerCe);
     }
 
     [SetUp]

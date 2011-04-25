@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override void CheckRequirements()
     {
       base.CheckRequirements();
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
     }
 
     public override void TestFixtureSetUp()
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Issues
           Assert.IsTrue(expected.Count>0);
           Assert.AreEqual(expected.Count, result.Count);
           for (int i = 0; i < expected.Count; i++) {
-            bool areMatch = Equals(expected[i], result[i]);
+            var areMatch = Equals(expected[i], result[i]);
             Assert.IsTrue(areMatch);
           }
           Assert.IsTrue(expected.SequenceEqual(result));

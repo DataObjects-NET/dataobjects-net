@@ -371,6 +371,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
+      leftSelect.OrderBy.Clear();
+      rightSelect.OrderBy.Clear();
       var result = SqlDml.Intersect(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
 
@@ -388,6 +390,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
+      leftSelect.OrderBy.Clear();
+      rightSelect.OrderBy.Clear();
       var result = SqlDml.Except(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
@@ -404,6 +408,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
+      leftSelect.OrderBy.Clear();
+      rightSelect.OrderBy.Clear();
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
@@ -420,6 +426,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
+      leftSelect.OrderBy.Clear();
+      rightSelect.OrderBy.Clear();
       var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
@@ -433,7 +441,6 @@ namespace Xtensive.Storage.Providers.Sql
       var directionCollection = provider.Header.Order;
       if (directionCollection.Count == 0)
         directionCollection = new DirectionCollection<int>(1);
-//        throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var source = Compile(provider.Source);
 
       var query = ExtractSqlSelect(provider, source);

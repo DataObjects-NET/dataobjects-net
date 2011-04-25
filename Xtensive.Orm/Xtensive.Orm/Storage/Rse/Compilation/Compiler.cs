@@ -110,6 +110,9 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.Take:
           result = VisitTake((TakeProvider)cp);
           break;
+        case ProviderType.Paging:
+          result = VisitPaging((PagingProvider)cp);
+          break;
         case ProviderType.Transfer:
           result = VisitTransfer((TransferProvider)cp);
           break;
@@ -167,6 +170,12 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Skip provider.</param>
     protected abstract TResult VisitSkip(SkipProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="PagingProvider"/>.
+    /// </summary>
+    /// <param name="provider">Paging provider.</param>
+    protected abstract TResult VisitPaging(PagingProvider provider);
 
     /// <summary>
     /// Compiles <see cref="SelectProvider"/>.

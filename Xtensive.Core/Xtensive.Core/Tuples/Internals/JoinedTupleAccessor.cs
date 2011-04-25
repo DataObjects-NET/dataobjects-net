@@ -23,26 +23,26 @@ namespace Xtensive.Tuples.Internals
 
     public T GetValueFirst(Tuple tuple, out TupleFieldState fieldState)
     {
-      var extender = (JoinedTuple) tuple;
-      return getValue(extender.First, out fieldState);
+      var joinedTuple = (JoinedTuple) tuple;
+      return getValue(joinedTuple.First, out fieldState);
     }
 
     public T GetValueSecond(Tuple tuple, out TupleFieldState fieldState)
     {
-      var extender = (JoinedTuple)tuple;
-      return getValue(extender.Second, out fieldState);
+      var joinedTuple = (JoinedTuple) tuple;
+      return getValue(joinedTuple.Second, out fieldState);
     }
 
     public void SetValueFirst(Tuple tuple, T value)
     {
-      var extender = (JoinedTuple)tuple;
-      setValue(extender.First, value);
+      var joinedTuple = (JoinedTuple)tuple;
+      setValue(joinedTuple.First, value);
     }
 
     public void SetValueSecond(Tuple tuple, T value)
     {
-      var extender = (JoinedTuple)tuple;
-      setValue(extender.Second, value);
+      var joinedTuple = (JoinedTuple)tuple;
+      setValue(joinedTuple.Second, value);
     }
 
 

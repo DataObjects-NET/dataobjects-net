@@ -90,6 +90,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Store1Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       var localCustomers = Session.Query.All<Customer>().Take(10).ToList();
       var query = Session.Query.All<Customer>().Join(Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
       var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Query.Store(localCustomers), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
@@ -99,6 +101,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Store2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       var query = Session.Query.All<Customer>().Join(Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
       var expected = Session.Query.All<Customer>().AsEnumerable().Join(Session.Query.Store(Session.Query.All<Customer>().Take(10)), customer => customer, localCustomer => localCustomer, (customer, localCustomer) => new {customer, localCustomer});
       Assert.AreEqual(0, expected.Except(query).Count());

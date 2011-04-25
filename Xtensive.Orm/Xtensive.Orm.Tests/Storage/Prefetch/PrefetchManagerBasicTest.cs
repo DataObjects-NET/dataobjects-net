@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [Test]
     public void ReferencedEntitiesByUnknownForeignKeysPrefetchTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       Key orderKey0;
       Key orderKey1;
       Key orderKey2;

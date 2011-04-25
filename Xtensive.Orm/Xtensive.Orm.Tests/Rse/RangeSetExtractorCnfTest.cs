@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.Head(1);
       Entire<Tuple> expectedFirst = new Entire<Tuple>(
         CreateTuple(tupleDescriptor, keyFieldIndex, 3));
       Entire<Tuple> expectedSecond = new Entire<Tuple>(
@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.Head(1);
       Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
       Entire<Tuple> expectedSecond = new Entire<Tuple>(
         CreateTuple(tupleDescriptor, keyFieldIndex, 3));
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Tests.Rse
       var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
       var keyFieldIndex1 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[1]);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var trimmedTupleDesc = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var trimmedTupleDesc = indexInfo.KeyTupleDescriptor.Head(1);
       var firstTuple = CreateTuple(trimmedTupleDesc, keyFieldIndex0, 6);
       var secondTuple = CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0,
         firstTuple.GetValue(keyFieldIndex0));
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Tests.Rse
         new DateTime(1990, 1, 1)), Direction.Positive);
       expectedFirst.Value.SetValue(keyFieldIndex1, "John");
       expectedFirst.Value.SetValue(keyFieldIndex2, "Sales Manager");
-      var expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor.TrimFields(2),
+      var expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor.Head(2),
         keyFieldIndex0, expectedFirst.Value.GetValue(keyFieldIndex0)), Direction.Positive);
       expectedSecond.Value.SetValue(keyFieldIndex1, expectedFirst.Value.GetValue(keyFieldIndex1));
       var expectedRange = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Tests.Rse
     {
       var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.Head(1);
       var expectedFirst = new Entire<Tuple>(CreateTuple(tupleDescriptor, keyFieldIndex0, 10));
       var expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
@@ -344,7 +344,7 @@ namespace Xtensive.Orm.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.Head(1);
       const string keyValue = "abc";
       var expectedFirst = new Entire<Tuple>(InfinityType.Negative);
       var expectedSecond = new Entire<Tuple>(

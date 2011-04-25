@@ -10,6 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.LocalCollectionsComplexTestModel;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Orm.Tests.Linq.LocalCollectionsComplexTestModel
 {
@@ -150,6 +151,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionEntityTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -164,6 +167,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionStructureTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -178,6 +183,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionFieldTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -192,6 +199,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityDirectTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -207,6 +216,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityIndirect2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -221,6 +232,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityIndirect3Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -235,6 +248,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinStructureDirectTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -254,6 +269,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinStructureIndirectTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();
@@ -268,6 +285,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinEntityPocoTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           session.SaveChanges();

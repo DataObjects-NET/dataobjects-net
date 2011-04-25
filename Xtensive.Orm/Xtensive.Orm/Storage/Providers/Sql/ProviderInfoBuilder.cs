@@ -41,6 +41,10 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.KeyColumnSortOrder;
       if (si.Sequence!=null)
         f |= ProviderFeatures.Sequences;
+      else {
+        if (si.Identity != null && si.Identity.Features.Supports(IdentityFeatures.Increment))
+          f |= ProviderFeatures.ArbitraryIdentityIncrement;
+      }
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
         f |= ProviderFeatures.Apply;
       if (serverFeatures.Supports(ServerFeatures.LargeObjects))
@@ -92,16 +96,16 @@ namespace Xtensive.Storage.Providers.Sql
 
       var storageVersion = csi.ServerVersion;
       var maxIdentifierLength = new EntityInfo[] {
-        si.Column,
-        si.ForeignKey,
-        si.Index,
-        si.PrimaryKey,
-        si.Sequence,
-        si.Table,
-        si.TemporaryTable,
-        si.UniqueConstraint
-      }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
-      return new ProviderInfo(storageVersion, f, maxIdentifierLength);      
+          si.Column,
+          si.ForeignKey,
+          si.Index,
+          si.PrimaryKey,
+          si.Sequence,
+          si.Table,
+          si.TemporaryTable,
+          si.UniqueConstraint
+        }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
+      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength);
     }
   }
 }

@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Firebird.v2_5
     {
         protected virtual string GetExtractSchemasQuery()
         {
-            return @"SELECT " + Constants.DefaultSchemaName + " FROM RDB$DATABASE";
+            return @"select " + Constants.DefaultSchemaName + @"from rdb$database";
         }
 
         protected virtual string GetExtractTablesQuery()
@@ -52,7 +52,7 @@ select   schema
         ,numeric_precision
         ,-numeric_scale as numeric_scale
         ,character_max_length
-        ,column_nullable
+        ,(1 - coalesce(column_nullable,0)) as column_nullable
         ,column_default
 from     (select   cast(null as varchar(30)) as schema
                   ,trim(rfr.rdb$relation_name) as table_name
@@ -195,9 +195,17 @@ order by   chktb.rdb$relation_name, chktb.rdb$constraint_name";
         protected virtual string GetExtractSequencesQuery()
         {
             return @"
-select   cast(null as varchar(30)) as schema, trim(rdb$generator_name) as sequence_name
+select   cast(null as varchar(30)) as schema
+        ,trim(rdb$generator_name) as sequence_name
 from     rdb$generators
 where    rdb$system_flag = 0";
+        }
+
+        protected virtual string GetExtractSequenceValueQuery()
+        {
+          return @"
+select   GEN_ID({0}, 0)
+from     rdb$database";
         }
     }
 }

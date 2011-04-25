@@ -28,13 +28,24 @@ namespace Xtensive.Storage.Providers.Sql
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest lastRequest)
     {
       ExecuteAllTasks();
-      return RunTupleReader(ExecuteQuery(new SqlQueryTask(lastRequest)), lastRequest.TupleDescriptor);
+      var command = CreateCommand();
+      var part = factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
+      command.AddPart(part);
+      return RunTupleReader(command.ExecuteReader(), lastRequest.TupleDescriptor, command.Dispose);
     }
 
     /// <inheritdoc/>
     public override void ProcessTask(SqlQueryTask task)
     {
-      ReadTuples(ExecuteQuery(task), task.Request.TupleDescriptor, task.Output);
+      using (var command = CreateCommand()) {
+        var part = factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
+        command.AddPart(part);
+        var enumerator = RunTupleReader(command.ExecuteReader(), task.Request.TupleDescriptor, null);
+        using (enumerator) {
+          while (enumerator.MoveNext())
+            task.Output.Add(enumerator.Current);
+        }
+      }
     }
 
     /// <inheritdoc/>
@@ -53,36 +64,15 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private void ReadTuples(DbDataReader reader, TupleDescriptor descriptor, List<Tuple> output)
-    {
-      var enumerator = RunTupleReader(reader, descriptor);
-      using (enumerator) {
-        while (enumerator.MoveNext())
-          output.Add(enumerator.Current);
-      }
-    }
-
     private void ExecutePersist(SqlPersistTask task)
     {
       var sequence = factory.CreatePersistCommandPart(task, DefaultParameterNamePrefix);
       foreach (var part in sequence) {
-        AllocateCommand();
-        try {
-          activeCommand.AddPart(part);
-          activeCommand.ExecuteNonQuery();
-        }
-        finally {
-          DisposeCommand();
+        using (var command = CreateCommand()) {
+          command.AddPart(part);
+          command.ExecuteNonQuery();
         }
       }
-    }
-
-    private DbDataReader ExecuteQuery(SqlQueryTask task)
-    {
-      AllocateCommand();
-      var part = factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
-      activeCommand.AddPart(part);
-      return activeCommand.ExecuteReader();
     }
 
     #endregion

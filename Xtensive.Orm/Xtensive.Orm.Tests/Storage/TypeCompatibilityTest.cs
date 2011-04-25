@@ -233,11 +233,11 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field(Precision = 34, Scale = 19)]
-    public decimal d34_19 { get; set; }
+    [Field(Precision = 18, Scale = 9)]
+    public decimal d18_9 { get; set; }
 
-    [Field(Precision = 25, Scale = 0)]
-    public decimal d25_0 { get; set; }
+    [Field(Precision = 18, Scale = 0)]
+    public decimal d18_0 { get; set; }
   }
 }
 
@@ -345,22 +345,22 @@ namespace Xtensive.Orm.Tests.Storage
     public void DecimalTest()
     {
       // TODO: Expand the test (precision: 1-38, scale: 0-28)
-      const decimal d34_19 = 304861306900020.0000000000000000000m;
-      const decimal d25_0 = 7200200000000000000000000m;
+      const decimal d18_9 = 304861306.000000000m;
+      const decimal d18_0 = 720020000000000000m;
       using (var session = Domain.OpenSession()) {
         Key key;
         using (var transactionScope = session.OpenTransaction()) {
           var container = new DecimalContainer() {
-            d34_19 = d34_19,
-            d25_0 = d25_0
+            d18_9 = d18_9,
+            d18_0 = d18_0
           };
           key = container.Key;
           transactionScope.Complete();
         }
         using (var transactionScope = session.OpenTransaction()) {
           var container = session.Query.Single<DecimalContainer>(key);
-          Assert.AreEqual(d34_19, container.d34_19);
-          Assert.AreEqual(d25_0, container.d25_0);
+          Assert.AreEqual(d18_9, container.d18_9);
+          Assert.AreEqual(d18_0, container.d18_0);
           transactionScope.Complete();
         }
       }

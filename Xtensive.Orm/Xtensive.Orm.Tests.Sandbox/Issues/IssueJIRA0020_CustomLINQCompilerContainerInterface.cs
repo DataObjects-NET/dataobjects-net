@@ -43,6 +43,11 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
 
       public string RegionName { get { return exprComp(this); } }
 
+      public bool TestMethod<T1, T2>()
+      {
+        throw new NotImplementedException();
+      }
+
       private static readonly Expression<Func<Person, string>> expr = p => p.Region.Name;
 
       private static readonly Func<Person, string> exprComp = expr.Compile();
@@ -82,6 +87,8 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
     public interface ITest : IEntity
     {
       string RegionName { get; }
+
+//      bool TestMethod<T1, T2>();
     }
   }
 

@@ -49,28 +49,28 @@ namespace Xtensive.Orm.Tests
     public static void AllFeaturesSupported(ProviderFeatures requiredFeatures)
     {
       EnsureIsInitialized();
-      if ((requiredFeatures & activeProviderInfo.Features)!=requiredFeatures)
+      if ((requiredFeatures & activeProviderInfo.ProviderFeatures)!=requiredFeatures)
         IgnoreMe("This test requires storage that supports '{0}'", requiredFeatures);
     }
 
     public static void AllFeaturesNotSupported(ProviderFeatures disallowedFeatures)
     {
       EnsureIsInitialized();
-      if ((disallowedFeatures & activeProviderInfo.Features)!=0)
+      if ((disallowedFeatures & activeProviderInfo.ProviderFeatures)!=0)
         IgnoreMe("This test requires storage that does not support '{0}'", disallowedFeatures);
     }
 
     public static void AnyFeatureSupported(ProviderFeatures requiredFeatures)
     {
       EnsureIsInitialized();
-      if ((requiredFeatures & activeProviderInfo.Features)==0)
+      if ((requiredFeatures & activeProviderInfo.ProviderFeatures)==0)
         IgnoreMe("This test requires storage that supports at least one of the '{0}' features", requiredFeatures);
     }
 
     public static void AnyFeatureNotSupported(ProviderFeatures disallowedFeatures)
     {
       EnsureIsInitialized();
-      if ((disallowedFeatures & activeProviderInfo.Features)==disallowedFeatures)
+      if ((disallowedFeatures & activeProviderInfo.ProviderFeatures)==disallowedFeatures)
         IgnoreMe("This test requires storage that does not support at least one of the '{0}' features", disallowedFeatures);
     }
 
@@ -152,6 +152,8 @@ namespace Xtensive.Orm.Tests
         return StorageProvider.PostgreSql;
       case WellKnown.Provider.Oracle:
         return  StorageProvider.Oracle;
+      case WellKnown.Provider.MySql:
+        return  StorageProvider.MySql;
       case WellKnown.Provider.Firebird:
         return  StorageProvider.Firebird;
       default:

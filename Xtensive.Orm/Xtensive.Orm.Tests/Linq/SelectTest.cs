@@ -939,6 +939,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ExternalPropertyCall()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>().Select(c => Customers.Single(c2 => c2==c)).ToList();
     }

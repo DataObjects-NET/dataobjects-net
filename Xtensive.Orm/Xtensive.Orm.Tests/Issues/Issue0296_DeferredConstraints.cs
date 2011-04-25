@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      const int count = 50000;
+      const int count = 50;
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
 

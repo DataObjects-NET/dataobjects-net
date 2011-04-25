@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.Head(1);
       Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
       Entire<Tuple> expectedSecond = new Entire<Tuple>(
         CreateTuple(tupleDescriptor, keyFieldIndex, 1), Direction.Negative);
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.Head(1);
       Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
       Entire<Tuple> expectedSecond = new Entire<Tuple>(
         CreateTuple(tupleDescriptor, keyFieldIndex, 3), Direction.Negative);

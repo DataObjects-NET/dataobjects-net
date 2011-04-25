@@ -272,7 +272,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       var tupleDescriptor = indexInfo.KeyTupleDescriptor;
       var count = indexKeyValues.Last().Key + 1;
       if (count < tupleDescriptor.Count)
-        tupleDescriptor = tupleDescriptor.TrimFields(count);
+        tupleDescriptor = tupleDescriptor.Head(count);
       MethodCallExpression tupleCreation = Expression.Call(tupleCreateMethod,
         Expression.Constant(tupleDescriptor));
       Expression result = Expression.New(tupleUpdaterConstructor, tupleCreation);
