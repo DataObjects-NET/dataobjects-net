@@ -52,25 +52,25 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open(session)) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var reference = new Reference();
         new SomeWithNullable {Name = "A"};
         new SomeWithNullable {Name = "A", Tag ="Tag"};
         new SomeWithNullable {Name = "A", Ref = reference};
         new SomeWithNullable {Name = "A", Tag = "Tag", Ref=reference};
 
-        var result = Query.All<SomeWithNullable>().Where(s => s.Name == "A").ToList();
+        var result = session.Query.All<SomeWithNullable>().Where(s => s.Name == "A").ToList();
         Assert.AreEqual(4, result.Count);
-        result = Query.All<SomeWithNullable>().Where(s => s.Name != "B").ToList();
+        result = session.Query.All<SomeWithNullable>().Where(s => s.Name != "B").ToList();
         Assert.AreEqual(4, result.Count);
-        result = Query.All<SomeWithNullable>().Where(s => s.Tag != "Tag" || s.Tag == null).ToList();
+        result = session.Query.All<SomeWithNullable>().Where(s => s.Tag != "Tag" || s.Tag == null).ToList();
         Assert.AreEqual(2, result.Count);
-        result = Query.All<SomeWithNullable>().Where(s => s.Tag != "!Tag" || s.Tag == null).ToList();
+        result = session.Query.All<SomeWithNullable>().Where(s => s.Tag != "!Tag" || s.Tag == null).ToList();
         Assert.AreEqual(4, result.Count);
-        result = Query.All<SomeWithNullable>().Where(s => s.Ref == reference).ToList();
+        result = session.Query.All<SomeWithNullable>().Where(s => s.Ref == reference).ToList();
         Assert.AreEqual(2, result.Count);
-        result = Query.All<SomeWithNullable>().Where(s => s.Ref != reference || s.Ref == null).ToList();
+        result = session.Query.All<SomeWithNullable>().Where(s => s.Ref != reference || s.Ref == null).ToList();
         Assert.AreEqual(2, result.Count);
         
         t.Complete();
