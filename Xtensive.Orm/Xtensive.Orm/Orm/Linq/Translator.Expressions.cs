@@ -479,7 +479,7 @@ namespace Xtensive.Orm.Linq
       var property = mi as PropertyInfo;
       if (property == null)
         return false;
-      return property.PropertyType == type && property.CanWrite;
+      return property.PropertyType.IsAssignableFrom(type) && property.CanWrite;
     }
 
     #region Private helper methods
