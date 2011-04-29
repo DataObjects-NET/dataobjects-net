@@ -32,6 +32,14 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
     {
       return Title;
     }
+
+    protected override void OnInitialize()
+    {
+      base.OnInitialize();
+
+      if(IsMaterializing)
+        Console.WriteLine("On initialize");
+    }
   }
 
   [TestFixture]
@@ -178,6 +186,29 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
       Log.Info("CollectionChanged: Sender = {0}, Action = {1}", sender, e.Action);
       lastSenderCollection = sender;
       lastChangeAction = e.Action;
+    }
+
+    [Test]
+    public void OnInitializeTest()
+    {
+      Key key;
+
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+
+          var b = new Book();
+          key = b.Key;
+          t.Complete();
+        }
+      }
+
+      using (Session.Open(Domain)) {
+        using (Transaction.Open()) {
+
+          //var b = Query.All<Book>().First();
+          var c = Query.Single<Book>(key);
+        }
+      }
     }
   }
 }
