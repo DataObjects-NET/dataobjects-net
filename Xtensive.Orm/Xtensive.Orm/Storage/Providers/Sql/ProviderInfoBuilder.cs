@@ -88,6 +88,10 @@ namespace Xtensive.Storage.Providers.Sql
       if ((c.AllowedDdlStatements & DdlStatements.Alter) == DdlStatements.Alter)
         f |= ProviderFeatures.ColumnRename;
 
+      var t = si.Table;
+      if ((t.AllowedDdlStatements & DdlStatements.Rename) == DdlStatements.Rename)
+        f |= ProviderFeatures.TableRename;
+
       var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
       if (binaryTypeInfo!=null && binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
@@ -107,7 +111,8 @@ namespace Xtensive.Storage.Providers.Sql
           si.TemporaryTable,
           si.UniqueConstraint
         }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
-      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength);
+      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? 
+        TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength);
     }
   }
 }

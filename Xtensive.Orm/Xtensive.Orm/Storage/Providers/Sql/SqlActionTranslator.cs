@@ -417,7 +417,29 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var oldTableInfo = sourceModel.Resolve(action.Path, true) as TableInfo;
       var table = FindTable(oldTableInfo.Name);
-      RegisterCommand(SqlDdl.Rename(table, action.Name), NonTransactionalStage.None);
+      if (providerInfo.ProviderFeatures.HasFlag(ProviderFeatures.TableRename))
+        RegisterCommand(SqlDdl.Rename(table, action.Name), NonTransactionalStage.None);
+      else {
+          var scheme = table.Schema;
+          var newTable = scheme.CreateTable(action.Name);
+          foreach (var item in table.TableColumns) {
+            var column = newTable.CreateColumn(item.Name, item.DataType);
+            column.DbName = item.DbName;
+            column.IsNullable = item.IsNullable;
+          }
+          RegisterCommand(SqlDdl.Create(newTable), NonTransactionalStage.None);
+
+          // Copying data from one table to another
+          var insert = SqlDml.Insert(SqlDml.TableRef(newTable));
+          var select = SqlDml.Select(SqlDml.TableRef(table));
+          insert.From = SqlDml.QueryRef(select);
+          RegisterCommand(insert, NonTransactionalStage.None);
+
+          // Removing table
+          RegisterCommand(SqlDdl.Drop(table), NonTransactionalStage.None);
+
+          scheme.Tables.Remove(newTable);
+      }
       oldTableInfo.Name = action.Name;
       RenameSchemaTable(table, action.Name);
     }

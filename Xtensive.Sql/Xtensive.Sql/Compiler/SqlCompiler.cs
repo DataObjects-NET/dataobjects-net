@@ -865,17 +865,23 @@ namespace Xtensive.Sql.Compiler
             }
         context.Output.AppendText(translator.Translate(context, node, InsertSection.ColumnsExit));
 
-        if (node.Values.Keys.Count == 0)
+        if (node.Values.Keys.Count == 0 && node.From == null)
           context.Output.AppendText(translator.Translate(context, node, InsertSection.DefaultValues));
         else {
-          context.Output.AppendText(translator.Translate(context, node, InsertSection.ValuesEntry));
-          using (context.EnterCollectionScope())
-            foreach (SqlExpression item in node.Values.Values) {
-              if (!context.IsEmpty)
-                context.Output.AppendDelimiter(translator.ColumnDelimiter);
-              item.AcceptVisitor(this);
+          if (node.From != null)
+            using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
+              node.From.AcceptVisitor(this);
             }
-          context.Output.AppendText(translator.Translate(context, node, InsertSection.ValuesExit));
+          else {
+            context.Output.AppendText(translator.Translate(context, node, InsertSection.ValuesEntry));
+            using (context.EnterCollectionScope())
+              foreach (SqlExpression item in node.Values.Values) {
+                if (!context.IsEmpty)
+                  context.Output.AppendDelimiter(translator.ColumnDelimiter);
+                item.AcceptVisitor(this);
+              }
+            context.Output.AppendText(translator.Translate(context, node, InsertSection.ValuesExit));
+          }
         }
         context.Output.AppendText(translator.Translate(context, node, InsertSection.Exit));
       }
@@ -1092,8 +1098,10 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void VisitSelectColumns(SqlSelect node)
     {
-      if (node.Columns.Count <= 0)
+      if (node.Columns.Count == 0) {
+        Visit(SqlDml.Asterisk);
         return;
+      }
       using (context.EnterCollectionScope()) {
         foreach (SqlColumn item in node.Columns) {
           if (item is SqlColumnStub)

@@ -4,6 +4,7 @@
 // Created by: Csaba Beer
 // Created:    2011.01.17
 
+using System.Linq;
 using Xtensive.Sql.Compiler;
 using System;
 using System.Text;
@@ -293,6 +294,12 @@ namespace Xtensive.Sql.Firebird.v2_5
       return "DROP SEQUENCE " + Translate(node.Sequence);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
+    {
+      if (context.GetTraversalPath().Any(n => n.NodeType == SqlNodeType.Insert))
+        return string.Empty;
+      return base.Translate(context, node, section);
+    }
 
     // Constructors
 

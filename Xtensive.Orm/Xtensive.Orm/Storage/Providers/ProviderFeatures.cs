@@ -53,5 +53,6 @@ namespace Xtensive.Storage.Providers
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
+    TableRename = 0x800000000,
   }
 }
