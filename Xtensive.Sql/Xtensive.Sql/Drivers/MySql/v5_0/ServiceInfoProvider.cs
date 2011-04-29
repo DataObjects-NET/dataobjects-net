@@ -207,7 +207,8 @@ namespace Xtensive.Sql.MySql.v5_0
         QueryFeatures.UpdateFrom |
         QueryFeatures.Limit |
         QueryFeatures.Offset |
-        QueryFeatures.DefaultValues |
+        QueryFeatures.InsertDefaultValues |
+        QueryFeatures.UpdateDefaultValues |
         QueryFeatures.ExplicitJoinOrder |
         QueryFeatures.ScalarSubquery;
 

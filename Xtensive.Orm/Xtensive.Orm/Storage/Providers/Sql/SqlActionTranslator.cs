@@ -778,8 +778,52 @@ namespace Xtensive.Storage.Providers.Sql
       if (updatedColumns.Length==0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
       foreach (var pair in updatedColumns)
-        if (pair.Second==null)
-          update.Values[table[pair.First.Name]] = SqlDml.DefaultValue;
+        if (pair.Second==null) {
+          if (providerInfo.ProviderFeatures.HasFlag(ProviderFeatures.UpdateDefaultValues))
+            update.Values[table[pair.First.Name]] = SqlDml.DefaultValue;
+          else {
+            if (pair.First.Type.IsNullable)
+              update.Values[table[pair.First.Name]] = SqlDml.Null;
+            else {
+              var typeCode = Type.GetTypeCode(pair.First.Type.Type);
+              switch (typeCode) {
+                case TypeCode.Byte:
+                case TypeCode.Decimal:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(0);
+                  break;
+                case TypeCode.Double:
+                case TypeCode.Single:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(0d);
+                  break;
+                case TypeCode.Boolean:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(false);
+                  break;
+                case TypeCode.Char:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal('0');
+                  break;
+                case TypeCode.String:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(string.Empty);
+                  break;
+                case TypeCode.DateTime:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(DateTime.MinValue);
+                  break;
+                case TypeCode.Object:
+                  if (pair.First.Type.Type == typeof(Guid))
+                    update.Values[table[pair.First.Name]] = SqlDml.Literal(Guid.Empty);
+                  else if (pair.First.Type.Type == typeof(TimeSpan))
+                    update.Values[table[pair.First.Name]] = SqlDml.Literal(TimeSpan.MinValue);
+                  break;
+              }
+            }
+          }
+        }
         else
           update.Values[table[pair.First.Name]] = SqlDml.Literal(pair.Second);
 

@@ -67,8 +67,10 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
       if (csi.MultipleActiveResultSets)
         f |= ProviderFeatures.MultipleActiveResultSets;
-      if (queryFeatures.Supports(QueryFeatures.DefaultValues))
+      if (queryFeatures.Supports(QueryFeatures.InsertDefaultValues))
         f |= ProviderFeatures.InsertDefaultValues;
+      if (queryFeatures.Supports(QueryFeatures.UpdateDefaultValues))
+        f |= ProviderFeatures.UpdateDefaultValues;
       if (queryFeatures.Supports(QueryFeatures.ScalarSubquery))
         f |= ProviderFeatures.ScalarSubqueries;
 
