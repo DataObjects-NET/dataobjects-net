@@ -37,7 +37,8 @@ namespace Xtensive.Storage.Internals
       var activator = entityActivators.GetValue(type,
         DelegateHelper.CreateConstructorDelegate<Func<EntityState, Entity>>);
       Entity result = activator(state);
-      result.SystemInitialize(true);
+      // This one is already called from the constructor
+      //result.SystemInitialize(true);
       return result;
     }
 
