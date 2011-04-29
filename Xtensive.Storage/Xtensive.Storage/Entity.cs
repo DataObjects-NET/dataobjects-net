@@ -192,6 +192,11 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this instance is materializing.
+    /// </summary>
+    protected bool IsMaterializing { get; private set; }
+
     #endregion
 
     #region IIdentified members
@@ -853,12 +858,16 @@ namespace Xtensive.Storage
     {
       try {
         State = state;
+        IsMaterializing = true;
         SystemBeforeInitialize(true);
         InitializeOnMaterialize();
       }
       catch (Exception error) {
         InitializationErrorOnMaterialize(error);
         throw;
+      }
+      finally {
+        IsMaterializing = false;
       }
     }
 
