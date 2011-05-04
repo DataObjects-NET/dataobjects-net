@@ -5,6 +5,7 @@
 // Created:    2011.01.17
 
 using System;
+using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -139,6 +140,15 @@ namespace Xtensive.Sql.Firebird.v2_5
         case SqlNodeType.Modulo:
           Visit(SqlDml.FunctionCall(translator.Translate(SqlNodeType.Modulo), node.Left, node.Right));
           return;
+        case SqlNodeType.BitAnd:
+          BitAnd(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.BitOr:
+          BitOr(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.BitXor:
+          BitXor(node.Left, node.Right).AcceptVisitor(this);
+          return;
         default:
           base.Visit(node);
           return;
@@ -184,6 +194,21 @@ namespace Xtensive.Sql.Firebird.v2_5
     public override void Visit(SqlRenameTable node)
     {
       throw new NotSupportedException();
+    }
+
+    public override void Visit(SqlLiteral node)
+    {
+      if (node.LiteralType != typeof(DateTime)) {
+        base.Visit(node);
+        return;
+      }
+
+      if (context.GetTraversalPath().Any(n => n.NodeType == SqlNodeType.Cast)) {
+        base.Visit(node);
+        return;
+      }
+
+      SqlDml.Cast(node, SqlType.DateTime).AcceptVisitor(this);
     }
 
     #region Static helpers
@@ -251,6 +276,21 @@ namespace Xtensive.Sql.Firebird.v2_5
     protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
     {
       return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MILLISECOND"), milliseconds, date);
+    }
+
+    protected static SqlUserFunctionCall BitAnd(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.FunctionCall("BIN_AND", left, right);
+    }
+
+    protected static SqlUserFunctionCall BitOr(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.FunctionCall("BIN_OR", left, right);
+    }
+
+    protected static SqlUserFunctionCall BitXor(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.FunctionCall("BIN_XOR", left, right);
     }
 
     #endregion
