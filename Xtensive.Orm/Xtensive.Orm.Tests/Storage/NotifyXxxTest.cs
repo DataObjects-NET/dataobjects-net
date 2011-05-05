@@ -82,11 +82,7 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
           ResetLastXxx();
           book1.RelatedBooks.Remove(book2);
           // "Reset", coz collection is considered as not fully loaded
-#if DEBUG
-          Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
-#else
           Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
-#endif
           Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
         }
 
@@ -193,8 +189,8 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
     {
       Key key;
 
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (var s = Domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
 
           var b = new Book();
           key = b.Key;
@@ -202,11 +198,11 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
         }
       }
 
-      using (Session.Open(Domain)) {
-        using (Transaction.Open()) {
+      using (var s = Domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
 
           //var b = Query.All<Book>().First();
-          var c = Query.Single<Book>(key);
+          var c = s.Query.Single<Book>(key);
         }
       }
     }

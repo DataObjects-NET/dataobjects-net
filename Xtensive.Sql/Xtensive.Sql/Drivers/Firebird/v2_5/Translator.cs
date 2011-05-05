@@ -274,10 +274,10 @@ namespace Xtensive.Sql.Firebird.v2_5
       switch (section) {
         case NodeSection.Entry:
           return "SET GENERATOR " + Translate(node.Sequence);
-        default:
+        case NodeSection.Exit:
           return "TO " + (node.SequenceDescriptor.LastValue.HasValue ? node.SequenceDescriptor.LastValue : 0);
       }
-
+      return string.Empty;
     }
 
     /// <inheritdoc/>

@@ -32,8 +32,8 @@ namespace Xtensive.Sql.Firebird.v2_5
                 return true;
             if (type == typeof(Guid))
                 return true;
-            if (type == typeof(DateTime))
-                return true;
+//            if (type == typeof(DateTime))
+//                return true;
             return base.IsLiteralCastRequired(type);
         }
 

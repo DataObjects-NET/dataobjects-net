@@ -181,7 +181,7 @@ namespace Xtensive.Sql.Firebird.v2_5
           Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
+          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
                                                     node.Arguments[0] - 2001),
                                         node.Arguments[1] - 1),
                            node.Arguments[2] - 1));
@@ -196,19 +196,10 @@ namespace Xtensive.Sql.Firebird.v2_5
       throw new NotSupportedException();
     }
 
-    public override void Visit(SqlLiteral node)
+    public override void Visit(SqlAlterSequence node)
     {
-      if (node.LiteralType != typeof(DateTime)) {
-        base.Visit(node);
-        return;
-      }
-
-      if (context.GetTraversalPath().Any(n => n.NodeType == SqlNodeType.Cast)) {
-        base.Visit(node);
-        return;
-      }
-
-      SqlDml.Cast(node, SqlType.DateTime).AcceptVisitor(this);
+      context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
+      context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
     }
 
     #region Static helpers

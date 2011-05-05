@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Storage
         var futureScalarUnitPrice = session.Query.ExecuteDelayed(
           qe => qe.All<Product>().Where(p => p.ProductType == ProductType.Active).Count());
         var futureSequenceProduct = session.Query.ExecuteDelayed(
-          qe => qe.All<Product>().Where(p => p.ProductName.GreaterThan("c")));
+          qe => qe.All<Product>().Where(p => p.ProductName.Contains("c")));
         var futureScalarFreight = session.Query.ExecuteDelayed(
           qe => qe.All<Order>().Average(o => o.Freight));
         Assert.Greater(futureSequenceOrder.Count(), 0); // Count() here is IEnumerable.Count()

@@ -86,7 +86,8 @@ namespace Xtensive.Orm.Tests.Upgrade
             new Person {
               Address = new Address {City = "City", Country = "Country"}
             };
-          Assert.AreEqual(3, session.Query.All<Person>().Max(p => p.Id));
+          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
+          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
           t.Complete();
         }
       }
@@ -97,7 +98,8 @@ namespace Xtensive.Orm.Tests.Upgrade
             new Person {
               Address = new Address {City = "City", Country = "Country"}
             };
-          Assert.AreEqual(6, session.Query.All<Person>().Max(p => p.Id));
+          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
+          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
           t.Complete();
         }
       }
@@ -109,7 +111,8 @@ namespace Xtensive.Orm.Tests.Upgrade
           new Person {Address = new Address {City = "City", Country = "Country"}};
           new Person {Address = new Address {City = "City", Country = "Country"}};
           new Person {Address = new Address {City = "City", Country = "Country"}};
-          Assert.AreEqual(12, session.Query.All<Person>().Max(p => p.Id));
+          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 13);
+          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 12);
           t.Complete();
         }
       }

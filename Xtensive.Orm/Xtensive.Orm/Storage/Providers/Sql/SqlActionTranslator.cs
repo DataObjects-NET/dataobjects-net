@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
@@ -685,6 +686,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (IsSequencesAllowed) {
         var exisitingSequence = schema.Sequences[sequenceInfo.Name];
         var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
+        newSequenceDescriptor.LastValue = currentValue;
         exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
         RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor), NonTransactionalStage.None);
       }
@@ -936,8 +938,12 @@ namespace Xtensive.Storage.Providers.Sql
         || enforceChangedColumns.Contains(sourceColumn.Path)) {
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
-        if (newTypeInfo.IsNullable)
-          copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
+        if (newTypeInfo.IsNullable) {
+          if (sourceColumn.Type.Type.StripNullable() == typeof(string) && newSqlType.Length < column.DataType.Length)
+            copyValues.Values[tableRef[originalName]] = SqlDml.Cast(SqlDml.Substring(tableRef[tempName], 0, newSqlType.Length), newSqlType);
+          else
+            copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
+        }
         else {
           var getValue = SqlDml.Case();
           getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));

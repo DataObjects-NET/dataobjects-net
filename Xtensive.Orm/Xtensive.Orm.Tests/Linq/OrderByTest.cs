@@ -139,9 +139,9 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByJoin1Test()
     {
-      var result = Query.All<Customer>()
+      var result = Session.Query.All<Customer>()
         .OrderBy(c => c.ContactName)
-        .Join(Query.All<Order>()
+        .Join(Session.Query.All<Order>()
             .Select(o => new {CustomerID = o.Customer.Id, o.OrderDate})
             .Take(1000), c => c.Id, x => x.CustomerID, (c, o) => new {c.ContactName, o.OrderDate});
       var list = result.ToList();

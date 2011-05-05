@@ -145,8 +145,8 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     [Test]
     public void OnSetValueModeTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open(session)) {
+      using (var s = Domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
 
           var target = new ValidationTarget();
           target.Name = "name";
@@ -159,9 +159,9 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     { 
       int mouseId;
       validationCallsCount = 0;
-      using (var session = Domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          using (var region = session.DisableValidation()) {
+      using (var s = Domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
+          using (var region = s.DisableValidation()) {
             var mouse = new Mouse {
               ButtonCount = 2,
               ScrollingCount = 1
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
 
             region.Complete();
           }
-          transactionScope.Complete();
+          t.Complete();
         }
       }
       Assert.AreEqual(1, validationCallsCount);

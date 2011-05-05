@@ -49,8 +49,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (var s = Domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
 
           Expression<Func<MyEntity, string>> x = c => c.Name;
           Expression<Func<MyEntity, SelectListItem>> y = c => new SelectListItem() { Name = c.Name, Value = c.Value};
@@ -65,8 +65,7 @@ namespace Xtensive.Orm.Tests.Issues
       Expression<Func<MyEntity, string>> order,
       Expression<Func<MyEntity, SelectListItem>> selector)
     {
-      var session = Session.Current;
-      return Query.All<MyEntity>().OrderBy(order).Select(selector);
+      return Session.Current.Query.All<MyEntity>().OrderBy(order).Select(selector);
     }
   }
 }

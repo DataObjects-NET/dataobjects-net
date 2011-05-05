@@ -104,16 +104,16 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var s = Domain.OpenSession())
+        using (var t = s.OpenTransaction()) {
         new A {Tag = "Alpha", B = new B {Item = new Item {Name = "Item name"}}};
         t.Complete();
       }
 
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) { 
+      using (var s = Domain.OpenSession())
+        using (var t = s.OpenTransaction()) {
         var query = 
-          from a in Query.All<A>()
+          from a in s.Query.All<A>()
           where a.Tag == "Alpha"
           group a by a.B into g
           select new { g.Key.Item.Name, Count = g.Count() };
@@ -129,15 +129,15 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void EnumTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var s = Domain.OpenSession())
+        using (var t = s.OpenTransaction()) {
         new My {Status = MyStatus.Closed};
         t.Complete();
       }
 
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
-        var x = from e in Query.All<My>()
+      using (var s = Domain.OpenSession())
+        using (var t = s.OpenTransaction()) {
+        var x = from e in s.Query.All<My>()
                 select new MyEntityViewModel(e.Status);
         var list = x.ToList();
         Assert.AreEqual(1, list.Count);

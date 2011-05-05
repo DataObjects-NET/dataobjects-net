@@ -133,14 +133,23 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void BoolToStringTest()
     {
-      UpgradeDomain(typeof (string), 100, null, null, "FBool", null, Mode.Perform);
+      string expectedValue;
+      if (domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird) {
+        expectedValue = "1";
+      }
+      else {
+        expectedValue = string.Empty;
+      }
+      UpgradeDomain(typeof (string), 100, null, null, "FBool", expectedValue, Mode.Perform);
     }
 
     [Test]
     public void BoolToStringSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        UpgradeDomain(typeof (string), 100, null, null, "FBool", string.Empty, Mode.PerformSafely));
+      Require.ProviderIsNot(StorageProvider.Firebird);
+      AssertEx.Throws<SchemaSynchronizationException>(() =>
+                                                        UpgradeDomain(typeof (string), 100, null, null, "FBool",
+                                                                      string.Empty, Mode.PerformSafely));
     }
 
     [Test]
@@ -189,6 +198,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToShortDecimalSafelyTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       AssertEx.Throws<SchemaSynchronizationException>(() =>
         UpgradeDomain(typeof (decimal), null, 2, 0, "FDecimal", new decimal(1.2), Mode.PerformSafely));
     }
