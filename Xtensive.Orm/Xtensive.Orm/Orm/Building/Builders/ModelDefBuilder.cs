@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Building.Builders
       var targets = typeDef.Fields
         .Where(f => f.IsIndexed)
         .Select(f => new IndexAttribute(f.Name))
-        .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.Default) ??
+        .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritAll) ??
                 EnumerableUtils<IndexAttribute>.Empty)
         .ToList();
 
