@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Model
     protected override string GetExceptionMessage(string key)
     {
       return string.Format(Strings.ExItemWithKeyXWasNotFound
-        + " You might have forgotten to apply [Field] attribute on property {0}.", key);
+        + " You might have forgotten to apply [Field] attribute on property {0}.{1}.", Name, key);
     }
 
     // Constructors
