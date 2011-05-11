@@ -24,6 +24,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0042_IndexAttributeIsOmitted_Model
     [Field, Key]
     public int Id { get; private set; }
   }
+
+  public class GrandChild : Child
+  {
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
