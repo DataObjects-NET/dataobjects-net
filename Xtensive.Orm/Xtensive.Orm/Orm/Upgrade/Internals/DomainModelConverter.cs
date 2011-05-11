@@ -263,6 +263,10 @@ namespace Xtensive.Orm.Upgrade
           ownerType = implementor;
           ownerField = implementor.FieldMap[interfaceField];
 
+          // Check whether an overridden association exists
+          if (ownerField.Associations.Any(a => a.Ancestors.Contains(association)))
+            continue;
+
           var referencingTable = GetTable(ownerType);
           var referencedTable = GetTable(targetType);
           if (referencedTable==null || referencingTable==null)
