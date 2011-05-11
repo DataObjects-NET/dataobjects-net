@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the storage info.
     /// </summary>
-    private IndexingModel.StorageInfo StorageInfo { get; set; }
+    private StorageInfo StorageInfo { get; set; }
 
     /// <summary>
     /// Gets the currently converting model.
@@ -65,25 +65,21 @@ namespace Xtensive.Orm.Upgrade
     private bool BuildForeignKeys { get; set; }
 
     /// <summary>
-    /// Gets the foreign key name generator.
-    /// </summary>
-    private Func<AssociationInfo, FieldInfo, string> ForeignKeyNameGenerator { get; set; }
-
-    /// <summary>
     /// Gets or sets a value indicating whether 
     /// build foreign keys for hierarchies.
     /// </summary>
     private bool BuildHierarchyForeignKeys { get; set; }
 
     /// <summary>
-    /// Gets the hierarchy foreign key name generator.
-    /// </summary>
-    private Func<Model.TypeInfo, Model.TypeInfo, string> HierarchyForeignKeyNameGenerator { get; set; }
-
-    /// <summary>
     /// Gets or sets the currently visiting table.
     /// </summary>
-    private IndexingModel.TableInfo CurrentTable { get; set; }
+    private TableInfo CurrentTable { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name builder.
+    /// </summary>
+    /// <value>The name builder.</value>
+    private NameBuilder NameBuilder { get; set; }
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
@@ -173,7 +169,7 @@ namespace Xtensive.Orm.Upgrade
         var storageReferencingIndex = FindIndex(referencingTable,
           new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
 
-        string foreignKeyName = HierarchyForeignKeyNameGenerator.Invoke(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
+        string foreignKeyName = NameBuilder.BuildForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
         CreateForeignKey(referencingTable, foreignKeyName, referencedTable, storageReferencingIndex);
       }
 
@@ -274,7 +270,7 @@ namespace Xtensive.Orm.Upgrade
           var foreignColumns = ownerField.Columns
             .Select(ci => referencingTable.Columns[ci.Name])
             .ToList();
-          string foreignKeyName = ForeignKeyNameGenerator.Invoke(association, ownerField);
+          string foreignKeyName = NameBuilder.BuildForeignKeyName(ownerType, ownerField, targetType);
           var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
             PrimaryKey = referencedTable.PrimaryIndex,
             OnRemoveAction = ReferentialAction.None,
@@ -298,7 +294,7 @@ namespace Xtensive.Orm.Upgrade
           var foreignColumns = ownerField.Columns
             .Select(ci => referencingTable.Columns[ci.Name])
             .ToList();
-          string foreignKeyName = ForeignKeyNameGenerator.Invoke(association, ownerField);
+          string foreignKeyName = NameBuilder.BuildForeignKeyName(association, ownerField);
           var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
             PrimaryKey = referencedTable.PrimaryIndex,
             OnRemoveAction = ReferentialAction.None,
@@ -319,7 +315,7 @@ namespace Xtensive.Orm.Upgrade
           if (referencedTable==null || referencingTable==null)
             continue;
           var foreignColumns = field.Columns.Select(ci => referencingTable.Columns[ci.Name]).ToList();
-          string foreignKeyName = ForeignKeyNameGenerator.Invoke(association, field);
+          string foreignKeyName = NameBuilder.BuildForeignKeyName(association, field);
           var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
             PrimaryKey = referencedTable.PrimaryIndex,
             OnRemoveAction = ReferentialAction.None,
@@ -561,24 +557,17 @@ namespace Xtensive.Orm.Upgrade
     public DomainModelConverter(
       ProviderInfo providerInfo, 
       bool buildForeignKeys, 
-      Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator, 
+      NameBuilder nameBuilder,
       bool buildHierarchyForeignKeys, 
-      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator, 
       Func<Type, int?, int?, int?, IndexingModel.TypeInfo> typeBuilder)
     {
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
       if (buildForeignKeys)
-        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, 
-          "foreignKeyNameGenerator");
-      if (buildHierarchyForeignKeys) {
-        ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator,
-          "hierarchyForeignKeyNameGenerator");
-      }
+        ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
 
       BuildForeignKeys = buildForeignKeys;
-      ForeignKeyNameGenerator = foreignKeyNameGenerator;
+      NameBuilder = nameBuilder;
       BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
-      HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
       ProviderInfo = providerInfo;
       TypeBuilder = typeBuilder;
     }

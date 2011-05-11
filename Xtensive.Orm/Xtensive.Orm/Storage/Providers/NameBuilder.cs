@@ -164,6 +164,16 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
+    /// Builds foreign key name by association.
+    /// </summary>
+    /// <returns>Foreign key name.</returns>
+    public virtual string BuildForeignKeyName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
+    {
+      return ApplyNamingRules(string.Format("FK_{0}_{1}", 
+        BuildAssociationName(ownerType, ownerField, targetType), ownerField.Name));
+    }
+
+    /// <summary>
     /// Builds foreign key name for in-hierarchy primary key references.
     /// </summary>
     /// <returns>Foreign key name.</returns>
@@ -429,6 +439,21 @@ namespace Xtensive.Storage.Providers
         target.OwnerType.Name, 
         target.OwnerField.Name, 
         target.TargetType.Name));
+    }
+
+    /// <summary>
+    /// Builds the name for the <see cref="AssociationInfo"/>.
+    /// </summary>
+    /// <param name="ownerType">Type of the owner.</param>
+    /// <param name="ownerField">The owner field.</param>
+    /// <param name="targetType">Type of the target.</param>
+    /// <returns>Association name.</returns>
+    public virtual string BuildAssociationName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
+    {
+      return ApplyNamingRules(string.Format(AssociationPattern, 
+        ownerType.Name, 
+        ownerField.Name, 
+        targetType.Name));
     }
 
     /// <summary>

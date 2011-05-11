@@ -39,9 +39,8 @@ namespace Xtensive.Storage.Providers
 
       var domainModelConverter = new DomainModelConverter(
         providerInfo, 
-        buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName, 
-        buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName, 
-        CreateTypeInfo);
+        buildForeignKeys, buildingContext.NameBuilder, 
+        buildHierarchyForeignKeys, CreateTypeInfo);
 
       var upgradeContext = UpgradeContext.Current;
       var session = Session.Current;
