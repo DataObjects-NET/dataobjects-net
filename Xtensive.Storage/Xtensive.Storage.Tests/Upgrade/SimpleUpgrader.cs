@@ -75,6 +75,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       // Removing fields
       hints.Add(new RemoveFieldHint("Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1.Order", "ProcessingTime"));
       hints.Add(new RemoveFieldHint("Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1.Order", "ShippingAddress"));
+      hints.Add(new RemoveFieldHint("Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1.Order", "Data.Value2"));
 
       // Type changes
       hints.Add(new ChangeFieldTypeHint(typeof(SimpleVersion2.Person), "PassportNumber"));

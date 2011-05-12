@@ -182,8 +182,25 @@ namespace Xtensive.Storage.Upgrade
         var sourceType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType==sourceTypeName);
         if (sourceType==null)
           throw TypeNotFound(sourceTypeName);
-        if (!sourceType.AllFields.Any(field => field.Name==hint.Field))
-          throw FieldNotFound(sourceTypeName, hint.Field);
+
+        // Handling structure field
+        if (hint.Field.Contains(".")) {
+          StoredFieldInfo storedField;
+          string[] path = hint.Field.Split('.');
+          var fields = sourceType.AllFields;
+          string fieldName = string.Empty;
+          for (int i = 0; i < path.Length; i++) {
+            fieldName += string.IsNullOrEmpty(fieldName) ? path[i] : "." + path[i];
+            string parameter = fieldName;
+            storedField = fields.SingleOrDefault(field => field.Name == parameter);
+            if (storedField == null)
+              throw FieldNotFound(sourceTypeName, hint.Field);
+            fields = storedField.Fields;
+          }
+        }
+        else
+          if (!sourceType.AllFields.Any(field => field.Name==hint.Field))
+            throw FieldNotFound(sourceTypeName, hint.Field);
       }
     }
 
@@ -842,8 +859,26 @@ namespace Xtensive.Storage.Upgrade
       var storedType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType == typeName);
       if (storedType == null)
         throw TypeNotFound(typeName);
-      var storedField = storedType.AllFields
-        .SingleOrDefault(field => field.Name == hint.Field);
+
+      StoredFieldInfo storedField = null;
+      // Nested field, looks like a field of a structure
+      if (hint.Field.Contains(".")) {
+        string[] path = hint.Field.Split('.');
+        var fields = storedType.AllFields;
+        string fieldName = string.Empty;
+        for (int i = 0; i < path.Length; i++) {
+          fieldName += string.IsNullOrEmpty(fieldName) ? path[i] : "." + path[i];
+          string parameter = fieldName;
+          storedField = fields.SingleOrDefault(field => field.Name == parameter);
+          if (storedField == null)
+            throw FieldNotFound(typeName, hint.Field);
+          fields = storedField.Fields;
+        }
+      }
+      else
+        storedField = storedType.AllFields
+          .SingleOrDefault(field => field.Name == hint.Field);
+
       if (storedField == null)
         throw FieldNotFound(typeName, hint.Field);
       foreach (var primitiveField in storedField.PrimitiveFields)
