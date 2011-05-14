@@ -53,6 +53,8 @@ namespace Xtensive.Sql.MySql.v5_0
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropConstraint));
           if (constraint is ForeignKey)
             context.Output.AppendText("FOREIGN KEY " + translator.QuoteIdentifier(constraint.DbName));
+          else if (constraint is PrimaryKey)
+            context.Output.AppendText("PRIMARY KEY ");
           else
             context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));

@@ -109,7 +109,8 @@ namespace Xtensive.Sql.MySql.v5_0
                 FROM 
                        information_schema.statistics s
                 WHERE
-                    (s.table_schema {SCHEMA_FILTER})
+                    (s.table_schema {SCHEMA_FILTER}
+                AND s.index_name <> 'PRIMARY')
                 ORDER BY
                       s.table_schema,
                       s.table_name,

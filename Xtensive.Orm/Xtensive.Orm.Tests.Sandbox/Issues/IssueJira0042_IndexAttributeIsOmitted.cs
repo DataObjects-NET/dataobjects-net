@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0042_IndexAttributeIsOmitted_Model
   [Index("Name", Unique = true)]
   public abstract class Root : Entity
   {
-    [Field]
+    [Field(Length = 100)]
     public string Name { get; set; }
   }
 

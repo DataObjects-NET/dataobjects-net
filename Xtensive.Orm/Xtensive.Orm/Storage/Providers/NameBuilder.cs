@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Providers
             names[i] = BuildGenericTypeName(argument, null);
         }
       }
-      return string.Format(GenericTypePattern, typeName, string.Join("-", names));
+      return ApplyNamingRules(string.Format(GenericTypePattern, typeName, string.Join("-", names)));
     }
 
     /// <summary>

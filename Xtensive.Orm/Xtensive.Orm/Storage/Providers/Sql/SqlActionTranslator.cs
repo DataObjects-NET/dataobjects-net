@@ -72,6 +72,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage stage;
+    private static StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
     private bool IsSequencesAllowed
     {
@@ -1094,7 +1095,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
-      while (column.Table.Columns.Any(tableColumn=>tableColumn.Name==tempName))
+      while (column.Table.Columns.Any(tableColumn => stringComparer.Compare(tableColumn.Name, tempName) == 0))
         tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
 
       return tempName;
@@ -1102,19 +1103,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Table FindTable(string name)
     {
-      return schema.Tables.FirstOrDefault(t => t.Name==name);
+      return schema.Tables.FirstOrDefault(t => stringComparer.Compare(t.Name, name) == 0);
     }
 
     private TableColumn FindColumn(Table table, string name)
     {
       return table.TableColumns.
-        FirstOrDefault(c => c.Name==name);
+        FirstOrDefault(c => stringComparer.Compare(c.Name, name) == 0);
     }
 
     private TableColumn FindColumn(string tableName, string columnName)
     {
       return FindTable(tableName).TableColumns.
-        FirstOrDefault(c => c.Name==columnName);
+        FirstOrDefault(c => stringComparer.Compare(c.Name, columnName) == 0);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)

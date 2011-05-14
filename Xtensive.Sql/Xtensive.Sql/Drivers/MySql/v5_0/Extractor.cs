@@ -391,6 +391,10 @@ namespace Xtensive.Sql.MySql.v5_0
         return new SqlValueType(SqlType.Decimal, 4, 0);
       }
 
+      if (typeName=="LONGTEXT") {
+        return new SqlValueType(SqlType.VarCharMax);
+      }
+
       if (typeName.Contains("TEXT")) {
         int length = ReadInt(row, charLengthIndex);
         return new SqlValueType(SqlType.VarCharMax, length);

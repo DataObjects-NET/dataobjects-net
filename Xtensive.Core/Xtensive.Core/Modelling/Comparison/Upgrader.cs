@@ -268,17 +268,19 @@ namespace Xtensive.Modelling.Comparison
       var isCreated = (difference.MovementInfo & MovementInfo.Created)!=0;
       var isRemoved = (difference.MovementInfo & MovementInfo.Removed)!=0
         || (isImmutable && difference.HasChanges && !isCreated);
+      
+      var sc = StringComparer.OrdinalIgnoreCase;
 
       switch (Stage) {
       case UpgradeStage.CleanupData:
         if (difference.IsDataChanged) {
           Hints.GetHints<UpdateDataHint>(difference.Source)
-            .Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
             .ForEach(hint => AddAction(UpgradeActionType.Regular, 
               new DataAction {DataHint = hint}));
           Hints.GetHints<DeleteDataHint>(difference.Source)
             .Where(hint => !hint.PostCopy)
-            .Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
             .ForEach(hint => AddAction(UpgradeActionType.Regular, 
               new DataAction {DataHint = hint}));
         }
@@ -312,14 +314,14 @@ namespace Xtensive.Modelling.Comparison
           });
         break;
       case UpgradeStage.CopyData:
-        Hints.GetHints<CopyDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
+        Hints.GetHints<CopyDataHint>(difference.Source).Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
           .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
         break;
       case UpgradeStage.PostCopyData:
         if (difference.IsDataChanged) {
           Hints.GetHints<DeleteDataHint>(difference.Source)
             .Where(hint => hint.PostCopy)
-            .Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
             .ForEach(hint => AddAction(UpgradeActionType.Regular,
               new DataAction {DataHint = hint}));
         }
