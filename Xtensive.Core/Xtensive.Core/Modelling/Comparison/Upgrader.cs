@@ -128,7 +128,7 @@ namespace Xtensive.Modelling.Comparison
       if (difference == null)
         return new ReadOnlyList<NodeAction>(Enumerable.Empty<NodeAction>().ToList());
 
-      TemporaryRenames = new Dictionary<string, Node>();
+      TemporaryRenames = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);

@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void BoolToStringTest()
     {
       string expectedValue;
-      if (domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird) {
+      if (domain.Configuration.ConnectionInfo.Provider.In(WellKnown.Provider.Firebird, WellKnown.Provider.MySql)) {
         expectedValue = "1";
       }
       else {

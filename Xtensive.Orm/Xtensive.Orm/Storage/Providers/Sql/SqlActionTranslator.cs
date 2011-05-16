@@ -366,6 +366,12 @@ namespace Xtensive.Storage.Providers.Sql
       var toTableRef = SqlDml.TableRef(toTable);
       var update = SqlDml.Update(toTableRef);
 
+      if (fromTable == toTable) {
+        copiedColumns.ForEach(pair => update.Values[toTableRef[pair.Second.Name]] = toTableRef[pair.First.Name]);
+        RegisterCommand(update, NonTransactionalStage.None);
+        return;
+      }
+
       if (providerInfo.Supports(ProviderFeatures.UpdateFrom)) {
         var fromTableRef = SqlDml.TableRef(fromTable);
         var select = SqlDml.Select(fromTableRef);

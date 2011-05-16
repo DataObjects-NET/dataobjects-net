@@ -347,7 +347,7 @@ namespace Xtensive.Sql.MySql.v5_0
       int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
       int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
 
-      if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL") {
+      if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL" || typeName == "DECIMAL") {
         return new SqlValueType(SqlType.Decimal, precision, scale);
       }
 
