@@ -177,10 +177,9 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitIndexInfo(IndexInfo index)
+    protected IPathNode VisitIndexInfo(IndexInfo primaryIndex, IndexInfo index)
     {
       IndexingModel.TableInfo table = CurrentTable;
-      IndexInfo primaryIndex = Model.RealIndexes.First(i => i.MappingName==table.PrimaryIndex.Name);
       var secondaryIndex = new IndexingModel.SecondaryIndexInfo(table, index.MappingName) {
         IsUnique = index.IsUnique
       };
@@ -337,9 +336,12 @@ namespace Xtensive.Orm.Upgrade
       if (keyInfo.Sequence==null || !keyInfo.IsFirstAmongSimilarKeys)
         return null;
       var sequenceInfo = keyInfo.Sequence;
+      long increment = 1;
+      if (ProviderInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement) || ProviderInfo.Supports(ProviderFeatures.Sequences))
+        increment = sequenceInfo.Increment;
       var sequence = new IndexingModel.SequenceInfo(StorageInfo, sequenceInfo.MappingName) {
         Seed = sequenceInfo.Seed,
-        Increment = sequenceInfo.Increment,
+        Increment = increment,
         Type = TypeBuilder.Invoke(keyInfo.TupleDescriptor[0], null, null, null),
       };
       return sequence;
@@ -380,7 +382,12 @@ namespace Xtensive.Orm.Upgrade
       foreach (var column in index.Columns)
         Visit(column);
 
-      var primaryIndex = new IndexingModel.PrimaryIndexInfo(CurrentTable, index.MappingName);
+      // Support for mysql as primary indexes there always have name 'PRIMARY'
+      string name = ProviderInfo.ConstantPrimaryIndexName;
+      if (string.IsNullOrEmpty(name))
+        name = index.MappingName;
+
+      var primaryIndex = new IndexingModel.PrimaryIndexInfo(CurrentTable, name);
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(index, pair.Key, index);
         var column = CurrentTable.Columns[columName];
@@ -391,8 +398,8 @@ namespace Xtensive.Orm.Upgrade
       }
       primaryIndex.PopulateValueColumns();
 
-      foreach (var indexInfo in index.ReflectedType.Indexes.Where(i => i.IsSecondary && !i.IsVirtual))
-        Visit(indexInfo);
+      foreach (var secondaryIndex in index.ReflectedType.Indexes.Where(i => i.IsSecondary && !i.IsVirtual))
+        VisitIndexInfo(index, secondaryIndex);
 
       CurrentTable = null;
       return primaryIndex;
@@ -424,6 +431,13 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTypeInfo(TypeInfo type)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
+    protected override IPathNode VisitIndexInfo(IndexInfo index)
     {
       throw new NotSupportedException();
     }

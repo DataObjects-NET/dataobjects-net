@@ -18,7 +18,7 @@ namespace Xtensive.Modelling.Actions
   [Serializable]
   public class PropertyChangeAction : NodeAction
   {
-    private IDictionary<string, object> properties = new Dictionary<string, object>();
+    private IDictionary<string, object> properties = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Gets or sets the properties.

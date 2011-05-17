@@ -49,9 +49,11 @@ namespace Xtensive.Sql.MySql.v5_0
                     c.collation_name,
                     c.column_key,
                     c.column_default,
-                    c.Extra
-                FROM information_schema.columns c
+                    c.Extra,
+                    t.auto_increment
+                FROM information_schema.columns c LEFT OUTER JOIN information_schema.tables t  ON (c.table_name = t.table_name)
                 WHERE c.table_schema {SCHEMA_FILTER}
+                AND t.table_schema {SCHEMA_FILTER}
                 AND c.table_name {TABLE_FILTER}
                 ORDER BY 
                     c.table_schema, 

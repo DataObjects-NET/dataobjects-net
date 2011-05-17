@@ -12,6 +12,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.Model.Version1;
 using Xtensive.Orm.Tests.Upgrade.Model.Version2;
+using Xtensive.Storage.Providers;
 using Xtensive.Testing;
 using Address = Xtensive.Orm.Tests.Upgrade.Model.Version1.Address;
 using Boy = Xtensive.Orm.Tests.Upgrade.Model.Version2.Boy;
@@ -78,6 +79,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpgradeGeneratorsTest()
     {
+      Require.AnyFeatureSupported(ProviderFeatures.Sequences | ProviderFeatures.ArbitraryIdentityIncrement);
+
       var generatorCacheSize = 3;
       BuildDomain("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof (Address), typeof (Person));
       using (var session = domain.OpenSession()) {

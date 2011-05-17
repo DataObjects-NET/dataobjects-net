@@ -82,13 +82,13 @@ namespace Xtensive.Orm.Building
         .OfType<CreateNodeAction>()
         .Where(action => {
           var table = action.Difference.Target as TableInfo;
-          return table!=null && !systemTables.Contains(table.Name);
+          return table!=null && !systemTables.Contains(table.Name, StringComparer.OrdinalIgnoreCase);
         }).ToList();
       var createColumnActions = actions.Flatten()
         .OfType<CreateNodeAction>()
         .Where(action => {
           var column = action.Difference.Target as ColumnInfo;
-          return column!=null && !systemTables.Contains(column.Parent.Name);
+          return column!=null && !systemTables.Contains(column.Parent.Name, StringComparer.OrdinalIgnoreCase);
         }).ToList();
       columnTypeChangeActions = columnTypeChangeActions.Where(action => {
         var sourceType = action.Difference.Source as TypeInfo;
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Building
     {
       return actions.OfType<GroupingNodeAction>().Flatten(
         action => action.Actions.OfType<GroupingNodeAction>(), ga => { }, false)
-        .Where(action => systemTableNames.Contains(action.Comment)).ToList();
+        .Where(action => systemTableNames.Contains(action.Comment, StringComparer.OrdinalIgnoreCase)).ToList();
     }
     
     private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Building
       typeChangeAction
         .Where(action => !TypeConversionVerifier.CanConvertSafely(
           action.Difference.Source as TypeInfo, action.Difference.Target as TypeInfo))
-        .Where(action1 => !columnsWithHint.Contains(action1.Path))
+        .Where(action1 => !columnsWithHint.Contains(action1.Path, StringComparer.OrdinalIgnoreCase))
         .ForEach(unsafeActions.Add);
 
       // Unsafe column removes
@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Building
         .ToHashSet();
       columnActions
         .OfType<RemoveNodeAction>()
-        .Where(action => !columnsWithHint.Contains(action.Path))
+        .Where(action => !columnsWithHint.Contains(action.Path, StringComparer.OrdinalIgnoreCase))
         .ForEach(unsafeActions.Add);
       
       // Unsafe type removes
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Building
         .ToHashSet();
       tableActions
         .OfType<RemoveNodeAction>()
-        .Where(action => !tableWithHints.Contains(action.Path))
+        .Where(action => !tableWithHints.Contains(action.Path, StringComparer.OrdinalIgnoreCase))
         .ForEach(unsafeActions.Add);
 
       return unsafeActions;

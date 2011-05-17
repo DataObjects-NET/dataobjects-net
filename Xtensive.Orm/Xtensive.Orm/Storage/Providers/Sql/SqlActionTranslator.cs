@@ -942,7 +942,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       // Copy values if possible to convert type
       if (TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
-        || enforceChangedColumns.Contains(sourceColumn.Path)) {
+        || enforceChangedColumns.Contains(sourceColumn.Path, StringComparer.OrdinalIgnoreCase)) {
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable) {
