@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Issues
       Assert.AreEqual(6, type.Indexes.Count);
 
       type = typeof (MyEntityInfo<MyEntity>).GetTypeInfo(Domain);
-      Assert.AreEqual(2, type.Indexes.Count);
+      Assert.AreEqual(4, type.Indexes.Count);
     }
   }
 }

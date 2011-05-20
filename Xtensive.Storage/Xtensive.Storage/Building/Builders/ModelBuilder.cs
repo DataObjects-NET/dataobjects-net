@@ -259,12 +259,18 @@ namespace Xtensive.Storage.Building.Builders
 
         foreach (var association in context.Model.Associations) {
           if (association.Multiplicity.In(Multiplicity.OneToOne, Multiplicity.ZeroToOne)) {
-            Func<IndexDef, bool> predicate = 
-              i => i.IsSecondary && i.KeyFields.Count==1 && 
-              i.KeyFields[0].Key==association.OwnerField.Name;
             var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
+            var ass = association;
+            var field = ass.OwnerField;
+            string fieldName = field.Name;
+            while (field.Parent != null) {
+              field = field.Parent;
+              fieldName = field.Name;
+            }
+            Func<IndexDef, bool> predicate = 
+              i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==fieldName;
             if (!typeDef.Indexes.Any(predicate)) {
-              var attribute = new IndexAttribute(association.OwnerField.Name);
+              var attribute = new IndexAttribute(fieldName);
               var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
               typeDef.Indexes.Add(indexDef);
             }
