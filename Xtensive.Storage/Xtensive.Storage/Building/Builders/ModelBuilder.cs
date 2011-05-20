@@ -262,19 +262,20 @@ namespace Xtensive.Storage.Building.Builders
             var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
             var ass = association;
             var field = ass.OwnerField;
-            string fieldName = field.Name;
+            bool aggregation = true;
             while (field.Parent != null) {
               field = field.Parent;
-              fieldName = field.Name;
+              aggregation = aggregation && field.IsStructure;
             }
-            Func<IndexDef, bool> predicate = 
-              i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==fieldName;
-            if (!typeDef.Indexes.Any(predicate)) {
-              var attribute = new IndexAttribute(fieldName);
-              var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
-              typeDef.Indexes.Add(indexDef);
+            if (aggregation) {
+              Func<IndexDef, bool> predicate =
+                i => i.IsSecondary && i.KeyFields.Count == 1 && i.KeyFields[0].Key == ass.OwnerField.Name;
+              if (!typeDef.Indexes.Any(predicate)) {
+                var attribute = new IndexAttribute(ass.OwnerField.Name);
+                var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
+                typeDef.Indexes.Add(indexDef);
+              }
             }
-
           }
           if (association.IsPaired)
             continue;
