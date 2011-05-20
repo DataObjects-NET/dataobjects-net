@@ -258,6 +258,18 @@ namespace Xtensive.Storage.Building.Builders
         context.DiscardedAssociations.Clear();
 
         foreach (var association in context.Model.Associations) {
+          if (association.Multiplicity.In(Multiplicity.OneToOne, Multiplicity.ZeroToOne)) {
+            Func<IndexDef, bool> predicate = 
+              i => i.IsSecondary && i.KeyFields.Count==1 && 
+              i.KeyFields[0].Key==association.OwnerField.Name;
+            var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
+            if (!typeDef.Indexes.Any(predicate)) {
+              var attribute = new IndexAttribute(association.OwnerField.Name);
+              var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
+              typeDef.Indexes.Add(indexDef);
+            }
+
+          }
           if (association.IsPaired)
             continue;
           if (!association.OnOwnerRemove.HasValue)

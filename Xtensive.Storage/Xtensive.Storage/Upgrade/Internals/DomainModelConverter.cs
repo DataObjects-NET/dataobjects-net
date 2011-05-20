@@ -124,14 +124,8 @@ namespace Xtensive.Storage.Upgrade
 
       // Build foreign keys
       if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
-        foreach (var group in domainModel.Associations.GroupBy(a => a.OwnerField.DeclaringField)) {
-          var associations = group.ToList();
-          if (associations.Count == 1)
-            Visit(associations.Single());
-          else {
-            var mostCommonAssociation = associations.Reorder().Last();
-            Visit(mostCommonAssociation);
-          }
+        foreach (var group in domainModel.Associations.Where(a => a.Ancestors.Count==0)) {
+            Visit(group);
         }
       }
 
