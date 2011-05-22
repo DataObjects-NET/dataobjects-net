@@ -369,9 +369,6 @@ namespace Xtensive.Orm
       Handler.Session = this;
       Handler.Initialize();
 
-      // Query endpoint
-      Query = new QueryEndpoint(this);
-
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
@@ -407,6 +404,13 @@ namespace Xtensive.Orm
       // Perform activation
       if (activate)
         disposableSet.Add(new SessionScope(this));
+
+      // Query endpoint
+      var qep = Services.Get<IQueryEndpointProvider>();
+      if (qep != null)
+        Query = qep.GetQueryEndpoint(this);
+      else
+        Query = new QueryEndpoint(this);
     }
 
     // IDisposable implementation
