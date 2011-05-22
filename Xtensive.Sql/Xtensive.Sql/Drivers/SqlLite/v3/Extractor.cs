@@ -26,26 +26,30 @@ namespace Xtensive.Sql.SQLite.v3
     private const string SQLITE_SEQUENCE = "sqlite_sequence";
     private const string SQLITE_MASTER = "sqlite_master";
 
-    protected Catalog catalog;
-    protected Schema schema;
     private string targetSchema;
+    private Catalog theCatalog;
 
     protected override void Initialize()
     {
-      catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
+        theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
+    /// <inheritdoc/>
     public override Catalog ExtractCatalog()
     {
-        ExtractCatalogContents();
-        return catalog;
+        targetSchema = null;
+        Schema schema = ExtractSchema(Driver.CoreServerInfo.DefaultSchemaName.ToLowerInvariant());
+        return schema.Catalog;
     }
 
+    /// <inheritdoc/>
     public override Schema ExtractSchema(string schemaName)
     {
-      schema = catalog.CreateSchema(schemaName);
-      ExtractCatalogContents();
-      return schema;
+        targetSchema = schemaName.ToLowerInvariant();
+        theCatalog.CreateSchema(targetSchema);
+
+        ExtractCatalogContents();
+        return theCatalog.Schemas[targetSchema];
     }
 
     private void ExtractCatalogContents()
@@ -63,9 +67,15 @@ namespace Xtensive.Sql.SQLite.v3
             using (IDataReader reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
+                {
+                    Schema schema = theCatalog.Schemas["main"];
                     schema.CreateTable(reader.GetString(0));
+                }
             }
         }
+        string defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToLowerInvariant();
+        Schema defaultSchema = theCatalog.Schemas[defaultSchemaName];
+        theCatalog.DefaultSchema = defaultSchema;
     }
 
     public bool DoesTableExist(string tableName)
@@ -99,6 +109,7 @@ namespace Xtensive.Sql.SQLite.v3
 
     private void ExtractColumns()
     {
+        Schema schema = theCatalog.Schemas["main"];
         foreach (var table in schema.Tables)
         {
             var select = string.Format("PRAGMA table_info([{0}])", table.Name);
@@ -169,6 +180,7 @@ namespace Xtensive.Sql.SQLite.v3
 
     private void ExtractIndexes()
     {
+        Schema schema = theCatalog.Schemas["main"];
         foreach (var table in schema.Tables)
         {
             var select = string.Format("PRAGMA index_list([{0}])", table.Name);
@@ -218,6 +230,7 @@ namespace Xtensive.Sql.SQLite.v3
 
     private void ExtractForeignKeys()
     {
+        Schema schema = theCatalog.Schemas["main"];
         foreach (var table in schema.Tables)
         {
             var select = string.Format("PRAGMA foreign_key_list([{0}])", table.Name);

@@ -88,6 +88,8 @@ namespace Xtensive.Sql.SQLite.v3
             {
                 case SqlFunctionType.IntervalAbs:
                     return "ABS";
+                case SqlFunctionType.Substring:
+                    return "SUBSTR";
                 case SqlFunctionType.IntervalNegate:
                     return "-";
                 case SqlFunctionType.CurrentDate:
