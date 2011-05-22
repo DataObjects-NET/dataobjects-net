@@ -23,6 +23,8 @@ namespace Xtensive.Sql.SQLite.v3
   {
     private const int DefaultPrecision = 38;
     private const int DefaultScale = 0;
+    private const string SQLITE_SEQUENCE = "sqlite_sequence";
+    private const string SQLITE_MASTER = "sqlite_master";
 
     protected Catalog catalog;
     protected Schema schema;
@@ -56,7 +58,7 @@ namespace Xtensive.Sql.SQLite.v3
 
     private void ExtractTables()
     {
-        using (var cmd = Connection.CreateCommand("SELECT [name] FROM [Main].[sqlite_master] WHERE type = 'table' AND name not like 'sqlite?_%' escape '?'"))
+        using (var cmd = Connection.CreateCommand("SELECT [name] FROM [Main].[sqlite_master] WHERE type = 'table' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'"))
         {
             using (IDataReader reader = cmd.ExecuteReader())
             {
@@ -64,6 +66,35 @@ namespace Xtensive.Sql.SQLite.v3
                     schema.CreateTable(reader.GetString(0));
             }
         }
+    }
+
+    public bool DoesTableExist(string tableName)
+    {
+        var select = string.Format("SELECT name FROM {0} WHERE type = 'table' AND name='{1}'", SQLITE_MASTER, tableName);
+        using (var cmd = Connection.CreateCommand(select))
+        {
+            using (IDataReader reader = cmd.ExecuteReader())
+            {
+                return reader.Read();
+            }
+        }
+    }
+
+    private int? GetIncrementValue(string tableName)
+    {
+        if (!DoesTableExist(SQLITE_SEQUENCE))
+            return null;
+
+        var select = string.Format("SELECT seq from {0} WHERE name = '{1}' ", SQLITE_SEQUENCE, tableName);
+        using (var cmd = Connection.CreateCommand(select))
+        {
+            using (IDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                    return ReadNullableInt(reader, "seq");
+                return null;
+            }
+        } 
     }
 
     private void ExtractColumns()
@@ -98,9 +129,9 @@ namespace Xtensive.Sql.SQLite.v3
                         tableColumn.DefaultValue = defaultValue;
 
                     // Auto Increment
-                    var autoInc = ReadStringOrNull(reader, 4);
-                    if (autoInc == "AUTOINC")
-                        tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, 0, int.MaxValue);
+                    var autoInc = GetIncrementValue(tableName);
+                    if (autoInc != null && ReadInt(reader, 5) == 1) //http://www.sqlite.org/autoinc.html
+                        tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, autoInc, 1);
                 }
             }
         } 

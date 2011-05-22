@@ -19,7 +19,8 @@ namespace Xtensive.Sql
       {"oracle", typeof(Oracle.DriverFactory)},
       {"postgresql", typeof(PostgreSql.DriverFactory)},
       {"firebird", typeof(Firebird.DriverFactory)},
-      {"mysql", typeof(MySql.DriverFactory)}
+      {"mysql", typeof(MySql.DriverFactory)},
+      {"sqlite", typeof(SQLite.DriverFactory)}
     };
 
         /// <summary>
