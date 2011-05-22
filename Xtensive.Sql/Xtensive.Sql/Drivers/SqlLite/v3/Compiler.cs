@@ -21,14 +21,13 @@ namespace Xtensive.Sql.SQLite.v3
     private static readonly long NanosecondsPerMillisecond = 1000000;
     private static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly long MillisecondsPerSecond = 1000L;
-    private static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
     
     public override void Visit(SqlSelect node)
     {
+      //For hinting limitations see http://www.sqlite.org/lang_indexedby.html
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectLimitOffset(node);
-        VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectWhere(node);
@@ -39,19 +38,36 @@ namespace Xtensive.Sql.SQLite.v3
       }
     }
 
-    public override void VisitSelectLock(SqlSelect node)
-    {
-      return;
-    }
-
     /// <inheritdoc/>
     public override void Visit(SqlAlterTable node)
     {
-      var renameColumnAction = node.Action as SqlRenameColumn;
-      if (renameColumnAction!=null)
-        context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
-      else
-        base.Visit(node);
+        var renameColumnAction = node.Action as SqlRenameColumn;
+        if (renameColumnAction != null)
+            context.Output.AppendText(((Translator)translator).Translate(context, renameColumnAction));
+        else if (node.Action is SqlDropConstraint)
+        {
+            using (context.EnterScope(node))
+            {
+                context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Entry));
+
+                var action = node.Action as SqlDropConstraint;
+                var constraint = action.Constraint as TableConstraint;
+                context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropConstraint));
+                if (constraint is ForeignKey)
+                    context.Output.AppendText("REFERENCES " + translator.QuoteIdentifier(constraint.DbName));
+                else
+                    context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
+                context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));
+                context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Exit));
+            }
+        }
+        else
+            base.Visit(node);
+    }
+
+    public override void VisitSelectLock(SqlSelect node)
+    {
+      return;
     }
 
     /// <inheritdoc/>
@@ -59,11 +75,10 @@ namespace Xtensive.Sql.SQLite.v3
     {
       switch (node.FunctionType) {
       case SqlFunctionType.CharLength:
-        (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
+         (SqlDml.FunctionCall("length", node.Arguments) / 2).AcceptVisitor(this);
         return;
       case SqlFunctionType.PadLeft:
       case SqlFunctionType.PadRight:
-        GenericPad(node).AcceptVisitor(this);
         return;
       case SqlFunctionType.Round:
         // Round should always be called with 2 arguments
@@ -76,13 +91,6 @@ namespace Xtensive.Sql.SQLite.v3
         }
         break;
       case SqlFunctionType.Truncate:
-        // Truncate is implemented as round(arg, 0, 1) call in MSSQL.
-        // It's stupid, isn't it?
-        Visit(SqlDml.FunctionCall(
-          translator.Translate(SqlFunctionType.Round),
-          node.Arguments[0],
-          SqlDml.Literal(0),
-          SqlDml.Literal(1)));
         return;
       case SqlFunctionType.Substring:
         if (node.Arguments.Count==2) {
@@ -120,6 +128,12 @@ namespace Xtensive.Sql.SQLite.v3
       base.Visit(node);
     }
 
+    /// <inheritdoc/>
+    public override void Visit(SqlFreeTextTable node)
+    {
+        throw SqlHelper.NotSupported("FreeText");
+    }
+
     public override void Visit(SqlTrim node)
     {
       if (node.TrimCharacters!=null && !node.TrimCharacters.All(_char => _char==' '))
@@ -131,34 +145,52 @@ namespace Xtensive.Sql.SQLite.v3
         context.Output.AppendText(translator.Translate(context, node, TrimSection.Exit));
       }
     }
+
+    /// <inheritdoc/>
+    /// //Thanks to Csaba Beer.
+    public override void Visit(SqlQueryExpression node)
+    {
+        using (context.EnterScope(node))
+        {
+            bool needOpeningParenthesis = false;
+            bool needClosingParenthesis = false;
+            context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
+            if (needOpeningParenthesis) context.Output.AppendText("(");
+            node.Left.AcceptVisitor(this);
+            if (needClosingParenthesis) context.Output.AppendText(")");
+            context.Output.AppendText(translator.Translate(node.NodeType));
+            context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
+            if (needOpeningParenthesis) context.Output.AppendText("(");
+            node.Right.AcceptVisitor(this);
+            if (needClosingParenthesis) context.Output.AppendText(")");
+            context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
+        }
+    }
     
     public override void Visit(SqlExtract node)
     {
-      if (node.DateTimePart==SqlDateTimePart.DayOfWeek) {
-        Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
-        return;
-      }
-      switch (node.IntervalPart) {
-      case SqlIntervalPart.Day:
-        Visit(CastToLong(node.Operand / NanosecondsPerDay));
-        return;
-      case SqlIntervalPart.Hour:
-        Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
-        return;
-      case SqlIntervalPart.Minute:
-        Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
-        return;
-      case SqlIntervalPart.Second:
-        Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
-        return;
-      case SqlIntervalPart.Millisecond:
-        Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
-        return;
-      case SqlIntervalPart.Nanosecond:
-        Visit(CastToLong(node.Operand));
-        return;
-      }
-      base.Visit(node);
+        switch (node.IntervalPart)
+        {
+            case SqlIntervalPart.Day:
+                Visit(CastToLong(node.Operand/NanosecondsPerDay));
+                return;
+            case SqlIntervalPart.Hour:
+                Visit(CastToLong(node.Operand/(60*60*NanosecondsPerSecond))%24);
+                return;
+            case SqlIntervalPart.Minute:
+                Visit(CastToLong(node.Operand/(60*NanosecondsPerSecond))%60);
+                return;
+            case SqlIntervalPart.Second:
+                Visit(CastToLong(node.Operand/NanosecondsPerSecond)%60);
+                return;
+            case SqlIntervalPart.Millisecond:
+                Visit(CastToLong(node.Operand/NanosecondsPerMillisecond)%MillisecondsPerSecond);
+                return;
+            case SqlIntervalPart.Nanosecond:
+                Visit(CastToLong(node.Operand));
+                return;
+        }
+        base.Visit(node);
     }
 
     public override void Visit(SqlBinary node)
@@ -220,42 +252,6 @@ namespace Xtensive.Sql.SQLite.v3
         (interval/NanosecondsPerSecond) % NanosecondsPerDay/NanosecondsPerSecond);
     }
 
-    private SqlExpression GenericPad(SqlFunctionCall node)
-    {
-      var operand = node.Arguments[0];
-      var actualLength = SqlDml.CharLength(operand);
-      var requiredLength = node.Arguments[1];
-      var paddingExpression = node.Arguments.Count > 2
-        ? SqlDml.FunctionCall("REPLICATE", node.Arguments[2], requiredLength - actualLength)
-        : SqlDml.FunctionCall("SPACE", requiredLength - actualLength);
-      SqlExpression resultExpression;
-      switch (node.FunctionType) {
-      case SqlFunctionType.PadLeft:
-        resultExpression = paddingExpression + operand;
-        break;
-      case SqlFunctionType.PadRight:
-        resultExpression = operand + paddingExpression;
-        break;
-      default:
-        throw new InvalidOperationException();
-      }
-      var result = SqlDml.Case();
-      result.Add(actualLength < requiredLength, resultExpression);
-      result.Else = operand;
-      return result;
-    }
-
-    public override void Visit(SqlFreeTextTable node)
-    {
-      string columns;
-      if (node.TargetColumns.Count == 1)
-        columns = node.TargetColumns[0].Name;
-      else
-        columns = string.Join(", ", node.TargetColumns.Select(c => c.Name).ToArray());
-      context.Output.AppendText(string.Format("FREETEXTTABLE({0}, {1}, ", translator.Translate(node.TargetTable.DataTable), columns));
-      node.FreeText.AcceptVisitor(this);
-      context.Output.AppendText(") ");
-    }
 
     #region Static helpers
 
