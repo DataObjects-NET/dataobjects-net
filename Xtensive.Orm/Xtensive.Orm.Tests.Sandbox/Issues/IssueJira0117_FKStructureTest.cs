@@ -8,12 +8,13 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.MultipleFKViaStructureTestModel;
+using Xtensive.Storage.Providers;
 using DomainHandler = Xtensive.Storage.Providers.Sql.DomainHandler;
 
-namespace Xtensive.Storage.Tests.Storage.MultipleFKViaStructureTestModel
+namespace Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel
 {
   [HierarchyRoot]
   public class Target1 : Entity
@@ -82,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage.MultipleFKViaStructureTestModel
   }
 }
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   public class IssueJira0117_FKStructureTest : AutoBuildTest
   {
@@ -136,7 +137,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private int GetForeignKeysCount(Schema schema, Type type)
     {
-      string tableName = Domain.NameBuilder.ApplyNamingRules(Domain.Model.Types[type].MappingName);
+      string tableName = Domain.Services.Get<NameBuilder>().ApplyNamingRules(Domain.Model.Types[type].MappingName);
       var result = schema.Tables[tableName].TableConstraints.OfType<ForeignKey>().Count();
       return result;
     }
