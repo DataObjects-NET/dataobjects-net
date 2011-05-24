@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void RemoveTemporaryDefinitions()
     {
       var modelDef = BuildingContext.Demand().ModelDef;
-      var ientityDef = modelDef.Types[typeof (IEntity)];
+      var ientityDef = modelDef.Types.TryGetValue(typeof (IEntity));
       if (ientityDef != null)
         modelDef.Types.Remove(ientityDef);
     }
