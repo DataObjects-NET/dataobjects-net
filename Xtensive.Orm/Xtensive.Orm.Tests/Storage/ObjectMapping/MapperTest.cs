@@ -252,7 +252,10 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       var rnd = new Random();
       var mapping = new MappingBuilder()
         .MapType<CustomPerson, CustomPersonDto, string>(cp => cp.Key.Format(), cp => cp.Key,
-          dto => new object[] {dto.Id}).TrackChanges(cp => cp.Id, false).Build();
+          dto => new object[] {dto.Id})
+          .IgnoreProperty(t => t.Error)
+          .TrackChanges(cp => cp.Id, false)
+          .Build();
       List<object> originalPersonDtos;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -449,7 +452,10 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       PublisherDto publisherDto;
       mapping = new MappingBuilder()
         .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
-        .MapType<BookShop, BookShopDto, string>(b => b.Key.Format(), b => b.Key).Build();
+        .IgnoreProperty(t => t.Error)
+        .MapType<BookShop, BookShopDto, string>(b => b.Key.Format(), b => b.Key)
+        .IgnoreProperty(t => t.Error)
+        .Build();
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var mapper = new Mapper(session, mapping);
@@ -470,8 +476,11 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     {
       mapping = new MappingBuilder()
         .MapType<AnotherBookShop, BookShopDto, string>(abs => abs.Key.Format(), bs => bs.Key)
-        .IgnoreProperty(bs => bs.Name).IgnoreProperty(bs => bs.Url)
+        .IgnoreProperty(t => t.Error)
+        .IgnoreProperty(bs => bs.Name)
+        .IgnoreProperty(bs => bs.Url)
         .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
+        .IgnoreProperty(t => t.Error)
         .IgnoreProperty(p => p.Distributors).Build();
       BookShopDto bookShopDto;
       using (var session = Domain.OpenSession())
@@ -500,7 +509,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     {
       mapping = new MappingBuilder()
         .MapType<SimplePerson, SimplePersonDto, string>(p => p.Key.Format(), p => p.Key)
+        .IgnoreProperty(t => t.Error)
         .MapType<Apartment, ApartmentDto, string>(a => a.Key.Format(), a => a.Key)
+        .IgnoreProperty(t => t.Error)
         .MapStructure<Address, AddressDto>()
         .MapStructure<ApartmentDescription, ApartmentDescriptionDto>().Build();
       using (var session = Domain.OpenSession())
@@ -532,7 +543,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
     private List<object> ServerCreateDtoGraphForKeysAndMapping(out MappingDescription mapping)
     {
       mapping = new MappingBuilder()
-        .MapType<SimplePerson, SimplePersonDto, string>(sp => sp.Key.Format(), sp => sp.Key).Build();
+        .MapType<SimplePerson, SimplePersonDto, string>(sp => sp.Key.Format(), sp => sp.Key)
+        .IgnoreProperty(t => t.Error)
+        .Build();
       List<object> original;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -559,7 +572,9 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
         };
         mapping = new MappingBuilder()
           .MapType<SimplePerson, PersonWithVersionDto, string>(sp => sp.Key.Format(), sp => sp.Key)
-          .MapProperty(p => serializer.Invoke(p.VersionInfo), p => p.Version).Build();
+          .IgnoreProperty(t => t.Error)
+          .MapProperty(p => serializer.Invoke(p.VersionInfo), p => p.Version)
+          .Build();
         List<object> original;
         using (var session = Domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
