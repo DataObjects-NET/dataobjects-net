@@ -430,6 +430,7 @@ namespace Xtensive.Orm.Tests.Storage.ObjectMapping
       PersonalProductDto productDto;
       mapping = new MappingBuilder()
         .MapType<Entity, IdentifiableDto, string>(p => p.Key.Format(), p => p.Key)
+        .IgnoreProperty(t => t.Error)
         .Inherit<IdentifiableDto, PersonalProduct, PersonalProductDto>()
         .Inherit<IdentifiableDto, Employee, EmployeeDto>().Build();
       using (var session = Domain.OpenSession())
