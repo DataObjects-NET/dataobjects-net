@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void CachingFutureSequenceTest()
     {
-      Func<Session.QueryEndpoint,IQueryable<Order>> futureQueryDelegate = GetFutureSequenceQuery;
+      Func<QueryEndpoint,IQueryable<Order>> futureQueryDelegate = GetFutureSequenceQuery;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
         var futureSequenceOrder = session.Query.ExecuteDelayed(futureQueryDelegate);
@@ -98,12 +98,12 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    private IQueryable<Order> GetFutureSequenceQuery(Session.QueryEndpoint queryEndpoint)
+    private IQueryable<Order> GetFutureSequenceQuery(QueryEndpoint queryEndpoint)
     {
       return Session.Demand().Query.All<Order>().Where(o => o.Freight > searchedFreight);
     }
 
-    private IQueryable<Order> GetFutureSequenceQueryFake(Session.QueryEndpoint queryEndpoint)
+    private IQueryable<Order> GetFutureSequenceQueryFake(QueryEndpoint queryEndpoint)
     {
       return null;
     }

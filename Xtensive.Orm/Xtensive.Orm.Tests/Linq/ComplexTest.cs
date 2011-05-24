@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class ComplexTest : NorthwindDOModelTest
   {
-    private static IQueryable<Customer> GetQuery(Session.QueryEndpoint qe, string filter)
+    private static IQueryable<Customer> GetQuery(QueryEndpoint qe, string filter)
     {
       var customers = qe.All<Customer>().Where(cn => cn.CompanyName.StartsWith(filter));
       return customers;

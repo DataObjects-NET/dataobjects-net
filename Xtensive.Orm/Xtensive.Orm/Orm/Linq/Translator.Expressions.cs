@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Linq
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
         // Visit QueryEndpoint.
-        if (mc.Method.DeclaringType == typeof(Session.QueryEndpoint)) {
+        if (mc.Method.DeclaringType == typeof(QueryEndpoint)) {
           // Query.All<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All)
             return ConstructQueryable(mc);
