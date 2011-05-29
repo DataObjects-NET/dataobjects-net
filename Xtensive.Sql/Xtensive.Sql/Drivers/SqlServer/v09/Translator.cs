@@ -391,6 +391,8 @@ namespace Xtensive.Sql.SqlServer.v09
     public override string Translate(SqlCompilerContext context, object literalValue)
     {
       var literalType = literalValue.GetType();
+      if (literalType == typeof(string) || literalType == typeof(char))
+        return "N" + QuoteString(literalValue.ToString());
       if (literalType==typeof (TimeSpan))
         return Convert.ToString((long) ((TimeSpan) literalValue).Ticks*100);
       if (literalType==typeof (Boolean))
