@@ -159,6 +159,8 @@ namespace Xtensive.Storage
           throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType,
             Log.Instance);
         result = AddEntityStateToCache(key, tuple, isStale);
+        SystemEvents.NotifyEntityMaterialized(result);
+        Events.NotifyEntityMaterialized(result);
       }
       else {
         if (!result.Key.HasExactType && key.HasExactType) {
