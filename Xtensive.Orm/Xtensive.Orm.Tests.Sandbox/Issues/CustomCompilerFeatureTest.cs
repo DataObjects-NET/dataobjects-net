@@ -5,6 +5,7 @@
 // Created:    2011.05.29
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,14 +13,17 @@ using System.Reflection;
 using System.Transactions;
 
 using NUnit.Framework;
-
+using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
 
 using System;
 
 using Xtensive.Orm;
+using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.Sandbox.Issues.CustomCompilerFeatureTest_Model;
 
 namespace Xtensive.Orm.Tests.Sandbox.Issues
@@ -38,13 +42,9 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
     public static class CustomLinqCompilerContainer
     {
       [Compiler(typeof(ITest), "RegionName", TargetKind.PropertyGet)]
-      public static Expression ITestRegionName(Expression assignmentExpression)
+      public static Expression ITestRegionName(Expression _this)
       {
-        // We should handle virtual property of ITest like below, but automatically
-
-        //          Expression<Func<ITest, string>> le = it => it is Person ? (it as Person).Region.Name : null;
-        //          return le.BindParameters(assignmentExpression);
-        return null;
+        throw new NotImplementedException();
       }
     }
 
@@ -66,6 +66,10 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
       private static readonly Expression<Func<Person, string>> expr = p => p.Region.Name;
 
       private static readonly Func<Person, string> exprComp = expr.Compile();
+
+      public Person(Session session)
+        : base(session)
+      {}
 
       /// <summary>
       /// The custom linq compiler container.
@@ -123,6 +127,11 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
     [HierarchyRoot]
     public class Region : Entity
     {
+      public Region(Session session)
+        : base(session)
+      {
+      }
+
       [Field, Key]
       public int Id { get; private set; }
 
@@ -138,14 +147,8 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof(ITest).Assembly, typeof(ITest).Namespace);
-      config.Sessions.Default.Options = SessionOptions.AutoActivation;
+      config.Sessions.Default.Options = SessionOptions.ServerProfile;
       return config;
-    }
-
-    [Test]
-    //    [Transactional(ActivateSession = true)]
-    public void VirtualFieldSelect1()
-    {
     }
 
     /// <summary>
@@ -157,8 +160,8 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
       using (var s = Domain.OpenSession())
       using (var t = s.OpenTransaction())
       {
-        var r = new Region { Name = "13123123121" };
-        var p = new Person { Age = 1, Region = r };
+        var r = new Region(s) { Name = "13123123121" };
+        var p = new Person(s) { Age = 1, Region = r };
 
         var queryable = s.Query.All<Person>();
 

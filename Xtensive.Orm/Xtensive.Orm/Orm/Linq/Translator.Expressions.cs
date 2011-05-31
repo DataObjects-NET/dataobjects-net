@@ -238,8 +238,13 @@ namespace Xtensive.Orm.Linq
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
       var customCompiler = context.CustomCompilerProvider.GetCompiler(ma.Member);
-      if (customCompiler!=null)
-        return Visit(customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray));
+      if (customCompiler!=null) {
+        var member = ma.Member;
+        if (member.ReflectedType.IsInterface)
+          return Visit(BuildInterfaceExpression(ma));
+        else
+          return Visit(customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray));
+      }
 
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
@@ -1126,6 +1131,33 @@ namespace Xtensive.Orm.Linq
       if (translator.state.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
       return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+    }
+
+    private Expression BuildInterfaceExpression(MemberExpression ma)
+    {
+      var @interface = ma.Expression.Type;
+      var property = (PropertyInfo)ma.Member;
+      var implementors = context.Model.Types[@interface].GetImplementors(true);
+      var implementorFields = implementors
+        .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
+        .Concat(implementors
+          .Select(im => im.UnderlyingType.GetProperty(string.Format("{0}.{1}", @interface.Name, property.Name), BindingFlags.Instance|BindingFlags.NonPublic)))
+        .Where(f => f != null);
+
+      object defaultValue = null;
+      var propertyType = property.PropertyType;
+      if (propertyType.IsValueType && !propertyType.IsNullable())
+        defaultValue = System.Activator.CreateInstance(propertyType);
+
+      Expression current = Expression.Constant(defaultValue, propertyType);
+      foreach (var implementorField in implementorFields) {
+        var compiler = context.CustomCompilerProvider.GetCompiler(implementorField);
+        if (compiler == null)
+          continue;
+        var expression = compiler.Invoke(Expression.TypeAs(ma.Expression, implementorField.ReflectedType), null);
+        current = Expression.Condition(Expression.TypeIs(ma.Expression, implementorField.ReflectedType), expression, current);
+      }
+      return current;
     }
 
     #endregion
