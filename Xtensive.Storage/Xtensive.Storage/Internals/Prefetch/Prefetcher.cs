@@ -225,10 +225,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (property==null)
         throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, "expression");
       typeInfo = type.GetTypeInfo(session.Domain);
-      var result = typeInfo.Fields
-        .Where(field => field.UnderlyingProperty!=null && field.UnderlyingProperty.Equals(property))
-        .SingleOrDefault();
-      if (result==null)
+      FieldInfo result = null;
+      if (!typeInfo.Fields.TryGetValue(property.Name, out result))
         throw new ArgumentException(String.Format(Strings.ExSpecifiedPropertyXIsNotPersistent,
           property.Name), "expression");
       return result;
