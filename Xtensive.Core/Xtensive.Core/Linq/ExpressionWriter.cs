@@ -263,9 +263,11 @@ namespace Xtensive.Linq
         Visit(u.Operand);
         break;
       case ExpressionType.TypeAs:
+        Write("(");
         Visit(u.Operand);
         Write(" as ");
         Write(GetTypeName(u.Type));
+        Write(")");
         break;
       case ExpressionType.UnaryPlus:
         Visit(u.Operand);

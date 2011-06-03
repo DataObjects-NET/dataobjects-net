@@ -47,7 +47,9 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var records = session.Query.All(typeof (IEmployee)).Cast<IRecord>().ToList();
+        session.Query.All(typeof (IEmployee)).Cast<IRecord>().ToList();
+        session.Query.All(typeof (IRecord)).OfType<Employee>().ToList();
+        session.Query.All(typeof (IRecord)).OfType<IEmployee>().ToList();
       }
     }
   }
