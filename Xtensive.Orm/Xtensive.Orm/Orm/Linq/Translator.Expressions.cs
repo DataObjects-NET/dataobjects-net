@@ -237,13 +237,23 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
+      if (ma.Expression.Type!=ma.Member.ReflectedType
+        && ma.Member is PropertyInfo
+        && !ma.Member.ReflectedType.IsInterface)
+        ma = Expression.MakeMemberAccess(
+          ma.Expression, ma.Expression.Type.GetProperty(ma.Member.Name, ma.Member.GetBindingFlags()));
       var customCompiler = context.CustomCompilerProvider.GetCompiler(ma.Member);
       if (customCompiler!=null) {
         var member = ma.Member;
-        if (member.ReflectedType.IsInterface)
-          return Visit(BuildInterfaceExpression(ma));
+        var expression = customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray);
+        if (expression == null) {
+          if (member.ReflectedType.IsInterface)
+            return Visit(BuildInterfaceExpression(ma));
+          if (member.ReflectedType.IsClass)
+            return Visit(BuildHierarchyExpression(ma));
+        }
         else
-          return Visit(customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray));
+          return Visit(expression);
       }
 
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
@@ -1138,24 +1148,41 @@ namespace Xtensive.Orm.Linq
       var @interface = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
       var implementors = context.Model.Types[@interface].GetImplementors(true);
-      var implementorFields = implementors
+      var fields = implementors
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
         .Concat(implementors
           .Select(im => im.UnderlyingType.GetProperty(string.Format("{0}.{1}", @interface.Name, property.Name), BindingFlags.Instance|BindingFlags.NonPublic)))
         .Where(f => f != null);
 
+      return BuildExpression(ma, fields);
+    }
+
+    private Expression BuildHierarchyExpression(MemberExpression ma)
+    {
+      var ancestor = ma.Expression.Type;
+      var property = (PropertyInfo)ma.Member;
+      var descendants = context.Model.Types[ancestor].GetDescendants(true);
+      var fields = descendants
+        .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic))
+        .Where(f => f != null);
+
+      return BuildExpression(ma, fields);
+    }
+
+    private Expression BuildExpression(MemberExpression ma, IEnumerable<PropertyInfo> fields)
+    {
       object defaultValue = null;
-      var propertyType = property.PropertyType;
+      var propertyType = ((PropertyInfo)ma.Member).PropertyType;
       if (propertyType.IsValueType && !propertyType.IsNullable())
         defaultValue = System.Activator.CreateInstance(propertyType);
 
       Expression current = Expression.Constant(defaultValue, propertyType);
-      foreach (var implementorField in implementorFields) {
-        var compiler = context.CustomCompilerProvider.GetCompiler(implementorField);
+      foreach (var field in fields) {
+        var compiler = context.CustomCompilerProvider.GetCompiler(field);
         if (compiler == null)
           continue;
-        var expression = compiler.Invoke(Expression.TypeAs(ma.Expression, implementorField.ReflectedType), null);
-        current = Expression.Condition(Expression.TypeIs(ma.Expression, implementorField.ReflectedType), expression, current);
+        var expression = compiler.Invoke(Expression.TypeAs(ma.Expression, field.ReflectedType), null);
+        current = Expression.Condition(Expression.TypeIs(ma.Expression, field.ReflectedType), expression, current);
       }
       return current;
     }

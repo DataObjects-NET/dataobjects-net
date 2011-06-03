@@ -5,53 +5,42 @@
 // Created:    2011.05.29
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Transactions;
-
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Model;
-using Xtensive.Reflection;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
-
-using System;
-
-using Xtensive.Orm;
-using Xtensive.Orm.Linq;
-using Xtensive.Orm.Tests.Sandbox.Issues.CustomCompilerFeatureTest_Model;
+using Xtensive.Orm.Tests.Sandbox.Issues.CustomCompilerFeatureTest_HierarchyModel;
+using Xtensive.Orm.Tests.Sandbox.Issues.CustomCompilerFeatureTest_InterfaceModel;
 
 namespace Xtensive.Orm.Tests.Sandbox.Issues
 {
-  namespace CustomCompilerFeatureTest_Model
+  namespace CustomCompilerFeatureTest_InterfaceModel
   {
-    public interface ITest : IEntity
+    public interface IHasVirtualFields : IEntity
     {
       string RegionName { get; }
     }
 
-    /// <summary>
-    /// The custom linq compiler container.
-    /// </summary>
-    [CompilerContainer(typeof(Expression))]
+    [CompilerContainer(typeof (Expression))]
     public static class CustomLinqCompilerContainer
     {
-      [Compiler(typeof(ITest), "RegionName", TargetKind.PropertyGet)]
+      [Compiler(typeof (IHasVirtualFields), "RegionName", TargetKind.PropertyGet)]
       public static Expression ITestRegionName(Expression _this)
       {
-        throw new NotImplementedException();
+        return null;
       }
     }
 
     [Serializable]
     [HierarchyRoot]
-    public class Person : Entity, ITest
+    public class Person : Entity, IHasVirtualFields
     {
+      private static readonly Expression<Func<Person, string>> expr = p => p.Region.Name;
+
+      private static readonly Func<Person, string> exprComp = expr.Compile();
+
       [Field, Key]
       public int Id { get; private set; }
 
@@ -61,58 +50,70 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
       [Field]
       public Region Region { get; set; }
 
-      public string RegionName { get { return exprComp(this); } }
+      #region Nested type: CustomLinqCompilerContainer
 
-      private static readonly Expression<Func<Person, string>> expr = p => p.Region.Name;
-
-      private static readonly Func<Person, string> exprComp = expr.Compile();
-
-      public Person(Session session)
-        : base(session)
-      {}
-
-      /// <summary>
-      /// The custom linq compiler container.
-      /// </summary>
-      [CompilerContainer(typeof(Expression))]
+      [CompilerContainer(typeof (Expression))]
       public static class CustomLinqCompilerContainer
       {
-        [Compiler(typeof(Person), "RegionName", TargetKind.PropertyGet)]
+        [Compiler(typeof (Person), "RegionName", TargetKind.PropertyGet)]
         public static Expression PersonRegionName(Expression assignmentExpression)
         {
           return expr.BindParameters(assignmentExpression);
         }
       }
+
+      #endregion
+
+      #region IHasVirtualFields Members
+
+      public string RegionName
+      {
+        get { return exprComp(this); }
+      }
+
+      #endregion
+
+      public Person(Session session)
+        : base(session)
+      {}
     }
 
     [Serializable]
     [HierarchyRoot]
-    public class Company : Entity, ITest
+    public class Company : Entity, IHasVirtualFields
     {
+      private static readonly Expression<Func<Company, string>> expr = p => p.Address.Region.Name;
+
+      private static readonly Func<Company, string> exprComp = expr.Compile();
+
       [Field, Key]
       public int Id { get; private set; }
 
       [Field]
       public Address Address { get; set; }
 
-      public string RegionName { get { return exprComp(this); } }
+      #region Nested type: CustomLinqCompilerContainer
 
-      private static readonly Expression<Func<Company, string>> expr = p => p.Address.Region.Name;
-
-      private static readonly Func<Company, string> exprComp = expr.Compile();
-
-      /// <summary>
-      /// The custom linq compiler container.
-      /// </summary>
-      [CompilerContainer(typeof(Expression))]
+      [CompilerContainer(typeof (Expression))]
       public static class CustomLinqCompilerContainer
       {
-        [Compiler(typeof(Company), "RegionName", TargetKind.PropertyGet)]
+        [Compiler(typeof (Company), "RegionName", TargetKind.PropertyGet)]
         public static Expression PersonRegionName(Expression assignmentExpression)
         {
           return expr.BindParameters(assignmentExpression);
         }
       }
+
+      #endregion
+
+      #region IHasVirtualFields Members
+
+      public string RegionName
+      {
+        get { return exprComp(this); }
+      }
+
+      #endregion
     }
 
     [Serializable]
@@ -127,16 +128,132 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
     [HierarchyRoot]
     public class Region : Entity
     {
-      public Region(Session session)
-        : base(session)
-      {
-      }
-
       [Field, Key]
       public int Id { get; private set; }
 
       [Field]
       public string Name { get; set; }
+
+      public Region(Session session)
+        : base(session)
+      {}
+    }
+  }
+
+  namespace CustomCompilerFeatureTest_HierarchyModel
+  {
+    [HierarchyRoot]
+    public abstract class HasVirtualFields : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      public abstract string RegionName { get; }
+
+      protected HasVirtualFields(Session session)
+        : base(session)
+      {}
+    }
+
+    [CompilerContainer(typeof (Expression))]
+    public static class CustomLinqCompilerContainer
+    {
+      [Compiler(typeof (HasVirtualFields), "RegionName", TargetKind.PropertyGet)]
+      public static Expression RootRegionName(Expression _this)
+      {
+        return null;
+      }
+    }
+
+    public class Customer : HasVirtualFields
+    {
+      private static readonly Expression<Func<Customer, string>> expr = p => p.Area.Name;
+
+      private static readonly Func<Customer, string> exprComp = expr.Compile();
+
+      [Field]
+      public int Age { get; set; }
+
+      [Field]
+      public Area Area { get; set; }
+
+      public override string RegionName
+      {
+        get { return exprComp(this); }
+      }
+
+      #region Nested type: CustomLinqCompilerContainer
+
+      [CompilerContainer(typeof (Expression))]
+      public static class CustomLinqCompilerContainer
+      {
+        [Compiler(typeof (Customer), "RegionName", TargetKind.PropertyGet)]
+        public static Expression CustomerRegionName(Expression _this)
+        {
+          return expr.BindParameters(_this);
+        }
+      }
+
+      #endregion
+
+      public Customer(Session session)
+        : base(session)
+      {}
+    }
+
+    public class Enterprise : HasVirtualFields
+    {
+      private static readonly Expression<Func<Enterprise, string>> expr = p => p.BusinessAddress.Area.Name;
+
+      private static readonly Func<Enterprise, string> exprComp = expr.Compile();
+
+      [Field]
+      public BusinessAddress BusinessAddress { get; set; }
+
+      public override string RegionName
+      {
+        get { return exprComp(this); }
+      }
+
+      #region Nested type: CustomLinqCompilerContainer
+
+      [CompilerContainer(typeof (Expression))]
+      public static class CustomLinqCompilerContainer
+      {
+        [Compiler(typeof (Enterprise), "RegionName", TargetKind.PropertyGet)]
+        public static Expression EnterpriseRegionName(Expression _this)
+        {
+          return expr.BindParameters(_this);
+        }
+      }
+
+      #endregion
+
+      public Enterprise(Session session) : base(session)
+      {}
+    }
+
+    [Serializable]
+    [HierarchyRoot]
+    public class BusinessAddress : Structure
+    {
+      [Field]
+      public Area Area { get; set; }
+    }
+
+    [Serializable]
+    [HierarchyRoot]
+    public class Area : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Name { get; set; }
+
+      public Area(Session session)
+        : base(session)
+      {}
     }
   }
 
@@ -145,38 +262,56 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof(ITest).Assembly, typeof(ITest).Namespace);
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(typeof (IHasVirtualFields).Assembly, typeof (IHasVirtualFields).Namespace);
+      config.Types.Register(typeof (HasVirtualFields).Assembly, typeof (HasVirtualFields).Namespace);
       config.Sessions.Default.Options = SessionOptions.ServerProfile;
       return config;
     }
 
-    /// <summary>
-    /// Проверка виртуальных полей
-    /// </summary>
     [Test]
-    public void VirtualFieldSelect2()
+    public void HierarchyVirtualFieldTest()
     {
-      using (var s = Domain.OpenSession())
-      using (var t = s.OpenTransaction())
-      {
-        var r = new Region(s) { Name = "13123123121" };
-        var p = new Person(s) { Age = 1, Region = r };
+      using (Session s = Domain.OpenSession())
+      using (TransactionScope t = s.OpenTransaction()) {
+        var r = new Area(s) {Name = "13123123121"};
+        var p = new Customer(s) {Age = 1, Area = r};
+
+        var queryable = s.Query.All<Customer>();
+
+        var qwe = from customer in queryable
+                                   where customer.RegionName == "13123123121"
+                                   select customer;
+        Assert.AreEqual(1, qwe.ToList().Count);
+
+        var q = queryable as IQueryable<HasVirtualFields>;
+        var qq = from root in q
+                                          where root.RegionName == "13123123121"
+                                          select root;
+        Assert.AreEqual(1, qq.ToList().Count);
+      }
+    }
+
+    [Test]
+    public void InterfaceVirtualFieldTest()
+    {
+      using (Session s = Domain.OpenSession())
+      using (TransactionScope t = s.OpenTransaction()) {
+        var r = new Region(s) {Name = "13123123121"};
+        var p = new Person(s) {Age = 1, Region = r};
 
         var queryable = s.Query.All<Person>();
 
         var qwe = from person in queryable
-                  where person.RegionName == "13123123121"
-                  select person;
-        var result = qwe.ToList();
-        Assert.AreEqual(1, result.Count);
+                                 where person.RegionName == "13123123121"
+                                 select person;
+        Assert.AreEqual(1, qwe.ToList().Count);
 
-        var q = queryable as IQueryable<ITest>;
-        var qq = from test in q
-                 where test.RegionName == "13123123121"
-                 select test;
-        var interfaceResult = qq.ToList();
-        Assert.AreEqual(1, interfaceResult.Count);
+        var q = queryable as IQueryable<IHasVirtualFields>;
+        var qq = from root in q
+                                           where root.RegionName == "13123123121"
+                                           select root;
+        Assert.AreEqual(1, qq.ToList().Count);
       }
     }
   }
