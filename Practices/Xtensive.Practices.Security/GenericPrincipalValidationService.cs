@@ -4,7 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.16
 
+using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Principal;
 using Xtensive.Core;
 using Xtensive.IoC;
@@ -35,13 +37,30 @@ namespace Xtensive.Practices.Security
 
     }
 
-    private IPrincipal Validate(string username, string password)
+    protected virtual IPrincipal Validate(string username, string password)
     {
       var service = Session.Services.Get<IEncryptionService>();
       var encrypted = service.Encrypt(password);
 
-      return Session.Query.All<GenericPrincipal>()
-        .SingleOrDefault(u => u.Name == username && u.Password == encrypted);
+      // GenericPrincipal is not found in the model, let's find its descendant
+      var model = Session.Domain.Model;
+      var rootPrincipalType = model.Hierarchies
+        .Select(h => h.Root.UnderlyingType)
+        .FirstOrDefault(t => typeof (GenericPrincipal).IsAssignableFrom(t));
+
+      if (rootPrincipalType != null) {
+        var gmi = GetType().GetMethod("ExecuteValidate", BindingFlags.NonPublic|BindingFlags.Instance);
+        var mi = gmi.MakeGenericMethod(rootPrincipalType);
+        return (IPrincipal) mi.Invoke(this, new object[] {username, encrypted});
+      }
+
+      throw new InvalidOperationException("No descendants of GenericPrincipal are found in domain model");
+    }
+
+    protected virtual IPrincipal ExecuteValidate<T>(string username, string password) where T: GenericPrincipal
+    {
+      return Session.Query.All<T>()
+          .SingleOrDefault(u => u.Name == username && u.Password == password);
     }
 
     [ServiceConstructor]

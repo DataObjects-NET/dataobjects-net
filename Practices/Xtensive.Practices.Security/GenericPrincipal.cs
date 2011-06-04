@@ -11,7 +11,7 @@ namespace Xtensive.Practices.Security
 {
   public abstract class GenericPrincipal : Principal
   {
-    [Field(Length = 20)]
+    [Field(Length = 50)]
     public string Password { get; protected set; }
 
     public virtual void SetPassword(string password)

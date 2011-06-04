@@ -8,6 +8,11 @@ namespace Xtensive.Practices.Security
   {
     private readonly HashSet<Permission> permissions = new HashSet<Permission>();
 
+    public int Count
+    {
+      get { return permissions.Count; }
+    }
+
     public TPermission Get<TPermission>()
       where TPermission : Permission
     {

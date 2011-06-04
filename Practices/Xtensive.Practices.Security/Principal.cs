@@ -18,8 +18,8 @@ namespace Xtensive.Practices.Security
       return PrincipalRoles.Contains(role);
     }
 
-    [NotNullConstraint(Mode = ConstrainMode.OnValidate)]
-    [Field(Length = 20, Indexed = true)]
+    [NotNullConstraint(Mode = ConstrainMode.OnSetValue)]
+    [Field(Length = 50, Indexed = true)]
     [Infrastructure]
     public string Name
     {

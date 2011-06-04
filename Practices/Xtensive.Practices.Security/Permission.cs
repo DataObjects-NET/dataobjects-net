@@ -5,7 +5,7 @@ using Xtensive.Orm;
 
 namespace Xtensive.Practices.Security
 {
-  public abstract class Permission : ICloneable
+  public abstract class Permission
   {
     public Type Type { get; private set; }
 
@@ -13,10 +13,34 @@ namespace Xtensive.Practices.Security
 
     public bool CanWrite { get; private set; }
 
-    public object Clone()
+    #region GetHashcode & Equals members
+
+    public bool Equals(Permission other)
     {
-      return MemberwiseClone();
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Equals(other.Type, Type) && other.CanRead.Equals(CanRead) && other.CanWrite.Equals(CanWrite);
     }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != typeof (Permission)) return false;
+      return Equals((Permission) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = (Type != null ? Type.GetHashCode() : 0);
+        result = (result*397) ^ CanRead.GetHashCode();
+        result = (result*397) ^ CanWrite.GetHashCode();
+        return result;
+      }
+    }
+
+    #endregion
 
     protected Permission(Type type, bool canWrite)
     {
@@ -48,6 +72,34 @@ namespace Xtensive.Practices.Security
     }
 
     public bool IsDefaultQuery { get; private set; }
+
+    #region GetHashcode & Equals members
+
+    public bool Equals(Permission<T> other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return base.Equals(other) && Equals(other.Query, Query) && other.IsDefaultQuery.Equals(IsDefaultQuery);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      return Equals(obj as Permission<T>);
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = base.GetHashCode();
+        result = (result*397) ^ (Query != null ? Query.GetHashCode() : 0);
+        result = (result*397) ^ IsDefaultQuery.GetHashCode();
+        return result;
+      }
+    }
+
+    #endregion
 
     public Permission(Func<ImpersonationContext, QueryEndpoint, IQueryable<T>> query)
       : this(false, query)
