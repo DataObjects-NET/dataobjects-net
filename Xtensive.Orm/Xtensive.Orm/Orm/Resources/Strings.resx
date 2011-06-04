@@ -682,7 +682,7 @@ Schema difference:
     <value>Method '{0}' is not found.</value>
   </data>
   <data name="ExOfTypeSupportsOnlyEntityConversion" xml:space="preserve">
-    <value>OfType supports casting only inside Entity hierarchy.</value>
+    <value>OfType supports casting only inside IEntity hierarchy.</value>
   </data>
   <data name="ExLambdaParameterIsOutOfScope" xml:space="preserve">
     <value>Lambda parameter is out of scope.</value>
