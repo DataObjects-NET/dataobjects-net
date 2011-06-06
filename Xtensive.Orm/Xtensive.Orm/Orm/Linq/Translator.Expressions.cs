@@ -238,11 +238,12 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
-      if (ma.Expression.Type!=ma.Member.ReflectedType
-        && ma.Member is PropertyInfo
-        && !ma.Member.ReflectedType.IsInterface)
-        ma = Expression.MakeMemberAccess(
-          ma.Expression, ma.Expression.Type.GetProperty(ma.Member.Name, ma.Member.GetBindingFlags()));
+      if (ma.Expression != null)
+        if (ma.Expression.Type!=ma.Member.ReflectedType
+          && ma.Member is PropertyInfo
+          && !ma.Member.ReflectedType.IsInterface)
+          ma = Expression.MakeMemberAccess(
+            ma.Expression, ma.Expression.Type.GetProperty(ma.Member.Name, ma.Member.GetBindingFlags()));
       var customCompiler = context.CustomCompilerProvider.GetCompiler(ma.Member);
       if (customCompiler!=null) {
         var member = ma.Member;
@@ -701,6 +702,9 @@ namespace Xtensive.Orm.Linq
         return false;
       if (expression.NodeType == ExpressionType.Constant)
         return true;
+      if (expression is ExtendedExpression)
+        return false;
+
       var memberType = expression.GetMemberType();
       switch (memberType)
       {
