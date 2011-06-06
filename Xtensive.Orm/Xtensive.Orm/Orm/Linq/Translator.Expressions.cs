@@ -702,7 +702,7 @@ namespace Xtensive.Orm.Linq
         return false;
       if (expression.NodeType == ExpressionType.Constant)
         return true;
-      if (expression is ExtendedExpression)
+      if (!(expression is ExtendedExpression))
         return false;
 
       var memberType = expression.GetMemberType();
