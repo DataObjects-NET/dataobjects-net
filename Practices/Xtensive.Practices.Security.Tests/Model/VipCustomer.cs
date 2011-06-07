@@ -11,6 +11,9 @@ namespace Xtensive.Practices.Security.Tests.Model
 {
   public class VipCustomer : Customer
   {
+    [Field]
+    public string Reason { get; set; }
+
     public VipCustomer(Session session)
       : base(session)
     {

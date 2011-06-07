@@ -13,6 +13,8 @@ namespace Xtensive.Practices.Security
 
     public bool CanWrite { get; private set; }
 
+    public Func<ImpersonationContext, QueryEndpoint, IQueryable<IEntity>> Query { get; protected set; }
+
     #region GetHashcode & Equals members
 
     public bool Equals(Permission other)
@@ -52,34 +54,13 @@ namespace Xtensive.Practices.Security
 
   public class Permission<T> : Permission where T : class, IEntity
   {
-    public Func<ImpersonationContext, QueryEndpoint, IQueryable<T>> Query { get; protected set; }
-
-    public Permission()
-      : this(false)
-    {
-    }
-
-    public Permission(bool canWrite)
-      : base(typeof(T), canWrite)
-    {
-      SetDefaultQuery();
-    }
-
-    private void SetDefaultQuery()
-    {
-      IsDefaultQuery = true;
-      Query = (context, query) => query.All<T>();
-    }
-
-    public bool IsDefaultQuery { get; private set; }
-
     #region GetHashcode & Equals members
 
     public bool Equals(Permission<T> other)
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return base.Equals(other) && Equals(other.Query, Query) && other.IsDefaultQuery.Equals(IsDefaultQuery);
+      return base.Equals(other) && Equals(other.Query, Query);
     }
 
     public override bool Equals(object obj)
@@ -94,12 +75,21 @@ namespace Xtensive.Practices.Security
       unchecked {
         int result = base.GetHashCode();
         result = (result*397) ^ (Query != null ? Query.GetHashCode() : 0);
-        result = (result*397) ^ IsDefaultQuery.GetHashCode();
         return result;
       }
     }
 
     #endregion
+
+    public Permission()
+      : this(false)
+    {
+    }
+
+    public Permission(bool canWrite)
+      : base(typeof(T), canWrite)
+    {
+    }
 
     public Permission(Func<ImpersonationContext, QueryEndpoint, IQueryable<T>> query)
       : this(false, query)

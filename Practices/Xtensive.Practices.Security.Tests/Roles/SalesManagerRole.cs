@@ -21,7 +21,7 @@ namespace Xtensive.Practices.Security.Tests.Roles
 
     private static IQueryable<VipCustomer> GetVipCustomers(ImpersonationContext context, QueryEndpoint query)
     {
-      return query.All<VipCustomer>();
+      return query.All<VipCustomer>().Where(v => v.Reason != "Relative");
     }
 
     public SalesManagerRole()

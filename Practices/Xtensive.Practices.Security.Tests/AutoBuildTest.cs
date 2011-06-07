@@ -54,7 +54,8 @@ namespace Xtensive.Practices.Security.Tests
         using (var t = s.OpenTransaction()) {
           
           new Customer(s) {IsAutomobileIndustry = true};
-          new VipCustomer(s) {IsAircraftIndustry = true};
+          new VipCustomer(s) {IsAircraftIndustry = true, Reason = "High sales"};
+          new VipCustomer(s) {Reason = "Relative"};
 
           var u1 = new Employee(s);
           u1.PrincipalRoles.Add(new SalesPersonRole());

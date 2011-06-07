@@ -88,23 +88,23 @@ namespace Xtensive.Practices.Security.Tests
       using (var s = Domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
 
-          Assert.AreEqual(2, s.Query.All<Customer>().Count());
-          
-//          var u1 = s.Query.All<Employee>().Single(u => u.Name == "SalesPerson");
-//          using (var ic = s.Impersonate(u1)) {
-//            
-//            Assert.AreEqual(1, s.Query.All<Customer>().Count());
-//            Assert.AreEqual(0, s.Query.All<VipCustomer>().Count());
-//            ic.Undo();
-//          }
-//
-//          var u2 = s.Query.All<Employee>().Single(u => u.Name == "SalesManager");
-//          using (var ic = s.Impersonate(u2)) {
-//            
-//            Assert.AreEqual(2, s.Query.All<Customer>().Count());
-//            Assert.AreEqual(1, s.Query.All<VipCustomer>().Count());
-//            ic.Undo();
-//          }
+          Assert.AreEqual(3, s.Query.All<Customer>().Count());
+
+          var u1 = s.Query.All<Employee>().Single(u => u.Name == "SalesPerson");
+          using (var ic = s.Impersonate(u1)) {
+            
+            Assert.AreEqual(1, s.Query.All<Customer>().Count());
+            Assert.AreEqual(0, s.Query.All<VipCustomer>().Count());
+            ic.Undo();
+          }
+
+          var u2 = s.Query.All<Employee>().Single(u => u.Name == "SalesManager");
+          using (var ic = s.Impersonate(u2)) {
+            
+            Assert.AreEqual(3, s.Query.All<Customer>().Count());
+            Assert.AreEqual(2, s.Query.All<VipCustomer>().Count());
+            ic.Undo();
+          }
 
           var u3 = s.Query.All<Employee>().Single(u => u.Name == "AutomobileManager");
           using (var ic = s.Impersonate(u3)) {
