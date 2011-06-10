@@ -27,13 +27,12 @@ namespace Xtensive.Sql.SQLite.v3
       //For hinting limitations see http://www.sqlite.org/lang_indexedby.html
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        VisitSelectLimitOffset(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectWhere(node);
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
-        VisitSelectLock(node);
+        VisitSelectLimitOffset(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
       }
     }
@@ -80,6 +79,9 @@ namespace Xtensive.Sql.SQLite.v3
       case SqlFunctionType.PadLeft:
       case SqlFunctionType.PadRight:
         return;
+      case SqlFunctionType.Concat:
+              var nod = node.Arguments[0];
+        return;
       case SqlFunctionType.Round:
         // Round should always be called with 2 arguments
         if (node.Arguments.Count==1) {
@@ -93,14 +95,11 @@ namespace Xtensive.Sql.SQLite.v3
       case SqlFunctionType.Truncate:
         return;
       case SqlFunctionType.Substring:
-        if (node.Arguments.Count==2) {
-          node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
-          SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
-          node.Arguments.Add(len);
-          Visit(node);
-          return;
-        }
-        break;
+        if (node.Arguments.Count == 2)
+            Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1]));
+        else
+            Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1], node.Arguments[2]));
+        return;
       case SqlFunctionType.IntervalToMilliseconds:
           Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
           return;
