@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0839_MultithreadingBug_Model
   [Index("Text", Unique = true)]
   public class UniqueTextEntity : BaseEntity
   {
-    [Field]
+    [Field(Length = 100)]
     public string Text { get; set; }
   }
 }

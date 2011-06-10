@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers
     MultipleActiveResultSets = 0x80000,
     MultipleResultsViaCursorParameters = 0x100000,
     InsertDefaultValues = 0x200000,
-    TemporaryTables = 0x400000,
+    UpdateDefaultValues = 0x400000,
     FullText = 0x800000,
     FullFeaturedFullText = 0x1000000 | FullText,
     SingleKeyRankTableFullText = 0x2000000 | FullText,
@@ -49,8 +49,10 @@ namespace Xtensive.Storage.Providers
     Savepoints = 0x80000000,
     ScalarSubqueries = 0x100000000,
     ArbitraryIdentityIncrement = 0x200000000,
+    TemporaryTables = 0x400000000,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
+    TableRename = 0x800000000,
   }
 }

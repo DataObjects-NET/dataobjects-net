@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -143,15 +144,17 @@ namespace Xtensive.Orm.Model.Stored
     {
       var fields = useAllFields ? AllFields : Fields;
       var startIndex = 0;
+      var comparer = StringComparer.OrdinalIgnoreCase;
 
       while (true) {
         var dotIndex = fieldName.IndexOf('.', startIndex);
-        if (dotIndex < 0)
-          return fields.SingleOrDefault(f => f.Name == fieldName);
+        if (dotIndex < 0) {
+          return fields.SingleOrDefault(f => comparer.Compare(f.Name, fieldName) == 0);
+        }
 
         startIndex = dotIndex + 1;
         var structureFieldName = fieldName.Substring(0, dotIndex);
-        var field = fields.SingleOrDefault(f => f.Name == structureFieldName);
+        var field = fields.SingleOrDefault(f => comparer.Compare(f.Name, structureFieldName) == 0);
         if (field == null)
           return null;
 

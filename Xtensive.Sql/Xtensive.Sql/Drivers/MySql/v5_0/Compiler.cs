@@ -53,6 +53,8 @@ namespace Xtensive.Sql.MySql.v5_0
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropConstraint));
           if (constraint is ForeignKey)
             context.Output.AppendText("FOREIGN KEY " + translator.QuoteIdentifier(constraint.DbName));
+          else if (constraint is PrimaryKey)
+            context.Output.AppendText("PRIMARY KEY ");
           else
             context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));
@@ -183,6 +185,22 @@ namespace Xtensive.Sql.MySql.v5_0
           return;
       }
       base.Visit(node);
+    }
+
+    public override void VisitSelectLimitOffset(SqlSelect node)
+    {
+      if (!node.Limit.IsNullReference()) {
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
+        node.Limit.AcceptVisitor(this);
+      }
+      if (!node.Offset.IsNullReference()) {
+        if (node.Limit.IsNullReference()) {
+          context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
+          context.Output.AppendText(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
+        }
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
+        node.Offset.AcceptVisitor(this);
+      }
     }
 
     #region Static helpers

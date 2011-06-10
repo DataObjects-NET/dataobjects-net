@@ -109,10 +109,22 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion1
     [Field]
     public Address ShippingAddress { get; set; }
 
+    [Field]
+    public OrderData Data { get; set; }
+
     /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("OrderId: {0}; OrderDate: {1}.", Id, OrderDate);
     }
+  }
+
+  public class OrderData : Structure
+  {
+    [Field]
+    public int Value1 { get; set; }
+
+    [Field]
+    public int Value2 { get; set; }
   }
 }

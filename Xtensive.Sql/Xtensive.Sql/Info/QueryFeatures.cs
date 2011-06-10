@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates whether RDBMS supports INSERT INTO Table DEFAULT VALUES syntax.
     /// </summary>
-    DefaultValues = 0x1000,
+    InsertDefaultValues = 0x1000,
 
     /// <summary>
     /// Indicates whether RDBMS supports ROW_NUMBER window function.
@@ -94,6 +94,11 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS supports subqueries that return a scalar result.
     /// </summary>
     ScalarSubquery = 0x4000,
+    
+    /// <summary>
+    /// Indicates whether RDBMS supports UPDATE Table SET COLUMN = DEFAULT syntax.
+    /// </summary>
+    UpdateDefaultValues = 0x8000,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).

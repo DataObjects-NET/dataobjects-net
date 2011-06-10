@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Issues
     public class State : Entity
     {
       [Key]
-      [Field]
+      [Field(Length = 100)]
       public string ID { get; private set; }
 
       [Field]

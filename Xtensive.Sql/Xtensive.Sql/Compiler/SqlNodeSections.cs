@@ -166,6 +166,7 @@ namespace Xtensive.Sql.Compiler
     ValuesEntry = 3,
     ValuesExit = 5,
     DefaultValues = 6,
+    From = 7,
   }
 
   public enum JoinSection

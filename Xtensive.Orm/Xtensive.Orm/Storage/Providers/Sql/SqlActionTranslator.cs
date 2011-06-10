@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
@@ -71,6 +72,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage stage;
+    private static StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
     private bool IsSequencesAllowed
     {
@@ -364,6 +366,12 @@ namespace Xtensive.Storage.Providers.Sql
       var toTableRef = SqlDml.TableRef(toTable);
       var update = SqlDml.Update(toTableRef);
 
+      if (fromTable == toTable) {
+        copiedColumns.ForEach(pair => update.Values[toTableRef[pair.Second.Name]] = toTableRef[pair.First.Name]);
+        RegisterCommand(update, NonTransactionalStage.None);
+        return;
+      }
+
       if (providerInfo.Supports(ProviderFeatures.UpdateFrom)) {
         var fromTableRef = SqlDml.TableRef(fromTable);
         var select = SqlDml.Select(fromTableRef);
@@ -417,7 +425,29 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var oldTableInfo = sourceModel.Resolve(action.Path, true) as TableInfo;
       var table = FindTable(oldTableInfo.Name);
-      RegisterCommand(SqlDdl.Rename(table, action.Name), NonTransactionalStage.None);
+      if (providerInfo.ProviderFeatures.HasFlag(ProviderFeatures.TableRename))
+        RegisterCommand(SqlDdl.Rename(table, action.Name), NonTransactionalStage.None);
+      else {
+          var scheme = table.Schema;
+          var newTable = scheme.CreateTable(action.Name);
+          foreach (var item in table.TableColumns) {
+            var column = newTable.CreateColumn(item.Name, item.DataType);
+            column.DbName = item.DbName;
+            column.IsNullable = item.IsNullable;
+          }
+          RegisterCommand(SqlDdl.Create(newTable), NonTransactionalStage.None);
+
+          // Copying data from one table to another
+          var insert = SqlDml.Insert(SqlDml.TableRef(newTable));
+          var select = SqlDml.Select(SqlDml.TableRef(table));
+          insert.From = SqlDml.QueryRef(select);
+          RegisterCommand(insert, NonTransactionalStage.None);
+
+          // Removing table
+          RegisterCommand(SqlDdl.Drop(table), NonTransactionalStage.None);
+
+          scheme.Tables.Remove(newTable);
+      }
       oldTableInfo.Name = action.Name;
       RenameSchemaTable(table, action.Name);
     }
@@ -663,6 +693,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (IsSequencesAllowed) {
         var exisitingSequence = schema.Sequences[sequenceInfo.Name];
         var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
+        newSequenceDescriptor.LastValue = currentValue;
         exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
         RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor), NonTransactionalStage.None);
       }
@@ -778,8 +809,52 @@ namespace Xtensive.Storage.Providers.Sql
       if (updatedColumns.Length==0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
       foreach (var pair in updatedColumns)
-        if (pair.Second==null)
-          update.Values[table[pair.First.Name]] = SqlDml.DefaultValue;
+        if (pair.Second==null) {
+          if (providerInfo.ProviderFeatures.HasFlag(ProviderFeatures.UpdateDefaultValues))
+            update.Values[table[pair.First.Name]] = SqlDml.DefaultValue;
+          else {
+            if (pair.First.Type.IsNullable)
+              update.Values[table[pair.First.Name]] = SqlDml.Null;
+            else {
+              var typeCode = Type.GetTypeCode(pair.First.Type.Type);
+              switch (typeCode) {
+                case TypeCode.Byte:
+                case TypeCode.Decimal:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(0);
+                  break;
+                case TypeCode.Double:
+                case TypeCode.Single:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(0d);
+                  break;
+                case TypeCode.Boolean:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(false);
+                  break;
+                case TypeCode.Char:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal('0');
+                  break;
+                case TypeCode.String:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(string.Empty);
+                  break;
+                case TypeCode.DateTime:
+                  update.Values[table[pair.First.Name]] = SqlDml.Literal(DateTime.MinValue);
+                  break;
+                case TypeCode.Object:
+                  if (pair.First.Type.Type == typeof(Guid))
+                    update.Values[table[pair.First.Name]] = SqlDml.Literal(Guid.Empty);
+                  else if (pair.First.Type.Type == typeof(TimeSpan))
+                    update.Values[table[pair.First.Name]] = SqlDml.Literal(TimeSpan.MinValue);
+                  break;
+              }
+            }
+          }
+        }
         else
           update.Values[table[pair.First.Name]] = SqlDml.Literal(pair.Second);
 
@@ -867,11 +942,15 @@ namespace Xtensive.Storage.Providers.Sql
 
       // Copy values if possible to convert type
       if (TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
-        || enforceChangedColumns.Contains(sourceColumn.Path)) {
+        || enforceChangedColumns.Contains(sourceColumn.Path, StringComparer.OrdinalIgnoreCase)) {
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
-        if (newTypeInfo.IsNullable)
-          copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
+        if (newTypeInfo.IsNullable) {
+          if (sourceColumn.Type.Type.StripNullable() == typeof(string) && newSqlType.Length < column.DataType.Length)
+            copyValues.Values[tableRef[originalName]] = SqlDml.Cast(SqlDml.Substring(tableRef[tempName], 0, newSqlType.Length), newSqlType);
+          else
+            copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
+        }
         else {
           var getValue = SqlDml.Case();
           getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
@@ -1022,7 +1101,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
-      while (column.Table.Columns.Any(tableColumn=>tableColumn.Name==tempName))
+      while (column.Table.Columns.Any(tableColumn => stringComparer.Compare(tableColumn.Name, tempName) == 0))
         tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
 
       return tempName;
@@ -1030,19 +1109,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Table FindTable(string name)
     {
-      return schema.Tables.FirstOrDefault(t => t.Name==name);
+      return schema.Tables.FirstOrDefault(t => stringComparer.Compare(t.Name, name) == 0);
     }
 
     private TableColumn FindColumn(Table table, string name)
     {
       return table.TableColumns.
-        FirstOrDefault(c => c.Name==name);
+        FirstOrDefault(c => stringComparer.Compare(c.Name, name) == 0);
     }
 
     private TableColumn FindColumn(string tableName, string columnName)
     {
       return FindTable(tableName).TableColumns.
-        FirstOrDefault(c => c.Name==columnName);
+        FirstOrDefault(c => stringComparer.Compare(c.Name, columnName) == 0);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)

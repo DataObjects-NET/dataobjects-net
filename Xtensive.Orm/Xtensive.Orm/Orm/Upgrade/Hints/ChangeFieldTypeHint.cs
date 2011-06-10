@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
       return base.Equals(other) 
         && other.Type==Type 
-        && other.FieldName==FieldName;
+        && StringComparer.OrdinalIgnoreCase.Compare(other.FieldName, FieldName) == 0;
     }
 
     /// <inheritdoc/>

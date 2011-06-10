@@ -12,6 +12,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.Model.Version1;
 using Xtensive.Orm.Tests.Upgrade.Model.Version2;
+using Xtensive.Storage.Providers;
 using Xtensive.Testing;
 using Address = Xtensive.Orm.Tests.Upgrade.Model.Version1.Address;
 using Boy = Xtensive.Orm.Tests.Upgrade.Model.Version2.Boy;
@@ -78,6 +79,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpgradeGeneratorsTest()
     {
+      Require.AnyFeatureSupported(ProviderFeatures.Sequences | ProviderFeatures.ArbitraryIdentityIncrement);
+
       var generatorCacheSize = 3;
       BuildDomain("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof (Address), typeof (Person));
       using (var session = domain.OpenSession()) {
@@ -86,7 +89,8 @@ namespace Xtensive.Orm.Tests.Upgrade
             new Person {
               Address = new Address {City = "City", Country = "Country"}
             };
-          Assert.AreEqual(3, session.Query.All<Person>().Max(p => p.Id));
+          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
+          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
           t.Complete();
         }
       }
@@ -97,7 +101,8 @@ namespace Xtensive.Orm.Tests.Upgrade
             new Person {
               Address = new Address {City = "City", Country = "Country"}
             };
-          Assert.AreEqual(6, session.Query.All<Person>().Max(p => p.Id));
+          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
+          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
           t.Complete();
         }
       }
@@ -109,7 +114,8 @@ namespace Xtensive.Orm.Tests.Upgrade
           new Person {Address = new Address {City = "City", Country = "Country"}};
           new Person {Address = new Address {City = "City", Country = "Country"}};
           new Person {Address = new Address {City = "City", Country = "Country"}};
-          Assert.AreEqual(12, session.Query.All<Person>().Max(p => p.Id));
+          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 13);
+          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 12);
           t.Complete();
         }
       }
@@ -147,6 +153,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpdateTypeIdWithMutualRenameTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       int personTypeId;
       int businessContactTypeId;
       
@@ -176,6 +183,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpgradeToVersion2Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {

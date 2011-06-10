@@ -146,7 +146,7 @@ namespace Xtensive.Sql.MySql.v5_0
 
           // AutoIncrement
           if (ReadAutoIncrement(reader, 13))
-            column.SequenceDescriptor = new SequenceDescriptor(column, 0, int.MaxValue);
+            column.SequenceDescriptor = new SequenceDescriptor(column, ReadInt(reader, 14), 1);
 
           //Column number.
           lastColumnId = columnId;
@@ -341,15 +341,20 @@ namespace Xtensive.Sql.MySql.v5_0
     private SqlValueType CreateValueType(IDataRecord row,
                                          int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
-      string typeName = row.GetString(typeNameIndex);
-      typeName = typeName.ToUpperInvariant();
+      string typeName = row.GetString(typeNameIndex).ToUpperInvariant();
+      string columnName = row.GetString(6).ToUpperInvariant();
 
       int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
       int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
 
-      if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL") {
+      if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL" || typeName == "DECIMAL") {
         return new SqlValueType(SqlType.Decimal, precision, scale);
       }
+
+      if (columnName=="TINYINT(1)") {
+        return new SqlValueType(SqlType.Boolean);
+      }
+
 
       if (typeName.StartsWith("TINYINT")) {
         // ignoring "day precision" and "second precision"
@@ -391,6 +396,10 @@ namespace Xtensive.Sql.MySql.v5_0
         return new SqlValueType(SqlType.Decimal, 4, 0);
       }
 
+      if (typeName=="LONGTEXT") {
+        return new SqlValueType(SqlType.VarCharMax);
+      }
+
       if (typeName.Contains("TEXT")) {
         int length = ReadInt(row, charLengthIndex);
         return new SqlValueType(SqlType.VarCharMax, length);
@@ -398,6 +407,11 @@ namespace Xtensive.Sql.MySql.v5_0
 
       if (typeName.Contains("BLOB")) {
         return new SqlValueType(SqlType.VarBinaryMax);
+      }
+
+      if (typeName == "VARBINARY") {
+        int length = ReadInt(row, charLengthIndex);
+        return new SqlValueType(SqlType.VarBinary, length);
       }
 
       if (typeName == "VARCHAR" || typeName == "CHAR") {

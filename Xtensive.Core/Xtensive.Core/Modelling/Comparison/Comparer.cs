@@ -231,8 +231,10 @@ namespace Xtensive.Modelling.Comparison
         return movementInfo;
       }
 
+      var sc = StringComparer.OrdinalIgnoreCase;
+
       // both source!=null && target!=null
-      if (!(source is IUnnamedNode) && source.Name!=target.Name && GetTargetPath(source)==target.Path)
+      if (!(source is IUnnamedNode) && sc.Compare(source.Name, target.Name) != 0 && sc.Compare(GetTargetPath(source), target.Path) == 0)
         movementInfo |= MovementInfo.NameChanged;
       var collection = target.Nesting.PropertyValue as NodeCollection;
       if (source.Index!=target.Index &&
@@ -375,30 +377,30 @@ namespace Xtensive.Modelling.Comparison
         var someItems = src.Count!=0 ? src : tgt;
         var someItem = someItems.Cast<Node>().First();
 
-        Func<Node, Pair<Node, object>> keyExtractor = 
-          n => new Pair<Node, object>(n, GetNodeComparisonKey(n));
+        Func<Node, Pair<Node, string>> keyExtractor = 
+          n => new Pair<Node, string>(n, GetNodeComparisonKey(n));
 
         var sourceKeyMap = src
           .Cast<Node>()
           .Select(keyExtractor)
-          .ToDictionary(pair => pair.Second, pair => pair.First);
+          .ToDictionary(pair => pair.Second, pair => pair.First, StringComparer.OrdinalIgnoreCase);
         var targetKeyMap = tgt
           .Cast<Node>()
           .Select(keyExtractor)
-          .ToDictionary(pair => pair.Second, pair => pair.First);
+          .ToDictionary(pair => pair.Second, pair => pair.First, StringComparer.OrdinalIgnoreCase);
 
         var sourceKeys = src.Cast<Node>().Select(n => keyExtractor(n).Second);
         var targetKeys = tgt.Cast<Node>().Select(n => keyExtractor(n).Second);
-        var commonKeys = sourceKeys.Intersect(targetKeys);
+        var commonKeys = sourceKeys.Intersect(targetKeys, StringComparer.OrdinalIgnoreCase);
 
         var sequence =
-          sourceKeys.Except(commonKeys)
+          sourceKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
             .Select(k => new {Index = sourceKeyMap[k].Index, Type = 0, 
               Source = sourceKeyMap[k], Target = (Node) null})
           .Concat(commonKeys
             .Select(k => new {Index = targetKeyMap[k].Index, Type = 1, 
               Source = sourceKeyMap[k], Target = targetKeyMap[k]}))
-          .Concat(targetKeys.Except(commonKeys)
+          .Concat(targetKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
             .Select(k => new {Index = targetKeyMap[k].Index, Type = 2, 
               Source = (Node) null, Target = targetKeyMap[k]}))
           .OrderBy(i => i.Type!=0).ThenBy(i => i.Index).ThenBy(i => i.Type);
@@ -573,7 +575,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="node">The node to get the comparison key for.</param>
     /// <returns>Comparison key for the specified node.</returns>
-    protected virtual object GetNodeComparisonKey(Node node)
+    protected virtual string GetNodeComparisonKey(Node node)
     {
       if (!(node is INodeReference))
         return GetTargetName(node);

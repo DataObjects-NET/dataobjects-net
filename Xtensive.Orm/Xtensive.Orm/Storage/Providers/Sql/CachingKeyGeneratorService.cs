@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Providers.Sql
       TFieldType current;
       var arithmetic = generator.Arithmetic;
 
-      if (domainHandler.ProviderInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement)) {
+      if (domainHandler.ProviderInfo.Supports(ProviderFeatures.Sequences) || domainHandler.ProviderInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement)) {
         // 256 - 1 * 128
         current = arithmetic.Subtract(hiValue, arithmetic.Multiply(arithmetic.One, increment));
       }

@@ -50,12 +50,12 @@ namespace Xtensive.Orm.Tests.Issues
       config.Types.Register(typeof (IWithReference).Assembly, typeof (IWithReference).Namespace);
       var domain = Domain.Build(config);
 
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open(session)) {
+      using (var s = domain.OpenSession())
+        using (var t = s.OpenTransaction()) {
         new SomeWithReference {Reference = new Reference()};
 
-        var result = Query.All<SomeWithReference>()
-          .Prefetch(s => s.Reference)
+        var result = s.Query.All<SomeWithReference>()
+          .Prefetch(e => e.Reference)
           .ToList();
 
         Assert.AreEqual(1, result.Count);

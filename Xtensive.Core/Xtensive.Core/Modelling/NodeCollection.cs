@@ -38,7 +38,7 @@ namespace Xtensive.Modelling
     private Node parent;
     private string name;
     [NonSerialized]
-    private Dictionary<string, Node> nameIndex = new Dictionary<string, Node>();
+    private Dictionary<string, Node> nameIndex = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
     private readonly List<Node> list = new List<Node>();
 
 
@@ -404,7 +404,7 @@ namespace Xtensive.Modelling
       if (nameIndex!=null)
         return; // Protects from multiple calls
       Initialize();
-      nameIndex = new Dictionary<string, Node>(Count);
+      nameIndex = new Dictionary<string, Node>(Count, StringComparer.OrdinalIgnoreCase);
       foreach (var node in list)
         nameIndex.Add(node.Name, node);
       if (IsLocked)

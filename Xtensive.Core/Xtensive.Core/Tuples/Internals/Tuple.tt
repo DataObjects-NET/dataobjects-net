@@ -239,8 +239,8 @@ namespace Xtensive.Tuples.Internals
       if (fieldCount < 0)
         throw new ArgumentOutOfRangeException("fieldCount");
       if (fieldCount > MaxGeneratedTupleLength.Value) {
-        var firstDescriptor = descriptor.TrimFields(MaxGeneratedTupleLength.Value);
-        var secondDescriptor = descriptor.SkipFields(MaxGeneratedTupleLength.Value);
+        var firstDescriptor = descriptor.Head(MaxGeneratedTupleLength.Value);
+        var secondDescriptor = descriptor.Tail(fieldCount - MaxGeneratedTupleLength.Value);
         if (firstDescriptor == null || secondDescriptor == null)
           throw new InvalidOperationException();
         return new JoinedTuple(descriptor, Create(firstDescriptor), Create(secondDescriptor));

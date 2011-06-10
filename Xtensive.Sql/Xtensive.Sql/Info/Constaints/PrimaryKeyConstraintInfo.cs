@@ -12,11 +12,26 @@ using Xtensive.Helpers;
 namespace Xtensive.Sql.Info
 {
   /// <summary>
-  /// Describes a primary key constaint capabilities.
+  /// Describes a primary key constraint capabilities.
   /// </summary>
   public class PrimaryKeyConstraintInfo : EntityInfo
   {
     private PrimaryKeyConstraintFeatures features = PrimaryKeyConstraintFeatures.None;
+    private string constantName;
+
+    /// <summary>
+    /// Gets or sets the constant name of the primary key constraint.
+    /// </summary>
+    /// <remarks>This is done for mysql support only. Its' primary keys have always 'PRIMARY' name.</remarks>
+    /// <value>The constant name of the primary key constraint.</value>
+    public string ConstantName
+    {
+      get { return constantName; }
+      set {
+        this.EnsureNotLocked();
+        constantName = value;
+      }
+    }
     
     /// <summary>
     /// Gets or sets the features of this instance.

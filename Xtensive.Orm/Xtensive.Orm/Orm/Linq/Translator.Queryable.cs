@@ -267,8 +267,8 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
-      if (!sourceType.IsSubclassOf(typeof (Entity)))
-        throw new NotSupportedException(Resources.Strings.ExOfTypeSupportsOnlyEntityConversion);
+      if (!typeof(IEntity).IsAssignableFrom(sourceType))
+        throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
 
       var visitedSource = VisitSequence(source);
       if (targetType==sourceType)
@@ -277,7 +277,7 @@ namespace Xtensive.Orm.Linq
       int offset = 0;
       var recordSet = visitedSource.ItemProjector.DataSource;
 
-      if (targetType.IsSubclassOf(sourceType)) {
+      if (sourceType.IsAssignableFrom(targetType)) {
         var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
         var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
         offset = recordSet.Header.Columns.Count;
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Linq
       var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
       var targetFieldIndex = 0;
       foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent == null)) {
-        var sourceFieldInfo =  targetType.IsInterface 
+        var sourceFieldInfo =  targetType.IsInterface && sourceType.IsClass
           ? sourceTypeInfo.FieldMap[targetField]
           : sourceTypeInfo.Fields[targetField.Name];
         var sourceField = sourceEntity.Fields.Single(f => f.Name == sourceFieldInfo.Name);

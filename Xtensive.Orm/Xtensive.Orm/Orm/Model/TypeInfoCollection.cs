@@ -290,12 +290,13 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      HashSet<TypeInfo> result;
-      if (!implementorTable.TryGetValue(item, out result))
-        result = new HashSet<TypeInfo>();
+      var result = new HashSet<TypeInfo>();
+      HashSet<TypeInfo> implementors;
+      if (implementorTable.TryGetValue(item, out implementors))
+        result.UnionWith(implementors);
 
       if (recursive)
-        foreach (var type in result.ToList())
+        foreach (var type in implementors)
           if (!type.IsInterface)
             foreach (var descendant in FindDescendants(type, true))
               result.Add(descendant);

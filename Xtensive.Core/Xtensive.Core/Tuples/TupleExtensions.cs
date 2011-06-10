@@ -460,6 +460,8 @@ namespace Xtensive.Tuples
       int sourceFieldIndex = actionData.Map[fieldIndex];
       if (sourceFieldIndex < 0)
         return false;
+      if (sourceFieldIndex >= actionData.Source.Count)
+        return false;
 
       TupleFieldState fieldState;
       var value = actionData.Source.GetValue<TFieldType>(sourceFieldIndex, out fieldState);

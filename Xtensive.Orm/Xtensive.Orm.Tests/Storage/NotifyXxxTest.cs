@@ -32,6 +32,14 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
     {
       return Title;
     }
+
+    protected override void OnInitialize()
+    {
+      base.OnInitialize();
+
+      if(IsMaterializing)
+        Console.WriteLine("On initialize");
+    }
   }
 
   [TestFixture]
@@ -74,11 +82,7 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
           ResetLastXxx();
           book1.RelatedBooks.Remove(book2);
           // "Reset", coz collection is considered as not fully loaded
-#if DEBUG
-          Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
-#else
           Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
-#endif
           Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
         }
 
@@ -178,6 +182,29 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
       Log.Info("CollectionChanged: Sender = {0}, Action = {1}", sender, e.Action);
       lastSenderCollection = sender;
       lastChangeAction = e.Action;
+    }
+
+    [Test]
+    public void OnInitializeTest()
+    {
+      Key key;
+
+      using (var s = Domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
+
+          var b = new Book();
+          key = b.Key;
+          t.Complete();
+        }
+      }
+
+      using (var s = Domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
+
+          //var b = Query.All<Book>().First();
+          var c = s.Query.Single<Book>(key);
+        }
+      }
     }
   }
 }

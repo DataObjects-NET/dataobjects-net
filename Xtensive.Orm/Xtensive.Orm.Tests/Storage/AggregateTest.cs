@@ -72,7 +72,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void AverageTest()
     {
-      Assert.AreEqual(all.Average(x => x.FByte), Session.Demand().Query.All<X>().Average(x => x.FByte));
+      if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird)
+        Assert.AreEqual(Math.Truncate(all.Average(x => x.FByte)), Session.Demand().Query.All<X>().Average(x => x.FByte));
+      else
+        Assert.AreEqual(all.Average(x => x.FByte), Session.Demand().Query.All<X>().Average(x => x.FByte));
       Assert.AreEqual(all.Average(x => x.FSByte), Session.Demand().Query.All<X>().Average(x => x.FSByte));
 
       Assert.AreEqual(all.Average(x => x.FShort), Session.Demand().Query.All<X>().Average(x => x.FShort));
