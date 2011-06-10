@@ -7,6 +7,7 @@
 using System;
 using System.Configuration;
 using NUnit.Framework;
+using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security.Tests
 {
@@ -14,51 +15,44 @@ namespace Xtensive.Practices.Security.Tests
   public class ConfigurationTests
   {
     [Test]
-    public void EncryptionServiceNameTest()
+    public void HashingServiceNameTest()
     {
-      var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-      var section = config.GetSection("Xtensive.Security.Name") as Configuration.ConfigurationSection;
+      var section = (Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Security.Name");
       Assert.IsNotNull(section);
-      Assert.IsNotNull(section.EncryptionService);
-      Assert.IsNullOrEmpty(section.EncryptionService.Type);
-      Assert.IsNotNull(section.EncryptionService.Name);
-      Assert.AreEqual("Md5EncryptionService", section.EncryptionService.Name);
+      Assert.IsNotNull(section.HashingService);
+      Assert.IsNotNull(section.HashingService.Name);
+      Assert.AreEqual("MD5", section.HashingService.Name);
+
+      var config = SecurityConfiguration.Load("Xtensive.Security.Name");
+      Assert.IsNotNull(config);
+      Assert.AreEqual("MD5", config.HashingServiceName);
     }
 
     [Test]
-    public void EncryptionServiceTypeTest()
+    public void HashingServiceEmptyTest()
     {
-      var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-      var section = config.GetSection("Xtensive.Security.Type") as Configuration.ConfigurationSection;
+      var section = (Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Security.Empty");
       Assert.IsNotNull(section);
-      Assert.IsNotNull(section.EncryptionService);
-      Assert.IsNullOrEmpty(section.EncryptionService.Name);
-      Assert.IsNotNull(section.EncryptionService.Type);
-      Assert.AreEqual("Xtensive.Practices.Security.Encryption.Md5EncryptionService, Xtensive.Practices.Security", section.EncryptionService.Type);
+      Assert.IsNotNull(section.HashingService);
+      Assert.IsNullOrEmpty(section.HashingService.Name);
+
+      var config = SecurityConfiguration.Load("Xtensive.Security.Empty");
+      Assert.IsNotNull(config);
+      Assert.AreEqual("PLAIN", config.HashingServiceName);
     }
 
     [Test]
-    public void EncryptionServiceEmptyTest()
+    public void HashingServiceDefaultTest()
     {
-      var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-      var section = config.GetSection("Xtensive.Security.Empty") as Configuration.ConfigurationSection;
+      var section = (Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Security");
       Assert.IsNotNull(section);
-      Assert.IsNotNull(section.EncryptionService);
-      Assert.IsNullOrEmpty(section.EncryptionService.Type);
-      Assert.IsNullOrEmpty(section.EncryptionService.Name);
-    }
+      Assert.IsNotNull(section.HashingService);
+      Assert.IsNotNullOrEmpty(section.HashingService.Name);
+      Assert.AreEqual("SHA1", section.HashingService.Name);
 
-    [Test]
-    public void EncryptionServiceBothTest()
-    {
-      var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-      var section = config.GetSection("Xtensive.Security.Both") as Configuration.ConfigurationSection;
-      Assert.IsNotNull(section);
-      Assert.IsNotNull(section.EncryptionService);
-      Assert.IsNotNull(section.EncryptionService.Type);
-      Assert.IsNotNull(section.EncryptionService.Name);
-      Assert.AreEqual("Md5EncryptionService", section.EncryptionService.Name);
-      Assert.AreEqual("Xtensive.Practices.Security.Encryption.PlainEncryptionService, Xtensive.Practices.Security", section.EncryptionService.Type);
+      var config = SecurityConfiguration.Load();
+      Assert.IsNotNull(config);
+      Assert.AreEqual("SHA1", config.HashingServiceName);
     }
   }
 }

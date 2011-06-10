@@ -10,7 +10,7 @@ using Xtensive.Orm;
 namespace Xtensive.Practices.Security.Tests.Model
 {
   [HierarchyRoot]
-  public class Employee : Principal
+  public class Employee : GenericPrincipal
   {
     [Field, Key]
     public int Id { get; private set; }

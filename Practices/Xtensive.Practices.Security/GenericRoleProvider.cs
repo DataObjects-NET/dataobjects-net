@@ -21,8 +21,7 @@ namespace Xtensive.Practices.Security
     public IEnumerable<Role> GetAllRoles()
     {
       var root = typeof(Role);
-      var types = Domain.Configuration.Types.Assemblies
-        .Where(a => !a.GetName().Name.In("Xtensive.Orm", "Xtensive.Practices.Security"))
+      var types = root.Assembly.FindDependentAssemblies()
         .SelectMany(a => a.GetTypes())
         .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(root));
 
@@ -30,7 +29,7 @@ namespace Xtensive.Practices.Security
       foreach (var type in types) {
         var ctor = type.GetConstructor(new Type[]{});
         if (ctor == null)
-          throw new InvalidOperationException(string.Format("Unable to initialize {0} role, the type doesn't have parameterless constructor", type.GetShortName()));
+          throw new InvalidOperationException(string.Format("Unable to initialize {0} role, the type doesn't have a constructor without parameters", type.GetShortName()));
         result.Add((Role) Activator.CreateInstance(type));
       }
       return result;

@@ -6,6 +6,7 @@
 
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Orm;
 using Xtensive.Practices.Security.Tests.Model;
 using Xtensive.Practices.Security.Tests.Roles;
 

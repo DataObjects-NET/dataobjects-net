@@ -11,10 +11,11 @@ using System.Security.Principal;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm;
+using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security
 {
-  [Service(typeof(IPrincipalValidationService), Singleton = true)]
+  [Service(typeof(IPrincipalValidationService), Singleton = true, Name = "DEFAULT")]
   public class GenericPrincipalValidationService : SessionBound, IPrincipalValidationService
   {
     public IPrincipal Validate(IIdentity identity, params object[] args)
@@ -39,8 +40,8 @@ namespace Xtensive.Practices.Security
 
     protected virtual IPrincipal Validate(string username, string password)
     {
-      var service = Session.Services.Get<IEncryptionService>();
-      var encrypted = service.Encrypt(password);
+      var config = Session.GetSecurityConfiguration();
+      var service = Session.Services.Get<IHashingService>(config.HashingServiceName);
 
       // GenericPrincipal is not found in the model, let's find its descendant
       var model = Session.Domain.Model;
@@ -48,19 +49,17 @@ namespace Xtensive.Practices.Security
         .Select(h => h.Root.UnderlyingType)
         .FirstOrDefault(t => typeof (GenericPrincipal).IsAssignableFrom(t));
 
-      if (rootPrincipalType != null) {
-        var gmi = GetType().GetMethod("ExecuteValidate", BindingFlags.NonPublic|BindingFlags.Instance);
-        var mi = gmi.MakeGenericMethod(rootPrincipalType);
-        return (IPrincipal) mi.Invoke(this, new object[] {username, encrypted});
-      }
+      if (rootPrincipalType == null)
+        throw new InvalidOperationException("No descendants of GenericPrincipal are found in domain model");
 
-      throw new InvalidOperationException("No descendants of GenericPrincipal are found in domain model");
-    }
+      var candidate = (Session.Query.All(rootPrincipalType) as IQueryable<GenericPrincipal>)
+        .Where(u => u.Name == username)
+        .SingleOrDefault();
 
-    protected virtual IPrincipal ExecuteValidate<T>(string username, string password) where T: GenericPrincipal
-    {
-      return Session.Query.All<T>()
-          .SingleOrDefault(u => u.Name == username && u.Password == password);
+      if (candidate != null && service.VerifyHash(password, candidate.PasswordHash))
+        return candidate;
+
+      return null;
     }
 
     [ServiceConstructor]

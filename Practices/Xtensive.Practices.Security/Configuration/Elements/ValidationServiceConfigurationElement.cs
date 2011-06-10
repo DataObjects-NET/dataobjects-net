@@ -9,10 +9,9 @@ using System.Configuration;
 
 namespace Xtensive.Practices.Security.Configuration
 {
-  public class EncryptionServiceConfigurationElement : ConfigurationElement
+  public class ValidationServiceConfigurationElement : ConfigurationElement
   {
     private const string NameElementName = "name";
-    private const string TypeElementName = "type";
 
    /// <summary>
     /// Gets or sets the short name of the encryption service type.
@@ -23,16 +22,5 @@ namespace Xtensive.Practices.Security.Configuration
       get { return (string) this[NameElementName]; }
       set { this[NameElementName] = value; }
     }
-
-   /// <summary>
-    /// Gets or sets the assembly qualified name of the encryption service type.
-    /// </summary>
-    [ConfigurationProperty(TypeElementName, IsRequired = false, DefaultValue = "")]
-    public string Type
-    {
-      get { return (string) this[TypeElementName]; }
-      set { this[TypeElementName] = value; }
-    }
- 
   }
 }
