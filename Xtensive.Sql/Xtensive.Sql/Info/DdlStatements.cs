@@ -43,10 +43,17 @@ namespace Xtensive.Sql.Info
     Drop = 0x4,
 
     /// <summary>
+    /// Indicates that RDBMS supports <see cref="Rename"/> statement
+    /// for the mentioned database entity.
+    /// </summary>
+    /// <value>0x4</value>
+    Rename = 0x8,
+
+    /// <summary>
     /// Indicates that RDBMS supports all DDL statements
     /// for the mentioned database entity.
     /// </summary>
     /// <value>0x7</value>
-    All = Create | Alter | Drop
+    All = Create | Alter | Drop | Rename
   }
 }

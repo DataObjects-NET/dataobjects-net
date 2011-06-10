@@ -30,10 +30,10 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure
     public void SetUp()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (Session.Open(domain)) {
-        using (var tx = Transaction.Open()) {
+      using (var s = domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
           var person = new M1.Person {Title = "Alex"};
-          tx.Complete();
+          t.Complete();
         }
       }
     }
@@ -42,9 +42,9 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (Session.Open(domain)) {
-        using (Transaction.Open()) {
-          var person = Query.All<M2.Person>().SingleOrDefault();
+      using (var s = domain.OpenSession()) {
+        using (var t = s.OpenTransaction()) {
+          var person = s.Query.All<M2.Person>().SingleOrDefault();
           Assert.NotNull(person);
           Assert.AreEqual("Alex", person.Info.Title);
         }

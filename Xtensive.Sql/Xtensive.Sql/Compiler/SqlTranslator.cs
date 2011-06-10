@@ -961,18 +961,20 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
     {
       switch (section) {
-      case InsertSection.Entry:
-        return "INSERT INTO";
-      case InsertSection.ColumnsEntry:
-        return (node.Values.Keys.Count > 0) ? "(" : string.Empty;
-      case InsertSection.ColumnsExit:
-        return (node.Values.Keys.Count > 0) ? ")" : string.Empty;
-      case InsertSection.ValuesEntry:
-        return "VALUES (";
-      case InsertSection.ValuesExit:
-        return ")";
-      case InsertSection.DefaultValues:
-        return "DEFAULT VALUES";
+        case InsertSection.Entry:
+          return "INSERT INTO";
+        case InsertSection.ColumnsEntry:
+          return (node.Values.Keys.Count > 0) ? "(" : string.Empty;
+        case InsertSection.ColumnsExit:
+          return (node.Values.Keys.Count > 0) ? ")" : string.Empty;
+        case InsertSection.From:
+          return "FROM";
+        case InsertSection.ValuesEntry:
+          return "VALUES (";
+        case InsertSection.ValuesExit:
+          return ")";
+        case InsertSection.DefaultValues:
+          return "DEFAULT VALUES";
       }
       return string.Empty;
     }

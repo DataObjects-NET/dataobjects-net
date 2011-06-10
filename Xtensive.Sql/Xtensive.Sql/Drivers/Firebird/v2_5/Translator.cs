@@ -4,6 +4,7 @@
 // Created by: Csaba Beer
 // Created:    2011.01.17
 
+using System.Linq;
 using Xtensive.Sql.Compiler;
 using System;
 using System.Text;
@@ -98,7 +99,7 @@ namespace Xtensive.Sql.Firebird.v2_5
       if (literalType == typeof (byte[])) {
         var values = (byte[]) literalValue;
         var builder = new StringBuilder(2*(values.Length + 1));
-        builder.Append("'");
+        builder.Append("x'");
         builder.AppendHexArray(values);
         builder.Append("'");
         return builder.ToString();
@@ -273,10 +274,10 @@ namespace Xtensive.Sql.Firebird.v2_5
       switch (section) {
         case NodeSection.Entry:
           return "SET GENERATOR " + Translate(node.Sequence);
-        default:
+        case NodeSection.Exit:
           return "TO " + (node.SequenceDescriptor.LastValue.HasValue ? node.SequenceDescriptor.LastValue : 0);
       }
-
+      return string.Empty;
     }
 
     /// <inheritdoc/>
@@ -293,6 +294,12 @@ namespace Xtensive.Sql.Firebird.v2_5
       return "DROP SEQUENCE " + Translate(node.Sequence);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
+    {
+      if (context.GetTraversalPath().Any(n => n.NodeType == SqlNodeType.Insert))
+        return string.Empty;
+      return base.Translate(context, node, section);
+    }
 
     // Constructors
 

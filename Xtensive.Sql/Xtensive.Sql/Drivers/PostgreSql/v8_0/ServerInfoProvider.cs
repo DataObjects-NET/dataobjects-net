@@ -257,7 +257,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         QueryFeatures.Limit |
         QueryFeatures.Offset |
         QueryFeatures.MulticolumnIn |
-        QueryFeatures.DefaultValues |
+        QueryFeatures.InsertDefaultValues |
+        QueryFeatures.UpdateDefaultValues |
         QueryFeatures.ScalarSubquery;
       info.ParameterPrefix = "@";
       info.MaxComparisonOperations = 1000000;

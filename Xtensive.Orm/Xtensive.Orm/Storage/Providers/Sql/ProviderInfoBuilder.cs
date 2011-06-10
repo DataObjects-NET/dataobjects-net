@@ -67,8 +67,10 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
       if (csi.MultipleActiveResultSets)
         f |= ProviderFeatures.MultipleActiveResultSets;
-      if (queryFeatures.Supports(QueryFeatures.DefaultValues))
+      if (queryFeatures.Supports(QueryFeatures.InsertDefaultValues))
         f |= ProviderFeatures.InsertDefaultValues;
+      if (queryFeatures.Supports(QueryFeatures.UpdateDefaultValues))
+        f |= ProviderFeatures.UpdateDefaultValues;
       if (queryFeatures.Supports(QueryFeatures.ScalarSubquery))
         f |= ProviderFeatures.ScalarSubqueries;
 
@@ -85,6 +87,10 @@ namespace Xtensive.Storage.Providers.Sql
       var c = si.Column;
       if ((c.AllowedDdlStatements & DdlStatements.Alter) == DdlStatements.Alter)
         f |= ProviderFeatures.ColumnRename;
+
+      var t = si.Table;
+      if ((t.AllowedDdlStatements & DdlStatements.Rename) == DdlStatements.Rename)
+        f |= ProviderFeatures.TableRename;
 
       var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
@@ -105,7 +111,9 @@ namespace Xtensive.Storage.Providers.Sql
           si.TemporaryTable,
           si.UniqueConstraint
         }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
-      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength);
+
+      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? 
+        TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength, si.PrimaryKey.ConstantName);
     }
   }
 }

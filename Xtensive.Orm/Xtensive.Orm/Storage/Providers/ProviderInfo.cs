@@ -53,6 +53,12 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public int MaxIdentifierLength { get; private set; }
 
+    /// <summary>
+    /// Gets or sets the constant name of the primary index.
+    /// </summary>
+    /// <value>The constant name of the primary index.</value>
+    public string ConstantPrimaryIndexName { get; private set; }
+
 
     // Constructors
 
@@ -65,6 +71,15 @@ namespace Xtensive.Storage.Providers
       this.providerFeatures = providerFeatures;
       this.temporaryTableFeatures = temporaryTableFeatures;
       MaxIdentifierLength = maxIdentifierLength;
+    }
+
+    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, TemporaryTableFeatures temporaryTableFeatures, int maxIdentifierLength, string constantPrimaryIndexName)
+    {
+      this.storageVersion = storageVersion;
+      this.providerFeatures = providerFeatures;
+      this.temporaryTableFeatures = temporaryTableFeatures;
+      MaxIdentifierLength = maxIdentifierLength;
+      ConstantPrimaryIndexName = constantPrimaryIndexName;
     }
   }
 }

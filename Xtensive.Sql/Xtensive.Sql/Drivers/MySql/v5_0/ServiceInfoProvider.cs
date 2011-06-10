@@ -142,6 +142,7 @@ namespace Xtensive.Sql.MySql.v5_0
       primaryKeyInfo.MaxIdentifierLength = MaxIdentifierLength;
       primaryKeyInfo.Features = PrimaryKeyConstraintFeatures.Clustered;
       primaryKeyInfo.AllowedDdlStatements = DdlStatements.All;
+      primaryKeyInfo.ConstantName = "PRIMARY";
       return primaryKeyInfo;
     }
 
@@ -204,10 +205,10 @@ namespace Xtensive.Sql.MySql.v5_0
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
-        QueryFeatures.UpdateFrom |
         QueryFeatures.Limit |
         QueryFeatures.Offset |
-        QueryFeatures.DefaultValues |
+        QueryFeatures.InsertDefaultValues |
+        QueryFeatures.UpdateDefaultValues |
         QueryFeatures.ExplicitJoinOrder |
         QueryFeatures.ScalarSubquery;
 

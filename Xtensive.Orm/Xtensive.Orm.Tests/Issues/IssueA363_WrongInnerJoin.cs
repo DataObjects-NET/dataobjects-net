@@ -63,8 +63,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open(session)) {
+      using (var s = Domain.OpenSession())
+        using (var t = s.OpenTransaction()) {
         var se1 = new SomeEntity { Text = "se1" };
         var se2 = new SomeEntity { Text = "se2" };
 
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         // if MyEntityWithLink.SomeEntity - decorated with [Field(Nullable = false)] - there are no MyEntityWithText data
         // if MyEntityWithLink.SomeEntity - decorated with [Field(Nullable = true)] - ok
-        var items = Query.All<MyEntity>().OrderBy(a => a.Id)
+        var items = s.Query.All<MyEntity>().OrderBy(a => a.Id)
             .Select(q => (q as MyEntityWithLink != null)
                 ? new { d = (q as MyEntityWithLink).link.Text }
                 : new { d = (q as MyEntityWithText).someData });

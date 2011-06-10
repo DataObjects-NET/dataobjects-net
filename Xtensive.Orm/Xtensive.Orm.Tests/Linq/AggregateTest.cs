@@ -60,6 +60,9 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var avg = Session.Query.All<Order>().Average(o => o.Id);
       var expected = Orders.Average(o => o.Id);
+      if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird) {
+        expected = Math.Truncate(expected);
+      }
       Assert.AreEqual(expected, avg);
     }
 

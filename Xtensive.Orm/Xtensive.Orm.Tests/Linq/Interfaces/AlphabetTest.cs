@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 using System.Linq;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Orm.Tests.Linq.Interfaces
 {
@@ -189,6 +190,8 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
     [Test]
     public void FetchTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.Sequences);
+
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var named = session.Query.Single<INamed>(33L);

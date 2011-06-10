@@ -195,7 +195,8 @@ namespace Xtensive.Sql.Oracle.v09
         QueryFeatures.ParameterPrefix |
         QueryFeatures.Hints |
         QueryFeatures.DmlBatches |
-        QueryFeatures.DefaultValues |
+        QueryFeatures.InsertDefaultValues |
+        QueryFeatures.UpdateDefaultValues |
         QueryFeatures.RowNumber;
       return queryInfo;
     }

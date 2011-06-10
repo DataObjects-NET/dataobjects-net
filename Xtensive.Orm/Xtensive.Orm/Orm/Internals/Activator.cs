@@ -37,7 +37,8 @@ namespace Xtensive.Orm.Internals
       var activator = entityActivators.GetValue(type,
         DelegateHelper.CreateConstructorDelegate<Func<Session, EntityState, Entity>>);
       Entity result = activator(session, state);
-      result.SystemInitialize(true);
+      // This one is already called from the constructor
+      //result.SystemInitialize(true);
       return result;
     }
 

@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
+using Xtensive.Diagnostics;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Sandbox.Issues.IssueJIRA0003_OrderByStructureFieldLost_Model;
 using System.Linq;
@@ -51,6 +52,8 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
     [Test]
     public void MainTest()
     {
+      var log = LogProvider.GetLog("Storage.Providers.Sql");
+      log.RealLog.OnLogEvent += new LogEventHandler(RealLog_OnLogEvent);
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         new Person() {Name = "Vasya", Address = new Address {City = "Moscow", PostCode = "444444"}};
@@ -68,6 +71,11 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
 
         t.Complete();
       }
+    }
+
+    void RealLog_OnLogEvent(IRealLog source, LogEventTypes eventType, object message, Exception exception, LogCaptureScope capturedBy)
+    {
+      Console.WriteLine(message);
     }
   }
 }

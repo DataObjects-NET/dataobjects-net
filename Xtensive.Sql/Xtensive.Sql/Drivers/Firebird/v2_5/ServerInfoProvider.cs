@@ -80,7 +80,7 @@ namespace Xtensive.Sql.Firebird.v2_5
         public override EntityInfo GetViewInfo()
         {
             var viewInfo = new EntityInfo();
-            viewInfo.AllowedDdlStatements = DdlStatements.All;
+            viewInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Rename;
             viewInfo.MaxIdentifierLength = MaxIdentifierLength;
             return viewInfo;
         }
@@ -96,7 +96,7 @@ namespace Xtensive.Sql.Firebird.v2_5
         public override TableInfo GetTableInfo()
         {
             var tableInfo = new TableInfo();
-            tableInfo.AllowedDdlStatements = DdlStatements.All;
+            tableInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Rename;
             tableInfo.MaxIdentifierLength = MaxIdentifierLength;
             tableInfo.MaxNumberOfColumns = 256; // not a correct value, Depends on data types used. (Example: 16,384 INTEGER (4-byte) values per row.)
             tableInfo.PartitionMethods = PartitionMethods.None;
