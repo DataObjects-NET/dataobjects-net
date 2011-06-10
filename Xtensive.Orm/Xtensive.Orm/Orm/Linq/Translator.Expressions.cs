@@ -245,6 +245,20 @@ namespace Xtensive.Orm.Linq
           ma = Expression.MakeMemberAccess(
             ma.Expression, ma.Expression.Type.GetProperty(ma.Member.Name, ma.Member.GetBindingFlags()));
       var customCompiler = context.CustomCompilerProvider.GetCompiler(ma.Member);
+
+      // Reflected type doesn't have custom compiler defined, so falling back to base class compiler
+      var declaringType = ma.Member.DeclaringType;
+      Type reflectedType = ma.Member.ReflectedType;
+      if (customCompiler == null && declaringType != reflectedType && declaringType.IsAssignableFrom(reflectedType)) {
+        var root = declaringType;
+        var current = reflectedType;
+        while (current != root && customCompiler == null) {
+          current = current.BaseType;
+          var member = current.GetProperty(ma.Member.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic);
+          customCompiler = context.CustomCompilerProvider.GetCompiler(member);
+        }
+      }
+
       if (customCompiler!=null) {
         var member = ma.Member;
         var expression = customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray);

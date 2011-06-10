@@ -289,6 +289,9 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
                                           where root.RegionName == "13123123121"
                                           select root;
         Assert.AreEqual(1, qq.ToList().Count);
+
+        s.Query.All<Customer>().OrderBy(c => c.RegionName).ToList();
+        s.Query.All<HasVirtualFields>().OrderBy(c => c.RegionName).ToList();
       }
     }
 
@@ -312,6 +315,9 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues
                                            where root.RegionName == "13123123121"
                                            select root;
         Assert.AreEqual(1, qq.ToList().Count);
+
+        s.Query.All<Person>().OrderBy(c => c.RegionName).ToList();
+        s.Query.All<IHasVirtualFields>().OrderBy(c => c.RegionName).ToList();
       }
     }
   }
