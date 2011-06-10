@@ -4,15 +4,18 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.16
 
+using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Principal;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm;
+using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security
 {
-  [Service(typeof(IPrincipalValidationService), Singleton = true)]
+  [Service(typeof(IPrincipalValidationService), Singleton = true, Name = "default")]
   public class GenericPrincipalValidationService : SessionBound, IPrincipalValidationService
   {
     public IPrincipal Validate(IIdentity identity, params object[] args)
@@ -35,13 +38,31 @@ namespace Xtensive.Practices.Security
 
     }
 
-    private IPrincipal Validate(string username, string password)
+    protected virtual IPrincipal Validate(string username, string password)
     {
-      var service = Session.Services.Get<IEncryptionService>();
-      var encrypted = service.Encrypt(password);
+      var config = Session.GetSecurityConfiguration();
+      var service = Session.Services.Get<IHashingService>(config.HashingServiceName);
 
-      return Session.Query.All<GenericPrincipal>()
-        .SingleOrDefault(u => u.Name == username && u.Password == encrypted);
+      if (service == null)
+        throw new InvalidOperationException(string.Format("Hashing service by name {0} is not found. Check Xtensive.Security configuration", config.HashingServiceName));
+
+      // GenericPrincipal is not found in the model, let's find its descendant
+      var model = Session.Domain.Model;
+      var rootPrincipalType = model.Hierarchies
+        .Select(h => h.Root.UnderlyingType)
+        .FirstOrDefault(t => typeof (GenericPrincipal).IsAssignableFrom(t));
+
+      if (rootPrincipalType == null)
+        throw new InvalidOperationException("No descendants of GenericPrincipal type are found in domain model");
+
+      var candidate = (Session.Query.All(rootPrincipalType) as IQueryable<GenericPrincipal>)
+        .Where(u => u.Name == username)
+        .SingleOrDefault();
+
+      if (candidate != null && service.VerifyHash(password, candidate.PasswordHash))
+        return candidate;
+
+      return null;
     }
 
     [ServiceConstructor]

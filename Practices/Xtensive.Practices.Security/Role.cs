@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Xtensive.Collections;
 
 namespace Xtensive.Practices.Security
 {
   public abstract class Role
   {
-    private readonly List<Permission> permissions = new List<Permission>();
+    private readonly List<Permission> permissions;
     private readonly ReadOnlyList<Permission> readOnlyPermissions;
 
-    public string Name
-    {
-      get { return GetType().Name; }
-    }
+    public string Name { get; protected set; }
 
     public IList<Permission> Permissions
     {
@@ -40,9 +35,31 @@ namespace Xtensive.Practices.Security
       permissions.Add(permission);
     }
 
+    public bool Equals(Role other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Equals(other.Name, Name);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != typeof (Role)) return false;
+      return Equals((Role) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return (Name != null ? Name.GetHashCode() : 0);
+    }
+
     protected Role()
     {
+      permissions = new List<Permission>();
       readOnlyPermissions = new ReadOnlyList<Permission>(permissions);
+      Name = GetType().Name;
     }
   }
 }

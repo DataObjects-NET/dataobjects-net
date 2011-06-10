@@ -4,13 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.22
 
-using System;
 using Xtensive.Orm;
 
 namespace Xtensive.Practices.Security
 {
-  public interface IEncryptionService : IDomainService
+  public interface IHashingService : IDomainService
   {
-    string Encrypt(string value);
+    string ComputeHash(string password);
+
+    bool VerifyHash(string password, string hash);
   }
 }

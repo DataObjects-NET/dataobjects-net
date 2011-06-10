@@ -6,18 +6,24 @@
 
 using System;
 using Xtensive.Orm;
+using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security
 {
   public abstract class GenericPrincipal : Principal
   {
-    [Field(Length = 20)]
-    public string Password { get; protected set; }
+    [Field(Length = 128)]
+    public string PasswordHash { get; protected set; }
 
     public virtual void SetPassword(string password)
     {
-      var service = Session.Services.Get<IEncryptionService>();
-      Password = service.Encrypt(password);
+      var config = Session.GetSecurityConfiguration();
+      var service = Session.Services.Get<IHashingService>(config.HashingServiceName);
+
+      if (service == null)
+        throw new InvalidOperationException(string.Format("Hashing service by name {0} is not found. Check Xtensive.Security configuration", config.HashingServiceName));
+
+      PasswordHash = service.ComputeHash(password);
     }
 
     protected GenericPrincipal(Session session)

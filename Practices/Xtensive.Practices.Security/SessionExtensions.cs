@@ -5,18 +5,56 @@
 // Created:    2011.05.22
 
 using System;
+using System.Security.Principal;
 using Xtensive.Core;
-using Xtensive.Orm;
+using Xtensive.Practices.Security;
+using Xtensive.Practices.Security.Configuration;
+using IPrincipal = Xtensive.Practices.Security.IPrincipal;
 
-namespace Xtensive.Practices.Security
+namespace Xtensive.Orm
 {
   public static class SessionExtensions
   {
+    public static SecurityConfiguration GetSecurityConfiguration(this Session session)
+    {
+      var result = session.Domain.Extensions.Get<SecurityConfiguration>();
+      if (result == null) {
+        result = SecurityConfiguration.Load();
+        session.Domain.Extensions.Set(result);
+      }
+      return result;
+    }
+
     public static ImpersonationContext GetImpersonationContext(this Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
 
       return session.Extensions.Get<ImpersonationContext>();
+    }
+
+    public static ImpersonationContext Impersonate(this Session session, IPrincipal principal)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(principal, "principal");
+
+      var currentContext = session.GetImpersonationContext();
+
+      var context = new ImpersonationContext(principal, currentContext);
+      session.Extensions.Set(context);
+
+      return context;
+    }
+
+    public static IPrincipal ValidatePrincipal(this Session session, IIdentity identity, params object[] args)
+    {
+      return ValidatePrincipal(session, identity.Name, args);
+    }
+
+    public static IPrincipal ValidatePrincipal(this Session session, string name, params object[] args)
+    {
+      var config = GetSecurityConfiguration(session);
+      var service = session.Services.Get<IPrincipalValidationService>(config.ValidationServiceName);
+      return service.Validate(name, args);
     }
 
     private static void ClearImpersonationContext(this Session session)
@@ -32,19 +70,6 @@ namespace Xtensive.Practices.Security
       ArgumentValidator.EnsureArgumentNotNull(context, "context");
 
       session.Extensions.Set(context);
-    }
-
-    public static ImpersonationContext Impersonate(this Session session, IPrincipal principal)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(principal, "principal");
-
-      var currentContext = session.GetImpersonationContext();
-
-      var context = new ImpersonationContext(principal, currentContext);
-      session.Extensions.Set(context);
-
-      return context;
     }
 
     internal static void UndoImpersonation(this Session session, ImpersonationContext innerContext, ImpersonationContext outerContext)
