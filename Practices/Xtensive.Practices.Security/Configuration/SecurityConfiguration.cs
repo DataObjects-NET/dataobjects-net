@@ -38,13 +38,13 @@ namespace Xtensive.Practices.Security.Configuration
 
       string hashingService = section.HashingService.Name;
       if (string.IsNullOrEmpty(hashingService))
-        hashingService = "Plain";
-      result.HashingServiceName = hashingService.ToUpperInvariant();
+        hashingService = "plain";
+      result.HashingServiceName = hashingService.ToLowerInvariant();
 
       string validationService = section.ValidationService.Name;
       if (string.IsNullOrEmpty(validationService))
-        validationService = "Default";
-      result.ValidationServiceName = validationService.ToUpperInvariant();
+        validationService = "default";
+      result.ValidationServiceName = validationService.ToLowerInvariant();
 
       return result;
     }

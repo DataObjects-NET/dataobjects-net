@@ -9,7 +9,7 @@ using Xtensive.IoC;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
-  [Service(typeof(IHashingService), Singleton = true, Name = "PLAIN")]
+  [Service(typeof(IHashingService), Singleton = true, Name = "plain")]
   public class PlainHashingService : IHashingService
   {
     public string ComputeHash(string password)

@@ -9,7 +9,7 @@ using Xtensive.IoC;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
-  [Service(typeof (IHashingService), Singleton = true, Name = "SHA384")]
+  [Service(typeof (IHashingService), Singleton = true, Name = "sha384")]
   public class SHA384HashingService : GenericHashingService
   {
     public SHA384HashingService()

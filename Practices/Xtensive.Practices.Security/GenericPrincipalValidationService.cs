@@ -15,7 +15,7 @@ using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security
 {
-  [Service(typeof(IPrincipalValidationService), Singleton = true, Name = "DEFAULT")]
+  [Service(typeof(IPrincipalValidationService), Singleton = true, Name = "default")]
   public class GenericPrincipalValidationService : SessionBound, IPrincipalValidationService
   {
     public IPrincipal Validate(IIdentity identity, params object[] args)
@@ -43,6 +43,9 @@ namespace Xtensive.Practices.Security
       var config = Session.GetSecurityConfiguration();
       var service = Session.Services.Get<IHashingService>(config.HashingServiceName);
 
+      if (service == null)
+        throw new InvalidOperationException(string.Format("Hashing service by name {0} is not found. Check Xtensive.Security configuration", config.HashingServiceName));
+
       // GenericPrincipal is not found in the model, let's find its descendant
       var model = Session.Domain.Model;
       var rootPrincipalType = model.Hierarchies
@@ -50,7 +53,7 @@ namespace Xtensive.Practices.Security
         .FirstOrDefault(t => typeof (GenericPrincipal).IsAssignableFrom(t));
 
       if (rootPrincipalType == null)
-        throw new InvalidOperationException("No descendants of GenericPrincipal are found in domain model");
+        throw new InvalidOperationException("No descendants of GenericPrincipal type are found in domain model");
 
       var candidate = (Session.Query.All(rootPrincipalType) as IQueryable<GenericPrincipal>)
         .Where(u => u.Name == username)

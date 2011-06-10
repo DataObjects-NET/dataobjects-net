@@ -61,7 +61,7 @@ namespace Xtensive.Practices.Security
           candidates.Add(InsecureQuery.All<T>().Where(where).Concat(permission.Query(this, InsecureQuery).OfType<T>()));
         }
         // Query<Dog> && Permission<Animal>
-        else {
+        else if (permissionType.IsAssignableFrom(queryType)) {
           // Permission doesn't have restrictive query. Investigation of other permissions doesn't make sense
           if (permission.Query == null)
             return InsecureQuery.All<T>();

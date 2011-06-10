@@ -10,7 +10,7 @@ using Xtensive.IoC;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
-  [Service(typeof (IHashingService), Singleton = true, Name = "MD5")]
+  [Service(typeof (IHashingService), Singleton = true, Name = "md5")]
   public class MD5HashingService : GenericHashingService
   {
     public MD5HashingService()

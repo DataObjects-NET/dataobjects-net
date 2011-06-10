@@ -40,7 +40,14 @@ namespace Xtensive.Practices.Security.Cryptography
 
     public bool VerifyHash(string password, string hash)
     {
-      var source = Convert.FromBase64String(hash);
+      byte[] source;
+      try {
+        source = Convert.FromBase64String(hash);
+      }
+      catch (FormatException) {
+        return false;
+      }
+
       int hashSize = HashAlgorithm.HashSize/8;
 
       if (source.Length < hashSize)

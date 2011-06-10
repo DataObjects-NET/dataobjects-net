@@ -19,6 +19,10 @@ namespace Xtensive.Practices.Security
     {
       var config = Session.GetSecurityConfiguration();
       var service = Session.Services.Get<IHashingService>(config.HashingServiceName);
+
+      if (service == null)
+        throw new InvalidOperationException(string.Format("Hashing service by name {0} is not found. Check Xtensive.Security configuration", config.HashingServiceName));
+
       PasswordHash = service.ComputeHash(password);
     }
 
