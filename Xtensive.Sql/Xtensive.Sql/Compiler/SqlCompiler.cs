@@ -1183,10 +1183,6 @@ namespace Xtensive.Sql.Compiler
         node.Limit.AcceptVisitor(this);
       }
       if (!node.Offset.IsNullReference()) {
-        if (node.Limit.IsNullReference()) {
-          context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
-          context.Output.AppendText(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
-        }
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
         node.Offset.AcceptVisitor(this);
       }

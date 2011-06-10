@@ -99,7 +99,7 @@ namespace Xtensive.Sql.Firebird.v2_5
       if (literalType == typeof (byte[])) {
         var values = (byte[]) literalValue;
         var builder = new StringBuilder(2*(values.Length + 1));
-        builder.Append("'");
+        builder.Append("x'");
         builder.AppendHexArray(values);
         builder.Append("'");
         return builder.ToString();
@@ -274,10 +274,10 @@ namespace Xtensive.Sql.Firebird.v2_5
       switch (section) {
         case NodeSection.Entry:
           return "SET GENERATOR " + Translate(node.Sequence);
-        default:
+        case NodeSection.Exit:
           return "TO " + (node.SequenceDescriptor.LastValue.HasValue ? node.SequenceDescriptor.LastValue : 0);
       }
-
+      return string.Empty;
     }
 
     /// <inheritdoc/>

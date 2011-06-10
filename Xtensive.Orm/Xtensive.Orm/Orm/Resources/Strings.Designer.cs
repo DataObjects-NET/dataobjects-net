@@ -1908,7 +1908,7 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OfType supports casting only inside Entity hierarchy..
+        ///   Looks up a localized string similar to OfType supports casting only inside IEntity hierarchy..
         /// </summary>
         internal static string ExOfTypeSupportsOnlyEntityConversion {
             get {

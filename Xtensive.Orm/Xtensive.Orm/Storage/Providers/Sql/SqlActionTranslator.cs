@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
@@ -71,6 +72,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage stage;
+    private static StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
     private bool IsSequencesAllowed
     {
@@ -363,6 +365,12 @@ namespace Xtensive.Storage.Providers.Sql
       var toTable = FindTable(copiedColumns[0].Second.Parent.Name);
       var toTableRef = SqlDml.TableRef(toTable);
       var update = SqlDml.Update(toTableRef);
+
+      if (fromTable == toTable) {
+        copiedColumns.ForEach(pair => update.Values[toTableRef[pair.Second.Name]] = toTableRef[pair.First.Name]);
+        RegisterCommand(update, NonTransactionalStage.None);
+        return;
+      }
 
       if (providerInfo.Supports(ProviderFeatures.UpdateFrom)) {
         var fromTableRef = SqlDml.TableRef(fromTable);
@@ -685,6 +693,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (IsSequencesAllowed) {
         var exisitingSequence = schema.Sequences[sequenceInfo.Name];
         var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
+        newSequenceDescriptor.LastValue = currentValue;
         exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
         RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor), NonTransactionalStage.None);
       }
@@ -933,11 +942,15 @@ namespace Xtensive.Storage.Providers.Sql
 
       // Copy values if possible to convert type
       if (TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
-        || enforceChangedColumns.Contains(sourceColumn.Path)) {
+        || enforceChangedColumns.Contains(sourceColumn.Path, StringComparer.OrdinalIgnoreCase)) {
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
-        if (newTypeInfo.IsNullable)
-          copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
+        if (newTypeInfo.IsNullable) {
+          if (sourceColumn.Type.Type.StripNullable() == typeof(string) && newSqlType.Length < column.DataType.Length)
+            copyValues.Values[tableRef[originalName]] = SqlDml.Cast(SqlDml.Substring(tableRef[tempName], 0, newSqlType.Length), newSqlType);
+          else
+            copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
+        }
         else {
           var getValue = SqlDml.Case();
           getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
@@ -1088,7 +1101,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
-      while (column.Table.Columns.Any(tableColumn=>tableColumn.Name==tempName))
+      while (column.Table.Columns.Any(tableColumn => stringComparer.Compare(tableColumn.Name, tempName) == 0))
         tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
 
       return tempName;
@@ -1096,19 +1109,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Table FindTable(string name)
     {
-      return schema.Tables.FirstOrDefault(t => t.Name==name);
+      return schema.Tables.FirstOrDefault(t => stringComparer.Compare(t.Name, name) == 0);
     }
 
     private TableColumn FindColumn(Table table, string name)
     {
       return table.TableColumns.
-        FirstOrDefault(c => c.Name==name);
+        FirstOrDefault(c => stringComparer.Compare(c.Name, name) == 0);
     }
 
     private TableColumn FindColumn(string tableName, string columnName)
     {
       return FindTable(tableName).TableColumns.
-        FirstOrDefault(c => c.Name==columnName);
+        FirstOrDefault(c => stringComparer.Compare(c.Name, columnName) == 0);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)

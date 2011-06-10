@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Storage
         var futureScalarUnitPrice = session.Query.ExecuteDelayed(
           qe => qe.All<Product>().Where(p => p.ProductType == ProductType.Active).Count());
         var futureSequenceProduct = session.Query.ExecuteDelayed(
-          qe => qe.All<Product>().Where(p => p.ProductName.GreaterThan("c")));
+          qe => qe.All<Product>().Where(p => p.ProductName.Contains("c")));
         var futureScalarFreight = session.Query.ExecuteDelayed(
           qe => qe.All<Order>().Average(o => o.Freight));
         Assert.Greater(futureSequenceOrder.Count(), 0); // Count() here is IEnumerable.Count()
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void CachingFutureSequenceTest()
     {
-      Func<Session.QueryEndpoint,IQueryable<Order>> futureQueryDelegate = GetFutureSequenceQuery;
+      Func<QueryEndpoint,IQueryable<Order>> futureQueryDelegate = GetFutureSequenceQuery;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
         var futureSequenceOrder = session.Query.ExecuteDelayed(futureQueryDelegate);
@@ -98,12 +98,12 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    private IQueryable<Order> GetFutureSequenceQuery(Session.QueryEndpoint queryEndpoint)
+    private IQueryable<Order> GetFutureSequenceQuery(QueryEndpoint queryEndpoint)
     {
       return Session.Demand().Query.All<Order>().Where(o => o.Freight > searchedFreight);
     }
 
-    private IQueryable<Order> GetFutureSequenceQueryFake(Session.QueryEndpoint queryEndpoint)
+    private IQueryable<Order> GetFutureSequenceQueryFake(QueryEndpoint queryEndpoint)
     {
       return null;
     }

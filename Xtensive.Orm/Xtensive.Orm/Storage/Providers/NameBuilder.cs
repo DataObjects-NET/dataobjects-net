@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Providers
             names[i] = BuildGenericTypeName(argument, null);
         }
       }
-      return string.Format(GenericTypePattern, typeName, string.Join("-", names));
+      return ApplyNamingRules(string.Format(GenericTypePattern, typeName, string.Join("-", names)));
     }
 
     /// <summary>
@@ -161,6 +161,16 @@ namespace Xtensive.Storage.Providers
     public virtual string BuildForeignKeyName(AssociationInfo association, FieldInfo referencingField)
     {
       return ApplyNamingRules(string.Format("FK_{0}_{1}", association.Name, referencingField.Name));
+    }
+
+    /// <summary>
+    /// Builds foreign key name by association.
+    /// </summary>
+    /// <returns>Foreign key name.</returns>
+    public virtual string BuildForeignKeyName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
+    {
+      return ApplyNamingRules(string.Format("FK_{0}_{1}", 
+        BuildAssociationName(ownerType, ownerField, targetType), ownerField.Name));
     }
 
     /// <summary>
@@ -429,6 +439,21 @@ namespace Xtensive.Storage.Providers
         target.OwnerType.Name, 
         target.OwnerField.Name, 
         target.TargetType.Name));
+    }
+
+    /// <summary>
+    /// Builds the name for the <see cref="AssociationInfo"/>.
+    /// </summary>
+    /// <param name="ownerType">Type of the owner.</param>
+    /// <param name="ownerField">The owner field.</param>
+    /// <param name="targetType">Type of the target.</param>
+    /// <returns>Association name.</returns>
+    public virtual string BuildAssociationName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
+    {
+      return ApplyNamingRules(string.Format(AssociationPattern, 
+        ownerType.Name, 
+        ownerField.Name, 
+        targetType.Name));
     }
 
     /// <summary>

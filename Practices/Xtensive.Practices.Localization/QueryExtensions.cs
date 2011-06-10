@@ -20,7 +20,7 @@ namespace Xtensive.Practices.Localization
     /// <typeparam name="TTarget">The type of the target.</typeparam>
     /// <typeparam name="TLocalization">The type of the localization.</typeparam>
     /// <returns></returns>
-    public static IQueryable<LocalizationPair<TTarget, TLocalization>> All<TTarget, TLocalization>(this Session.QueryEndpoint query) where TTarget: Entity where TLocalization: Localization<TTarget>
+    public static IQueryable<LocalizationPair<TTarget, TLocalization>> All<TTarget, TLocalization>(this QueryEndpoint query) where TTarget: Entity where TLocalization: Localization<TTarget>
     {
       return from target in query.All<TTarget>()
       join localization in query.All<TLocalization>()

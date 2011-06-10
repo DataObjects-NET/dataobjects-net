@@ -72,13 +72,11 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open(session))
-      {
-
-        Query.All<IHasLegs>().ToList();
-        t.Complete();
-      }
+      using (var s = Domain.OpenSession())
+        using (var t = s.OpenTransaction()) {
+          s.Query.All<IHasLegs>().ToList();
+          t.Complete();
+        }
     }
   }
 }

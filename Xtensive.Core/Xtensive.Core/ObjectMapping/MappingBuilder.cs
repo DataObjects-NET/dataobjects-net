@@ -227,6 +227,10 @@ namespace Xtensive.ObjectMapping
       var properties = targetType.SystemType.GetProperties();
       for (var i = 0; i < properties.Length; i++) {
         var property = properties[i];
+        // Handling indexers
+        var indexParameters = property.GetIndexParameters();
+        if (indexParameters.Length > 0)
+          continue;
         PropertyDescription propertyDescription;
         if (targetType.Properties.TryGetValue(property, out propertyDescription))
           BindToSource(targetType, (TargetPropertyDescription) propertyDescription);

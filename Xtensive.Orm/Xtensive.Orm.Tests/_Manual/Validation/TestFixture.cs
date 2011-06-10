@@ -6,25 +6,25 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests._Manual.Validation;
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests._Manual.Validation
 {
   [TestFixture]
-  public class TestFixture
+  public class TestFixture : AutoBuildTest
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      return config;
+    }
+
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
-      var domain = Domain.Build(config);
-
-      using (var session = domain.OpenSession()) {
+      using (var session = Domain.OpenSession()) {
         try {
           using (var transactionScope = session.OpenTransaction()) {
             using (var inconsistencyRegion = session.DisableValidation()) {

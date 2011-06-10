@@ -6,14 +6,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Xtensive.Orm.ObjectMapping;
 
 namespace Xtensive.Orm.Tests.Storage.ObjectMapping.Model
 {
   [Serializable]
-  public class IdentifiableDto
+  public class IdentifiableDto : IDataErrorInfo
   {
     public string Key {get; set; }
+
+    public string this[string columnName]
+    {
+      get { throw new NotImplementedException(); }
+      set { throw new NotImplementedException(); }
+    }
+
+    public string Error
+    {
+      get { throw new NotImplementedException(); }
+    }
   }
 
   [Serializable]

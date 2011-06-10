@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Building.Builders
     private static void RemoveTemporaryDefinitions()
     {
       var modelDef = BuildingContext.Demand().ModelDef;
-      var ientityDef = modelDef.Types[typeof (IEntity)];
+      var ientityDef = modelDef.Types.TryGetValue(typeof (IEntity));
       if (ientityDef != null)
         modelDef.Types.Remove(ientityDef);
     }
@@ -258,6 +258,25 @@ namespace Xtensive.Orm.Building.Builders
         context.DiscardedAssociations.Clear();
 
         foreach (var association in context.Model.Associations) {
+          if (association.Multiplicity.In(Multiplicity.OneToOne, Multiplicity.ZeroToOne)) {
+            var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
+            var ass = association;
+            var field = ass.OwnerField;
+            bool aggregation = true;
+            while (field.Parent != null) {
+              field = field.Parent;
+              aggregation = aggregation && field.IsStructure;
+            }
+            if (aggregation) {
+              Func<IndexDef, bool> predicate =
+                i => i.IsSecondary && i.KeyFields.Count == 1 && i.KeyFields[0].Key == ass.OwnerField.Name;
+              if (!typeDef.Indexes.Any(predicate)) {
+                var attribute = new IndexAttribute(ass.OwnerField.Name);
+                var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
+                typeDef.Indexes.Add(indexDef);
+              }
+            }
+          }
           if (association.IsPaired)
             continue;
           if (!association.OnOwnerRemove.HasValue)

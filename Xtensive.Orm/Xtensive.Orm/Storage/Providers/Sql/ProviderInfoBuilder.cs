@@ -111,8 +111,9 @@ namespace Xtensive.Storage.Providers.Sql
           si.TemporaryTable,
           si.UniqueConstraint
         }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
+
       return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? 
-        TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength);
+        TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength, si.PrimaryKey.ConstantName);
     }
   }
 }

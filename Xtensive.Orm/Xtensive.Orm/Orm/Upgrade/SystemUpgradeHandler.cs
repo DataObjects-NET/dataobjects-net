@@ -77,6 +77,11 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    public override bool CanUpgradeFrom(string oldVersion)
+    {
+      return true;
+    }
+
     private void CheckMetadata()
     {
       CheckAssemblies();

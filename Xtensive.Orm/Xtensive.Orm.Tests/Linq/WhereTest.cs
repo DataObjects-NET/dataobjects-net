@@ -1281,13 +1281,13 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void JoinTest()
     {
-      var actual = from customer in Query.All<Customer>()
+      var actual = from customer in Session.Query.All<Customer>()
         join order in Session.Query.All<Order>() on customer equals order.Customer
         where order.Freight > 30
         orderby new {customer, order}
         select new {customer, order};
       var list = actual.ToList();
-      var expected = from customer in Query.All<Customer>().ToList()
+      var expected = from customer in Session.Query.All<Customer>().ToList()
         join order in Session.Query.All<Order>().ToList() on customer equals order.Customer
         where order.Freight > 30
         orderby customer.Id , order.Id

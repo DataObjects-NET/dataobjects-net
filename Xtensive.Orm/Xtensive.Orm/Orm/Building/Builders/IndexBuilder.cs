@@ -78,7 +78,8 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var parent in interfaces)
         foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           var index = BuildInheritedIndex(@interface, parentIndex, false);
-
+          if (@interface.Indexes.Contains(index.Name)) 
+            continue;
           @interface.Indexes.Add(index);
           if (@interface.IsMaterialized)
             BuildingContext.Demand().Model.RealIndexes.Add(index);

@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void BuildTest()
+    public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
@@ -81,14 +81,10 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
       Assert.IsTrue(true);
-    }
 
-    [Test]
-    public void QueryTest()
-    {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var speciality = session.Query.Single<Speciality>(1);
+          var speciality = session.Query.All<Speciality>().First();
           var list =
             from doctor in speciality.Doctors
             select new {
