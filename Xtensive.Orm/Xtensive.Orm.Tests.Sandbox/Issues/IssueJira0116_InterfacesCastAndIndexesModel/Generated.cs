@@ -83,6 +83,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0116_InterfacesCastAndIndexesModel
     [Field]
     public String Name { get; set; }
 
+    [Field(Length = 3)]
+    public string Code { get; set; }
+
     public Country(IParty createdBy)
       : base(createdBy)
     {

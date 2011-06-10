@@ -15,25 +15,26 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0116_InterfacesCastAndIndexes : AutoBuildTest
   {
-    #region Setup/Teardown
-
     [SetUp]
     public void SetUp()
     {
       using (Session session = Domain.OpenSession()) {
         using (TransactionScope t = session.OpenTransaction()) {
           for (int i = 0; i < 10; i++) {
-            var p = new Employee((IParty) null)
+            var p = new Employee(null)
                       {
                         FirstName = "Person " + i
                       };
+            new Country(null)
+              {
+                Name = "Country " + i,
+                Code = i.ToString()
+              };
           }
           t.Complete();
         }
       }
     }
-
-    #endregion
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -48,6 +49,16 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         session.Query.All(typeof (IEmployee)).Cast<IRecord>().ToList();
+      }
+    }
+
+    [Test]
+    public void OfTypeTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        session.Query.All(typeof (IRecord)).OfType<ICountry>().ToList();
+        session.Query.All(typeof (IRecord)).OfType<Country>().ToList();
         session.Query.All(typeof (IRecord)).OfType<Employee>().ToList();
         session.Query.All(typeof (IRecord)).OfType<IEmployee>().ToList();
       }
