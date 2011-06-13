@@ -21,11 +21,11 @@ namespace Xtensive.Practices.Security.Tests
       Assert.IsNotNull(section);
       Assert.IsNotNull(section.HashingService);
       Assert.IsNotNull(section.HashingService.Name);
-      Assert.AreEqual("MD5", section.HashingService.Name);
+      Assert.AreEqual("md5", section.HashingService.Name);
 
       var config = SecurityConfiguration.Load("Xtensive.Security.Name");
       Assert.IsNotNull(config);
-      Assert.AreEqual("MD5", config.HashingServiceName);
+      Assert.AreEqual("md5", config.HashingServiceName);
     }
 
     [Test]
@@ -36,9 +36,33 @@ namespace Xtensive.Practices.Security.Tests
       Assert.IsNotNull(section.HashingService);
       Assert.IsNullOrEmpty(section.HashingService.Name);
 
-      var config = SecurityConfiguration.Load("Xtensive.Security.Empty");
+      var config = SecurityConfiguration.Load("Xtensive.Security.Absent");
       Assert.IsNotNull(config);
-      Assert.AreEqual("PLAIN", config.HashingServiceName);
+      Assert.AreEqual("plain", config.HashingServiceName);
+    }
+
+    [Test]
+    public void HashingServiceAbsentTest()
+    {
+      var section = (Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Security.Absent");
+      Assert.IsNotNull(section);
+      Assert.IsNotNull(section.HashingService);
+      Assert.IsNullOrEmpty(section.HashingService.Name);
+
+      var config = SecurityConfiguration.Load("Xtensive.Security.Absent");
+      Assert.IsNotNull(config);
+      Assert.AreEqual("plain", config.HashingServiceName);
+    }
+
+    [Test]
+    public void HashingServiceNoConfigTest()
+    {
+      var section = (Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Security.XXX");
+      Assert.IsNull(section);
+
+      var config = SecurityConfiguration.Load("Xtensive.Security.XXX");
+      Assert.IsNotNull(config);
+      Assert.AreEqual("plain", config.HashingServiceName);
     }
 
     [Test]
@@ -48,11 +72,11 @@ namespace Xtensive.Practices.Security.Tests
       Assert.IsNotNull(section);
       Assert.IsNotNull(section.HashingService);
       Assert.IsNotNullOrEmpty(section.HashingService.Name);
-      Assert.AreEqual("SHA1", section.HashingService.Name);
+      Assert.AreEqual("sha1", section.HashingService.Name);
 
       var config = SecurityConfiguration.Load();
       Assert.IsNotNull(config);
-      Assert.AreEqual("SHA1", config.HashingServiceName);
+      Assert.AreEqual("sha1", config.HashingServiceName);
     }
   }
 }

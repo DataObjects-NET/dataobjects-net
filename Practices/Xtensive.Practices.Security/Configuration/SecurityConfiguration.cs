@@ -30,18 +30,14 @@ namespace Xtensive.Practices.Security.Configuration
     public static SecurityConfiguration Load(string sectionName)
     {
       var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
-      if (section==null)
-        throw new InvalidOperationException(string.Format(
-          "Section {0} is not found in application configuration file", sectionName));
-
       var result = new SecurityConfiguration();
 
-      string hashingService = section.HashingService.Name;
+      string hashingService = section == null ? string.Empty : section.HashingService.Name;
       if (string.IsNullOrEmpty(hashingService))
         hashingService = "plain";
       result.HashingServiceName = hashingService.ToLowerInvariant();
 
-      string validationService = section.ValidationService.Name;
+      string validationService = section == null ? string.Empty : section.ValidationService.Name;
       if (string.IsNullOrEmpty(validationService))
         validationService = "default";
       result.ValidationServiceName = validationService.ToLowerInvariant();
