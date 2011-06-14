@@ -18,18 +18,18 @@ namespace Xtensive.Practices.Security.Tests
     [Test]
     public void SessionImpersonateTest()
     {
-      using (var s = Domain.OpenSession()) {
-        using (var t = s.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        using (var trx = session.OpenTransaction()) {
           
-          var u = s.Query.All<Employee>().First();
-          var ic = s.Impersonate(u);
+          var u = session.Query.All<Employee>().First();
+          var ic = session.Impersonate(u);
           Assert.IsNotNull(ic);
-          Assert.IsNotNull(s.GetImpersonationContext());
-          Assert.AreSame(ic, s.GetImpersonationContext());
+          Assert.IsNotNull(session.GetImpersonationContext());
+          Assert.AreSame(ic, session.GetImpersonationContext());
           Assert.AreSame(u, ic.Principal);
 
           ic.Undo();
-          Assert.IsNull(s.GetImpersonationContext());
+          Assert.IsNull(session.GetImpersonationContext());
 
           // Should not fail in case multiple Undo
           ic.Undo();
@@ -37,13 +37,13 @@ namespace Xtensive.Practices.Security.Tests
           // Should not fail if Dispose after Undo
           ic.Dispose();
 
-          ic = s.Impersonate(u);
+          ic = session.Impersonate(u);
           ic.Dispose();
-          Assert.IsNull(s.GetImpersonationContext());
+          Assert.IsNull(session.GetImpersonationContext());
           // Should not fail if Undo after Dispose
           ic.Undo();
 
-          t.Complete();
+          trx.Complete();
         }
       }
     }
