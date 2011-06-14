@@ -5,8 +5,6 @@
 // Created:    2011.04.29
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
@@ -189,6 +187,33 @@ namespace Xtensive.Sql.SQLite.v3
             return base.Translate(context, node, section);
         }
 
+        public override string Translate(SqlCompilerContext context, SqlCreateView node, NodeSection section)
+        {
+            switch (section)
+            {
+                case NodeSection.Entry:
+                    var sb = new StringBuilder();
+                    if (node.View.ViewColumns.Count > 0)
+                    {
+                        sb.Append(" (");
+                        bool first = true;
+                        foreach (DataTableColumn c in node.View.ViewColumns)
+                        {
+                            if (first)
+                                first = false;
+                            else
+                                sb.Append(ColumnDelimiter);
+                            sb.Append(c.DbName);
+                        }
+                        sb.Append(")");
+                    }
+                    return sb.ToString();
+                case NodeSection.Exit:
+                    return string.Empty;
+                default:
+                    return string.Empty;
+            }
+        }
         /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlDropIndex node)
         {
