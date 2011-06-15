@@ -234,12 +234,11 @@ namespace Xtensive.Sql.SQLite.v3
               new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12, 31)), "datetime");
 
             types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar", "char");
-            types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar", "varchar");
-            types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "ntext", "text", "xml");
+            types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "varchar", "nvarchar");
+            types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "text", "xml");
 
-            types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "binary");
-            types.VarBinary = DataTypeInfo.Stream(SqlType.VarBinary, common | index, 4000, "varbinary");
-            types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "image");
+            types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "blob");
+            //types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "clob");
 
             types.Guid = DataTypeInfo.Regular(SqlType.Guid, common | index, "uniqueidentifier");
 

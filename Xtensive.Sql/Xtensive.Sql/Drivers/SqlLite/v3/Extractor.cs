@@ -307,7 +307,7 @@ namespace Xtensive.Sql.SQLite.v3
             typeName = typeName.ToUpperInvariant();
 
             var spacePattern = new Regex(@"\s+");
-            var numberPattern = new Regex(@"(?<DataType>\w+)\((?<Precision>\d+)(,\s?(?<Scale>\d+))?\)");
+            var numberPattern = new Regex(@"(?<DataType>\w+)\((?<Precision>\d+)(,\s?(?<Scale>\d+))?\)"); //to get TYPE(P, S) e.g. NUMBER(5,2)
 
             var spacelessNumber = spacePattern.Replace(typeName, @" ");
             var match = numberPattern.Match(spacelessNumber);
@@ -370,12 +370,18 @@ namespace Xtensive.Sql.SQLite.v3
             if (realType.Contains("MEMO") || realType.Contains("TEXT"))
             {
                 precision = precision == 0 ? int.MaxValue : precision;
-                return new SqlValueType(SqlType.VarCharMax, precision);
+                return new SqlValueType(SqlType.VarCharMax);
             }
 
             if (realType.Contains("BLOB") || realType.Contains("GRAPHIC") || realType.Contains("IMAGE"))
             {
-                return new SqlValueType(SqlType.VarBinaryMax);
+                return new SqlValueType(SqlType.Binary);
+            }
+
+            if (realType == "CHAR" || realType == "NCHAR")
+            {
+                precision = precision == 0 ? int.MaxValue : precision;
+                return new SqlValueType(SqlType.Char, precision);
             }
 
             if (realType.Contains("CHAR"))

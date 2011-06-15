@@ -248,7 +248,7 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             sqlCommand.Prepare();
 
             DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);
-            Assert.AreEqual(r.RowCount, 489);
+            Assert.AreEqual(r.RowCount, 488);
         }
 
         [Test]
@@ -310,7 +310,8 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                                 FROM
                                   Customers c
                                   INNER JOIN Orders o ON (c.CustomerID = o.CustomerID)
-                                  INNER JOIN [Order Details] d ON (o.OrderID = d.OrderID)";
+                                  INNER JOIN [Order Details] d ON (o.OrderID = d.OrderID)
+                                  INNER JOIN [products] p ON (p.ProductID = d.ProductID)";
 
             SqlTableRef customer = SqlDml.TableRef(schema.Tables["customers"], "c");
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "o");
@@ -319,14 +320,14 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
 
 
             SqlSelect select = SqlDml.Select(customer.InnerJoin(orders, customer["CustomerID"] == orders["CustomerID"])
-                                                     .InnerJoin(orderDetails, orderDetails["OrderID"] == orders["EmployeeID"])
+                                                     .InnerJoin(orderDetails, orderDetails["OrderID"] == orders["OrderID"])
                                                      .InnerJoin(products, products["ProductID"] == orderDetails["ProductID"])
 
                                                      );
             select.Columns.Add(customer["CustomerID"]);
             select.Columns.Add(customer["CompanyName"]);
             select.Columns.Add(customer["ContactName"]);
-            select.Columns.Add(customer["ContactName"]);
+            select.Columns.Add(customer["ContactTitle"]);
             select.Columns.Add(orders["OrderDate"]);
             select.Columns.Add(orderDetails["ProductID"]);
             select.Columns.Add(products["ProductName"]);
@@ -338,7 +339,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test010()
         {
             string nativeSql = @"SELECT 
@@ -351,40 +351,39 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "o");
 
             SqlSelect select = SqlDml.Select(orders);
-            select.Columns.Add(orders["orderid"]);
-            select.Columns.Add(SqlDml.Round(orders["freight"] * 12, 1), "Rounded");
-            select.Where = orders["orderid"] == 10255;
+            select.Columns.Add(orders["OrderID"]);
+            select.Columns.Add(SqlDml.Round(orders["Freight"] * 12, 1), "Rounded");
+            select.Where = orders["OrderID"] == 10255;
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test011()
         {
             string nativeSql = @"SELECT 
                                   c.CustomerID,
-                                  c.FirstName,
-                                  c.LastName,
-                                  SUM(p.freight) AS Total
+                                  c.CompanyName,
+                                  c.ContactName,
+                                  SUM(p.Freight) AS Total
                                 FROM
-                                  customer c
+                                  Customers c
                                   INNER JOIN orders p ON (c.CustomerID = p.CustomerID)
                                 GROUP BY
                                   c.CustomerID,
-                                  c.FirstName,
-                                  c.LastName
+                                  c.CompanyName,
+                                  c.ContactName
                                 ORDER BY c.CustomerID";
 
-            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
-
-            SqlSelect select = SqlDml.Select(customer);
-            select.Columns.AddRange(customer["CustomerID"], customer["FirstName"], customer["LastName"]);
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customers"], "c");
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "p");
-            SqlSelect sumOfPayment = SqlDml.Select(orders);
-            sumOfPayment.Columns.Add(SqlDml.Sum(orders["freight"]));
-            sumOfPayment.Where = customer["CustomerID"] == orders["CustomerID"];
-            select.Columns.Add(sumOfPayment, "Total");
+
+            SqlSelect select = SqlDml.Select(
+                customer.InnerJoin(orders, customer["CustomerID"] == orders["CustomerID"]));
+
+            select.Columns.AddRange(customer["CustomerID"], customer["CompanyName"], customer["ContactName"]);
+            select.Columns.Add(SqlDml.Sum(orders["Freight"]), "Total");
+            select.GroupBy.AddRange(customer["CustomerID"], customer["CompanyName"], customer["ContactName"]);
 
             select.OrderBy.Add(customer["CustomerID"]);
 
@@ -392,7 +391,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test012()
         {
             string nativeSql = @"SELECT 
@@ -407,7 +405,7 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                                 GROUP BY
                                   p.ProductID";
 
-            SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "p");
+            SqlTableRef orders = SqlDml.TableRef(schema.Tables["order details"], "p");
 
             SqlSelect select = SqlDml.Select(orders);
             SqlCase totalPayment = SqlDml.Case(orders["ProductID"]);
@@ -423,7 +421,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test013()
         {
             string nativeSql = @"SELECT 
@@ -438,10 +435,10 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
 
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
             SqlSelect select = SqlDml.Select(orders);
-            select.Columns.AddRange(orders["EmployeeID"], orders["return_date"], orders["rental_date"]);
+            select.Columns.AddRange(orders["OrderID"], orders["EmployeeID"], orders["ShipName"]);
 
-            select.Where = SqlDml.IsNotNull(orders["return_date"]);
-            select.OrderBy.Add(orders["EmployeeID"]);
+            select.Where = SqlDml.IsNotNull(orders["ShipRegion"]);
+            select.OrderBy.Add(orders["OrderID"]);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
@@ -475,6 +472,22 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
+        public void Test014_1()
+        {
+            string nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.FunctionCall("DATE", "NOW", SqlDml.Native(string.Format("'{0} MONTHS'", 1))),
+                              "Days"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+
+
+        [Test]
         [Ignore("Not yet prepared for tests")]
         public void Test015()
         {
@@ -499,7 +512,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test016()
         {
             string nativeSql = "SELECT SUM(p.freight) AS sum FROM orders p";
@@ -507,7 +519,7 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "p");
 
             SqlSelect select = SqlDml.Select(orders);
-            select.Columns.Add(SqlDml.Sum(orders["freight"]), "sum");
+            select.Columns.Add(SqlDml.Sum(orders["Freight"]), "sum");
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
@@ -534,76 +546,74 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         {
             string nativeSql = @"SELECT 
                                   c.CustomerID,
-                                  c.FirstName,
-                                  c.LastName,
+                                  c.CompanyName,
+                                  c.ContactName,
                                   SUM(p.freight) AS Total
                                 FROM
-                                  customer c
+                                  customers c
                                   INNER JOIN orders p ON (c.CustomerID = p.CustomerID)
                                 GROUP BY
                                   c.CustomerID,
-                                  c.FirstName,
-                                  c.LastName
+                                  c.CompanyName,
+                                  c.ContactName
                                 HAVING SUM(p.freight) > 140";
 
-            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customers"], "c");
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "p");
 
             SqlSelect select = SqlDml.Select(customer.InnerJoin(orders, customer["CustomerID"] == orders["CustomerID"]));
 
             select.Columns.Add(customer["CustomerID"]);
-            select.Columns.Add(customer["FirstName"]);
-            select.Columns.Add(customer["LastName"]);
-            select.Columns.Add(SqlDml.Sum(orders["freight"]), "Total");
+            select.Columns.Add(customer["CompanyName"]);
+            select.Columns.Add(customer["ContactName"]);
+            select.Columns.Add(SqlDml.Sum(orders["Freight"]), "Total");
 
             select.GroupBy.Add(customer["CustomerID"]);
-            select.GroupBy.Add(customer["FirstName"]);
-            select.GroupBy.Add(customer["LastName"]);
+            select.GroupBy.Add(customer["CompanyName"]);
+            select.GroupBy.Add(customer["ContactName"]);
 
-            select.Having = SqlDml.Sum(orders["freight"]) > 140;
+            select.Having = SqlDml.Sum(orders["Freight"]) > 140;
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test019()
         {
             string nativeSql = @"SELECT 
                                     c.CustomerID,
-                                    c.FirstName,
-                                    c.LastName
+                                    c.CompanyName,
+                                    c.ContactName
                                 FROM
-                                    customer c
-                                WHERE c.CustomerID IN (SELECT r.CustomerID FROM orders r WHERE r.EmployeeID = 239)
+                                    customers c
+                                WHERE c.CustomerID IN (SELECT r.CustomerID FROM orders r WHERE r.EmployeeID = 8)
                                 GROUP BY c.CustomerID,
-                                    c.FirstName,
-                                    c.LastName";
+                                    c.CompanyName,
+                                    c.ContactName";
 
-            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customers"], "c");
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
 
             SqlSelect innerSelect = SqlDml.Select(orders);
             innerSelect.Columns.Add(orders["CustomerID"]);
-            innerSelect.Where = orders["EmployeeID"] == 239;
+            innerSelect.Where = orders["EmployeeID"] == 8;
 
             SqlSelect select = SqlDml.Select(customer);
 
             select.Columns.Add(customer["CustomerID"]);
-            select.Columns.Add(customer["FirstName"]);
-            select.Columns.Add(customer["LastName"]);
+            select.Columns.Add(customer["CompanyName"]);
+            select.Columns.Add(customer["ContactName"]);
 
             select.Where = SqlDml.In(customer["CustomerID"], innerSelect);
 
             select.GroupBy.Add(customer["CustomerID"]);
-            select.GroupBy.Add(customer["FirstName"]);
-            select.GroupBy.Add(customer["LastName"]);
+            select.GroupBy.Add(customer["CompanyName"]);
+            select.GroupBy.Add(customer["ContactName"]);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test020()
         {
             string nativeSql = @"SELECT 
@@ -615,13 +625,13 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                                 FROM
                                   products f
                                 WHERE
-                                  f.UnitsOnOrder BETWEEN 4 AND 5
+                                  f.UnitsOnOrder BETWEEN 5 AND 40
                                 ORDER BY f.ProductID";
 
             SqlTableRef products = SqlDml.TableRef(schema.Tables["products"], "f");
             SqlSelect select = SqlDml.Select(products);
-            select.Columns.AddRange(products["ProductID"], products["title"], products["description"], products["UnitPrice"], products["UnitsInStock"]);
-            select.Where = SqlDml.Between(products["UnitsOnOrder"], 4, 5);
+            select.Columns.AddRange(products["ProductID"], products["ProductName"], products["QuantityPerUnit"], products["UnitPrice"], products["UnitsInStock"]);
+            select.Where = SqlDml.Between(products["UnitsOnOrder"], 5, 40);
             select.OrderBy.Add(products["ProductID"]);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -629,7 +639,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
 
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test021()
         {
             string nativeSql = @"SELECT 
@@ -641,20 +650,19 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                                 FROM
                                   products f
                                 WHERE
-                                  f.CategoryID in ('PG', 'PG-13', 'R')
+                                  f.CategoryID in (2, 8)
                                 ORDER BY f.ProductID";
 
             SqlTableRef products = SqlDml.TableRef(schema.Tables["products"], "f");
             SqlSelect select = SqlDml.Select(products);
-            select.Columns.AddRange(products["ProductID"], products["title"], products["description"], products["UnitPrice"], products["CategoryID"]);
-            select.Where = SqlDml.In(products["CategoryID"], SqlDml.Row("PG", "PG-13", "R"));
+            select.Columns.AddRange(products["ProductID"], products["ProductName"], products["QuantityPerUnit"], products["UnitPrice"], products["CategoryID"]);
+            select.Where = SqlDml.In(products["CategoryID"], SqlDml.Row(2, 8));
             select.OrderBy.Add(products["ProductID"]);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test022()
         {
             string nativeSql = @"SELECT 
@@ -666,20 +674,19 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                                 FROM
                                   products f
                                 WHERE
-                                  f.ShipName LIKE 'R%'
+                                  f.ProductName LIKE 'R%'
                                 ORDER BY f.ProductID";
 
             SqlTableRef products = SqlDml.TableRef(schema.Tables["products"], "f");
             SqlSelect select = SqlDml.Select(products);
-            select.Columns.AddRange(products["ProductID"], products["title"], products["description"], products["UnitPrice"], products["CategoryID"]);
-            select.Where = SqlDml.Like(products["ShipName"], "R%");
+            select.Columns.AddRange(products["ProductID"], products["ProductName"], products["QuantityPerUnit"], products["UnitPrice"], products["CategoryID"]);
+            select.Where = SqlDml.Like(products["ProductName"], "R%");
             select.OrderBy.Add(products["ProductID"]);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test023()
         {
             string nativeSql = @"SELECT 
@@ -690,16 +697,16 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                                 FROM
                                   products f
                                 WHERE
-                                  (f.CategoryID = 'PG' OR 
-                                  f.CategoryID = 'PG-13') AND 
+                                  (f.CategoryID = 3 OR 
+                                  f.CategoryID = 8) AND 
                                   f.UnitsInStock < 100
                                 ORDER BY
                                   f.ProductID";
 
             SqlTableRef products = SqlDml.TableRef(schema.Tables["products"], "f");
             SqlSelect select = SqlDml.Select(products);
-            select.Columns.AddRange(products["ProductID"], products["title"], products["description"], products["UnitsInStock"]);
-            select.Where = (products["CategoryID"] == "PG" || products["CategoryID"] == "PG-13") && products["UnitsInStock"] < 100;
+            select.Columns.AddRange(products["ProductID"], products["ProductName"], products["QuantityPerUnit"], products["UnitsInStock"]);
+            select.Where = (products["CategoryID"] == 3 || products["CategoryID"] == 8) && products["UnitsInStock"] < 100;
             select.OrderBy.Add(products["ProductID"]);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -741,7 +748,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test026()
         {
             string nativeSql = @"SELECT 
@@ -750,47 +756,45 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                                 FROM
                                   orders p
                                 WHERE
-                                  p.freight = (SELECT MAX(freight) AS LowestPayment FROM orders)";
+                                  p.freight = (SELECT MIN(freight) AS LowestPayment FROM orders)";
 
             SqlTableRef orders1 = SqlDml.TableRef(schema.Tables["orders"], "p1");
             SqlTableRef orders2 = SqlDml.TableRef(schema.Tables["orders"], "p2");
 
             SqlSelect innerSelect = SqlDml.Select(orders2);
-            innerSelect.Columns.Add(SqlDml.Max(orders2["freight"]));
+            innerSelect.Columns.Add(SqlDml.Min(orders2["Freight"]));
 
             SqlSelect select = SqlDml.Select(orders1);
-
             select.Columns.Add(orders1["CustomerID"]);
-            select.Columns.Add(orders1["freight"]);
+            select.Columns.Add(orders1["Freight"]);
 
-            select.Where = SqlDml.Equals(orders1["freight"], innerSelect);
+            select.Where = SqlDml.Equals(orders1["Freight"], innerSelect);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test027()
         {
             string nativeSql = @"SELECT 
                                   c.CustomerID,
-                                  c.FirstName
+                                  c.CompanyName
                                 FROM
-                                  customer c
+                                  customers c
                                 WHERE EXISTS
-                                    (SELECT * FROM orders p WHERE p.freight > 11.00 AND p.CustomerID = c.CustomerID )";
+                                    (SELECT * FROM orders p WHERE p.freight < 11.00 AND p.CustomerID = c.CustomerID )";
 
-            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customers"], "c");
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "p");
 
             SqlSelect innerSelect = SqlDml.Select(orders);
             SqlSelect select = SqlDml.Select(customer);
 
             innerSelect.Columns.Add(SqlDml.Asterisk);
-            innerSelect.Where = orders["freight"] > 11.00 && orders["CustomerID"] == customer["CustomerID"];
+            innerSelect.Where = orders["Freight"] < 11.00 && orders["CustomerID"] == customer["CustomerID"];
 
             select.Columns.Add(customer["CustomerID"]);
-            select.Columns.Add(customer["FirstName"]);
+            select.Columns.Add(customer["CompanyName"]);
             select.Where = SqlDml.Exists(innerSelect);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -811,17 +815,16 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test029()
         {
             string nativeSql = "UPDATE products "
-              + "SET UnitsInStock = UnitsInStock * 1.1 "
-                + "WHERE ProductID = 1;";
+              + "SET UnitsInStock = UnitsInStock * 1 "
+                + "WHERE ProductID = 10;";
 
-            SqlTableRef products = SqlDml.TableRef(schema.Tables["products"], "f");
+            SqlTableRef products = SqlDml.TableRef(schema.Tables["products"]);
             SqlUpdate update = SqlDml.Update(products);
-            update.Values[products["UnitsInStock"]] = products["UnitsInStock"] * 1.1;
-            update.Where = products["ProductID"] == 1;
+            update.Values[products["UnitsInStock"]] = products["UnitsInStock"] * 1;
+            update.Where = products["ProductID"] == 10;
 
             Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
         }
@@ -865,7 +868,7 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
+        [ExpectedException(typeof(NotSupportedException))]
         public void Test152()
         {
             SqlDropSchema drop = SqlDdl.Drop(Catalog.Schemas["main"]);
@@ -880,7 +883,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test154()
         {
             SqlCreateSchema create = SqlDdl.Create(Catalog.Schemas["main"]);
@@ -888,65 +890,63 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test155()
         {
             SqlAlterTable alter =
               SqlDdl.Alter(
-                Catalog.Schemas["main"].Tables["customer"],
-                SqlDdl.AddColumn(Catalog.Schemas["main"].Tables["customer"].TableColumns["FirstName"]));
+                Catalog.Schemas["main"].Tables["customers"],
+                SqlDdl.AddColumn(Catalog.Schemas["main"].Tables["customers"].TableColumns["CompanyName"]));
 
             Console.Write(Compile(alter));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
+        [ExpectedException(typeof(NotSupportedException))]
         public void Test156()
         {
             SqlAlterTable alter =
               SqlDdl.Alter(
-                Catalog.Schemas["main"].Tables["customer"],
-                SqlDdl.DropColumn(Catalog.Schemas["main"].Tables["customer"].TableColumns["FirstName"]));
+                Catalog.Schemas["main"].Tables["customers"],
+                SqlDdl.DropColumn(Catalog.Schemas["main"].Tables["customers"].TableColumns["CompanyName"]));
 
             Console.Write(Compile(alter));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
+        [ExpectedException(typeof(NotSupportedException))]
         public void Test157()
         {
-            var renameColumn = SqlDdl.Rename(Catalog.Schemas["main"].Tables["customer"].TableColumns["FirstName"], "FirstName");
+            var renameColumn = SqlDdl.Rename(Catalog.Schemas["main"].Tables["customers"].TableColumns["ContactTitle"], "ContactTitle1");
 
             Console.Write(Compile(renameColumn));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
+        [ExpectedException(typeof(NotSupportedException))]
         public void Test158()
         {
-            var t = Catalog.Schemas["main"].Tables["customer"];
-            Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["email"]);
+            var t = Catalog.Schemas["main"].Tables["customers"];
+            Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["Phone"]);
             SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
 
             Console.Write(Compile(stmt));
         }
 
-        [Test]
-        [Ignore("Works")]
-        public void Test159()
-        {
-            var t = Catalog.Schemas["main"].Tables["customer"];
-            Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["email"]);
-            SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(uc));
+        //[Test]
+        //[ExpectedException(typeof(NotSupportedException))]
+        //public void Test159()
+        //{
+        //    var t = Catalog.Schemas["main"].Tables["customers"];
+        //    Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["Phone"]);
+        //    SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(uc));
 
-            Console.Write(Compile(stmt));
-        }
+        //    Console.Write(Compile(stmt));
+        //}
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test160()
         {
-            var t = Catalog.Schemas["main"].Tables["customer"];
+            var t = Catalog.Schemas["main"].Tables["customers"];
             Index index = t.CreateIndex("MegaIndex195");
             index.CreateIndexColumn(t.TableColumns[0]);
             SqlCreateIndex create = SqlDdl.Create(index);
@@ -955,15 +955,21 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test161()
         {
-            var t = Catalog.Schemas["main"].Tables["customer"];
+            var t = Catalog.Schemas["main"].Tables["customers"];
             Index index = t.CreateIndex("MegaIndex196");
             index.CreateIndexColumn(t.TableColumns[0]);
             SqlDropIndex drop = SqlDdl.Drop(index);
 
             Console.Write(Compile(drop));
+        }
+
+        [Test]
+        public void Test162()
+        {
+            var alter = SqlDdl.Rename(Catalog.Schemas["main"].Tables["customers"], "SomeWierdTableName");
+            Console.Write(Compile(alter));
         }
 
 
@@ -1027,11 +1033,11 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
+        [ExpectedException(typeof(NotSupportedException))]
         public void Test165()
         {
-            var t = Catalog.Schemas["main"].Tables["table1"];
-            var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["field1"]);
+            var t = Catalog.Schemas["main"].Tables["SomeWierdTableName"];
+            var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["Field02"]);
             SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
 
             Console.Write(Compile(stmt));

@@ -126,4 +126,10 @@
   <data name="ExInvalidBooleanStringX" xml:space="preserve">
     <value>Invalid boolean string '{0}'.</value>
   </data>
+  <data name="ExTablePropertyIsNotSet" xml:space="preserve">
+    <value>ExTablePropertyIsNotSet</value>
+  </data>
+  <data name="ExUnboundColumn" xml:space="preserve">
+    <value>ExUnboundColumn {0}</value>
+  </data>
 </root>

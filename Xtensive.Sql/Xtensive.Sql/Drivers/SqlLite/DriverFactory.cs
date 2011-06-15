@@ -8,7 +8,7 @@ using System;
 using System.Data.SQLite;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
-using Xtensive.Sql.Drivers.SQLite.Resources;
+using Xtensive.Sql.Drivers.SqlLite.Resources;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.SQLite
@@ -41,8 +41,8 @@ namespace Xtensive.Sql.SQLite
                 connection.Open();
                 var version = new System.Version(connection.ServerVersion);
 
-                var builder = new SQLiteConnectionStringBuilder(connectionString);
-                builder.FailIfMissing = false;
+                //var builder = new SQLiteConnectionStringBuilder(connectionString);
+                //builder.FailIfMissing = false;
                 var dataSource = GetDataSource(connectionString);
                 var coreServerInfo = new CoreServerInfo
                 {
@@ -55,7 +55,7 @@ namespace Xtensive.Sql.SQLite
                 };
 
                 if (version.Major < 3)
-                    throw new NotSupportedException(Strings.ExSqliteBelow3IsNotSupported);
+                    throw new NotSupportedException(Strings.ExSqlLiteServerBelow3IsNotSupported);
                 return new v3.Driver(coreServerInfo);
             }
         }

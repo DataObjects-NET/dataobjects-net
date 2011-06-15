@@ -9,7 +9,7 @@ using System.Text;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Drivers.SQLite.Resources;
+using Xtensive.Sql.Drivers.SqlLite.Resources;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.SQLite.v3
@@ -120,12 +120,14 @@ namespace Xtensive.Sql.SQLite.v3
         {
             switch (section)
             {
+                case AlterTableSection.Entry:
+                    return "ALTER TABLE " + Translate(node.Table);
                 case AlterTableSection.AddColumn:
                     return "ADD";
-                case AlterTableSection.DropBehavior:
+                case AlterTableSection.Exit:
                     return string.Empty;
                 default:
-                    return base.Translate(context, node, section);
+                    throw new NotSupportedException();
             }
         }
 
@@ -214,10 +216,45 @@ namespace Xtensive.Sql.SQLite.v3
                     return string.Empty;
             }
         }
+
+        public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
+        {
+            switch (section)
+            {
+                case UpdateSection.Entry:
+                    return "UPDATE";
+                case UpdateSection.Set:
+                    return "SET";
+                case UpdateSection.From:
+                    return "FROM";
+                case UpdateSection.Where:
+                    return (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE";
+            }
+            return string.Empty;
+        }
+
+        public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+        {
+            Index index = node.Index;
+            switch (section)
+            {
+                case CreateIndexSection.Entry:
+                    return string.Format("CREATE {0} INDEX {1} ON {2} "
+                                         , index.IsUnique ? "UNIQUE" : String.Empty
+                                         , QuoteIdentifier(index.Name)
+                                         , index.DataTable.Name);
+
+                case CreateIndexSection.Exit:
+                    return string.Empty;
+                default:
+                    return base.Translate(context, node, section);
+            }
+        }
+
         /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlDropIndex node)
         {
-            return string.Format("DROP INDEX {0}.{1}", QuoteIdentifier(node.Index.DataTable.DbName), QuoteIdentifier(node.Index.DbName));
+            return string.Format("DROP INDEX {0}.{1}", node.Index.DataTable.Schema.Name, QuoteIdentifier(node.Index.DbName));
         }
 
         /// <inheritdoc/>
@@ -227,31 +264,6 @@ namespace Xtensive.Sql.SQLite.v3
                 return string.Empty;
             return base.Translate(context, node, section);
         }
-
-        //public override string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
-        //{
-        //    switch (section)
-        //    {
-        //        case JoinSection.Specification:
-        //            if (node.Expression == null)
-        //                switch (node.JoinType)
-        //                {
-        //                    case SqlJoinType.RightOuterJoin:
-        //                        throw new NotSupportedException();
-        //                    case SqlJoinType.FullOuterJoin:
-        //                        throw new NotSupportedException();
-        //                    case SqlJoinType.CrossApply:
-        //                        throw new NotSupportedException();
-        //                    case SqlJoinType.LeftOuterApply:
-        //                        throw new NotSupportedException();
-        //                }
-        //            var joinHint = TryFindJoinHint(context, node);
-        //            return Translate(node.JoinType)
-        //              + (joinHint != null ? " " + Translate(joinHint.Method) : string.Empty) + " JOIN";
-        //    }
-        //    return base.Translate(context, node, section);
-        //}
-
 
         /// <inheritdoc/>
         public override string Translate(SqlJoinMethod method)
@@ -270,7 +282,6 @@ namespace Xtensive.Sql.SQLite.v3
                     return string.Empty;
             }
         }
-
 
         /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
@@ -433,6 +444,7 @@ namespace Xtensive.Sql.SQLite.v3
                     return base.Translate(type);
             }
         }
+
         protected virtual string TranslateClrType(Type type)
         {
             switch (Type.GetTypeCode(type))
