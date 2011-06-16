@@ -290,7 +290,7 @@ namespace Xtensive.Sql.SQLite.v3
 
         private static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months)
         {
-            return SqlDml.FunctionCall("DATE", "NOW", SqlDml.Native(string.Format("'{0} MONTHS'", months)));
+            return SqlDml.FunctionCall("DATE", date, SqlDml.Native(string.Format("'{0} MONTHS'", months)));
         }
 
         private static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)

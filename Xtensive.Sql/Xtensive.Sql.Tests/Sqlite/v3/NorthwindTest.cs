@@ -485,6 +485,48 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
+        [Test]
+        public void Test014_2()
+        {
+            SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
+            SqlSelect select = SqlDml.Select(orders);
+            select.Columns.Add(
+                              SqlDml.FunctionCall("DATE", orders["RequiredDate"], SqlDml.Native(string.Format("'{0} MONTHS'", 1 + 1))),
+                              "TimeToToday"
+                              );
+            select.Where = SqlDml.IsNotNull(orders["RequiredDate"]);
+
+            Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+        }
+
+        [Test]
+        [Ignore("Not yet prepared for tests")]
+        public void Test014_3()
+        {
+            SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
+            SqlSelect select = SqlDml.Select(orders);
+            select.Columns.Add(
+                              SqlDml.DateTimeAddMonths(orders["RequiredDate"], 1 + 1),
+                              "TimeToToday"
+                              );
+            select.Where = SqlDml.IsNotNull(orders["RequiredDate"]);
+
+            Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+        }
+
+        [Test]
+        public void Test014_4()
+        {
+            string nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.DateTimeAddMonths("NOW", 1 + 1),
+                              "Days"
+                              );
+
+            Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+        }
 
 
         [Test]
@@ -852,6 +894,7 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
+
 
         [Test]
         public void Test150()
