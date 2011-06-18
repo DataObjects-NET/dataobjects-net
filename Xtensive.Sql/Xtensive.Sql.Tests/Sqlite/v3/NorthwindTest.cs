@@ -477,10 +477,7 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             string nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
 
             SqlSelect select = SqlDml.Select();
-            select.Columns.Add(
-                               SqlDml.FunctionCall("DATE", "NOW", SqlDml.Native(string.Format("'{0} MONTHS'", 1))),
-                              "Days"
-                              );
+            select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", 1), "Days" );
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
@@ -525,7 +522,7 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                               "Days"
                               );
 
-            Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
 
