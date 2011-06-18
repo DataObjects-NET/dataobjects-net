@@ -716,6 +716,10 @@ namespace Xtensive.Orm.Linq
         return false;
       if (expression.NodeType == ExpressionType.Constant)
         return true;
+      if (expression.NodeType == ExpressionType.Convert) {
+        var unary = (UnaryExpression)expression;
+        return IsConditionalOrWellknown(unary.Operand, false);
+      }
       if (!(expression is ExtendedExpression))
         return false;
 
@@ -825,7 +829,7 @@ namespace Xtensive.Orm.Linq
           GetConditionalKeyField(ce.IfFalse, keyFieldType, index));
       if (expression.IsNull())
         return Expression.Constant(null, keyFieldType.ToNullable());
-      var ee = (IEntityExpression) expression;
+      var ee = (IEntityExpression)expression.StripCasts();
       return ee.Key.KeyFields[index].LiftToNullable();
     }
 
