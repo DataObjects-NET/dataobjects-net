@@ -255,9 +255,20 @@ namespace Xtensive.IoC
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
     public static IServiceContainer Create(string name)
     {
-      var configuration = (Configuration.ConfigurationSection) ConfigurationManager.GetSection(
-        Configuration.ConfigurationSection.DefaultSectionName);
-      return Create(configuration, name);
+      return Create(name, null);
+    }
+
+    /// <summary>
+    /// Creates <see cref="IServiceContainer"/> by its configuration.
+    /// </summary>
+    /// <param name="name">The name of container configuration to create container for.</param>
+    /// <param name="parent">The parent container.</param>
+    /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
+    public static IServiceContainer Create(string name, IServiceContainer parent)
+    {
+      var configuration = (ConfigurationSection) ConfigurationManager.GetSection(
+        ConfigurationSection.DefaultSectionName);
+      return Create(configuration, name, parent);
     }
 
     /// <summary>
@@ -265,8 +276,24 @@ namespace Xtensive.IoC
     /// </summary>
     /// <param name="section">IoC configuration section.</param>
     /// <param name="name">The name of container configuration to create container for.</param>
-    /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
-    public static IServiceContainer Create(Configuration.ConfigurationSection section, string name)
+    /// <returns>
+    /// <see cref="IServiceContainer"/> for the specified named configuration.
+    /// </returns>
+    public static IServiceContainer Create(ConfigurationSection section, string name)
+    {
+      return Create(section, name, null);
+    }
+
+      /// <summary>
+    /// Creates <see cref="IServiceContainer"/> by its configuration.
+    /// </summary>
+    /// <param name="section">IoC configuration section.</param>
+    /// <param name="name">The name of container configuration to create container for.</param>
+    /// <param name="parent">The parent container.</param>
+    /// <returns>
+    /// <see cref="IServiceContainer"/> for the specified named configuration.
+    /// </returns>
+    public static IServiceContainer Create(ConfigurationSection section, string name, IServiceContainer parent)
     {
       if (name.IsNullOrEmpty())
         name = string.Empty;
@@ -285,12 +312,14 @@ namespace Xtensive.IoC
       foreach (var serviceRegistrationElement in configuration.Explicit)
         registrations.Add(serviceRegistrationElement.ToNative());
 
-      var parent = configuration.Parent.IsNullOrEmpty() ? null : Create(section, configuration.Parent);
+      var currentParent = configuration.Parent.IsNullOrEmpty() 
+        ? parent 
+        : Create(section, configuration.Parent, parent);
       
       var containerType = configuration.Type.IsNullOrEmpty() ? 
         typeof(ServiceContainer) : 
         Type.GetType(configuration.Type);
-      return Create(containerType, registrations, parent);
+      return Create(containerType, registrations, currentParent);
     }
 
 
