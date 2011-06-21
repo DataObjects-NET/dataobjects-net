@@ -108,9 +108,33 @@ namespace Xtensive.Sql.SQLite.v3
                 case SqlFunctionType.IntervalToNanoseconds:
                     Visit(CastToLong(node.Arguments[0]));
                     return;
-//                case SqlFunctionType.DateTimeAddMonths:
-//                    Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
-//                    return;
+                case SqlFunctionType.DateTimeAddMonths:
+                  using (context.EnterScope(node)) {
+                    context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Entry, -1));
+                    if (node.Arguments.Count > 0) {
+                      using (context.EnterCollectionScope()) {
+                        int argumentPosition = 0;
+                        foreach (SqlExpression item in node.Arguments) {
+                          if (!context.IsEmpty)
+                            context.Output.AppendDelimiter(translator.Translate(context, node, FunctionCallSection.ArgumentDelimiter, argumentPosition));
+                          context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentEntry, argumentPosition));
+                          if (argumentPosition == 1) {
+                            SqlLiteral l = item as SqlLiteral;
+                            if (l != null) {
+                              string value = translator.Translate(context, l.GetValue());
+                              context.Output.AppendText(string.Format("'{0} MONTH'", value));
+                            }
+                          }
+                          else
+                            item.AcceptVisitor(this);
+                          context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentExit, argumentPosition));
+                          argumentPosition++;
+                        }
+                      }
+                    }
+                    context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Exit, -1));
+                  }
+                  return;
                 case SqlFunctionType.DateTimeAddYears:
                     Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
                     return;

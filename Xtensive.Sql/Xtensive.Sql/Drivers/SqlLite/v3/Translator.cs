@@ -68,16 +68,16 @@ namespace Xtensive.Sql.SQLite.v3
                 if (section == FunctionCallSection.Exit)
                     return string.Empty;
             }
-            else if (node.FunctionType == SqlFunctionType.DateTimeAddMonths && position == 1) {
-                switch (section) {
-                    case FunctionCallSection.ArgumentEntry:
-                        return "'";
-                    case FunctionCallSection.ArgumentExit:
-                        return "MONTH'";
-                    default:
-                        return base.Translate(context, node, section, position);
-                }
-            }
+//            else if (node.FunctionType == SqlFunctionType.DateTimeAddMonths && position == 1) {
+//                switch (section) {
+//                    case FunctionCallSection.ArgumentEntry:
+//                        return "'";
+//                    case FunctionCallSection.ArgumentExit:
+//                        return "MONTH'";
+//                    default:
+//                        return base.Translate(context, node, section, position);
+//                }
+//            }
             switch (section)
             {
                 case FunctionCallSection.ArgumentEntry:
