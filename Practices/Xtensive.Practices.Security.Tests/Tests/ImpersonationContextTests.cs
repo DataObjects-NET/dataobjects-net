@@ -143,6 +143,13 @@ namespace Xtensive.Practices.Security.Tests
             ic.Undo();
           }
 
+          var u7 = s.Query.All<Employee>().Single(u => u.Name == "AllBranchOfficeManager");
+          using (var ic = s.Impersonate(u7)) {
+            
+            Assert.AreEqual(3, s.Query.All<Customer>().Count());
+            ic.Undo();
+          }
+
           t.Complete();
         }
       }

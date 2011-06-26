@@ -94,6 +94,11 @@ namespace Xtensive.Practices.Security.Tests
           var u6 = new Employee(session);
           u6.Roles.Add(northBranchOfficeManager);
           u6.Name = "NorthBranchOfficeManager";
+
+          var u7 = new Employee(session);
+          u7.Roles.Add(southBranchOfficeManager);
+          u7.Roles.Add(northBranchOfficeManager);
+          u7.Name = "AllBranchOfficeManager";
           t.Complete();
         }
       }
