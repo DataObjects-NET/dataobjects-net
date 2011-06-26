@@ -1,20 +1,31 @@
 ﻿using System.Collections.Generic;
+using Xtensive.Aspects;
 using Xtensive.Collections;
+using Xtensive.Orm;
+using Xtensive.Orm.Validation;
 
 namespace Xtensive.Practices.Security
 {
-  public abstract class Role
+  [Index("Name", Unique = true)]
+  public abstract class Role : Entity, IRole
   {
-    private readonly List<Permission> permissions;
-    private readonly ReadOnlyList<Permission> readOnlyPermissions;
+    private List<Permission> permissions;
+    private ReadOnlyList<Permission> readOnlyPermissions;
 
+    [NotNullConstraint(Mode = ConstrainMode.OnSetValue)]
+    [Field(Length = 128)]
     public string Name { get; protected set; }
 
+    [Field]
+    public EntitySet<IPrincipal> Principals { get; private set; }
+
+    [Infrastructure]
     public IList<Permission> Permissions
     {
       get { return readOnlyPermissions; }
     }
 
+    [Infrastructure]
     protected void RegisterPermission(Permission permission)
     {
       if (permissions.Count == 0) {
@@ -35,30 +46,20 @@ namespace Xtensive.Practices.Security
       permissions.Add(permission);
     }
 
-    public bool Equals(Role other)
+    protected override void OnInitialize()
     {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return Equals(other.Name, Name);
-    }
-
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != typeof (Role)) return false;
-      return Equals((Role) obj);
-    }
-
-    public override int GetHashCode()
-    {
-      return (Name != null ? Name.GetHashCode() : 0);
-    }
-
-    protected Role()
-    {
+      base.OnInitialize();
       permissions = new List<Permission>();
       readOnlyPermissions = new ReadOnlyList<Permission>(permissions);
+      RegisterPermissions();
+    }
+
+    [Infrastructure]
+    protected abstract void RegisterPermissions();
+
+    protected Role(Session session)
+      : base(session)
+    {
       Name = GetType().Name;
     }
   }

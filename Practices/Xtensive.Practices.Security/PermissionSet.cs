@@ -42,7 +42,7 @@ namespace Xtensive.Practices.Security
       return GetEnumerator();
     }
 
-    public PermissionSet(IEnumerable<Role> roles)
+    public PermissionSet(IEnumerable<IRole> roles)
     {
       // TODO: Refactor to produce effective set of permissions
       foreach (var role in roles)

@@ -64,27 +64,27 @@ namespace Xtensive.Practices.Security.Tests
     [Test]
     public void InitializationTest()
     {
-      var s = Domain.Services.Get<IHashingService>("MD5");
+      var s = Domain.Services.Get<IHashingService>("md5");
       Assert.IsNotNull(s);
       Assert.IsInstanceOf<MD5HashingService>(s);
 
-      s = Domain.Services.Get<IHashingService>("SHA1");
+      s = Domain.Services.Get<IHashingService>("sha1");
       Assert.IsNotNull(s);
       Assert.IsInstanceOf<SHA1HashingService>(s);
 
-      s = Domain.Services.Get<IHashingService>("SHA256");
+      s = Domain.Services.Get<IHashingService>("sha256");
       Assert.IsNotNull(s);
       Assert.IsInstanceOf<SHA256HashingService>(s);
 
-      s = Domain.Services.Get<IHashingService>("SHA384");
+      s = Domain.Services.Get<IHashingService>("sha384");
       Assert.IsNotNull(s);
       Assert.IsInstanceOf<SHA384HashingService>(s);
 
-      s = Domain.Services.Get<IHashingService>("SHA512");
+      s = Domain.Services.Get<IHashingService>("sha512");
       Assert.IsNotNull(s);
       Assert.IsInstanceOf<SHA512HashingService>(s);
 
-      s = Domain.Services.Get<IHashingService>("PLAIN");
+      s = Domain.Services.Get<IHashingService>("plain");
       Assert.IsNotNull(s);
       Assert.IsInstanceOf<PlainHashingService>(s);
     }

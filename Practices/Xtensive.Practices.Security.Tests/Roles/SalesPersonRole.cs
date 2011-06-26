@@ -12,7 +12,7 @@ using Xtensive.Practices.Security.Tests.Permissions;
 
 namespace Xtensive.Practices.Security.Tests.Roles
 {
-  public class SalesPersonRole : Role
+  public class SalesPersonRole : EmployeeRole
   {
     private static IQueryable<Customer> GetCustomers(ImpersonationContext context, QueryEndpoint query)
     {
@@ -20,9 +20,14 @@ namespace Xtensive.Practices.Security.Tests.Roles
         .Where(c => c.IsVip == false);
     }
 
-    public SalesPersonRole()
+    protected override void RegisterPermissions()
     {
       RegisterPermission(new CustomerPermission(true, GetCustomers));
+    }
+
+    public SalesPersonRole(Session session)
+      : base(session)
+    {
     }
   }
 }

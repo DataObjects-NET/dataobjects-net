@@ -12,7 +12,7 @@ using Xtensive.Practices.Security.Tests.Permissions;
 
 namespace Xtensive.Practices.Security.Tests.Roles
 {
-  public class AutomobileManagerRole : Role
+  public class AutomobileManagerRole : EmployeeRole
   {
     private static IQueryable<Customer> GetCustomers(ImpersonationContext context, QueryEndpoint query)
     {
@@ -20,9 +20,14 @@ namespace Xtensive.Practices.Security.Tests.Roles
         .Where(c => c.IsAutomobileIndustry);
     }
 
-    public AutomobileManagerRole()
+    protected override void RegisterPermissions()
     {
       RegisterPermission(new CustomerPermission(true, GetCustomers));
+    }
+
+    public AutomobileManagerRole(Session session)
+      : base(session)
+    {
     }
   }
 }

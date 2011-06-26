@@ -21,15 +21,12 @@ namespace Xtensive.Practices.Security
     public IPrincipal Principal { get; private set; }
 
     [Infrastructure]
-    public RoleSet Roles { get; private set; }
-
-    [Infrastructure]
     public PermissionSet Permissions { get; private set; }
 
     [Infrastructure]
     public void Invalidate()
     {
-      Roles.Invalidate();
+      Permissions = new PermissionSet(Principal.Roles);
     }
 
     [Infrastructure]
@@ -115,18 +112,7 @@ namespace Xtensive.Practices.Security
         InsecureQuery = sqe.InsecureQuery;
       
       Principal = principal;
-
-      var roleProviders = Session.Services.GetAll<IRoleProvider>();
-      // Removing GenericRoleProvider if there are any explicit providers
-      if (roleProviders.Count() > 1)
-        roleProviders = roleProviders.Except(roleProviders.OfType<GenericRoleProvider>());
-
-      var roles = new HashSet<Role>();
-      foreach (var rp in roleProviders) 
-        roles.UnionWith(rp.GetAllRoles());
-
-      Roles = new RoleSet(roles, principal.PrincipalRoles);
-      Permissions = new PermissionSet(Roles);
+      Permissions = new PermissionSet(principal.Roles);
     }
   }
 }

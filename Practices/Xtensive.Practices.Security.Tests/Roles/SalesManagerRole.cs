@@ -24,10 +24,16 @@ namespace Xtensive.Practices.Security.Tests.Roles
       return query.All<VipCustomer>().Where(v => v.Reason != "Relative");
     }
 
-    public SalesManagerRole()
+    protected override void OnInitialize()
     {
+      base.OnInitialize();
       RegisterPermission(new CustomerPermission(true, GetCustomers));
       RegisterPermission(new VipCustomerPermission(GetVipCustomers));
+    }
+
+    public SalesManagerRole(Session session)
+      : base(session)
+    {
     }
   }
 }

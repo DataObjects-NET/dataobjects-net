@@ -122,10 +122,24 @@ namespace Xtensive.Practices.Security.Tests
           }
 
           // Merging 2 roles
-          u4.PrincipalRoles.Add(new AutomobileManagerRole());
+          u4.Roles.Add(s.Query.All<IRole>().OfType<AutomobileManagerRole>().Single());
           using (var ic = s.Impersonate(u4)) {
             
             Assert.AreEqual(2, s.Query.All<Customer>().Count());
+            ic.Undo();
+          }
+
+          var u5 = s.Query.All<Employee>().Single(u => u.Name == "SouthBranchOfficeManager");
+          using (var ic = s.Impersonate(u5)) {
+            
+            Assert.AreEqual(2, s.Query.All<Customer>().Count());
+            ic.Undo();
+          }
+
+          var u6 = s.Query.All<Employee>().Single(u => u.Name == "NorthBranchOfficeManager");
+          using (var ic = s.Impersonate(u6)) {
+            
+            Assert.AreEqual(1, s.Query.All<Customer>().Count());
             ic.Undo();
           }
 

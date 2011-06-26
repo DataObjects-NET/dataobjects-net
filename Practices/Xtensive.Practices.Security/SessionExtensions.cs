@@ -45,16 +45,16 @@ namespace Xtensive.Orm
       return context;
     }
 
-    public static IPrincipal ValidatePrincipal(this Session session, IIdentity identity, params object[] args)
+    public static IPrincipal Authenticate(this Session session, IIdentity identity, params object[] args)
     {
-      return ValidatePrincipal(session, identity.Name, args);
+      return Authenticate(session, identity.Name, args);
     }
 
-    public static IPrincipal ValidatePrincipal(this Session session, string name, params object[] args)
+    public static IPrincipal Authenticate(this Session session, string name, params object[] args)
     {
       var config = GetSecurityConfiguration(session);
-      var service = session.Services.Get<IPrincipalValidationService>(config.ValidationServiceName);
-      return service.Validate(name, args);
+      var service = session.Services.Get<IAuthenticationService>(config.ValidationServiceName);
+      return service.Authenticate(name, args);
     }
 
     private static void ClearImpersonationContext(this Session session)

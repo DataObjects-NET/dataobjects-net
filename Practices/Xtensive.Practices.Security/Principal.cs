@@ -7,31 +7,19 @@ using Xtensive.Orm.Validation;
 
 namespace Xtensive.Practices.Security
 {
+  [Index("Name", Unique = true)]
   public abstract class Principal : Entity, IPrincipal
   {
     private IIdentity identity;
 
     #region IPrincipal Members
 
-    public bool IsInRole(Role role)
-    {
-      return PrincipalRoles.Contains(role);
-    }
-
     [NotNullConstraint(Mode = ConstrainMode.OnSetValue)]
-    [Field(Length = 50, Indexed = true)]
-    [Infrastructure]
-    public string Name
-    {
-      get { return GetFieldValue<string>("Name"); }
-      set
-      {
-        if (!string.IsNullOrEmpty(Name) && PersistenceState != PersistenceState.New)
-          throw new InvalidOperationException("Name property can't be changed");
-        SetFieldValue("Name", value);
-        identity = null;
-      }
-    }
+    [Field(Length = 128)]
+    public string Name { get; set; }
+
+    [Field]
+    public EntitySet<IRole> Roles { get; private set; }
 
     [Infrastructure]
     public virtual IIdentity Identity
@@ -46,12 +34,9 @@ namespace Xtensive.Practices.Security
       }
     }
 
-    [Field]
-    public PrincipalRoleSet PrincipalRoles { get; private set; }
-
     public bool IsInRole(string role)
     {
-      return PrincipalRoles.Any(r => r.Name == role);
+      return Roles.Any(r => r.Name == role);
     }
 
     #endregion

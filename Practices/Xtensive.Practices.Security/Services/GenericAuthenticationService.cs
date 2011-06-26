@@ -15,18 +15,18 @@ using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security
 {
-  [Service(typeof(IPrincipalValidationService), Singleton = true, Name = "default")]
-  public class GenericPrincipalValidationService : SessionBound, IPrincipalValidationService
+  [Service(typeof(IAuthenticationService), Singleton = true, Name = "default")]
+  public class GenericAuthenticationService : SessionBound, IAuthenticationService
   {
-    public IPrincipal Validate(IIdentity identity, params object[] args)
+    public IPrincipal Authenticate(IIdentity identity, params object[] args)
     {
       ArgumentValidator.EnsureArgumentNotNull(identity, "identity");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(identity.Name, "identity.Name");
 
-      return Validate(identity.Name, args);
+      return Authenticate(identity.Name, args);
     }
 
-    public IPrincipal Validate(string name, params object[] args)
+    public IPrincipal Authenticate(string name, params object[] args)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
@@ -34,11 +34,11 @@ namespace Xtensive.Practices.Security
       if (args != null && args.Length > 0)
         password = (string) args[0];
 
-      return Validate(name, password);
+      return Authenticate(name, password);
 
     }
 
-    protected virtual IPrincipal Validate(string username, string password)
+    protected virtual IPrincipal Authenticate(string username, string password)
     {
       var config = Session.GetSecurityConfiguration();
       var service = Session.Services.Get<IHashingService>(config.HashingServiceName);
@@ -66,7 +66,7 @@ namespace Xtensive.Practices.Security
     }
 
     [ServiceConstructor]
-    public GenericPrincipalValidationService(Session session)
+    public GenericAuthenticationService(Session session)
       : base(session)
     {
     }

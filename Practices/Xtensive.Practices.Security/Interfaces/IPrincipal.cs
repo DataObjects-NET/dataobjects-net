@@ -8,9 +8,6 @@ namespace Xtensive.Practices.Security
     string Name { get; }
 
     [Field]
-    [Association(PairTo = "Principal", OnOwnerRemove = OnRemoveAction.Cascade)]
-    PrincipalRoleSet PrincipalRoles { get; }
-
-    bool IsInRole(Role role);
+    EntitySet<IRole> Roles { get; }
   }
 }

@@ -11,7 +11,7 @@ using Xtensive.Practices.Security.Tests.Model;
 
 namespace Xtensive.Practices.Security.Tests
 {
-  public class UserValidationTests : AutoBuildTest
+  public class AuthenticationTests : AutoBuildTest
   {
     [Test]
     public void MainTest()
@@ -31,9 +31,9 @@ namespace Xtensive.Practices.Security.Tests
       using (var session = Domain.OpenSession()) {
         using (var trx = session.OpenTransaction()) {
 
-          Assert.IsNull(session.ValidatePrincipal("Steve Ballmer", "Steve Ballmer"));
-          Assert.IsNull(session.ValidatePrincipal("developers, developers, developers, developers", "Steve Ballmer"));
-          Assert.IsNotNull(session.ValidatePrincipal("Steve Ballmer", "developers, developers, developers, developers"));
+          Assert.IsNull(session.Authenticate("Steve Ballmer", "Steve Ballmer"));
+          Assert.IsNull(session.Authenticate("developers, developers, developers, developers", "Steve Ballmer"));
+          Assert.IsNotNull(session.Authenticate("Steve Ballmer", "developers, developers, developers, developers"));
 
           trx.Complete();
         }
