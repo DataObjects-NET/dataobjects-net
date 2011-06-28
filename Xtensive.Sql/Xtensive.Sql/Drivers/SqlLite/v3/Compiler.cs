@@ -23,8 +23,7 @@ namespace Xtensive.Sql.SQLite.v3
         public override void Visit(SqlSelect node)
         {
             //For hinting limitations see http://www.sqlite.org/lang_indexedby.html
-            using (context.EnterScope(node))
-            {
+            using (context.EnterScope(node)) {
                 context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
                 VisitSelectColumns(node);
                 VisitSelectFrom(node);
@@ -35,6 +34,10 @@ namespace Xtensive.Sql.SQLite.v3
                 context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
             }
         }
+        public override void Visit(SqlAggregate node)
+        {
+            base.Visit(node);
+        }
 
         /// <inheritdoc/>
         public override void Visit(SqlAlterTable node)
@@ -42,10 +45,8 @@ namespace Xtensive.Sql.SQLite.v3
             var renameColumnAction = node.Action as SqlRenameColumn;
             if (renameColumnAction != null)
                 context.Output.AppendText(((Translator)translator).Translate(context, renameColumnAction));
-            else if (node.Action is SqlDropConstraint)
-            {
-                using (context.EnterScope(node))
-                {
+            else if (node.Action is SqlDropConstraint) {
+                using (context.EnterScope(node)) {
                     context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Entry));
 
                     var action = node.Action as SqlDropConstraint;
@@ -71,84 +72,105 @@ namespace Xtensive.Sql.SQLite.v3
         /// <inheritdoc/>
         public override void Visit(SqlFunctionCall node)
         {
-            switch (node.FunctionType)
-            {
-                case SqlFunctionType.CharLength:
-                    (SqlDml.FunctionCall("length", node.Arguments) / 2).AcceptVisitor(this);
+            switch (node.FunctionType) {
+            case SqlFunctionType.CharLength:
+                (SqlDml.FunctionCall("LENGTH", node.Arguments) / 2).AcceptVisitor(this);
+                return;
+            case SqlFunctionType.PadLeft:
+            case SqlFunctionType.PadRight:
+                return;
+            case SqlFunctionType.Concat:
+                var nod = node.Arguments[0];
+                return;
+            case SqlFunctionType.Round:
+                // Round should always be called with 2 arguments
+                if (node.Arguments.Count == 1) {
+                    Visit(SqlDml.FunctionCall(
+                      translator.Translate(SqlFunctionType.Round),
+                      node.Arguments[0],
+                      SqlDml.Literal(0)));
                     return;
-                case SqlFunctionType.PadLeft:
-                case SqlFunctionType.PadRight:
-                    return;
-                case SqlFunctionType.Concat:
-                    var nod = node.Arguments[0];
-                    return;
-                case SqlFunctionType.Round:
-                    // Round should always be called with 2 arguments
-                    if (node.Arguments.Count == 1)
-                    {
-                        Visit(SqlDml.FunctionCall(
-                          translator.Translate(SqlFunctionType.Round),
-                          node.Arguments[0],
-                          SqlDml.Literal(0)));
-                        return;
-                    }
-                    break;
-                case SqlFunctionType.Truncate:
-                    return;
-                case SqlFunctionType.Substring:
-                    if (node.Arguments.Count == 2)
-                        Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1]));
-                    else
-                        Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1], node.Arguments[2]));
-                    return;
-                case SqlFunctionType.IntervalToMilliseconds:
-                    Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
-                    return;
-                case SqlFunctionType.IntervalConstruct:
-                case SqlFunctionType.IntervalToNanoseconds:
-                    Visit(CastToLong(node.Arguments[0]));
-                    return;
-                case SqlFunctionType.DateTimeAddMonths:
-                  using (context.EnterScope(node)) {
+                }
+                break;
+            case SqlFunctionType.Truncate:
+                return;
+            case SqlFunctionType.Substring:
+                if (node.Arguments.Count == 2)
+                    Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1]));
+                else
+                    Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1], node.Arguments[2]));
+                return;
+            case SqlFunctionType.IntervalToMilliseconds:
+                Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
+                return;
+            case SqlFunctionType.IntervalConstruct:
+            case SqlFunctionType.IntervalToNanoseconds:
+                Visit(CastToLong(node.Arguments[0]));
+                return;
+            case SqlFunctionType.DateTimeAddMonths:
+                using (context.EnterScope(node)) {
                     context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Entry, -1));
                     if (node.Arguments.Count > 0) {
-                      using (context.EnterCollectionScope()) {
-                        int argumentPosition = 0;
-                        foreach (SqlExpression item in node.Arguments) {
-                          if (!context.IsEmpty)
-                            context.Output.AppendDelimiter(translator.Translate(context, node, FunctionCallSection.ArgumentDelimiter, argumentPosition));
-                          context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentEntry, argumentPosition));
-                          if (argumentPosition == 1) {
-                            SqlLiteral l = item as SqlLiteral;
-                            if (l != null) {
-                              string value = translator.Translate(context, l.GetValue());
-                              context.Output.AppendText(string.Format("'{0} MONTH'", value));
+                        using (context.EnterCollectionScope()) {
+                            int argumentPosition = 0;
+                            foreach (SqlExpression item in node.Arguments) {
+                                if (!context.IsEmpty)
+                                    context.Output.AppendDelimiter(translator.Translate(context, node, FunctionCallSection.ArgumentDelimiter, argumentPosition));
+                                context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentEntry, argumentPosition));
+                                if (argumentPosition == 1) {
+                                    SqlLiteral l = item as SqlLiteral;
+                                    if (l != null) {
+                                        string value = translator.Translate(context, l.GetValue());
+                                        context.Output.AppendText(string.Format("'{0} MONTH'", value));
+                                    }
+                                }
+                                else
+                                    item.AcceptVisitor(this);
+                                context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentExit, argumentPosition));
+                                argumentPosition++;
                             }
-                          }
-                          else
-                            item.AcceptVisitor(this);
-                          context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentExit, argumentPosition));
-                          argumentPosition++;
                         }
-                      }
                     }
                     context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Exit, -1));
-                  }
-                  return;
-                case SqlFunctionType.DateTimeAddYears:
-                    Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
-                    return;
-                case SqlFunctionType.DateTimeTruncate:
-                    DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
-                    return;
-                case SqlFunctionType.DateTimeConstruct:
-                    Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-                      node.Arguments[0] - 2001),
-                      node.Arguments[1] - 1),
-                      node.Arguments[2] - 1));
-                    return;
+                }
+                return;
+            case SqlFunctionType.DateTimeAddYears:
+                using (context.EnterScope(node)) {
+                    context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Entry, -1));
+                    if (node.Arguments.Count > 0) {
+                        using (context.EnterCollectionScope()) {
+                            int argumentPosition = 0;
+                            foreach (SqlExpression item in node.Arguments) {
+                                if (!context.IsEmpty)
+                                    context.Output.AppendDelimiter(translator.Translate(context, node, FunctionCallSection.ArgumentDelimiter, argumentPosition));
+                                context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentEntry, argumentPosition));
+                                if (argumentPosition == 1) {
+                                    SqlLiteral l = item as SqlLiteral;
+                                    if (l != null) {
+                                        string value = translator.Translate(context, l.GetValue());
+                                        context.Output.AppendText(string.Format("'{0} YEARS'", value));
+                                    }
+                                }
+                                else
+                                    item.AcceptVisitor(this);
+                                context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentExit, argumentPosition));
+                                argumentPosition++;
+                            }
+                        }
+                    }
+                    context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Exit, -1));
+                }
+                return;
+            case SqlFunctionType.DateTimeTruncate:
+                DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
+                return;
+            case SqlFunctionType.DateTimeConstruct:
+                SqlLiteral year = node.Arguments[0] as SqlLiteral;
+                SqlLiteral month = node.Arguments[1] as SqlLiteral;
+                SqlLiteral day = node.Arguments[2] as SqlLiteral;
+                Visit(SqlDml.FunctionCall("DATETIME", string.Format("{0}-{1}-{2}", translator.Translate(context, year.GetValue()), translator.Translate(context, month.GetValue()), translator.Translate(context, day.GetValue()))));
+                return;
             }
-
             base.Visit(node);
         }
 
@@ -158,25 +180,11 @@ namespace Xtensive.Sql.SQLite.v3
             throw SqlHelper.NotSupported("FreeText");
         }
 
-        //public override void Visit(SqlTrim node)
-        //{
-        //    if (node.TrimCharacters != null && !node.TrimCharacters.All(_char => _char == ' '))
-        //        throw new NotSupportedException(Strings.ExSqlServerSupportsTrimmingOfSpaceCharactersOnly);
-
-        //    using (context.EnterScope(node))
-        //    {
-        //        context.Output.AppendText(translator.Translate(context, node, TrimSection.Entry));
-        //        node.Expression.AcceptVisitor(this);
-        //        context.Output.AppendText(translator.Translate(context, node, TrimSection.Exit));
-        //    }
-        //}
-
         /// <inheritdoc/>
         /// //Thanks to Csaba Beer.
         public override void Visit(SqlQueryExpression node)
         {
-            using (context.EnterScope(node))
-            {
+            using (context.EnterScope(node)) {
                 bool needOpeningParenthesis = false;
                 bool needClosingParenthesis = false;
                 context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
@@ -194,53 +202,19 @@ namespace Xtensive.Sql.SQLite.v3
 
         public override void Visit(SqlExtract node)
         {
-            switch (node.IntervalPart)
-            {
-                case SqlIntervalPart.Day:
-                    Visit(CastToLong(node.Operand / NanosecondsPerDay));
-                    return;
-                case SqlIntervalPart.Hour:
-                    Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
-                    return;
-                case SqlIntervalPart.Minute:
-                    Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
-                    return;
-                case SqlIntervalPart.Second:
-                    Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
-                    return;
-                case SqlIntervalPart.Millisecond:
-                    Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
-                    return;
-                case SqlIntervalPart.Nanosecond:
-                    Visit(CastToLong(node.Operand));
-                    return;
-            }
-            base.Visit(node);
-        }
-
-        public override void Visit(SqlBinary node)
-        {
-            switch (node.NodeType)
-            {
-                case SqlNodeType.DateTimePlusInterval:
-                    DateTimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
-                    return;
-                case SqlNodeType.DateTimeMinusDateTime:
-                    DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
-                    return;
-                case SqlNodeType.DateTimeMinusInterval:
-                    DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
-                    return;
-                default:
-                    base.Visit(node);
-                    return;
+            using (context.EnterScope(node)) {
+                context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
+                var part = node.DateTimePart != SqlDateTimePart.Nothing ? translator.Translate(node.DateTimePart) : translator.Translate(node.IntervalPart);
+                context.Output.AppendText(translator.Translate(context, node, ExtractSection.From));
+                context.Output.AppendText(",");
+                node.Operand.AcceptVisitor(this);
+                context.Output.AppendText(translator.Translate(context, node, ExtractSection.Exit));
             }
         }
 
         public override void VisitSelectLimitOffset(SqlSelect node)
         {
-            if (!node.Limit.IsNullReference())
-            {
+            if (!node.Limit.IsNullReference()) {
                 context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
                 context.Output.AppendText(" (");
                 node.Limit.AcceptVisitor(this);
@@ -252,99 +226,19 @@ namespace Xtensive.Sql.SQLite.v3
 
         private SqlExpression DateTimeTruncate(SqlExpression date)
         {
-            return DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
-              -SqlDml.Extract(SqlDateTimePart.Hour, date)),
-              -SqlDml.Extract(SqlDateTimePart.Minute, date)),
-              -SqlDml.Extract(SqlDateTimePart.Second, date)),
-              -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
+            return SqlDml.FunctionCall("DATE", date);
         }
 
         private SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
         {
-            return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
-                + CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) * NanosecondsPerMillisecond
-                + DateDiffNanosecond(
-                    DateAddMillisecond(
-                      DateAddDay(date2, DateDiffDay(date2, date1)),
-                      DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)),
-                    date1);
+            return SqlDml.Extract(SqlDateTimePart.Second, date1) - SqlDml.Extract(SqlDateTimePart.Second, date2);
         }
-
-        private SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
-        {
-            return DateAddNanosecond(
-              DateAddMillisecond(
-                DateAddDay(date, interval / NanosecondsPerDay),
-                (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay)),
-              (interval / NanosecondsPerSecond) % NanosecondsPerDay / NanosecondsPerSecond);
-        }
-
 
         #region Static helpers
 
         private static SqlCast CastToLong(SqlExpression arg)
         {
             return SqlDml.Cast(arg, SqlType.Int64);
-        }
-
-        private static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)
-        {
-            return SqlDml.FunctionCall("DATEPART", SqlDml.Native("WEEKDAY"), date);
-        }
-
-        private static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
-        {
-            return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("DAY"), date1, date2);
-        }
-
-        private static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
-        {
-            return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("MS"), date1, date2);
-        }
-
-        private static SqlUserFunctionCall DateDiffNanosecond(SqlExpression date1, SqlExpression date2)
-        {
-            return SqlDml.FunctionCall("DATE", SqlDml.Native("NS"), date1, date2);
-        }
-
-        private static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
-        {
-            return SqlDml.FunctionCall("DATE", SqlDml.Native("YEAR"), years, date);
-        }
-
-        private static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months)
-        {
-            return SqlDml.FunctionCall("DATE", date, SqlDml.Native(string.Format("'{0} MONTHS'", months)));
-        }
-
-        private static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
-        {
-            return SqlDml.FunctionCall("DATEADD", SqlDml.Native("DAY"), days, date);
-        }
-
-        private static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours)
-        {
-            return SqlDml.FunctionCall("DATEADD", SqlDml.Native("HOUR"), hours, date);
-        }
-
-        private static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes)
-        {
-            return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MINUTE"), minutes, date);
-        }
-
-        private static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds)
-        {
-            return SqlDml.FunctionCall("DATEADD", SqlDml.Native("SECOND"), seconds, date);
-        }
-
-        private static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
-        {
-            return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MS"), milliseconds, date);
-        }
-
-        private static SqlUserFunctionCall DateAddNanosecond(SqlExpression date, SqlExpression nanoseconds)
-        {
-            return SqlDml.FunctionCall("DATEADD", SqlDml.Native("NS"), nanoseconds, date);
         }
 
         #endregion

@@ -14,7 +14,6 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-
 namespace Xtensive.Sql.Tests.Sqlite.v3
 {
     public class NorthwindTest : Northwind
@@ -50,10 +49,8 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
                 return false;
             if (r1.FieldCount != r2.FieldCount)
                 return false;
-            for (int i = 0; i < r1.FieldCount; i++)
-            {
-                if (r1.FieldNames[i] != r2.FieldNames[i])
-                {
+            for (int i = 0; i < r1.FieldCount; i++) {
+                if (r1.FieldNames[i] != r2.FieldNames[i]) {
                     return false;
                 }
             }
@@ -100,26 +97,22 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
 
             dbCommand = sqlConnection.CreateCommand();
             sqlCommand = sqlConnection.CreateCommand();
-            try
-            {
+            try {
                 sqlConnection.Open();
             }
-            catch (SystemException e)
-            {
+            catch (SystemException e) {
                 Console.WriteLine(e);
             }
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            try
-            {
+            try {
                 sqlConnection.BeginTransaction();
                 Catalog = sqlDriver.ExtractCatalog(sqlConnection);
                 schema = sqlDriver.ExtractDefaultSchema(sqlConnection);
                 sqlConnection.Commit();
             }
-            catch
-            {
+            catch {
                 sqlConnection.Rollback();
                 throw;
             }
@@ -130,13 +123,11 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         [TestFixtureTearDown]
         public void TearDown()
         {
-            try
-            {
+            try {
                 if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed)
                     sqlConnection.Close();
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Console.WriteLine(ex.Message);
             }
         }
@@ -444,40 +435,12 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
-        public void Test014()
-        {
-            string nativeSql = @"SELECT 
-                                  r.EmployeeID,
-                                  r.return_date, r.rental_date,
-                                  DATEDIFF(r.return_date, r.rental_date) Days
-                                FROM
-                                  orders r
-                                WHERE
-                                  r.return_date IS NOT NULL
-                                ORDER BY
-                                  r.EmployeeID";
-
-            SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
-            SqlSelect select = SqlDml.Select(orders);
-            select.Columns.AddRange(orders["EmployeeID"], orders["return_date"], orders["rental_date"]);
-            select.Columns.Add(
-                              SqlDml.FunctionCall("DATEDIFF", orders["return_date"], orders["rental_date"]),
-                              "Days"
-                              );
-            select.Where = SqlDml.IsNotNull(orders["return_date"]);
-            select.OrderBy.Add(orders["EmployeeID"]);
-
-            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
-        }
-
-        [Test]
         public void Test014_1()
         {
             string nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
 
             SqlSelect select = SqlDml.Select();
-            select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", 1), "Days" );
+            select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", 1), "Days");
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
@@ -497,7 +460,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test014_3()
         {
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
@@ -518,6 +480,20 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
 
             SqlSelect select = SqlDml.Select();
             select.Columns.Add(
+                               SqlDml.DateTimeAddMonths("NOW", -15),
+                              "Days"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_5()
+        {
+            string nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
                                SqlDml.DateTimeAddMonths("NOW", 1 + 1),
                               "Days"
                               );
@@ -525,29 +501,128 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
-
         [Test]
-        [Ignore("Not yet prepared for tests")]
-        public void Test015()
+        public void Test014_6()
         {
-            string nativeSql = @"SELECT  
-                                  r.rental_id,
-                                  DATEDIFF(CURDATE(), r.rental_date) TimeToToday
-                                FROM 
-                                  orders r
-                                WHERE
-                                  r.return_date IS NOT NULL";
+            string nativeSql = @"select strftime('%d', 'now') AS DayOfMonth ";
 
-            SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
-            SqlSelect select = SqlDml.Select(orders);
-            select.Columns.AddRange(orders["rental_id"]);
+            SqlSelect select = SqlDml.Select();
             select.Columns.Add(
-                              SqlDml.FunctionCall("DATEDIFF", SqlDml.CurrentDate(), orders["rental_date"]),
-                              "TimeToToday"
+                               SqlDml.Extract(SqlDateTimePart.Day, "NOW"),
+                              "DayOfMonth"
                               );
-            select.Where = SqlDml.IsNotNull(orders["return_date"]);
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_7()
+        {
+            string nativeSql = @"select strftime('%m', 'now') AS Month ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.Extract(SqlDateTimePart.Month, "NOW"),
+                              "Month"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_8()
+        {
+            string nativeSql = @"select strftime('%Y', 'now') AS Year ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.Extract(SqlDateTimePart.Year, "NOW"),
+                              "Year"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_9()
+        {
+            string nativeSql = @"select strftime('%H', 'now') AS Hour ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.Extract(SqlDateTimePart.Hour, "NOW"),
+                              "Hour"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_10()
+        {
+            string nativeSql = @"select strftime('%M', 'now') AS Minutes ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.Extract(SqlDateTimePart.Minute, "NOW"),
+                              "Minutes"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_11()
+        {
+            string nativeSql = @"select strftime('%S', 'now') AS Seconds ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.Extract(SqlDateTimePart.Second, "NOW"),
+                              "Seconds"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_12()
+        {
+            string nativeSql = @"select strftime('%f', 'now') AS Milliseconds ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.Extract(SqlDateTimePart.Millisecond, "NOW"),
+                              "Milliseconds"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+        [Test]
+        public void Test014_13()
+        {
+            string nativeSql = @"select datetime('2011-11-16') AS BirthDay ";
+
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.DateTimeConstruct(2011, 11, 16), "BirthDay"
+                              );
+
+            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+        }
+
+
+        [Test]
+        [Ignore("A close inspection needed")]
+        public void Test015()
+        {
+            SqlSelect select = SqlDml.Select();
+            select.Columns.Add(
+                               SqlDml.DateTimeMinusDateTime(DateTime.Now, DateTime.Now.AddDays(-4)), "FewDaysAgo"
+                              );
+
+            Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
         }
 
         [Test]
@@ -564,23 +639,32 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
-        public void Test017()
+        public void Test017_1()
         {
-            string nativeSql = "SELECT c.CustomerID, CONCAT(c.FirstName, CONCAT(', ', c.LastName)) as FullName FROM customer c";
-
-            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customers"], "c");
 
             SqlSelect select = SqlDml.Select(customer);
             select.Columns.Add(customer["CustomerID"]);
-            select.Columns.Add(SqlDml.Concat(customer["FirstName"], SqlDml.Concat(SqlDml.Literal(", "), customer["LastName"])),
+            select.Columns.Add(SqlDml.RawConcat("Mr. ", customer["ContactTitle"]), "FullName");
+            Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+        }
+
+        [Test]
+        public void Test017()
+        {
+            string nativeSql = "SELECT c.CustomerID, c.ContactTitle|| ', ' || c.ContactName as FullName FROM customers c";
+
+            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customers"], "c");
+
+            SqlSelect select = SqlDml.Select(customer);
+            select.Columns.Add(customer["CustomerID"]);
+            select.Columns.Add(SqlDml.RawConcat(SqlDml.RawConcat(customer["ContactTitle"], SqlDml.Literal(", ")), customer["ContactName"]),
                                "FullName"
                                );
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test018()
         {
             string nativeSql = @"SELECT 
@@ -752,36 +836,19 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
         }
 
         [Test]
-        [Ignore("Not yet prepared for tests")]
         public void Test024()
         {
-            string nativeSql = @"SELECT YEAR(r.rental_date) as Year, COUNT(*) Rented
+            string nativeSql = @"SELECT strftime('%Y', RequiredDate) as Year, COUNT(*) Required
                                     FROM orders r
-                                    GROUP BY YEAR(r.rental_date)";
+                                    GROUP BY strftime('%Y', RequiredDate)";
 
             SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
 
             SqlSelect select = SqlDml.Select(orders);
-            select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, orders["rental_date"]), "Year");
-            select.Columns.Add(SqlDml.Count(), "Rented");
+            select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, orders["RequiredDate"]), "Year");
+            select.Columns.Add(SqlDml.Count(), "Required");
 
-            select.GroupBy.Add(SqlDml.Extract(SqlDateTimePart.Year, orders["rental_date"]));
-
-            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
-        }
-
-        [Test]
-        [Ignore("Not yet prepared for tests")]
-        public void Test025()
-        {
-            string nativeSql = @"SELECT LastName FROM customer
-                                    ORDER BY LastName 
-                                    COLLATE utf8_general_ci ASC";
-
-            SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
-            SqlSelect select = SqlDml.Select(customer);
-            select.Columns.Add(customer["LastName"]);
-            select.OrderBy.Add(SqlDml.Collate(customer["LastName"], Catalog.Schemas["main"].Collations["utf8_general_ci"]));
+            select.GroupBy.Add(SqlDml.Extract(SqlDateTimePart.Year, orders["RequiredDate"]));
 
             Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
         }
@@ -868,30 +935,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
         }
 
-        [Test]
-        [Ignore("Not yet prepared for tests")]
-        public void Test030()
-        {
-            string nativeSql = @"SELECT  
-                                  r.rental_id,
-                                  DATEDIFF(CURDATE(), r.rental_date) TimeToToday
-                                FROM 
-                                  orders r
-                                WHERE
-                                  r.return_date IS NOT NULL";
-
-            SqlTableRef orders = SqlDml.TableRef(schema.Tables["orders"], "r");
-            SqlSelect select = SqlDml.Select(orders);
-            select.Columns.AddRange(orders["rental_id"]);
-            select.Columns.Add(
-                              SqlDml.FunctionCall("DATEDIFF", SqlDml.CurrentDate(), orders["rental_date"]),
-                              "TimeToToday"
-                              );
-            select.Where = SqlDml.IsNotNull(orders["return_date"]);
-
-            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
-        }
-
 
         [Test]
         public void Test150()
@@ -972,17 +1015,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             Console.Write(Compile(stmt));
         }
 
-        //[Test]
-        //[ExpectedException(typeof(NotSupportedException))]
-        //public void Test159()
-        //{
-        //    var t = Catalog.Schemas["main"].Tables["customers"];
-        //    Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["Phone"]);
-        //    SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(uc));
-
-        //    Console.Write(Compile(stmt));
-        //}
-
         [Test]
         public void Test160()
         {
@@ -1015,32 +1047,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
 
         [Test]
         [Ignore("Not yet prepared for tests")]
-        public void Test200()
-        {
-            string nativeSql =
-              @"SELECT 
-                  c.CustomerID,
-                  c.store_id,
-                  c.FirstName,
-                  c.LastName,
-                  c.email
-                FROM 
-                  customer c
-                USE INDEX(idx_LastName)
-                WHERE c.LastName > 'JOHNSON'";
-
-            SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["main"].Tables["customer"]);
-            SqlSelect select = SqlDml.Select(c);
-            select.Columns.AddRange(c["CustomerID"], c["store_id"], c["FirstName"], c["LastName"], c["email"]);
-            select.Where = c["LastName"] > "JOHNSON";
-
-            select.Hints.Add(SqlDml.NativeHint("idx_LastName"));
-
-            Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
-        }
-
-        [Test]
-        [Ignore("Not yet prepared for tests")]
         [ExpectedException(typeof(NotSupportedException))]
         public void Test201()
         {
@@ -1062,15 +1068,6 @@ namespace Xtensive.Sql.Tests.Sqlite.v3
             Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
         }
 
-        [Test]
-        [Ignore("ALTER Sequences are not supported")]
-        public void Test177()
-        {
-            Sequence s = Catalog.Schemas["main"].CreateSequence("Generator177");
-            SqlDropSequence drop = SqlDdl.Drop(s);
-
-            Console.Write(Compile(drop));
-        }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
