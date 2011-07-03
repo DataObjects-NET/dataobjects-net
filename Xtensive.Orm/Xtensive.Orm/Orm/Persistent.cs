@@ -28,7 +28,7 @@ using Xtensive.Orm.Resources;
 using Xtensive.Orm.Services;
 using Activator = Xtensive.Orm.Internals.Activator;
 using AggregateException = Xtensive.Core.AggregateException;
-using FieldInfo = Xtensive.Storage.Model.FieldInfo;
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using OperationType = Xtensive.Orm.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
 
