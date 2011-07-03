@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -25,6 +26,7 @@ using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
 using AggregateException = Xtensive.Core.AggregateException;
+using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 
@@ -146,6 +148,11 @@ namespace Xtensive.Storage
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null) {
         var mi = field.UnderlyingProperty.GetGetMethod(true);
+        if (mi == null && field.UnderlyingProperty.ReflectedType != field.UnderlyingProperty.DeclaringType) {
+          var p = field.UnderlyingProperty;  
+          var dt = p.DeclaringType;
+          mi = dt.GetProperty(p.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).GetGetMethod(true);
+        }
         value = mi.Invoke(this, null);
       }
       else
@@ -177,6 +184,11 @@ namespace Xtensive.Storage
         // TODO: Improve (use DelegateHelper)
         if (field.UnderlyingProperty != null) {
           var mi = field.UnderlyingProperty.GetSetMethod(true);
+          if (mi == null && field.UnderlyingProperty.ReflectedType != field.UnderlyingProperty.DeclaringType) {
+            var p = field.UnderlyingProperty;  
+            var dt = p.DeclaringType;
+            mi = dt.GetProperty(p.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).GetSetMethod(true);
+          }
           mi.Invoke(this, new object[]{value});
         }
         else

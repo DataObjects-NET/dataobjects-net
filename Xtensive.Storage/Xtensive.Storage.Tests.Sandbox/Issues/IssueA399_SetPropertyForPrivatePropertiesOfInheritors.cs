@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.IssueA399_SetPropertyForPrivatePropertiesOfInheritors_Model;
@@ -14,31 +15,20 @@ namespace Xtensive.Storage.Tests.Issues
 {
   namespace IssueA399_SetPropertyForPrivatePropertiesOfInheritors_Model
   {
-    [HierarchyRoot]
     public abstract class Base : Entity
+    {
+      [Field]
+      public string Foo { get; private set; }
+    }
+
+    [HierarchyRoot]
+    public class Derived : Base
     {
       [Field, Key]
       public long Id { get; private set; }
 
       [Field]
-      public string Foo { get; private set; }
-
-      [Field]
       private int Bar { get; set; }
-
-      protected Base(string foo, int bar)
-      {
-        Foo = foo;
-        Bar = bar;
-      }
-    }
-
-    public class Derived : Base
-    {
-      public Derived(string foo, int bar)
-        : base(foo, bar)
-      {
-      }
     }
   }
 
@@ -57,16 +47,22 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open(session)) {
-        var derived = new Derived("FOO", 100500);
+        var derived = new Derived();
 
-        Assert.AreEqual("FOO", derived.Foo);
-        Assert.AreEqual(100500, derived.GetProperty<int>("Bar"));
+//        Assert.AreEqual("FOO", derived.Foo);
+//        Assert.AreEqual(100500, derived.GetProperty<int>("Bar"));
 
         derived.SetProperty("Foo", "foo!!!");
         derived.SetProperty("Bar", 9000);
 
         Assert.AreEqual("foo!!!", derived.Foo);
         Assert.AreEqual(9000, derived.GetProperty<int>("Bar"));
+
+        derived["Foo"] = "!!!foo!!!";
+        derived["Bar"] =  9;
+
+        Assert.AreEqual("!!!foo!!!", derived["Foo"]);
+        Assert.AreEqual(9, derived["Bar"]);
         t.Complete();
       }
     }
