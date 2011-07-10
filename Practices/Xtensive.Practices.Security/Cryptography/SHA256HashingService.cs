@@ -9,9 +9,15 @@ using Xtensive.IoC;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
+  /// <summary>
+  /// Implementation of <see cref="IHashingService"/> with SHA256 algorithm.
+  /// </summary>
   [Service(typeof (IHashingService), Singleton = true, Name = "sha256")]
   public class SHA256HashingService : GenericHashingService
   {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SHA256HashingService"/> class.
+    /// </summary>
     public SHA256HashingService()
       : base(new SHA256Managed())
     {}

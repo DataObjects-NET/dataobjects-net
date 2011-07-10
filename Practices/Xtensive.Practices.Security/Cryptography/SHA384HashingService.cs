@@ -9,9 +9,15 @@ using Xtensive.IoC;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
+  /// <summary>
+  /// Implementation of <see cref="IHashingService"/> with SHA384 algorithm.
+  /// </summary>
   [Service(typeof (IHashingService), Singleton = true, Name = "sha384")]
   public class SHA384HashingService : GenericHashingService
   {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SHA384HashingService"/> class.
+    /// </summary>
     public SHA384HashingService()
       : base(new SHA384Managed())
     {}

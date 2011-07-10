@@ -21,8 +21,12 @@ namespace Xtensive.Practices.Security.Configuration
     public static readonly string DefaultSectionName = "Xtensive.Security";
 
     private const string HashingServiceElementName = "hashingService";
-    private const string ValidationServiceElementName = "validationService";
+    private const string AuthenticationServiceElementName = "authenticationService";
 
+    /// <summary>
+    /// Gets or sets the hashing service.
+    /// </summary>
+    /// <value>The hashing service.</value>
     [ConfigurationProperty(HashingServiceElementName, IsRequired = false)]
     public HashingServiceConfigurationElement HashingService
     {
@@ -30,11 +34,15 @@ namespace Xtensive.Practices.Security.Configuration
       set { this[HashingServiceElementName] = value; }
     }
 
-    [ConfigurationProperty(ValidationServiceElementName, IsRequired = false)]
-    public ValidationServiceConfigurationElement ValidationService
+    /// <summary>
+    /// Gets or sets the authentication service.
+    /// </summary>
+    /// <value>The authentication service.</value>
+    [ConfigurationProperty(AuthenticationServiceElementName, IsRequired = false)]
+    public AuthenticationServiceConfigurationElement AuthenticationService
     {
-      get { return (ValidationServiceConfigurationElement) this[ValidationServiceElementName]; }
-      set { this[ValidationServiceElementName] = value; }
+      get { return (AuthenticationServiceConfigurationElement) this[AuthenticationServiceElementName]; }
+      set { this[AuthenticationServiceElementName] = value; }
     }
   }
 }

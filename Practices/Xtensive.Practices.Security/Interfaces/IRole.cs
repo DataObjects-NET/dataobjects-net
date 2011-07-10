@@ -9,15 +9,30 @@ using Xtensive.Orm;
 
 namespace Xtensive.Practices.Security
 {
+  /// <summary>
+  /// Defines a role.
+  /// </summary>
   public interface IRole : IEntity
   {
+    /// <summary>
+    /// Gets the name of the current role.
+    /// </summary>
+    /// <value>The name.</value>
     [Field]
     string Name { get; }
 
+    /// <summary>
+    /// Gets the principals associated with the current role.
+    /// </summary>
+    /// <value>The principals.</value>
     [Field]
     [Association(PairTo = "Roles", OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Clear)]
     EntitySet<IPrincipal> Principals { get; }
 
+    /// <summary>
+    /// Gets the permissions associated with the current role.
+    /// </summary>
+    /// <value>The permissions.</value>
     IList<Permission> Permissions { get; }
   }
 }

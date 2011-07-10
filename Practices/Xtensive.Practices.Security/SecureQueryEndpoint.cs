@@ -8,10 +8,14 @@ using Xtensive.Orm;
 
 namespace Xtensive.Practices.Security
 {
+  /// <summary>
+  /// A <see cref="QueryEndpoint"/> with support of secure queries.
+  /// </summary>
   public class SecureQueryEndpoint : QueryEndpoint
   {
     internal QueryEndpoint InsecureQuery { get; private set; }
 
+    /// <inheritdoc/>
     public override System.Linq.IQueryable<T> All<T>()
     {
       var context = Session.GetImpersonationContext();
@@ -21,6 +25,11 @@ namespace Xtensive.Practices.Security
       return context.GetSecureQuery<T>();
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SecureQueryEndpoint"/> class.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="origin">The original <see cref="QueryEndpoint"/> instance.</param>
     public SecureQueryEndpoint(Session session, QueryEndpoint origin) : base(session)
     {
       this.InsecureQuery = origin;

@@ -10,11 +10,22 @@ using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security
 {
+  /// <summary>
+  /// Defines generic principal that can be used in username/password authentication scheme.
+  /// </summary>
   public abstract class GenericPrincipal : Principal
   {
+    /// <summary>
+    /// Gets or sets the password hash.
+    /// </summary>
+    /// <value>The password hash.</value>
     [Field(Length = 128)]
     public string PasswordHash { get; protected set; }
 
+    /// <summary>
+    /// Sets the password.
+    /// </summary>
+    /// <param name="password">The password.</param>
     public virtual void SetPassword(string password)
     {
       var config = Session.GetSecurityConfiguration();
@@ -26,6 +37,10 @@ namespace Xtensive.Practices.Security
       PasswordHash = service.ComputeHash(password);
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GenericPrincipal"/> class.
+    /// </summary>
+    /// <param name="session">The session.</param>
     protected GenericPrincipal(Session session)
       : base(session)
     {}

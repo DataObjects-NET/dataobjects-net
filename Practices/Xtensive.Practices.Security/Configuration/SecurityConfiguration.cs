@@ -6,27 +6,53 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Configuration;
 
 namespace Xtensive.Practices.Security.Configuration
 {
+  /// <summary>
+  /// The configuration of the security system.
+  /// </summary> 
+  [Serializable]
   public class SecurityConfiguration
   {
     /// <summary>
-    /// Default <see cref="SectionName"/> value:
+    /// Default SectionName value:
     /// "<see langword="Xtensive.Security" />".
     /// </summary>
     public const string DefaultSectionName = "Xtensive.Security";
 
+    /// <summary>
+    /// Gets or sets the name of the hashing service.
+    /// </summary>
+    /// <value>The name of the hashing service.</value>
     public string HashingServiceName { get; private set; }
 
-    public string ValidationServiceName { get; private set; }
+    /// <summary>
+    /// Gets or sets the name of the authentication service.
+    /// </summary>
+    /// <value>The name of the authentication service.</value>
+    public string AuthenticationServiceName { get; private set; }
 
+    /// <summary>
+    /// Loads the <see cref="SecurityConfiguration"/>
+    /// from application configuration file (section with SectionName).
+    /// </summary>
+    /// <returns>
+    /// The <see cref="SecurityConfiguration"/>.
+    /// </returns>
     public static SecurityConfiguration Load()
     {
       return Load(DefaultSectionName);
     }
 
+    /// <summary>
+    /// Loads the <see cref="SecurityConfiguration"/>
+    /// from application configuration file (section with <paramref name="sectionName"/>).
+    /// </summary>
+    /// <param name="sectionName">Name of the section.</param>
+    /// <returns>
+    /// The <see cref="SecurityConfiguration"/>.
+    /// </returns>
     public static SecurityConfiguration Load(string sectionName)
     {
       var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
@@ -37,10 +63,10 @@ namespace Xtensive.Practices.Security.Configuration
         hashingService = "plain";
       result.HashingServiceName = hashingService.ToLowerInvariant();
 
-      string validationService = section == null ? string.Empty : section.ValidationService.Name;
-      if (string.IsNullOrEmpty(validationService))
-        validationService = "default";
-      result.ValidationServiceName = validationService.ToLowerInvariant();
+      string authenticationService = section == null ? string.Empty : section.AuthenticationService.Name;
+      if (string.IsNullOrEmpty(authenticationService))
+        authenticationService = "default";
+      result.AuthenticationServiceName = authenticationService.ToLowerInvariant();
 
       return result;
     }

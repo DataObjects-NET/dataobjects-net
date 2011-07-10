@@ -9,12 +9,15 @@ using System.Configuration;
 
 namespace Xtensive.Practices.Security.Configuration
 {
-  public class ValidationServiceConfigurationElement : ConfigurationElement
+  /// <summary>
+  /// Authentication service configuration element within a configuration file.
+  /// </summary>
+  public class AuthenticationServiceConfigurationElement : ConfigurationElement
   {
     private const string NameElementName = "name";
 
    /// <summary>
-    /// Gets or sets the short name of the encryption service type.
+    /// Gets or sets the name of the authentication service.
     /// </summary>
     [ConfigurationProperty(NameElementName, IsRequired = false)]
     public string Name

@@ -11,12 +11,26 @@ using System.Text;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
+  /// <summary>
+  /// Generic <see cref="IHashingService"/> implementation.
+  /// </summary>
   public abstract class GenericHashingService : IHashingService
   {
+    /// <summary>
+    /// The size of salt.
+    /// </summary>
     public const int SaltSize = 8;
 
+    /// <summary>
+    /// Gets the hash algorithm.
+    /// </summary>
+    /// <value>The hash algorithm.</value>
     public HashAlgorithm HashAlgorithm { get; private set; }
 
+    /// <summary>
+    /// Gets the salt.
+    /// </summary>
+    /// <returns>The salt.</returns>
     protected byte[] GetSalt()
     {
       var salt = new byte[SaltSize];
@@ -25,6 +39,12 @@ namespace Xtensive.Practices.Security.Cryptography
       return salt;
     }
 
+    /// <summary>
+    /// Computes the hash.
+    /// </summary>
+    /// <param name="password">The password.</param>
+    /// <param name="salt">The salt.</param>
+    /// <returns>String representation of hash.</returns>
     protected string ComputeHash(byte[] password, byte[] salt)
     {
       var hash = HashAlgorithm.ComputeHash(salt.Concat(password).ToArray());
@@ -33,11 +53,13 @@ namespace Xtensive.Practices.Security.Cryptography
 
     #region IHashingService Members
 
+    /// <inheritdoc/>
     public string ComputeHash(string password)
     {
       return ComputeHash(Encoding.UTF8.GetBytes(password), GetSalt());
     }
 
+    /// <inheritdoc/>
     public bool VerifyHash(string password, string hash)
     {
       byte[] source;
@@ -59,6 +81,10 @@ namespace Xtensive.Practices.Security.Cryptography
 
     #endregion
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GenericHashingService"/> class.
+    /// </summary>
+    /// <param name="hashAlgorithm">The hash algorithm.</param>
     protected GenericHashingService(HashAlgorithm hashAlgorithm)
     {
       HashAlgorithm = hashAlgorithm;

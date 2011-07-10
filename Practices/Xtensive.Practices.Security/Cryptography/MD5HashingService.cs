@@ -10,9 +10,16 @@ using Xtensive.IoC;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
+  /// <summary>
+  /// Implementation of <see cref="IHashingService"/> with MD5 algorithm.
+  /// </summary>
   [Service(typeof (IHashingService), Singleton = true, Name = "md5")]
   public class MD5HashingService : GenericHashingService
   {
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MD5HashingService"/> class.
+    /// </summary>
     public MD5HashingService()
       : base(new MD5CryptoServiceProvider())
     {}

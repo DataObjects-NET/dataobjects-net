@@ -9,12 +9,15 @@ using System.Configuration;
 
 namespace Xtensive.Practices.Security.Configuration
 {
+  /// <summary>
+  /// Hashing service configuration element within a configuration file.
+  /// </summary>
   public class HashingServiceConfigurationElement : ConfigurationElement
   {
     private const string NameElementName = "name";
 
    /// <summary>
-    /// Gets or sets the short name of the encryption service type.
+    /// Gets or sets the name of the hashing service.
     /// </summary>
     [ConfigurationProperty(NameElementName, IsRequired = false)]
     public string Name

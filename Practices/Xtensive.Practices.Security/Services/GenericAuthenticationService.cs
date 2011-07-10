@@ -6,18 +6,20 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Security.Principal;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm;
-using Xtensive.Practices.Security.Configuration;
 
 namespace Xtensive.Practices.Security
 {
+  /// <summary>
+  /// Provides authentication for <see cref="GenericPrincipal"/> with username/password authentication scheme.
+  /// </summary>
   [Service(typeof(IAuthenticationService), Singleton = true, Name = "default")]
   public class GenericAuthenticationService : SessionBound, IAuthenticationService
   {
+    /// <inheritdoc/>
     public IPrincipal Authenticate(IIdentity identity, params object[] args)
     {
       ArgumentValidator.EnsureArgumentNotNull(identity, "identity");
@@ -26,6 +28,7 @@ namespace Xtensive.Practices.Security
       return Authenticate(identity.Name, args);
     }
 
+    /// <inheritdoc/>
     public IPrincipal Authenticate(string name, params object[] args)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
@@ -38,6 +41,12 @@ namespace Xtensive.Practices.Security
 
     }
 
+    /// <summary>
+    /// Authenticates the specified username and password pair.
+    /// </summary>
+    /// <param name="username">The username.</param>
+    /// <param name="password">The password.</param>
+    /// <returns><see cref="IPrincipal"/> instance if the credentials are valid and <see langword="null" /> if they are not.</returns>
     protected virtual IPrincipal Authenticate(string username, string password)
     {
       var config = Session.GetSecurityConfiguration();
@@ -46,7 +55,7 @@ namespace Xtensive.Practices.Security
       if (service == null)
         throw new InvalidOperationException(string.Format("Hashing service by name {0} is not found. Check Xtensive.Security configuration", config.HashingServiceName));
 
-      // GenericPrincipal is not found in the model, let's find its descendant
+      // GenericPrincipal is not in the model, let's find its descendant
       var model = Session.Domain.Model;
       var rootPrincipalType = model.Hierarchies
         .Select(h => h.Root.UnderlyingType)
@@ -65,6 +74,13 @@ namespace Xtensive.Practices.Security
       return null;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GenericAuthenticationService"/> class.
+    /// </summary>
+    /// <param name="session"><see cref="T:Xtensive.Orm.Session"/>, to which current instance
+    /// is bound.</param>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// 	<paramref name="session"/> is <see langword="null"/>.</exception>
     [ServiceConstructor]
     public GenericAuthenticationService(Session session)
       : base(session)

@@ -9,14 +9,19 @@ using Xtensive.IoC;
 
 namespace Xtensive.Practices.Security.Cryptography
 {
+  /// <summary>
+  /// Implementation of <see cref="IHashingService"/> without any hashing.
+  /// </summary>
   [Service(typeof(IHashingService), Singleton = true, Name = "plain")]
   public class PlainHashingService : IHashingService
   {
+    /// <inheritdoc/>
     public string ComputeHash(string password)
     {
       return password;
     }
 
+    /// <inheritdoc/>
     public bool VerifyHash(string password, string hash)
     {
       return StringComparer.Ordinal.Compare(password, hash) == 0;
