@@ -55,6 +55,7 @@ namespace Xtensive.Storage.Upgrade
     /// Override this method to handle "at upgrade stage" event.
     /// </summary>
     void OnStage();
+         /// <summary>    /// Override this method to make correction to upgrade action sequence.    /// </summary>    void OnBeforeExecuteActions(UpgradeActionSequence actions);
 
     /// <summary>
     /// Determines whether this handler can upgrade the assembly

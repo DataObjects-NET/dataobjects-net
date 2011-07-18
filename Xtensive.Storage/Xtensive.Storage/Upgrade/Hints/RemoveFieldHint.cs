@@ -33,6 +33,11 @@ namespace Xtensive.Storage.Upgrade
     public string Field { get; private set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether this instance is explicit.
+    /// </summary>
+    public bool IsExplicit { get; set; }
+
+    /// <summary>
     /// Gets affected column paths.
     /// </summary>
     public ReadOnlyList<string> AffectedColumns { get; internal set; }

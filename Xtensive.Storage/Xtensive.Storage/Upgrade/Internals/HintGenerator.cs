@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Upgrade
       ValidateRenameTypeHints(hints.GetItems<RenameTypeHint>());
       ValidateRemoveTypeHints(hints.GetItems<RemoveTypeHint>());
       ValidateRenameFieldHints(hints.GetItems<RenameFieldHint>());
-      ValidateRemoveFieldHints(hints.GetItems<RemoveFieldHint>());
+      ValidateRemoveFieldHints(hints.GetItems<RemoveFieldHint>().Where(h => !h.IsExplicit));
       ValidateCopyFieldHints(hints.GetItems<CopyFieldHint>());
     }
 
@@ -504,7 +504,15 @@ namespace Xtensive.Storage.Upgrade
           continue;
         if (!extractedModel.Tables[type.MappingName].Columns.Contains(typeIdField.MappingName))
           continue;
-        var hint = new RemoveFieldHint(type.UnderlyingType, typeIdField.Name);
+        var hint = new RemoveFieldHint(targetType.UnderlyingType, targetTypeIdField.Name);
+
+        // Generating affected columns list explicitly for a situation when "type" is renamed to "targetType"
+        if (type != targetType) {
+          hint.IsExplicit = true;
+          hint.AffectedColumns =
+            new ReadOnlyList<string>(new List<string>
+              {GetColumnPath(targetType.MappingName, targetTypeIdField.MappingName)});
+        }
         result.Add(hint);
       }
       return result;
@@ -854,6 +862,9 @@ namespace Xtensive.Storage.Upgrade
 
     private void UpdateAffectedColumns(RemoveFieldHint hint)
     {
+      if (hint.IsExplicit)
+        return;
+
       var affectedColumns = new List<string>();
       var typeName = hint.Type;
       var storedType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType == typeName);

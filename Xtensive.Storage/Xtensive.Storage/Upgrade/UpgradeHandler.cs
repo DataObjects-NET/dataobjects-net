@@ -112,6 +112,11 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
+    public virtual void OnBeforeExecuteActions(UpgradeActionSequence actions)
+    {
+      // Doing nothing
+    }
+
     /// <inheritdoc/>
     public virtual bool CanUpgradeFrom(string oldVersion)
     {
