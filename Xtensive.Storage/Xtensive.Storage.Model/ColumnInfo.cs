@@ -299,13 +299,17 @@ namespace Xtensive.Storage.Model
         if (genericType == typeof(Nullable<>))
           valueType = Nullable.GetUnderlyingType(valueType);
       }
-      valueType = field.IsEnum 
-        ? Enum.GetUnderlyingType(valueType) 
-        : valueType;
+      if (field.IsEnum) {
+        valueType = Enum.GetUnderlyingType(valueType);
+        defaultValue = Convert.ChangeType(field.DefaultValue, valueType);
+      }
+      else {
+        valueType = valueType;
+        defaultValue = field.DefaultValue;
+      }
       length = field.Length;
       scale = field.Scale;
       precision = field.Precision;
-      defaultValue = field.DefaultValue;
     }
 
     /// <summary>

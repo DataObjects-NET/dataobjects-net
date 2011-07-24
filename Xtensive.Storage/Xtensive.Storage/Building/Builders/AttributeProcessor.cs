@@ -173,11 +173,34 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessDefault(FieldDef fieldDef, FieldAttribute attribute)
     {
       object defaultValue = attribute.DefaultValue;
-      if (defaultValue!=null) {
+      if (defaultValue != null) {
         if (fieldDef.ValueType.IsAssignableFrom(defaultValue.GetType()))
           fieldDef.DefaultValue = defaultValue;
-        else
-          fieldDef.DefaultValue = Convert.ChangeType(defaultValue, fieldDef.ValueType.StripNullable());
+        else {
+          var valueType = fieldDef.ValueType.StripNullable();
+          var parseException =
+            new DomainBuilderException(string.Format("Unable to parse default value {0} for field {1}", defaultValue,
+                                                     fieldDef.Name));
+          if (valueType == typeof (Guid)) {
+            Guid guid;
+            if (!Guid.TryParse((string) defaultValue, out guid)) {
+              throw parseException;
+            }
+            fieldDef.DefaultValue = guid;
+          }
+          else if (valueType == typeof (TimeSpan)) {
+            TimeSpan timespan;
+            if (defaultValue is string && !TimeSpan.TryParse((string) defaultValue, out timespan))
+              throw parseException;
+            else {
+              long ticks = (long) Convert.ChangeType(defaultValue, typeof (long));
+              timespan = TimeSpan.FromTicks(ticks);
+            }
+            fieldDef.DefaultValue = timespan;
+          }
+          else
+            fieldDef.DefaultValue = Convert.ChangeType(defaultValue, valueType);
+        }
       }
     }
 
