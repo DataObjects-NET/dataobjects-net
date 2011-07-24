@@ -109,6 +109,37 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
     /// <param name="field">Value for <see cref="SourceField"/> and <see cref="TargetField"/>.</param>
     /// <param name="targetType">Value for <see cref="TargetType"/>.</param>
+    public CopyFieldHint(Type sourceType, string field, Type targetType)
+      : this(sourceType, field, targetType, field)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
+    /// <param name="sourceField">Value for <see cref="SourceField"/>.</param>
+    /// <param name="targetType">Value for <see cref="TargetType"/>.</param>
+    /// <param name="targetField">Value for <see cref="TargetField"/>.</param>
+    public CopyFieldHint(Type sourceType, string sourceField, Type targetType, string targetField)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sourceType, "sourceType");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceField, "sourceField");
+      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetField, "targetField");
+      
+      SourceType = sourceType.FullName;
+      SourceField = sourceField;
+      TargetType = targetType;
+      TargetField = targetField;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
+    /// <param name="field">Value for <see cref="SourceField"/> and <see cref="TargetField"/>.</param>
+    /// <param name="targetType">Value for <see cref="TargetType"/>.</param>
     public CopyFieldHint(string sourceType, string field, Type targetType)
       : this(sourceType, field, targetType, field)
     {
@@ -129,7 +160,7 @@ namespace Xtensive.Storage.Upgrade
       where TTarget: Entity
     {
       return new CopyFieldHint(
-        typeof(TSource).FullName, sourcePropertyAccessExpression.GetProperty().Name, 
+        typeof(TSource), sourcePropertyAccessExpression.GetProperty().Name, 
         typeof(TTarget), targetPropertyAccessExpression.GetProperty().Name);
     }
 

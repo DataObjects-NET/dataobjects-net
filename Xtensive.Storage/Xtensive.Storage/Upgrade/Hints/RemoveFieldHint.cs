@@ -87,9 +87,24 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="field">Value for <see cref="Field"/>.</param>
     public RemoveFieldHint(string type, string field)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(type, "sourceType");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "sourceField");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(type, "type");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "field");
       Type = type;
+      Field = field;
+      AffectedColumns = new ReadOnlyList<string>(new List<string>());
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Value for <see cref="Type"/>.</param>
+    /// <param name="field">Value for <see cref="Field"/>.</param>
+    public RemoveFieldHint(Type type, string field)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "field");
+
+      Type = type.FullName;
       Field = field;
       AffectedColumns = new ReadOnlyList<string>(new List<string>());
     }
@@ -103,7 +118,7 @@ namespace Xtensive.Storage.Upgrade
     public static RemoveFieldHint Create<T>(Expression<Func<T, object>> propertyAccessExpression)
       where T: Entity
     {
-      return new RemoveFieldHint(typeof(T).FullName, propertyAccessExpression.GetProperty().Name);
+      return new RemoveFieldHint(typeof(T), propertyAccessExpression.GetProperty().Name);
     }
   }
 }
