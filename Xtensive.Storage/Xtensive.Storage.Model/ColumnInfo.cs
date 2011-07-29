@@ -301,7 +301,8 @@ namespace Xtensive.Storage.Model
       }
       if (field.IsEnum) {
         valueType = Enum.GetUnderlyingType(valueType);
-        defaultValue = Convert.ChangeType(field.DefaultValue, valueType);
+        if (field.DefaultValue != null)
+          defaultValue = Convert.ChangeType(field.DefaultValue, valueType);
       }
       else {
         valueType = valueType;

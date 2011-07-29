@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Model
       return result==item;
     }
 
-    #region FIndXxx methods
+    #region FindXxx methods
 
     /// <summary>
     /// Finds the type by its full name.
@@ -254,16 +254,19 @@ namespace Xtensive.Storage.Model
       if (!interfaceTable.TryGetValue(item, out result))
         result = new HashSet<TypeInfo>();
 
-      if (!recursive || item.IsInterface)
-        return result;
+      foreach (var item1 in result) {
+        yield return item1;
 
-      var ancestor = FindAncestor(item);
-      while (ancestor != null) {
-        foreach (var @interface in FindInterfaces(ancestor, true))
-          result.Add(@interface);
-        ancestor = FindAncestor(ancestor);
+        if (!recursive || item.IsInterface)
+          continue;
+
+        var ancestor = FindAncestor(item);
+        while (ancestor != null) {
+          foreach (var @interface in FindInterfaces(ancestor, true))
+            yield return @interface;
+          ancestor = FindAncestor(ancestor);
+        }
       }
-      return result;
     }
 
     /// <summary>
@@ -290,17 +293,16 @@ namespace Xtensive.Storage.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      var result = new HashSet<TypeInfo>();
-      HashSet<TypeInfo> implementors;
-      if (implementorTable.TryGetValue(item, out implementors))
-        result.UnionWith(implementors);
+      HashSet<TypeInfo> result;
+      if (!implementorTable.TryGetValue(item, out result))
+        result = new HashSet<TypeInfo>();
 
-      if (recursive)
-        foreach (var type in implementors)
-          if (!type.IsInterface)
-            foreach (var descendant in FindDescendants(type, true))
-              result.Add(descendant);
-      return result;
+      foreach (var item1 in result) {
+        yield return item1;
+        if (recursive && !item1.IsInterface)
+          foreach (var item2 in FindDescendants(item1, true))
+            yield return item2;
+      }
     }
 
     /// <summary>
