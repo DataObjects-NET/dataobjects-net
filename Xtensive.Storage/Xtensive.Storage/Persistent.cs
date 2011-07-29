@@ -245,6 +245,7 @@ namespace Xtensive.Storage
       try {
         SystemBeforeGetValue(field);
         result = fieldAccessor.GetValue(this);
+        result = (T) AdjustFieldValue(field, result);
         SystemGetValue(field, result);
         SystemGetValueCompleted(field, result, null);
         return result;
@@ -270,6 +271,7 @@ namespace Xtensive.Storage
       try {
         SystemBeforeGetValue(field);
         result = fieldAccessor.GetUntypedValue(this);
+        result = AdjustFieldValue(field, result);
         SystemGetValue(field, result);
         SystemGetValueCompleted(field, result, null);
         return result;
@@ -450,6 +452,7 @@ namespace Xtensive.Storage
             else {
               if (!Equals(value, oldValue) || field.IsStructure) {
                 SystemBeforeTupleChange();
+                value = AdjustFieldValue(field, oldValue, value);
                 fieldAccessor.SetUntypedValue(this, value);
                 SystemTupleChange();
               }
@@ -594,6 +597,35 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected virtual void OnValidate()
     {
+    }
+
+    /// <summary>
+    /// Called when value is read from the field and before it is returned to caller.
+    /// </summary>
+    /// <param name="field">The field.</param>
+    /// <param name="value">The value of the field.</param>
+    /// <returns></returns>
+    /// <remarks>
+    /// Override it to perform changes to the value that is being read.
+    /// </remarks>
+    protected virtual object AdjustFieldValue(FieldInfo field, object value)
+    {
+      return value;
+    }
+
+    /// <summary>
+    /// Called before value is stored to the field.
+    /// </summary>
+    /// <param name="field">The field.</param>
+    /// <param name="oldValue">The previous value of the field.</param>
+    /// <param name="newValue">The value that is being set.</param>
+    /// <returns></returns>
+    /// <remarks>
+    /// Override it to perform changes to the value that is being set.
+    /// </remarks>
+    protected virtual object AdjustFieldValue(FieldInfo field, object oldValue, object newValue)
+    {
+      return newValue;
     }
 
     #endregion
