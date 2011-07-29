@@ -5,6 +5,7 @@
 // Created:    2007.12.10
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -56,6 +57,7 @@ namespace Xtensive.Orm.Model
     public ColumnInfoCollection(Node owner, string name)
       : base(owner, name)
     {
+      NameIndex = new Dictionary<string, ColumnInfo>(StringComparer.OrdinalIgnoreCase);
     }
   }
 }

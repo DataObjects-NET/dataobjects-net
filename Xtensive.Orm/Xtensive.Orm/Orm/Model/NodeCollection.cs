@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Model
     : CollectionBase<TNode>
     where TNode: Node
   {
-    private readonly Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
+    protected Dictionary<string, TNode> NameIndex = new Dictionary<string, TNode>();
     
     /// <summary>
     /// Gets empty collection.
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Model
     [DebuggerStepThrough]
     public bool Contains(string key)
     {
-      return nameIndex.ContainsKey(key);
+      return NameIndex.ContainsKey(key);
     }
 
 
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Model
     [DebuggerStepThrough]
     public bool TryGetValue(string key, out TNode value)
     {
-      return nameIndex.TryGetValue(key, out value);
+      return NameIndex.TryGetValue(key, out value);
     }
 
     /// <summary>
@@ -136,32 +136,32 @@ namespace Xtensive.Orm.Model
     protected override void OnInserted(TNode value, int index)
     {
       base.OnInserted(value, index);
-      nameIndex.Add(value.Name, value);
+      NameIndex.Add(value.Name, value);
     }
 
     protected override void OnRemoved(TNode value, int index)
     {
       base.OnRemoved(value, index);
-      nameIndex.Remove(value.Name);
+      NameIndex.Remove(value.Name);
     }
 
     protected override void OnCleared()
     {
       base.OnCleared();
-      nameIndex.Clear();
+      NameIndex.Clear();
     }
 
     protected override void OnItemChanging(object sender, ChangeNotifierEventArgs e)
     {
       base.OnItemChanging(sender, e);
-      nameIndex.Remove(((TNode) sender).Name);
+      NameIndex.Remove(((TNode) sender).Name);
     }
 
     protected override void OnItemChanged(object sender, ChangeNotifierEventArgs e)
     {
       base.OnItemChanged(sender, e);
       var tNode = (TNode)sender;
-      nameIndex.Add(tNode.Name, tNode);
+      NameIndex.Add(tNode.Name, tNode);
     }
 
     /// <inheritdoc/>
