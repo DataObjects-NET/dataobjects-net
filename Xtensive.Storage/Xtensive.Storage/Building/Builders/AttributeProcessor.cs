@@ -183,7 +183,10 @@ namespace Xtensive.Storage.Building.Builders
                                                      fieldDef.Name));
           if (valueType == typeof (Guid)) {
             Guid guid;
-            if (!Guid.TryParse((string) defaultValue, out guid)) {
+            try {
+              guid = Guid.Parse((string) defaultValue);
+            }
+            catch (FormatException) {
               throw parseException;
             }
             fieldDef.DefaultValue = guid;
