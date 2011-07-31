@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Building.Builders
           if (valueType == typeof (Guid)) {
             Guid guid;
             try {
-              guid = Guid.Parse((string) defaultValue);
+              guid = new Guid((string) defaultValue);
             }
             catch (FormatException) {
               throw parseException;
