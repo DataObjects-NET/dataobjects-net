@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(EULong.Max, x.FEULong);
           Assert.AreEqual(EUShort.Max, x.FEUShort);
           Assert.AreEqual(float.MaxValue, x.FFloat);
-          Assert.AreEqual(Guid.Parse("6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA"), x.FGuid);
+          Assert.AreEqual(new Guid("6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA"), x.FGuid);
           Assert.AreEqual(int.MaxValue, x.FInt);
           Assert.AreEqual(long.MaxValue, x.FLong);
           Assert.AreEqual(new byte[] {10,10,10,10}, x.FLongByteArray);
@@ -302,7 +302,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(EULong.Max, x.FNEULong);
           Assert.AreEqual(EUShort.Max, x.FNEUShort);
           Assert.AreEqual(float.MaxValue, x.FNFloat);
-          Assert.AreEqual(Guid.Parse("6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA"), x.FNGuid);
+          Assert.AreEqual(new Guid("6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA"), x.FNGuid);
           Assert.AreEqual(int.MaxValue, x.FNInt);
           Assert.AreEqual(long.MaxValue, x.FNLong);
           Assert.AreEqual(sbyte.MaxValue, x.FNSByte);
