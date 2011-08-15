@@ -251,8 +251,15 @@ namespace Xtensive.Orm
     public static void Remove<T>(this IEnumerable<T> entities)
       where T : IEntity
     {
-      var session = Session.Demand();
-      session.Remove(entities);
+      var session = Session.Current;
+      if (session != null)
+        session.Remove(entities);
+      else {
+        var items = entities.Where(e => e != null).ToList();
+        if (items.Count == 0)
+          return;
+        items[0].Session.Remove(items);
+      }
     }
 
     #region Private \ internal members

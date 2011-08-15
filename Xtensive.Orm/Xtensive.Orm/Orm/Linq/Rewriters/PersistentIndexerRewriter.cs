@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -69,7 +70,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     private static MemberExpression GetMemberExpression(MethodCallExpression mc)
     {
       var name = (string) ExpressionEvaluator.Evaluate(mc.Arguments[0]).Value;
-      var propertyInfo = mc.Object.Type.GetProperties().SingleOrDefault(property => property.Name==name);
+      var propertyInfo = mc.Object.Type.GetProperties(BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).SingleOrDefault(property => property.Name==name);
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
       throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));

@@ -11,6 +11,7 @@ using Xtensive.Linq;
 using Xtensive.Linq.SerializableExpressions;
 using Xtensive.Linq.SerializableExpressions.Internals;
 using Xtensive.Resources;
+using System.Linq;
 
 namespace Xtensive.Core
 {
@@ -224,7 +225,14 @@ namespace Xtensive.Core
     {
       while (expression.NodeType == ExpressionType.Quote)
         expression = ((UnaryExpression)expression).Operand;
-      return (LambdaExpression) expression;
+      var lambda = expression as LambdaExpression;
+      if (lambda == null) {
+        if (!typeof(LambdaExpression).IsAssignableFrom(expression.Type))
+          throw new InvalidOperationException(string.Format("Unable to process expression '{0}'", expression));
+        var typeAs = Expression.TypeAs(expression, typeof(LambdaExpression));
+        return Expression.Lambda<Func<LambdaExpression>>(typeAs).CachingCompile()();
+      }
+      return lambda;
     }
 
     /// <summary>

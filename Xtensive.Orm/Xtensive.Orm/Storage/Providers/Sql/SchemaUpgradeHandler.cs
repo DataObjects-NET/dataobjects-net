@@ -52,29 +52,34 @@ namespace Xtensive.Storage.Providers.Sql
         queryExecutor.ExecuteNonQuery,
         cachingKeyGeneratorService.GetCurrentValueImplementation);
 
-      translator.Translate();
+      var result = translator.Translate();
 
       LogTranslatedStatements(translator);
 
+        var upgradeContext = UpgradeContext.Current;
+        if (upgradeContext!=null)
+          foreach (var pair in upgradeContext.UpgradeHandlers)
+            pair.Value.OnBeforeExecuteActions(result);
+
       var context = UpgradeContext.Demand();
-      if (translator.NonTransactionalPrologCommands.Count > 0) {
+      if (result.NonTransactionalPrologCommands.Count > 0) {
         context.TransactionScope.Complete();
         context.TransactionScope.Dispose();
-        Execute(translator.NonTransactionalPrologCommands);
+        Execute(result.NonTransactionalPrologCommands);
         context.TransactionScope = SessionHandler.Session.OpenTransaction();
       }
 
-      Execute(translator.CleanupDataCommands);
-      Execute(translator.PreUpgradeCommands);
-      Execute(translator.UpgradeCommands);
-      Execute(translator.CopyDataCommands);
-      Execute(translator.PostCopyDataCommands);
-      Execute(translator.CleanupCommands);
+      Execute(result.CleanupDataCommands);
+      Execute(result.PreUpgradeCommands);
+      Execute(result.UpgradeCommands);
+      Execute(result.CopyDataCommands);
+      Execute(result.PostCopyDataCommands);
+      Execute(result.CleanupCommands);
 
-      if (translator.NonTransactionalEpilogCommands.Count > 0) {
+      if (result.NonTransactionalEpilogCommands.Count > 0) {
         context.TransactionScope.Complete();
         context.TransactionScope.Dispose();
-        Execute(translator.NonTransactionalEpilogCommands);
+        Execute(result.NonTransactionalEpilogCommands);
         context.TransactionScope = SessionHandler.Session.OpenTransaction();
       }
     }

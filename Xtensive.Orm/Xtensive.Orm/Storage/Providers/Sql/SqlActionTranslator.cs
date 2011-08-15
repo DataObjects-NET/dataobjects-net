@@ -58,14 +58,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly StorageInfo targetModel;
     private readonly Driver driver;
     
-    private readonly List<string> cleanupDataCommands = new List<string>();
-    private readonly List<string> preUpgradeCommands = new List<string>();
-    private readonly List<string> upgradeCommands = new List<string>();
-    private readonly List<string> copyDataCommands = new List<string>();
-    private readonly List<string> postCopyDataCommands = new List<string>();
-    private readonly List<string> cleanupCommands = new List<string>();
-    private readonly List<string> nonTransactionalEpilogCommands = new List<string>();
-    private readonly List<string> nonTransactionalPrologCommands = new List<string>();
+    private UpgradeActionSequence result;
     
     private bool translated;
     private readonly List<Table> createdTables = new List<Table>();
@@ -87,7 +80,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return cleanupDataCommands;
+        return result.CleanupDataCommands;
       }
     }
 
@@ -100,7 +93,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return preUpgradeCommands;
+        return result.PreUpgradeCommands;
       }
     }
 
@@ -112,7 +105,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return upgradeCommands;
+        return result.UpgradeCommands;
       }
     }
 
@@ -124,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return copyDataCommands;
+        return result.CopyDataCommands;
       }
     }
 
@@ -136,7 +129,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return postCopyDataCommands;
+        return result.PostCopyDataCommands;
       }
     }
 
@@ -149,7 +142,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return cleanupCommands;
+        return result.CleanupCommands;
       }
     }
 
@@ -161,7 +154,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return nonTransactionalPrologCommands;
+        return result.NonTransactionalPrologCommands;
       }
     }
 
@@ -174,15 +167,17 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         EnsureCommandsAreTranslated();
-        return nonTransactionalEpilogCommands;
+        return result.NonTransactionalEpilogCommands;
       }
     }
 
     /// <summary>
     /// Translates all registered actions.
     /// </summary>
-    public void Translate()
+    public UpgradeActionSequence Translate()
     {
+      result = new UpgradeActionSequence();
+
       // Data cleanup
       stage = UpgradeStage.CleanupData;
       // Turn off deferred contraints
@@ -241,6 +236,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred), NonTransactionalStage.None);
       translated = true;
+
+      return result;
     }
 
     private void VisitAction(NodeAction action)
@@ -1207,46 +1204,46 @@ namespace Xtensive.Storage.Providers.Sql
       switch(nonTransactionalStage) {
         case NonTransactionalStage.Prologue:
           if (inNewBatch)
-            nonTransactionalPrologCommands.Add(string.Empty);
-          nonTransactionalPrologCommands.Add(commandText);
+            result.NonTransactionalPrologCommands.Add(string.Empty);
+          result.NonTransactionalPrologCommands.Add(commandText);
           return;
         case NonTransactionalStage.Epilogue:
           if (inNewBatch)
-            nonTransactionalEpilogCommands.Add(string.Empty);
-          nonTransactionalEpilogCommands.Add(commandText);
+            result.NonTransactionalEpilogCommands.Add(string.Empty);
+          result.NonTransactionalEpilogCommands.Add(commandText);
           return;
       }
       switch (stage) {
         case UpgradeStage.CleanupData:
           if (inNewBatch)
-            cleanupDataCommands.Add(string.Empty);
-          cleanupDataCommands.Add(commandText);
+            result.CleanupDataCommands.Add(string.Empty);
+          result.CleanupDataCommands.Add(commandText);
           break;
         case UpgradeStage.Prepare:
         case UpgradeStage.TemporaryRename:
           if (inNewBatch)
-            preUpgradeCommands.Add(string.Empty);
-          preUpgradeCommands.Add(commandText);
+            result.PreUpgradeCommands.Add(string.Empty);
+          result.PreUpgradeCommands.Add(commandText);
           break;
         case UpgradeStage.Upgrade:
           if (inNewBatch)
-            upgradeCommands.Add(string.Empty);
-          upgradeCommands.Add(commandText);
+            result.UpgradeCommands.Add(string.Empty);
+          result.UpgradeCommands.Add(commandText);
           break;
         case UpgradeStage.CopyData:
           if (inNewBatch)
-            copyDataCommands.Add(string.Empty);
-          copyDataCommands.Add(commandText);
+            result.CopyDataCommands.Add(string.Empty);
+          result.CopyDataCommands.Add(commandText);
           break;
         case UpgradeStage.PostCopyData:
           if (inNewBatch)
-            postCopyDataCommands.Add(string.Empty);
-          postCopyDataCommands.Add(commandText);
+            result.PostCopyDataCommands.Add(string.Empty);
+          result.PostCopyDataCommands.Add(commandText);
           break;
         case UpgradeStage.Cleanup:
           if (inNewBatch)
-            cleanupCommands.Add(string.Empty);
-          cleanupCommands.Add(commandText);
+            result.CleanupCommands.Add(string.Empty);
+          result.CleanupCommands.Add(commandText);
           break;
       }
     }

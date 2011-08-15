@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Building
             var interfaceType = implementorEdge.Head.Value.UnderlyingType;
             // if not explicit implementation
             var interfaceMap = implementorType.GetInterfaceMap(interfaceType);
-            if (!interfaceMap.TargetMethods.Any(tm => tm.DeclaringType == implementorType)) {
+            if (!interfaceMap.TargetMethods.Any(tm => tm.DeclaringType == implementorType && tm.IsPrivate)) {
               // Checking for ancestor-descendant connection
               foreach (var directImplementorEdge in directImplementorEdges) {
                 var directImplementorType = directImplementorEdge.Tail.Value.UnderlyingType;
