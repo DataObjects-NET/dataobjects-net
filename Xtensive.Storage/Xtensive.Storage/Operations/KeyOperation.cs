@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Operations
     protected KeyOperation(SerializationInfo info, StreamingContext context)
     {
       Key = Key.Parse(info.GetString("Key"));
-      Key.TypeReference = new TypeReference(Key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
+//      Key.TypeReference = new TypeReference(Key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
     }
   }
 }

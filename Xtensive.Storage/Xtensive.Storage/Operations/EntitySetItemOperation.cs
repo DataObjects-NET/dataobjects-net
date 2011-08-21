@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Operations
       : base(info, context)
     {
       ItemKey = Key.Parse(info.GetString("ItemKey"));
-      ItemKey.TypeReference = new TypeReference(ItemKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
+//      ItemKey.TypeReference = new TypeReference(ItemKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
     }
   }
 }

@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Operations
       var keys = new Set<Key>();
       foreach (var formattedKey in formattedKeys.RevertibleSplit('\\', ';')) {
         var key = Key.Parse(formattedKey);
-        key.TypeReference = new TypeReference(key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
+//        key.TypeReference = new TypeReference(key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         keys.Add(key);
       }
       Keys = new ReadOnlySet<Key>(keys);

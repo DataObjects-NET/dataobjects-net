@@ -407,7 +407,7 @@ namespace Xtensive.Storage.Building.Builders
       if (existingKey!=null) {
         // There is an existing key like this, with the same key generator
         key.IsFirstAmongSimilarKeys = false;
-        key.EqualityIdentifier = new object();
+        key.EqualityIdentifier = existingKey.EqualityIdentifier;
         key.Sequence = existingKey.Sequence;
         return key;
       }
