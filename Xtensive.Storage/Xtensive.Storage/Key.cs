@@ -137,7 +137,7 @@ namespace Xtensive.Storage
     /// </summary>
     internal bool HasExactType
     {
-      get { return TypeReference.Accuracy == TypeReferenceAccuracy.ExactType ? true : false; }
+      get { return TypeReference.Accuracy == TypeReferenceAccuracy.ExactType; }
     }
 
     #region Equals, GetHashCode, ==, != 
@@ -150,6 +150,8 @@ namespace Xtensive.Storage
       if (ReferenceEquals(this, other))
         return true;
       if (GetHashCode()!=other.GetHashCode())
+        return false;
+      if (HasExactType && other.HasExactType && TypeReference.Type != other.TypeReference.Type)
         return false;
       if (TypeReference.Type.Key.EqualityIdentifier!=other.TypeReference.Type.Key.EqualityIdentifier)
         return false;
