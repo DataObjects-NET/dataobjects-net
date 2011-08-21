@@ -88,6 +88,10 @@ namespace Xtensive.Orm
           TypeReference = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
           return TypeReference.Type;
         }
+
+        if (IsTemporary(domain))
+          return TypeReference.Type;
+
         if (session.IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
 
@@ -225,7 +229,7 @@ namespace Xtensive.Orm
       if (cachedFormatResult==null) {
         return new[] {
           Value.Format(),
-          TypeReference.Type.Hierarchy.Root.UnderlyingType.FullName
+          TypeReference.Type.UnderlyingType.FullName
         }.RevertibleJoin(KeyFormatEscape, KeyFormatDelimiter);
       }
       return cachedFormatResult;

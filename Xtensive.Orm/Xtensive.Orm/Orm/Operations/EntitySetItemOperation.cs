@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Operations
       : base(info, context)
     {
       ItemKey = Key.Parse(Domain.Demand(), info.GetString("ItemKey"));
-      ItemKey.TypeReference = new TypeReference(ItemKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
+//      ItemKey.TypeReference = new TypeReference(ItemKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
     }
   }
 }
