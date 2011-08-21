@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Linq
       if (memberType==MemberType.Entity
         && typeof (IEntity).IsAssignableFrom(operandType)) {
         TypeInfo typeInfo = context.Model.Types[operandType];
-        IEnumerable<int> typeIds = typeInfo.GetDescendants().Union(typeInfo.GetImplementors()).AddOne(typeInfo).Select(ti => ti.TypeId);
+        IEnumerable<int> typeIds = typeInfo.GetDescendants(true).Union(typeInfo.GetImplementors(true)).AddOne(typeInfo).Select(ti => ti.TypeId);
         MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
