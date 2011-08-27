@@ -38,15 +38,27 @@ namespace Xtensive.Core.Tuples.Internals
     public readonly RegularTuple Second;
 
     /// <inheritdoc/>
+    public override TupleDescriptor Descriptor
+    {
+      get {
+        if (descriptor != null)
+          return base.Descriptor;
+
+        descriptor = TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
+        return descriptor;
+      }
+    }
+
+    /// <inheritdoc/>
     public override int Count
     {
-      get { return descriptor.Count; }
+      get { return Descriptor.Count; }
     }
 
     /// <inheritdoc/>
     public override Tuple CreateNew()
     {
-      return new JoinedTuple(descriptor, (RegularTuple) First.CreateNew(), (RegularTuple) Second.CreateNew());
+      return new JoinedTuple(Descriptor, (RegularTuple) First.CreateNew(), (RegularTuple) Second.CreateNew());
     }
 
     /// <inheritdoc/>
@@ -87,12 +99,6 @@ namespace Xtensive.Core.Tuples.Internals
         First.SetValue(fieldIndex, fieldValue);
       else
         Second.SetValue(fieldIndex - FirstCount, fieldValue);
-    }
-
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
-    {
-      descriptor = TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
     }
 
 

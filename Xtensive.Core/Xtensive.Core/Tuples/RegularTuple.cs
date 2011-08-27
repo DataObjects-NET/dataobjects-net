@@ -21,7 +21,7 @@ namespace Xtensive.Core.Tuples
     [IgnoreDataMember] 
     protected TupleDescriptor descriptor;
 
-    public sealed override TupleDescriptor Descriptor
+    public override TupleDescriptor Descriptor
     {
       get { return descriptor; }
     }
