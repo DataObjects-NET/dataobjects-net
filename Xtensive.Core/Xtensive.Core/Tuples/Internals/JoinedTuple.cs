@@ -39,6 +39,18 @@ namespace Xtensive.Tuples.Internals
     public readonly Tuple Second;
 
     /// <inheritdoc/>
+    public override TupleDescriptor Descriptor
+    {
+      get {
+        if (descriptor != null)
+          return base.Descriptor;
+
+        descriptor = TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
+        return descriptor;
+      }
+    }
+
+    /// <inheritdoc/>
     public override int Count
     {
       get { return Descriptor.Count; }
@@ -52,9 +64,7 @@ namespace Xtensive.Tuples.Internals
     /// <inheritdoc/>
     public override Tuple CreateNew()
     {
-      return new JoinedTuple(Descriptor, 
-        (RegularTuple) First.CreateNew(), 
-        (RegularTuple) Second.CreateNew());
+      return new JoinedTuple(Descriptor, (RegularTuple) First.CreateNew(), (RegularTuple) Second.CreateNew());
     }
 
     /// <inheritdoc/>
@@ -96,7 +106,6 @@ namespace Xtensive.Tuples.Internals
       else
         Second.SetValue(fieldIndex - FirstCount, fieldValue);
     }
-
 
     // Constructors
 

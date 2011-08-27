@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Operations
         var value = info.GetString("value");
         if (!value.IsNullOrEmpty()) {
           ValueKey = Key.Parse(session.Domain, value);
-          ValueKey.TypeReference = new TypeReference(ValueKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
+//          ValueKey.TypeReference = new TypeReference(ValueKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         }
       }
       else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {

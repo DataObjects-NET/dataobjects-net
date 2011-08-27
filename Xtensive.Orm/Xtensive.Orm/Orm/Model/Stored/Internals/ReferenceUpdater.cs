@@ -195,7 +195,9 @@ namespace Xtensive.Orm.Model.Stored
     {
       if (string.IsNullOrEmpty(association.ReversedName))
         return;
-      association.Reversed = associations[association.ReversedName];
+      StoredAssociationInfo r;
+      if (associations.TryGetValue(association.ReversedName, out r))
+        association.Reversed = r;
     }
 
     private void UpdateAssociationReferencedType(StoredAssociationInfo association)

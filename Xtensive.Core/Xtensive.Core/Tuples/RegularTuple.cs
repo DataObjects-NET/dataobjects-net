@@ -21,23 +21,9 @@ namespace Xtensive.Tuples
     [IgnoreDataMember] 
     protected TupleDescriptor descriptor;
 
-    /// <inheritdoc/>
-    public sealed override TupleDescriptor Descriptor {
-      get {
-        if (descriptor==null)
-          descriptor = BuildDescriptor();
-        return descriptor;
-      }
-    }
-
-    /// <summary>
-    /// Builds <see cref="Descriptor"/> value, if it isn't set yet.
-    /// Useful on deserialization.
-    /// </summary>
-    /// <returns></returns>
-    protected virtual TupleDescriptor BuildDescriptor()
+    public override TupleDescriptor Descriptor
     {
-      return null;
+      get { return descriptor; }
     }
 
     /// <inheritdoc/>
