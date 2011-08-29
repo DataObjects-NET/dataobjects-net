@@ -56,11 +56,6 @@ namespace Xtensive.Tuples.Internals
       get { return Descriptor.Count; }
     }
 
-    protected override TupleDescriptor BuildDescriptor()
-    {
-      return TupleDescriptor.Create(First.Descriptor.Concat(Second.Descriptor));
-    }
-
     /// <inheritdoc/>
     public override Tuple CreateNew()
     {
