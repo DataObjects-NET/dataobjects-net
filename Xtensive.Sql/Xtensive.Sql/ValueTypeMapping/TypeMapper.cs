@@ -7,7 +7,9 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
@@ -24,6 +26,7 @@ namespace Xtensive.Sql
     protected int? MaxDecimalPrecision { get; private set; }
     protected int? VarCharMaxLength { get; private set; }
     protected int? VarBinaryMaxLength { get; private set; }
+    protected static BinaryFormatter Formatter = new BinaryFormatter();
 
     public virtual bool IsLiteralCastRequired(Type type)
     {
@@ -240,10 +243,7 @@ namespace Xtensive.Sql
 
     public virtual object ReadByteArray(DbDataReader reader, int index)
     {
-      var result = reader[index] as byte[];
-      if (result==null)
-        throw new InvalidOperationException();
-      return result;
+      var value = reader[index];      if (value == null || value is byte[])        return value;      try {        var ms = new MemoryStream();        Formatter.Serialize(ms, value);        return ms.ToArray();      }      catch (Exception e) {        // Log this        throw;      }
     }
 
     #endregion
