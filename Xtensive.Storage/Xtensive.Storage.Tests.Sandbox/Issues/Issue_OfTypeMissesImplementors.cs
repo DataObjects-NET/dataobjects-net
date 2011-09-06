@@ -25,22 +25,38 @@ namespace Xtensive.Storage.Tests.Issues.Issue_OfTypeMissesImplementors_Model
 
   public class Branch1 : Root, IHasImplementors
   {
-    
+    [Field]
+    public string Name1 { get; set; }
   }
 
   public abstract class Branch2 : Root, IHasImplementors
   {
+    [Field]
+    public string Name1 { get; set; }
     
   }
 
   public class Node1 : Branch2
   {
-    
+    [Field]
+    public string Name2 { get; set; }
+   
   }
 
   public class Node2 : Branch2
   {
-    
+    [Field]
+    public string Name2 { get; set; }
+  }
+  
+  [HierarchyRoot]
+  public class Container : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public IHasImplementors Reference { get; set; }
   }
 }
 
@@ -61,14 +77,25 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           
+          var c = new Container();
           new Branch1();
           new Node1();
-          new Node2();
+          c.Reference = new Node2();
 
           Session.Current.Persist();
 
           var items = Query.All<Root>().Where(e => e is IHasImplementors).ToList();
           Assert.AreEqual(3, items.Count);
+          
+          t.Complete();
+        }
+      }
+
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          
+          var c = Query.All<Container>().First();
+          Assert.IsNotNull(c.Reference);
           // Rollback
         }
       }
