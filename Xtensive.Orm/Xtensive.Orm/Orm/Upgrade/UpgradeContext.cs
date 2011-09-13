@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Upgrade
       // Getting user handlers
       var userHandlers =
         from handler in Services.GetAll<IUpgradeHandler>()
-        let assembly = handler.GetType().Assembly
+        let assembly = handler.Assembly ?? handler.GetType().Assembly
         where handler.IsEnabled
         group handler by assembly;
 
