@@ -764,13 +764,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private static IEnumerable<TypeInfo> GatherDescendants(TypeInfo type, ICollection<TypeInfo> hierarchyImplementors)
     {
-      foreach (var descendant in type.GetDescendants()) {
-        if (hierarchyImplementors.Contains(descendant) || descendant.IsAbstract)
-          continue;
-        yield return descendant;
-        foreach (var typeInfo in GatherDescendants(descendant, hierarchyImplementors))
-          yield return typeInfo;
-      }
+      return type.GetDescendants(true).Where(t => !t.IsAbstract).Except(hierarchyImplementors);
     }
 
     private static IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
