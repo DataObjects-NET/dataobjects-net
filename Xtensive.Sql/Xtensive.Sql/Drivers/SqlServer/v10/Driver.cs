@@ -38,6 +38,11 @@ namespace Xtensive.Sql.SqlServer.v10
       return new ServerInfoProvider(this);
     }
 
+    protected override Sql.TypeMappingCollection CreateTypeMappingCollection(Sql.TypeMapper mapper)
+    {
+      return new TypeMappingCollection((TypeMapper) mapper);
+    }
+
 
     // Constructors
 

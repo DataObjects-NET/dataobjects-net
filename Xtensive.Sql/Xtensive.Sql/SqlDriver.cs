@@ -167,6 +167,10 @@ namespace Xtensive.Sql
     /// <returns>Created connection.</returns>
     protected abstract SqlConnection CreateConnection(string connectionString);
 
+    protected virtual TypeMappingCollection CreateTypeMappingCollection(TypeMapper mapper)
+    {
+      return new TypeMappingCollection(mapper);
+    }
 
     #region Private / internal methods
 
@@ -177,7 +181,7 @@ namespace Xtensive.Sql
 
       var typeMapper = CreateTypeMapper();
       typeMapper.Initialize();
-      TypeMappings = new TypeMappingCollection(typeMapper);
+      TypeMappings = CreateTypeMappingCollection(typeMapper);
 
       Translator = CreateTranslator();
       Translator.Initialize();

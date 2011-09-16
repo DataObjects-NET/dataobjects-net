@@ -243,7 +243,19 @@ namespace Xtensive.Sql
 
     public virtual object ReadByteArray(DbDataReader reader, int index)
     {
-      var value = reader[index];      if (value == null || value is byte[])        return value;      try {        var ms = new MemoryStream();        Formatter.Serialize(ms, value);        return ms.ToArray();      }      catch (Exception e) {        // Log this        throw;      }
+      var value = reader[index];
+      if (value == null || value is byte[])
+        return value;
+
+      try {
+        var ms = new MemoryStream();
+        Formatter.Serialize(ms, value);
+        return ms.ToArray();
+      }
+      catch (Exception e) {
+        // Log this
+        throw;
+      }
     }
 
     #endregion
