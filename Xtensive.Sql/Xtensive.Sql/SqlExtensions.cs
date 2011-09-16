@@ -96,6 +96,10 @@ namespace Xtensive.Sql
         return typeof (byte[]);
       case SqlType.Guid:
         return typeof (Guid);
+      case SqlType.Geometry:
+        return Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91");
+      case SqlType.Geography:
+        return Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91");
       default:
         throw new ArgumentOutOfRangeException("type");
       }

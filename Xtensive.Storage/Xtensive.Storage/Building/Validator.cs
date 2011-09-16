@@ -157,6 +157,10 @@ namespace Xtensive.Storage.Building
           throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
         return;
       }
+
+      if (fieldType.Name == "SqlGeometry" || fieldType.Name == "SqlGeography")
+        return;
+
       throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
     }
 

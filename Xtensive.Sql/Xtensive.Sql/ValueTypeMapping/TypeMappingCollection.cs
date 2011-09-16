@@ -16,7 +16,7 @@ namespace Xtensive.Sql
   /// <summary>
   /// A collection of <see cref="TypeMapping"/> objects.
   /// </summary>
-  public sealed class TypeMappingCollection : IEnumerable<TypeMapping>
+  public class TypeMappingCollection : IEnumerable<TypeMapping>
   {
     public TypeMapping Boolean { get; private set; }
     public TypeMapping Char { get; private set; }
@@ -39,7 +39,7 @@ namespace Xtensive.Sql
 
     public TypeMapping this[Type type] { get { return GetMapping(type); } }
     
-    public TypeMapping TryGetMapping(Type type)
+    public virtual TypeMapping TryGetMapping(Type type)
     {
       switch (Type.GetTypeCode(type)) {
       case TypeCode.Boolean:
@@ -82,7 +82,7 @@ namespace Xtensive.Sql
       return null;
     }
 
-    public TypeMapping GetMapping(Type type)
+    public virtual TypeMapping GetMapping(Type type)
     {
       var result = TryGetMapping(type);
       if (result==null)
@@ -91,7 +91,7 @@ namespace Xtensive.Sql
       return result;
     }
 
-    public IEnumerator<TypeMapping> GetEnumerator()
+    public virtual IEnumerator<TypeMapping> GetEnumerator()
     {
       yield return Boolean;
       yield return Char;
@@ -111,15 +111,14 @@ namespace Xtensive.Sql
       yield return TimeSpan;
       yield return Guid;
       yield return ByteArray;
-
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
-    
-    private static TypeMapping BuildMapping(TypeMapper h, Type type,
+
+    public TypeMapping BuildMapping(TypeMapper h, Type type,
       Func<DbDataReader, int, object> valueReader,
       Action<DbParameter, object> parameterValueSetter,
       Func<int?, int?, int?, SqlValueType> sqlTypeBuilder)

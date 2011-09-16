@@ -146,6 +146,16 @@ namespace Xtensive.Sql
     /// </summary>
     Guid,
 
+    /// <summary>
+    /// Geometry, like in Microsoft.SqlServer.Types
+    /// </summary>
+    Geometry,
+
+    /// <summary>
+    /// Geography, like in Microsoft.SqlServer.Types
+    /// </summary>
+    Geography
+
     #endregion
   }
 }

@@ -14,7 +14,7 @@ using Xtensive.Sql;
 
 namespace Xtensive.Sql.SqlServer.v09
 {
-  internal class TypeMapper : Sql.TypeMapper
+  public class TypeMapper : Sql.TypeMapper
   {
     private ValueRange<DateTime> dateTimeRange;
 
