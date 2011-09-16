@@ -6,7 +6,10 @@
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Building;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -17,7 +20,22 @@ namespace Xtensive.Storage
   [Serializable]
   public sealed class SchemaSynchronizationException : StorageException
   {
+    /// <summary>
+    /// Gets or sets the schema comparison result.
+    /// </summary>
+    public SchemaComparisonResult ComparisonResult { get; private set; }
+
     // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="result">The schema comparison result.</param>
+    public SchemaSynchronizationException(SchemaComparisonResult result)
+      : this(Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX.FormatWith(result))
+    {
+      ComparisonResult = result;
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
