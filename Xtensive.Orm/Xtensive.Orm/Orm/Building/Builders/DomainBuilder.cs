@@ -332,18 +332,15 @@ namespace Xtensive.Orm.Building.Builders
         switch (schemaUpgradeMode) {
         case SchemaUpgradeMode.ValidateExact:
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges)
-            throw new SchemaSynchronizationException(
-              Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX.FormatWith(result));
+            throw new SchemaSynchronizationException(result);
           break;
         case SchemaUpgradeMode.ValidateCompatible:
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal && result.SchemaComparisonStatus!=SchemaComparisonStatus.TargetIsSubset)
-            throw new SchemaSynchronizationException(
-              Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX.FormatWith(result));
+            throw new SchemaSynchronizationException(result);
           break;
         case SchemaUpgradeMode.PerformSafely:
           if (result.HasUnsafeActions)
-            throw new SchemaSynchronizationException(
-              Strings.ExCanNotUpgradeSchemaSafely_DetailsX.FormatWith(result));
+            throw new SchemaSynchronizationException(result);
           goto case SchemaUpgradeMode.Perform;
         case SchemaUpgradeMode.Recreate:
         case SchemaUpgradeMode.Perform:
@@ -353,8 +350,7 @@ namespace Xtensive.Orm.Building.Builders
           break;
         case SchemaUpgradeMode.ValidateLegacy:
           if (result.IsCompatibleInLegacyMode!=true)
-            throw new SchemaSynchronizationException(
-              Strings.ExLegacySchemaIsNotCompatible_DetailsX.FormatWith(result));
+            throw new SchemaSynchronizationException(result);
           break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");
