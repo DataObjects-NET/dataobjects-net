@@ -7,7 +7,9 @@
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
@@ -29,6 +31,12 @@ namespace Xtensive.Orm
     public bool SystemEvents { get; private set;  }
 
     #region Events
+
+      public event EventHandler<DbCommandEventArgs> DbCommandExecuting;
+      public event EventHandler<DbCommandEventArgs> DbCommandExecuted;
+      public event EventHandler<LinqEventArgs> LinqExecuting;
+      public event EventHandler<LinqEventArgs> LinqExecuted;
+
 
     /// <summary>
     /// Occurs when <see cref="Session"/> is about to be disposed.
@@ -215,6 +223,27 @@ namespace Xtensive.Orm
     #endregion
 
     #region NotifyXxx methods
+
+    internal void NotifyDbCommandExecuting(DbCommand command)
+    {
+        if (DbCommandExecuting != null)
+            DbCommandExecuting(this, new DbCommandEventArgs(command));
+    }
+    internal void NotifyDbCommandExecuted(DbCommand command)
+    {
+        if (DbCommandExecuted != null)
+            DbCommandExecuted(this, new DbCommandEventArgs(command));
+    }
+    internal void NotifyLinqExecuting(Expression expression)
+    {
+        if (LinqExecuting != null)
+            LinqExecuting(this, new LinqEventArgs(expression));
+    }
+    internal void NotifyLinqExecuted(Expression expression)
+    {
+        if (LinqExecuted != null)
+            LinqExecuted(this, new LinqEventArgs(expression));
+    }
 
     internal void NotifyDisposing()
     {
