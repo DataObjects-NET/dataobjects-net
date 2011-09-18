@@ -82,6 +82,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     protected override Expression Visit(Expression e)
     {
+      e = e.StripCasts();
       if (!e.NodeType.In(ExpressionType.MemberAccess, ExpressionType.Call, ExpressionType.New, ExpressionType.Lambda, ExpressionType.Parameter))
         throw new NotSupportedException(string.Format(Strings.ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX, e));
       return base.Visit(e);
