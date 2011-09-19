@@ -37,13 +37,15 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           var x = new X {
-            FInt = 1, 
-            FInt2 = 12345, 
+            FInt = 1,
+            FInt2 = 12345,
             FLong = (long) int.MaxValue + 12345, 
-            FLong2 = 12345, 
-            FBool = true, 
-            FString1 = "a", 
-            FString5 = "12345", 
+            FLong2 = 12345,
+            FBool = true,
+            FString1 = "a",
+            FString5 = "12345",
+            FNotNullableString = "str",
+            FNullableDecimal = 123,
             FGuid = new Guid("E484EE28-3801-445B-9DF0-FBCBE5AA4883"), 
             FDecimal = new decimal(1.2),
           };
@@ -56,153 +58,204 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void ValidateModeTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        UpgradeDomain(typeof (string), null, null, null, "FInt", "1", Mode.Validate));
+        ChangeFieldTypeTest("FInt", typeof (string), "1", Mode.Validate, null, null, null));
     }
     
     [Test]
     public void Int32ToStringTest()
     {
-      UpgradeDomain(typeof (string), null, null, null, "FInt", "1", Mode.Perform);
+      ChangeFieldTypeTest("FInt", typeof (string), "1", Mode.Perform, null, null, null);
     }
 
     [Test]
     public void Int32ToStringSafelyTest()
     {
-      UpgradeDomain(typeof (string), null, null, null, "FInt", "1", Mode.PerformSafely);      
+      ChangeFieldTypeTest("FInt", typeof (string), "1", Mode.PerformSafely, null, null, null);      
     }
 
     [Test]
     public void Int32ToShortStringTest()
     {
-      UpgradeDomain(typeof (string), 3, null, null, "FInt2", null, Mode.Perform);
+      ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void Int32ToShortStringSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        UpgradeDomain(typeof (string), 3, null, null, "FInt2", null, Mode.PerformSafely));
+        ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.PerformSafely, 3, null, null));
     }
 
     [Test]
     public void StringToInt32Test()
     {
-      UpgradeDomain(typeof (int), null, null, null, "FString1", 0, Mode.Perform);
+      ChangeFieldTypeTest("FString1", typeof (int), 0, Mode.Perform, null, null, null);
     }
 
     [Test]
     public void StringToInt32SafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        UpgradeDomain(typeof (int), null, null, null, "FString1", 0, Mode.PerformSafely));
+        ChangeFieldTypeTest("FString1", typeof (int), 0, Mode.PerformSafely, null, null, null));
     }
 
     [Test]
     public void StringToInt32WithHintTest()
     {
       using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FString5"))) {
-        UpgradeDomain(typeof (int), null, null, null, "FString5", 12345, Mode.PerformSafely);
+        ChangeFieldTypeTest("FString5", typeof (int), 12345, Mode.PerformSafely, null, null, null);
       }
     }
 
     [Test]
     public void StringToShortStringTest()
     {
-      UpgradeDomain(typeof (string), 3, null, null, "FString5", "123", Mode.Perform);
+      ChangeFieldTypeTest("FString5", typeof (string), "123", Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void StringToShortStringSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        UpgradeDomain(typeof (string), 3, null, null, "FString5", string.Empty, Mode.PerformSafely));
+        ChangeFieldTypeTest("FString5", typeof (string), string.Empty, Mode.PerformSafely, 3, null, null));
     }
 
     [Test]
     public void StringToLongStringTest()
     {
-      UpgradeDomain(typeof (string), 3, null, null, "FString1", "a", Mode.Perform);
+      ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void StringToLongStringSafelyTest()
     {
-      UpgradeDomain(typeof (string), 3, null, null, "FString1", "a", Mode.PerformSafely);
+      ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.PerformSafely, 3, null, null);
     }
 
     [Test]
     public void BoolToStringTest()
     {
-      UpgradeDomain(typeof (string), 100, null, null, "FBool", null, Mode.Perform);
+      ChangeFieldTypeTest("FBool", typeof (string), null, Mode.Perform, 100, null, null);
     }
 
     [Test]
     public void BoolToStringSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        UpgradeDomain(typeof (string), 100, null, null, "FBool", string.Empty, Mode.PerformSafely));
+        ChangeFieldTypeTest("FBool", typeof (string), string.Empty, Mode.PerformSafely, 100, null, null));
     }
 
     [Test]
     public void Int32ToInt64Test()
     {
-      UpgradeDomain(typeof (long), null, null, null, "FInt2", 12345L, Mode.Perform);
+      ChangeFieldTypeTest("FInt2", typeof (long), 12345L, Mode.Perform, null, null, null);
     }
 
     [Test]
     public void Int32ToInt64SafelyTest()
     {
-      UpgradeDomain(typeof (long), null, null, null, "FInt2", 12345L, Mode.PerformSafely);
+      ChangeFieldTypeTest("FInt2", typeof (long), 12345L, Mode.PerformSafely, null, null, null);
     }
 
     [Test]
     public void Int64ToInt32Test()
     {
-      UpgradeDomain(typeof (int), null, null, null, "FLong", 0, Mode.Perform);
+      ChangeFieldTypeTest("FLong", typeof (int), 0, Mode.Perform, null, null, null);
     }
 
     [Test]
     public void Int64ToInt32SafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-       UpgradeDomain(typeof (int), null, null, null, "FLong", 12345, Mode.PerformSafely));
+       ChangeFieldTypeTest("FLong", typeof (int), 12345, Mode.PerformSafely, null, null, null));
     }
 
     [Test]
     public void DecimalToLongDecimalTest()
     {
-      UpgradeDomain(typeof (decimal), null, 3, 2, "FDecimal", new decimal(1.2), Mode.Perform);
+      ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.Perform, null, 3, 2);
     }
 
     [Test]
     public void DecimalToLongDecimalSafelyTest()
     {
-      UpgradeDomain(typeof (decimal), null, 3, 2, "FDecimal", new decimal(1.2), Mode.PerformSafely);
+      ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 3, 2);
     }
 
     [Test]
     public void DecimalToShortDecimalTest()
     {
-      UpgradeDomain(typeof (decimal), null, 2, 0, "FDecimal", new decimal(1.0), Mode.Perform);
+      ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.0), Mode.Perform, null, 2, 0);
     }
 
     [Test]
     public void DecimalToShortDecimalSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        UpgradeDomain(typeof (decimal), null, 2, 0, "FDecimal", new decimal(1.2), Mode.PerformSafely));
+        ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
     }
+
+    [Test]
+    public void DecimalToNullableDecimalSafelyTest()
+    {
+      ChangeFieldTypeTest("FDecimal", typeof (decimal?), new decimal(1.2), Mode.PerformSafely, null, 2, 1);
+    }
+
+    [Test]
+    public void DecimalToNullableDecimalTest()
+    {
+      ChangeFieldTypeTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
+    }
+
+    [Test]
+    public void NullableDecimalToDecimalTest()
+    {
+      ChangeFieldTypeTest("FNullableDecimal", typeof(decimal), new decimal(123), Mode.Perform, null, null, null);
+    }
+
+    [Test]
+    public void NullableDecimalToDecimalSafelyTest()
+    {
+      AssertEx.Throws<SchemaSynchronizationException>(() =>
+        ChangeFieldTypeTest("FNullableDecimal", typeof (decimal), new decimal(123), Mode.PerformSafely, null, null, null));
+    }
+
+    [Test]
+    public void StringToNullableStringSafelyTest()
+    {
+      ChangeFieldTypeTest("FNotNullableString", typeof(string), "str", Mode.PerformSafely, null, null, null);
+    }
+
+    [Test]
+    public void StringToNullableStringTest()
+    {
+      ChangeFieldTypeTest("FNotNullableString", typeof(string), "str", Mode.Perform, null, null, null);
+    }
+
+    [Test]
+    public void NullableStringToStringTest()
+    {
+      ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.Perform, 1, null, null, false);
+    }
+
+    [Test]
+    public void NullableStringToStringSafelyTest()
+    {
+      AssertEx.Throws<SchemaSynchronizationException>(() =>
+        ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.PerformSafely, 1, null, null, false));
+    }
+
 
     [Test]
     public void AddNonNullableColumnTest()
     {
-      UpgradeDomain(typeof (Guid));
-      UpgradeDomain(typeof (bool));
-      UpgradeDomain(typeof (int));
-      UpgradeDomain(typeof (long));
-      UpgradeDomain(typeof (float));
-      UpgradeDomain(typeof (TimeSpan));
-      UpgradeDomain(typeof (DateTime));
+      AddFieldTest(typeof (Guid));
+      AddFieldTest(typeof (bool));
+      AddFieldTest(typeof (int));
+      AddFieldTest(typeof (long));
+      AddFieldTest(typeof (float));
+      AddFieldTest(typeof (TimeSpan));
+      AddFieldTest(typeof (DateTime));
     }
 
     #region Helper methods
@@ -219,22 +272,26 @@ namespace Xtensive.Storage.Tests.Upgrade
       domain = Domain.Build(configuration);
     }
 
-    private void UpgradeDomain(Type newColumnType, int? newLength, int? newPresicion, int? newScale,
-      string changedFieldName, object expectedValue, DomainUpgradeMode mode)
+    private void ChangeFieldTypeTest(string fieldName, Type newColumnType, object expectedValue, DomainUpgradeMode mode, int? newLength, int? newPresicion, int? newScale)
     {
-      using (FieldTypeChanger.Enable(newColumnType, changedFieldName, newLength, newPresicion, newScale)) {
+      ChangeFieldTypeTest(fieldName, newColumnType, expectedValue, mode, newLength, newPresicion, newScale, null);
+    }
+
+    private void ChangeFieldTypeTest(string fieldName, Type newColumnType, object expectedValue, DomainUpgradeMode mode, int? newLength, int? newPrecision, int? newScale, bool? isNullable)
+    {
+      using (FieldTypeChanger.Enable(newColumnType, fieldName, newLength, newPrecision, newScale, isNullable)) {
         BuildDomain(mode);
       }
 
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           var x = Query.All<X>().First();
-          Assert.AreEqual(expectedValue, x[changedFieldName]);
+          Assert.AreEqual(expectedValue, x[fieldName]);
         }
       }
     }
 
-    private void UpgradeDomain(Type newColumnType)
+    private void AddFieldTest(Type newColumnType)
     {
       SetUp();
       if (domain != null)
@@ -285,7 +342,13 @@ namespace Xtensive.Storage.Tests.Upgrade
     public Guid FGuid { get; set; }
 
     [Field(Precision = 2, Scale = 1)]
-    public decimal FDecimal{ get; set;}
+    public decimal FDecimal{ get; set; }
+
+    [Field(Nullable = false)]
+    public string FNotNullableString { get; set; }
+
+    [Field]
+    public decimal? FNullableDecimal { get; set; }
   }
 
   public class FieldTypeChanger : IModule
@@ -295,10 +358,11 @@ namespace Xtensive.Storage.Tests.Upgrade
     private static int? ColumnLength { get; set; }
     private static int? ColumnScale { get; set; }
     private static int? ColumnPrecision { get; set; }
+    private static bool? ColumnNullable { get; set; }
     private static bool isEnabled;
 
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
-    public static IDisposable Enable(Type newType, string fieldName, int? length, int? precision, int? scale)
+    public static IDisposable Enable(Type newType, string fieldName, int? length, int? precision, int? scale, bool? isNullable)
     {
       if (isEnabled)
         throw new InvalidOperationException();
@@ -308,6 +372,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       ColumnLength = length;
       ColumnScale = scale;
       ColumnPrecision = precision;
+      ColumnNullable = isNullable;
       return new Disposable(_ => {
         isEnabled = false;
         ColumnType = null;
@@ -332,6 +397,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       newField.Scale = ColumnScale;
       newField.Precision = ColumnPrecision;
       newField.Name = oldFieled.Name;
+      if (ColumnNullable != null)
+        newField.IsNullable = ColumnNullable.Value;
       xType.Fields.Remove(oldFieled);
       xType.Fields.Add(newField);
     }
