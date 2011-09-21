@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the foreign key name generator.
     /// </summary>
-    private Func<AssociationInfo, FieldInfo, string> ForeignKeyNameGenerator { get; set; }
+    private Func<TypeInfo, FieldInfo, TypeInfo, string> ForeignKeyNameGenerator { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether 
@@ -124,8 +124,8 @@ namespace Xtensive.Storage.Upgrade
 
       // Build foreign keys
       if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
-        foreach (var group in domainModel.Associations.Where(a => a.Ancestors.Count==0)) {
-            Visit(group);
+        foreach (var group in domainModel.Associations.Where(a => a.Ancestors.All(ancestor => ancestor.OwnerType.IsInterface))) {
+          Visit(group);
         }
       }
 
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Upgrade
           new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
 
         string foreignKeyName = HierarchyForeignKeyNameGenerator.Invoke(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
-        CreateForeignKey(referencingTable, foreignKeyName, referencedTable, storageReferencingIndex);
+        CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
       }
 
       return StorageInfo;
@@ -230,40 +230,29 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitAssociationInfo(AssociationInfo association)
     {
-      if (association.TargetType.Hierarchy==null)
-        return null;
-      if (association.OwnerType.Hierarchy==null)
-        return null;
-      if (association.TargetType.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable && !association.TargetType.IsLeaf)
-        return null;
-      if (association.OwnerType.Indexes.PrimaryIndex==null)
-        return null;
-//      if (association.OnTargetRemove.HasValue && association.OnTargetRemove.Value == OnRemoveAction.None)
-//        return null;
+      // Skip association that do not enforce anything
       if (association.OnTargetRemove==OnRemoveAction.None)
         return null;
 
-      // Auxiliary == null
-      if (association.AuxiliaryType==null) {
-        if (association.OwnerField.Columns.Count==0)
-          return null;
+      if (association.TargetType.Hierarchy==null)
+        return null;
+      if (association.TargetType.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable && !association.TargetType.IsLeaf)
+        return null;
 
+      if (association.OwnerType.Hierarchy==null)
+        return null;
+      if (association.OwnerType.Indexes.PrimaryIndex==null)
+        return null;
+
+      // Auxiliary == null
+      if (association.AuxiliaryType==null && !association.OwnerField.IsEntitySet) {
+        var ownerField = association.OwnerField;
+        string foreignKeyName = ForeignKeyNameGenerator.Invoke(association.OwnerType, association.OwnerField, association.TargetType);
         IndexingModel.TableInfo referencingTable = GetTable(association.OwnerField.DeclaringType);
         IndexingModel.TableInfo referencedTable = GetTable(association.TargetType);
-        if (referencedTable==null || referencingTable==null)
+        if (referencedTable == null || referencingTable == null)
           return null;
-        var foreignColumns = association.OwnerField.Columns
-          .Select(ci => referencingTable.Columns[ci.Name]).ToList();
-        string foreignKeyName = ForeignKeyNameGenerator.Invoke(association, association.OwnerField);
-        var foreignKey = new IndexingModel.ForeignKeyInfo(referencingTable, foreignKeyName) {
-          PrimaryKey = referencedTable.PrimaryIndex,
-          OnRemoveAction = ReferentialAction.None,
-          OnUpdateAction = ReferentialAction.None
-        };
-        foreach (var foreignColumn in foreignColumns)
-          new IndexingModel.ForeignKeyColumnRef(foreignKey, foreignColumn);
-
-        return foreignKey;
+        return CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
       }
 
       // Auxiliary != null
@@ -272,18 +261,12 @@ namespace Xtensive.Storage.Upgrade
           return null;
         IndexingModel.TableInfo referencingTable = GetTable(association.AuxiliaryType);
         foreach (FieldInfo field in association.AuxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
-          IndexingModel.TableInfo referencedTable = GetTable(Model.Types[field.ValueType]);
+          var referencedType = Model.Types[field.ValueType];
+          IndexingModel.TableInfo referencedTable = GetTable(referencedType);
           if (referencedTable==null || referencingTable==null)
             continue;
-          var foreignColumns = field.Columns.Select(ci => referencingTable.Columns[ci.Name]).ToList();
-          string foreignKeyName = ForeignKeyNameGenerator.Invoke(association, field);
-          var foreignKey = new IndexingModel.ForeignKeyInfo(referencingTable, foreignKeyName) {
-            PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = ReferentialAction.None,
-            OnUpdateAction = ReferentialAction.None
-          };
-          foreach (var foreignColumn in foreignColumns)
-            new IndexingModel.ForeignKeyColumnRef(foreignKey, foreignColumn);
+          string foreignKeyName = ForeignKeyNameGenerator.Invoke(association.AuxiliaryType, field, referencedType);
+          CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
         }
       }
       return null;
@@ -517,7 +500,20 @@ namespace Xtensive.Storage.Upgrade
       return primaryIndexColumnName;
     }
 
-    private static void CreateForeignKey(TableInfo referencingTable, string foreignKeyName, TableInfo referencedTable, Indexing.Model.IndexInfo referencingIndex)
+    private static IPathNode CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
+    {
+      var foreignColumns = referencingField.Columns.Select(column => referencingTable.Columns[column.Name]).ToList();
+      var foreignKey = new IndexingModel.ForeignKeyInfo(referencingTable, foreignKeyName) {
+        PrimaryKey = referencedTable.PrimaryIndex,
+        OnRemoveAction = ReferentialAction.None,
+        OnUpdateAction = ReferentialAction.None
+      };
+      foreach (var foreignColumn in foreignColumns)
+        new IndexingModel.ForeignKeyColumnRef(foreignKey, foreignColumn);
+      return foreignKey;
+    }
+
+    private static void CreateHierarchyForeignKey(TableInfo referencingTable, TableInfo referencedTable, Indexing.Model.IndexInfo referencingIndex, string foreignKeyName)
     {
       var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
@@ -533,6 +529,16 @@ namespace Xtensive.Storage.Upgrade
       return isNullable && type.IsValueType && !type.IsNullable()
         ? type.ToNullable()
         : type;
+    }
+
+    private static bool IsValidTargetType(TypeInfo targetType)
+    {
+      return targetType.Hierarchy!=null && (targetType.Hierarchy.InheritanceSchema!=InheritanceSchema.ConcreteTable || targetType.IsLeaf);
+    }
+
+    private static bool IsValidOwnerType(TypeInfo ownerType)
+    {
+      return ownerType.Hierarchy!=null && ownerType.Indexes.PrimaryIndex!=null;
     }
 
     #endregion
@@ -553,8 +559,8 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(
       ProviderInfo providerInfo, 
-      bool buildForeignKeys, 
-      Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator, 
+      bool buildForeignKeys,
+      Func<TypeInfo, FieldInfo, TypeInfo, string> foreignKeyNameGenerator, 
       bool buildHierarchyForeignKeys, 
       Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator, 
       Func<Type, int?, int?, int?, Indexing.Model.TypeInfo> typeBuilder)

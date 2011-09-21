@@ -109,10 +109,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ForeignKeysCountTest()
     {
-      var domainHandler = typeof(Domain)
-        .GetProperty("Handler", BindingFlags.Instance | BindingFlags.NonPublic)
-        .GetValue(Domain, null) as DomainHandler;
-
+      var domainHandler = (DomainHandler) Domain.Handler;
       var schema = domainHandler.Schema;
 
       var count = GetForeignKeysCount(schema, typeof(Owner1));

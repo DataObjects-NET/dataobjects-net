@@ -38,6 +38,8 @@ namespace Xtensive.Storage.Providers
     private const string AssociationPattern = "{0}-{1}-{2}";
     private const string GeneratorPattern = "{0}-Generator";
     private const string GenericTypePattern = "{0}({1})";
+    private const string ReferenceForeignKeyFormat = "FK_{0}_{1}_{2}";
+    private const string HierarchyForeignKeyFormat = "FK_{0}_{1}";
     private int maxIdentifierLength;
 
     /// <summary>
@@ -150,6 +152,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Column name.</returns>
     public virtual string BuildTableColumnName(ColumnInfo columnInfo)
     {
+      ArgumentValidator.EnsureArgumentNotNull(columnInfo, "columnInfo");
       return ApplyNamingRules(columnInfo.Name);
     }
 
@@ -157,18 +160,23 @@ namespace Xtensive.Storage.Providers
     /// Builds foreign key name by association.
     /// </summary>
     /// <returns>Foreign key name.</returns>
-    public virtual string BuildForeignKeyName(AssociationInfo association, FieldInfo referencingField)
+    public virtual string BuildReferenceForeignKeyName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
     {
-      return ApplyNamingRules(string.Format("FK_{0}_{1}", association.Name, referencingField.Name));
+      ArgumentValidator.EnsureArgumentNotNull(ownerType, "ownerType");
+      ArgumentValidator.EnsureArgumentNotNull(ownerField, "ownerField");
+      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
+      return ApplyNamingRules(string.Format(ReferenceForeignKeyFormat, ownerType.Name, ownerField.Name, targetType.Name));
     }
 
     /// <summary>
     /// Builds foreign key name for in-hierarchy primary key references.
     /// </summary>
     /// <returns>Foreign key name.</returns>
-    public virtual string BuildForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
+    public virtual string BuildHierarchyForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
     {
-      return ApplyNamingRules(string.Format("FK_{0}_{1}", baseType.Name, descendantType.Name));
+      ArgumentValidator.EnsureArgumentNotNull(baseType, "baseType");
+      ArgumentValidator.EnsureArgumentNotNull(descendantType, "descendantType");
+      return ApplyNamingRules(string.Format(HierarchyForeignKeyFormat, baseType.Name, descendantType.Name));
     }
 
     /// <summary>
