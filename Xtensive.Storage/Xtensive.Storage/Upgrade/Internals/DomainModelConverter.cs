@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Upgrade
 
       // Build foreign keys
       if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
-        foreach (var group in domainModel.Associations.Where(a => a.Ancestors.All(ancestor => ancestor.OwnerType.IsInterface))) {
+        foreach (var group in domainModel.Associations.Where(a => a.Ancestors.Count==0)) {
           Visit(group);
         }
       }
@@ -230,44 +230,27 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitAssociationInfo(AssociationInfo association)
     {
-      // Skip association that do not enforce anything
+      // Skip associations that do not impose constraints
       if (association.OnTargetRemove==OnRemoveAction.None)
         return null;
 
-      if (association.TargetType.Hierarchy==null)
-        return null;
-      if (association.TargetType.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable && !association.TargetType.IsLeaf)
-        return null;
-
-      if (association.OwnerType.Hierarchy==null)
-        return null;
-      if (association.OwnerType.Indexes.PrimaryIndex==null)
-        return null;
-
-      // Auxiliary == null
       if (association.AuxiliaryType==null && !association.OwnerField.IsEntitySet) {
-        var ownerField = association.OwnerField;
-        string foreignKeyName = ForeignKeyNameGenerator.Invoke(association.OwnerType, association.OwnerField, association.TargetType);
-        IndexingModel.TableInfo referencingTable = GetTable(association.OwnerField.DeclaringType);
-        IndexingModel.TableInfo referencedTable = GetTable(association.TargetType);
-        if (referencedTable == null || referencingTable == null)
+        if (!IsValidForeignKeyTarget(association.TargetType))
           return null;
-        return CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
-      }
-
-      // Auxiliary != null
-      if (association.AuxiliaryType!=null) {
-        if (!association.IsMaster)
-          return null;
-        IndexingModel.TableInfo referencingTable = GetTable(association.AuxiliaryType);
-        foreach (FieldInfo field in association.AuxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
-          var referencedType = Model.Types[field.ValueType];
-          IndexingModel.TableInfo referencedTable = GetTable(referencedType);
-          if (referencedTable==null || referencingTable==null)
-            continue;
-          string foreignKeyName = ForeignKeyNameGenerator.Invoke(association.AuxiliaryType, field, referencedType);
-          CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
+        if (association.OwnerType.IsInterface) {
+          foreach (var implementorType in association.OwnerType.GetImplementors().SelectMany(GetForeignKeyOwners)) {
+            var implementorField = implementorType.FieldMap[association.OwnerField];
+            ProcessDirectAssociation(implementorType, implementorField, association.TargetType);
+          }
         }
+        else {
+          foreach (var type in GetForeignKeyOwners(association.OwnerField.DeclaringType)) {
+            ProcessDirectAssociation(type, association.OwnerField, association.TargetType);
+          }
+        }
+      }
+      else if (association.AuxiliaryType != null && association.IsMaster) {
+        ProcessIndirectAssociation(association.AuxiliaryType);
       }
       return null;
     }
@@ -284,13 +267,6 @@ namespace Xtensive.Storage.Upgrade
         Type = TypeBuilder.Invoke(keyInfo.TupleDescriptor[0], null, null, null),
       };
       return sequence;
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Thrown always by this method.</exception>
-    protected override IPathNode VisitSequenceInfo(SequenceInfo sequenceInfo)
-    {
-      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
@@ -340,6 +316,13 @@ namespace Xtensive.Storage.Upgrade
     }
 
     #region Not supported
+
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Thrown always by this method.</exception>
+    protected override IPathNode VisitSequenceInfo(SequenceInfo sequenceInfo)
+    {
+      throw new NotSupportedException();
+    }
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
@@ -500,17 +483,16 @@ namespace Xtensive.Storage.Upgrade
       return primaryIndexColumnName;
     }
 
-    private static IPathNode CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
+    private static void CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
     {
       var foreignColumns = referencingField.Columns.Select(column => referencingTable.Columns[column.Name]).ToList();
-      var foreignKey = new IndexingModel.ForeignKeyInfo(referencingTable, foreignKeyName) {
+      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,
         OnUpdateAction = ReferentialAction.None
       };
       foreach (var foreignColumn in foreignColumns)
-        new IndexingModel.ForeignKeyColumnRef(foreignKey, foreignColumn);
-      return foreignKey;
+        new ForeignKeyColumnRef(foreignKey, foreignColumn);
     }
 
     private static void CreateHierarchyForeignKey(TableInfo referencingTable, TableInfo referencedTable, Indexing.Model.IndexInfo referencingIndex, string foreignKeyName)
@@ -521,7 +503,6 @@ namespace Xtensive.Storage.Upgrade
         OnUpdateAction = ReferentialAction.None
       };
       foreignKey.ForeignKeyColumns.Set(referencingIndex);
-      return;
     }
 
     private static Type ToNullable(Type type, bool isNullable)
@@ -531,14 +512,46 @@ namespace Xtensive.Storage.Upgrade
         : type;
     }
 
-    private static bool IsValidTargetType(TypeInfo targetType)
+    private void ProcessDirectAssociation(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
     {
-      return targetType.Hierarchy!=null && (targetType.Hierarchy.InheritanceSchema!=InheritanceSchema.ConcreteTable || targetType.IsLeaf);
+      var referencingTable = GetTable(ownerType);
+      var referencedTable = GetTable(targetType);
+      if (referencedTable==null || referencingTable==null)
+        return;
+      var foreignKeyName = ForeignKeyNameGenerator.Invoke(ownerType, ownerField, targetType);
+      CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
     }
 
-    private static bool IsValidOwnerType(TypeInfo ownerType)
+    private void ProcessIndirectAssociation(TypeInfo auxiliaryType)
     {
-      return ownerType.Hierarchy!=null && ownerType.Indexes.PrimaryIndex!=null;
+      var referencingTable = GetTable(auxiliaryType);
+      if (referencingTable==null)
+        return;
+      foreach (var field in auxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
+        var referencedType = Model.Types[field.ValueType];
+        if (!IsValidForeignKeyTarget(referencedType))
+          continue;
+        var referencedTable = GetTable(referencedType);
+        if (referencedTable==null)
+          continue;
+        var foreignKeyName = ForeignKeyNameGenerator.Invoke(auxiliaryType, field, referencedType);
+        CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
+      }
+    }
+
+    private IEnumerable<TypeInfo> GetForeignKeyOwners(TypeInfo type)
+    {
+      if (type.Hierarchy==null)
+        yield break;
+      yield return type;
+      if (type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
+        foreach (var descendant in type.GetDescendants(true).Where(descendant => descendant.Indexes.PrimaryIndex!=null))
+          yield return descendant;
+    }
+
+    private static bool IsValidForeignKeyTarget(TypeInfo targetType)
+    {
+      return targetType.Hierarchy!=null && (targetType.Hierarchy.InheritanceSchema!=InheritanceSchema.ConcreteTable || targetType.IsLeaf);
     }
 
     #endregion
