@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var document = new Document();
-          var result = Query.All<Document>().Where(doc => doc.Id.In(new List<int>())).Count();
+          var result = Query.All<Document>().Where(doc => !doc.Id.In(new List<int>())).Count();
           Assert.AreEqual(1, result);
           // Rollback
         }
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var person = new Person("Vasily", "Petrov");
           var document = new Document {Owner = person};
-          var result = Query.All<Document>().Where(doc => doc.Owner.In(new List<Person>())).Count();
+          var result = Query.All<Document>().Where(doc => !doc.Owner.In(new List<Person>())).Count();
           Assert.AreEqual(1, result);
           // Rollback
         }
