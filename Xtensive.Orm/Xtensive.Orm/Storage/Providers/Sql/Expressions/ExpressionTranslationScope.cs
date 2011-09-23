@@ -15,8 +15,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       get { return Scope<ExpressionTranslationContext>.CurrentContext; }
     }
 
-    public ExpressionTranslationScope(Driver driver)
-      : base(new ExpressionTranslationContext(driver))
+    public ExpressionTranslationScope(ProviderInfo providerInfo, Driver driver, BooleanExpressionConverter booleanExpressionConverter)
+      : base(new ExpressionTranslationContext(providerInfo, driver, booleanExpressionConverter))
     {
     }
   }
