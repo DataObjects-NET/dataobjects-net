@@ -42,7 +42,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private bool fixBooleanExpressions;
     private bool emptyStringIsNull;
     private bool executed;
-    
+    private ProviderInfo providerInfo;
+
     public HashSet<QueryParameterBinding> Bindings { get { return bindings; } }
     
     public SqlExpression Translate()
@@ -50,7 +51,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (executed)
         throw new InvalidOperationException();
       executed = true;
-      using (new ExpressionTranslationScope(driver)) {
+      using (new ExpressionTranslationScope(providerInfo, driver, booleanExpressionConverter)) {
         return Visit(lambda);
       }
     }
@@ -405,7 +406,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       this.compiler = compiler;
       var domainHandler = handlers.DomainHandler;
-      var providerInfo = domainHandler.ProviderInfo;
+      providerInfo = domainHandler.ProviderInfo;
       fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();

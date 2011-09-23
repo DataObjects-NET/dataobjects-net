@@ -5,6 +5,7 @@
 // Created:    2009.09.18
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
@@ -13,13 +14,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
   {
     public static ExpressionTranslationContext Current { get { return ExpressionTranslationScope.CurrentContext; } }
 
+    public ProviderInfo ProviderInfo { get; private set; }
     public Driver Driver { get; private set; }
+    public BooleanExpressionConverter BooleanExpressionConverter { get; private set; }
+
 
     // Constructors
 
-    public ExpressionTranslationContext(Driver driver)
+    public ExpressionTranslationContext(ProviderInfo providerInfo, Driver driver, BooleanExpressionConverter booleanExpressionConverter)
     {
+      ProviderInfo = providerInfo;
       Driver = driver;
+      BooleanExpressionConverter = booleanExpressionConverter;
     }
   }
 }
