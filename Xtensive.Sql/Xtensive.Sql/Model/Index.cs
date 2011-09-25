@@ -111,10 +111,17 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
-    /// Gets or sets the value indicating that this index is unique index.
-    /// Unique index is one in which no two rows are permitted to have the same index key value.
+    /// Gets or sets the value indicating that this index is full-text index.
     /// </summary>
     public virtual bool IsFullText
+    {
+      get { return false; }
+    }
+
+    /// <summary>
+    /// Gets or sets the value indicating that this index is spatial index.
+    /// </summary>
+    public virtual bool IsSpatial
     {
       get { return false; }
     }

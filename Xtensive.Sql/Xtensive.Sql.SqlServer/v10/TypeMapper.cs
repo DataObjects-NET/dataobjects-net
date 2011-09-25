@@ -36,6 +36,10 @@ namespace Xtensive.Sql.SqlServer.v10
 
     public void SetGeometryParameterValue(DbParameter parameter, object value)
     {
+      if (value == null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
       var sqlParameter = (SqlParameter)parameter;
       sqlParameter.UdtTypeName = "geometry";
       sqlParameter.Value = value;
@@ -53,6 +57,10 @@ namespace Xtensive.Sql.SqlServer.v10
 
     public void SetGeographyParameterValue(DbParameter parameter, object value)
     {
+      if (value == null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
       var sqlParameter = (SqlParameter)parameter;
       sqlParameter.UdtTypeName = "geography";
       sqlParameter.Value = value;

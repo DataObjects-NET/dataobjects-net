@@ -27,9 +27,19 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Creates the full-text index.
     /// </summary>
+    /// <param name="name">The name.</param>
     public FullTextIndex CreateFullTextIndex(string name)
     {
       return new FullTextIndex(this, name);
+    }
+
+    /// <summary>
+    /// Creates the spatial index.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    public SpatialIndex CreateSpatialIndex(string name)
+    {
+      return new SpatialIndex(this, name);
     }
 
     /// <summary>
