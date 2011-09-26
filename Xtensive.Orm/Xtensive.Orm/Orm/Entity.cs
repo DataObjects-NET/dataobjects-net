@@ -182,7 +182,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public bool IsRemoved {
       get {
-        if (Session == null || State == null)
+        if (Session == null || state == null || state.TryGetEntity()!=this)
           return true;
         if (Session.IsPersisting)
           // Removed = "already removed from storage" here

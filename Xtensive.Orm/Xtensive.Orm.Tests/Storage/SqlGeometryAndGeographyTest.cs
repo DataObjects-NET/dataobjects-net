@@ -21,10 +21,10 @@ namespace Xtensive.Storage.Tests.Storage.SqlGeometryAndGeographyTestModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Indexed = true)]
     public SqlGeometry Geometry { get; set; }
 
-    [Field]
+    [Field(Indexed=true)]
     public SqlGeography Geography { get; set; }
   }
 }
@@ -50,6 +50,11 @@ namespace Xtensive.Storage.Tests.Storage
             {
               Geometry = new SqlGeometry(),
               Geography = new SqlGeography()
+            };
+          new Container
+            {
+              Geometry = null,
+              Geography = null
             };
           t.Complete();
         }

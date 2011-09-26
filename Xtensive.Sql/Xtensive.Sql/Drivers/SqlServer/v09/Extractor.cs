@@ -221,7 +221,7 @@ namespace Xtensive.Sql.SqlServer.v09
 
     protected virtual string GetIndexQuery()
     {
-      string query = "select t.schema_id, t.object_id, t.type, i.index_id, i.name, i.type, i.is_primary_key, i.is_unique, i.is_unique_constraint, i.fill_factor, ic.column_id, 0, ic.key_ordinal, ic.is_descending_key, ic.is_included_column, NULL, NULL from sys.indexes i inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on i.object_id = t.object_id inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id where i.type < 3 and  not (ic.key_ordinal = 0 and ic.is_included_column = 0)";
+      string query = "select t.schema_id, t.object_id, t.type, i.index_id, i.name, i.type, i.is_primary_key, i.is_unique, i.is_unique_constraint, i.fill_factor, ic.column_id, 0, ic.key_ordinal, ic.is_descending_key, ic.is_included_column, NULL, NULL from sys.indexes i inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on i.object_id = t.object_id inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id where i.type <> 3 and  ic.is_included_column = 0";
       if (schema!=null)
         query += " and schema_id = " + schemaId;
       query += " order by t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
@@ -231,6 +231,7 @@ namespace Xtensive.Sql.SqlServer.v09
     private void ExtractIndexes()
     {
       string query = GetIndexQuery();
+      const int spatialIndexType = 4;
 
       int tableId = 0;
       ColumnResolver table = null;
@@ -242,9 +243,10 @@ namespace Xtensive.Sql.SqlServer.v09
         while (reader.Read()) {
 
           int columnId = reader.GetInt32(10);
+          int indexType = reader.GetByte(5);
 
-          // First column in index => new index
-          if (reader.GetByte(12) == 1) {
+          // First column in index => new index or index is spatial (always has exactly one column)
+          if (reader.GetByte(12) == 1 || indexType == spatialIndexType) {
             primaryKey = null;
             uniqueConstraint = null;
             index = null;
@@ -257,16 +259,23 @@ namespace Xtensive.Sql.SqlServer.v09
             if (reader.GetBoolean(6))
               primaryKey = ((Table) table.Table).CreatePrimaryKey(indexName);
             else {
-              index = table.Table.CreateIndex(indexName);
-              index.IsUnique = reader.GetBoolean(7);
-              index.IsClustered = reader.GetByte(5)==1;
-              index.FillFactor = reader.GetByte(9);
-              if (!reader.IsDBNull(15) && reader.GetBoolean(15))
-                index.Where = SqlDml.Native(reader.GetString(16));
+              // Spatial index
+              if (indexType == spatialIndexType) {
+                index = table.Table.CreateSpatialIndex(indexName);
+                index.FillFactor = reader.GetByte(9);
+              }
+              else {
+                index = table.Table.CreateIndex(indexName);
+                index.IsUnique = reader.GetBoolean(7);
+                index.IsClustered = reader.GetByte(5)==1;
+                index.FillFactor = reader.GetByte(9);
+                if (!reader.IsDBNull(15) && reader.GetBoolean(15))
+                  index.Where = SqlDml.Native(reader.GetString(16));
 
-              // Index is a part of unique constraint
-              if (reader.GetBoolean(8))
-                uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(indexName);
+                // Index is a part of unique constraint
+                if (reader.GetBoolean(8))
+                  uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(indexName);
+              }
             }
           }
 
