@@ -200,6 +200,7 @@ namespace Xtensive.Sql.SQLite.v3
             }
         }
 
+        /// <inheritdoc/>
         public override void Visit(SqlExtract node)
         {
             using (context.EnterScope(node)) {
@@ -212,6 +213,7 @@ namespace Xtensive.Sql.SQLite.v3
             }
         }
 
+        /// <inheritdoc/>
         public override void VisitSelectLimitOffset(SqlSelect node)
         {
             if (!node.Limit.IsNullReference()) {

@@ -34,10 +34,7 @@ namespace Xtensive.Sql.SQLite.v3
 
         public override EntityInfo GetTranslationInfo()
         {
-            EntityInfo translationInfo = new EntityInfo();
-            translationInfo.MaxIdentifierLength = MaxIdentifierLength;
-            translationInfo.AllowedDdlStatements = DdlStatements.None;
-            return translationInfo;
+            return null;
         }
 
         public override EntityInfo GetTriggerInfo()
@@ -50,10 +47,7 @@ namespace Xtensive.Sql.SQLite.v3
 
         public override EntityInfo GetStoredProcedureInfo()
         {
-            EntityInfo procedureInfo = new EntityInfo();
-            procedureInfo.MaxIdentifierLength = MaxIdentifierLength;
-            procedureInfo.AllowedDdlStatements = DdlStatements.All;
-            return procedureInfo;
+            return null;
         }
 
         public override SequenceInfo GetSequenceInfo()
@@ -147,7 +141,7 @@ namespace Xtensive.Sql.SQLite.v3
             indexInfo.MaxIdentifierLength = MaxIdentifierLength;
             indexInfo.MaxNumberOfColumns = 16;
             indexInfo.MaxLength = 900;
-            indexInfo.AllowedDdlStatements = DdlStatements.All;
+            indexInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
             indexInfo.Features =
                   IndexFeatures.Unique |
                     IndexFeatures.SortOrder;

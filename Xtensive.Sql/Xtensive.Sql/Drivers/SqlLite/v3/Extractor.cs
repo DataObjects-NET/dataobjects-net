@@ -397,26 +397,6 @@ namespace Xtensive.Sql.SQLite.v3
               : new SqlValueType(realType);
         }
 
-        private static bool ReadAutoIncrement(IDataRecord row, int index)
-        {
-            var value = ReadStringOrNull(row, index);
-            if (!string.IsNullOrEmpty(value))
-            {
-                value = value.ToUpperInvariant();
-                return value == "AUTO_INCREMENT";
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private static long ReadLong(IDataRecord row, int index)
-        {
-            decimal value = row.GetDecimal(index);
-            return value > long.MaxValue ? long.MaxValue : (long)value;
-        }
-
         private static int ReadInt(IDataRecord row, int index)
         {
             decimal value = row.GetDecimal(index);

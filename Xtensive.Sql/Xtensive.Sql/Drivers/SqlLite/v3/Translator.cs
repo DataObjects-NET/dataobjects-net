@@ -78,6 +78,12 @@ namespace Xtensive.Sql.SQLite.v3
         }
 
         /// <inheritdoc/>
+        public override string Translate(SchemaNode node)
+        {
+          return QuoteIdentifier(node.DbName);
+        }
+
+        /// <inheritdoc/>
         public override string Translate(SqlFunctionType functionType)
         {
             switch (functionType) {
@@ -132,13 +138,19 @@ namespace Xtensive.Sql.SQLite.v3
         }
 
         /// <inheritdoc/>
+        public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
+        {
+            return string.Empty;
+        }
+
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
         {
             switch (section) {
             case TableColumnSection.Exit:
                 return string.Empty;
             case TableColumnSection.GeneratedExit:
-                return "AUTOINCREMENT"; //Workaround based on fake sequence.
+                return "PRIMARY KEY AUTOINCREMENT"; //Workaround based on fake sequence.
             default:
                 return base.Translate(context, column, section);
             }
@@ -263,6 +275,7 @@ namespace Xtensive.Sql.SQLite.v3
             }
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
         {
             switch (section) {
@@ -402,7 +415,6 @@ namespace Xtensive.Sql.SQLite.v3
             return collation.DbName;
         }
 
-
         /// <inheritdoc/>
         public override string Translate(SqlLockType lockType)
         {
@@ -415,6 +427,7 @@ namespace Xtensive.Sql.SQLite.v3
             return "PENDING"; //http://www.sqlite.org/lockingv3.html Not sure whether this is the best alternative.
         }
 
+        /// <inheritdoc/>
         public override string Translate(SqlNodeType type)
         {
             switch (type) {
