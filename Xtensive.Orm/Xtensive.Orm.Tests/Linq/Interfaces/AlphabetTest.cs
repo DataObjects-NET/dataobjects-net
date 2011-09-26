@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
           Assert.IsNotNull(iNamed.Name);
           Console.Out.WriteLine(string.Format("Key: {0}; {1}", iNamed.Key, iNamed.Name));
         }
-        Assert.AreEqual(15 * EachCount, result.Count);
+        Assert.AreEqual(17 * EachCount, result.Count);
 
         var filtered = session.Query.All<INamed>().Where(i => i.Name == "Name: O'0" || i.Name == "Name: A0" || i.Name == "Name: C0").ToList();
         Assert.AreEqual(3, filtered.Count);
@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
           .Select(i => i.Name)
           .OrderBy(i=>i)
           .ToList();
-        Assert.AreEqual(totalCount, namedQuery.Count);
+        Assert.AreEqual(170, namedQuery.Count);
         Assert.IsTrue(namedQuery.SequenceEqual(names));
         t.Complete();
       }

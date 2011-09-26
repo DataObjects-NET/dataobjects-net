@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
         string formattedKey = key.Format();
         Log.Info("Key.ToString() result: {0}", key.ToString());
         Log.Info("Key.Format()   result: {0}", formattedKey);
-        Assert.IsFalse(formattedKey.Contains("Child"));
-        Assert.IsTrue(formattedKey.Contains("Base"));
+        Assert.True(formattedKey.Contains("Child"));
+        Assert.False(formattedKey.Contains("Base"));
         
         var parsedKey = Key.Parse(Domain, formattedKey);
         Assert.AreEqual(key, parsedKey);
