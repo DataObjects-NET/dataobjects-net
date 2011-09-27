@@ -1548,4 +1548,7 @@ Error: {1}]]></value>
   <data name="ExUpgradeHintSourceFieldNotFound">
     <value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
   </data>
+  <data name="ExUnableToParseValueXForFieldY">
+    <value xml:space="preserve">Unable to parse value '{0}' for field '{1}'</value>
+  </data>
 </root>
