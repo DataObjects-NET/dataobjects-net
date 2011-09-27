@@ -53,7 +53,6 @@ namespace Xtensive.Storage.Tests.Issues
           CheckUserType(new GuestUser());
           CheckUserType(new User());
           t.Complete();
-          // Rollback
         }
       }
     }
