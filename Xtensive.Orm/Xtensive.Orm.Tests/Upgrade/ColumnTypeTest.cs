@@ -136,12 +136,20 @@ namespace Xtensive.Storage.Orm.Upgrade
     [Test]
     public void BoolToStringTest()
     {
+      string expectedValue;
+      if (domain.Configuration.ConnectionInfo.Provider.In(WellKnown.Provider.Firebird, WellKnown.Provider.MySql)) {
+        expectedValue = "1";
+      }
+      else {
+        expectedValue = string.Empty;
+      }
       ChangeFieldTypeTest("FBool", typeof (string), null, Mode.Perform, 100, null, null);
     }
 
     [Test]
     public void BoolToStringSafelyTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       AssertEx.Throws<SchemaSynchronizationException>(() => 
         ChangeFieldTypeTest("FBool", typeof (string), string.Empty, Mode.PerformSafely, 100, null, null));
     }
