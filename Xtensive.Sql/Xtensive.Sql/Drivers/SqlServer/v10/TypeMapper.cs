@@ -7,10 +7,11 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace Xtensive.Sql.SqlServer.v10
 {
-  internal class TypeMapper : v09.TypeMapper
+  public class TypeMapper : v09.TypeMapper
   {
     public override void SetDateTimeParameterValue(DbParameter parameter, object value)
     {
@@ -26,6 +27,48 @@ namespace Xtensive.Sql.SqlServer.v10
         return new DateTime(time.Ticks/100);
       }
       return base.ReadDateTime(reader, index);
+    }
+
+    public object ReadGeometry(DbDataReader reader, int index)
+    {
+      return reader.GetValue(index);
+    }
+
+    public void SetGeometryParameterValue(DbParameter parameter, object value)
+    {
+      if (value == null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var sqlParameter = (SqlParameter)parameter;
+      sqlParameter.UdtTypeName = "geometry";
+      sqlParameter.Value = value;
+    }
+
+    public SqlValueType BuildGeographySqlType(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.Geography);
+    }
+
+    public object ReadGeography(DbDataReader reader, int index)
+    {
+      return reader.GetValue(index);
+    }
+
+    public void SetGeographyParameterValue(DbParameter parameter, object value)
+    {
+      if (value == null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var sqlParameter = (SqlParameter)parameter;
+      sqlParameter.UdtTypeName = "geography";
+      sqlParameter.Value = value;
+    }
+
+    public SqlValueType BuildGeometrySqlType(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.Geometry);
     }
 
 

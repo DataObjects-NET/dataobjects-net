@@ -703,13 +703,30 @@ namespace Xtensive.Orm.Upgrade
         bool requiresInverseCleanup = pair.requiresInverseCleanup;
         if (association.ConnectorType==null) {
           // This is regular reference
-          var declaringType = association.ReferencingField.DeclaringType;
-          var inheritanceSchema = declaringType.Hierarchy.InheritanceSchema;
-          GenerateClearReferenceHints(
-            removedType, 
-            GetAffectedMappedTypes(declaringType, inheritanceSchema==InheritanceSchema.ConcreteTable).ToArray(),
-            association,
-            requiresInverseCleanup);
+          var field = association.ReferencingField;
+          var declaringType = field.DeclaringType;
+          if (declaringType.IsInterface) {
+              var candidates = (storedModel.Types.Where(
+                t => !t.IsInterface && t.Fields.Any(
+                  f => f.IsInterfaceImplementation && f.Name == field.Name && f.ValueType == field.ValueType)))
+                  .ToList();
+              foreach (var candidate in candidates) {
+                  var inheritanceSchema = candidate.Hierarchy.InheritanceSchema;
+                  GenerateClearReferenceHints(
+                    removedType, 
+                    GetAffectedMappedTypes(candidate, inheritanceSchema==InheritanceSchema.ConcreteTable).ToArray(),
+                    association,
+                    requiresInverseCleanup);
+              }
+          }
+          else {
+            var inheritanceSchema = declaringType.Hierarchy.InheritanceSchema;
+            GenerateClearReferenceHints(
+              removedType, 
+              GetAffectedMappedTypes(declaringType, inheritanceSchema==InheritanceSchema.ConcreteTable).ToArray(),
+              association,
+              requiresInverseCleanup);
+          }
         }
         else
           // This is EntitySet

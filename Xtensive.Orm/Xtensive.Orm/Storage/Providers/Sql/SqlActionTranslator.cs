@@ -1037,6 +1037,16 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Index CreateSecondaryIndex(Table table, SecondaryIndexInfo indexInfo)
     {
+      if (indexInfo.KeyColumns.Count == 1) {
+        var column = FindColumn(table, indexInfo.KeyColumns[0].Value.Name);
+        if (column.DataType.Type == SqlType.Geometry ||
+          column.DataType.Type == SqlType.Geography) {
+          var spatialIndex = table.CreateSpatialIndex(indexInfo.Name);
+          spatialIndex.CreateIndexColumn(column);
+          return spatialIndex;
+        }
+      }
+
       var index = table.CreateIndex(indexInfo.Name);
       index.IsUnique = indexInfo.IsUnique;
       foreach (var keyColumn in indexInfo.KeyColumns)

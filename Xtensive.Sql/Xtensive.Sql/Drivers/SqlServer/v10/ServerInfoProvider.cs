@@ -32,8 +32,11 @@ namespace Xtensive.Sql.SqlServer.v10
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1, 1, 1), new DateTime(9999, 12,31)),
         "datetime2", "datetime", "date", "time", "smalldatetime");
-      types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "varbinary(max)", "image", "geometry", "geography");
+      types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "varbinary(max)", "image");
 
+      var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple;
+      types.Geometry = DataTypeInfo.Regular(SqlType.Geometry, geo, "geometry");
+      types.Geography = DataTypeInfo.Regular(SqlType.Geography, geo, "geography");
       return types;
     }
 

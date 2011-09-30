@@ -161,8 +161,8 @@ namespace Xtensive.Orm.Upgrade
         var storageReferencingIndex = FindIndex(referencingTable,
           new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
 
-        string foreignKeyName = NameBuilder.BuildForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
-        CreateForeignKey(referencingTable, foreignKeyName, referencedTable, storageReferencingIndex);
+        string foreignKeyName = NameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
+        CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
       }
 
       return StorageInfo;
@@ -225,99 +225,27 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitAssociationInfo(AssociationInfo association)
     {
-      var targetType = association.TargetType;
-      var ownerType = association.OwnerType;
-      var ownerField = association.OwnerField;
-
-      // Checking principal possibility of creating a foreign key for the association
-      if (targetType.Hierarchy==null)
-        return null;
-      if (targetType.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable && !targetType.IsLeaf)
-        return null;
-      if (ownerType.Indexes.PrimaryIndex==null)
-        return null;
+      // Skip associations that do not impose constraints
       if (association.OnTargetRemove==OnRemoveAction.None)
         return null;
 
-      // ownerType is interface
-      if (ownerType.Hierarchy==null && association.AuxiliaryType==null) {
-
-        if (ownerField.Columns.Count==0)
+      if (association.AuxiliaryType==null && !association.OwnerField.IsEntitySet) {
+        if (!IsValidForeignKeyTarget(association.TargetType))
           return null;
-
-        var interfaceType = ownerType;
-        var interfaceField = ownerField;
-        var implementors = ownerType.GetImplementors(false);
-
-        foreach (var implementor in implementors) {
-
-          ownerType = implementor;
-          ownerField = implementor.FieldMap[interfaceField];
-
-          // Check whether an overridden association exists
-          if (ownerField.Associations.Any(a => a.Ancestors.Contains(association)))
-            continue;
-
-          var referencingTable = GetTable(ownerType);
-          var referencedTable = GetTable(targetType);
-          if (referencedTable==null || referencingTable==null)
-            return null;
-          var foreignColumns = ownerField.Columns
-            .Select(ci => referencingTable.Columns[ci.Name])
-            .ToList();
-          string foreignKeyName = NameBuilder.BuildForeignKeyName(ownerType, ownerField, targetType);
-          var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
-            PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = ReferentialAction.None,
-            OnUpdateAction = ReferentialAction.None
-          };
-          foreignColumns.ForEach(fc => new ForeignKeyColumnRef(foreignKey, fc));
+        if (association.OwnerType.IsInterface) {
+          foreach (var implementorType in association.OwnerType.GetImplementors().SelectMany(GetForeignKeyOwners)) {
+            var implementorField = implementorType.FieldMap[association.OwnerField];
+            ProcessDirectAssociation(implementorType, implementorField, association.TargetType);
+          }
         }
-        return null;
-      }
-      
-      {
-        // Auxiliary == null
-        if (association.AuxiliaryType==null) {
-          if (ownerField.Columns.Count==0)
-            return null;
-
-          var referencingTable = GetTable(ownerField.DeclaringType);
-          var referencedTable = GetTable(targetType);
-          if (referencedTable==null || referencingTable==null)
-            return null;
-          var foreignColumns = ownerField.Columns
-            .Select(ci => referencingTable.Columns[ci.Name])
-            .ToList();
-          string foreignKeyName = NameBuilder.BuildForeignKeyName(association, ownerField);
-          var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
-            PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = ReferentialAction.None,
-            OnUpdateAction = ReferentialAction.None
-          };
-          foreignColumns.ForEach(fc => new ForeignKeyColumnRef(foreignKey, fc));
-          return null;
+        else {
+          foreach (var type in GetForeignKeyOwners(association.OwnerField.DeclaringType)) {
+            ProcessDirectAssociation(type, association.OwnerField, association.TargetType);
+          }
         }
       }
-
-      // Auxiliary != null
-      if (association.AuxiliaryType!=null) {
-        if (!association.IsMaster)
-          return null;
-        TableInfo referencingTable = GetTable(association.AuxiliaryType);
-        foreach (FieldInfo field in association.AuxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
-          TableInfo referencedTable = GetTable(Model.Types[field.ValueType]);
-          if (referencedTable==null || referencingTable==null)
-            continue;
-          var foreignColumns = field.Columns.Select(ci => referencingTable.Columns[ci.Name]).ToList();
-          string foreignKeyName = NameBuilder.BuildForeignKeyName(association, field);
-          var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
-            PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = ReferentialAction.None,
-            OnUpdateAction = ReferentialAction.None
-          };
-          foreignColumns.ForEach(fc => new ForeignKeyColumnRef(foreignKey, fc));
-        }
+      else if (association.AuxiliaryType!=null && association.IsMaster) {
+        ProcessIndirectAssociation(association.AuxiliaryType);
       }
       return null;
     }
@@ -530,15 +458,28 @@ namespace Xtensive.Orm.Upgrade
       return primaryIndexColumnName;
     }
 
-    private static void CreateForeignKey(TableInfo referencingTable, string foreignKeyName, TableInfo referencedTable, IndexingModel.IndexInfo referencingIndex)
+    private static void CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
     {
-      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
+      var foreignColumns = referencingField.Columns.Select(column => referencingTable.Columns[column.Name]).ToList();
+      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
+      {
+        PrimaryKey = referencedTable.PrimaryIndex,
+        OnRemoveAction = ReferentialAction.None,
+        OnUpdateAction = ReferentialAction.None
+      };
+      foreach (var foreignColumn in foreignColumns)
+        new ForeignKeyColumnRef(foreignKey, foreignColumn);
+    }
+
+    private static void CreateHierarchyForeignKey(TableInfo referencingTable, TableInfo referencedTable, IndexingModel.IndexInfo referencingIndex, string foreignKeyName)
+    {
+      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
+      {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,
         OnUpdateAction = ReferentialAction.None
       };
       foreignKey.ForeignKeyColumns.Set(referencingIndex);
-      return;
     }
 
     private static Type ToNullable(Type type, bool isNullable)
@@ -546,6 +487,49 @@ namespace Xtensive.Orm.Upgrade
       return isNullable && type.IsValueType && !type.IsNullable()
         ? type.ToNullable()
         : type;
+    }
+
+    private void ProcessDirectAssociation(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
+    {
+      var referencingTable = GetTable(ownerType);
+      var referencedTable = GetTable(targetType);
+      if (referencedTable == null || referencingTable == null)
+        return;
+      var foreignKeyName = NameBuilder.BuildReferenceForeignKeyName(ownerType, ownerField, targetType);
+      CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
+    }
+
+    private void ProcessIndirectAssociation(TypeInfo auxiliaryType)
+    {
+      var referencingTable = GetTable(auxiliaryType);
+      if (referencingTable == null)
+        return;
+      foreach (var field in auxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity))
+      {
+        var referencedType = Model.Types[field.ValueType];
+        if (!IsValidForeignKeyTarget(referencedType))
+          continue;
+        var referencedTable = GetTable(referencedType);
+        if (referencedTable == null)
+          continue;
+        var foreignKeyName = NameBuilder.BuildReferenceForeignKeyName(auxiliaryType, field, referencedType);
+        CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
+      }
+    }
+
+    private IEnumerable<TypeInfo> GetForeignKeyOwners(TypeInfo type)
+    {
+      if (type.Hierarchy == null)
+        yield break;
+      yield return type;
+      if (type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
+        foreach (var descendant in type.GetDescendants(true).Where(descendant => descendant.Indexes.PrimaryIndex != null))
+          yield return descendant;
+    }
+
+    private static bool IsValidForeignKeyTarget(TypeInfo targetType)
+    {
+      return targetType.Hierarchy != null && (targetType.Hierarchy.InheritanceSchema != InheritanceSchema.ConcreteTable || targetType.IsLeaf);
     }
 
     #endregion
@@ -559,10 +543,8 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="providerInfo">The provider info.</param>
     /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for associations.</param>
-    /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
     /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for hierarchies.</param>
-    /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
     /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(
       ProviderInfo providerInfo, 

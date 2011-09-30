@@ -518,6 +518,8 @@ namespace Xtensive.Sql.Compiler
             builder.Append("UNIQUE ");
           else if (index.IsBitmap)
             builder.Append("BITMAP ");
+          else if (index.IsSpatial)
+            builder.Append("SPATIAL ");
           if (index.IsClustered)
             builder.Append("CLUSTERED ");
           builder.Append("INDEX " + QuoteIdentifier(index.DbName));

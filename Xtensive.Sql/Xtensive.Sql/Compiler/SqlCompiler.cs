@@ -458,7 +458,7 @@ namespace Xtensive.Sql.Compiler
           }
         else {
           context.Output.AppendText(translator.QuoteIdentifier(item.Column.Name));
-          if (!node.Index.IsFullText && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.SortOrder))
+          if (!(node.Index.IsFullText || node.Index.IsSpatial) && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.SortOrder))
             context.Output.AppendText(translator.TranslateSortOrder(item.Ascending));
         }
     }
@@ -1470,6 +1470,7 @@ namespace Xtensive.Sql.Compiler
       int numberOfExpressions = node.Expressions.Count;
       bool isMulticolumn = numberOfExpressions > 1;
       string delimiter = translator.RowItemDelimiter + " ";
+      context.Output.AppendText(translator.OpeningParenthesis);
       SqlExpression filteredExpression = isMulticolumn ? SqlDml.Row(node.Expressions) : node.Expressions[0];
       filteredExpression.AcceptVisitor(this);
       context.Output.AppendText(translator.Translate(SqlNodeType.In));
@@ -1492,8 +1493,14 @@ namespace Xtensive.Sql.Compiler
           ? SqlDml.Row(Enumerable.Repeat(SqlDml.Null, numberOfExpressions).ToArray())
           : (SqlExpression) SqlDml.Null;
         nullExpression.AcceptVisitor(this);
+        // Append "and false" to avoid result beeing "undefined" rather than "false"
+        context.Output.AppendText(translator.ClosingParenthesis);
+        context.Output.AppendText(translator.Translate(SqlNodeType.And));
+        context.Output.AppendText(translator.OpeningParenthesis);
+        WriteFalseExpression();
       }
       context.Output.AppendText(translator.RowEnd);
+      context.Output.AppendText(translator.ClosingParenthesis);
     }
 
     private void TranslateDynamicFilterViaMultipleComparisons(SqlDynamicFilter node)
@@ -1512,8 +1519,13 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.ClosingParenthesis);
       }
       using (context.EnterCycleEmptyCaseScope(node.Id)) {
-        SqlDml.Literal(false).AcceptVisitor(this);
+        WriteFalseExpression();
       }
+    }
+
+    private void WriteFalseExpression()
+    {
+      SqlDml.Equals(SqlDml.Literal(1), SqlDml.Literal(0)).AcceptVisitor(this);
     }
 
     private static IEnumerable<SqlStatement> FlattenBatch(SqlBatch batch)
