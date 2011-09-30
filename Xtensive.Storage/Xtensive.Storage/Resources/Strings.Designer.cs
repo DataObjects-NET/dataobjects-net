@@ -160,6 +160,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity: {0};.
+        /// </summary>
+        internal static string EntityX {
+            get {
+                return ResourceManager.GetString("EntityX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The accessed member is not a property..
         /// </summary>
         internal static string ExAccessedMemberIsNotProperty {
@@ -3382,6 +3391,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty {
             get {
                 return ResourceManager.GetString("ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  Field: {0};.
+        /// </summary>
+        internal static string FieldX {
+            get {
+                return ResourceManager.GetString("FieldX", resourceCulture);
             }
         }
         

@@ -195,11 +195,20 @@
   <data name="ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider" xml:space="preserve">
     <value>The ordering of records is not specified for RowNumberProvider.</value>
   </data>
-  <data name="ExErrorXWhileExecutingQueryYOriginalMessageZ" xml:space="preserve">
-    <value>Error '{0}' while executing query '{1}'. Original message: {2}</value>
+  <data name="SqlErrorOccured" xml:space="preserve">
+    <value>SQL error occured.</value>
   </data>
-  <data name="ExErrorXOriginalMessageY" xml:space="preserve">
-    <value>Error '{0}'. Original message: {1}</value>
+  <data name="StorageErrorDetailsX" xml:space="preserve">
+    <value>Storage error details '{0}'</value>
+  </data>
+  <data name="SqlErrorDetailsX" xml:space="preserve">
+    <value>SQL error details '{0}'</value>
+  </data>
+  <data name="OriginalMessageX" xml:space="preserve">
+    <value>Original message '{0}'</value>
+  </data>
+  <data name="QueryX" xml:space="preserve">
+    <value>Query '{0}'</value>
   </data>
   <data name="ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql" xml:space="preserve">
     <value>ROW_NUMBER window function is not supported on this version of PostgreSQL</value>
