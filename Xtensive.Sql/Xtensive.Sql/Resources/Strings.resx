@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExTablePropertyIsNotSet" xml:space="preserve">
     <value>Table is not set.</value>
@@ -290,5 +290,23 @@
   </data>
   <data name="ExInvalidArgumentsNonNullTypeNameIsAllowedIfAndOnlyIfTypeEqualsSqlTypeUnknown" xml:space="preserve">
     <value>Invalid arguments: non-null 'typeName' is allowed if and only if 'type' equals 'SqlType.Unknown'</value>
+  </data>
+  <data name="TypeX" xml:space="preserve">
+    <value>Type: {0};</value>
+  </data>
+  <data name="DatabaseX" xml:space="preserve">
+    <value> Database: {0};</value>
+  </data>
+  <data name="TableX" xml:space="preserve">
+    <value> Table: {0};</value>
+  </data>
+  <data name="ColumnX" xml:space="preserve">
+    <value> Column: {0};</value>
+  </data>
+  <data name="ValueX" xml:space="preserve">
+    <value> Value: {0};</value>
+  </data>
+  <data name="ConstraintX" xml:space="preserve">
+    <value> Constraint: {0};</value>
   </data>
 </root>

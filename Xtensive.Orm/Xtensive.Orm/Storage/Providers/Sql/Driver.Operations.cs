@@ -7,6 +7,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
+using System.Text;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql;
@@ -186,34 +188,68 @@ namespace Xtensive.Storage.Providers.Sql
 
     private StorageException TranslateException(string queryText, Exception exception)
     {
-      var exceptionType = underlyingDriver.GetExceptionType(exception);
-      var originalMessage = exception.Message;
+      var sqlExceptionInfo = underlyingDriver.GetExceptionInfo(exception);
+      var storageExceptionInfo = GetStorageExceptionInfo(sqlExceptionInfo);
+      var builder = new StringBuilder(Strings.SqlErrorOccured);
 
-      var message = string.IsNullOrEmpty(queryText)
-        ? string.Format(Strings.ExErrorXOriginalMessageY,
-            exceptionType, originalMessage)
-        : string.Format(Strings.ExErrorXWhileExecutingQueryYOriginalMessageZ,
-            exceptionType, queryText, originalMessage);
+      var storageErrorDetails = storageExceptionInfo.ToString();
+      if (!string.IsNullOrEmpty(storageErrorDetails)) {
+        builder.AppendLine();
+        builder.AppendFormat(Strings.StorageErrorDetailsX, storageErrorDetails);
+      }
+      var sqlErrorDetails = sqlExceptionInfo.ToString();
+      if (!string.IsNullOrEmpty(sqlErrorDetails)) {
+        builder.AppendLine();
+        builder.AppendFormat(Strings.SqlErrorDetailsX, sqlErrorDetails);
+      }
+      if (!string.IsNullOrEmpty(queryText)) {
+        builder.AppendLine();
+        builder.AppendFormat(Strings.QueryX, queryText);
+      }
+      var sqlMessage = exception.Message;
+      if (!string.IsNullOrEmpty(sqlMessage)) {
+        builder.AppendLine();
+        builder.AppendFormat(Strings.OriginalMessageX, sqlMessage);
+      }
 
-      switch (exceptionType) {
+      var storageException = CreateStorageException(sqlExceptionInfo.Type, builder.ToString(), exception);
+      storageException.Info = storageExceptionInfo;
+      return storageException;
+    }
+
+    private StorageExceptionInfo GetStorageExceptionInfo(SqlExceptionInfo info)
+    {
+      var type = !string.IsNullOrEmpty(info.Table)
+        ? domain.Model.Types.FirstOrDefault(t => t.MappingName==info.Table)
+        : null;
+      Orm.Model.ColumnInfo column = null;
+      if (type!=null && !string.IsNullOrEmpty(info.Column))
+        type.Columns.TryGetValue(info.Column, out column);
+      var field = column!=null ? column.Field : null;
+      return new StorageExceptionInfo(type, field, info.Value, info.Constraint);
+    }
+
+    private static StorageException CreateStorageException(SqlExceptionType type, string message, Exception innerException)
+    {
+      switch (type) {
       case SqlExceptionType.ConnectionError:
-        return new ConnectionErrorException(message, exception);
+        return new ConnectionErrorException(message, innerException);
       case SqlExceptionType.SyntaxError:
-        return new Orm.SyntaxErrorException(message, exception);
+        return new Orm.SyntaxErrorException(message, innerException);
       case SqlExceptionType.CheckConstraintViolation:
-        return new CheckConstraintViolationException(message, exception);
+        return new CheckConstraintViolationException(message, innerException);
       case SqlExceptionType.UniqueConstraintViolation:
-        return new UniqueConstraintViolationException(message, exception);
+        return new UniqueConstraintViolationException(message, innerException);
       case SqlExceptionType.ReferentialConstraintViolation:
-        return new ReferentialConstraintViolationException(message, exception);
+        return new ReferentialConstraintViolationException(message, innerException);
       case SqlExceptionType.Deadlock:
-        return new DeadlockException(message, exception);
+        return new DeadlockException(message, innerException);
       case SqlExceptionType.SerializationFailure:
-        return new TransactionSerializationFailureException(message, exception);
+        return new TransactionSerializationFailureException(message, innerException);
       case SqlExceptionType.OperationTimeout:
-        return new OperationTimeoutException(message, exception);
+        return new OperationTimeoutException(message, innerException);
       default:
-        return new StorageException(message, exception);
+        return new StorageException(message, innerException);
       }
     }
 

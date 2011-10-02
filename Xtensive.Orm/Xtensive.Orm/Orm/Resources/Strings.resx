@@ -1563,4 +1563,10 @@ Error: {1}</value>
   <data name="ExUnableToParseValueXForFieldY">
     <value xml:space="preserve">Unable to parse value '{0}' for field '{1}'</value>
   </data>
+  <data name="EntityX">
+    <value xml:space="preserve">Entity: {0};</value>
+  </data>
+  <data name="FieldX">
+    <value xml:space="preserve"> Field: {0};</value>
+  </data>
 </root>

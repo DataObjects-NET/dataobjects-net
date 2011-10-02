@@ -132,4 +132,7 @@
   <data name="ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY" xml:space="preserve">
     <value>Multiple languages not supported for fulltext column {0} of index {1}.</value>
   </data>
+  <data name="ExNoMessageTemplateIsRegisteredForCodeX">
+    <value xml:space="preserve">No message template is registered for code: {0}</value>
+  </data>
 </root>
