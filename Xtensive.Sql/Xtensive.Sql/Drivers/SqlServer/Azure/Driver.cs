@@ -23,8 +23,8 @@ namespace Xtensive.Sql.SqlServer.Azure
 
     // Constructors
 
-    public Driver(CoreServerInfo coreServerInfo)
-      : base(coreServerInfo)
+    public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser)
+      : base(coreServerInfo, errorMessageParser)
     {
     }
   }

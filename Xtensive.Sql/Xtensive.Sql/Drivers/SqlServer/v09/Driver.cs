@@ -39,8 +39,8 @@ namespace Xtensive.Sql.SqlServer.v09
 
     // Constructors
 
-    public Driver(CoreServerInfo coreServerInfo)
-      : base(coreServerInfo)
+    public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser)
+      : base(coreServerInfo, errorMessageParser)
     {
     }
   }

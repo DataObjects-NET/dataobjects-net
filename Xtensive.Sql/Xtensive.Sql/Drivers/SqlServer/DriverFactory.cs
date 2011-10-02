@@ -5,11 +5,12 @@
 // Created:    2009.06.23
 
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.Drivers.SqlServer.Resources;
+using Xtensive.Sql.SqlServer.Resources;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer
@@ -22,6 +23,27 @@ namespace Xtensive.Sql.SqlServer
     private const string DataSourceFormat = "{0}/{1}";
     private const string DatabaseAndSchemaQuery =
       "select db_name(), default_schema_name from sys.database_principals where name=user";
+
+    private const string MessagesQuery = "select msg.error, msg.description " +
+      "from [master].[sys].[sysmessages] msg join [master].[sys].[syslanguages] lang on msg.msglangid = lang.msglangid " +
+      "where lang.langid = @@LANGID and msg.error in (2627, 2601, 515, 547)";
+
+    private static ErrorMessageParser CreateMessageParser(SqlServerConnection connection)
+    {
+      bool isEnglish;
+      using (var command = connection.CreateCommand()) {
+        command.CommandText = "SELECT @@LANGID";
+        isEnglish = command.ExecuteScalar().ToString()=="0";
+      }
+      var templates = new Dictionary<int, string>();
+      using (var command = connection.CreateCommand()) {
+        command.CommandText = MessagesQuery;
+        using (var reader = command.ExecuteReader())
+          while (reader.Read())
+            templates.Add(reader.GetInt32(0), reader.GetString(1));
+      }
+      return new ErrorMessageParser(templates, isEnglish);
+    }
 
     private static bool IsAzure(SqlServerConnection connection)
     {
@@ -77,13 +99,14 @@ namespace Xtensive.Sql.SqlServer
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         coreServerInfo.MultipleActiveResultSets = builder.MultipleActiveResultSets;
+        var parser = CreateMessageParser(connection);
         if (IsAzure(connection))
-          return new Azure.Driver(coreServerInfo);
+          return new Azure.Driver(coreServerInfo, parser);
         switch (version.Major) {
         case 9:
-          return new v09.Driver(coreServerInfo);
+          return new v09.Driver(coreServerInfo, parser);
         case 10:
-          return new v10.Driver(coreServerInfo);
+          return new v10.Driver(coreServerInfo, parser);
         default:
           throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
         }

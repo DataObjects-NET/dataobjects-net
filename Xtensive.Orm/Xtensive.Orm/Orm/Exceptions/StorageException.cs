@@ -7,6 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm.Resources;
 
 namespace Xtensive.Orm
 {
@@ -16,6 +17,20 @@ namespace Xtensive.Orm
   [Serializable]
   public class StorageException : Exception
   {
+    private StorageExceptionInfo info;
+
+    /// <summary>
+    /// Context information about occurred error.
+    /// </summary>
+    public StorageExceptionInfo Info {
+      get { return info; }
+      set {
+        if (info!=null)
+          throw new InvalidOperationException(Strings.ExValueIsAlreadyAssigned);
+        info = value;
+      }
+    }
+
     // Constructors
 
     /// <summary>

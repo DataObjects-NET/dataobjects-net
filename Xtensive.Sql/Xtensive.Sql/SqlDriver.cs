@@ -129,6 +129,16 @@ namespace Xtensive.Sql
     {
       return SqlExceptionType.Unknown;
     }
+
+    /// <summary>
+    /// Gets information about exception.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    /// <returns>Information about exception.</returns>
+    public virtual SqlExceptionInfo GetExceptionInfo(Exception exception)
+    {
+      return SqlExceptionInfo.Create(GetExceptionType(exception));
+    }
     
     /// <summary>
     /// Creates the SQL DOM compiler.
