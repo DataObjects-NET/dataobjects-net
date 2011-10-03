@@ -844,36 +844,16 @@ namespace Xtensive.Storage.Upgrade
 
     private void UpdateAffectedColumns(ChangeFieldTypeHint hint)
     {
-      var affectedColumns = new List<string>();
       var currentTypeName = hint.Type.GetFullName();
       var currentType = currentModel.Types.SingleOrDefault(type =>
-        type.UnderlyingType == currentTypeName);
-      if (currentType == null)
+        type.UnderlyingType==currentTypeName);
+      if (currentType==null)
         throw TypeNotFound(currentTypeName);
       var currentField = currentType.AllFields
-        .SingleOrDefault(field => field.Name == hint.FieldName);
-      if (currentField == null)
+        .SingleOrDefault(field => field.Name==hint.FieldName);
+      if (currentField==null)
         throw FieldNotFound(currentTypeName, hint.FieldName);
-      var inheritanceSchema = currentType.Hierarchy.InheritanceSchema;
-
-      switch (inheritanceSchema)
-      {
-        case InheritanceSchema.ClassTable:
-          affectedColumns.Add(GetColumnPath(currentField.DeclaringType.MappingName, currentField.MappingName));
-          break;
-        case InheritanceSchema.SingleTable:
-          affectedColumns.Add(GetColumnPath(currentType.Hierarchy.Root.MappingName, currentField.MappingName));
-          break;
-        case InheritanceSchema.ConcreteTable:
-          var typeToProcess = GetAffectedMappedTypes(currentType,
-            currentType.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable);
-          affectedColumns.AddRange(
-            typeToProcess.Select(type => GetColumnPath(type.MappingName, currentField.MappingName)));
-          break;
-        default:
-          throw Exceptions.InternalError(String.Format(
-            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
-      }
+      var affectedColumns = GetAffectedColumns(currentType, currentField);
       hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }
 
@@ -882,10 +862,9 @@ namespace Xtensive.Storage.Upgrade
       if (hint.IsExplicit)
         return;
 
-      var affectedColumns = new List<string>();
       var typeName = hint.Type;
-      var storedType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType == typeName);
-      if (storedType == null)
+      var storedType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType==typeName);
+      if (storedType==null)
         throw TypeNotFound(typeName);
 
       StoredFieldInfo storedField = null;
@@ -897,42 +876,19 @@ namespace Xtensive.Storage.Upgrade
         for (int i = 0; i < path.Length; i++) {
           fieldName += string.IsNullOrEmpty(fieldName) ? path[i] : "." + path[i];
           string parameter = fieldName;
-          storedField = fields.SingleOrDefault(field => field.Name == parameter);
-          if (storedField == null)
+          storedField = fields.SingleOrDefault(field => field.Name==parameter);
+          if (storedField==null)
             throw FieldNotFound(typeName, hint.Field);
           fields = storedField.Fields;
         }
       }
       else
         storedField = storedType.AllFields
-          .SingleOrDefault(field => field.Name == hint.Field);
+          .SingleOrDefault(field => field.Name==hint.Field);
 
-      if (storedField == null)
+      if (storedField==null)
         throw FieldNotFound(typeName, hint.Field);
-      foreach (var primitiveField in storedField.PrimitiveFields)
-      {
-        var inheritanceSchema = storedType.Hierarchy.InheritanceSchema;
-        switch (inheritanceSchema)
-        {
-          case InheritanceSchema.ClassTable:
-            affectedColumns.Add(
-              GetColumnPath(primitiveField.DeclaringType.MappingName, primitiveField.MappingName));
-            break;
-          case InheritanceSchema.SingleTable:
-            affectedColumns.Add(
-              GetColumnPath(storedType.Hierarchy.Root.MappingName, primitiveField.MappingName));
-            break;
-          case InheritanceSchema.ConcreteTable:
-            var typeToProcess = GetAffectedMappedTypes(
-              storedType,
-              storedType.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable);
-            affectedColumns.AddRange(
-              typeToProcess.Select(type => GetColumnPath(type.MappingName, primitiveField.MappingName)));
-            break;
-          default:
-            throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
-        }
-      }
+      var affectedColumns = GetAffectedColumns(storedType, storedField);
       hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }
 
@@ -1002,6 +958,29 @@ namespace Xtensive.Storage.Upgrade
     #endregion
     
     #region Static helpers
+
+    private static List<string> GetAffectedColumns(StoredTypeInfo type, StoredFieldInfo field)
+    {
+      var affectedColumns = new List<string>();
+      foreach (var primitiveField in field.PrimitiveFields) {
+        var inheritanceSchema = type.Hierarchy.InheritanceSchema;
+        switch (inheritanceSchema) {
+          case InheritanceSchema.ClassTable:
+            affectedColumns.Add(GetColumnPath(primitiveField.DeclaringType.MappingName, primitiveField.MappingName));
+            break;
+          case InheritanceSchema.SingleTable:
+            affectedColumns.Add(GetColumnPath(type.Hierarchy.Root.MappingName, primitiveField.MappingName));
+            break;
+          case InheritanceSchema.ConcreteTable:
+            var typeToProcess = GetAffectedMappedTypes(type, type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable);
+            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t.MappingName, primitiveField.MappingName)));
+            break;
+          default:
+            throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+        }
+      }
+      return affectedColumns;
+    }
 
     private static IEnumerable<StoredTypeInfo> GetNonConnectorTypes(StoredDomainModel model)
     {

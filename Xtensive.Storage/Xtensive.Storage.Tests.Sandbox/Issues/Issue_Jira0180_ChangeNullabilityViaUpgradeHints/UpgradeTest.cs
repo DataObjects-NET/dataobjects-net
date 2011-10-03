@@ -31,7 +31,11 @@ namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgra
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
-          var person = new M1.Person {Name = "Vasya", Weight = 80};
+          var person = new M1.Person {
+            Name = "Vasya",
+            Weight = 80,
+            Phone = new M1.Phone(),
+          };
           tx.Complete();
         }
       }
@@ -46,6 +50,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgra
           var vasya = Query.All<M2.Person>().Single();
           Assert.AreEqual("Vasya", vasya.Name);
           Assert.AreEqual(80, vasya.Weight);
+          Assert.IsNotNull(vasya.Phone);
         }
       }
     }

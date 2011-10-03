@@ -8,17 +8,35 @@ using System;
 
 namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgradeHints.Model.Version2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
     [Key, Field]
     public long Id { get; private set; }
     
-    [Field(Nullable = false)]
+    [Field(Nullable = false)] // Made non-nullable
     public string Name { get; set; }
 
-    [Field]
+    [Field] // Made non-nullable
     public decimal Weight { get; set; }
+
+    // Car is removed
+
+    [Field(Nullable = false)] // Made non-nullable
+    public Phone Phone { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Car : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class Phone : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
   }
 }
