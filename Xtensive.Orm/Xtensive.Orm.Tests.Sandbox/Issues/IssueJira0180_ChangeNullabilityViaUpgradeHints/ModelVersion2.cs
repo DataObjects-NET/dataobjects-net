@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
     [Field] // Made non-nullable
     public decimal Weight { get; set; }
 
+    // Age is removed
+
     // Car is removed
 
     [Field(Nullable = false)] // Made non-nullable

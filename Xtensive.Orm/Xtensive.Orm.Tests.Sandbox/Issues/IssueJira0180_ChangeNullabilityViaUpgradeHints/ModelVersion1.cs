@@ -21,6 +21,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
     public decimal? Weight { get; set; }
 
     [Field]
+    public int Age { get; set; }
+
+    [Field]
     public Car Car { get; set; }
 
     [Field]
