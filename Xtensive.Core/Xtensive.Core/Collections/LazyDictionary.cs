@@ -10,7 +10,7 @@ namespace Xtensive.Collections
   /// A dictionary-like structure allocating internal <see cref="Dictionary{TKey,TValue}"/> in lazy fashion.
   /// </summary>
   /// <typeparam name="TKey">Key type.</typeparam>
-  /// <typeparam name="TItem">Value type.</typeparam>
+  /// <typeparam name="TValue">Value type.</typeparam>
   [Serializable]
   public struct LazyDictionary<TKey, TValue> : IDictionary<TKey, TValue>
   {
