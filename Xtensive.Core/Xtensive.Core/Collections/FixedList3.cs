@@ -44,6 +44,21 @@ namespace Xtensive.Collections
             return slot3;
         }
       }
+      set
+      {
+        ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
+        switch (index) {
+          case 0:
+            slot1 = value;
+            break;
+          case 1:
+            slot2 = value;
+            break;
+          default:
+            slot3 = value;
+            break;
+        }
+      }
     }
 
     /// <summary>
