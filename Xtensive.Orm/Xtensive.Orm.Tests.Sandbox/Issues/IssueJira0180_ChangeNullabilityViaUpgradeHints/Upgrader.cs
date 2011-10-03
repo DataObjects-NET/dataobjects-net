@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version2;
 using Xtensive.Orm.Upgrade;
 using M1 = Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version2;
@@ -67,8 +66,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
       get {
         var hints = new List<UpgradeHint>();
         hints.AddRange(GetTypeRenameHints("Version1", "Version2"));
-        hints.Add(new ChangeFieldTypeHint(typeof (Person), "Name"));
-        hints.Add(new ChangeFieldTypeHint(typeof (Person), "Weight"));
+        hints.Add(new ChangeFieldTypeHint(typeof (M2.Person), "Name"));
+        hints.Add(new ChangeFieldTypeHint(typeof (M2.Person), "Weight"));
+        hints.Add(new ChangeFieldTypeHint(typeof (M2.Person), "Phone"));
+        hints.Add(new RemoveFieldHint(typeof (M1.Person), "Car"));
         return hints;
       }
     }

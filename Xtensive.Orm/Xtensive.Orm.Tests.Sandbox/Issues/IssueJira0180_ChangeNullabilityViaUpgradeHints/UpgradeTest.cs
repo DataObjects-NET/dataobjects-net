@@ -8,7 +8,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version1;
 using M1 = Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version2;
 using NUnit.Framework;
@@ -32,7 +31,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          var person = new Person {Name = "Vasya", Weight = 80};
+          var person = new M1.Person {
+            Name = "Vasya",
+            Weight = 80,
+            Phone = new M1.Phone(),
+          };
           tx.Complete();
         }
       }
@@ -47,6 +50,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
           var vasya = session.Query.All<Model.Version2.Person>().Single();
           Assert.AreEqual("Vasya", vasya.Name);
           Assert.AreEqual(80, vasya.Weight);
+          Assert.IsNotNull(vasya.Phone);
         }
       }
     }
@@ -56,7 +60,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
       if (domain != null)
         domain.DisposeSafely();
 
-      string ns = typeof(Person).Namespace;
+      string ns = typeof(M1.Person).Namespace;
       string nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();

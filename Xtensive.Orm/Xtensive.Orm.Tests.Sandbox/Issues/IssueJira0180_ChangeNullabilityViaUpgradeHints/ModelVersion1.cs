@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -20,5 +19,25 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
 
     [Field]
     public decimal? Weight { get; set; }
+
+    [Field]
+    public Car Car { get; set; }
+
+    [Field]
+    public Phone Phone { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Car : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class Phone : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
   }
 }
