@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Storage.Configuration;
 using M1 = Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgradeHints.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgradeHints.Model.Version2;
 using NUnit.Framework;
@@ -25,26 +26,45 @@ namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgra
       Require.ProviderIsNot(StorageProvider.Memory);
     }
 
-    [SetUp]
-    public void SetUp()
+    [Test]
+    public void NoneTest()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
+      RunTest(NamingRules.None);
+    }
+
+    [Test]
+    public void UnderscoreDotsTest()
+    {
+      RunTest(NamingRules.UnderscoreDots);
+    }
+
+    [Test]
+    public void UnderscoreHyphensTest()
+    {
+      RunTest(NamingRules.UnderscoreHyphens);
+    }
+
+    [Test]
+    public void UnderscoreDotsAndHyphensTest()
+    {
+      RunTest(NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens);
+    }
+
+    private void RunTest(NamingRules namingRules)
+    {
+      BuildDomain("1", DomainUpgradeMode.Recreate, namingRules);
       using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
           var person = new M1.Person {
             Name = "Vasya",
             Weight = 80,
+            Age = 20,
             Phone = new M1.Phone(),
           };
           tx.Complete();
         }
       }
-    }
-    
-    [Test]
-    public void UpgradeToVersion2Test()
-    {
-      BuildDomain("2", DomainUpgradeMode.PerformSafely);
+      BuildDomain("2", DomainUpgradeMode.PerformSafely, namingRules);
       using (Session.Open(domain)) {
         using (Transaction.Open()) {
           var vasya = Query.All<M2.Person>().Single();
@@ -55,7 +75,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgra
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private void BuildDomain(string version, DomainUpgradeMode upgradeMode, NamingRules namingRules)
     {
       if (domain != null)
         domain.DisposeSafely();
@@ -67,6 +87,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgra
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
+      configuration.NamingConvention.NamingRules = namingRules;
 
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);

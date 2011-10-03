@@ -955,25 +955,21 @@ namespace Xtensive.Storage.Upgrade
       return true;
     }
 
-    #endregion
-    
-    #region Static helpers
-
-    private static List<string> GetAffectedColumns(StoredTypeInfo type, StoredFieldInfo field)
+    private List<string> GetAffectedColumns(StoredTypeInfo type, StoredFieldInfo field)
     {
       var affectedColumns = new List<string>();
       foreach (var primitiveField in field.PrimitiveFields) {
         var inheritanceSchema = type.Hierarchy.InheritanceSchema;
         switch (inheritanceSchema) {
           case InheritanceSchema.ClassTable:
-            affectedColumns.Add(GetColumnPath(primitiveField.DeclaringType.MappingName, primitiveField.MappingName));
+            affectedColumns.Add(GetColumnPath(primitiveField.DeclaringType.MappingName, nameBuilder.ApplyNamingRules(primitiveField.MappingName)));
             break;
           case InheritanceSchema.SingleTable:
-            affectedColumns.Add(GetColumnPath(type.Hierarchy.Root.MappingName, primitiveField.MappingName));
+            affectedColumns.Add(GetColumnPath(type.Hierarchy.Root.MappingName, nameBuilder.ApplyNamingRules(primitiveField.MappingName)));
             break;
           case InheritanceSchema.ConcreteTable:
             var typeToProcess = GetAffectedMappedTypes(type, type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable);
-            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t.MappingName, primitiveField.MappingName)));
+            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t.MappingName, nameBuilder.ApplyNamingRules(primitiveField.MappingName))));
             break;
           default:
             throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
@@ -981,6 +977,10 @@ namespace Xtensive.Storage.Upgrade
       }
       return affectedColumns;
     }
+
+    #endregion
+
+    #region Static helpers
 
     private static IEnumerable<StoredTypeInfo> GetNonConnectorTypes(StoredDomainModel model)
     {

@@ -69,6 +69,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgra
         hints.Add(new ChangeFieldTypeHint(typeof (M2.Person), "Name"));
         hints.Add(new ChangeFieldTypeHint(typeof (M2.Person), "Weight"));
         hints.Add(new ChangeFieldTypeHint(typeof (M2.Person), "Phone"));
+        hints.Add(new RemoveFieldHint(typeof (M1.Person), "Age"));
         hints.Add(new RemoveFieldHint(typeof (M1.Person), "Car"));
         return hints;
       }

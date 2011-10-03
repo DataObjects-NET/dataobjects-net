@@ -21,6 +21,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue_Jira0180_ChangeNullabilityViaUpgra
     public decimal? Weight { get; set; }
 
     [Field]
+    public int Age { get; set; }
+
+    [Field]
     public Car Car { get; set; }
 
     [Field]
