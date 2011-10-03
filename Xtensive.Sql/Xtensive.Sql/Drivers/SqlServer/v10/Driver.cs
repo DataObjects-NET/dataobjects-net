@@ -13,6 +13,8 @@ namespace Xtensive.Sql.SqlServer.v10
 {
   internal class Driver : SqlServer.Driver
   {
+    protected override bool HasDuplicateKeyValueInErrorMessage { get { return true; } }
+
     protected override SqlCompiler CreateCompiler()
     {
       return new Compiler(this);
