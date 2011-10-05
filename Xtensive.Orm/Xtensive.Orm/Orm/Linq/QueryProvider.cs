@@ -51,14 +51,14 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      session.Events.NotifyLinqExecuting(expression);
+      session.Events.NotifyQueryExecuting(expression);
       var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
         ? typeof (IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
         : expression.Type;
       try {
         var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
           var result = executeMethod.Invoke(this, new[] {expression});
-          session.Events.NotifyLinqExecuted(expression);
+          session.Events.NotifyQueryExecuted(expression);
           return result;
       }
       catch(TargetInvocationException te) {
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     public TResult Execute<TResult>(Expression expression)
     {
-      session.Events.NotifyLinqExecuting(expression);
+      session.Events.NotifyQueryExecuting(expression);
       var translationResult = Translate<TResult>(expression);
       var cachingScope = QueryCachingScope.Current;
       TResult result;
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Linq
         result= default(TResult);
       else
         result = translationResult.Query.Execute(session, new ParameterContext());
-      session.Events.NotifyLinqExecuted(expression);
+      session.Events.NotifyQueryExecuted(expression);
       return result;
     }
 

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace Xtensive.Orm
 {
     [Serializable]
-    public class LinqEventArgs : EventArgs
+    public class QueryEventArgs : EventArgs
     {
-        public LinqEventArgs(Expression expression)
+        public QueryEventArgs(Expression expression)
         {
             Expression = expression;
         }

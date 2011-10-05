@@ -34,8 +34,8 @@ namespace Xtensive.Orm
 
       public event EventHandler<DbCommandEventArgs> DbCommandExecuting;
       public event EventHandler<DbCommandEventArgs> DbCommandExecuted;
-      public event EventHandler<LinqEventArgs> LinqExecuting;
-      public event EventHandler<LinqEventArgs> LinqExecuted;
+      public event EventHandler<QueryEventArgs> QueryExecuting;
+      public event EventHandler<QueryEventArgs> QueryExecuted;
 
 
     /// <summary>
@@ -234,15 +234,15 @@ namespace Xtensive.Orm
         if (DbCommandExecuted != null)
             DbCommandExecuted(this, new DbCommandEventArgs(command));
     }
-    internal void NotifyLinqExecuting(Expression expression)
+    internal void NotifyQueryExecuting(Expression expression)
     {
-        if (LinqExecuting != null)
-            LinqExecuting(this, new LinqEventArgs(expression));
+        if (QueryExecuting != null)
+            QueryExecuting(this, new QueryEventArgs(expression));
     }
-    internal void NotifyLinqExecuted(Expression expression)
+    internal void NotifyQueryExecuted(Expression expression)
     {
-        if (LinqExecuted != null)
-            LinqExecuted(this, new LinqEventArgs(expression));
+        if (QueryExecuted != null)
+            QueryExecuted(this, new QueryEventArgs(expression));
     }
 
     internal void NotifyDisposing()
