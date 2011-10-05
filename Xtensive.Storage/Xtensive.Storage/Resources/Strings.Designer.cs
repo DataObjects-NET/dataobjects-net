@@ -3016,6 +3016,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to set &apos;Indexed&apos; flag on EntitySet field {0}..
+        /// </summary>
+        internal static string ExUnableToSetIndexedFlagOnEntitySetFieldX {
+            get {
+                return ResourceManager.GetString("ExUnableToSetIndexedFlagOnEntitySetFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to set &apos;Indexed&apos; flag on Structure field {0}..
+        /// </summary>
+        internal static string ExUnableToSetIndexedFlagOnStructureFieldX {
+            get {
+                return ResourceManager.GetString("ExUnableToSetIndexedFlagOnStructureFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to set Key field &apos;{0}&apos; explicitly..
         /// </summary>
         internal static string ExUnableToSetKeyFieldXExplicitly {

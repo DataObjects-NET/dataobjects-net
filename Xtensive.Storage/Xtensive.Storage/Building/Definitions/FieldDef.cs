@@ -169,11 +169,31 @@ namespace Xtensive.Storage.Building.Definitions
 
     /// <summary>
     /// Gets a value indicating whether this property is indexed.
+    /// Setting this value to <see langword="true"/> resets <see cref="IsNotIndexed"/> to <see langword="false"/>.
     /// </summary>
     public bool IsIndexed
     {
       get { return (attributes & FieldAttributes.Indexed) != 0; }
-      internal set { attributes = value ? attributes | FieldAttributes.Indexed : attributes & ~FieldAttributes.Indexed; }
+      internal set {
+        attributes = value
+          ? (attributes | FieldAttributes.Indexed) & ~FieldAttributes.NotIndexed
+          : attributes & ~FieldAttributes.Indexed;
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this property should not be indexed implicitly.
+    /// Setting this value to <see langword="true"/> resets <see cref="IsIndexed"/> to <see langword="false"/>.
+    /// </summary>
+    public bool IsNotIndexed
+    {
+      get { return (attributes & FieldAttributes.NotIndexed)!=0; }
+      internal set
+      {
+        attributes = value
+          ? (attributes | FieldAttributes.NotIndexed) & ~FieldAttributes.Indexed
+          : attributes & ~FieldAttributes.NotIndexed;
+      }
     }
 
     /// <summary>

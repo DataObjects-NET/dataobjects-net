@@ -1557,4 +1557,10 @@ Error: {1}]]></value>
   <data name="FieldX">
     <value xml:space="preserve"> Field: {0};</value>
   </data>
+  <data name="ExUnableToSetIndexedFlagOnEntitySetFieldX">
+    <value xml:space="preserve">Unable to set 'Indexed' flag on EntitySet field {0}.</value>
+  </data>
+  <data name="ExUnableToSetIndexedFlagOnStructureFieldX">
+    <value xml:space="preserve">Unable to set 'Indexed' flag on Structure field {0}.</value>
+  </data>
 </root>
