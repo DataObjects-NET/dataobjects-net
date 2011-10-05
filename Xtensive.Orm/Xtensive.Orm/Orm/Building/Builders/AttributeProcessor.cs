@@ -252,17 +252,16 @@ namespace Xtensive.Orm.Building.Builders
 
     private static void ProcessIndexed(FieldDef fieldDef, FieldAttribute attribute)
     {
-      if (!attribute.Indexed)
+      if (attribute.indexed==null)
         return;
       if (fieldDef.IsEntitySet)
-        throw new InvalidOperationException(string.Format("Unable to apply index to EntitySet field {0}.", fieldDef.Name));
+        throw new InvalidOperationException(string.Format(Strings.ExUnableToSetIndexedFlagOnEntitySetFieldX, fieldDef.Name));
       if (fieldDef.IsStructure)
-        throw new InvalidOperationException(string.Format("Unable to apply index to Structure field {0}.", fieldDef.Name));
-
-      if (!fieldDef.IsPrimitive)
-        Log.Warning("Specifying index on field {0} is redundant.", fieldDef.Name);
+        throw new InvalidOperationException(string.Format(Strings.ExUnableToSetIndexedFlagOnStructureFieldX, fieldDef.Name));
+      if (attribute.indexed==true)
+        fieldDef.IsIndexed = true;
       else
-        fieldDef.IsIndexed = attribute.Indexed;
+        fieldDef.IsNotIndexed = true;
     }
 
     private static void ProcessMappingName(MappingNode node, string mappingName, ValidationRule rule)

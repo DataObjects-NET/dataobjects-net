@@ -258,25 +258,7 @@ namespace Xtensive.Orm.Building.Builders
         context.DiscardedAssociations.Clear();
 
         foreach (var association in context.Model.Associations) {
-          if (association.Multiplicity.In(Multiplicity.OneToOne, Multiplicity.ZeroToOne)) {
-            var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
-            var ass = association;
-            var field = ass.OwnerField;
-            bool aggregation = true;
-            while (field.Parent != null) {
-              field = field.Parent;
-              aggregation = aggregation && field.IsStructure;
-            }
-            if (aggregation) {
-              Func<IndexDef, bool> predicate =
-                i => i.IsSecondary && i.KeyFields.Count == 1 && i.KeyFields[0].Key == ass.OwnerField.Name;
-              if (!typeDef.Indexes.Any(predicate)) {
-                var attribute = new IndexAttribute(ass.OwnerField.Name);
-                var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
-                typeDef.Indexes.Add(indexDef);
-              }
-            }
-          }
+          TryAddForeignKeyIndex(context, association);
           if (association.IsPaired)
             continue;
           if (!association.OnOwnerRemove.HasValue)
@@ -290,6 +272,29 @@ namespace Xtensive.Orm.Building.Builders
 
         BuildAuxiliaryTypes(context.Model.Associations);
       }
+    }
+
+    private static void TryAddForeignKeyIndex(BuildingContext context, AssociationInfo association)
+    {
+      if (!association.Multiplicity.In(Multiplicity.OneToOne, Multiplicity.ZeroToOne))
+        return;
+      var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
+      var field = association.OwnerField;
+      if ((field.Attributes & FieldAttributes.NotIndexed) != 0)
+        return;
+      bool addIndex = true;
+      while (field.Parent!=null) {
+        field = field.Parent;
+        addIndex = addIndex && field.IsStructure;
+      }
+      if (!addIndex)
+        return;
+      Func<IndexDef, bool> isIndexForField = i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==association.OwnerField.Name;
+      if (typeDef.Indexes.Any(isIndexForField))
+        return;
+      var attribute = new IndexAttribute(association.OwnerField.Name);
+      var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
+      typeDef.Indexes.Add(indexDef);
     }
 
     private static void BuildIndexes()

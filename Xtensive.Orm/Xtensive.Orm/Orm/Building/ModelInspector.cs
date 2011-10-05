@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Building
         context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
       
       if (fieldDef.IsPrimitive) {
-        if (fieldDef.ValueType==typeof (Key))
+        if (fieldDef.ValueType==typeof (Key) && !fieldDef.IsNotIndexed)
           context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));
         return;
       }
@@ -310,8 +310,10 @@ namespace Xtensive.Orm.Building
         return;
       }
 
-      if (fieldDef.IsEntity)
-        context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));
+      if (fieldDef.IsEntity) {
+        if (!fieldDef.IsNotIndexed)
+          context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));
+      }
       else
         Validator.ValidateEntitySetField(typeDef, fieldDef);
 
