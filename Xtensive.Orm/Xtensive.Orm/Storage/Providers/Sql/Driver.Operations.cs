@@ -145,7 +145,12 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (isLoggingEnabled)
           LogCommand(session, command);
-        return command.ExecuteNonQuery();
+        if (session != null)
+            session.Events.NotifyDbCommandExecuting(command);
+        var result = command.ExecuteNonQuery();
+        if (session != null)
+            session.Events.NotifyDbCommandExecuted(command);
+        return result;
       }
       catch (Exception exception) {
         throw TranslateException(command.ToHumanReadableString(), exception);
@@ -157,7 +162,12 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (isLoggingEnabled)
           LogCommand(session, command);
-        return command.ExecuteScalar();
+        if(session!=null)
+          session.Events.NotifyDbCommandExecuting(command);
+        var result = command.ExecuteScalar();
+        if (session != null)
+            session.Events.NotifyDbCommandExecuted(command);
+        return result;
       }
       catch (Exception exception) {
         throw TranslateException(command.ToHumanReadableString(), exception);
@@ -169,7 +179,12 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (isLoggingEnabled)
           LogCommand(session, command);
-        return command.ExecuteReader();
+        if (session != null)
+            session.Events.NotifyDbCommandExecuting(command);
+        var result = command.ExecuteReader();
+        if (session != null)
+            session.Events.NotifyDbCommandExecuted(command);
+        return result;
       }
       catch (Exception exception) {
         throw TranslateException(command.ToHumanReadableString(), exception);
