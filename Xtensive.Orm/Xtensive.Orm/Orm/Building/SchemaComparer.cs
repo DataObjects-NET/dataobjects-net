@@ -103,11 +103,6 @@ namespace Xtensive.Orm.Building
         !createTableActions.Any() && 
         !createColumnActions.Any() && 
         !columnTypeChangeActions.Any();
-      unsafeActions = 
-        createTableActions.Cast<NodeAction>()
-        .Concat(createColumnActions.Cast<NodeAction>())
-        .Concat(columnTypeChangeActions.Cast<NodeAction>())
-        .ToList();
       return new SchemaComparisonResult(
         comparisonStatus, 
         columnTypeChangeActions.Any(), 
