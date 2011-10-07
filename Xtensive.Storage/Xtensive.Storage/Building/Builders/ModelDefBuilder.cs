@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static IndexDef DefineIndex(TypeDef typeDef, IndexAttribute attribute)
     {
-      var index = new IndexDef {IsSecondary = true};
+      var index = new IndexDef(typeDef) {IsSecondary = true};
       AttributeProcessor.Process(index, attribute);
 
       if (string.IsNullOrEmpty(index.Name) && index.KeyFields.Count > 0)

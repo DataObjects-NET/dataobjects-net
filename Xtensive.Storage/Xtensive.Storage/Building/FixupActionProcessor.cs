@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Building
         foreach (var primaryIndex in primaryIndexes)
           type.Indexes.Remove(primaryIndex);
 
-      var generatedIndex = new IndexDef {IsPrimary = true};
+      var generatedIndex = new IndexDef(action.Type) {IsPrimary = true};
       generatedIndex.Name = BuildingContext.Demand().NameBuilder.BuildIndexName(type, generatedIndex);
 
       TypeDef hierarchyRoot;

@@ -7,14 +7,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Linq.SerializableExpressions;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
 using Xtensive.Modelling;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -178,7 +181,7 @@ namespace Xtensive.Storage.Upgrade
       IndexingModel.TableInfo table = CurrentTable;
       IndexInfo primaryIndex = Model.RealIndexes.First(i => i.MappingName==table.PrimaryIndex.Name);
       var secondaryIndex = new IndexingModel.SecondaryIndexInfo(table, index.MappingName) {
-        IsUnique = index.IsUnique
+        IsUnique = index.IsUnique,
       };
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
