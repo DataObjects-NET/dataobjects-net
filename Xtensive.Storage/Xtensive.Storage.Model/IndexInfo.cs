@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Model
     private IList<int> selectColumns;
     private List<Pair<int, List<int>>> valueColumnsMap;
     private LambdaExpression filterExpression;
-    private LambdaExpression tupleFilterExpression;
+    private PartialIndexFilter filter;
 
     /// <summary>
     /// Gets or sets the column index map.
@@ -198,18 +198,17 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets expression that defines range for partial index.
-    /// Unlike <see cref="FilterExpression"/> this expression operates on <see cref="Tuple">tuples</see>.
+    /// Gets filter that defines range for partial index.
+    /// This is built upon <see cref="FilterExpression"/>
+    /// on late stage of <see cref="DomainModel"/> build.
     /// </summary>
-    public LambdaExpression TupleFilterExpression
-    {
+    public PartialIndexFilter Filter {
       [DebuggerStepThrough]
-      get { return tupleFilterExpression; }
+      get { return filter; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
-        tupleFilterExpression = value;
+        filter = value;
       }
     }
 
@@ -323,6 +322,8 @@ namespace Xtensive.Storage.Model
       valueColumns.UpdateState(true);
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.UpdateState(true);
+      if (filter!=null)
+        filter.UpdateState(true);
       CreateTupleDescriptors();
 
       if (!IsPrimary)
@@ -353,8 +354,10 @@ namespace Xtensive.Storage.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      keyColumns.Lock(true);
-      valueColumns.Lock(true);
+      keyColumns.Lock();
+      valueColumns.Lock();
+      if (filter != null)
+        filter.Lock();
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
       underlyingIndexes.Lock();

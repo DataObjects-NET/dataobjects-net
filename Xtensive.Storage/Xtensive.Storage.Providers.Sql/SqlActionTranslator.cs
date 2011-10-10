@@ -976,6 +976,8 @@ namespace Xtensive.Storage.Providers.Sql
       index.NonkeyColumns.AddRange(
         indexInfo.IncludedColumns
           .Select(cr => FindColumn(table, cr.Value.Name)).ToArray());
+      if (!string.IsNullOrEmpty(indexInfo.FilterExpression))
+        index.Where = SqlDml.Native(indexInfo.FilterExpression);
       return index;
     }
 

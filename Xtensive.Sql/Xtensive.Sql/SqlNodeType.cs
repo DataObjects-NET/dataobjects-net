@@ -106,5 +106,6 @@ namespace Xtensive.Sql
     Variant,
     DeclareVariable,
     While,
+    Fragment,
   }
 }

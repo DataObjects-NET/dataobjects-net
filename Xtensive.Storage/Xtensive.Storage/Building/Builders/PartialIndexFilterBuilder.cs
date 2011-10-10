@@ -13,6 +13,7 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
+using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -22,13 +23,18 @@ namespace Xtensive.Storage.Building.Builders
     private readonly TypeInfo reflectedType;
     private readonly IndexInfo index;
     private readonly ParameterExpression parameter;
+    private readonly List<FieldInfo> usedFields = new List<FieldInfo>();
 
     public static void BuildFilter(IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
       var parameter = Expression.Parameter(typeof (Core.Tuples.Tuple), "tuple");
-      var body = new PartialIndexFilterBuilder(index, parameter).Visit(index.FilterExpression.Body);
-      index.TupleFilterExpression = Expression.Lambda(body, parameter);
+      var builder = new PartialIndexFilterBuilder(index, parameter);
+      var body = builder.Visit(index.FilterExpression.Body);
+      var filter = new PartialIndexFilter();
+      filter.Fields.AddRange(builder.usedFields);
+      filter.Expression = Expression.Lambda(body, parameter);
+      index.Filter = filter;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression originalMemberAccess)
@@ -54,16 +60,19 @@ namespace Xtensive.Storage.Building.Builders
         return base.VisitMemberAccess(originalMemberAccess);
       memberAccessSequence.Reverse();
       var fields = reflectedType.Fields;
-      Model.FieldInfo field = null;
+      FieldInfo field = null;
       foreach (var item in memberAccessSequence) {
         field = fields[item.Member.Name];
         fields = field.Fields;
       }
-      if (field==null)
+      // Field should be mapped to single column.
+      if (field==null || field.Column==null)
         throw UnableToTranslate(originalMemberAccess, Strings.MemberAccessSequenceContainsNonPersistentFields);
+      var fieldIndex = usedFields.Count;
+      usedFields.Add(field);
       return Expression.Call(parameter,
         WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(originalMemberAccess.Type),
-        Expression.Constant(declaringType.Fields.IndexOf(field)));
+        Expression.Constant(fieldIndex));
     }
 
     private static bool IsPersistentFieldAccess(MemberExpression expression)

@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel;
 
@@ -23,7 +24,7 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel
   {
     public static Expression<Func<Test01, bool>> Index()
     {
-      return test => test.Field01.Length > 0;
+      return test => test.Field01.GreaterThan("hello world");
     }
 
     [Field]

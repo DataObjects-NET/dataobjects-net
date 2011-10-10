@@ -12,6 +12,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Indexing.Model;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
@@ -178,8 +179,11 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPathNode VisitIndex(Index index)
     {
       var tableInfo = StorageInfo.Tables[index.DataTable.Name];
+      var native = index.Where as SqlNative;
+      var filterExpression = !native.IsNullReference() ? native.Value : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
-        IsUnique = index.IsUnique
+        IsUnique = index.IsUnique,
+        FilterExpression = filterExpression,
       };
 
       foreach (var keyColumn in index.Columns) {

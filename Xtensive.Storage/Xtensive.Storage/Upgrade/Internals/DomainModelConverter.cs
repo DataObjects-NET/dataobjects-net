@@ -47,11 +47,6 @@ namespace Xtensive.Storage.Upgrade
     private ProviderInfo ProviderInfo { get; set; }
 
     /// <summary>
-    /// Gets the type builder.
-    /// </summary>
-    private Func<Type, int?, int?, int?, IndexingModel.TypeInfo> TypeBuilder { get; set; }
-
-    /// <summary>
     /// Gets the storage info.
     /// </summary>
     private IndexingModel.StorageInfo StorageInfo { get; set; }
@@ -82,6 +77,11 @@ namespace Xtensive.Storage.Upgrade
     /// Gets the hierarchy foreign key name generator.
     /// </summary>
     private Func<Model.TypeInfo, Model.TypeInfo, string> HierarchyForeignKeyNameGenerator { get; set; }
+
+    /// <summary>
+    /// Gets storage model builder.
+    /// </summary>
+    private StorageModelBuilder StorageModelBuilder { get; set; }
 
     /// <summary>
     /// Gets or sets the currently visiting table.
@@ -180,9 +180,8 @@ namespace Xtensive.Storage.Upgrade
     {
       IndexingModel.TableInfo table = CurrentTable;
       IndexInfo primaryIndex = Model.RealIndexes.First(i => i.MappingName==table.PrimaryIndex.Name);
-      var secondaryIndex = new IndexingModel.SecondaryIndexInfo(table, index.MappingName) {
-        IsUnique = index.IsUnique,
-      };
+      var secondaryIndex = StorageModelBuilder.CreateSecondaryIndex(table, index.MappingName, index);
+      secondaryIndex.IsUnique = index.IsUnique;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
         IndexingModel.ColumnInfo column = table.Columns[columName];
@@ -210,7 +209,7 @@ namespace Xtensive.Storage.Upgrade
 
       var typeInfoPrototype = new IndexingModel.TypeInfo(nullableType, column.IsNullable, 
         column.Length, column.Scale, column.Precision, null);
-      var nativeTypeInfo = TypeBuilder.Invoke(nonNullableType, column.Length, column.Precision, column.Scale);
+      var nativeTypeInfo = StorageModelBuilder.CreateType(nonNullableType, column.Length, column.Precision, column.Scale);
 
       // We need the same type as in SQL database here (i.e. the same as native)
       var typeInfo = new IndexingModel.TypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
@@ -267,7 +266,7 @@ namespace Xtensive.Storage.Upgrade
       var sequence = new IndexingModel.SequenceInfo(StorageInfo, sequenceInfo.MappingName) {
         Seed = sequenceInfo.Seed,
         Increment = sequenceInfo.Increment,
-        Type = TypeBuilder.Invoke(keyInfo.TupleDescriptor[0], null, null, null),
+        Type = StorageModelBuilder.CreateType(keyInfo.TupleDescriptor[0], null, null, null),
       };
       return sequence;
     }
@@ -565,37 +564,36 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="providerInfo">The provider info.</param>
+    /// <param name="providerInfo">Information about underlying storage.</param>
+    /// <param name="storageModelBuilder">Storage model builder.</param>
     /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for associations.</param>
     /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
     /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for hierarchies.</param>
     /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
-    /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(
       ProviderInfo providerInfo, 
+      StorageModelBuilder storageModelBuilder,
       bool buildForeignKeys,
       Func<TypeInfo, FieldInfo, TypeInfo, string> foreignKeyNameGenerator, 
       bool buildHierarchyForeignKeys, 
-      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator, 
-      Func<Type, int?, int?, int?, Indexing.Model.TypeInfo> typeBuilder)
+      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator)
     {
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
-      if (buildForeignKeys)
-        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, 
-          "foreignKeyNameGenerator");
-      if (buildHierarchyForeignKeys) {
-        ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator,
-          "hierarchyForeignKeyNameGenerator");
-      }
+      ArgumentValidator.EnsureArgumentNotNull(storageModelBuilder, "storageModelBuilder");
 
+      if (buildForeignKeys)
+        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
+      if (buildHierarchyForeignKeys)
+        ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator, "hierarchyForeignKeyNameGenerator");
+
+      ProviderInfo = providerInfo;
+      StorageModelBuilder = storageModelBuilder;
       BuildForeignKeys = buildForeignKeys;
       ForeignKeyNameGenerator = foreignKeyNameGenerator;
       BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
       HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
-      ProviderInfo = providerInfo;
-      TypeBuilder = typeBuilder;
     }
   }
 }
