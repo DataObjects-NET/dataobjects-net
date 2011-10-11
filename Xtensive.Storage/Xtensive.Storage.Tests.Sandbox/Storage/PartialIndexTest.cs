@@ -5,9 +5,12 @@
 // Created:    2011.10.06
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel;
 
@@ -19,16 +22,72 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel
     public int Id { get; private set; }
   }
 
-  [HierarchyRoot, Index("Field01", Filter = "Index")]
-  public class Test01 : TestBase
+  [HierarchyRoot]
+  public class TargetEntity : TestBase
   {
-    public static Expression<Func<Test01, bool>> Index()
+  }
+
+  [HierarchyRoot, Index("TestField", Filter = "Index")]
+  public class SimpleFilterWithMethod : TestBase
+  {
+    public static Expression<Func<SimpleFilterWithMethod, bool>> Index()
     {
-      return test => test.Field01.GreaterThan("hello world");
+      return test => test.TestField.GreaterThan("hello world");
     }
 
     [Field]
-    public string Field01 { get; set; }
+    public string TestField { get; set; }
+  }
+
+  [HierarchyRoot, Index("TestField", Filter = "Index")]
+  public class SimpleFilterWithProperty : TestBase
+  {
+    public static Expression<Func<SimpleFilterWithProperty, bool>> Index
+    {
+      get { return test => test.TestField.GreaterThan("hello world"); }
+    }
+
+    [Field]
+    public string TestField { get; set; }
+  }
+
+  [HierarchyRoot, Index("Target", Filter = "Index")]
+  public class FilterOnReferenceField : TestBase
+  {
+    public static Expression<Func<FilterOnReferenceField, bool>> Index()
+    {
+      return test => test.Target!=null;
+    }
+
+    [Field]
+    public TargetEntity Target { get; set; } 
+  }
+
+  [HierarchyRoot, Index("Target", Filter = "Index")]
+  public class FilterOnReferenceIdField : TestBase
+  {
+    public static Expression<Func<FilterOnReferenceIdField, bool>> Index()
+    {
+      return test => test.Target.Id > 0;
+    }
+
+    [Field]
+    public TargetEntity Target { get; set; }
+  }
+
+  [HierarchyRoot, Index("TestField1", Filter = "Index")]
+  public class FilterOnAlienField : TestBase
+  {
+    public static Expression<Func<FilterOnAlienField, bool>> Index
+    {
+      get { return test => test.TestField2.GreaterThan("hello world"); }
+    }
+
+    [Field]
+    public string TestField1 { get; set; }
+
+    [Field]
+    public string TestField2 { get; set; }
   }
 }
 
@@ -58,7 +117,7 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
       }
     }
 
-    private void BuildDomain(params Type[] entities)
+    private void BuildDomain(IEnumerable<Type> entities)
     {
       var config = DomainConfigurationFactory.Create();
       foreach (var entity in entities)
@@ -66,10 +125,48 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
       domain = Domain.Build(config);
     }
 
-    [Test]
-    public void Test01()
+    private void AssertBuildSuccess(params Type[] entities)
     {
-      BuildDomain(typeof (Test01));
+      BuildDomain(entities);
+      var partialIndexes = domain.Model.RealIndexes
+        .Where(index => index.IsPartial && index.FilterExpression!=null && index.Filter!=null)
+        .ToList();
+      Assert.IsNotEmpty(partialIndexes);
+    }
+
+    private void AssertBuildFailure(params Type[] entities)
+    {
+      AssertEx.Throws<DomainBuilderException>(() => BuildDomain(entities));
+    }
+
+    [Test]
+    public void SimpleFilterWithMethodTest()
+    {
+      AssertBuildSuccess(typeof (SimpleFilterWithMethod));
+    }
+
+    [Test]
+    public void SimpleFilterWithPropertyTest()
+    {
+      AssertBuildSuccess(typeof (SimpleFilterWithProperty));
+    }
+
+    [Test]
+    public void FilterOnReferenceFieldTest()
+    {
+      AssertBuildSuccess(typeof (FilterOnReferenceField));
+    }
+
+    [Test]
+    public void FilterOnReferenceFieldIdTest()
+    {
+      AssertBuildSuccess(typeof (FilterOnReferenceIdField));
+    }
+
+    [Test]
+    public void FilterOnAlienFieldTest()
+    {
+      AssertBuildSuccess(typeof (FilterOnAlienField));
     }
   }
 }

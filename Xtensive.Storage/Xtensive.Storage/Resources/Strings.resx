@@ -1587,7 +1587,10 @@ Error: {1}]]></value>
   <data name="ParametersOfTypeOtherThanXAreNotSupported">
     <value xml:space="preserve">parameters of type other than '{0}' are not supported</value>
   </data>
-  <data name="LambdaExpressionsAreNotSupported">
-    <value xml:space="preserve">LambdaExpressions are not supported</value>
+  <data name="ExpressionsOfTypeXAreNotSupported">
+    <value xml:space="preserve">expressions of type '{0}' are not supported</value>
+  </data>
+  <data name="OnlyPrimitiveAndReferenceFieldsAreSupported">
+    <value xml:space="preserve">only primitive and reference fields are supported</value>
   </data>
 </root>

@@ -2151,6 +2151,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to expressions of type &apos;{0}&apos; are not supported.
+        /// </summary>
+        internal static string ExpressionsOfTypeXAreNotSupported {
+            get {
+                return ResourceManager.GetString("ExpressionsOfTypeXAreNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Expression &apos;{0}&apos; is unknown..
         /// </summary>
         internal static string ExpressionXIsUnknown {
@@ -3566,15 +3575,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to LambdaExpressions are not supported.
-        /// </summary>
-        internal static string LambdaExpressionsAreNotSupported {
-            get {
-                return ResourceManager.GetString("LambdaExpressionsAreNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Building declared field &apos;{0}.{1}&apos;.
         /// </summary>
         internal static string LogBuildingDeclaredFieldXY {
@@ -4223,6 +4223,15 @@ namespace Xtensive.Storage.Resources {
         internal static string Null {
             get {
                 return ResourceManager.GetString("Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to only primitive and reference fields are supported.
+        /// </summary>
+        internal static string OnlyPrimitiveAndReferenceFieldsAreSupported {
+            get {
+                return ResourceManager.GetString("OnlyPrimitiveAndReferenceFieldsAreSupported", resourceCulture);
             }
         }
         

@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -24,6 +26,7 @@ namespace Xtensive.Storage.Building.Builders
     private readonly IndexInfo index;
     private readonly ParameterExpression parameter;
     private readonly List<FieldInfo> usedFields = new List<FieldInfo>();
+    private readonly Dictionary<Expression, FieldInfo> entityAccessMap = new Dictionary<Expression, FieldInfo>();
 
     public static void BuildFilter(IndexInfo index)
     {
@@ -35,6 +38,25 @@ namespace Xtensive.Storage.Building.Builders
       filter.Fields.AddRange(builder.usedFields);
       filter.Expression = Expression.Lambda(body, parameter);
       index.Filter = filter;
+    }
+
+    protected override Expression VisitBinary(BinaryExpression b)
+    {
+      // Detect f!=null and f==null for entity fields
+
+      if (!b.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual))
+        return base.VisitBinary(b);
+
+      var left = Visit(b.Left);
+      var right = Visit(b.Right);
+
+      FieldInfo field;
+      if (entityAccessMap.TryGetValue(left, out field) && IsNull(right))
+        return BuildEntityCheck(field, b.NodeType);
+      if (entityAccessMap.TryGetValue(right, out field) && IsNull(left))
+        return BuildEntityCheck(field, b.NodeType);
+
+      return base.VisitBinary(b);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression originalMemberAccess)
@@ -52,30 +74,59 @@ namespace Xtensive.Storage.Building.Builders
           break;
         memberAccess = (MemberExpression) memberAccess.Expression;
       }
-      if (memberAccessSequence.Count==0)
-        return base.VisitMemberAccess(originalMemberAccess);
-      var isEntityParameter = memberAccess.Expression.NodeType==ExpressionType.Parameter
-        && declaringType.UnderlyingType.IsAssignableFrom(memberAccess.Expression.Type);
-      if (!isEntityParameter)
+      if (memberAccessSequence.Count==0 || !IsEntityParameter(memberAccess.Expression))
         return base.VisitMemberAccess(originalMemberAccess);
       memberAccessSequence.Reverse();
-      var fields = reflectedType.Fields;
-      FieldInfo field = null;
-      foreach (var item in memberAccessSequence) {
-        field = fields[item.Member.Name];
-        fields = field.Fields;
-      }
-      // Field should be mapped to single column.
-      if (field==null || field.Column==null)
+      var fieldName = string.Join(".", memberAccessSequence.Select(item => item.Member.Name));
+      var field = reflectedType.Fields[fieldName];
+      if (field==null)
         throw UnableToTranslate(originalMemberAccess, Strings.MemberAccessSequenceContainsNonPersistentFields);
+      if (field.IsEntity) {
+        entityAccessMap[originalMemberAccess] = field;
+        return originalMemberAccess;
+      }
+      if (field.IsPrimitive)
+        return BuildFieldAccess(field, false);
+      throw UnableToTranslate(originalMemberAccess, Strings.OnlyPrimitiveAndReferenceFieldsAreSupported);
+    }
+
+    private Expression BuildFieldAccess(FieldInfo field, bool addNullability)
+    {
       var fieldIndex = usedFields.Count;
+      var valueType = addNullability ? field.ValueType.ToNullable() : field.ValueType;
       usedFields.Add(field);
       return Expression.Call(parameter,
-        WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(originalMemberAccess.Type),
+        WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(valueType),
         Expression.Constant(fieldIndex));
     }
 
-    private static bool IsPersistentFieldAccess(MemberExpression expression)
+    private Expression BuildFieldCheck(FieldInfo field, ExpressionType nodeType)
+    {
+      return Expression.MakeBinary(nodeType, BuildFieldAccess(field, true), Expression.Constant(null, field.ValueType.ToNullable()));
+    }
+
+    private Expression BuildEntityCheck(FieldInfo field, ExpressionType nodeType)
+    {
+      var fields = field.Fields.Where(f => f.Column!=null).ToList();
+      if (fields.Count==0)
+        throw new InvalidOperationException();
+      return fields
+        .Skip(1)
+        .Aggregate(BuildFieldCheck(fields[0], nodeType), (c, f) => Expression.AndAlso(c, BuildFieldCheck(f, nodeType)));
+    }
+
+    private bool IsNull(Expression expression)
+    {
+      return expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==null;
+    }
+
+    private bool IsEntityParameter(Expression expression)
+    {
+      return expression.NodeType==ExpressionType.Parameter
+        && declaringType.UnderlyingType.IsAssignableFrom(expression.Type);
+    }
+
+    private bool IsPersistentFieldAccess(MemberExpression expression)
     {
       if (!(expression.Member is PropertyInfo))
         return false;
@@ -93,7 +144,7 @@ namespace Xtensive.Storage.Building.Builders
 
     protected override Expression VisitLambda(LambdaExpression l)
     {
-      throw UnableToTranslate(l, Strings.LambdaExpressionsAreNotSupported);
+      throw NotSupported(l);
     }
 
     private InvalidOperationException UnableToTranslate(Expression expression, string reason)
@@ -101,10 +152,16 @@ namespace Xtensive.Storage.Building.Builders
       return new InvalidOperationException(string.Format(Strings.ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ, expression, index, reason));
     }
 
+    private InvalidOperationException NotSupported(Expression expression)
+    {
+      return UnableToTranslate(expression, string.Format(Strings.ExpressionsOfTypeXAreNotSupported, expression.NodeType));
+    }
+
     private PartialIndexFilterBuilder(IndexInfo index, ParameterExpression parameter)
     {
       this.index = index;
       this.parameter = parameter;
+
       declaringType = index.DeclaringType;
       reflectedType = index.ReflectedType;
     }
