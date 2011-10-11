@@ -82,12 +82,24 @@ namespace Xtensive.Storage.Building.Builders
       if (field==null)
         throw UnableToTranslate(originalMemberAccess, Strings.MemberAccessSequenceContainsNonPersistentFields);
       if (field.IsEntity) {
+        EnsureCanBeUsedInFilter(originalMemberAccess, field);
         entityAccessMap[originalMemberAccess] = field;
         return originalMemberAccess;
       }
-      if (field.IsPrimitive)
+      if (field.IsPrimitive) {
+        EnsureCanBeUsedInFilter(originalMemberAccess, field);
         return BuildFieldAccess(field, false);
+      }
       throw UnableToTranslate(originalMemberAccess, Strings.OnlyPrimitiveAndReferenceFieldsAreSupported);
+    }
+
+    private void EnsureCanBeUsedInFilter(Expression expression, FieldInfo field)
+    {
+      var canBeUsed = field.ReflectedType == field.DeclaringType
+        || field.IsPrimaryKey
+        || field.DeclaringType.Hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable;
+      if (!canBeUsed)
+        throw UnableToTranslate(expression, string.Format(Strings.FieldXDoesNotExistInTableForY, field.Name, field.ReflectedType));
     }
 
     private Expression BuildFieldAccess(FieldInfo field, bool addNullability)
@@ -144,15 +156,15 @@ namespace Xtensive.Storage.Building.Builders
 
     protected override Expression VisitLambda(LambdaExpression l)
     {
-      throw NotSupported(l);
+      throw UnableToTranslate(l);
     }
 
-    private InvalidOperationException UnableToTranslate(Expression expression, string reason)
+    private DomainBuilderException UnableToTranslate(Expression expression, string reason)
     {
-      return new InvalidOperationException(string.Format(Strings.ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ, expression, index, reason));
+      return new DomainBuilderException(string.Format(Strings.ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ, expression, index, reason));
     }
 
-    private InvalidOperationException NotSupported(Expression expression)
+    private DomainBuilderException UnableToTranslate(Expression expression)
     {
       return UnableToTranslate(expression, string.Format(Strings.ExpressionsOfTypeXAreNotSupported, expression.NodeType));
     }

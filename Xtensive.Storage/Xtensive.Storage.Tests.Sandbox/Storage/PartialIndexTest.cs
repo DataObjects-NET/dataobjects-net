@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel;
 
@@ -88,6 +89,63 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel
 
     [Field]
     public string TestField2 { get; set; }
+  }
+
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
+  public class InheritanceClassTableBase : TestBase
+  {
+    [Field]
+    public int BaseField { get; set; }
+  }
+
+  [Index("TestField", Filter = "Index")]
+  public class InheritanceClassTable : InheritanceClassTableBase
+  {
+    public static Expression<Func<InheritanceClassTable, bool>> Index()
+    {
+      return test => test.BaseField > 0;
+    }
+
+    [Field]
+    public int TestField { get; set; }
+  }
+
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
+  public class InheritanceSingleTableBase : TestBase
+  {
+    [Field]
+    public int BaseField { get; set; }
+  }
+
+  [Index("TestField", Filter = "Index")]
+  public class InheritanceSingleTable : InheritanceSingleTableBase
+  {
+    public static Expression<Func<InheritanceSingleTable, bool>> Index()
+    {
+      return test => test.BaseField > 0;
+    }
+
+    [Field]
+    public int TestField { get; set; }
+  }
+
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
+  public class InheritanceConcreteTableBase : TestBase
+  {
+    [Field]
+    public int BaseField { get; set; }
+  }
+
+  [Index("TestField", Filter = "Index")]
+  public class InheritanceConcreteTable : InheritanceConcreteTableBase
+  {
+    public static Expression<Func<InheritanceConcreteTable, bool>> Index()
+    {
+      return test => test.BaseField > 0;
+    }
+
+    [Field]
+    public int TestField { get; set; }
   }
 }
 
@@ -167,6 +225,24 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
     public void FilterOnAlienFieldTest()
     {
       AssertBuildSuccess(typeof (FilterOnAlienField));
+    }
+
+    [Test]
+    public void InheritanceClassTableTest()
+    {
+      AssertBuildFailure(typeof (InheritanceClassTable));
+    }
+
+    [Test]
+    public void InheritanceSingleTableTest()
+    {
+      AssertBuildSuccess(typeof(InheritanceSingleTable));
+    }
+
+    [Test]
+    public void InheritanceConcreteTableTest()
+    {
+      AssertBuildSuccess(typeof(InheritanceConcreteTable));
     }
   }
 }

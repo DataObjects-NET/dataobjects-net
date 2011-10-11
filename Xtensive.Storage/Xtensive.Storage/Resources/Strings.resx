@@ -1593,4 +1593,7 @@ Error: {1}]]></value>
   <data name="OnlyPrimitiveAndReferenceFieldsAreSupported">
     <value xml:space="preserve">only primitive and reference fields are supported</value>
   </data>
+  <data name="FieldXDoesNotExistInTableForY">
+    <value xml:space="preserve">field '{0}' does not exist in table for '{1}'</value>
+  </data>
 </root>

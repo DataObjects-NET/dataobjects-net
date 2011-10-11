@@ -3485,6 +3485,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to field &apos;{0}&apos; does not exist in table for &apos;{1}&apos;.
+        /// </summary>
+        internal static string FieldXDoesNotExistInTableForY {
+            get {
+                return ResourceManager.GetString("FieldXDoesNotExistInTableForY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to full.
         /// </summary>
         internal static string Full {
