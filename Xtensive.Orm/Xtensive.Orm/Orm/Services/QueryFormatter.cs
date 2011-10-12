@@ -5,10 +5,12 @@
 // Created:    2011.03.02
 
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Storage.Providers.Sql;
 
 namespace Xtensive.Orm.Services
 {
@@ -21,23 +23,50 @@ namespace Xtensive.Orm.Services
     /// </summary>
     /// <param name="query">The query to format.</param>
     /// <returns>A string containing formatted query.</returns>
-    public string ToSqlString<T>(IQueryable<T> query)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      public string ToSqlString<T>(IQueryable<T> query)
+      {
+          ArgumentValidator.EnsureArgumentNotNull(query, "query");
 
-      var recordset = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression).RecordQuery;
-      var executableProvider = recordset.Compile(Session);
-      var sqlProvider = executableProvider as Storage.Providers.Sql.SqlProvider;
+          var part = ToCommandPart(query);
+          if (part == null)
+              return string.Empty;
+          return part.Query;
+      }
+      
+      public DbCommand ToDbCommand<T>(IQueryable<T> query)
+      {
+          ArgumentValidator.EnsureArgumentNotNull(query, "query");
 
-      if (sqlProvider == null)
-        return string.Empty;
+          var part = ToCommandPart(query);
+          if (part == null)
+              return null;
+          var domainHandler = (DomainHandler) Session.Handler.Handlers.DomainHandler;
+          var sessionHandler = (SessionHandler)Session.Handler;
+          var dbCommand = sessionHandler.Connection.CreateCommand();
+          var command = new Command(domainHandler.Driver, Session, dbCommand);
+          command.AddPart(part);
+          dbCommand.CommandText = domainHandler.Driver.BuildBatch(new[] {part.Query});
+          return dbCommand;
+      }
 
-      var domainHandler = (Storage.Providers.Sql.DomainHandler)Session.Handler.Handlers.DomainHandler;
-      var compiled = sqlProvider.Request.GetCompiledStatement(domainHandler);
-      return compiled.ToString();
-    }
+      private CommandPart ToCommandPart<T>(IQueryable<T> query)
+      {
+          var recordset = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression).RecordQuery;
+          var executableProvider = recordset.Compile(Session);
+          var sqlProvider = executableProvider as SqlProvider;
 
-    /// <summary>
+          if (sqlProvider == null)
+              return null;
+
+          var domainHandler = (DomainHandler) Session.Handler.Handlers.DomainHandler;
+          var sessionHandler = (SessionHandler) Session.Handler;
+
+          var factory = new CommandPartFactory(domainHandler, sessionHandler.Connection);
+          var part = factory.CreateQueryCommandPart(new SqlQueryTask(sqlProvider.Request), "p");
+          return part;
+      }
+
+      /// <summary>
     /// Formats the specified <paramref name="query"/> in C# notation.
     /// </summary>
     /// <param name="query">The query to format.</param>
