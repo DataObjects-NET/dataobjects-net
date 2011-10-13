@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
+    private PartialIndexFilterNormalizer indexFilterNormalizer;
+
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
     private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
     private SqlConnection Connection { get { return ((SessionHandler) Handlers.SessionHandler).Connection; } }
@@ -87,7 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override StorageInfo ExtractSchema()
     {
       var schema = (Schema) GetNativeExtractedSchema(); // Must rely on this method to avoid multiple extractions
-      var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo);
+      var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo, indexFilterNormalizer);
       return converter.GetConversionResult();
     }
 
@@ -100,7 +102,14 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override Upgrade.StorageModelBuilder GetStorageModelBuilder()
     {
-      return new StorageModelBuilder(DomainHandler);
+      return new StorageModelBuilder(DomainHandler, indexFilterNormalizer);
+    }
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      base.Initialize();
+      indexFilterNormalizer = Handlers.HandlerFactory.CreateHandler<PartialIndexFilterNormalizer>();
     }
 
     private void Execute(IEnumerable<string> batch)

@@ -39,7 +39,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the provider info.
     /// </summary>
-    protected ProviderInfo ProviderInfo { get; private set;}
+    protected ProviderInfo ProviderInfo { get; private set; }
+
+    /// <summary>
+    /// Gets partial index filter normalizer.
+    /// </summary>
+    protected PartialIndexFilterNormalizer IndexFilterNormalizer { get; private set; }
 
     /// <summary>
     /// Gets the schema.
@@ -181,7 +186,7 @@ namespace Xtensive.Storage.Providers.Sql
       var tableInfo = StorageInfo.Tables[index.DataTable.Name];
       var native = index.Where as SqlNative;
       var filter = !native.IsNullReference() && !string.IsNullOrEmpty(native.Value)
-        ? new PartialIndexFilterInfo(native.Value)
+        ? new PartialIndexFilterInfo(native.Value, IndexFilterNormalizer.Normalize(native.Value))
         : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
         IsUnique = index.IsUnique,
@@ -341,13 +346,16 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="storageSchema">The schema.</param>
     /// <param name="providerInfo">The provider info.</param>
-    public SqlModelConverter(Schema storageSchema, ProviderInfo providerInfo)
+    /// <param name="indexFilterNormalizer"></param>
+    public SqlModelConverter(Schema storageSchema, ProviderInfo providerInfo, PartialIndexFilterNormalizer indexFilterNormalizer)
     {
       ArgumentValidator.EnsureArgumentNotNull(storageSchema, "storageSchema");
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      ArgumentValidator.EnsureArgumentNotNull(indexFilterNormalizer, "indexFilterNormalizer");
       
       Schema = storageSchema;
       ProviderInfo = providerInfo;
+      IndexFilterNormalizer = indexFilterNormalizer;
     }
 
 

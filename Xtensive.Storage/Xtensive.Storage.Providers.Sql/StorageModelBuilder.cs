@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Providers.Sql
   public class StorageModelBuilder : Upgrade.StorageModelBuilder
   {
     private readonly DomainHandler domainHandler;
+    private readonly PartialIndexFilterNormalizer indexFilterNormalizer;
 
     public override TypeInfo CreateType(Type type, int? length, int? precision, int? scale)
     {
@@ -42,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
       var index = base.CreateSecondaryIndex(owningTable, indexName, originalModelIndex);
       if (originalModelIndex.Filter != null) {
         if (domainHandler.ProviderInfo.Supports(ProviderFeatures.PartialIndexes))
-          index.Filter = new PartialIndexFilterInfo(TranslateFilterExpression(originalModelIndex));
+          index.Filter = TranslateFilterExpression(originalModelIndex);
         else
           Log.Warning(Strings.LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY,
             domainHandler.Domain.Configuration.ConnectionInfo.Provider, originalModelIndex);
@@ -50,7 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
       return index;
     }
 
-    private string TranslateFilterExpression(IndexInfo index)
+    private PartialIndexFilterInfo TranslateFilterExpression(IndexInfo index)
     {
       var table = SqlDml.TableRef(CreateStubTable(index.ReflectedType.MappingName, index.Filter.Fields.Count));
       // Translation of ColumnRefs without alias seems broken, use original name as alias.
@@ -61,7 +62,8 @@ namespace Xtensive.Storage.Providers.Sql
         .ToList();
       var processor = new ExpressionProcessor(index.Filter.Expression, domainHandler, null, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
-      return domainHandler.Driver.Compile(fragment).GetCommandText();
+      var expression = domainHandler.Driver.Compile(fragment).GetCommandText();
+      return new PartialIndexFilterInfo(expression, indexFilterNormalizer.Normalize(expression));
     }
 
     private Table CreateStubTable(string name, int columnsCount)
@@ -74,10 +76,15 @@ namespace Xtensive.Storage.Providers.Sql
       return table;
     }
 
-    public StorageModelBuilder(DomainHandler domainHandler)
+
+    // Constructors
+
+    public StorageModelBuilder(DomainHandler domainHandler, PartialIndexFilterNormalizer indexFilterNormalizer)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainHandler, "domainHandler");
+      ArgumentValidator.EnsureArgumentNotNull(indexFilterNormalizer, "indexFilterNormalizer");
       this.domainHandler = domainHandler;
+      this.indexFilterNormalizer = indexFilterNormalizer;
     }
   }
 }

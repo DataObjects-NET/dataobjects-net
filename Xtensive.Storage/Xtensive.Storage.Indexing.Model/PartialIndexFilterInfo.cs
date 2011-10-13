@@ -52,22 +52,15 @@ namespace Xtensive.Storage.Indexing.Model
       return Expression;
     }
 
-    private static string Normalize(string expression)
-    {
-      var builder = new StringBuilder(expression);
-      builder.Replace(" ", string.Empty);
-      builder.Replace("(", string.Empty);
-      builder.Replace(")", string.Empty);
-      return builder.ToString();
-    }
 
     // Constructors
 
-    public PartialIndexFilterInfo(string expression)
+    public PartialIndexFilterInfo(string expression, string normalizedExpression)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(expression, "expression");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(normalizedExpression, "normalizedExpression");
       Expression = expression;
-      normalizedExpression = Normalize(expression);
+      this.normalizedExpression = normalizedExpression;
     }
   }
 }
