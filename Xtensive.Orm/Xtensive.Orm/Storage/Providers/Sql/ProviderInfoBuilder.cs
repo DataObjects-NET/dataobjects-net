@@ -28,6 +28,8 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.DmlBatches;
       if (indexFeatures.Supports(IndexFeatures.Clustered))
         f |= ProviderFeatures.ClusteredIndexes;
+      if (indexFeatures.Supports(IndexFeatures.Filtered))
+        f |= ProviderFeatures.PartialIndexes;
       if (si.Collation!=null)
         f |= ProviderFeatures.Collations;
       if (si.ForeignKey!=null) {

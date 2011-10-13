@@ -99,11 +99,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ModelTypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
+    protected override Orm.Upgrade.StorageModelBuilder GetStorageModelBuilder()
     {
-      var sqlValueType = DomainHandler.Driver.BuildValueType(type, length, precision, scale);
-      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), 
-        sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
+      return new StorageModelBuilder(DomainHandler);
     }
 
     protected virtual void Execute(IEnumerable<string> batch)

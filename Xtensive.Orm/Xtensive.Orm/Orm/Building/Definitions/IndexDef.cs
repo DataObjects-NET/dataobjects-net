@@ -7,7 +7,9 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Resources;
 
@@ -26,9 +28,15 @@ namespace Xtensive.Orm.Building.Definitions
     public const double DefaultFillFactor = 0.8;
 
     private IndexAttributes attributes;
+    private LambdaExpression filterExpression;
     private double fillFactor = DefaultFillFactor;
     private readonly DirectionCollection<string> keyFields = new DirectionCollection<string>();
     private Collection<string> includedFields = new Collection<string>();
+
+    /// <summary>
+    /// Gets <see cref="Definitions.TypeDef"/> that this index is bound to.
+    /// </summary>
+    public TypeDef Type { get; private set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance is primary index.
@@ -88,7 +96,7 @@ namespace Xtensive.Orm.Building.Definitions
       get { return fillFactor; }
       set
       {
-        if (fillFactor < 0 || fillFactor > 1)   
+        if (fillFactor < 0 || fillFactor > 1)
           throw new DomainBuilderException(
             string.Format(Strings.ExInvalidFillFactorXValueMustBeBetween0And1, fillFactor));
 
@@ -113,6 +121,23 @@ namespace Xtensive.Orm.Building.Definitions
     }
 
     /// <summary>
+    /// Gets or sets expression that defines range for partial index.
+    /// </summary>
+    public LambdaExpression FilterExpression
+    {
+      get { return filterExpression; }
+      set {
+        if (!IsSecondary)
+          throw new DomainBuilderException(Strings.ExOnlySecondaryIndexesCanBeDeclaredPartial);
+        filterExpression = value;
+        if (filterExpression != null)
+          attributes |= IndexAttributes.Partial;
+        else
+          attributes &= ~IndexAttributes.Partial;
+      }
+    }
+
+    /// <summary>
     /// Performs additional custom processes before setting new name to this instance.
     /// </summary>
     /// <param name="newName">The new name of this instance.</param>
@@ -125,8 +150,10 @@ namespace Xtensive.Orm.Building.Definitions
 
     // Constructors
 
-    internal IndexDef()
+    internal IndexDef(TypeDef type)
     {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      Type = type;
     }
   }
 }
