@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Indexing.Model
   [Serializable]
   public sealed class SecondaryIndexInfo : IndexInfo
   {
-    private string filterExpression;
+    private PartialIndexFilterInfo filter;
 
     /// <summary>
     /// Gets value columns.
@@ -40,13 +40,13 @@ namespace Xtensive.Storage.Indexing.Model
     /// Gets filter expression for partial index.
     /// </summary>
     [Property(Priority = -90)]
-    public string FilterExpression
+    public PartialIndexFilterInfo Filter
     {
-      get { return filterExpression; }
+      get { return filter; }
       set
       {
         EnsureIsEditable();
-        filterExpression = value;
+        filter = value;
       }
     }
 

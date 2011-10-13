@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Sql
       var index = base.CreateSecondaryIndex(owningTable, indexName, originalModelIndex);
       if (originalModelIndex.Filter != null) {
         if (domainHandler.ProviderInfo.Supports(ProviderFeatures.PartialIndexes))
-          index.FilterExpression = TranslateFilterExpression(originalModelIndex);
+          index.Filter = new PartialIndexFilterInfo(TranslateFilterExpression(originalModelIndex));
         else
           Log.Warning(Strings.LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY,
             domainHandler.Domain.Configuration.ConnectionInfo.Provider, originalModelIndex);

@@ -175,17 +175,18 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
       }
     }
 
-    private void BuildDomain(IEnumerable<Type> entities)
+    private void BuildDomain(IEnumerable<Type> entities, DomainUpgradeMode mode)
     {
       var config = DomainConfigurationFactory.Create();
       foreach (var entity in entities)
         config.Types.Register(entity);
+      config.UpgradeMode = mode;
       domain = Domain.Build(config);
     }
 
     private void AssertBuildSuccess(params Type[] entities)
     {
-      BuildDomain(entities);
+      BuildDomain(entities, DomainUpgradeMode.Recreate);
       var partialIndexes = domain.Model.RealIndexes
         .Where(index => index.IsPartial && index.FilterExpression!=null && index.Filter!=null)
         .ToList();
@@ -194,7 +195,7 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
 
     private void AssertBuildFailure(params Type[] entities)
     {
-      AssertEx.Throws<DomainBuilderException>(() => BuildDomain(entities));
+      AssertEx.Throws<DomainBuilderException>(() => BuildDomain(entities, DomainUpgradeMode.Recreate));
     }
 
     [Test]
@@ -243,6 +244,17 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
     public void InheritanceConcreteTableTest()
     {
       AssertBuildSuccess(typeof(InheritanceConcreteTable));
+    }
+
+    [Test]
+    public void ValidateTest()
+    {
+      var types = typeof (TestBase).Assembly
+        .GetTypes()
+        .Where(type => type.Namespace==typeof (TestBase).Namespace && type!=typeof (InheritanceClassTable))
+        .ToList();
+      BuildDomain(types, DomainUpgradeMode.Recreate);
+      BuildDomain(types, DomainUpgradeMode.Validate);
     }
   }
 }

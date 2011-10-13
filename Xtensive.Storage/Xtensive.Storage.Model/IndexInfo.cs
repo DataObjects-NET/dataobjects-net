@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Model
     private IList<int> selectColumns;
     private List<Pair<int, List<int>>> valueColumnsMap;
     private LambdaExpression filterExpression;
-    private PartialIndexFilter filter;
+    private PartialIndexFilterInfo filter;
 
     /// <summary>
     /// Gets or sets the column index map.
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Model
     /// This is built upon <see cref="FilterExpression"/>
     /// on late stage of <see cref="DomainModel"/> build.
     /// </summary>
-    public PartialIndexFilter Filter {
+    public PartialIndexFilterInfo Filter {
       [DebuggerStepThrough]
       get { return filter; }
       [DebuggerStepThrough]

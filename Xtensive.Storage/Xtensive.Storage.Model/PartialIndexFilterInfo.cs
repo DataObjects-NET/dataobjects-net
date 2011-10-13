@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Model
   /// <summary>
   /// Partial index filter definition.
   /// </summary>
-  public class PartialIndexFilter : Node
+  public sealed class PartialIndexFilterInfo : Node
   {
     private LambdaExpression expression;
 
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public PartialIndexFilter()
+    public PartialIndexFilterInfo()
     {
       Fields = new FieldInfoCollection(this, "Fields");
     }

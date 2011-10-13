@@ -180,10 +180,12 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tableInfo = StorageInfo.Tables[index.DataTable.Name];
       var native = index.Where as SqlNative;
-      var filterExpression = !native.IsNullReference() ? native.Value : null;
+      var filter = !native.IsNullReference() && !string.IsNullOrEmpty(native.Value)
+        ? new PartialIndexFilterInfo(native.Value)
+        : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
         IsUnique = index.IsUnique,
-        FilterExpression = filterExpression,
+        Filter = filter,
       };
 
       foreach (var keyColumn in index.Columns) {
