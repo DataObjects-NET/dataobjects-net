@@ -91,6 +91,20 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel
     public string TestField2 { get; set; }
   }
 
+  [HierarchyRoot, Index("TestField", Filter = "Index")]
+  public class MultipleFieldUses : TestBase
+  {
+    public static Expression<Func<MultipleFieldUses, bool>> Index
+    {
+      get { return test => test.TestField.GreaterThan("hello") && test.TestField.LessThan("world"); }
+    }
+
+    [Field]
+    public string TestField { get; set; }
+  }
+
+
+
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class InheritanceClassTableBase : TestBase
   {
@@ -226,6 +240,12 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
     public void FilterOnAlienFieldTest()
     {
       AssertBuildSuccess(typeof (FilterOnAlienField));
+    }
+
+    [Test]
+    public void MultipleFieldUsesTest()
+    {
+      AssertBuildSuccess(typeof(MultipleFieldUses));
     }
 
     [Test]

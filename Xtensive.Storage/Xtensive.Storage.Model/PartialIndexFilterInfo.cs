@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.10.10
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -30,30 +32,32 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    private IList<FieldInfo> fields;
+
     /// <summary>
     /// Fields used in <see cref="Expression"/>.
     /// </summary>
-    public FieldInfoCollection Fields { get; private set; }
+    public IList<FieldInfo> Fields
+    {
+      get { return fields; }
+      set
+      {
+        this.EnsureNotLocked();
+        fields = value;
+      }
+    }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
+      if (IsLocked)
+        return;
       if (Expression==null)
         throw Exceptions.NotInitialized("Expression");
+      if (Fields==null)
+        throw Exceptions.NotInitialized("Fields");
+      fields = fields.ToList().AsReadOnly();
       base.Lock(recursive);
-      if (recursive)
-        Fields.Lock(true);
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public PartialIndexFilterInfo()
-    {
-      Fields = new FieldInfoCollection(this, "Fields");
     }
   }
 }

@@ -34,9 +34,10 @@ namespace Xtensive.Storage.Building.Builders
       var parameter = Expression.Parameter(typeof (Core.Tuples.Tuple), "tuple");
       var builder = new PartialIndexFilterBuilder(index, parameter);
       var body = builder.Visit(index.FilterExpression.Body);
-      var filter = new PartialIndexFilterInfo();
-      filter.Fields.AddRange(builder.usedFields);
-      filter.Expression = Expression.Lambda(body, parameter);
+      var filter = new PartialIndexFilterInfo {
+        Expression = Expression.Lambda(body, parameter),
+        Fields = builder.usedFields,
+      };
       index.Filter = filter;
     }
 

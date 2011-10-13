@@ -52,13 +52,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     private string TranslateFilterExpression(IndexInfo index)
     {
-      var columnNames = index.Filter.Fields
-        .Select((field, i) => field.Column.Name)
-        .ToList();
-      var table = SqlDml.TableRef(CreateStubTable(index.ReflectedType.MappingName, columnNames));
+      var table = SqlDml.TableRef(CreateStubTable(index.ReflectedType.MappingName, index.Filter.Fields.Count));
       // Translation of ColumnRefs without alias seems broken, use original name as alias.
-      var columns = columnNames
-        .Select(name => SqlDml.ColumnRef(table[name], name))
+      var columns = index.Filter.Fields
+        .Select(field => field.Column.Name)
+        .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
         .Cast<SqlExpression>()
         .ToList();
       var processor = new ExpressionProcessor(index.Filter.Expression, domainHandler, null, columns);
@@ -66,13 +64,13 @@ namespace Xtensive.Storage.Providers.Sql
       return domainHandler.Driver.Compile(fragment).GetCommandText();
     }
 
-    private Table CreateStubTable(string name, IEnumerable<string> columns)
+    private Table CreateStubTable(string name, int columnsCount)
     {
       var catalog = new Catalog(string.Empty);
       var schema = catalog.CreateSchema(string.Empty);
       var table = schema.CreateTable(name);
-      foreach (var column in columns)
-        table.CreateColumn(column);
+      for (int i = 0; i < columnsCount; i++)
+        table.CreateColumn("c" + i);
       return table;
     }
 
