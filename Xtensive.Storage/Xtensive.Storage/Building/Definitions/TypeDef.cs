@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Building.Definitions
     {
       Validator.ValidateName(name, ValidationRule.Index);
 
-      var indexDef = new IndexDef {Name = name, IsSecondary = true};
+      var indexDef = new IndexDef(this) {Name = name, IsSecondary = true};
       indexes.Add(indexDef);
       return indexDef;
     }

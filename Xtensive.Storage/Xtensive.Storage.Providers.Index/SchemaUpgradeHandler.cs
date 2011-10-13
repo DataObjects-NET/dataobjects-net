@@ -5,7 +5,6 @@
 // Created:    2009.04.09
 
 using System;
-using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -15,10 +14,5 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public abstract class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
-    /// <inheritdoc/>
-    protected override TypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
-    {
-      return new TypeInfo(type, length, scale, precision, null);
-    }
   }
 }

@@ -39,6 +39,7 @@ namespace Xtensive.Storage.Building.Builders
         CleanupTypedIndexes();
         BuildAffectedIndexes();
         BuildFullTextIndexes();
+        BuildFiltersForPartialIndexes();
       }
     }
 
@@ -290,6 +291,7 @@ namespace Xtensive.Storage.Building.Builders
 
       var result = new IndexInfo(typeInfo, attributes) {
         FillFactor = indexDef.FillFactor,
+        FilterExpression = indexDef.FilterExpression,
         ShortName = indexDef.Name,
         MappingName = indexDef.MappingName
       };
@@ -909,6 +911,13 @@ namespace Xtensive.Storage.Building.Builders
           break;
         ancestor = context.Model.Types.FindAncestor(ancestor);
       } while (ancestor!=null);
+    }
+
+    private static void BuildFiltersForPartialIndexes()
+    {
+      var context = BuildingContext.Demand();
+      foreach (var index in context.Model.RealIndexes.Where(index => index.FilterExpression!=null))
+        PartialIndexFilterBuilder.BuildFilter(index);
     }
 
     #endregion
