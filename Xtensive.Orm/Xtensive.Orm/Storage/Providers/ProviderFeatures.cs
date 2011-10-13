@@ -50,9 +50,10 @@ namespace Xtensive.Storage.Providers
     ScalarSubqueries = 0x100000000,
     ArbitraryIdentityIncrement = 0x200000000,
     TemporaryTables = 0x400000000,
+    TableRename = 0x800000000,
+    PartialIndexes = 0x1000000000,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
-    TableRename = 0x800000000,
   }
 }

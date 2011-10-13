@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Model
     Union =     0x100,
     Join =      0x200,
     Filtered =  0x400,
-    View =      0x800
+    View =      0x800,
+    Partial =   0x1000,
   }
 }

@@ -1298,6 +1298,12 @@ namespace Xtensive.Sql
 
     #region Statement
 
+    public static SqlFragment Fragment(SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      return new SqlFragment(expression);
+    }
+
     public static SqlWhile While(SqlExpression condition)
     {
       ArgumentValidator.EnsureArgumentNotNull(condition, "condition");

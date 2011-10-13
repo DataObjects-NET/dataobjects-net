@@ -10,20 +10,18 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Model;
-using Xtensive.Reflection;
-using Xtensive.Sorting;
 using Xtensive.Modelling;
 using Xtensive.Orm.Building;
+using Xtensive.Orm.Model;
+using Xtensive.Orm.Resources;
+using Xtensive.Reflection;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
-using Xtensive.Orm.Resources;
 using ColumnInfo = Xtensive.Orm.Model.ColumnInfo;
 using FullTextIndexInfo = Xtensive.Orm.Model.FullTextIndexInfo;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 using IndexingModel = Xtensive.Storage.Model;
 using ReferentialAction = Xtensive.Storage.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Upgrade
@@ -42,11 +40,6 @@ namespace Xtensive.Orm.Upgrade
     /// Gets the provider info.
     /// </summary>
     private ProviderInfo ProviderInfo { get; set; }
-
-    /// <summary>
-    /// Gets the type builder.
-    /// </summary>
-    private Func<Type, int?, int?, int?, IndexingModel.TypeInfo> TypeBuilder { get; set; }
 
     /// <summary>
     /// Gets the storage info.
@@ -71,15 +64,19 @@ namespace Xtensive.Orm.Upgrade
     private bool BuildHierarchyForeignKeys { get; set; }
 
     /// <summary>
-    /// Gets or sets the currently visiting table.
+    /// Gets storage model builder.
     /// </summary>
-    private TableInfo CurrentTable { get; set; }
+    private StorageModelBuilder StorageModelBuilder { get; set; }
 
     /// <summary>
-    /// Gets or sets the name builder.
+    /// Gets name builder.
     /// </summary>
-    /// <value>The name builder.</value>
     private NameBuilder NameBuilder { get; set; }
+
+    /// <summary>
+    /// Gets or sets the currently visiting table.
+    /// </summary>
+    private IndexingModel.TableInfo CurrentTable { get; set; }
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
@@ -172,9 +169,8 @@ namespace Xtensive.Orm.Upgrade
     protected IPathNode VisitIndexInfo(IndexInfo primaryIndex, IndexInfo index)
     {
       IndexingModel.TableInfo table = CurrentTable;
-      var secondaryIndex = new IndexingModel.SecondaryIndexInfo(table, index.MappingName) {
-        IsUnique = index.IsUnique
-      };
+      var secondaryIndex = StorageModelBuilder.CreateSecondaryIndex(table, index.MappingName, index);
+      secondaryIndex.IsUnique = index.IsUnique;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
         IndexingModel.ColumnInfo column = table.Columns[columName];
@@ -202,7 +198,7 @@ namespace Xtensive.Orm.Upgrade
 
       var typeInfoPrototype = new IndexingModel.TypeInfo(nullableType, column.IsNullable, 
         column.Length, column.Scale, column.Precision, null);
-      var nativeTypeInfo = TypeBuilder.Invoke(nonNullableType, column.Length, column.Precision, column.Scale);
+      var nativeTypeInfo = StorageModelBuilder.CreateType(nonNullableType, column.Length, column.Precision, column.Scale);
 
       // We need the same type as in SQL database here (i.e. the same as native)
       var typeInfo = new IndexingModel.TypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
@@ -262,7 +258,7 @@ namespace Xtensive.Orm.Upgrade
       var sequence = new IndexingModel.SequenceInfo(StorageInfo, sequenceInfo.MappingName) {
         Seed = sequenceInfo.Seed,
         Increment = increment,
-        Type = TypeBuilder.Invoke(keyInfo.TupleDescriptor[0], null, null, null),
+        Type = StorageModelBuilder.CreateType(keyInfo.TupleDescriptor[0], null, null, null),
       };
       return sequence;
     }
@@ -540,28 +536,28 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="providerInfo">The provider info.</param>
+    /// <param name="providerInfo">Information about underlying storage.</param>
+    /// <param name="storageModelBuilder">Storage model builder.</param>
     /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for associations.</param>
     /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for hierarchies.</param>
-    /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(
       ProviderInfo providerInfo, 
-      bool buildForeignKeys, 
+      StorageModelBuilder storageModelBuilder,
       NameBuilder nameBuilder,
-      bool buildHierarchyForeignKeys, 
-      Func<Type, int?, int?, int?, IndexingModel.TypeInfo> typeBuilder)
+      bool buildForeignKeys,
+      bool buildHierarchyForeignKeys)
     {
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
-      if (buildForeignKeys)
-        ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
+      ArgumentValidator.EnsureArgumentNotNull(storageModelBuilder, "storageModelBuilder");
+      ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
 
-      BuildForeignKeys = buildForeignKeys;
-      NameBuilder = nameBuilder;
-      BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
       ProviderInfo = providerInfo;
-      TypeBuilder = typeBuilder;
+      StorageModelBuilder = storageModelBuilder;
+      NameBuilder = nameBuilder;
+      BuildForeignKeys = buildForeignKeys;
+      BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
     }
   }
 }

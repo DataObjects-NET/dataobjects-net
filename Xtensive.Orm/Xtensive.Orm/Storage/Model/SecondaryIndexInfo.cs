@@ -22,6 +22,8 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class SecondaryIndexInfo : IndexInfo
   {
+    private PartialIndexFilterInfo filter;
+
     /// <summary>
     /// Gets value columns.
     /// </summary>
@@ -33,6 +35,20 @@ namespace Xtensive.Storage.Model
     /// </summary>
     [Property(Priority = -100)]
     public IncludedColumnRefCollection IncludedColumns { get; private set; }
+
+    /// <summary>
+    /// Gets filter expression for partial index.
+    /// </summary>
+    [Property(Priority = -90)]
+    public PartialIndexFilterInfo Filter
+    {
+      get { return filter; }
+      set
+      {
+        EnsureIsEditable();
+        filter = value;
+      }
+    }
 
     /// <summary>
     /// Populates <see cref="PrimaryKeyColumns"/> collection by
