@@ -28,6 +28,12 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel
   {
   }
 
+  public interface ITestInterface : IEntity
+  {
+    [Field]
+    string TestField { get; set; }
+  }
+
   [HierarchyRoot, Index("TestField", Filter = "Index")]
   public class SimpleFilterWithMethod : TestBase
   {
@@ -103,7 +109,17 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage.PartialIndexTestModel
     public string TestField { get; set; }
   }
 
+  [HierarchyRoot, Index("TestField", Filter = "Index")]
+  public class InterfaceSupport : TestBase, ITestInterface
+  {
+    public static Expression<Func<InterfaceSupport, bool>> Index
+    {
+      get { return test => test.TestField.LessThan("bye world"); }
+    }
 
+    [Field]
+    public string TestField { get; set; }
+  }
 
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class InheritanceClassTableBase : TestBase
@@ -246,6 +262,12 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
     public void MultipleFieldUsesTest()
     {
       AssertBuildSuccess(typeof(MultipleFieldUses));
+    }
+
+    [Test]
+    public void InterfaceSupportTest()
+    {
+      AssertBuildSuccess(typeof(InterfaceSupport));
     }
 
     [Test]
