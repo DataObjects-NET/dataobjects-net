@@ -63,25 +63,20 @@ namespace Xtensive.Storage.Upgrade
     private bool BuildForeignKeys { get; set; }
 
     /// <summary>
-    /// Gets the foreign key name generator.
-    /// </summary>
-    private Func<TypeInfo, FieldInfo, TypeInfo, string> ForeignKeyNameGenerator { get; set; }
-
-    /// <summary>
     /// Gets or sets a value indicating whether 
     /// build foreign keys for hierarchies.
     /// </summary>
     private bool BuildHierarchyForeignKeys { get; set; }
 
     /// <summary>
-    /// Gets the hierarchy foreign key name generator.
-    /// </summary>
-    private Func<Model.TypeInfo, Model.TypeInfo, string> HierarchyForeignKeyNameGenerator { get; set; }
-
-    /// <summary>
     /// Gets storage model builder.
     /// </summary>
     private StorageModelBuilder StorageModelBuilder { get; set; }
+
+    /// <summary>
+    /// Gets name builder.
+    /// </summary>
+    private NameBuilder NameBuilder { get; set; }
 
     /// <summary>
     /// Gets or sets the currently visiting table.
@@ -168,7 +163,7 @@ namespace Xtensive.Storage.Upgrade
         var storageReferencingIndex = FindIndex(referencingTable,
           new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
 
-        string foreignKeyName = HierarchyForeignKeyNameGenerator.Invoke(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
+        string foreignKeyName = NameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
         CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
       }
 
@@ -520,7 +515,7 @@ namespace Xtensive.Storage.Upgrade
       var referencedTable = GetTable(targetType);
       if (referencedTable==null || referencingTable==null)
         return;
-      var foreignKeyName = ForeignKeyNameGenerator.Invoke(ownerType, ownerField, targetType);
+      var foreignKeyName = NameBuilder.BuildReferenceForeignKeyName(ownerType, ownerField, targetType);
       CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
     }
 
@@ -536,7 +531,7 @@ namespace Xtensive.Storage.Upgrade
         var referencedTable = GetTable(referencedType);
         if (referencedTable==null)
           continue;
-        var foreignKeyName = ForeignKeyNameGenerator.Invoke(auxiliaryType, field, referencedType);
+        var foreignKeyName = NameBuilder.BuildReferenceForeignKeyName(auxiliaryType, field, referencedType);
         CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
       }
     }
@@ -568,32 +563,24 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="storageModelBuilder">Storage model builder.</param>
     /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for associations.</param>
-    /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
     /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for hierarchies.</param>
-    /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
     public DomainModelConverter(
       ProviderInfo providerInfo, 
       StorageModelBuilder storageModelBuilder,
+      NameBuilder nameBuilder,
       bool buildForeignKeys,
-      Func<TypeInfo, FieldInfo, TypeInfo, string> foreignKeyNameGenerator, 
-      bool buildHierarchyForeignKeys, 
-      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator)
+      bool buildHierarchyForeignKeys)
     {
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
       ArgumentValidator.EnsureArgumentNotNull(storageModelBuilder, "storageModelBuilder");
-
-      if (buildForeignKeys)
-        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
-      if (buildHierarchyForeignKeys)
-        ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator, "hierarchyForeignKeyNameGenerator");
+      ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
 
       ProviderInfo = providerInfo;
       StorageModelBuilder = storageModelBuilder;
+      NameBuilder = nameBuilder;
       BuildForeignKeys = buildForeignKeys;
-      ForeignKeyNameGenerator = foreignKeyNameGenerator;
       BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
-      HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
     }
   }
 }

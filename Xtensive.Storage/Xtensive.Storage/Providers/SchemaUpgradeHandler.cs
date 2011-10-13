@@ -33,15 +33,10 @@ namespace Xtensive.Storage.Providers
       var buildHierarchyForeignKeys =
         (buildingContext.Configuration.ForeignKeyMode
           & ForeignKeyMode.Hierarchy) > 0;
-      var providerInfo = domainHandler.ProviderInfo;
 
       var domainModelConverter = new DomainModelConverter(
-        providerInfo,
-        GetStorageModelBuilder(),
-        buildForeignKeys,
-        buildingContext.NameBuilder.BuildReferenceForeignKeyName,
-        buildHierarchyForeignKeys,
-        buildingContext.NameBuilder.BuildHierarchyForeignKeyName);
+        domainHandler.ProviderInfo, GetStorageModelBuilder(), buildingContext.NameBuilder,
+        buildForeignKeys, buildHierarchyForeignKeys);
 
       var upgradeContext = UpgradeContext.Current;
       var session = Session.Current;
