@@ -10,7 +10,6 @@ using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Core;
 
 namespace Xtensive.Storage.Providers
 {
@@ -35,12 +34,10 @@ namespace Xtensive.Storage.Providers
       var buildHierarchyForeignKeys =
         (buildingContext.Configuration.ForeignKeyMode
           & ForeignKeyMode.Hierarchy) > 0;
-      var providerInfo = domainHandler.ProviderInfo;
 
       var domainModelConverter = new DomainModelConverter(
-        providerInfo, 
-        buildForeignKeys, buildingContext.NameBuilder, 
-        buildHierarchyForeignKeys, CreateTypeInfo);
+        domainHandler.ProviderInfo, GetStorageModelBuilder(), buildingContext.NameBuilder,
+        buildForeignKeys, buildHierarchyForeignKeys);
 
       var upgradeContext = UpgradeContext.Current;
       var session = Session.Current;
@@ -124,21 +121,21 @@ namespace Xtensive.Storage.Providers
     protected abstract object ExtractNativeSchema();
 
     /// <summary>
+    /// Gets <see cref="StorageModelBuilder"/> suitable for current storage provider.
+    /// </summary>
+    /// <returns><see cref="StorageModelBuilder"/> for current storage.</returns>
+    protected virtual StorageModelBuilder GetStorageModelBuilder()
+    {
+      return new StorageModelBuilder();
+    }
+
+    /// <summary>
     /// Upgrades the storage.
     /// </summary>
     /// <param name="upgradeActions">The upgrade actions.</param>
     /// <param name="sourceSchema">The source schema.</param>
     /// <param name="targetSchema">The target schema.</param>
     public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema);
-
-    /// <summary>
-    /// Creates the type info.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="length">The length.</param>
-    /// <returns>Newly created <see cref="TypeInfo"/>.</returns>
-    protected abstract TypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale);
-
 
     // Initialization
 

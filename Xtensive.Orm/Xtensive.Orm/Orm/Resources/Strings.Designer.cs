@@ -1708,6 +1708,24 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to LambdaExpression returned by &apos;{0}&apos; should return value that is assignable to &apos;{1}&apos;.
+        /// </summary>
+        internal static string ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY {
+            get {
+                return ResourceManager.GetString("ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LambdaExpression returned by &apos;{0}&apos; should take one parameter of type &apos;{1}&apos; or any base type of it.
+        /// </summary>
+        internal static string ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt {
+            get {
+                return ResourceManager.GetString("ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lambda parameter is out of scope..
         /// </summary>
         internal static string ExLambdaParameterIsOutOfScope {
@@ -1790,12 +1808,30 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Member &apos;{0}&apos; is not found. Check that either static parameterless method or static property with such name exists..
+        /// </summary>
+        internal static string ExMemberXIsNotFoundCheckThatSuchMemberExists {
+            get {
+                return ResourceManager.GetString("ExMemberXIsNotFoundCheckThatSuchMemberExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Member &apos;{0}&apos; of type &apos;{1}&apos; is not initialized. Check if constructor argument is correct or field initialized through initializer..
         /// </summary>
         internal static string ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer {
             get {
                 return ResourceManager.GetString("ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitial" +
                         "izedThroughInitializer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Member &apos;{0}&apos; should return value that is assignable to LambdaExpression.
+        /// </summary>
+        internal static string ExMemberXShouldReturnValueThatIsAssignableToLambdaExpression {
+            get {
+                return ResourceManager.GetString("ExMemberXShouldReturnValueThatIsAssignableToLambdaExpression", resourceCulture);
             }
         }
         
@@ -1980,6 +2016,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only secondary indexes can be declared partial..
+        /// </summary>
+        internal static string ExOnlySecondaryIndexesCanBeDeclaredPartial {
+            get {
+                return ResourceManager.GetString("ExOnlySecondaryIndexesCanBeDeclaredPartial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}.{1}&apos; OnOwnerRemove action is not equal to &apos;{2}.{3}&apos; OnTargetRemove action..
         /// </summary>
         internal static string ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction {
@@ -2120,6 +2165,15 @@ namespace Xtensive.Orm.Resources {
         internal static string ExPrefetchDoesNotSupportQueryProviderOfTypeX {
             get {
                 return ResourceManager.GetString("ExPrefetchDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to expressions of type &apos;{0}&apos; are not supported.
+        /// </summary>
+        internal static string ExpressionsOfTypeXAreNotSupported {
+            get {
+                return ResourceManager.GetString("ExpressionsOfTypeXAreNotSupported", resourceCulture);
             }
         }
         
@@ -3097,6 +3151,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos; in partial index definition for index &apos;{1}&apos;. Reason: {2}..
+        /// </summary>
+        internal static string ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ {
+            get {
+                return ResourceManager.GetString("ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to use base implementation of VisitGenericExpression without specifying genericProcessor delegate..
         /// </summary>
         internal static string ExUnableToUseBaseImplementationOfVisitGenericExpressionWithoutSpecifyingGenericProcessorDelegate {
@@ -3445,6 +3508,15 @@ namespace Xtensive.Orm.Resources {
         internal static string FieldX {
             get {
                 return ResourceManager.GetString("FieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to field &apos;{0}&apos; does not exist in table for &apos;{1}&apos;.
+        /// </summary>
+        internal static string FieldXDoesNotExistInTableForY {
+            get {
+                return ResourceManager.GetString("FieldXDoesNotExistInTableForY", resourceCulture);
             }
         }
         
@@ -4128,6 +4200,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to member access sequence contains non-persistent fields.
+        /// </summary>
+        internal static string MemberAccessSequenceContainsNonPersistentFields {
+            get {
+                return ResourceManager.GetString("MemberAccessSequenceContainsNonPersistentFields", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} (Version={1}).
         /// </summary>
         internal static string MetadataAssemblyFormat {
@@ -4182,11 +4263,29 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to only primitive and reference fields are supported.
+        /// </summary>
+        internal static string OnlyPrimitiveAndReferenceFieldsAreSupported {
+            get {
+                return ResourceManager.GetString("OnlyPrimitiveAndReferenceFieldsAreSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operations.
         /// </summary>
         internal static string Operations {
             get {
                 return ResourceManager.GetString("Operations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to parameters of type other than &apos;{0}&apos; are not supported.
+        /// </summary>
+        internal static string ParametersOfTypeOtherThanXAreNotSupported {
+            get {
+                return ResourceManager.GetString("ParametersOfTypeOtherThanXAreNotSupported", resourceCulture);
             }
         }
         
@@ -4382,7 +4481,7 @@ namespace Xtensive.Orm.Resources {
                 return ResourceManager.GetString("XW0001", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &lt;none&gt;.
         /// </summary>

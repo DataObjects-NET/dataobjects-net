@@ -214,6 +214,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Outer parameter reference found, but no SqlCompiler provided.
+        /// </summary>
+        internal static string ExOuterParameterReferenceFoundButNoSqlCompilerProvided {
+            get {
+                return ResourceManager.GetString("ExOuterParameterReferenceFoundButNoSqlCompilerProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Parameters count is not same as source column lists count..
         /// </summary>
         internal static string ExParametersCountIsNotSameAsSourceColumnListsCount {
@@ -464,6 +473,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         internal static string LogSessionXSchemaUpgradeScriptY {
             get {
                 return ResourceManager.GetString("LogSessionXSchemaUpgradeScriptY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Storage &apos;{0}&apos; does not support partial indexes, ignoring filter for partial index &apos;{0}&apos;..
+        /// </summary>
+        internal static string LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY {
+            get {
+                return ResourceManager.GetString("LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY", resourceCulture);
             }
         }
         

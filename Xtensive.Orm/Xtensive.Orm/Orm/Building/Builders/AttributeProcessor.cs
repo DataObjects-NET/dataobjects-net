@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Orm.Building.Definitions;
@@ -13,6 +15,8 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
+using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
+using TypeAttributes = Xtensive.Orm.Model.TypeAttributes;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -107,6 +111,7 @@ namespace Xtensive.Orm.Building.Builders
       ProcessIncludedFields(attribute.IncludedFields, indexDef.IncludedFields);
       ProcessFillFactor(indexDef, attribute);
       ProcessIsUnique(indexDef, attribute);
+      ProcessFilter(indexDef, attribute);
     }
 
     public static void Process(TypeDef typeDef, TypeDiscriminatorValueAttribute attribute)
@@ -168,6 +173,14 @@ namespace Xtensive.Orm.Building.Builders
     {
       if (attribute.unique.HasValue)
         indexDef.IsUnique = attribute.Unique;
+    }
+
+    private static void ProcessFilter(IndexDef indexDef, IndexAttribute attribute)
+    {
+      if (string.IsNullOrEmpty(attribute.Filter))
+        return;
+      var declaringType = indexDef.Type.UnderlyingType;
+      indexDef.FilterExpression = GetExpressionFromProvider(attribute.FilterType ?? declaringType, attribute.Filter, declaringType, typeof (bool));
     }
 
     private static void ProcessDefault(FieldDef fieldDef, FieldAttribute attribute)
@@ -333,6 +346,36 @@ namespace Xtensive.Orm.Building.Builders
         fieldName = fieldName.Substring(0, fieldName.Length - 4);
 
       return new Pair<string, Direction>(fieldName, Direction.Positive);
+    }
+
+    private static LambdaExpression GetExpressionFromProvider(Type providerType, string providerMember, Type parameterType, Type returnType)
+    {
+      const BindingFlags bindingFlags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+      const string memberNameFormat = "{0}.{1}";
+
+      MethodInfo method = null;
+      var memberName = string.Format(memberNameFormat, providerType.FullName, providerMember);
+
+      // Check for property
+      var property = providerType.GetProperty(providerMember, bindingFlags);
+      if (property!=null)
+        method = property.GetGetMethod() ?? property.GetGetMethod(true);
+
+      // Check for method
+      if (method==null)
+        method = providerType.GetMethod(providerMember, bindingFlags, null, Type.EmptyTypes, null);
+
+      if (method==null)
+        throw new DomainBuilderException(string.Format(Strings.ExMemberXIsNotFoundCheckThatSuchMemberExists, memberName));
+      if (!typeof (LambdaExpression).IsAssignableFrom(method.ReturnType))
+        throw new DomainBuilderException(string.Format(Strings.ExMemberXShouldReturnValueThatIsAssignableToLambdaExpression, memberName));
+      var expression = (LambdaExpression) method.Invoke(null, new object[0]);
+      if (expression.Parameters.Count!=1 || !expression.Parameters[0].Type.IsAssignableFrom(parameterType))
+        throw new DomainBuilderException(string.Format(Strings.ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt, memberName, parameterType.FullName));
+      if (!returnType.IsAssignableFrom(expression.ReturnType))
+        throw new DomainBuilderException(string.Format(Strings.ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY, memberName, returnType.FullName));
+
+      return expression;
     }
   }
 }

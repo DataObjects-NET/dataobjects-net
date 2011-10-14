@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using Xtensive.Collections;
 using System.Linq;
 using Xtensive.Core;
@@ -40,6 +41,8 @@ namespace Xtensive.Orm.Model
     private IEnumerable<TypeInfo> filterByTypes;
     private IList<int> selectColumns;
     private List<Pair<int, List<int>>> valueColumnsMap;
+    private LambdaExpression filterExpression;
+    private PartialIndexFilterInfo filter;
 
     /// <summary>
     /// Gets or sets the column index map.
@@ -109,6 +112,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public ColumnInfoCollection IncludedColumns
     {
+      [DebuggerStepThrough]
       get { return includedColumns; }
     }
 
@@ -117,6 +121,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public TupleDescriptor TupleDescriptor
     {
+      [DebuggerStepThrough]
       get { return tupleDescriptor; }
     }
 
@@ -125,6 +130,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public TupleDescriptor KeyTupleDescriptor
     {
+      [DebuggerStepThrough]
       get { return keyTupleDescriptor; }
     }
 
@@ -178,6 +184,34 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
+    /// Gets expression that defines range for partial index.
+    /// </summary>
+    public LambdaExpression FilterExpression {
+      [DebuggerStepThrough]
+      get { return filterExpression; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        filterExpression = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets filter that defines range for partial index.
+    /// This is built upon <see cref="FilterExpression"/>
+    /// on late stage of <see cref="DomainModel"/> build.
+    /// </summary>
+    public PartialIndexFilterInfo Filter {
+      [DebuggerStepThrough]
+      get { return filter; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        filter = value;
+      }
+    }
+
+    /// <summary>
     /// Gets the column indexes for <see cref="IndexAttributes.View"/> index.
     /// </summary>
     public IList<int> SelectColumns
@@ -207,13 +241,6 @@ namespace Xtensive.Orm.Model
     {
       [DebuggerStepThrough]
       get { return (attributes & IndexAttributes.Primary) > 0; }
-      [DebuggerStepThrough]
-      set { 
-        this.EnsureNotLocked();
-        attributes = value
-          ? (Attributes | IndexAttributes.Primary) & ~IndexAttributes.Secondary
-          : (Attributes & ~IndexAttributes.Primary) | IndexAttributes.Secondary;
-      }
     }
 
     /// <summary>
@@ -251,8 +278,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return attributes; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         attributes = value;
       }
@@ -276,6 +302,15 @@ namespace Xtensive.Orm.Model
       get { return (attributes & IndexAttributes.Secondary) > 0; }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this instance is a partial index.
+    /// </summary>
+    public bool IsPartial
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & IndexAttributes.Partial) > 0; }
+    }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -286,6 +321,8 @@ namespace Xtensive.Orm.Model
       valueColumns.UpdateState(true);
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.UpdateState(true);
+      if (filter!=null)
+        filter.UpdateState(true);
       CreateTupleDescriptors();
 
       if (!IsPrimary)
@@ -316,8 +353,10 @@ namespace Xtensive.Orm.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      keyColumns.Lock(true);
-      valueColumns.Lock(true);
+      keyColumns.Lock();
+      valueColumns.Lock();
+      if (filter != null)
+        filter.Lock();
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
       underlyingIndexes.Lock();
@@ -384,7 +423,9 @@ namespace Xtensive.Orm.Model
       declaringType = ancestorIndex.DeclaringType;
       this.reflectedType = reflectedType;
       attributes = indexAttributes;
-      FillFactor = ancestorIndex.FillFactor;
+
+      fillFactor = ancestorIndex.FillFactor;
+      filterExpression = ancestorIndex.FilterExpression;
       declaringIndex = ancestorIndex.DeclaringIndex;
       shortName = ancestorIndex.ShortName;
     }
@@ -402,11 +443,14 @@ namespace Xtensive.Orm.Model
       declaringType = baseIndex.DeclaringType;
       this.reflectedType = reflectedType;
       attributes = indexAttributes;
-      FillFactor = baseIndex.FillFactor;
+
+      fillFactor = baseIndex.FillFactor;
+      filterExpression = baseIndex.FilterExpression;
       declaringIndex = baseIndex.DeclaringIndex;
       shortName = baseIndex.ShortName;
       
       UnderlyingIndexes.Add(baseIndex);
+
       foreach (IndexInfo info in baseIndexes)
         UnderlyingIndexes.Add(info);
     }
