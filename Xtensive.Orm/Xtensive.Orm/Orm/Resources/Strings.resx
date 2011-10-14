@@ -1575,4 +1575,37 @@ Error: {1}</value>
   <data name="ExUnableToSetIndexedFlagOnStructureFieldX">
     <value xml:space="preserve">Unable to set 'Indexed' flag on Structure field {0}.</value>
   </data>
+  <data name="ExOnlySecondaryIndexesCanBeDeclaredPartial">
+    <value xml:space="preserve">Only secondary indexes can be declared partial.</value>
+  </data>
+  <data name="ExMemberXIsNotFoundCheckThatSuchMemberExists">
+    <value xml:space="preserve">Member '{0}' is not found. Check that either static parameterless method or static property with such name exists.</value>
+  </data>
+  <data name="ExMemberXShouldReturnValueThatIsAssignableToLambdaExpression">
+    <value xml:space="preserve">Member '{0}' should return value that is assignable to LambdaExpression</value>
+  </data>
+  <data name="ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt">
+    <value xml:space="preserve">LambdaExpression returned by '{0}' should take one parameter of type '{1}' or any base type of it</value>
+  </data>
+  <data name="ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY">
+    <value xml:space="preserve">LambdaExpression returned by '{0}' should return value that is assignable to '{1}'</value>
+  </data>
+  <data name="ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ">
+    <value xml:space="preserve">Unable to translate '{0}' in partial index definition for index '{1}'. Reason: {2}.</value>
+  </data>
+  <data name="MemberAccessSequenceContainsNonPersistentFields">
+    <value xml:space="preserve">member access sequence contains non-persistent fields</value>
+  </data>
+  <data name="ParametersOfTypeOtherThanXAreNotSupported">
+    <value xml:space="preserve">parameters of type other than '{0}' are not supported</value>
+  </data>
+  <data name="ExpressionsOfTypeXAreNotSupported">
+    <value xml:space="preserve">expressions of type '{0}' are not supported</value>
+  </data>
+  <data name="OnlyPrimitiveAndReferenceFieldsAreSupported">
+    <value xml:space="preserve">only primitive and reference fields are supported</value>
+  </data>
+  <data name="FieldXDoesNotExistInTableForY">
+    <value xml:space="preserve">field '{0}' does not exist in table for '{1}'</value>
+  </data>
 </root>

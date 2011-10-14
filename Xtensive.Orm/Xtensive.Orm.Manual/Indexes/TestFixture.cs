@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 
@@ -53,6 +54,29 @@ namespace Xtensive.Orm.Manual.Indexes
     public Person(Session session)
       : base(session)
     {}
+  }
+
+  public enum OrderStatus
+  {
+    WaitingConfirmation,
+    Active,
+    Completed,
+  }
+
+  [HierarchyRoot, Index("Status", Filter = "StatusIndexRange")]
+  public class Order : Entity
+  {
+    private static Expression<Func<Order, bool>> StatusIndexRange()
+    {
+      // Skip completed orders
+      return order => order.Status!=OrderStatus.Completed;
+    }
+
+    [Key, Field]
+    public long Id { get; private set; }
+
+    [Field]
+    public OrderStatus Status { get; set; }
   }
 
   #endregion

@@ -16,6 +16,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Orm.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
@@ -326,20 +327,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       int columnIndex = tupleAccess.GetTupleAccessArgument();
       var parameter = tupleAccess.GetApplyParameter();
-      if (parameter!=null) {
-        ExecutableProvider provider = compiler.OuterReferences[parameter];
-        if (!compiler.IsCompatible(provider)) {
-          provider = compiler.ToCompatible(provider);
-          compiler.OuterReferences.ReplaceBound(parameter, provider);
-        }
-
-        // TODO: Check out this sh..t
-        var sqlProvider = (SqlProvider) provider;
-        var permanentReference = sqlProvider.PermanentReference;
-        if (permanentReference.Columns.Count != sqlProvider.Request.SelectStatement.Columns.Count)
-          return compiler.ExtractColumnExpressions(sqlProvider.Request.SelectStatement, sqlProvider.Origin)[columnIndex];
-        return permanentReference[columnIndex];
-      }
+      if (parameter!=null)
+        return VisitOuterParameterReference(columnIndex, parameter);
 
       var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
       SqlExpression result = queryRef[columnIndex];
@@ -347,7 +336,26 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         result = booleanExpressionConverter.IntToBoolean(result);
       return result;
     }
-    
+
+    private SqlExpression VisitOuterParameterReference(int columnIndex, ApplyParameter parameter)
+    {
+      if (compiler==null)
+        throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, Log.Instance);
+
+      ExecutableProvider provider = compiler.OuterReferences[parameter];
+      if (!compiler.IsCompatible(provider)) {
+        provider = compiler.ToCompatible(provider);
+        compiler.OuterReferences.ReplaceBound(parameter, provider);
+      }
+
+      // TODO: Check out this sh..t
+      var sqlProvider = (SqlProvider) provider;
+      var permanentReference = sqlProvider.PermanentReference;
+      if (permanentReference.Columns.Count!=sqlProvider.Request.SelectStatement.Columns.Count)
+        return compiler.ExtractColumnExpressions(sqlProvider.Request.SelectStatement, sqlProvider.Origin)[columnIndex];
+      return permanentReference[columnIndex];
+    }
+
     protected override SqlExpression VisitLambda(LambdaExpression l)
     {
       if (activeParameters.Count>0)
@@ -387,38 +395,38 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       throw new NotSupportedException();
     }
-   
+
+
     // Constructors
 
-    public ExpressionProcessor(LambdaExpression le, SqlCompiler compiler, HandlerAccessor handlers, params List<SqlExpression>[] sourceColumns)
-      : this(le, compiler, handlers)
+    public ExpressionProcessor(LambdaExpression lambda, DomainHandler domainHandler, SqlCompiler compiler, params List<SqlExpression>[] sourceColumns)
     {
+      ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
+      ArgumentValidator.EnsureArgumentNotNull(domainHandler, "domainHandler");
       ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
-      if (le.Parameters.Count!=sourceColumns.Length)
-        throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, Log.Instance);
-      if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
-        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, Log.Instance);
-      this.sourceColumns = sourceColumns;
-      sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
-    }
 
-    private ExpressionProcessor(LambdaExpression le, SqlCompiler compiler, HandlerAccessor handlers)
-    {
-      this.compiler = compiler;
-      var domainHandler = handlers.DomainHandler;
+      this.compiler = compiler; // This might be null, check before use!
+      this.lambda = lambda;
+      this.sourceColumns = sourceColumns;
+
       providerInfo = domainHandler.ProviderInfo;
       fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();
-      driver = ((DomainHandler) domainHandler).Driver;
-      lambda = le;
+      driver = domainHandler.Driver;
+
       bindings = new HashSet<QueryParameterBinding>();
       activeParameters = new List<ParameterExpression>();
-      evaluator = new ExpressionEvaluator(le);
+      evaluator = new ExpressionEvaluator(lambda);
       parameterExtractor = new ParameterExtractor(evaluator);
 
       if (fixBooleanExpressions)
         booleanExpressionConverter = new BooleanExpressionConverter(driver);
+      if (lambda.Parameters.Count!=sourceColumns.Length)
+        throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, Log.Instance);
+      if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
+        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, Log.Instance);
+      sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
     }
   }
 }

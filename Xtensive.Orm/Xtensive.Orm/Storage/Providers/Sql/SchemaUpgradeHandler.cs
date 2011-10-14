@@ -28,6 +28,8 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
+    private PartialIndexFilterNormalizer indexFilterNormalizer;
+
     protected DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
     protected SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
     protected Driver Driver { get { return DomainHandler.Driver; } }
@@ -88,7 +90,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override StorageInfo ExtractSchema()
     {
       var schema = (Schema) GetNativeExtractedSchema(); // Must rely on this method to avoid multiple extractions
-      var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo);
+      var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo, indexFilterNormalizer);
       return converter.GetConversionResult();
     }
 
@@ -99,13 +101,17 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ModelTypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
+    protected override Orm.Upgrade.StorageModelBuilder GetStorageModelBuilder()
     {
-      var sqlValueType = DomainHandler.Driver.BuildValueType(type, length, precision, scale);
-      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), 
-        sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
+      return new StorageModelBuilder(DomainHandler, indexFilterNormalizer);
     }
 
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      base.Initialize();
+      indexFilterNormalizer = Handlers.HandlerFactory.CreateHandler<PartialIndexFilterNormalizer>();
+    }
     protected virtual void Execute(IEnumerable<string> batch)
     {
       if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {

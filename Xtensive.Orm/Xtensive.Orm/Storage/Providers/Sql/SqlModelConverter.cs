@@ -12,6 +12,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
@@ -38,7 +39,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the provider info.
     /// </summary>
-    protected ProviderInfo ProviderInfo { get; private set;}
+    protected ProviderInfo ProviderInfo { get; private set; }
+
+    /// <summary>
+    /// Gets partial index filter normalizer.
+    /// </summary>
+    protected PartialIndexFilterNormalizer IndexFilterNormalizer { get; private set; }
 
     /// <summary>
     /// Gets the schema.
@@ -178,8 +184,13 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPathNode VisitIndex(Index index)
     {
       var tableInfo = StorageInfo.Tables[index.DataTable.Name];
+      var native = index.Where as SqlNative;
+      var filter = !native.IsNullReference() && !string.IsNullOrEmpty(native.Value)
+        ? new PartialIndexFilterInfo(native.Value, IndexFilterNormalizer.Normalize(native.Value))
+        : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
-        IsUnique = index.IsUnique
+        IsUnique = index.IsUnique,
+        Filter = filter,
       };
 
       foreach (var keyColumn in index.Columns) {
@@ -335,13 +346,16 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="storageSchema">The schema.</param>
     /// <param name="providerInfo">The provider info.</param>
-    public SqlModelConverter(Schema storageSchema, ProviderInfo providerInfo)
+    /// <param name="indexFilterNormalizer"></param>
+    public SqlModelConverter(Schema storageSchema, ProviderInfo providerInfo, PartialIndexFilterNormalizer indexFilterNormalizer)
     {
       ArgumentValidator.EnsureArgumentNotNull(storageSchema, "storageSchema");
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      ArgumentValidator.EnsureArgumentNotNull(indexFilterNormalizer, "indexFilterNormalizer");
       
       Schema = storageSchema;
       ProviderInfo = providerInfo;
+      IndexFilterNormalizer = indexFilterNormalizer;
     }
 
 

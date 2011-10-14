@@ -512,6 +512,10 @@ namespace Xtensive.Storage.Providers.Sql
         Visit(node.Statement);
     }
 
+    public void Visit(SqlFragment node)
+    {
+    }
+
     public void Visit(SqlExpression sqlExpression)
     {
       sqlExpression.AcceptVisitor(this);

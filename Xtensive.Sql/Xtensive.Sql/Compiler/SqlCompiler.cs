@@ -85,6 +85,14 @@ namespace Xtensive.Sql.Compiler
       context.Output.AppendText(translator.Translate(context, node));
     }
 
+    public virtual void Visit(SqlFragment node)
+    {
+      using (context.EnterScope(node))
+      using (context.EnterScope(0)) {
+        node.Expression.AcceptVisitor(this);
+      }
+    }
+
     public virtual void Visit(SqlAlterTable node)
     {
       using (context.EnterScope(node)) {
