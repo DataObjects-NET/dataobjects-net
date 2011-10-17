@@ -34,7 +34,8 @@ namespace Xtensive.Collections
     {
       get
       {
-        ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
+        if (index<0 || index>=count)
+          ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
         switch (index) {
           case 0:
             return slot1;
@@ -46,7 +47,8 @@ namespace Xtensive.Collections
       }
       set
       {
-        ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
+        if (index<0 || index>=count)
+          ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
         switch (index) {
           case 0:
             slot1 = value;
@@ -95,7 +97,6 @@ namespace Xtensive.Collections
     /// <exception cref="ArgumentException">The list already have three items.</exception>
     public void Push(T item)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(count, 0, 2, "count");
       switch (count) {
         case 0:
           slot1 = item;
@@ -106,6 +107,9 @@ namespace Xtensive.Collections
         case 2:
           slot3 = item;
           break;
+        default:
+          ArgumentValidator.EnsureArgumentIsInRange(count, 0, 2, "count");
+          return;
       }
       count++;
     }
