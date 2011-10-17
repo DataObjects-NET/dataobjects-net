@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Providers.Sql
     public Driver Driver { get; private set; }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
+    protected override IEnumerable<Type> GetProviderCompilerContainers()
     {
       return new[] {
         typeof (NullableCompilers),

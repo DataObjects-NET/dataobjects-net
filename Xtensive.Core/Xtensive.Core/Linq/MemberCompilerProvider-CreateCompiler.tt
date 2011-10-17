@@ -18,7 +18,7 @@ namespace Xtensive.Core.Linq
 {
   partial class MemberCompilerProvider<T>
   {
-    private static Func<T, T[], T> CreateInvokerForInstanceCompiler(MethodInfo compiler)
+    private static Func<MemberInfo, T, T[], T> CreateInvokerForInstanceCompiler(MethodInfo compiler)
     {
       var t = compiler.ReflectedType;
       string s = compiler.Name;
@@ -32,13 +32,14 @@ for (int i = 1; i <= DelegateGenerator.MaxNumberOfArguments; i++) {
   var func = DelegateGenerator.GenerateOneArgumentFunc(null, "T", "T", i);
   var invoke = DelegateGenerator.GenerateArrayArgumentUsage("_this", "args", i - 1);
   WriteLine(string.Format("var d{0} = DelegateHelper.CreateDelegate<{1}>(null, t, s);", i, func));
-  WriteLine(string.Format("return (_this, args) => d{0}{1};", i, invoke));
+  WriteLine(string.Format("return (member, _this, args) => d{0}{1};", i, invoke));
   PopIndent();
 }
 PopIndent();
 #>
       }
-      return null;
+
+      throw new InvalidOperationException();
     }
     
     private static Func<MemberInfo, T, T[], T> CreateInvokerForInstanceGenericCompiler(MethodInfo compiler)
@@ -60,11 +61,12 @@ for (int i = 2; i <= DelegateGenerator.MaxNumberOfArguments; i++) {
 }
 PopIndent();
 #>
-      }    
-      return null;
+      }
+
+      throw new InvalidOperationException();
     }
     
-    private static Func<T, T[], T> CreateInvokerForStaticCompiler(MethodInfo compiler)
+    private static Func<MemberInfo, T, T[], T> CreateInvokerForStaticCompiler(MethodInfo compiler)
     {
       var t = compiler.ReflectedType;
       string s = compiler.Name;
@@ -78,13 +80,14 @@ for (int i = 0; i <= DelegateGenerator.MaxNumberOfArguments; i++) {
   var func = DelegateGenerator.GenerateOneArgumentFunc(null, "T", "T", i);
   var invoke = DelegateGenerator.GenerateArrayArgumentUsage(null, "args", i);
   WriteLine(string.Format("var d{0} = DelegateHelper.CreateDelegate<{1}>(null, t, s);", i, func));
-  WriteLine(string.Format("return (_, args) => d{0}{1};", i, invoke));
+  WriteLine(string.Format("return (member, _this, args) => d{0}{1};", i, invoke));
   PopIndent();
 }
 PopIndent();
 #>
-      }    
-      return null;
+      }
+
+      throw new InvalidOperationException();
     }
     
     private static Func<MemberInfo, T, T[], T> CreateInvokerForStaticGenericCompiler(MethodInfo compiler)
@@ -101,13 +104,14 @@ for (int i = 1; i <= DelegateGenerator.MaxNumberOfArguments; i++) {
   var func = DelegateGenerator.GenerateOneArgumentFunc("MemberInfo", "T", "T", i - 1);
   var invoke = DelegateGenerator.GenerateArrayArgumentUsage("member", "args", i - 1);
   WriteLine(string.Format("var d{0} = DelegateHelper.CreateDelegate<{1}>(null, t, s);", i, func));
-  WriteLine(string.Format("return (member, _, args) => d{0}{1};", i, invoke));
+  WriteLine(string.Format("return (member, _this, args) => d{0}{1};", i, invoke));
   PopIndent();
 }
 PopIndent();
 #>
       }
-      return null;
+
+      throw new InvalidOperationException();
     }
   }
 }

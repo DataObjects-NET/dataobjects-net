@@ -5,6 +5,7 @@
 // Created:    2009.03.27
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Xtensive.Core.Linq
@@ -21,19 +22,26 @@ namespace Xtensive.Core.Linq
     Type ExpressionType { get; }
 
     /// <summary>
+    /// Gets untyped compiler for <see cref="target"/>.
+    /// </summary>
+    /// <param name="target">Member to get compiler for.</param>
+    /// <returns>Compiler for <see cref="target"/></returns>
+    Delegate GetUntypedCompiler(MemberInfo target);
+
+    /// <summary>
     /// Registers compilers found in specified type.
     /// Conflicts are resolved as <see cref="ConflictHandlingMethod.ReportError"/> were specified.
     /// </summary>
-    /// <param name="typeWithCompilers">Type to search for compiler methods.</param>
-    void RegisterCompilers(Type typeWithCompilers);
+    /// <param name="compilerContainer">Type to search for compiler methods.</param>
+    void RegisterCompilers(Type compilerContainer);
 
     /// <summary>
     /// Registers compilers found in specified type.
     /// In case of multiple compilers exist for the same <see cref="MethodInfo"/>
     /// implementor should use specified <see cref="ConflictHandlingMethod"/>.
     /// </summary>
-    /// <param name="typeWithCompilers">Type to search for compiler methods.</param>
+    /// <param name="compilerContainer">Type to search for compiler methods.</param>
     /// <param name="conflictHandlingMethod">Determines how provider would resolve conflicts.</param>
-    void RegisterCompilers(Type typeWithCompilers, ConflictHandlingMethod conflictHandlingMethod);
+    void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod);
   }
 }
