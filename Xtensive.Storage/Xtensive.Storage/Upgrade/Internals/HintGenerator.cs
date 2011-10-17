@@ -497,7 +497,9 @@ namespace Xtensive.Storage.Upgrade
         if (typeIdField==null) // Table of old type may not contain TypeId
           continue;
         var targetType = typeMapping[type];
-        var targetTypeIdField = targetType.Fields.Single(f => f.IsTypeId);
+        var targetTypeIdField = targetType.Fields.SingleOrDefault(f => f.IsTypeId);
+        if (targetTypeIdField == null)
+          continue;
         if (targetTypeIdField.IsPrimaryKey)
           continue;
         if (!extractedModel.Tables.Contains(type.MappingName))
