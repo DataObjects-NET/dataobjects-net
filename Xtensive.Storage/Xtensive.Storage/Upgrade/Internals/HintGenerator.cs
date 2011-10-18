@@ -949,8 +949,9 @@ namespace Xtensive.Storage.Upgrade
     {
       if (!EnsureTableExist(tableName))
         return false;
-      if (!extractedModel.Tables[tableName].Columns.Contains(fieldName)) {
-        Log.Warning(Strings.ExColumnXIsNotFoundInTableY, fieldName, tableName);
+      var actualFieldName = nameBuilder.ApplyNamingRules(fieldName);
+      if (!extractedModel.Tables[tableName].Columns.Contains(actualFieldName)) {
+        Log.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, tableName);
         return false;
       }
       return true;
