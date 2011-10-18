@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
@@ -99,9 +100,9 @@ namespace Xtensive.Sql.SqlServer
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         coreServerInfo.MultipleActiveResultSets = builder.MultipleActiveResultSets;
-        var parser = CreateMessageParser(connection);
         if (IsAzure(connection))
-          return new Azure.Driver(coreServerInfo, parser);
+          return new Azure.Driver(coreServerInfo, new ErrorMessageParser());
+        var parser = CreateMessageParser(connection);
         switch (version.Major) {
         case 9:
           return new v09.Driver(coreServerInfo, parser);
