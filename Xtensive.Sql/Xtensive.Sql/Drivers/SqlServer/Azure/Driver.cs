@@ -21,6 +21,11 @@ namespace Xtensive.Sql.SqlServer.Azure
       return new ServerInfoProvider(this);
     }
 
+    protected override bool TryProvideErrorContext(int errorCode, string errorMessage, SqlExceptionInfo info)
+    {
+      return false;
+    }
+
     // Constructors
 
     public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser)

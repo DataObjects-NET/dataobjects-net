@@ -50,7 +50,7 @@ namespace Xtensive.Sql.SqlServer
       return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
     }
 
-    private bool TryProvideErrorContext(int errorCode, string errorMessage, SqlExceptionInfo info)
+    protected virtual bool TryProvideErrorContext(int errorCode, string errorMessage, SqlExceptionInfo info)
     {
       Dictionary<int, string> parseResult;
       switch (errorCode) {
