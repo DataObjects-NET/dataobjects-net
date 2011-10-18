@@ -222,7 +222,13 @@ namespace Xtensive.Sql.SqlServer
       return new PreparedTemplate(regexBuilder.ToString(), indexes);
     }
 
+
     // Constructors
+
+    public ErrorMessageParser()
+    {
+      templates = new Dictionary<int, PreparedTemplate>();
+    }
 
     public ErrorMessageParser(IEnumerable<KeyValuePair<int,string>> messageTemplates, bool isEnglish)
     {
