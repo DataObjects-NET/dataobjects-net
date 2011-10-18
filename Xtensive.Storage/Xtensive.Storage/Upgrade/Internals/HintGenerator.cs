@@ -569,10 +569,9 @@ namespace Xtensive.Storage.Upgrade
         StoredTypeInfo oldTargetType;
         if (!reverseTypeMapping.TryGetValue(newTargetType, out oldTargetType))
           continue;
-        string oldColumnMappingName = nameBuilder.ApplyNamingRules(oldField.MappingName);
-        string newColumnMappingName = nameBuilder.ApplyNamingRules(newField.MappingName);
-        RegisterRenameFieldHint(oldTargetType.MappingName, newTargetType.MappingName,
-          oldColumnMappingName, newColumnMappingName);
+        RegisterRenameFieldHint(
+          oldTargetType.MappingName, newTargetType.MappingName,
+          oldField.MappingName, newField.MappingName);
       }
     }
     
@@ -964,14 +963,14 @@ namespace Xtensive.Storage.Upgrade
         var inheritanceSchema = type.Hierarchy.InheritanceSchema;
         switch (inheritanceSchema) {
           case InheritanceSchema.ClassTable:
-            affectedColumns.Add(GetColumnPath(primitiveField.DeclaringType.MappingName, nameBuilder.ApplyNamingRules(primitiveField.MappingName)));
+            affectedColumns.Add(GetColumnPath(primitiveField.DeclaringType.MappingName, primitiveField.MappingName));
             break;
           case InheritanceSchema.SingleTable:
-            affectedColumns.Add(GetColumnPath(type.Hierarchy.Root.MappingName, nameBuilder.ApplyNamingRules(primitiveField.MappingName)));
+            affectedColumns.Add(GetColumnPath(type.Hierarchy.Root.MappingName, primitiveField.MappingName));
             break;
           case InheritanceSchema.ConcreteTable:
             var typeToProcess = GetAffectedMappedTypes(type, type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable);
-            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t.MappingName, nameBuilder.ApplyNamingRules(primitiveField.MappingName))));
+            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t.MappingName, primitiveField.MappingName)));
             break;
           default:
             throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
@@ -1065,9 +1064,14 @@ namespace Xtensive.Storage.Upgrade
       return string.Format("Tables/{0}", name);
     }
 
-    private static string GetColumnPath(string tableName, string columnName)
+    private string GetColumnPath(string tableName, string columnName)
     {
-      return string.Format("Tables/{0}/Columns/{1}", tableName, columnName);
+      // Due to current implementation of domain model FieldInfo.MappingName is not correct,
+      // it has naming rules unapplied, corresponding ColumnInfo.Name however is correct.
+      // StoredFieldInfo.MappingName is taken directly from FieldInfo.MappingName and thus is incorrect too.
+      // We need to apply naming rules here to make it work.
+      var actualColumnName = nameBuilder.ApplyNamingRules(columnName);
+      return string.Format("Tables/{0}/Columns/{1}", tableName, actualColumnName);
     }
 
     private static string GetTypeIdMappingName(StoredTypeInfo type)
