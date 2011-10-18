@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      session.Events.NotifyQueryExecuting(expression);
+      expression = session.Events.NotifyQueryExecuting(expression);
       var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
         ? typeof (IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
         : expression.Type;
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     public TResult Execute<TResult>(Expression expression)
     {
-      session.Events.NotifyQueryExecuting(expression);
+      expression = session.Events.NotifyQueryExecuting(expression);
       var translationResult = Translate<TResult>(expression);
       var cachingScope = QueryCachingScope.Current;
       TResult result;

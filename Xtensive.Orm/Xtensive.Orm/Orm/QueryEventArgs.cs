@@ -11,6 +11,6 @@ namespace Xtensive.Orm
             Expression = expression;
         }
 
-        public Expression Expression { get; private set; }
+        public Expression Expression { get; set; }
     }
 }

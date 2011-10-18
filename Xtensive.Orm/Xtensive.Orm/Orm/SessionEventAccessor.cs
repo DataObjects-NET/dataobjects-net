@@ -234,10 +234,14 @@ namespace Xtensive.Orm
         if (DbCommandExecuted != null)
             DbCommandExecuted(this, new DbCommandEventArgs(command));
     }
-    internal void NotifyQueryExecuting(Expression expression)
+    internal Expression NotifyQueryExecuting(Expression expression)
     {
+        var args = new QueryEventArgs(expression);
         if (QueryExecuting != null)
-            QueryExecuting(this, new QueryEventArgs(expression));
+        {
+            QueryExecuting(this, args);
+        }
+        return args.Expression;
     }
     internal void NotifyQueryExecuted(Expression expression)
     {
