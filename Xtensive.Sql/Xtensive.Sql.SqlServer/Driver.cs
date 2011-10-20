@@ -13,8 +13,6 @@ namespace Xtensive.Sql.SqlServer
 {
   internal abstract class Driver : SqlDriver
   {
-    protected virtual bool HasDuplicateKeyValueInErrorMessage { get { return false; } }
-
     private readonly ErrorMessageParser errorMessageParser;
 
     protected override SqlConnection CreateConnection(string connectionString)
@@ -53,22 +51,23 @@ namespace Xtensive.Sql.SqlServer
     protected virtual bool TryProvideErrorContext(int errorCode, string errorMessage, SqlExceptionInfo info)
     {
       Dictionary<int, string> parseResult;
+      string duplicateValue;
       switch (errorCode) {
         case 2627:
           parseResult = errorMessageParser.Parse(errorCode, errorMessage);
           info.Type = SqlExceptionType.UniqueConstraintViolation;
           info.Constraint = parseResult[2];
           info.Table = ErrorMessageParser.CutSchemaPrefix(parseResult[3]);
-          if (HasDuplicateKeyValueInErrorMessage)
-            info.Value = parseResult[4];
+          if (parseResult.TryGetValue(4, out duplicateValue))
+            info.Value = duplicateValue;
           break;
         case 2601:
           parseResult = errorMessageParser.Parse(errorCode, errorMessage);
           info.Type = SqlExceptionType.UniqueConstraintViolation;
           info.Table = ErrorMessageParser.CutSchemaPrefix(parseResult[1]);
           info.Constraint = parseResult[2];
-          if (HasDuplicateKeyValueInErrorMessage)
-            info.Value = parseResult[3];
+          if (parseResult.TryGetValue(3, out duplicateValue))
+            info.Value = duplicateValue;
           break;
         case 515:
           parseResult = errorMessageParser.Parse(errorCode, errorMessage);
