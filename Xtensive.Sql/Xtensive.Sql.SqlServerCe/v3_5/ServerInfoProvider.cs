@@ -120,7 +120,6 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
     {
       var primaryKeyInfo = new PrimaryKeyConstraintInfo();
       primaryKeyInfo.MaxIdentifierLength = MaxIdentifierLength;
-      primaryKeyInfo.Features = PrimaryKeyConstraintFeatures.Clustered;
       primaryKeyInfo.AllowedDdlStatements = DdlStatements.All;
       return primaryKeyInfo;
     }
@@ -134,7 +133,7 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
     {
       var uniqueConstraintInfo = new UniqueConstraintInfo();
       uniqueConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
-      uniqueConstraintInfo.Features = UniqueConstraintFeatures.Clustered | UniqueConstraintFeatures.Nullable;
+      uniqueConstraintInfo.Features = UniqueConstraintFeatures.Nullable;
       uniqueConstraintInfo.AllowedDdlStatements = DdlStatements.All;
       return uniqueConstraintInfo;
     }
@@ -147,10 +146,9 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
       indexInfo.MaxLength = 900;
       indexInfo.AllowedDdlStatements = DdlStatements.All;
       indexInfo.Features =
-        IndexFeatures.Clustered |
-          IndexFeatures.FillFactor |
-            IndexFeatures.Unique |
-              IndexFeatures.SortOrder;
+        IndexFeatures.FillFactor |
+        IndexFeatures.Unique |
+        IndexFeatures.SortOrder;
       indexInfo.PartitionMethods = PartitionMethods.Range;
       return indexInfo;
     }

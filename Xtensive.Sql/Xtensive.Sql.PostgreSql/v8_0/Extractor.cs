@@ -548,7 +548,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
               //Regular index
               Index i = t.CreateIndex(indexName);
               i.IsBitmap = false;
-              i.IsClustered = isClustered;
               i.IsUnique = isUnique;
               i.Filegroup = tablespaceName;
               if (!string.IsNullOrEmpty(filterExpression))

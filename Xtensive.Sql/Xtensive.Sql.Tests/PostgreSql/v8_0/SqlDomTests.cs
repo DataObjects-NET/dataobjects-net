@@ -151,7 +151,6 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 
         idx = sch1_t1.CreateIndex("T1_ix1");
         idx.CreateIndexColumn(sch1_t1.TableColumns["Decimal50"]);
-        idx.IsClustered = true;
 
         idx = sch1_t1.CreateIndex("T1_ix2");
         idx.CreateIndexColumn(sch1_t1.TableColumns["DateTime"]);

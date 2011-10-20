@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Model
@@ -15,6 +16,15 @@ namespace Xtensive.Sql.Model
   public class UniqueConstraint : TableConstraint
   {
     private NodeCollection<TableColumn> columns;
+    private bool isClustered;
+
+    public bool IsClustered {
+      get { return isClustered; }
+      set {
+        this.EnsureNotLocked();
+        isClustered = value;
+      }
+    }
 
     /// <summary>
     /// Gets the columns.

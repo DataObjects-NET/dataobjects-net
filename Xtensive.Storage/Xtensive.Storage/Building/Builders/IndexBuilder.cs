@@ -40,6 +40,7 @@ namespace Xtensive.Storage.Building.Builders
         BuildAffectedIndexes();
         BuildFullTextIndexes();
         BuildFiltersForPartialIndexes();
+        ChooseClusteredIndexes();
       }
     }
 

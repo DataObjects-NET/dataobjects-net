@@ -16,7 +16,8 @@ namespace Xtensive.Storage.Tests
     protected InheritanceSchema Schema { get; private set; }
 
     public virtual void OnBuilt(Domain domain)
-    {}
+    {
+    }
 
     public virtual void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
@@ -26,9 +27,7 @@ namespace Xtensive.Storage.Tests
 
     public static void ActivateModifier(InheritanceSchema schema)
     {
-      ConcreteTableSchemaModifier.IsEnabled = false;
-      SingleTableSchemaModifier.IsEnabled = false;
-      ClassTableSchemaModifier.IsEnabled = false;
+      DeactivateModifiers();
 
       switch (schema) {
         case InheritanceSchema.ConcreteTable:
@@ -41,6 +40,13 @@ namespace Xtensive.Storage.Tests
           ClassTableSchemaModifier.IsEnabled = true;
           break;
       }
+    }
+
+    public static void DeactivateModifiers()
+    {
+      ConcreteTableSchemaModifier.IsEnabled = false;
+      SingleTableSchemaModifier.IsEnabled = false;
+      ClassTableSchemaModifier.IsEnabled = false;
     }
 
 

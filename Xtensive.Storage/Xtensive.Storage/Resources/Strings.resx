@@ -1596,4 +1596,16 @@ Error: {1}]]></value>
   <data name="FieldXDoesNotExistInTableForY">
     <value xml:space="preserve">field '{0}' does not exist in table for '{1}'</value>
   </data>
+  <data name="ExTypeXHasMultipleClusteredIndexesY">
+    <value xml:space="preserve">Type '{0}' has multiple clustered indexes: {1}</value>
+  </data>
+  <data name="ExTypeXDeclaresClusteredIndexYButOnlyRootTypeCanDeclareClusteredIndexInSingleTableHierarchy">
+    <value xml:space="preserve">Type '{0}' declares clustered index '{1}', but only root type can declare clustered indexes in single table hierarhy</value>
+  </data>
+  <data name="ExIndexXCanNotBeBothPartialAndClustered">
+    <value xml:space="preserve">Index '{0}' can not be both partial and clustered</value>
+  </data>
+  <data name="ExClusteredIndexCanNotBeDeclaredInInterfaceX">
+    <value xml:space="preserve">Clustered index can not be declared in interface '{0}'</value>
+  </data>
 </root>

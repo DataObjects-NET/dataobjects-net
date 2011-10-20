@@ -242,12 +242,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
             builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
           return builder.ToString();
         case CreateIndexSection.Exit:
-          // cluster in a separate command
-          if (index.IsClustered)
-            return string.Format(
-              BatchItemDelimiter + " CLUSTER {0} ON {1}",
-              QuoteIdentifier(index.Name),
-              QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name));
           return string.Empty;
         case CreateIndexSection.Where:
           return " WHERE ";

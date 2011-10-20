@@ -256,8 +256,10 @@ namespace Xtensive.Sql.SqlServer.v09
             var indexName = reader.GetString(4);
 
             // Index is a part of primary key constraint
-            if (reader.GetBoolean(6))
+            if (reader.GetBoolean(6)) {
               primaryKey = ((Table) table.Table).CreatePrimaryKey(indexName);
+              primaryKey.IsClustered = reader.GetByte(5)==1;
+            }
             else {
               // Spatial index
               if (indexType == spatialIndexType) {
@@ -273,8 +275,10 @@ namespace Xtensive.Sql.SqlServer.v09
                   index.Where = SqlDml.Native(reader.GetString(16));
 
                 // Index is a part of unique constraint
-                if (reader.GetBoolean(8))
+                if (reader.GetBoolean(8)) {
                   uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(indexName);
+                  uniqueConstraint.IsClustered = index.IsClustered;
+                }
               }
             }
           }

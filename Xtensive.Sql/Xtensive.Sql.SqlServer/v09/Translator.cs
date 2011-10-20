@@ -135,6 +135,10 @@ namespace Xtensive.Sql.SqlServer.v09
     {
       switch (section)
       {
+        case ConstraintSection.Unique:
+          return ((UniqueConstraint) constraint).IsClustered ? "UNIQUE CLUSTERED (" : "UNIQUE NONCLUSTERED (";
+        case ConstraintSection.PrimaryKey:
+          return ((PrimaryKey) constraint).IsClustered ? "PRIMARY KEY CLUSTERED (" : "PRIMARY KEY NONCLUSTERED (";
         case ConstraintSection.Exit:
           ForeignKey fk = constraint as ForeignKey;
           if (fk != null)

@@ -127,7 +127,6 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
             else {
               index = table.CreateIndex(indexName);
               index.IsUnique = (bool) reader["UNIQUE"];
-              index.IsClustered = (bool) reader["CLUSTERED"];
             }
           }
 
