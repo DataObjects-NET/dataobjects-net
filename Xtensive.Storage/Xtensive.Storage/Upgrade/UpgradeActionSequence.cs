@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Upgrade
       get
       {
         return NonTransactionalPrologCommands.Count
+          + PreCleanupDataCommands.Count
           + CleanupDataCommands.Count
           + PreUpgradeCommands.Count
           + UpgradeCommands.Count
@@ -34,6 +35,12 @@ namespace Xtensive.Storage.Upgrade
           + NonTransactionalEpilogCommands.Count;
       }
     }
+
+    /// <summary>
+    /// Gets or sets pre-cleanup data commands.
+    /// </summary>
+    /// <value>The pre-cleanup data commands.</value>
+    public List<string> PreCleanupDataCommands { get; private set; }
 
     /// <summary>
     /// Gets or sets the cleanup data commands.
@@ -98,6 +105,7 @@ namespace Xtensive.Storage.Upgrade
 
       var batchSequence =
         new[] {
+          PreCleanupDataCommands,
           CleanupDataCommands,
           PreUpgradeCommands,
           UpgradeCommands,
@@ -134,6 +142,7 @@ namespace Xtensive.Storage.Upgrade
     public UpgradeActionSequence()
     {
       NonTransactionalPrologCommands = new List<string>();
+      PreCleanupDataCommands = new List<string>();
       CleanupDataCommands = new List<string>();
       PreUpgradeCommands = new List<string>();
       UpgradeCommands = new List<string>();

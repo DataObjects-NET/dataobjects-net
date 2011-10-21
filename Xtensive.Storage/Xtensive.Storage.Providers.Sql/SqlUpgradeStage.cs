@@ -22,6 +22,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     NonTransactionalEpilog,
     /// <summary>
+    /// <see cref="UpgradeActionSequence.PreCleanupDataCommands"/>
+    /// </summary>
+    PreCleanupData,
+    /// <summary>
     /// <see cref="UpgradeActionSequence.CleanupDataCommands"/>.
     /// </summary>
     CleanupData,

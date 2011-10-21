@@ -74,13 +74,18 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public UpgradeActionSequence Translate()
     {
+      if (translated)
+        throw new InvalidOperationException(Strings.ExCommandsAreAlreadyTranslated);
+      translated = true;
+
       translationResult = new UpgradeActionSequence();
+
+      // Turn off deferred contraints
+      if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
+        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate), SqlUpgradeStage.PreCleanupData);
 
       // Data cleanup
       currentUpgradeStage = UpgradeStage.CleanupData;
-      // Turn off deferred contraints
-      if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
-        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate));
       var cleanupData = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.CleanupData.ToString());
       if (cleanupData!=null)
@@ -133,7 +138,6 @@ namespace Xtensive.Storage.Providers.Sql
       // Turn on deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
-      translated = true;
 
       return translationResult;
     }
@@ -477,7 +481,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
       
       var index = table.Indexes[secondaryIndexInfo.Name];
-      RegisterCommand(SqlDdl.Drop(index), SqlUpgradeStage.CleanupData);
+      RegisterCommand(SqlDdl.Drop(index), SqlUpgradeStage.PreCleanupData);
       table.Indexes.Remove(index);
     }
 
@@ -505,7 +509,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       var foreignKey = table.TableConstraints[foreignKeyInfo.Name];
-      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)), SqlUpgradeStage.CleanupData);
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)), SqlUpgradeStage.PreCleanupData);
       table.TableConstraints.Remove(foreignKey);
     }
 
@@ -779,12 +783,6 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region Helper methods
 
-    private void EnsureCommandsAreTranslated()
-    {
-      if (!translated)
-        throw new InvalidOperationException(Strings.ExCommandsAreNotTranslatedYet);
-    }
-
     private Table CreateTable(TableInfo tableInfo)
     {
       var table = schema.CreateTable(tableInfo.Name);
@@ -1020,10 +1018,13 @@ namespace Xtensive.Storage.Providers.Sql
       switch(stage) {
         case SqlUpgradeStage.NonTransactionalProlog:
           translationResult.NonTransactionalPrologCommands.AddRange(commands);
-          return;
+          break;
         case SqlUpgradeStage.NonTransactionalEpilog:
           translationResult.NonTransactionalEpilogCommands.AddRange(commands);
-          return;
+          break;
+        case SqlUpgradeStage.PreCleanupData:
+          translationResult.PreCleanupDataCommands.AddRange(commands);
+          break;
         case SqlUpgradeStage.CleanupData:
           translationResult.CleanupDataCommands.AddRange(commands);
           break;
