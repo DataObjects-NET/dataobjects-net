@@ -495,12 +495,12 @@ namespace Xtensive.Storage
       }
     }
 
-    internal protected bool IsFieldAvailable(string name)
+    protected bool IsFieldAvailable(string name)
     {
       return IsFieldAvailable(TypeInfo.Fields[name]);
     }
 
-    internal protected bool IsFieldAvailable(FieldInfo field)
+    protected bool IsFieldAvailable(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
