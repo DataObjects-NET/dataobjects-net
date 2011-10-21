@@ -34,7 +34,7 @@ using WellKnown = Xtensive.Orm.WellKnown;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Translates upgrade <see cref="NodeAction"/>s to Sql.
+  /// Translates upgrade <see cref="NodeAction"/>s to SQL.
   /// </summary>
   internal sealed class SqlActionTranslator
   {
@@ -57,13 +57,13 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly StorageInfo targetModel;
     private readonly Driver driver;
     
-    private UpgradeActionSequence result;
+    private UpgradeActionSequence translationResult;
     
     private bool translated;
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
-    private UpgradeStage stage;
+    private UpgradeStage currentUpgradeStage;
 
     private bool IsSequencesAllowed
     {
@@ -71,152 +71,58 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Gets the data cleanup commands.
-    /// </summary>
-    public List<string> CleanupDataCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.CleanupDataCommands;
-      }
-    }
-
-    /// <summary>
-    /// Gets the command thats must be 
-    /// executed before upgrade commands.
-    /// </summary>
-    public List<string> PreUpgradeCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.PreUpgradeCommands;
-      }
-    }
-
-    /// <summary>
-    /// Gets the translation result.
-    /// </summary>
-    public List<string> UpgradeCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.UpgradeCommands;
-      }
-    }
-
-    /// <summary>
-    /// Gets the data copy commands.
-    /// </summary>
-    public List<string> CopyDataCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.CopyDataCommands;
-      }
-    }
-
-    /// <summary>
-    /// Gets the data cleanup commands.
-    /// </summary>
-    public List<string> PostCopyDataCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.PostCopyDataCommands;
-      }
-    }
-
-    /// <summary>
-    /// Gets the post upgrade commands, thats
-    /// must be executed after data manipulate commands.
-    /// </summary>
-    public List<string> CleanupCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.CleanupCommands;
-      }
-    }
-
-    /// <summary>
-    /// Gets the non transactional commands that should be executed non transactionally.
-    /// </summary>
-    public List<string> NonTransactionalPrologCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.NonTransactionalPrologCommands;
-      }
-    }
-
-
-    /// <summary>
-    /// Gets the non transactional commands that should be executed non transactionally.
-    /// </summary>
-    public List<string> NonTransactionalEpilogCommands
-    {
-      get
-      {
-        EnsureCommandsAreTranslated();
-        return result.NonTransactionalEpilogCommands;
-      }
-    }
-
-    /// <summary>
     /// Translates all registered actions.
     /// </summary>
     public UpgradeActionSequence Translate()
     {
-      result = new UpgradeActionSequence();
+      if (translated)
+        throw new InvalidOperationException(Strings.ExCommandsAreAlreadyTranslated);
+      translated = true;
 
-      // Data cleanup
-      stage = UpgradeStage.CleanupData;
+      translationResult = new UpgradeActionSequence();
+
       // Turn off deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
-        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate), NonTransactionalStage.None);
+        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate), SqlUpgradeStage.PreCleanupData);
+
+      // Data cleanup
+      currentUpgradeStage = UpgradeStage.CleanupData;
       var cleanupData = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.CleanupData.ToString());
       if (cleanupData!=null)
         VisitAction(cleanupData);
       ProcessClearDataActions(false);
 
-      // Prepairing
-      stage = UpgradeStage.Prepare;
+      // Prepairing (aka запаривание :-)
+      currentUpgradeStage = UpgradeStage.Prepare;
       var prepareActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
       if (prepareActions!=null)
         VisitAction(prepareActions);
 
       // Mutual renaming
-      stage = UpgradeStage.TemporaryRename;
+      currentUpgradeStage = UpgradeStage.TemporaryRename;
       var renameActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.TemporaryRename.ToString());
       if (renameActions!=null)
         VisitAction(renameActions);
 
       // Upgrading
-      stage = UpgradeStage.Upgrade;
+      currentUpgradeStage = UpgradeStage.Upgrade;
       var upgradeActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Upgrade.ToString());
       if (upgradeActions!=null)
         VisitAction(upgradeActions);
 
       // Copying data
-      stage = UpgradeStage.CopyData;
+      currentUpgradeStage = UpgradeStage.CopyData;
       var copyDataActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.CopyData.ToString());
       if (copyDataActions!=null)
         VisitAction(copyDataActions);
 
       // Post copying data
-      stage = UpgradeStage.PostCopyData;
+      currentUpgradeStage = UpgradeStage.PostCopyData;
       var postCopyDataActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.PostCopyData.ToString());
       if (postCopyDataActions!=null)
@@ -224,7 +130,7 @@ namespace Xtensive.Storage.Providers.Sql
       ProcessClearDataActions(true);
 
       // Cleanup
-      stage = UpgradeStage.Cleanup;
+      currentUpgradeStage = UpgradeStage.Cleanup;
       var cleanupActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Cleanup.ToString());
       if (cleanupActions!=null)
@@ -232,10 +138,9 @@ namespace Xtensive.Storage.Providers.Sql
 
       // Turn on deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
-        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred), NonTransactionalStage.None);
-      translated = true;
+        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
 
-      return result;
+      return translationResult;
     }
 
     private void VisitAction(NodeAction action)
@@ -382,7 +287,7 @@ namespace Xtensive.Storage.Providers.Sql
           update.Where = SqlDml.Exists(select);
         }
       }
-      RegisterCommand(update, NonTransactionalStage.None);
+      RegisterCommand(update);
     }
 
     private void VisitDeleteDataAction(DataAction action)
@@ -399,14 +304,14 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tableInfo = action.Difference.Target as TableInfo;
       var table = CreateTable(tableInfo);
-      RegisterCommand(SqlDdl.Create(table), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Create(table));
     }
 
     private void VisitRemoveTableAction(RemoveNodeAction action)
     {
       var tableInfo = action.Difference.Source as TableInfo;
       var table = FindTable(tableInfo.Name);
-      RegisterCommand(SqlDdl.Drop(table), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Drop(table));
       schema.Tables.Remove(table);
     }
 
@@ -414,7 +319,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var oldTableInfo = sourceModel.Resolve(action.Path, true) as TableInfo;
       var table = FindTable(oldTableInfo.Name);
-      RegisterCommand(SqlDdl.Rename(table, action.Name), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Rename(table, action.Name));
       oldTableInfo.Name = action.Name;
       RenameSchemaTable(table, action.Name);
     }
@@ -436,7 +341,7 @@ namespace Xtensive.Storage.Providers.Sql
       var column = CreateColumn(columnInfo, table);
       if (columnInfo.DefaultValue != null)
         column.DefaultValue = SqlDml.Literal(columnInfo.DefaultValue);
-      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)));
     }
 
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
@@ -457,10 +362,9 @@ namespace Xtensive.Storage.Providers.Sql
           .OfType<DefaultConstraint>()
           .FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
-          RegisterCommand(SqlDdl.Alter(table,
-            SqlDdl.DropConstraint(constraint)), NonTransactionalStage.None);
+          RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)));
       }
-      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
       table.TableColumns.Remove(column);
     }
 
@@ -494,7 +398,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void RenameColumn(TableColumn column, string name)
     {
       if (providerInfo.Supports(ProviderFeatures.ColumnRename)) {
-        RegisterCommand(SqlDdl.Rename(column, name), UpgradeStage.Upgrade, NonTransactionalStage.None);
+        RegisterCommand(SqlDdl.Rename(column, name), SqlUpgradeStage.Upgrade);
         RenameSchemaColumn(column, name);
         return;
       }
@@ -507,23 +411,23 @@ namespace Xtensive.Storage.Providers.Sql
       newColumn.IsNullable = column.IsNullable;
       newColumn.DefaultValue = column.DefaultValue;
       var addColumnWithNewType = SqlDdl.Alter(column.Table, SqlDdl.AddColumn(newColumn));
-      RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade, NonTransactionalStage.None);
+      RegisterCommand(addColumnWithNewType, SqlUpgradeStage.Upgrade);
 
       // Copy data
       var tableRef = SqlDml.TableRef(column.Table);
       var update = SqlDml.Update(tableRef);
       update.Values[tableRef[name]] = tableRef[originalName];
-      RegisterCommand(update, UpgradeStage.Upgrade, NonTransactionalStage.None);
+      RegisterCommand(update, SqlUpgradeStage.Upgrade);
 
       // Drop old column
       if (column.DefaultValue!=null) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
-          RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)), UpgradeStage.Upgrade, NonTransactionalStage.None);
+          RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)), SqlUpgradeStage.Upgrade);
       }
       var removeOldColumn = SqlDdl.Alter(column.Table, SqlDdl.DropColumn(column));
-      RegisterCommand(removeOldColumn, UpgradeStage.Upgrade, NonTransactionalStage.None);
+      RegisterCommand(removeOldColumn, SqlUpgradeStage.Upgrade);
       table.TableColumns.Remove(column);
     }
 
@@ -537,7 +441,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       var primaryKey = CreatePrimaryKey(primaryIndex.Parent, table);
-      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(primaryKey)), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(primaryKey)));
     }
 
     private void VisitRemovePrimaryKeyAction(RemoveNodeAction action)
@@ -551,7 +455,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       var primaryKey = table.TableConstraints[primaryIndexInfo.Name];
 
-      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)));
       table.TableConstraints.Remove(primaryKey);
     }
 
@@ -565,7 +469,7 @@ namespace Xtensive.Storage.Providers.Sql
       var secondaryIndexInfo = action.Difference.Target as SecondaryIndexInfo;
       var table = FindTable(secondaryIndexInfo.Parent.Name);
       var index = CreateSecondaryIndex(table, secondaryIndexInfo);
-      RegisterCommand(SqlDdl.Create(index), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Create(index));
     }
 
     private void VisitRemoveSecondaryIndexAction(RemoveNodeAction action)
@@ -578,7 +482,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
       
       var index = table.Indexes[secondaryIndexInfo.Name];
-      RegisterCommand(SqlDdl.Drop(index), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Drop(index), SqlUpgradeStage.PreCleanupData);
       table.Indexes.Remove(index);
     }
 
@@ -593,7 +497,7 @@ namespace Xtensive.Storage.Providers.Sql
       var table = FindTable(foreignKeyInfo.Parent.Name);
       var foreignKey = CreateForeignKey(foreignKeyInfo);
 
-      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(foreignKey)), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(foreignKey)));
     }
 
     private void VisitRemoveForeignKeyAction(RemoveNodeAction action)
@@ -606,7 +510,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       var foreignKey = table.TableConstraints[foreignKeyInfo.Name];
-      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)), SqlUpgradeStage.PreCleanupData);
       table.TableConstraints.Remove(foreignKey);
     }
 
@@ -624,7 +528,7 @@ namespace Xtensive.Storage.Providers.Sql
           sequenceInfo.Seed, sequenceInfo.Increment);
         sequence.SequenceDescriptor.MinValue = sequenceInfo.Seed;
         sequence.DataType = (SqlValueType) sequenceInfo.Type.NativeType;
-        RegisterCommand(SqlDdl.Create(sequence), NonTransactionalStage.None);
+        RegisterCommand(SqlDdl.Create(sequence));
         createdSequences.Add(sequence);
       }
       else {
@@ -637,7 +541,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sequenceInfo = action.Difference.Source as SequenceInfo;
       if (IsSequencesAllowed) {
         var sequence = schema.Sequences[sequenceInfo.Name];
-        RegisterCommand(SqlDdl.Drop(sequence), NonTransactionalStage.None);
+        RegisterCommand(SqlDdl.Drop(sequence));
         schema.Sequences.Remove(sequence);
       }
       else {
@@ -661,7 +565,7 @@ namespace Xtensive.Storage.Providers.Sql
         var exisitingSequence = schema.Sequences[sequenceInfo.Name];
         var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
         exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
-        RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor), NonTransactionalStage.None);
+        RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor));
       }
       else {
         sequenceInfo.Current = newStartValue;
@@ -685,10 +589,10 @@ namespace Xtensive.Storage.Providers.Sql
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
         ftColumn.Languages.Add(new Language(column.Configuration));
       }
-      var transactionalStage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
-        ? NonTransactionalStage.Epilogue
-        : NonTransactionalStage.None;
-      RegisterCommand(SqlDdl.Create(ftIndex), transactionalStage);
+      var stage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
+        ? SqlUpgradeStage.NonTransactionalEpilog
+        : GetSqlUpgradeStage(currentUpgradeStage);
+      RegisterCommand(SqlDdl.Create(ftIndex), stage);
     }
 
     private void VisitRemoveFullTextIndexAction(RemoveNodeAction action)
@@ -698,13 +602,11 @@ namespace Xtensive.Storage.Providers.Sql
       if (!fullTextSupported)
         return;
       var table = FindTable(fullTextIndexInfo.Parent.Name);
-      var ftIndex = table.Indexes[fullTextIndexInfo.Name]
-        ?? table.Indexes.OfType<FullTextIndex>().Single();
-
-      var transactionalStage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
-        ? NonTransactionalStage.Prologue
-        : NonTransactionalStage.None;
-      RegisterCommand(SqlDdl.Drop(ftIndex), transactionalStage);
+      var ftIndex = table.Indexes[fullTextIndexInfo.Name] ?? table.Indexes.OfType<FullTextIndex>().Single();
+      var stage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
+        ? SqlUpgradeStage.NonTransactionalProlog
+        : GetSqlUpgradeStage(currentUpgradeStage);
+      RegisterCommand(SqlDdl.Drop(ftIndex), stage);
       table.Indexes.Remove(ftIndex);
     }
 
@@ -752,11 +654,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       delete.Where = CreateConditionalExpression(hint, table);
 
-      RegisterCommand(delete, 
-        postCopy ? 
-          UpgradeStage.PostCopyData : 
-          UpgradeStage.CleanupData, 
-        NonTransactionalStage.None);
+      RegisterCommand(delete, postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
     }
 
     /// <exception cref="InvalidOperationException">Can not create update command 
@@ -781,12 +679,8 @@ namespace Xtensive.Storage.Providers.Sql
           update.Values[table[pair.First.Name]] = SqlDml.Literal(pair.Second);
 
       update.Where = CreateConditionalExpression(hint, table);
-      
-      RegisterCommand(update, 
-        postCopy ? 
-          UpgradeStage.PostCopyData : 
-          UpgradeStage.CleanupData,
-        NonTransactionalStage.None);
+
+      RegisterCommand(update, postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
     }
 
     private void ProcessClearAncestorsActions(List<DataAction> originalActions, bool postCopy)
@@ -830,11 +724,7 @@ namespace Xtensive.Storage.Providers.Sql
         var typeIds = deleteActions[table];
         foreach (var typeId in typeIds)
           delete.Where |= tableRef[typeIdColumnName]==typeId;
-        RegisterCommand(delete, 
-          postCopy ? 
-            UpgradeStage.PostCopyData : 
-            UpgradeStage.CleanupData,
-          NonTransactionalStage.None);
+        RegisterCommand(delete, postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
       }
     }
 
@@ -860,7 +750,7 @@ namespace Xtensive.Storage.Providers.Sql
         newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
 
       var addNewColumn = SqlDdl.Alter(table, SqlDdl.AddColumn(newColumn));
-      RegisterCommand(addNewColumn, UpgradeStage.Upgrade, NonTransactionalStage.None);
+      RegisterCommand(addNewColumn, SqlUpgradeStage.Upgrade);
 
       // Copy values if possible to convert type
       if (TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
@@ -875,7 +765,7 @@ namespace Xtensive.Storage.Providers.Sql
           getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
           copyValues.Values[tableRef[originalName]] = getValue;
         }
-        RegisterCommand(copyValues, UpgradeStage.Upgrade, NonTransactionalStage.None, true);
+        RegisterCommand(copyValues, SqlUpgradeStage.Upgrade, true);
       }
 
       // Drop old column
@@ -883,22 +773,16 @@ namespace Xtensive.Storage.Providers.Sql
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
-          RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)), UpgradeStage.Cleanup, NonTransactionalStage.None);
+          RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)), SqlUpgradeStage.Cleanup);
       }
       var removeOldColumn = SqlDdl.Alter(table, SqlDdl.DropColumn(table.TableColumns[tempName]));
-      RegisterCommand(removeOldColumn, UpgradeStage.Cleanup, NonTransactionalStage.None);
+      RegisterCommand(removeOldColumn, SqlUpgradeStage.Cleanup);
       table.TableColumns.Remove(table.TableColumns[tempName]);
     }
     
     #endregion
 
     #region Helper methods
-
-    private void EnsureCommandsAreTranslated()
-    {
-      if (!translated)
-        throw new InvalidOperationException(Strings.ExCommandsAreNotTranslatedYet);
-    }
 
     private Table CreateTable(TableInfo tableInfo)
     {
@@ -998,13 +882,13 @@ namespace Xtensive.Storage.Providers.Sql
         var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.BuildValueType(typeof(int)));
         fakeColumn.IsNullable = true;
       }
-      RegisterCommand(SqlDdl.Create(sequenceTable), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Create(sequenceTable));
     }
 
     private void DropGeneratorTable(SequenceInfo sequenceInfo)
     {
       var sequenceTable = FindTable(sequenceInfo.Name);
-      RegisterCommand(SqlDdl.Drop(sequenceTable), NonTransactionalStage.None);
+      RegisterCommand(SqlDdl.Drop(sequenceTable));
       schema.Tables.Remove(sequenceTable);
     }
 
@@ -1116,68 +1000,52 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private void RegisterCommand(ISqlCompileUnit command, NonTransactionalStage nonTransactionalStage)
+    private void RegisterCommand(ISqlCompileUnit command)
     {
-      RegisterCommand(command, stage, nonTransactionalStage, false);
+      RegisterCommand(command, GetSqlUpgradeStage(currentUpgradeStage), false);
     }
 
-    private void RegisterCommand(ISqlCompileUnit command, NonTransactionalStage nonTransactionalStage, bool inNewBatch)
+    private void RegisterCommand(ISqlCompileUnit command, SqlUpgradeStage stage)
     {
-      RegisterCommand(command, stage, nonTransactionalStage, inNewBatch);
+      RegisterCommand(command, stage, false);
     }
 
-    private void RegisterCommand(ISqlCompileUnit command, UpgradeStage stage, NonTransactionalStage nonTransactionalStage)
+    private void RegisterCommand(ISqlCompileUnit command, SqlUpgradeStage stage, bool inNewBatch)
     {
-      RegisterCommand(command, stage, nonTransactionalStage, false);
-    }
-
-    private void RegisterCommand(ISqlCompileUnit command, UpgradeStage stage, NonTransactionalStage nonTransactionalStage, bool inNewBatch)
-    {
-      string commandText = driver.Compile(command).GetCommandText();
-      switch(nonTransactionalStage) {
-        case NonTransactionalStage.Prologue:
-          if (inNewBatch)
-            result.NonTransactionalPrologCommands.Add(string.Empty);
-          result.NonTransactionalPrologCommands.Add(commandText);
-          return;
-        case NonTransactionalStage.Epilogue:
-          if (inNewBatch)
-            result.NonTransactionalEpilogCommands.Add(string.Empty);
-          result.NonTransactionalEpilogCommands.Add(commandText);
-          return;
-      }
-      switch (stage) {
-        case UpgradeStage.CleanupData:
-          if (inNewBatch)
-            result.CleanupDataCommands.Add(string.Empty);
-          result.CleanupDataCommands.Add(commandText);
+      var commands = new List<string>();
+      if (inNewBatch)
+        commands.Add(string.Empty);
+      commands.Add(driver.Compile(command).GetCommandText());
+      switch(stage) {
+        case SqlUpgradeStage.NonTransactionalProlog:
+          translationResult.NonTransactionalPrologCommands.AddRange(commands);
           break;
-        case UpgradeStage.Prepare:
-        case UpgradeStage.TemporaryRename:
-          if (inNewBatch)
-            result.PreUpgradeCommands.Add(string.Empty);
-          result.PreUpgradeCommands.Add(commandText);
+        case SqlUpgradeStage.NonTransactionalEpilog:
+          translationResult.NonTransactionalEpilogCommands.AddRange(commands);
           break;
-        case UpgradeStage.Upgrade:
-          if (inNewBatch)
-            result.UpgradeCommands.Add(string.Empty);
-          result.UpgradeCommands.Add(commandText);
+        case SqlUpgradeStage.PreCleanupData:
+          translationResult.PreCleanupDataCommands.AddRange(commands);
           break;
-        case UpgradeStage.CopyData:
-          if (inNewBatch)
-            result.CopyDataCommands.Add(string.Empty);
-          result.CopyDataCommands.Add(commandText);
+        case SqlUpgradeStage.CleanupData:
+          translationResult.CleanupDataCommands.AddRange(commands);
           break;
-        case UpgradeStage.PostCopyData:
-          if (inNewBatch)
-            result.PostCopyDataCommands.Add(string.Empty);
-          result.PostCopyDataCommands.Add(commandText);
+        case SqlUpgradeStage.PreUpgrade:
+          translationResult.PreUpgradeCommands.AddRange(commands);
           break;
-        case UpgradeStage.Cleanup:
-          if (inNewBatch)
-            result.CleanupCommands.Add(string.Empty);
-          result.CleanupCommands.Add(commandText);
+        case SqlUpgradeStage.Upgrade:
+          translationResult.UpgradeCommands.AddRange(commands);
           break;
+        case SqlUpgradeStage.CopyData:
+          translationResult.CopyDataCommands.AddRange(commands);
+          break;
+        case SqlUpgradeStage.PostCopyData:
+          translationResult.PostCopyDataCommands.AddRange(commands);
+          break;
+        case SqlUpgradeStage.Cleanup:
+          translationResult.CleanupCommands.AddRange(commands);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("stage");
       }
     }
 
@@ -1209,6 +1077,27 @@ namespace Xtensive.Storage.Providers.Sql
       ArgumentValidator.EnsureArgumentIsInRange(batch.Count, 2, 2, "batch.Count");
       nonQueryExecutor.Invoke((ISqlCompileUnit) batch[0]);
       return Convert.ToInt64(scalarExecutor.Invoke((ISqlCompileUnit) batch[1]));
+    }
+
+    private static SqlUpgradeStage GetSqlUpgradeStage(UpgradeStage stage)
+    {
+      switch (stage) {
+        case UpgradeStage.CleanupData:
+          return SqlUpgradeStage.CleanupData;
+        case UpgradeStage.Prepare:
+        case UpgradeStage.TemporaryRename:
+          return SqlUpgradeStage.PreUpgrade;
+        case UpgradeStage.Upgrade:
+          return SqlUpgradeStage.Upgrade;
+        case UpgradeStage.CopyData:
+          return SqlUpgradeStage.CopyData;
+        case UpgradeStage.PostCopyData:
+          return SqlUpgradeStage.PostCopyData;
+        case UpgradeStage.Cleanup:
+          return SqlUpgradeStage.Cleanup;
+        default:
+          throw new ArgumentOutOfRangeException("stage");
+      }
     }
 
     #endregion

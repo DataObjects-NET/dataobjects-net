@@ -263,8 +263,8 @@
   <data name="ExConnectionIsNotOpen" xml:space="preserve">
     <value>Connection is not open.</value>
   </data>
-  <data name="ExCommandsAreNotTranslatedYet" xml:space="preserve">
-    <value>Commands are not translated yet.</value>
+  <data name="ExCommandsAreAlreadyTranslated" xml:space="preserve">
+    <value>Commands are already translated.</value>
   </data>
 	<data name="ExCurrentStorageProviderDoesNotSupportSavepoints">
 		<value xml:space="preserve">Current storage provider does not support savepoints (nested transactions).</value>

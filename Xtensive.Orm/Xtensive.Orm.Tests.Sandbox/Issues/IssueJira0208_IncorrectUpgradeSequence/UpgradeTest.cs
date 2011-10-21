@@ -32,8 +32,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          var toRemove = new M1.EntityToRemove();
-          var toKeep = new M1.EntityToKeep(toRemove);
+          var toRemove1 = new M1.EntityToRemove1();
+          var toKeep1 = new M1.EntityToKeep1(toRemove1);
+          var toRemove2 = new M1.EntityToRemove2();
+          var toKeep2 = new M1.EntityToKeep2(toRemove2);
           tx.Complete();
         }
       }
@@ -45,7 +47,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       BuildDomain("2", DomainUpgradeMode.PerformSafely);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          var toKeep = session.Query.All<M2.EntityToKeep>().Single();
+          var toKeep1 = session.Query.All<M2.EntityToKeep1>().Single();
+          var toKeep2 = session.Query.All<M2.EntityToKeep2>().Single();
         }
       }
     }
@@ -55,7 +58,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       if (domain != null)
         domain.DisposeSafely();
 
-      string ns = typeof(M1.EntityToKeep).Namespace;
+      string ns = typeof(M1.EntityToKeep1).Namespace;
       string nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();

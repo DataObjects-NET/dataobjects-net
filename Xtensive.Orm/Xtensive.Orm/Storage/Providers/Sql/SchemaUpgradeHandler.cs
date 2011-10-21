@@ -50,40 +50,20 @@ namespace Xtensive.Storage.Providers.Sql
         sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
         Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
-        queryExecutor.ExecuteScalar, 
+        queryExecutor.ExecuteScalar,
         queryExecutor.ExecuteNonQuery,
         cachingKeyGeneratorService.GetCurrentValueImplementation);
 
       var result = translator.Translate();
 
-      LogTranslatedStatements(translator);
+      LogTranslatedStatements(result);
 
-        var upgradeContext = UpgradeContext.Current;
-        if (upgradeContext!=null)
-          foreach (var pair in upgradeContext.UpgradeHandlers)
-            pair.Value.OnBeforeExecuteActions(result);
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext!=null)
+        foreach (var pair in upgradeContext.UpgradeHandlers)
+          pair.Value.OnBeforeExecuteActions(result);
 
-      var context = UpgradeContext.Demand();
-      if (result.NonTransactionalPrologCommands.Count > 0) {
-        context.TransactionScope.Complete();
-        context.TransactionScope.Dispose();
-        Execute(result.NonTransactionalPrologCommands);
-        context.TransactionScope = SessionHandler.Session.OpenTransaction();
-      }
-
-      Execute(result.CleanupDataCommands);
-      Execute(result.PreUpgradeCommands);
-      Execute(result.UpgradeCommands);
-      Execute(result.CopyDataCommands);
-      Execute(result.PostCopyDataCommands);
-      Execute(result.CleanupCommands);
-
-      if (result.NonTransactionalEpilogCommands.Count > 0) {
-        context.TransactionScope.Complete();
-        context.TransactionScope.Dispose();
-        Execute(result.NonTransactionalEpilogCommands);
-        context.TransactionScope = SessionHandler.Session.OpenTransaction();
-      }
+      result.ProcessWith(Execute, ExecuteNonTransactionally);
     }
 
     /// <inheritdoc/>
@@ -112,6 +92,16 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
       indexFilterNormalizer = Handlers.HandlerFactory.CreateHandler<PartialIndexFilterNormalizer>();
     }
+
+    private void ExecuteNonTransactionally(IEnumerable<string> batch)
+    {
+      var context = UpgradeContext.Demand();
+      context.TransactionScope.Complete();
+      context.TransactionScope.Dispose();
+      Execute(batch);
+      context.TransactionScope = SessionHandler.Session.OpenTransaction();
+    }
+
     protected virtual void Execute(IEnumerable<string> batch)
     {
       if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
@@ -156,26 +146,16 @@ namespace Xtensive.Storage.Providers.Sql
         yield return subbatch;
     }
 
-    private void LogTranslatedStatements(SqlActionTranslator translator)
+    private void LogTranslatedStatements(UpgradeActionSequence sequence)
     {
       if (!Log.IsLogged(LogEventTypes.Info))
         return;
 
-      var batch = 
-        EnumerableUtils.One(Driver.BatchBegin)
-        .Concat(translator.CleanupDataCommands)
-        .Concat(translator.PreUpgradeCommands)
-        .Concat(translator.UpgradeCommands)
-        .Concat(translator.CopyDataCommands)
-        .Concat(translator.PostCopyDataCommands)
-        .Concat(translator.CleanupCommands)
-        .Concat(EnumerableUtils.One(Driver.BatchEnd))
-        .ToArray();
-
+      var commands = sequence.ToArray();
       var session = SessionHandler!=null ? SessionHandler.Session : null;
+
       Log.Info(Strings.LogSessionXSchemaUpgradeScriptY,
-        session.ToStringSafely(),
-        Driver.BuildBatch(batch).Trim());
+        session.ToStringSafely(), Driver.BuildBatch(commands).Trim());
     }
   }
 }
