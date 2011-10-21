@@ -4,19 +4,21 @@
 // Created by: Dmitri Maximov
 // Created:    2011.07.15
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// A sequence of upgrade actions.
   /// </summary>
-  public class UpgradeActionSequence: IEnumerable<string>
+  public sealed class UpgradeActionSequence : IEnumerable<string>
   {
     /// <summary>
-    /// Gets the count of all actions in sequence.
+    /// Gets the number of all actions in sequence (including non-transactional commands).
     /// </summary>
     public int Count
     {
@@ -81,17 +83,43 @@ namespace Xtensive.Storage.Upgrade
     /// <value>The non transactional prolog commands.</value>
     public List<string> NonTransactionalPrologCommands { get; private set; }
 
+    /// <summary>
+    /// Handles action sequence with specified processors.
+    /// </summary>
+    /// <param name="transactionalProcessor">Transactional processor.</param>
+    /// <param name="nonTransactionalProcessor">Non-transactional processor.</param>
+    public void ProcessWith(Action<IEnumerable<string>> transactionalProcessor, Action<IEnumerable<string>> nonTransactionalProcessor)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(transactionalProcessor, "transactionalProcessor");
+      ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, "nonTransactionalProcessor");
+
+      if (NonTransactionalPrologCommands.Count > 0)
+        nonTransactionalProcessor.Invoke(NonTransactionalPrologCommands);
+
+      var batchSequence =
+        new[] {
+          CleanupDataCommands,
+          PreUpgradeCommands,
+          UpgradeCommands,
+          CopyDataCommands,
+          PostCopyDataCommands,
+          CleanupCommands
+        }
+        .Where(batch => batch.Count > 0);
+
+      foreach (var batch in batchSequence)
+        transactionalProcessor.Invoke(batch);
+
+      if (NonTransactionalEpilogCommands.Count > 0)
+        nonTransactionalProcessor.Invoke(NonTransactionalEpilogCommands);
+    }
+
     /// <inheritdoc/>
     public IEnumerator<string> GetEnumerator()
     {
-      return NonTransactionalPrologCommands
-        .Concat(CleanupDataCommands)
-        .Concat(PreUpgradeCommands)
-        .Concat(UpgradeCommands)
-        .Concat(CopyDataCommands)
-        .Concat(PostCopyDataCommands)
-        .Concat(CleanupCommands)
-        .Concat(NonTransactionalEpilogCommands).GetEnumerator();
+      var commands = new List<string>(Count);
+      ProcessWith(commands.AddRange, commands.AddRange);
+      return commands.GetEnumerator();
     }
 
     /// <inheritdoc/>
