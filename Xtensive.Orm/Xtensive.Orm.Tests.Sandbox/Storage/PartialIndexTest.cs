@@ -13,9 +13,9 @@ using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Orm.Model;
 using Xtensive.Storage.Providers;
-using Xtensive.Orm.Tests.Sandbox.Storage.PartialIndexTestModel;
+using Xtensive.Orm.Tests.Storage.PartialIndexTestModel;
 
-namespace Xtensive.Orm.Tests.Sandbox.Storage.PartialIndexTestModel
+namespace Xtensive.Orm.Tests.Storage.PartialIndexTestModel
 {
   public class TestBase : Entity
   {
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Sandbox.Storage.PartialIndexTestModel
   }
 }
 
-namespace Xtensive.Orm.Tests.Sandbox.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
   public class PartialIndexTest
@@ -195,6 +195,11 @@ namespace Xtensive.Orm.Tests.Sandbox.Storage
     [TearDown]
     public void TearDown()
     {
+      CleanDomain();
+    }
+
+    private void CleanDomain()
+    {
       if (domain==null)
         return;
       try {
@@ -207,6 +212,7 @@ namespace Xtensive.Orm.Tests.Sandbox.Storage
 
     private void BuildDomain(IEnumerable<Type> entities, DomainUpgradeMode mode)
     {
+      CleanDomain();
       var config = DomainConfigurationFactory.Create();
       foreach (var entity in entities)
         config.Types.Register(entity);

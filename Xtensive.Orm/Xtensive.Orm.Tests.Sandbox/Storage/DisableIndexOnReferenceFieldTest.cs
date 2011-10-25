@@ -10,9 +10,9 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Tests.Sandbox.Storage.DisableIndexOnReferenceFieldTestModel;
+using Xtensive.Orm.Tests.Storage.DisableIndexOnReferenceFieldTestModel;
 
-namespace Xtensive.Orm.Tests.Sandbox.Storage.DisableIndexOnReferenceFieldTestModel
+namespace Xtensive.Orm.Tests.Storage.DisableIndexOnReferenceFieldTestModel
 {
   public interface IReference : IEntity
   {
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Sandbox.Storage.DisableIndexOnReferenceFieldTestMod
   }
 }
 
-namespace Xtensive.Orm.Tests.Sandbox.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   public class DisableIndexOnReferenceFieldTest : AutoBuildTest
   {
