@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPathNode VisitPrimaryKey(PrimaryKey key)
     {
       var tableInfo = StorageInfo.Tables[key.Table.Name];
-      var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name);
+      var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name) {IsClustered = key.IsClustered};
 
       foreach (var keyColumn in key.Columns)
         new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[keyColumn.Name],
@@ -190,6 +190,7 @@ namespace Xtensive.Storage.Providers.Sql
         : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
         IsUnique = index.IsUnique,
+        IsClustered = index.IsClustered,
         Filter = filter,
       };
 

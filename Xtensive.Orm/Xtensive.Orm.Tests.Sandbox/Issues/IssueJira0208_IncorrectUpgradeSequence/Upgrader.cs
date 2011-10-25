@@ -66,8 +66,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       get {
         var hints = new List<UpgradeHint>();
         hints.AddRange(GetTypeRenameHints("Version1", "Version2"));
-        hints.Add(new RemoveTypeHint(typeof (M1.EntityToRemove).FullName));
-        hints.Add(new RemoveFieldHint(typeof (M1.EntityToKeep), "EvilRef"));
+        hints.Add(new RemoveTypeHint(typeof (M1.EntityToRemove1).FullName));
+        hints.Add(new RemoveTypeHint(typeof (M1.EntityToRemove2).FullName));
+        hints.Add(new RemoveFieldHint(typeof (M1.EntityToKeep1), "EvilRef"));
+        hints.Add(new RemoveFieldHint(typeof (M1.EntityToKeep2), "EvilRef"));
         return hints;
       }
     }

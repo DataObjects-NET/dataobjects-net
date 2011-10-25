@@ -49,6 +49,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       hierarchyDef.Schema = attribute.InheritanceSchema;
       hierarchyDef.IncludeTypeId = attribute.IncludeTypeId;
+      hierarchyDef.IsClustered = attribute.Clustered;
     }
 
     public static void Process(HierarchyDef hierarchyDef, FieldDef fieldDef, KeyAttribute attribute)
@@ -112,6 +113,16 @@ namespace Xtensive.Orm.Building.Builders
       ProcessFillFactor(indexDef, attribute);
       ProcessIsUnique(indexDef, attribute);
       ProcessFilter(indexDef, attribute);
+      ProcessClustered(indexDef, attribute);
+    }
+
+    private static void ProcessClustered(IndexDef indexDef, IndexAttribute attribute)
+    {
+      if (!attribute.Clustered)
+        return;
+      if (indexDef.Type.UnderlyingType.IsInterface)
+        throw new DomainBuilderException(string.Format(Strings.ExClusteredIndexCanNotBeDeclaredInInterfaceX, indexDef.Type.UnderlyingType));
+      indexDef.IsClustered = true;
     }
 
     public static void Process(TypeDef typeDef, TypeDiscriminatorValueAttribute attribute)

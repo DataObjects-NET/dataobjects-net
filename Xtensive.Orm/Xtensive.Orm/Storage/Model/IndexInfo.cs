@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Model
   public abstract class IndexInfo : NodeBase<TableInfo>
   {
     private bool isUnique;
+    private bool isClustered;
 
     /// <summary>
     /// Gets a value indicating whether this instance is unique.
@@ -51,6 +52,22 @@ namespace Xtensive.Storage.Model
     [Property(Priority = -1000)]
     public KeyColumnRefCollection KeyColumns { get; private set; }
 
+    /// <summary>
+    /// Gets a value indicating whether this instance is clustered.
+    /// </summary>
+    [Property(Priority = -900)]
+    public bool IsClustered
+    {
+      get { return isClustered; }
+      set
+      {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("IsClustered", value)) {
+          isClustered = value;
+          scope.Commit();
+        }
+      }
+    }
 
     /// <inheritdoc/>
     protected override void Initialize()

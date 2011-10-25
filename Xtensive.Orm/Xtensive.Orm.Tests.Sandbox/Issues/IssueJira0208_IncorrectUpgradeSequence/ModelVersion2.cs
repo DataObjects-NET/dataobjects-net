@@ -14,7 +14,14 @@ using System;
 namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence.Model.Version2
 {
   [HierarchyRoot]
-  public class EntityToKeep : Entity
+  public class EntityToKeep1 : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class EntityToKeep2 : Entity
   {
     [Key, Field]
     public long Id { get; private set; }

@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Building.Builders
         BuildAffectedIndexes();
         BuildFullTextIndexes();
         BuildFiltersForPartialIndexes();
+        ChooseClusteredIndexes();
       }
     }
 
