@@ -177,6 +177,8 @@ namespace Xtensive.Orm.Upgrade
       IndexInfo primaryIndex = Model.RealIndexes.First(i => i.MappingName==table.PrimaryIndex.Name);
       var secondaryIndex = StorageModelBuilder.CreateSecondaryIndex(table, index.MappingName, index);
       secondaryIndex.IsUnique = index.IsUnique;
+      var isClustered = index.IsClustered && ProviderInfo.Supports(ProviderFeatures.ClusteredIndexes);
+      secondaryIndex.IsClustered = isClustered;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
         IndexingModel.ColumnInfo column = table.Columns[columName];
@@ -185,7 +187,11 @@ namespace Xtensive.Orm.Upgrade
             ? pair.Value
             : Direction.Positive);
       }
-      if (ProviderInfo.Supports(ProviderFeatures.IncludedColumns)) {
+      // At least SQL Server does not support clustered indexes with included columns.
+      // For now this is the only RDBMS that have support for clustered indexes in DO.
+      // Let's omit additional checks for ServerFeatures here
+      // and simply ignore included columns for clustered indexes.
+      if (ProviderInfo.Supports(ProviderFeatures.IncludedColumns) && !isClustered) {
         foreach (var includedColumn in index.IncludedColumns) {
           string columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
           IndexingModel.ColumnInfo column = table.Columns[columName];
@@ -311,6 +317,7 @@ namespace Xtensive.Orm.Upgrade
             : Direction.Positive);
       }
       primaryIndex.PopulateValueColumns();
+      primaryIndex.IsClustered = index.IsClustered && ProviderInfo.Supports(ProviderFeatures.ClusteredIndexes);
 
       foreach (var indexInfo in index.ReflectedType.Indexes.Where(i => i.IsSecondary && !i.IsVirtual))
         Visit(indexInfo);

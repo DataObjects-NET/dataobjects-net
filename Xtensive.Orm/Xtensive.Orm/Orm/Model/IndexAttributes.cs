@@ -27,5 +27,6 @@ namespace Xtensive.Orm.Model
     Filtered =  0x400,
     View =      0x800,
     Partial =   0x1000,
+    Clustered = 0x2000,
   }
 }

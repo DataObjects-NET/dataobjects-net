@@ -81,6 +81,20 @@ namespace Xtensive.Orm.Building.Definitions
     }
 
     /// <summary>
+    /// Gets or sets a value indicating whether this instance is clustered index.
+    /// </summary>
+    public bool IsClustered
+    {
+      get { return (attributes & IndexAttributes.Clustered) > 0; }
+      set
+      {
+        attributes = value
+                       ? attributes | IndexAttributes.Clustered
+                       : attributes & ~IndexAttributes.Clustered;
+      }
+    }
+
+    /// <summary>
     /// Gets the attributes.
     /// </summary>
     public IndexAttributes Attributes

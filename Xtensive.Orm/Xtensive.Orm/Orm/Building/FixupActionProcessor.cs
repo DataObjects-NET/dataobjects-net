@@ -231,6 +231,10 @@ namespace Xtensive.Orm.Building
         if (!string.IsNullOrEmpty(userDefinedIndex.MappingName))
           generatedIndex.MappingName = userDefinedIndex.MappingName;
       }
+
+      // Gather "is clustered" flag from hierarchy.
+      generatedIndex.IsClustered = hierarchyDef.IsClustered;
+
       type.Indexes.Add(generatedIndex);
     }
 

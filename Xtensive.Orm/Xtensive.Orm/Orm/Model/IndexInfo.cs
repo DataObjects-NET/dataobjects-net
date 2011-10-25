@@ -311,6 +311,15 @@ namespace Xtensive.Orm.Model
       get { return (attributes & IndexAttributes.Partial) > 0; }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this instance is clustered index.
+    /// </summary>
+    public bool IsClustered
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & IndexAttributes.Clustered) > 0; }
+    }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {

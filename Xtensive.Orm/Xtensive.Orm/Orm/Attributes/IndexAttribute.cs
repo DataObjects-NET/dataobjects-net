@@ -72,6 +72,13 @@ namespace Xtensive.Orm
     /// </summary>
     public Type FilterType { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether this index should be clustered.
+    /// If underlying RDBMS does not support clustered indexes, this value is ignored.
+    /// Default value is <see langword="false" />.
+    /// </summary>
+    public bool Clustered { get; set; }
+
 
     // Constructors
 

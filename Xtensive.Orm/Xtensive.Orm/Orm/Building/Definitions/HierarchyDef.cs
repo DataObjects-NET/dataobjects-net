@@ -40,6 +40,11 @@ namespace Xtensive.Orm.Building.Definitions
     public bool IncludeTypeId { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether primary key for this hierarchy is clustered.
+    /// </summary>
+    public bool IsClustered { get; set; }
+
+    /// <summary>
     /// Gets or sets the key generator type to use in this hierarchy.
     /// </summary>
     public Type KeyGeneratorType
@@ -68,6 +73,7 @@ namespace Xtensive.Orm.Building.Definitions
       Root = root;
       KeyFields = new List<KeyField>(WellKnown.MaxKeyFieldNumber);
       keyGeneratorType = typeof (KeyGenerator);
+      IsClustered = true;
     }
   }
 }

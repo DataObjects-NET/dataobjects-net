@@ -21,7 +21,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     protected virtual IndexFeatures GetIndexFeatures()
     {
-      return IndexFeatures.Clustered | IndexFeatures.Unique | IndexFeatures.Filtered | IndexFeatures.Expressions;
+      return IndexFeatures.Unique | IndexFeatures.Filtered | IndexFeatures.Expressions;
     }
 
     protected virtual int GetMaxTextLength()
@@ -112,7 +112,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new PrimaryKeyConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      info.Features = PrimaryKeyConstraintFeatures.Clustered;
       info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
@@ -126,7 +125,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new UniqueConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      info.Features = UniqueConstraintFeatures.Nullable | UniqueConstraintFeatures.Clustered;
+      info.Features = UniqueConstraintFeatures.Nullable;
       info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }

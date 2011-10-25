@@ -833,11 +833,12 @@ namespace Xtensive.Storage.Providers.Sql
 
     private PrimaryKey CreatePrimaryKey(TableInfo tableInfo, Table table)
     {
-      return
-        table.CreatePrimaryKey(tableInfo.PrimaryIndex.Name,
-          tableInfo.PrimaryIndex.KeyColumns
-            .Select(cr => FindColumn(table, cr.Value.Name))
-            .ToArray());
+      var columns = tableInfo.PrimaryIndex.KeyColumns.Select(cr => FindColumn(table, cr.Value.Name)).ToArray();
+      var primaryKey = table.CreatePrimaryKey(tableInfo.PrimaryIndex.Name, columns);
+      // For storages that do not support clustered indexes
+      // PrimaryIndexInfo.IsClustered will be forcibly set to false by DomainModelConverter.
+      primaryKey.IsClustered = tableInfo.PrimaryIndex.IsClustered;
+      return primaryKey;
     }
 
     private Index CreateSecondaryIndex(Table table, SecondaryIndexInfo indexInfo)
@@ -854,6 +855,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var index = table.CreateIndex(indexInfo.Name);
       index.IsUnique = indexInfo.IsUnique;
+      index.IsClustered = indexInfo.IsClustered;
       foreach (var keyColumn in indexInfo.KeyColumns)
         index.CreateIndexColumn(
           FindColumn(table, keyColumn.Value.Name),
