@@ -27,6 +27,20 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
   [TestFixture]
   public class PrefetchManagerBasicTest : PrefetchManagerTestBase
   {
+    private static int instanceCount;
+
+    #region Nested class
+
+    public class MemoryLeakTester
+    {
+      ~MemoryLeakTester()
+      {
+        instanceCount--;
+      }
+    }
+
+    #endregion
+
     [Test]
     public void EntityByKeyWithKnownTypePrefetchTest()
     {
@@ -915,6 +929,31 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         //Query.All<Order>().Prefetch(o => o.Details).First();
         t.Complete();
       }
+    }
+
+    [Test]
+    public void ReferenceToSessionIsNotPreservedInCacheTest()
+    {
+      instanceCount = 10;
+      for (int i = 0; i < instanceCount; i++) {
+        using (var session = Session.Open(Domain))
+        using (var t = Transaction.Open()) {
+          session.Extensions.Set(new MemoryLeakTester());
+          var newOrder = new Order();
+          newOrder.Details.Add(new OrderDetail {Product = new Product()});
+          newOrder.Details.Add(new OrderDetail {Product = new Product()});
+          session.Persist();
+          var order = Query.All<Order>().Prefetch(o => o.Details).First();
+          Assert.That(order, Is.Not.Null);
+          var product = Query.All<OrderDetail>().Prefetch(d => d.Product).First();
+          Assert.That(product, Is.Not.Null);
+          //Query.All<Order>().Prefetch(o => o.Details).First();
+          t.Complete();
+        }
+      }
+      GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+      GC.WaitForPendingFinalizers();
+      Assert.That(instanceCount, Is.EqualTo(0));
     }
 
     private void PrefetchIntrinsicFields(PrefetchManager prefetchManager, Key key, Type type)

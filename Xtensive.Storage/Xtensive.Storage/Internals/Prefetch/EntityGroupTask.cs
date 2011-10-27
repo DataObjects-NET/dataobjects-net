@@ -19,8 +19,55 @@ using Xtensive.Storage.Rse;
 namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class EntityGroupTask
+  internal sealed class EntityGroupTask : IEquatable<EntityGroupTask>
   {
+    #region Nested classes
+
+    private struct CacheKey : IEquatable<CacheKey>
+    {
+      private readonly int[] columnIndexes;
+      private readonly TypeInfo type;
+      private readonly int cachedHashCode;
+
+      public bool Equals(CacheKey other)
+      {
+        if (!type.Equals(other.type))
+          return false;
+        if (columnIndexes.Length!=other.columnIndexes.Length)
+          return false;
+        for (var i = columnIndexes.Length - 1; i >= 0; i--)
+          if (columnIndexes[i]!=other.columnIndexes[i])
+            return false;
+        return true;
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        if (obj.GetType()!=typeof (CacheKey))
+          return false;
+        return Equals((CacheKey) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        return cachedHashCode;
+      }
+
+
+      // Constructors
+
+      public CacheKey(int[] columnIndexes, TypeInfo type, int cachedHashCode)
+      {
+        this.columnIndexes = columnIndexes;
+        this.type = type;
+        this.cachedHashCode = cachedHashCode;
+      }
+    }
+
+    #endregion
+
     private const int MaxKeyCountInOneStatement = 40;
     private static readonly object recordSetCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
@@ -35,6 +82,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly int cachedHashCode;
     private readonly PrefetchManager manager;
     private List<QueryTask> queryTasks;
+    private readonly CacheKey cacheKey;
 
     public RecordSet RecordSet { get; private set; }
 
@@ -84,14 +132,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (!type.Equals(other.type))
-        return false;
-      if (columnIndexes.Length != other.columnIndexes.Length)
-        return false;
-      for (var i = columnIndexes.Length - 1; i >= 0; i--)
-        if (columnIndexes[i] != other.columnIndexes[i])
-          return false;
-      return true;
+      return other.cacheKey.Equals(cacheKey);
     }
 
     public override bool Equals(object obj)
@@ -107,7 +148,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public override int GetHashCode()
     {
-      return cachedHashCode;
+      return cacheKey.GetHashCode();
     }
 
     private QueryTask CreateQueryTask(List<Tuple> currentKeySet)
@@ -115,7 +156,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
         includeParameter.Value = currentKeySet;
-        object key = new Pair<object, EntityGroupTask>(recordSetCachingRegion, this);
+        object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
         Func<object, object> generator = CreateRecordSet;
         RecordSet = (RecordSet) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
@@ -191,10 +232,11 @@ namespace Xtensive.Storage.Internals.Prefetch
       this.type = type;
       this.columnIndexes = columnIndexes;
       this.manager = manager;
-      cachedHashCode = 0;
+      var cachedHashCode = 0;
       for (var i = 0; i < columnIndexes.Length; i++)
         cachedHashCode = unchecked (379 * cachedHashCode + columnIndexes[i]);
       cachedHashCode = unchecked (cachedHashCode ^ type.GetHashCode());
+      cacheKey = new CacheKey(columnIndexes, type, cachedHashCode);
     }
   }
 }
