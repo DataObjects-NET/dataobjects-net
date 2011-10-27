@@ -75,6 +75,7 @@ namespace Xtensive.Orm.Configuration
     private ConnectionInfo connectionInfo;
     private string defaultSchema = string.Empty;
     private DomainTypeRegistry types = new DomainTypeRegistry(new DomainTypeRegistrationHandler());
+    private LinqExtensionRegistry linqExtensions = new LinqExtensionRegistry();
     private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
@@ -171,6 +172,14 @@ namespace Xtensive.Orm.Configuration
     public DomainTypeRegistry Types
     {
       get { return types; }
+    }
+
+    /// <summary>
+    /// Gets the collection of LINQ extensions.
+    /// </summary>
+    public LinqExtensionRegistry LinqExtensions
+    {
+      get { return linqExtensions; }
     }
 
     /// <summary>
@@ -336,6 +345,7 @@ namespace Xtensive.Orm.Configuration
     {
       types.Lock(true);
       sessions.Lock(true);
+      linqExtensions.Lock(true);
       base.Lock(recursive);
     }
 
@@ -365,6 +375,7 @@ namespace Xtensive.Orm.Configuration
       connectionInfo = configuration.ConnectionInfo;
       defaultSchema = configuration.defaultSchema;
       types = (DomainTypeRegistry) configuration.Types.Clone();
+      linqExtensions = (LinqExtensionRegistry) configuration.LinqExtensions.Clone();
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;

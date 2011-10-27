@@ -73,6 +73,8 @@ namespace Xtensive.Core
         throw new InvalidOperationException(String.Format(
           Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect, 
           lambdaExpression.ToString(true)));
+      if (parameters.Length==0)
+        return lambdaExpression;
       var convertedParameters = new Expression[parameters.Length];
       for (int i = 0; i < lambdaExpression.Parameters.Count; i++) {
         var expressionParameter = lambdaExpression.Parameters[i];

@@ -54,9 +54,30 @@ namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
     public DateTime Start { get; set; }
     [Field]
     public DateTime? End { get; set; }
+
     public bool Current
     {
       get { return Active && Start <= DateTime.Now && (End == null || End.Value >= DateTime.Now); }
+    }
+  }
+
+  [HierarchyRoot]
+  public class RegistrarTestEntity : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    public static int StaticProperty { get { return 0; } }
+    public int InstanceProperty { get { return Id % 10; } }
+
+    public static int StaticMethod(int value)
+    {
+      return value * 2;
+    }
+
+    public int InstanceMethod(int value)
+    {
+      return value * Id;
     }
   }
 }
@@ -95,7 +116,22 @@ namespace Xtensive.Orm.Tests.Linq
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
       config.Types.Register(typeof (CustomLinqCompilerContainer));
+      RegisterLinqExtensions(config);
       return config;
+    }
+
+    private static void RegisterLinqExtensions(DomainConfiguration config)
+    {
+      var extensions = config.LinqExtensions;
+      var type = typeof (RegistrarTestEntity);
+      Expression<Func<int>> staticProperty = () => 0;
+      extensions.Register(type.GetProperty("StaticProperty"), staticProperty);
+      Expression<Func<RegistrarTestEntity, int>> instanceProperty = e => e.Id % 10;
+      extensions.Register(type.GetProperty("InstanceProperty"), instanceProperty);
+      Expression<Func<int, int>> staticMethod = value => value * 2;
+      extensions.Register(type.GetMethod("StaticMethod"), staticMethod);
+      Expression<Func<RegistrarTestEntity, int, int>> instanceMethod = (e, value) => value * e.Id;
+      extensions.Register(type.GetMethod("InstanceMethod"), instanceMethod);
     }
 
     [Test]
@@ -131,6 +167,31 @@ namespace Xtensive.Orm.Tests.Linq
         var currentCount = session.Query.All<Assignment>().Count(a => a.Current);
         Assert.AreEqual(2, currentCount);
         // Rollback
+      }
+    }
+
+    [Test]
+    public void RegistrarTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var test = new RegistrarTestEntity();
+        var id = test.Id;
+        var actual = session.Query.All<RegistrarTestEntity>()
+          .Select(item => new {
+            Id = item.Id,
+            StaticMethod = RegistrarTestEntity.StaticMethod(1),
+            StaticProperty = RegistrarTestEntity.StaticProperty,
+            InstanceMethod = item.InstanceMethod(1),
+            InstanceProperty = item.InstanceProperty,
+          })
+          // Fake check to force execution at server side
+          .Where(item => item.Id >= 0 || item.InstanceMethod == item.InstanceProperty)
+          .Single();
+        Assert.AreEqual(RegistrarTestEntity.StaticMethod(1), actual.StaticMethod);
+        Assert.AreEqual(RegistrarTestEntity.StaticProperty, actual.StaticProperty);
+        Assert.AreEqual(test.InstanceMethod(1), actual.InstanceMethod);
+        Assert.AreEqual(test.InstanceProperty, actual.InstanceProperty);
       }
     }
 

@@ -579,11 +579,11 @@
   <data name="ExCompilerXShouldHaveParameterYOfTypeZ" xml:space="preserve">
     <value>Compiler {0} should have parameter {1} of type {2}</value>
   </data>
-  <data name="ExCompilerXHasBadTargetType" xml:space="preserve">
-    <value>Compiler {0} has "bad" target type.</value>
+  <data name="ExCompilerXHasInvalidTargetType" xml:space="preserve">
+    <value>Compiler {0} has invalid target type: target type should be either non-generic or generic type definition.</value>
   </data>
-  <data name="ExCompilerXHasBadTargetMember" xml:space="preserve">
-    <value>Compiler {0} has "bad" target member.</value>
+  <data name="ExCompilerXHasInvalidTargetMember" xml:space="preserve">
+    <value>Compiler {0} has invalid target member.</value>
   </data>
   <data name="ExCompilerXShouldHaveThisParameter" xml:space="preserve">
     <value>Compiler {0} should have "this" parameter.</value>

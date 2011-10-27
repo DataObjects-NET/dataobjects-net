@@ -13,10 +13,12 @@ using Xtensive.IoC;
 using Xtensive.Linq;
 using Xtensive.Orm;
 using Xtensive.Orm.Building;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Resources;
 using Xtensive.Sorting;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Services;
 
 namespace Xtensive.Storage.Providers
 {
@@ -26,7 +28,7 @@ namespace Xtensive.Storage.Providers
   public abstract class DomainHandler : InitializableHandlerBase
   {
     private readonly object syncRoot = new object();
-    private readonly Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders = new Dictionary<Type, IMemberCompilerProvider>();
+    private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders = new Dictionary<Type, IMemberCompilerProvider>();
     private IQueryPreprocessor[] queryPreprocessors;
 
     /// <summary>
@@ -85,15 +87,7 @@ namespace Xtensive.Storage.Providers
     /// </returns>
     public IMemberCompilerProvider<T> GetMemberCompilerProvider<T>()
     {
-      IMemberCompilerProvider result;
-      if (!memberCompilerProviders.TryGetValue(typeof (T), out result))
-        lock (syncRoot) {
-          if (!memberCompilerProviders.TryGetValue(typeof (T), out result)) {
-            result = MemberCompilerProviderFactory.Create<T>();
-            memberCompilerProviders.Add(typeof (T), result);
-          }
-        }
-      return (IMemberCompilerProvider<T>) result;
+      return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof (T)];
     }
 
     // Abstract methods
@@ -118,10 +112,10 @@ namespace Xtensive.Storage.Providers
     protected abstract IPostCompiler CreatePostCompiler(ICompiler compiler);
 
     /// <summary>
-    /// Gets the sequence of compiler provider container types.
+    /// Gets compiler containers specific to current storage provider.
     /// </summary>
-    /// <returns>The sequence of compiler provider container types.</returns>
-    protected virtual IEnumerable<Type> GetCompilerProviderContainerTypes()
+    /// <returns>Compiler containers for current provider.</returns>
+    protected virtual IEnumerable<Type> GetProviderCompilerContainers()
     {
       return EnumerableUtils<Type>.Empty;
     }
@@ -181,47 +175,6 @@ namespace Xtensive.Storage.Providers
         Domain.Configuration.RseQueryCacheSize);
     }
 
-    /// <exception cref="InvalidOperationException">One of compiler containers is 
-    /// improperly described.</exception>
-    private void BuildMemberCompilerProviders()
-    {
-      var customCompilerContainers = Domain.Configuration.Types.CompilerContainers.ToList();
-      var builtinCompilerContainers = GetCompilerProviderContainerTypes();
-      var typeGroups = builtinCompilerContainers.GroupBy(
-        t => ((CompilerContainerAttribute[]) t.GetCustomAttributes(
-          typeof (CompilerContainerAttribute), false))[0].ExtensionType);
-
-      foreach (var types in typeGroups) {
-        var extensionType = ((CompilerContainerAttribute) types.First().GetCustomAttributes(
-          typeof (CompilerContainerAttribute), false)[0]).ExtensionType;
-        IMemberCompilerProvider memberCompilerProvider;
-        memberCompilerProviders.TryGetValue(extensionType, out memberCompilerProvider);
-        if (memberCompilerProvider==null) {
-          memberCompilerProvider = MemberCompilerProviderFactory.Create(extensionType);
-          memberCompilerProviders.Add(extensionType, memberCompilerProvider);
-        }
-        foreach (var type in types)
-          memberCompilerProvider.RegisterCompilers(type);
-      }
-
-      foreach (var type in customCompilerContainers) {
-        var atr = type.GetCustomAttributes(typeof (CompilerContainerAttribute), false);
-        if (atr.IsNullOrEmpty())
-          throw new InvalidOperationException(String.Format(
-            Strings.ExCompilerContainerAttributeIsNotAppliedToTypeX, type.Name));
-        var extensionType = ((CompilerContainerAttribute) atr[0]).ExtensionType;
-        var conflictHandlingMethod = ((CompilerContainerAttribute) atr[0]).ConflictHandlingMethod;
-
-        IMemberCompilerProvider memberCompilerProvider;
-        memberCompilerProviders.TryGetValue(extensionType, out memberCompilerProvider);
-        if (memberCompilerProvider==null) {
-          memberCompilerProvider = MemberCompilerProviderFactory.Create(extensionType);
-          memberCompilerProviders.Add(extensionType, memberCompilerProvider);
-        }
-        memberCompilerProvider.RegisterCompilers(type, conflictHandlingMethod);
-      }
-    }
-
     #endregion
 
 
@@ -232,7 +185,8 @@ namespace Xtensive.Storage.Providers
     {
       Domain = BuildingContext.Demand().Domain;
       ProviderInfo = CreateProviderInfo();
-      BuildMemberCompilerProviders();
+      memberCompilerProviders = MemberCompilerProviderBuilder.Build(
+        Domain.Configuration, GetProviderCompilerContainers());
       BuildCompilationContext();
     }
   }

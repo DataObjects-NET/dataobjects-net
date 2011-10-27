@@ -1835,6 +1835,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Member &apos;{0}&apos; is not supported.
+        /// </summary>
+        internal static string ExMemberXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExMemberXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Member &apos;{0}&apos; of type &apos;{1}&apos; is not initialized. Check if constructor argument is correct or field initialized through initializer..
         /// </summary>
         internal static string ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer {
@@ -2201,6 +2210,15 @@ namespace Xtensive.Orm.Resources {
         internal static string ExpressionXIsUnknown {
             get {
                 return ResourceManager.GetString("ExpressionXIsUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expression &apos;{0}&apos; should take {1} parameters.
+        /// </summary>
+        internal static string ExpressionXShouldTakeYParameters {
+            get {
+                return ResourceManager.GetString("ExpressionXShouldTakeYParameters", resourceCulture);
             }
         }
         
