@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets or sets the primary index.
     /// </summary>
-    [Property(Priority = -1200, IsImmutable = true, RecreateParent = true)]
+    [Property(Priority = -1200, IsImmutable = true)]
     public PrimaryIndexInfo PrimaryIndex {
       get { return primaryIndex; }
       set {
