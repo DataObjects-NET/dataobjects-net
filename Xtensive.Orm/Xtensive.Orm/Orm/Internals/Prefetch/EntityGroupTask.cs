@@ -19,8 +19,55 @@ using Xtensive.Storage.Rse;
 namespace Xtensive.Orm.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class EntityGroupTask
+  internal sealed class EntityGroupTask : IEquatable<EntityGroupTask>
   {
+    #region Nested classes
+
+    private struct CacheKey : IEquatable<CacheKey>
+    {
+      public readonly int[] ColumnIndexes;
+      public readonly TypeInfo Type;
+      private readonly int cachedHashCode;
+
+      public bool Equals(CacheKey other)
+      {
+        if (!Type.Equals(other.Type))
+          return false;
+        if (ColumnIndexes.Length!=other.ColumnIndexes.Length)
+          return false;
+        for (var i = ColumnIndexes.Length - 1; i >= 0; i--)
+          if (ColumnIndexes[i]!=other.ColumnIndexes[i])
+            return false;
+        return true;
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        if (obj.GetType()!=typeof (CacheKey))
+          return false;
+        return Equals((CacheKey) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        return cachedHashCode;
+      }
+
+
+      // Constructors
+
+      public CacheKey(int[] columnIndexes, TypeInfo type, int cachedHashCode)
+      {
+        this.ColumnIndexes = columnIndexes;
+        this.Type = type;
+        this.cachedHashCode = cachedHashCode;
+      }
+    }
+
+    #endregion
+
     private const int MaxKeyCountInOneStatement = 40;
     private static readonly object recordSetCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
@@ -35,6 +82,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly int cachedHashCode;
     private readonly PrefetchManager manager;
     private List<QueryTask> queryTasks;
+    private readonly CacheKey cacheKey;
 
     public RecordQuery RecordQuery { get; private set; }
 
@@ -84,14 +132,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (!type.Equals(other.type))
-        return false;
-      if (columnIndexes.Length != other.columnIndexes.Length)
-        return false;
-      for (var i = columnIndexes.Length - 1; i >= 0; i--)
-        if (columnIndexes[i] != other.columnIndexes[i])
-          return false;
-      return true;
+      return other.cacheKey.Equals(cacheKey);
     }
 
     public override bool Equals(object obj)
@@ -107,7 +148,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override int GetHashCode()
     {
-      return cachedHashCode;
+      return cacheKey.GetHashCode();
     }
 
     private QueryTask CreateQueryTask(List<Tuple> currentKeySet)
@@ -115,7 +156,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
         includeParameter.Value = currentKeySet;
-        object key = new Pair<object, EntityGroupTask>(recordSetCachingRegion, this);
+        object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
         Func<object, object> generator = CreateRecordSet;
         RecordQuery = (RecordQuery) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
         var executableProvider = manager.Owner.Session.CompilationService.Compile(RecordQuery.Provider);
@@ -125,12 +166,12 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static RecordQuery CreateRecordSet(object cachingKey)
     {
-      var pair = (Pair<object, EntityGroupTask>) cachingKey;
-      var selectedColumnIndexes = pair.Second.columnIndexes;
+      var pair = (Pair<object, CacheKey>) cachingKey;
+      var selectedColumnIndexes = pair.Second.ColumnIndexes;
       var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
-        .Take(pair.Second.type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
-      var columnCollectionLenght = pair.Second.type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.type.Indexes.PrimaryIndex.ToRecordQuery().Include(IncludeAlgorithm.ComplexCondition,
+        .Take(pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
+      var columnCollectionLenght = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
+      return pair.Second.Type.Indexes.PrimaryIndex.ToRecordQuery().Include(IncludeAlgorithm.ComplexCondition,
         true, () => includeParameter.Value, String.Format("includeColumnName-{0}", Guid.NewGuid()),
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);
     }
@@ -191,10 +232,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.type = type;
       this.columnIndexes = columnIndexes;
       this.manager = manager;
-      cachedHashCode = 0;
+      var cachedHashCode = 0;
       for (var i = 0; i < columnIndexes.Length; i++)
         cachedHashCode = unchecked (379 * cachedHashCode + columnIndexes[i]);
       cachedHashCode = unchecked (cachedHashCode ^ type.GetHashCode());
+      cacheKey = new CacheKey(columnIndexes, type, cachedHashCode);
     }
   }
 }

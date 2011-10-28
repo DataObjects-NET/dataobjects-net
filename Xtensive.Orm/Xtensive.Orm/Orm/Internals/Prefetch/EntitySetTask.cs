@@ -11,7 +11,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Parameters;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
@@ -22,8 +21,53 @@ using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 namespace Xtensive.Orm.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class EntitySetTask
+  internal sealed class EntitySetTask : IEquatable<EntitySetTask>
   {
+    #region Nested classes
+
+    private struct CacheKey : IEquatable<CacheKey>
+    {
+      public readonly FieldInfo ReferencingField;
+      public readonly int? ItemCountLimit;
+      private int? cachedHashCode;
+
+      public bool Equals(CacheKey other)
+      {
+        return other.ItemCountLimit.Equals(ItemCountLimit) && Equals(other.ReferencingField, ReferencingField);
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        if (obj.GetType()!=typeof (CacheKey))
+          return false;
+        return Equals((CacheKey) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        if (cachedHashCode==null)
+          unchecked {
+            cachedHashCode = (ReferencingField.GetHashCode() * 397)
+              ^ (ItemCountLimit.HasValue ? 1 : 0);
+          }
+        return cachedHashCode.Value;
+      }
+
+
+      // Constructors
+
+      public CacheKey(FieldInfo referencingField, int? itemCountLimit)
+      {
+        this.ReferencingField = referencingField;
+        this.ItemCountLimit = itemCountLimit;
+        cachedHashCode = null;
+      }
+    }
+
+    #endregion
+
     private static readonly object itemsQueryCachingRegion = new object();
     private static readonly Parameter<Tuple> ownerParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private static readonly Parameter<int> itemCountLimitParameter = new Parameter<int>("ItemCountLimit");
@@ -38,6 +82,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private QueryTask itemsQueryTask;
     private int? cachedHashCode;
     private readonly PrefetchFieldDescriptor referencingFieldDescriptor;
+    private readonly CacheKey cacheKey;
 
     public FieldInfo ReferencingField {get { return referencingFieldDescriptor.Field; } }
 
@@ -103,9 +148,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (!ReferencingField.Equals(other.ReferencingField))
-        return false;
-      return (ItemCountLimit==null) == (other.ItemCountLimit==null);
+      return other.cacheKey.Equals(cacheKey);
     }
 
     public override bool Equals(object obj)
@@ -114,20 +157,14 @@ namespace Xtensive.Orm.Internals.Prefetch
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      var otherType = obj.GetType();
-      if (otherType != (typeof (EntitySetTask)))
+      if (obj.GetType()!=typeof (EntitySetTask))
         return false;
       return Equals((EntitySetTask) obj);
     }
 
     public override int GetHashCode()
     {
-      if (cachedHashCode==null)
-        unchecked {
-          cachedHashCode = (ReferencingField.GetHashCode() * 397)
-            ^ (ItemCountLimit.HasValue ? 1 : 0);
-        }
-      return cachedHashCode.Value;
+      return cacheKey.GetHashCode();
     }
 
     #region Private \ internal methods
@@ -139,7 +176,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         ownerParameter.Value = ownerKey.Value;
         if (ItemCountLimit != null)
           itemCountLimitParameter.Value = ItemCountLimit.Value;
-        object key = new Pair<object, EntitySetTask>(itemsQueryCachingRegion, this);
+        object key = new Pair<object, CacheKey>(itemsQueryCachingRegion, cacheKey);
         Func<object, object> generator = CreateRecordSetLoadingItems;
         RecordQuery = (RecordQuery) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
         var executableProvider = manager.Owner.Session.CompilationService.Compile(RecordQuery.Provider);
@@ -149,7 +186,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static RecordQuery CreateRecordSetLoadingItems(object cachingKey)
     {
-      var pair = (Pair<object, EntitySetTask>) cachingKey;
+      var pair = (Pair<object, CacheKey>) cachingKey;
       var association = pair.Second.ReferencingField.Associations.Last();
       var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
@@ -165,7 +202,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return result;
     }
 
-    private static RecordQuery CreateQueryForAssociationViaAuxType(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static RecordQuery CreateQueryForAssociationViaAuxType(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       var association = pair.Second.ReferencingField.Associations.Last();
       var associationIndex = association.UnderlyingIndex;
@@ -186,7 +223,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         .Join(primaryTargetIndex.ToRecordQuery(), joiningColumns);
     }
 
-    private static RecordQuery CreateQueryForDirectAssociation(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static RecordQuery CreateQueryForDirectAssociation(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var association = pair.Second.ReferencingField.Associations.Last();
@@ -240,6 +277,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.isOwnerCached = isOwnerCached;
       ItemCountLimit = referencingFieldDescriptor.EntitySetItemCountLimit;
       this.manager = manager;
+      cacheKey = new CacheKey(ReferencingField, ItemCountLimit);
     }
   }
 }
