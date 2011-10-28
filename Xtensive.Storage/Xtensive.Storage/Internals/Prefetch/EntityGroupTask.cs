@@ -25,18 +25,18 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private struct CacheKey : IEquatable<CacheKey>
     {
-      private readonly int[] columnIndexes;
-      private readonly TypeInfo type;
+      public readonly int[] ColumnIndexes;
+      public readonly TypeInfo Type;
       private readonly int cachedHashCode;
 
       public bool Equals(CacheKey other)
       {
-        if (!type.Equals(other.type))
+        if (!Type.Equals(other.Type))
           return false;
-        if (columnIndexes.Length!=other.columnIndexes.Length)
+        if (ColumnIndexes.Length!=other.ColumnIndexes.Length)
           return false;
-        for (var i = columnIndexes.Length - 1; i >= 0; i--)
-          if (columnIndexes[i]!=other.columnIndexes[i])
+        for (var i = ColumnIndexes.Length - 1; i >= 0; i--)
+          if (ColumnIndexes[i]!=other.ColumnIndexes[i])
             return false;
         return true;
       }
@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Internals.Prefetch
 
       public CacheKey(int[] columnIndexes, TypeInfo type, int cachedHashCode)
       {
-        this.columnIndexes = columnIndexes;
-        this.type = type;
+        this.ColumnIndexes = columnIndexes;
+        this.Type = type;
         this.cachedHashCode = cachedHashCode;
       }
     }
@@ -166,12 +166,12 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private static RecordSet CreateRecordSet(object cachingKey)
     {
-      var pair = (Pair<object, EntityGroupTask>) cachingKey;
-      var selectedColumnIndexes = pair.Second.columnIndexes;
+      var pair = (Pair<object, CacheKey>) cachingKey;
+      var selectedColumnIndexes = pair.Second.ColumnIndexes;
       var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
-        .Take(pair.Second.type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
-      var columnCollectionLenght = pair.Second.type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Include(IncludeAlgorithm.ComplexCondition,
+        .Take(pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
+      var columnCollectionLenght = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
+      return pair.Second.Type.Indexes.PrimaryIndex.ToRecordSet().Include(IncludeAlgorithm.ComplexCondition,
         true, () => includeParameter.Value, String.Format("includeColumnName-{0}", Guid.NewGuid()),
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);
     }

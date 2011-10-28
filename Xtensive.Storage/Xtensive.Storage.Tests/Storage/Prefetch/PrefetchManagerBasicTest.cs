@@ -940,12 +940,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         using (var t = Transaction.Open()) {
           session.Extensions.Set(new MemoryLeakTester());
           var newOrder = new Order();
-          newOrder.Details.Add(new OrderDetail {Product = new Product()});
-          newOrder.Details.Add(new OrderDetail {Product = new Product()});
+          var orderDetail = new OrderDetail {Product = new Product()};
           session.Persist();
-          var order = Query.All<Order>().Prefetch(o => o.Details).First();
+          var order = EnumerableUtils.One(newOrder).Prefetch(o => o.Details).First();
           Assert.That(order, Is.Not.Null);
-          var product = Query.All<OrderDetail>().Prefetch(d => d.Product).First();
+          var product = EnumerableUtils.One(orderDetail).Prefetch(d => d.Product).First();
           Assert.That(product, Is.Not.Null);
           //Query.All<Order>().Prefetch(o => o.Details).First();
           t.Complete();

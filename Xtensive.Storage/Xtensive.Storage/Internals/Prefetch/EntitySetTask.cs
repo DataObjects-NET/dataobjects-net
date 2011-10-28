@@ -27,13 +27,13 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private struct CacheKey : IEquatable<CacheKey>
     {
-      private readonly FieldInfo referencingField;
-      private readonly int? itemCountLimit;
+      public readonly FieldInfo ReferencingField;
+      public readonly int? ItemCountLimit;
       private int? cachedHashCode;
 
       public bool Equals(CacheKey other)
       {
-        return other.itemCountLimit.Equals(itemCountLimit) && Equals(other.referencingField, referencingField);
+        return other.ItemCountLimit.Equals(ItemCountLimit) && Equals(other.ReferencingField, ReferencingField);
       }
 
       public override bool Equals(object obj)
@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       {
         if (cachedHashCode==null)
           unchecked {
-            cachedHashCode = (referencingField.GetHashCode() * 397)
-              ^ (itemCountLimit.HasValue ? 1 : 0);
+            cachedHashCode = (ReferencingField.GetHashCode() * 397)
+              ^ (ItemCountLimit.HasValue ? 1 : 0);
           }
         return cachedHashCode.Value;
       }
@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Internals.Prefetch
 
       public CacheKey(FieldInfo referencingField, int? itemCountLimit)
       {
-        this.referencingField = referencingField;
-        this.itemCountLimit = itemCountLimit;
+        this.ReferencingField = referencingField;
+        this.ItemCountLimit = itemCountLimit;
         cachedHashCode = null;
       }
     }
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private static RecordSet CreateRecordSetLoadingItems(object cachingKey)
     {
-      var pair = (Pair<object, EntitySetTask>) cachingKey;
+      var pair = (Pair<object, CacheKey>) cachingKey;
       var association = pair.Second.ReferencingField.Associations.Last();
       var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       return result;
     }
 
-    private static RecordSet CreateQueryForAssociationViaAuxType(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static RecordSet CreateQueryForAssociationViaAuxType(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       var association = pair.Second.ReferencingField.Associations.Last();
       var associationIndex = association.UnderlyingIndex;
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         .Join(primaryTargetIndex.ToRecordSet(), joiningColumns);
     }
 
-    private static RecordSet CreateQueryForDirectAssociation(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static RecordSet CreateQueryForDirectAssociation(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var association = pair.Second.ReferencingField.Associations.Last();
