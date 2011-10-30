@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Building.Builders
         if (typeDef.IsEntity) {
           // HierarchyRootAttribute is required for hierarchy root
           var hra = type.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
-          if (hra != null)
+          if (hra!=null)
             hierarchyDef = DefineHierarchy(typeDef, hra);
         }
 
@@ -134,7 +134,8 @@ namespace Xtensive.Orm.Building.Builders
     {
       var context = BuildingContext.Demand();
       var fieldFilter = GetFieldFilter();
-      var properties = typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+      var properties = typeDef.UnderlyingType.GetProperties(
+        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
       foreach (var propertyInfo in properties) {
         // Domain builder stage-related filter
@@ -142,8 +143,8 @@ namespace Xtensive.Orm.Building.Builders
           continue;
 
         // FieldAttribute presence is required
-        var fieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
-        if (fieldAttributes.Length == 0)
+        var fieldAttributes = GetFieldAttributes<FieldAttribute>(propertyInfo);
+        if (fieldAttributes.Length==0)
           continue;
 
         var field = DefineField(propertyInfo, fieldAttributes);
@@ -254,8 +255,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static FieldDef DefineField(PropertyInfo propertyInfo)
     {
-      var fieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
-      return DefineField(propertyInfo, fieldAttributes);
+      return DefineField(propertyInfo, GetFieldAttributes<FieldAttribute>(propertyInfo));
     }
 
     public static FieldDef DefineField(PropertyInfo propertyInfo, FieldAttribute[] fieldAttributes)
@@ -268,18 +268,22 @@ namespace Xtensive.Orm.Building.Builders
       var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = BuildingContext.Demand().NameBuilder.BuildFieldName(fieldDef);
 
-      if (fieldAttributes.Length!=0) {
-        var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>() ?? fieldAttributes.First();
-        AttributeProcessor.Process(fieldDef, fieldAttribute);
-        var associationAttributes = propertyInfo.GetAttributes<AssociationAttribute>(AttributeSearchOptions.InheritAll);
-        if (associationAttributes.Length != 0)
-          AttributeProcessor.Process(fieldDef, associationAttributes);
-        var mappingAttributes = propertyInfo.GetAttributes<FieldMappingAttribute>(AttributeSearchOptions.InheritAll);
-        foreach (var fieldMappingAttribute in mappingAttributes)
-          AttributeProcessor.Process(fieldDef, fieldMappingAttribute);
+      if (fieldAttributes.Length > 0) {
+        foreach (var attribute in fieldAttributes)
+          AttributeProcessor.Process(fieldDef, attribute);
+        // Association
+        var associationAttributes = GetFieldAttributes<AssociationAttribute>(propertyInfo);
+        foreach (var attribute in associationAttributes)
+          AttributeProcessor.Process(fieldDef, attribute);
+        // Mapping name
+        var mappingAttributes = GetFieldAttributes<FieldMappingAttribute>(propertyInfo);
+        foreach (var attribute in mappingAttributes)
+          AttributeProcessor.Process(fieldDef, attribute);
+        // Type discriminator
         var typeDiscriminatorAttribute = propertyInfo.GetAttribute<TypeDiscriminatorAttribute>(AttributeSearchOptions.InheritAll);
         if (typeDiscriminatorAttribute!=null)
           AttributeProcessor.Process(fieldDef, typeDiscriminatorAttribute);
+        // Version
         var versionAttribute = propertyInfo.GetAttribute<VersionAttribute>(AttributeSearchOptions.InheritAll);
         if (versionAttribute!=null)
           AttributeProcessor.Process(fieldDef, versionAttribute);
@@ -331,6 +335,18 @@ namespace Xtensive.Orm.Building.Builders
     #endregion
 
     #region Helper members (to reduce cohesion)
+
+    private static T[] GetFieldAttributes<T>(PropertyInfo property)
+      where T : Attribute
+    {
+      var attributes = property.GetAttributes<T>(AttributeSearchOptions.InheritAll);
+      // Attributes will contain attributes from all inheritance chain
+      // with the most specific type first.
+      // Reverse them for correct processing (i.e. descendants override settings from base).
+      Array.Reverse(attributes);
+      return attributes;
+    }
+
 
     private static Func<Type, bool> GetTypeFilter()
     {
