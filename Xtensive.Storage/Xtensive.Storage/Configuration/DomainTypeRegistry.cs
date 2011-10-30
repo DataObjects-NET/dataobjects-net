@@ -239,9 +239,7 @@ namespace Xtensive.Storage.Configuration
     /// <returns>Check result.</returns>
     public static bool IsCompilerContainer(Type type)
     {
-      var attributes = type.GetAttributes<CompilerContainerAttribute>(
-        AttributeSearchOptions.InheritNone);
-      return !attributes.IsNullOrEmpty();
+      return type.IsDefined(typeof (CompilerContainerAttribute), false);
     }
 
     #endregion

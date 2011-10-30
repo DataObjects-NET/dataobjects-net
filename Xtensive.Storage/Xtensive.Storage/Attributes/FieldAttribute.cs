@@ -20,15 +20,16 @@ namespace Xtensive.Storage
     internal int? scale;
     internal int? precision;
     internal bool? nullable;
-    internal bool  nullableOnUpgrade;
+    internal bool? nullableOnUpgrade;
     internal bool? indexed;
+    internal bool? lazyLoad;
 
     /// <summary>
     /// Gets or sets whether the field should be indexed.
     /// </summary>
     public bool Indexed
     {
-      get { return indexed.HasValue ? indexed.Value : false; }
+      get { return indexed ?? false; }
       set { indexed = value; }
     }
 
@@ -40,7 +41,7 @@ namespace Xtensive.Storage
     /// </remarks>
     public int Length
     {
-      get { return length.HasValue ? length.Value : 0; }
+      get { return length ?? 0; }
       set { length = value; }
     }
 
@@ -52,7 +53,7 @@ namespace Xtensive.Storage
     /// </remarks>
     public int Scale
     {
-      get { return scale.HasValue ? scale.Value : 0; }
+      get { return scale ?? 0; }
       set { scale = value; }
     }
 
@@ -64,7 +65,7 @@ namespace Xtensive.Storage
     /// </remarks>
     public int Precision
     {
-      get { return precision.HasValue ? precision.Value : 0; }
+      get { return precision ?? 0; }
       set { precision = value; }
     }
 
@@ -80,7 +81,7 @@ namespace Xtensive.Storage
     /// </value>
     public bool Nullable
     {
-      get { return nullable.HasValue ? nullable.Value : false; }
+      get { return nullable ?? false; }
       set { nullable = value; }
     }
 
@@ -89,7 +90,7 @@ namespace Xtensive.Storage
     /// </summary>
     public bool NullableOnUpgrade
     {
-      get { return nullableOnUpgrade; }
+      get { return nullableOnUpgrade ?? false; }
       set { nullableOnUpgrade = value; }
     }
 
@@ -106,6 +107,10 @@ namespace Xtensive.Storage
     /// Usually lazy loading is used for byte-arrays, large string fields or <see cref="Structure">structures</see>.
     /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
     /// </remarks>
-    public bool LazyLoad { get; set; }
+    public bool LazyLoad
+    {
+      get { return lazyLoad ?? false; }
+      set { lazyLoad = value; }
+    }
   }
 }

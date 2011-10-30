@@ -92,14 +92,13 @@ namespace Xtensive.Storage.Building.Builders
       ProcessIndexed(fieldDef, attribute);
     }
 
-    public static void Process(FieldDef fieldDef, AssociationAttribute[] attributes)
+    public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
     {
-      var attribute = attributes[0];
       if (fieldDef.IsPrimitive || fieldDef.IsStructure) {
-        if (!attribute.PairTo.IsNullOrEmpty())
-          throw new DomainBuilderException(
-            string.Format(Strings.ExAssociationAttributeCanNotBeAppliedToXField, fieldDef.Name));
+        throw new DomainBuilderException(
+          string.Format(Strings.ExAssociationAttributeCanNotBeAppliedToXField, fieldDef.Name));
       }
+
       ProcessPairTo(fieldDef, attribute);
       ProcessOnOwnerRemove(fieldDef, attribute);
       ProcessOnTargetRemove(fieldDef, attribute);
@@ -204,7 +203,8 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
     {
       bool canUseNullableFlag = !fieldDef.ValueType.IsValueType && !fieldDef.IsStructure;
-      if (attribute.nullable.HasValue) {
+
+      if (attribute.nullable!=null) {
         if (canUseNullableFlag)
           fieldDef.IsNullable = attribute.nullable.Value;
         else if (attribute.nullable.Value!=(fieldDef.ValueType.IsNullable()))
@@ -212,21 +212,19 @@ namespace Xtensive.Storage.Building.Builders
             string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
       }
 
-      // NullableOnUpgrade support
-      if (!attribute.NullableOnUpgrade)
-        return;
-      if (!canUseNullableFlag)
-        throw new DomainBuilderException(
-          string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
-      if (fieldDef.IsNullable)
-        return;
-      var upgradeContext = UpgradeContext.Current;
-      if (upgradeContext==null)
-        return;
-      if (upgradeContext.Stage!=UpgradeStage.Upgrading)
-        return;
-      if (canUseNullableFlag)
+      if (attribute.nullableOnUpgrade != null) {
+        if (!canUseNullableFlag)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
+        if (fieldDef.IsNullable)
+          return;
+        var upgradeContext = UpgradeContext.Current;
+        if (upgradeContext==null)
+          return;
+        if (upgradeContext.Stage!=UpgradeStage.Upgrading)
+          return;
         fieldDef.IsNullable = true;
+      }
     }
 
     private static void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)
@@ -267,6 +265,9 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
     {
+      if (attribute.lazyLoad == null)
+        return;
+
       if (!fieldDef.IsPrimitive && attribute.LazyLoad)
         Log.Warning(
           Strings.LogExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
@@ -278,10 +279,12 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (attribute.indexed==null)
         return;
+
       if (fieldDef.IsEntitySet)
         throw new InvalidOperationException(string.Format(Strings.ExUnableToSetIndexedFlagOnEntitySetFieldX, fieldDef.Name));
       if (fieldDef.IsStructure)
         throw new InvalidOperationException(string.Format(Strings.ExUnableToSetIndexedFlagOnStructureFieldX, fieldDef.Name));
+
       if (attribute.indexed==true)
         fieldDef.IsIndexed = true;
       else
