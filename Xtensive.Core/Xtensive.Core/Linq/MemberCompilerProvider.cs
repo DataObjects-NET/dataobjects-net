@@ -24,129 +24,96 @@ namespace Xtensive.Linq
   /// <typeparam name="T"><inheritdoc/></typeparam>
   public partial class MemberCompilerProvider<T> : LockableBase, IMemberCompilerProvider<T>
   {
-    private const int MaxNumberOfCompilerParameters = 9;
-    private volatile MemberCompilerCollection compilers = new MemberCompilerCollection();
-    
-    /// <inheritdoc/>
-    public Func<T, T[], T> GetCompiler(MemberInfo source)
-    {
-      MethodInfo compilerMethod;
-      return GetCompiler(source, out compilerMethod);
-    }
-
-    /// <inheritdoc/>
-    public Func<T, T[], T> GetCompiler(MemberInfo source, out MethodInfo compilerMethod)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-
-      compilerMethod = null;
-      bool includeMemberInfo = false;
-      var actualSource = source;
-
-      var sourceProperty = actualSource as PropertyInfo;
-      if (sourceProperty!=null) {
-        source = actualSource = sourceProperty.GetGetMethod();
-        // GetGetMethod returns null in case of non public getter.
-        if (source==null)
-          return null;
-      }
-
-      var sourceMethod = actualSource as MethodInfo;
-      if (sourceMethod!=null && sourceMethod.IsGenericMethod) {
-        actualSource = sourceMethod.GetGenericMethodDefinition();
-        includeMemberInfo = true;
-      }
-
-      var sourceType = actualSource.ReflectedType;
-
-      if (sourceType.IsGenericType) {
-        sourceType = sourceType.GetGenericTypeDefinition();
-
-        if (actualSource is FieldInfo)
-          actualSource = sourceType.GetField(actualSource.Name);
-        else if (actualSource is MethodInfo)
-          actualSource = FindBestMethod(sourceType.GetMethods(), (MethodInfo) actualSource);
-        else if (actualSource is ConstructorInfo)
-          actualSource = FindBestMethod(sourceType.GetConstructors(), (ConstructorInfo) actualSource);
-        else
-          actualSource = null;
-        includeMemberInfo = true;
-      }
-
-      if (actualSource==null)
-        return null;
-
-      Pair<Delegate, MethodInfo> result;
-
-      if (!compilers.TryGetValue(actualSource, out result))
-        return null;
-
-      compilerMethod = result.Second;
-
-      if (includeMemberInfo) {
-        var d = (Func<MemberInfo, T, T[], T>) result.First;
-        return d.Bind(source);
-      }
-
-      return (Func<T, T[], T>) result.First;
-    }
+    private MemberCompilerCollection compilers = new MemberCompilerCollection();
 
     /// <inheritdoc/>
     public Type ExpressionType { get { return typeof(T); } }
 
     /// <inheritdoc/>
-    public void RegisterCompilers(Type typeWithCompilers)
+    public Delegate GetUntypedCompiler(MemberInfo target)
     {
-      RegisterCompilers(typeWithCompilers, ConflictHandlingMethod.ReportError);
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+
+      var actualTarget = GetCanonicalMember(target);
+      if (actualTarget == null)
+        return null;
+      var registration = compilers.Get(actualTarget);
+      if (registration == null)
+        return null;
+      return registration.CompilerInvoker;
     }
 
     /// <inheritdoc/>
-    public void RegisterCompilers(Type typeWithCompilers, ConflictHandlingMethod conflictHandlingMethod)
+    public Func<T, T[], T> GetCompiler(MemberInfo target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(typeWithCompilers, "typeWithCompilers");
+      var compiler = (Func<MemberInfo, T, T[], T>) GetUntypedCompiler(target);
+      return compiler.Bind(target);
+    }
+
+    /// <inheritdoc/>
+    public void RegisterCompilers(Type compilerContainer)
+    {
+      RegisterCompilers(compilerContainer, ConflictHandlingMethod.Default);
+    }
+
+    /// <inheritdoc/>
+    public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
       this.EnsureNotLocked();
 
-      if (typeWithCompilers.IsGenericType)
+      if (compilerContainer.IsGenericType)
         throw new InvalidOperationException(string.Format(
-          Strings.ExTypeXShouldNotBeGeneric, typeWithCompilers.GetFullName(true)));
+          Strings.ExTypeXShouldNotBeGeneric, compilerContainer.GetFullName(true)));
 
-      var newCompilers = new MemberCompilerCollection();
+      var compilersToRegister = new MemberCompilerCollection();
 
-      var allCompilers = typeWithCompilers
+      var compilerMethods = compilerContainer
         .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
         .Where(method => method.IsDefined(typeof (CompilerAttribute), false) && !method.IsGenericMethod);
 
-      foreach (var compiler in allCompilers)
-        RegisterCompiler(newCompilers, compiler);
+      foreach (var compiler in compilerMethods)
+        compilersToRegister.Add(ProcessCompiler(compiler));
       
-      switch (conflictHandlingMethod) {
-      case ConflictHandlingMethod.KeepOld:
-        compilers = MergeCompilers(newCompilers, compilers);
-        break;
-      case ConflictHandlingMethod.Overwrite:
-        compilers = MergeCompilers(compilers, newCompilers);
-        break;
-      case ConflictHandlingMethod.ReportError:
-        var result = new MemberCompilerCollection(compilers);
-        foreach (var pair in newCompilers) {
-          if (result.ContainsKey(pair.Key))
-            throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerForXIsAlreadyRegistered, pair.Key.GetFullName(true)));
-          result.Add(pair.Key, pair.Value);
-        }
-        compilers = result;
-        break;
-      }
+      UpdateRegistry(compilersToRegister, conflictHandlingMethod);
+    }
+
+    /// <inheritdoc/>
+    public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions)
+    {
+      RegisterCompilers(compilerDefinitions, ConflictHandlingMethod.Default);
+    }
+
+    /// <inheritdoc/>
+    public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
+      this.EnsureNotLocked();
+
+      var newItems = new MemberCompilerCollection();
+      foreach (var item in compilerDefinitions)
+        newItems.Add(new MemberCompilerRegistration(GetCanonicalMember(item.Key), item.Value));
+      UpdateRegistry(newItems, conflictHandlingMethod);
     }
 
     #region Private methods
 
-    private static MemberCompilerCollection MergeCompilers(MemberCompilerCollection first, MemberCompilerCollection second)
+    private void UpdateRegistry(MemberCompilerCollection newItems, ConflictHandlingMethod conflictHandlingMethod)
     {
-      var result = new MemberCompilerCollection(first);
-      foreach (var pair in second)
-        result[pair.Key] = pair.Value;
-      return result;
+      if (newItems.Count==0)
+        return;
+      switch (conflictHandlingMethod) {
+        case ConflictHandlingMethod.KeepOld:
+          newItems.MergeWith(compilers, false);
+          compilers = newItems;
+          break;
+        case ConflictHandlingMethod.Overwrite:
+          compilers.MergeWith(newItems, false);
+          break;
+        case ConflictHandlingMethod.ReportError:
+          compilers.MergeWith(newItems, true);
+          break;
+      }
     }
 
     private static bool ParameterTypeMatches(Type originalParameterType, Type candidateParameterType)
@@ -190,7 +157,7 @@ namespace Xtensive.Linq
       return candidates[0];
     }
 
-    private static Type[] ExtractTypesAndValidate(MethodInfo compiler, bool requireMemberInfo)
+    private static Type[] ValidateCompilerParametersAndExtractTargetSignature(MethodInfo compiler, bool requireMemberInfo)
     {
       var parameters = compiler.GetParameters();
       int length = parameters.Length;
@@ -207,42 +174,29 @@ namespace Xtensive.Linq
         throw new InvalidOperationException(string.Format(
           Strings.ExCompilerXShouldReturnY, compiler.GetFullName(true), typeof(T).GetFullName(true)));
 
-      var result = new Type[length];
+      if (requireMemberInfo)
+        ValidateCompilerParameter(parameters[0], typeof (MemberInfo), compiler);
 
-      for (int i = 0; i < length; i++) {
-        var parameter = parameters[i];
-        var requiredType = typeof(T);
+      var result = new Type[requireMemberInfo ? length - 1 : length];
+      var regularParameters = requireMemberInfo ? parameters.Skip(1) : parameters;
 
-        if (requireMemberInfo && i == 0)
-          requiredType = typeof(MemberInfo);
-
-        if (parameter.ParameterType != requiredType)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExCompilerXShouldHaveParameterYOfTypeZ,
-            compiler.GetFullName(true), parameter.Name, requiredType.GetFullName(true)));
-
-        var attribute = (TypeAttribute) parameter
-          .GetCustomAttributes(typeof (TypeAttribute), false).FirstOrDefault();
-
-        result[i] = attribute==null ? null : attribute.Value;
+      int i = 0;
+      foreach (var parameter in regularParameters) {
+        ValidateCompilerParameter(parameter, typeof(T), compiler);
+        var attribute = (TypeAttribute) parameter.GetCustomAttributes(typeof (TypeAttribute), false).FirstOrDefault();
+        result[i++] = attribute==null ? null : attribute.Value;
       }
 
       return result;
     }
 
-    private static void RegisterCompiler(MemberCompilerCollection newCompilers, MethodInfo compiler)
+    private static MemberCompilerRegistration ProcessCompiler(MethodInfo compiler)
     {
       var attribute = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
 
       var targetType = Type.GetType(attribute.TargetTypeAssemblyQualifiedName, false);
 
-      bool isBadTargetType = targetType == null
-        || (targetType.IsGenericType && !targetType.IsGenericTypeDefinition);
-
-      if (isBadTargetType)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCompilerXHasBadTargetType,
-          compiler.GetFullName(true)));
+      ValidateTargetType(targetType, compiler);
 
       bool isStatic = (attribute.TargetKind & TargetKind.Static) != 0;
       bool isCtor = (attribute.TargetKind & TargetKind.Constructor) != 0;
@@ -262,14 +216,10 @@ namespace Xtensive.Linq
           memberName = WellKnown.CtorName;
         else
           throw new InvalidOperationException(string.Format(
-            Strings.ExCompilerXHasBadTargetMember,
-            compiler.GetFullName(true)));
+            Strings.ExCompilerXHasInvalidTargetType, compiler.GetFullName(true)));
 
-      var parameterTypes = ExtractTypesAndValidate(compiler, isGeneric);
+      var parameterTypes = ValidateCompilerParametersAndExtractTargetSignature(compiler, isGeneric);
       var bindingFlags = BindingFlags.Public;
-
-      if (isGeneric)
-        parameterTypes = parameterTypes.Skip(1).ToArray();
 
       if (isCtor)
         bindingFlags |= BindingFlags.Instance;
@@ -296,7 +246,7 @@ namespace Xtensive.Linq
         memberName = WellKnown.SetterPrefix + memberName;
       }
 
-      MemberInfo memberInfo = null;
+      MemberInfo targetMember = null;
       bool specialCase = false;
 
       // handle stupid cast operator that may be overloaded by return type
@@ -307,7 +257,7 @@ namespace Xtensive.Linq
           .FirstOrDefault();
 
         if (returnTypeAttribute != null && returnTypeAttribute.Value != null) {
-          memberInfo = targetType.GetMethods()
+          targetMember = targetType.GetMethods()
           .Where(mi => mi.Name == memberName
                     && mi.IsStatic
                     && mi.ReturnType == returnTypeAttribute.Value)
@@ -318,39 +268,88 @@ namespace Xtensive.Linq
       
       if (!specialCase) {
         if (isCtor)
-          memberInfo = targetType.GetConstructor(bindingFlags, parameterTypes);
+          targetMember = targetType.GetConstructor(bindingFlags, parameterTypes);
         else if (isField)
-          memberInfo = targetType.GetField(memberName, bindingFlags);
+          targetMember = targetType.GetField(memberName, bindingFlags);
         else {
           // method / property getter / property setter
           var genericArgumentNames = isGenericMethod ? new string[attribute.NumberOfGenericArguments] : null;
-          memberInfo = targetType
+          targetMember = targetType
             .GetMethod(memberName, bindingFlags, genericArgumentNames, parameterTypes);
         }
       }
 
-      if (memberInfo == null)
+      if (targetMember == null)
         throw new InvalidOperationException(string.Format(
           Strings.ExTargetMemberIsNotFoundForCompilerX,
           compiler.GetFullName(true)));
 
-      if (newCompilers.ContainsKey(memberInfo))
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCompilerForXIsAlreadyRegistered,
-          memberInfo.GetFullName(true)));
+      var invoker = CreateInvoker(compiler, isStatic || isCtor, isGeneric);
+      return new MemberCompilerRegistration(targetMember, invoker);
+    }
 
-      Delegate result;
-
-      if (isGeneric)
-        result = isStatic || isCtor
-          ? CreateInvokerForStaticGenericCompiler(compiler)
-          : CreateInvokerForInstanceGenericCompiler(compiler);
+    private static Func<MemberInfo, T, T[], T> CreateInvoker(MethodInfo compiler, bool targetIsStaticOrCtor, bool targetIsGeneric)
+    {
+      if (targetIsGeneric)
+        if (targetIsStaticOrCtor)
+          return CreateInvokerForStaticGenericCompiler(compiler);
+        else
+          return CreateInvokerForInstanceGenericCompiler(compiler);
       else
-        result = isStatic || isCtor
-          ? CreateInvokerForStaticCompiler(compiler)
-          : CreateInvokerForInstanceCompiler(compiler);
+        if (targetIsStaticOrCtor)
+          return CreateInvokerForStaticCompiler(compiler);
+        else
+          return CreateInvokerForInstanceCompiler(compiler);
+    }
 
-      newCompilers[memberInfo] = new Pair<Delegate, MethodInfo>(result, compiler);
+    private static void ValidateTargetType(Type targetType, MethodInfo compiler)
+    {
+      bool isInvalidTargetType = targetType==null
+        || (targetType.IsGenericType && !targetType.IsGenericTypeDefinition);
+
+      if (isInvalidTargetType)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXHasInvalidTargetType, compiler.GetFullName(true)));
+    }
+
+    private static void ValidateCompilerParameter(ParameterInfo parameter, Type requiredType, MethodInfo compiler)
+    {
+      if (parameter.ParameterType != requiredType)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXShouldHaveParameterYOfTypeZ,
+          compiler.GetFullName(true), parameter.Name, requiredType.GetFullName(true)));
+    }
+
+    private static MemberInfo GetCanonicalMember(MemberInfo member)
+    {
+      var canonicalMember = member;
+
+      var sourceProperty = canonicalMember as PropertyInfo;
+      if (sourceProperty!=null) {
+        canonicalMember = sourceProperty.GetGetMethod();
+        // GetGetMethod returns null in case of non public getter.
+        if (canonicalMember==null)
+          return null;
+      }
+
+      var sourceMethod = canonicalMember as MethodInfo;
+      if (sourceMethod!=null && sourceMethod.IsGenericMethod)
+        canonicalMember = sourceMethod.GetGenericMethodDefinition();
+
+      var targetType = canonicalMember.ReflectedType;
+      if (targetType.IsGenericType) {
+        targetType = targetType.GetGenericTypeDefinition();
+        if (canonicalMember is FieldInfo)
+          canonicalMember = targetType.GetField(canonicalMember.Name);
+        else if (canonicalMember is MethodInfo)
+          canonicalMember = FindBestMethod(targetType.GetMethods(), (MethodInfo) canonicalMember);
+        else if (canonicalMember is ConstructorInfo)
+          canonicalMember = FindBestMethod(targetType.GetConstructors(), (ConstructorInfo) canonicalMember);
+        else
+          canonicalMember = null;
+      }
+
+      return canonicalMember;
     }
 
     #endregion

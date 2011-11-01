@@ -1620,4 +1620,10 @@ Error: {1}</value>
   <data name="ExClusteredIndexCanNotBeDeclaredInInterfaceX">
     <value xml:space="preserve">Clustered index can not be declared in interface '{0}'</value>
   </data>
+  <data name="ExMemberXIsNotSupported">
+    <value xml:space="preserve">Member '{0}' is not supported</value>
+  </data>
+  <data name="ExpressionXShouldTakeYParameters">
+    <value xml:space="preserve">Expression '{0}' should take {1} parameters</value>
+  </data>
 </root>

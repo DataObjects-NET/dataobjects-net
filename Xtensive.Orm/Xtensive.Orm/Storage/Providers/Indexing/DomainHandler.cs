@@ -156,12 +156,6 @@ namespace Xtensive.Storage.Providers.Indexing
     #region Compilation-related methods
 
     /// <inheritdoc/>
-    protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
-    {
-      return Type.EmptyTypes;
-    }
-
-    /// <inheritdoc/>
     protected override ICompiler CreateCompiler()
     {
       return new IndexCompiler(Handlers);

@@ -36,56 +36,51 @@ namespace Xtensive.Orm.Upgrade
   internal sealed class DomainModelConverter : ModelVisitor<IPathNode>
   {
     /// <summary>
-    /// Gets the persistent generator filter.
-    /// </summary>
-    private Func<KeyInfo, KeyGenerator> GeneratorResolver { get; set; }
-
-    /// <summary>
     /// Gets the provider info.
     /// </summary>
-    private ProviderInfo ProviderInfo { get; set; }
+    private readonly ProviderInfo providerInfo;
 
     /// <summary>
     /// Gets the storage info.
     /// </summary>
-    private StorageInfo StorageInfo { get; set; }
+    private StorageInfo storageInfo;
 
     /// <summary>
     /// Gets the currently converting model.
     /// </summary>
-    private DomainModel Model { get; set; }
+    private DomainModel model;
 
     /// <summary>
     /// Gets a value indicating whether 
     /// build foreign keys for associations.
     /// </summary>
-    private bool BuildForeignKeys { get; set; }
+    private readonly bool buildForeignKeys;
 
     /// <summary>
     /// Gets or sets a value indicating whether 
     /// build foreign keys for hierarchies.
     /// </summary>
-    private bool BuildHierarchyForeignKeys { get; set; }
+    private readonly bool buildHierarchyForeignKeys;
 
     /// <summary>
     /// Gets storage model builder.
     /// </summary>
-    private StorageModelBuilder StorageModelBuilder { get; set; }
+    private readonly StorageModelBuilder storageModelBuilder;
 
     /// <summary>
     /// Gets or sets the currently visiting table.
     /// Gets name builder.
     /// </summary>
-    private NameBuilder NameBuilder { get; set; }
+    private readonly NameBuilder nameBuilder;
 
     /// <summary>
     /// Gets or sets the currently visiting table.
     /// </summary>
-    private TableInfo CurrentTable { get; set; }
+    private TableInfo currentTable;
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
-    /// <see cref="StorageInfo"/>.
+    /// <see cref="storageInfo"/>.
     /// </summary>
     /// <param name="domainModel">The domain model.</param>
     /// <returns>The storage model.</returns>
@@ -93,10 +88,10 @@ namespace Xtensive.Orm.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
 
-      StorageInfo = new IndexingModel.StorageInfo();
-      Model = domainModel;
+      storageInfo = new IndexingModel.StorageInfo();
+      model = domainModel;
       Visit(domainModel);
-      return StorageInfo;
+      return storageInfo;
     }
 
     /// <inheritdoc/>
@@ -121,7 +116,7 @@ namespace Xtensive.Orm.Upgrade
         Visit(fullTextIndex);
 
       // Build foreign keys
-      if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
+      if (buildForeignKeys && providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
         foreach (var group in domainModel.Associations.Where(a => a.Ancestors.Count==0)) {
             Visit(group);
         }
@@ -131,8 +126,8 @@ namespace Xtensive.Orm.Upgrade
       foreach (KeyInfo keyInfo in domainModel.Hierarchies.Select(h => h.Key))
         Visit(keyInfo);
 
-      if (!BuildHierarchyForeignKeys || !ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints))
-        return StorageInfo;
+      if (!buildHierarchyForeignKeys || !providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints))
+        return storageInfo;
 
       // Build hierarchy foreign keys
       var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
@@ -158,31 +153,31 @@ namespace Xtensive.Orm.Upgrade
       foreach (var indexPair in indexPairs.Keys) {
         var referencedIndex = indexPair.First;
         var referencingIndex = indexPair.Second;
-        var referencingTable = StorageInfo.Tables[referencingIndex.ReflectedType.MappingName];
-        var referencedTable = StorageInfo.Tables[referencedIndex.ReflectedType.MappingName];
+        var referencingTable = storageInfo.Tables[referencingIndex.ReflectedType.MappingName];
+        var referencedTable = storageInfo.Tables[referencedIndex.ReflectedType.MappingName];
         var storageReferencingIndex = FindIndex(referencingTable,
           new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
 
-        string foreignKeyName = NameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
+        string foreignKeyName = nameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
         CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
       }
 
-      return StorageInfo;
+      return storageInfo;
     }
 
     /// <inheritdoc/>
     protected IPathNode VisitIndexInfo(IndexInfo primaryIndex, IndexInfo index)
     {
-      IndexingModel.TableInfo table = CurrentTable;
-      var secondaryIndex = StorageModelBuilder.CreateSecondaryIndex(table, index.MappingName, index);
+      IndexingModel.TableInfo table = currentTable;
+      var secondaryIndex = storageModelBuilder.CreateSecondaryIndex(table, index.MappingName, index);
       secondaryIndex.IsUnique = index.IsUnique;
-      var isClustered = index.IsClustered && ProviderInfo.Supports(ProviderFeatures.ClusteredIndexes);
+      var isClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
       secondaryIndex.IsClustered = isClustered;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
         IndexingModel.ColumnInfo column = table.Columns[columName];
         new IndexingModel.KeyColumnRef(secondaryIndex, column,
-          ProviderInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
+          providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
       }
@@ -190,7 +185,7 @@ namespace Xtensive.Orm.Upgrade
       // For now this is the only RDBMS that have support for clustered indexes in DO.
       // Let's omit additional checks for ServerFeatures here
       // and simply ignore included columns for clustered indexes.
-      if (ProviderInfo.Supports(ProviderFeatures.IncludedColumns) && !isClustered) {
+      if (providerInfo.Supports(ProviderFeatures.IncludedColumns) && !isClustered) {
         foreach (var includedColumn in index.IncludedColumns) {
           string columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
           IndexingModel.ColumnInfo column = table.Columns[columName];
@@ -209,7 +204,7 @@ namespace Xtensive.Orm.Upgrade
 
       var typeInfoPrototype = new IndexingModel.TypeInfo(nullableType, column.IsNullable, 
         column.Length, column.Scale, column.Precision, null);
-      var nativeTypeInfo = StorageModelBuilder.CreateType(nonNullableType, column.Length, column.Precision, column.Scale);
+      var nativeTypeInfo = storageModelBuilder.CreateType(nonNullableType, column.Length, column.Precision, column.Scale);
 
       // We need the same type as in SQL database here (i.e. the same as native)
       var typeInfo = new IndexingModel.TypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
@@ -224,7 +219,7 @@ namespace Xtensive.Orm.Upgrade
         }
       }
 
-      return new IndexingModel.ColumnInfo(CurrentTable, column.Name, typeInfo) {
+      return new IndexingModel.ColumnInfo(currentTable, column.Name, typeInfo) {
         DefaultValue = defaultValue
       };
     }
@@ -264,12 +259,12 @@ namespace Xtensive.Orm.Upgrade
         return null;
       var sequenceInfo = keyInfo.Sequence;
       long increment = 1;
-      if (ProviderInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement) || ProviderInfo.Supports(ProviderFeatures.Sequences))
+      if (providerInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement) || providerInfo.Supports(ProviderFeatures.Sequences))
         increment = sequenceInfo.Increment;
-      var sequence = new IndexingModel.SequenceInfo(StorageInfo, sequenceInfo.MappingName) {
+      var sequence = new IndexingModel.SequenceInfo(storageInfo, sequenceInfo.MappingName) {
         Seed = sequenceInfo.Seed,
         Increment = increment,
-        Type = StorageModelBuilder.CreateType(keyInfo.TupleDescriptor[0], null, null, null),
+        Type = storageModelBuilder.CreateType(keyInfo.TupleDescriptor[0], null, null, null),
       };
       return sequence;
     }
@@ -305,31 +300,31 @@ namespace Xtensive.Orm.Upgrade
     private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
       var tableName = index.ReflectedType.MappingName;
-      CurrentTable = new IndexingModel.TableInfo(StorageInfo, tableName);
+      currentTable = new IndexingModel.TableInfo(storageInfo, tableName);
       foreach (var column in index.Columns)
         Visit(column);
 
       // Support for mysql as primary indexes there always have name 'PRIMARY'
-      string name = ProviderInfo.ConstantPrimaryIndexName;
+      string name = providerInfo.ConstantPrimaryIndexName;
       if (string.IsNullOrEmpty(name))
         name = index.MappingName;
 
-      var primaryIndex = new IndexingModel.PrimaryIndexInfo(CurrentTable, name);
+      var primaryIndex = new IndexingModel.PrimaryIndexInfo(currentTable, name);
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(index, pair.Key, index);
-        var column = CurrentTable.Columns[columName];
+        var column = currentTable.Columns[columName];
         new IndexingModel.KeyColumnRef(primaryIndex, column,
-          ProviderInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
+          providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
       }
       primaryIndex.PopulateValueColumns();
-      primaryIndex.IsClustered = index.IsClustered && ProviderInfo.Supports(ProviderFeatures.ClusteredIndexes);
+      primaryIndex.IsClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
 
       foreach (var secondaryIndex in index.ReflectedType.Indexes.Where(i => i.IsSecondary && !i.IsVirtual))
         VisitIndexInfo(index, secondaryIndex);
 
-      CurrentTable = null;
+      currentTable = null;
       return primaryIndex;
     }
 
@@ -449,10 +444,10 @@ namespace Xtensive.Orm.Upgrade
     private TableInfo GetTable(TypeInfo type)
     {
       if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
-        return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
+        return storageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
       if (type.IsInterface)
         return null;
-      return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
+      return storageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
     }
 
     private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
@@ -503,7 +498,7 @@ namespace Xtensive.Orm.Upgrade
       var referencedTable = GetTable(targetType);
       if (referencedTable == null || referencingTable == null)
         return;
-      var foreignKeyName = NameBuilder.BuildReferenceForeignKeyName(ownerType, ownerField, targetType);
+      var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(ownerType, ownerField, targetType);
       CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
     }
 
@@ -514,13 +509,13 @@ namespace Xtensive.Orm.Upgrade
         return;
       foreach (var field in auxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity))
       {
-        var referencedType = Model.Types[field.ValueType];
+        var referencedType = model.Types[field.ValueType];
         if (!IsValidForeignKeyTarget(referencedType))
           continue;
         var referencedTable = GetTable(referencedType);
         if (referencedTable == null)
           continue;
-        var foreignKeyName = NameBuilder.BuildReferenceForeignKeyName(auxiliaryType, field, referencedType);
+        var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(auxiliaryType, field, referencedType);
         CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
       }
     }
@@ -565,11 +560,11 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(storageModelBuilder, "storageModelBuilder");
       ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
 
-      ProviderInfo = providerInfo;
-      StorageModelBuilder = storageModelBuilder;
-      NameBuilder = nameBuilder;
-      BuildForeignKeys = buildForeignKeys;
-      BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
+      this.providerInfo = providerInfo;
+      this.storageModelBuilder = storageModelBuilder;
+      this.nameBuilder = nameBuilder;
+      this.buildForeignKeys = buildForeignKeys;
+      this.buildHierarchyForeignKeys = buildHierarchyForeignKeys;
     }
   }
 }

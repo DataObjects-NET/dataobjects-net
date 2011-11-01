@@ -17,9 +17,15 @@ namespace Xtensive.Linq
   public sealed class CompilerContainerAttribute : Attribute
   {
     /// <summary>
-    /// Gets the type value.
+    /// Gets the target type (i.e. type this compiler translates to).
     /// </summary>
-    public Type ExtensionType { get; private set; }
+    [Obsolete("Use TargetType instead")]
+    public Type ExtensionType { get { return TargetType; } }
+
+    /// <summary>
+    /// Gets the target type (i.e. type this compiler translates to).
+    /// </summary>
+    public Type TargetType { get; private set; }
 
     /// <summary>
     /// Gets the conflict handling method value.
@@ -32,21 +38,21 @@ namespace Xtensive.Linq
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="extensionType">The type.</param>
+    /// <param name="targetType">Target type.</param>
     /// <param name="conflictHandlingMethod">The conflict handling method.</param>
-    public CompilerContainerAttribute(Type extensionType, ConflictHandlingMethod conflictHandlingMethod)
+    public CompilerContainerAttribute(Type targetType, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ExtensionType = extensionType;
+      TargetType = targetType;
       ConflictHandlingMethod = conflictHandlingMethod;
     }
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="extensionType">The type.</param>
-    public CompilerContainerAttribute(Type extensionType)
+    /// <param name="targetType">Target type.</param>
+    public CompilerContainerAttribute(Type targetType)
     {
-      ExtensionType = extensionType;
+      TargetType = targetType;
       ConflictHandlingMethod = ConflictHandlingMethod.Default;
     }
   }
