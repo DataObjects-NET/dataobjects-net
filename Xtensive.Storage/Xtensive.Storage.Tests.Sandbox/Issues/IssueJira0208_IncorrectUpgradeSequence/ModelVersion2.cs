@@ -13,6 +13,16 @@ using System;
 
 namespace Xtensive.Storage.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence.Model.Version2
 {
+  [HierarchyRoot, Index("Field", Unique = true)]
+  public class VeryUniqueEntity : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+
+    [Field]
+    public int Field { get; set; }
+  }
+
   [HierarchyRoot]
   public class EntityToKeep1 : Entity
   {

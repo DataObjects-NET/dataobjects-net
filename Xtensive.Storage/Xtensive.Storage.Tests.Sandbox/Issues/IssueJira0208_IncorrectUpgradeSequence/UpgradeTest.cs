@@ -36,6 +36,8 @@ namespace Xtensive.Storage.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
           var toKeep1 = new M1.EntityToKeep1(toRemove1);
           var toRemove2 = new M1.EntityToRemove2();
           var toKeep2 = new M1.EntityToKeep2(toRemove2);
+          new M1.VeryUniqueEntity();
+          new M1.VeryUniqueEntity();
           tx.Complete();
         }
       }
@@ -49,6 +51,7 @@ namespace Xtensive.Storage.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
         using (Transaction.Open()) {
           var toKeep1 = Query.All<M2.EntityToKeep1>().Single();
           var toKeep2 = Query.All<M2.EntityToKeep2>().Single();
+          Assert.AreEqual(2, Query.All<M2.VeryUniqueEntity>().Count());
         }
       }
     }
