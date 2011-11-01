@@ -9,6 +9,13 @@ using System;
 namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence.Model.Version1
 {
   [HierarchyRoot]
+  public class VeryUniqueEntity : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+  }
+
+  [HierarchyRoot]
   public class EntityToRemove1 : Entity
   {
     [Key, Field]
