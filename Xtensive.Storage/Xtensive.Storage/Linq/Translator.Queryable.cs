@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Concat:
         case QueryableMethodKind.Union:
           state.BuildingProjection = false;
-          return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
+          return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind, mc.Method.GetGenericArguments()[0]);
         case QueryableMethodKind.Reverse:
           break;
         case QueryableMethodKind.SequenceEqual:
@@ -346,6 +346,15 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
+      var itemType = match.Type;
+      var sourceElementType = QueryHelper.GetSequenceElementType(source.Type);
+      if (sourceElementType != itemType) {
+        if (sourceElementType.IsAssignableFrom(itemType))
+          match = Expression.TypeAs(match, sourceElementType);
+        else
+          QueryHelper.TryAddConvarianceCast(ref source, match.Type);
+      }
+
       var p = Expression.Parameter(match.Type, "p");
       var le = FastExpression.Lambda(Expression.Equal(p, match), p);
 
@@ -1213,10 +1222,14 @@ namespace Xtensive.Storage.Linq
     }
 
 
-    private Expression VisitSetOperations(Expression outerSource, Expression innerSource, QueryableMethodKind methodKind)
+    private Expression VisitSetOperations(Expression outerSource, Expression innerSource, QueryableMethodKind methodKind, Type elementType)
     {
       ProjectionExpression outer;
       ProjectionExpression inner;
+
+      QueryHelper.TryAddConvarianceCast(ref outerSource, elementType);
+      QueryHelper.TryAddConvarianceCast(ref innerSource, elementType);
+
       using (state.CreateScope()) {
         state.JoinLocalCollectionEntity = true;
         state.CalculateExpressions = true;
@@ -1370,6 +1383,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)
     {
+      QueryHelper.TryAddConvarianceCast(ref setA, elementType);
+      QueryHelper.TryAddConvarianceCast(ref setB, elementType);
+
       var setAIsQuery = setA.IsQuery();
       var parameter = Expression.Parameter(elementType, "a");
       var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
@@ -1386,6 +1402,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContainsAll(Expression setA, Expression setB, bool isRoot, Type elementType)
     {
+      QueryHelper.TryAddConvarianceCast(ref setA, elementType);
+      QueryHelper.TryAddConvarianceCast(ref setB, elementType);
+
       var parameter = Expression.Parameter(elementType, "a");
       var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
 
@@ -1395,6 +1414,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContainsNone(Expression setA, Expression setB, bool isRoot, Type elementType)
     {
+      QueryHelper.TryAddConvarianceCast(ref setA, elementType);
+      QueryHelper.TryAddConvarianceCast(ref setB, elementType);
+
       var setAIsQuery = setA.IsQuery();
       var parameter = Expression.Parameter(elementType, "a");
       var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
