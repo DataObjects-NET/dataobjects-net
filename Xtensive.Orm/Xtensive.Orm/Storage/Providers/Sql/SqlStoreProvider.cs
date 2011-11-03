@@ -51,14 +51,13 @@ namespace Xtensive.Storage.Providers.Sql
     #endregion
 
     /// <inheritdoc/>
-    protected internal override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
+    public override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       LockAndStore(context, Source);
     }
 
-
-    protected internal override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+    public override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
       base.OnAfterEnumerate(context);

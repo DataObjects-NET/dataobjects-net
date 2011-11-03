@@ -34,9 +34,6 @@ namespace Xtensive.Storage.Rse.Compilation
     private readonly Func<IPreCompiler> preCompilerProvider;
     private readonly Func<ICompiler, IPostCompiler> postCompilerProvider;
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    public readonly static DefaultCompilationService Default = 
-      new DefaultCompilationService();
 
     #region Nested type: CacheEntry
 

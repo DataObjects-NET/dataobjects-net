@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     // Constructors
 
     private IndexProvider(IndexInfo index)
-      : base (ProviderType.Index, RseCompiler.DefaultServerLocation)
+      : base (ProviderType.Index, DefaultServerLocation)
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);

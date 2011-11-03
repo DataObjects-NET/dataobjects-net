@@ -23,7 +23,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Orm.Resources;
-using Xtensive.Storage.Rse.Providers.Executable;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 

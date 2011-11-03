@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// Called when enumerator is created on this provider.
     /// </summary>
     /// <param name="context">The enumeration context.</param>
-    protected internal virtual void OnBeforeEnumerate(EnumerationContext context)
+    public virtual void OnBeforeEnumerate(EnumerationContext context)
     {
       foreach (Provider source in Sources) {
         var ep = source as ExecutableProvider;
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// Called when enumeration is finished.
     /// </summary>
     /// <param name="context">The enumeration context.</param>
-    protected internal virtual void OnAfterEnumerate(EnumerationContext context)
+    public virtual void OnAfterEnumerate(EnumerationContext context)
     {
       foreach (Provider source in Sources) {
         var ep = source as ExecutableProvider;
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// Invoked by <see cref="Enumerate"/> method in case there is no cached result for the specified context.
     /// </summary>
     /// <param name="context">The enumeration context.</param>
-    protected internal abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
+    public abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
 
     #endregion
 

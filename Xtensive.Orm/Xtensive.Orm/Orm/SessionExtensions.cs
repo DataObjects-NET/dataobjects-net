@@ -21,7 +21,7 @@ namespace Xtensive.Orm
     /// <param name="session">The session to get the string representation for.</param>
     /// <returns>The string representation of specified <paramref name="session"/>;
     /// "n\a", if <paramref name="session"/> is <see langword="null" />.</returns>
-    internal static string ToStringSafely(this Session session)
+    public static string ToStringSafely(this Session session)
     {
       return session==null ? Strings.NA : session.ToString();
     }

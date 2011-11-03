@@ -10,7 +10,6 @@ using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
-using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Resources;
 using Xtensive.Reflection;
 

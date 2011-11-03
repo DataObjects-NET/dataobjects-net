@@ -18,6 +18,16 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   public abstract class LocationAwareProvider : CompilableProvider
   {
     /// <summary>
+    /// Gets the default client location.
+    /// </summary>
+    public static Location DefaultClientLocation { get; private set; }
+
+    /// <summary>
+    /// Gets the default server location.
+    /// </summary>
+    public static Location DefaultServerLocation { get; private set; }
+
+    /// <summary>
     /// Gets or sets execution site location.
     /// </summary>
     public Location Location { get; private set; }
@@ -33,5 +43,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
       Location = location;
     }
+
+    static LocationAwareProvider()
+    {
+      DefaultServerLocation = new Location("rse", "server/");
+      DefaultClientLocation = new Location("rse", "localhost/");
+    }
+
   }
 }

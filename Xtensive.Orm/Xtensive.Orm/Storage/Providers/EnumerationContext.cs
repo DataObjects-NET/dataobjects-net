@@ -12,7 +12,6 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage.Providers
 {

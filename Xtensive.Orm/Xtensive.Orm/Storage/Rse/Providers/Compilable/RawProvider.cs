@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public RawProvider(RecordSetHeader header, Expression<Func<IEnumerable<Tuple>>> source)
-      : base(ProviderType.Raw, RseCompiler.DefaultClientLocation)
+      : base(ProviderType.Raw, DefaultClientLocation)
     {
       Source = source;
       this.header = header;

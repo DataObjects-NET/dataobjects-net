@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse
       [DebuggerStepThrough]
       get { return parameter.Value; }
       [DebuggerStepThrough]
-      internal set { parameter.Value = value; }
+      set { parameter.Value = value; }
     }
 
     /// <inheritdoc/>
