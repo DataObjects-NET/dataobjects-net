@@ -139,6 +139,7 @@ namespace Xtensive.Orm.Linq
       public static readonly Type OfTuple;
       public static readonly MethodInfo DefaultIfEmpty;
       public static readonly MethodInfo Contains;
+      public static readonly MethodInfo Cast;
 
       static Enumerable()
       {
@@ -150,6 +151,7 @@ namespace Xtensive.Orm.Linq
         OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Xtensive.Tuples.Tuple));
         DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
         Contains = GetMethod(typeof(System.Linq.Enumerable), "Contains", 1, 2);
+        Cast = GetMethod(typeof (System.Linq.Enumerable), "Cast", 1, 1);
       }
     }
 
@@ -179,6 +181,7 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo LongCount;
       public static readonly MethodInfo Where;
       public static readonly MethodInfo Contains;
+      public static readonly MethodInfo Cast;
 
       // Querable extensions
       public static readonly MethodInfo ExtensionCount;
@@ -199,6 +202,7 @@ namespace Xtensive.Orm.Linq
         Take = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Take, 1, 2);
         Contains = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Contains, 1, 2);
         LongCount = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.LongCount, 1, 1);
+        Cast = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Cast, 1, 1);
         Where = typeof (System.Linq.Queryable).GetMethods().Where(methodInfo => {
           ParameterInfo[] parameterInfos = methodInfo.GetParameters();
           return methodInfo.Name==Xtensive.Reflection.WellKnown.Queryable.Where
