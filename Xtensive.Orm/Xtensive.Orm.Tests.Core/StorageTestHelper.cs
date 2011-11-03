@@ -11,6 +11,8 @@ namespace Xtensive.Orm.Tests
 {
   public static class StorageTestHelper
   {
+    public const string MemoryProviderName = "memory";
+
     public static object GetNativeTransaction()
     {
       var handler = Session.Demand().Handler;

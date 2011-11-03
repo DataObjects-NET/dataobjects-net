@@ -158,30 +158,10 @@ namespace Xtensive.Orm
       );
 
     /// <summary>
-    /// Well-known storage provider assembly names.
-    /// </summary>
-    public static class ProviderAssembly
-    {
-      /// <summary>
-      /// A name of Indexing provider assembly.
-      /// </summary>
-      public const string Indexing = "Xtensive.Storage.Providers.Index";
-
-      /// <summary>
-      /// A name of SQL provider assembly.
-      /// </summary>
-      public const string Sql = "Xtensive.Storage.Providers.Sql";
-    }
-
-    /// <summary>
     /// Well-known storage protocol names.
     /// </summary>
     public static class Provider
     {
-      /// <summary>
-      /// In-memory index storage.
-      /// </summary>
-      public const string Memory = "memory";
       /// <summary>
       /// Microsoft SQL Server.
       /// </summary>
@@ -209,7 +189,7 @@ namespace Xtensive.Orm
       /// <summary>
       /// All supported protocols (for exception messages, etc).
       /// </summary>
-      public const string All = "'memory', 'sqlserver', 'sqlserverce', 'postgresql', 'oracle', 'mysql', 'firebird'";
+      public const string All = "'sqlserver', 'sqlserverce', 'postgresql', 'oracle', 'mysql', 'firebird'";
     }
 
     /// <summary>

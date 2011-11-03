@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Providers.Indexing.Memory
   /// <summary>
   /// Handlers factory for memory index storage.
   /// </summary>
-  [Provider(WellKnown.Provider.Memory, "General storage provider for in-memory storages.")]
+  [Provider("memory", "General storage provider for in-memory storages.")]
   public class HandlerFactory : Indexing.HandlerFactory
   {
   }

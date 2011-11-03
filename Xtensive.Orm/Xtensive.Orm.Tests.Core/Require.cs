@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests
     private static StorageProvider ParseProvider(string provider)
     {
       switch (provider) {
-      case WellKnown.Provider.Memory:
+      case StorageTestHelper.MemoryProviderName:
         return StorageProvider.Memory;
       case WellKnown.Provider.SqlServer:
         return StorageProvider.SqlServer;
