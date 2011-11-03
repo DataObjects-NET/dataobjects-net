@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core.Collections;
@@ -470,6 +471,34 @@ namespace Xtensive.Core
           sb.Append(c);
       }
       return sb.ToString();
+    }
+
+    /// <summary>
+    /// Concatenates all <paramref name="values"/> using specified <paramref name="separator"/>.
+    /// This method aids with targeting .NET 3.5
+    /// </summary>
+    /// <param name="separator">Separator to use.</param>
+    /// <param name="values">Values to join.</param>
+    /// <returns>Joined value.</returns>
+    public static string Join(string separator, IEnumerable<string> values)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(separator, "separator");
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      return string.Join(separator, values.ToArray());
+    }
+
+    /// <summary>
+    /// Concatenates all <paramref name="values"/> using specified <paramref name="separator"/>.
+    /// This method aids with targeting .NET 3.5
+    /// </summary>
+    /// <param name="separator">Separator to use.</param>
+    /// <param name="values">Values to join.</param>
+    /// <returns>Joined value.</returns>
+    public static string Join<T>(string separator, IEnumerable<T> values)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(separator, "separator");
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      return string.Join(separator, values.Select(value => value.ToString()).ToArray());
     }
   }
 }
