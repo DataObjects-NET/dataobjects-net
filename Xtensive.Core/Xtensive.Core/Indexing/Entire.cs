@@ -10,9 +10,9 @@ using System.Text;
 using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
@@ -230,15 +230,17 @@ namespace Xtensive.Indexing
 
     internal static string ToString(Entire<T> entire)
     {
+      const string infinity = "inf";
+      const string format = "E:{0}";
       var sb = new StringBuilder(16);
       sb.AppendFormat("{0}", entire.Value);
       if (entire.ValueType.IsInfinity()) {
         sb.Append((int) entire.ValueType < 0 ? "-" : "+");
-        sb.Append(Strings.Infinity);
+        sb.Append(infinity);
       }
       else if (entire.ValueType != EntireValueType.Exact)
         sb.Append((int)entire.ValueType < 0 ? "-" : "+");
-      return String.Format(Strings.EntireFormat, sb);
+      return String.Format(format, sb);
     }
 
     #endregion

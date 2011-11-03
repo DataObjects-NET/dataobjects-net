@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Indexing.Resources;
+using Xtensive.Resources;
 
 namespace Xtensive.Indexing
 {
@@ -141,7 +141,8 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.RangeFormat, endPoints.First, endPoints.Second);
+      const string format = "({0} ... {1})";
+      return String.Format(format, endPoints.First, endPoints.Second);
     }
 
 

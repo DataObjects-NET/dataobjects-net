@@ -12,7 +12,6 @@ using Xtensive.Comparison;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
@@ -200,7 +199,8 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(Strings.RangeSetFormat, 
+      const string format = "RangeSet<{0}>({1})";
+      return string.Format(format, 
         typeof(T).GetShortName(), ranges.ToCommaDelimitedString());
     }
 

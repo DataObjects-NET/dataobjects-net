@@ -11,9 +11,9 @@ using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Resources;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
