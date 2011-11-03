@@ -111,6 +111,18 @@ namespace Xtensive.Core
       return new SerializableExpressionToExpressionConverter(expression).Convert();
     }
 
+    /// <summary>
+    /// Gets return type of <see cref="LambdaExpression"/>.
+    /// This method is used to write code that is compilable on .NET 3.5,
+    /// which do not have corresponding property.
+    /// </summary>
+    /// <param name="lambda">Expression to get return type for.</param>
+    /// <returns>Return type of <paramref name="lambda"/>.</returns>
+    public static Type GetReturnType(this LambdaExpression lambda)
+    {
+      return lambda.Body.Type;
+    }
+
     #region GetXxx methods
 
     /// <summary>
