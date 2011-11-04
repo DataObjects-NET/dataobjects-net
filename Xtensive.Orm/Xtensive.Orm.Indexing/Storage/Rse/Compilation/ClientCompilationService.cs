@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Rse.Compilation
   /// <summary>
   /// Default <see cref="CompilationService"/> implementation.
   /// </summary>
-  public sealed class DefaultCompilationService : CompilationService
+  public sealed class ClientCompilationService : CompilationService
   {
     /// <summary>
     /// Default method to resolve <see cref="ProviderOrderingDescriptor"/> 
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Rse.Compilation
     // Constructors
 
     /// <inheritdoc/>
-    public DefaultCompilationService()
+    public ClientCompilationService()
       : base(
         () => new ClientCompiler(),
         () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor)),

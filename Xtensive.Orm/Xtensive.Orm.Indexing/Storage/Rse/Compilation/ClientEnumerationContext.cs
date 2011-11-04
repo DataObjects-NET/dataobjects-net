@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Rse.Compilation
   /// <summary>
   /// Default <see cref="EnumerationContext"/> implementation.
   /// </summary>
-  public sealed class DefaultEnumerationContext : EnumerationContext
+  public sealed class ClientEnumerationContext : EnumerationContext
   {
     private static readonly GlobalTemporaryData GlobalTemporaryDataInstance = new GlobalTemporaryData();
 
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     public override EnumerationContext CreateNew()
     {
-      return new DefaultEnumerationContext();
+      return new ClientEnumerationContext();
     }
 
     /// <inheritdoc/>

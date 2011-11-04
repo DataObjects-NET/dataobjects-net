@@ -166,9 +166,9 @@ namespace Xtensive.Storage.Providers.Indexing
     {
       return new CompositePreCompiler(
         new ApplyProviderCorrector(false),
-        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor),
+        new OrderingCorrector(ClientCompilationService.ResolveOrderingDescriptor),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
-        new OrderingCorrector(DefaultCompilationService.ResolveOrderingDescriptor)
+        new OrderingCorrector(ClientCompilationService.ResolveOrderingDescriptor)
         );
     }
 

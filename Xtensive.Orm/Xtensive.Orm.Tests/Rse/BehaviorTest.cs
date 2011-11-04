@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Tests.Rse
         .OrderBy(OrderBy.Desc(5))
         .Select(0, 1, 3, 5);
 
-      foreach (Tuple record in result.ToRecordSet(new DefaultEnumerationContext(), new DefaultCompilationService()))
+      foreach (Tuple record in result.ToRecordSet(new ClientEnumerationContext(), new ClientCompilationService()))
         Console.Out.WriteLine(record /*.GetValue<string>(result.IndexOf("Books.Title"))*/);
     }
 
@@ -184,9 +184,9 @@ namespace Xtensive.Orm.Tests.Rse
 
     private void TestJoinCount(RecordQuery item1, RecordQuery item2, int resultCount)
     {
-      using (new DefaultEnumerationContext().Activate()) {
-        var count1 = (int) item1.Count(EnumerationContext.Current, new DefaultCompilationService());
-        var count2 = (int)item2.Count(EnumerationContext.Current, new DefaultCompilationService());
+      using (new ClientEnumerationContext().Activate()) {
+        var count1 = (int) item1.Count(EnumerationContext.Current, new ClientCompilationService());
+        var count2 = (int)item2.Count(EnumerationContext.Current, new ClientCompilationService());
         Assert.AreEqual(count1, count2);
         Assert.AreEqual(resultCount, count1);
       }
@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Tests.Rse
           .ToRecordSet(authorHeader)
           .Distinct();
 
-        Assert.AreEqual(1, authorRS.Count(new DefaultEnumerationContext(), new DefaultCompilationService()));
+        Assert.AreEqual(1, authorRS.Count(new ClientEnumerationContext(), new ClientCompilationService()));
       }
     }
 
@@ -274,7 +274,7 @@ namespace Xtensive.Orm.Tests.Rse
       using (new Measurement("Apply through Rse")) {
         var p = new ApplyParameter();
         var result = authorRS.Apply(p, bookRS.Filter(t => t.GetValue<int>(1)==p.Value.GetValue<int>(0)));
-        var list = result.ToRecordSet(new DefaultEnumerationContext(), new DefaultCompilationService()).ToList();
+        var list = result.ToRecordSet(new ClientEnumerationContext(), new ClientCompilationService()).ToList();
         Assert.AreEqual(authorCount * booksPerAuthor, list.Count);
       }
     }
@@ -314,7 +314,7 @@ namespace Xtensive.Orm.Tests.Rse
 
       Assert.AreEqual(5, authorRS.Header.Length);
       int rowNumber = 1;
-      foreach (var tuple in authorRS.ToRecordSet(new DefaultEnumerationContext(), new DefaultCompilationService())) {
+      foreach (var tuple in authorRS.ToRecordSet(new ClientEnumerationContext(), new ClientCompilationService())) {
         Assert.AreEqual(rowNumber++, tuple.GetValueOrDefault(authorRS.Header.Columns[rowNumberColumnName].Index));
       }
 
@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Tests.Rse
 
       Assert.AreEqual(6, authorRS2.Header.Length);
       int rowNumber2 = 1;
-      foreach (var tuple in authorRS2.ToRecordSet(new DefaultEnumerationContext(), new DefaultCompilationService())) {
+      foreach (var tuple in authorRS2.ToRecordSet(new ClientEnumerationContext(), new ClientCompilationService())) {
         Assert.AreEqual(rowNumber2, tuple.GetValueOrDefault(authorRS2.Header.Columns[rowNumberColumnName].Index));
         Assert.AreEqual(rowNumber2++, tuple.GetValueOrDefault(authorRS2.Header.Columns[rowNumberColumnName2].Index));
       }
@@ -352,16 +352,16 @@ namespace Xtensive.Orm.Tests.Rse
         .RowNumber(categoryRowNumberColumnName);
       Assert.AreEqual(6, authorRS2.Header.Length);
       int categoryRowNumber = 1;
-      foreach (var tuple in categoryRS.ToRecordSet(new DefaultEnumerationContext(), new DefaultCompilationService())) {
+      foreach (var tuple in categoryRS.ToRecordSet(new ClientEnumerationContext(), new ClientCompilationService())) {
         Assert.AreEqual(categoryRowNumber++, tuple.GetValueOrDefault(categoryRS.Header.Columns[categoryRowNumberColumnName].Index));
       }
 
       const string joinRowNumberColumnName = "JoinRowNumber";
       var joinRS = authorRS.Join(categoryRS, JoinAlgorithm.Default, 3, 0).RowNumber(joinRowNumberColumnName);
-      Assert.AreEqual(authorRS.Count(new DefaultEnumerationContext(), new DefaultCompilationService()), joinRS.Count(new DefaultEnumerationContext(), new DefaultCompilationService()));
+      Assert.AreEqual(authorRS.Count(new ClientEnumerationContext(), new ClientCompilationService()), joinRS.Count(new ClientEnumerationContext(), new ClientCompilationService()));
 
       int joinRowNumber = 1;
-      foreach (var tuple in joinRS.ToRecordSet(new DefaultEnumerationContext(), new DefaultCompilationService())) {
+      foreach (var tuple in joinRS.ToRecordSet(new ClientEnumerationContext(), new ClientCompilationService())) {
         Assert.AreEqual(joinRowNumber++, tuple.GetValueOrDefault(joinRS.Header.Columns[joinRowNumberColumnName].Index));
         Assert.AreEqual((int) tuple.GetValueOrDefault(joinRS.Header.Columns["CategoryID"].Index) + 1, tuple.GetValueOrDefault(joinRS.Header.Columns[categoryRowNumberColumnName].Index));
         Assert.AreEqual((int) tuple.GetValueOrDefault(joinRS.Header.Columns["ID"].Index) + 1, tuple.GetValueOrDefault(joinRS.Header.Columns[rowNumberColumnName].Index));

@@ -86,8 +86,8 @@ namespace Xtensive.Orm.Tests.Rse
         .Filter(t => t.GetValueOrDefault<DateTime?>(GetColumnIndex(primaryIndex, "OrderDate"))!=null)
         .OrderBy(originalOrder)
         .Select(0, 2, 10);
-      using (new DefaultEnumerationContext().Activate()) {
-        var compiledProvider = new DefaultCompilationService().Compile(result.Provider);
+      using (new ClientEnumerationContext().Activate()) {
+        var compiledProvider = new ClientCompilationService().Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var compiledSort = ((SortProvider) ((SelectProvider) compiledProvider.Origin).Source);
         Assert.IsTrue(originalOrder.SequenceEqual(compiledSort.Order));
@@ -105,8 +105,8 @@ namespace Xtensive.Orm.Tests.Rse
         .OrderBy(new DirectionCollection<int>{{10, Direction.Negative}})
         .Distinct()
         .Select(0, 2, 10);
-      using (new DefaultEnumerationContext().Activate()) {
-        var compiledProvider = new DefaultCompilationService().Compile(result.Provider);
+      using (new ClientEnumerationContext().Activate()) {
+        var compiledProvider = new ClientCompilationService().Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var lastSelect = (SelectProvider) compiledProvider.Origin;
         Assert.AreEqual(typeof (SortProvider), lastSelect.Source.GetType());
@@ -126,8 +126,8 @@ namespace Xtensive.Orm.Tests.Rse
         .OrderBy(new DirectionCollection<int>{{10, Direction.Negative}})
         .Aggregate(new[] {2, 3})
         .Select(1);
-      using (new DefaultEnumerationContext().Activate()) {
-        var compiledProvider = new DefaultCompilationService().Compile(result.Provider);
+      using (new ClientEnumerationContext().Activate()) {
+        var compiledProvider = new ClientCompilationService().Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var root = (SelectProvider) compiledProvider.Origin;
         Assert.AreEqual(typeof (AggregateProvider), root.Source.GetType());
