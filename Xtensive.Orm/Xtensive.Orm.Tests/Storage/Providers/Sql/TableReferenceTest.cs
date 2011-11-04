@@ -13,6 +13,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Sql.Tests;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel;
 
@@ -163,7 +164,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql {
       var domain = base.BuildDomain(configuration);
       // Get current SQL model
 
-      var driver = SqlDriver.Create(domain.Configuration.ConnectionInfo);
+      var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
       using (var connection = driver.CreateConnection()) {
         connection.Open();
         try {

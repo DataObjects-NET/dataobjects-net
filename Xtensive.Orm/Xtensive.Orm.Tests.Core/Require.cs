@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Orm.Model;
+using Xtensive.Sql.Tests;
 using Xtensive.Storage.Providers;
 using SqlProviderInfoBuilder = Xtensive.Storage.Providers.Sql.ProviderInfoBuilder;
 using IndexProviderInfoBuilder = Xtensive.Storage.Providers.Indexing.ProviderInfoBuilder;
@@ -132,7 +133,7 @@ namespace Xtensive.Orm.Tests
 
       // ProviderInfo
       if ((activeProvider & StorageProvider.Sql)==activeProvider)
-        activeProviderInfo = SqlProviderInfoBuilder.Build(SqlDriver.Create(config.ConnectionInfo));
+        activeProviderInfo = SqlProviderInfoBuilder.Build(TestSqlDriver.Create(config.ConnectionInfo));
       else if ((activeProvider & StorageProvider.Index)==activeProvider)
         activeProviderInfo = IndexProviderInfoBuilder.Build();
       else

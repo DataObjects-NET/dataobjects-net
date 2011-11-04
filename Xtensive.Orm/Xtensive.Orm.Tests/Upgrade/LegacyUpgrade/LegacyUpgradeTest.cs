@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Sql.Tests;
 using Xtensive.Testing;
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
@@ -216,7 +217,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
     private static void CreateDb(string script)
     {
       var config = BuildConfiguration();
-      var driver = SqlDriver.Create(config.ConnectionInfo);
+      var driver = TestSqlDriver.Create(config.ConnectionInfo);
       var connection = driver.CreateConnection();
       connection.Open();
       try {

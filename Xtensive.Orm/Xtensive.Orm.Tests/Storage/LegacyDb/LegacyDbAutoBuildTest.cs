@@ -6,6 +6,7 @@
 
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
+using Xtensive.Sql.Tests;
 
 namespace Xtensive.Orm.Tests.Storage.LegacyDb
 {
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
 
     private void PrepareDb(DomainConfiguration config)
     {
-      var driver = SqlDriver.Create(config.ConnectionInfo);
+      var driver = TestSqlDriver.Create(config.ConnectionInfo);
       using (var connection = driver.CreateConnection()) {
         connection.Open();
         using (var cmd = connection.CreateCommand()) {
