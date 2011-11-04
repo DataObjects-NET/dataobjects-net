@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.25
 
+using Xtensive.Sql.MySql;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.MySql
@@ -13,6 +14,11 @@ namespace Xtensive.Storage.Providers.Sql.Servers.MySql
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
+    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
+    {
+      return new DriverFactory();
+    }
+
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler()
     {

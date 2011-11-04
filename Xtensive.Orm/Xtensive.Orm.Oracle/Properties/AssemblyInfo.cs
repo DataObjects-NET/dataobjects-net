@@ -15,11 +15,11 @@ using Xtensive.Orm;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Orm.Indexing")]
+[assembly: AssemblyTitle("Xtensive.Orm.Oracle")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
-[assembly: AssemblyProduct("Xtensive.Orm.Indexing")]
+[assembly: AssemblyProduct("Xtensive.Orm.Oracle")]
 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

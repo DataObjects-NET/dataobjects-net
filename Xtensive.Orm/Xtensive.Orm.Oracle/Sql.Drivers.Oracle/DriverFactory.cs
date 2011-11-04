@@ -61,7 +61,7 @@ namespace Xtensive.Sql.Oracle
     }
     
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString)
     {
       using (var connection = new OracleConnection(connectionString)) {
         connection.Open();

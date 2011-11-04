@@ -56,7 +56,7 @@ namespace Xtensive.Sql.PostgreSql
 #if NET40
     [SecuritySafeCritical]
 #endif
-    public override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString)
     {
       using (var connection = new NpgsqlConnection(connectionString)) {
         connection.Open();

@@ -36,7 +36,7 @@ namespace Xtensive.Sql.SqlServerCe
     }
 
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString)
     {
       var version = new Version(3, 5, 1, 0);
       var dataSource = GetDataSource(connectionString);

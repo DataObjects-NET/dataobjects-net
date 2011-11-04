@@ -56,7 +56,7 @@ namespace Xtensive.Sql.MySql
 #if NET40
     [SecuritySafeCritical]
 #endif
-    public override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString)
     {
       using (var connection = new MySqlConnection(connectionString)) {
         connection.Open();

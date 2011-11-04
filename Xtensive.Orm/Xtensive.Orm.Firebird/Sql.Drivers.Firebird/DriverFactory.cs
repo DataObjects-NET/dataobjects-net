@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Firebird
           "select mon$database_name, '" + Constants.DefaultSchemaName + "' from mon$database";
 
         /// <inheritdoc/>
-        public override SqlDriver CreateDriver(string connectionString)
+        protected override SqlDriver CreateDriver(string connectionString)
         {
             using (var connection = new FbConnection(connectionString))
             {

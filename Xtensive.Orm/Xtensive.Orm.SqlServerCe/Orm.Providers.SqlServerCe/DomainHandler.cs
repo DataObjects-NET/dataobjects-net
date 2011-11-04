@@ -4,15 +4,21 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
+using Xtensive.Sql.SqlServerCe;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
 {
   /// <summary>
-  /// A domain handler specific to Microsoft SQL Server RDBMS.
+  /// A domain handler specific to Microsoft SQL Server Compact Edition RDBMS.
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
+    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
+    {
+      return new DriverFactory();
+    }
+
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler()
     {

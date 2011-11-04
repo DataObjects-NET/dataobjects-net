@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal abstract class ManualPagingSqlCompiler : SqlCompiler
+  public abstract class ManualPagingSqlCompiler : SqlCompiler
   {
     protected override SqlProvider VisitSkip(SkipProvider provider)
     {

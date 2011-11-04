@@ -13,16 +13,14 @@ namespace Xtensive.Sql.Tests
 {
   public static class TestSqlDriver
   {
-    private static Dictionary<string, Type> factoryRegistry = new Dictionary<string, Type>();
-//  {
-//      {"sqlserver", typeof(SqlServer.DriverFactory)},
-//      {"sqlserverce", typeof(SqlServerCe.DriverFactory)},
-//      {"oracle", typeof(Oracle.DriverFactory)},
-//      {"postgresql", typeof(PostgreSql.DriverFactory)},
-//      {"firebird", typeof(Firebird.DriverFactory)},
-//      {"mysql", typeof(MySql.DriverFactory)}
-//    };
-
+    private static Dictionary<string, Type> factoryRegistry = new Dictionary<string, Type> {
+        {"sqlserver", typeof (Sql.SqlServer.DriverFactory)},
+        {"sqlserverce", typeof (Sql.SqlServerCe.DriverFactory)},
+        {"oracle", typeof (Sql.Oracle.DriverFactory)},
+        {"postgresql", typeof (Sql.PostgreSql.DriverFactory)},
+        {"firebird", typeof (Sql.Firebird.DriverFactory)},
+        {"mysql", typeof (Sql.MySql.DriverFactory)}
+      };
 
     /// <summary>
     /// Creates the driver from the specified connection URL.

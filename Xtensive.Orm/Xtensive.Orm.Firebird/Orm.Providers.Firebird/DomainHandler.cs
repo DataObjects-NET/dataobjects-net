@@ -5,6 +5,7 @@
 // Created:    2011.01.27
 
 using System;
+using Xtensive.Sql.Firebird;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.Firebird
@@ -14,6 +15,11 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Firebird
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
+    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
+    {
+      return new DriverFactory();
+    }
+
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler()
     {

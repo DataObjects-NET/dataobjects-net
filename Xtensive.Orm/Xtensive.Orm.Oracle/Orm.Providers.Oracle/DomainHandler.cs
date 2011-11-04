@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.04
 
+using Xtensive.Sql.Oracle;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
@@ -13,6 +14,11 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
+    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
+    {
+      return new DriverFactory();
+    }
+
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler()
     {

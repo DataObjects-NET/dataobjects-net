@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
+using Xtensive.Sql.PostgreSql;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
@@ -13,6 +14,11 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
+    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
+    {
+      return new DriverFactory();
+    }
+
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler()
     {
