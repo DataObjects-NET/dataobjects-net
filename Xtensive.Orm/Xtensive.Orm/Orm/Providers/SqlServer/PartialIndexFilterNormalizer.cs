@@ -6,7 +6,7 @@
 
 using System.Text;
 
-namespace Xtensive.Orm.Providers.Sql.Servers.SqlServer
+namespace Xtensive.Orm.Providers.SqlServer
 {
   public class PartialIndexFilterNormalizer : Sql.PartialIndexFilterNormalizer
   {

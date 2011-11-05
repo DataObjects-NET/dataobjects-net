@@ -6,13 +6,14 @@
 
 using System.Collections.Generic;
 using Xtensive.Collections;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
 
-namespace Xtensive.Orm.Providers.Sql.Servers.SqlServer
+namespace Xtensive.Orm.Providers.SqlServer
 {
   internal class SqlCompiler : ManualPagingSqlCompiler
   {
