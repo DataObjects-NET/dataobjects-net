@@ -9,14 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   partial class SqlCompiler 
   {

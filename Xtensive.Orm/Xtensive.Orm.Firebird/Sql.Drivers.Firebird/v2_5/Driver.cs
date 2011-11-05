@@ -8,7 +8,7 @@ using System;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Compiler;
 
-namespace Xtensive.Sql.Firebird.v2_5
+namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
     internal class Driver : Firebird.Driver
     {

@@ -7,10 +7,10 @@
 using System;
 using FirebirdSql.Data.FirebirdClient;
 using Xtensive.Core;
-using Xtensive.Sql.Firebird.Resources;
+using Xtensive.Sql.Drivers.Firebird.Resources;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Firebird
+namespace Xtensive.Sql.Drivers.Firebird
 {
     /// <summary>
     /// A <see cref="SqlDriver"/> factory for Firebird.

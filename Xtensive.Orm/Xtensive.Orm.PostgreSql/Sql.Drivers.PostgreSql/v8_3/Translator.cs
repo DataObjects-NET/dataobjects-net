@@ -10,7 +10,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using System.Linq;
 
-namespace Xtensive.Sql.PostgreSql.v8_3
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class Translator : v8_2.Translator
   {

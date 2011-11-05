@@ -10,15 +10,15 @@ using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers.Sql.Expressions;
+using Xtensive.Orm.Providers.Sql.Mappings;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Threading;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Expressions;
-using Xtensive.Storage.Providers.Sql.Mappings;
-using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
@@ -27,7 +27,7 @@ using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// <see cref="Orm.Domain"/>-level handler.

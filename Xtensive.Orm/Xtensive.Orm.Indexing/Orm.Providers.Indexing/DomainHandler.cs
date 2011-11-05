@@ -10,25 +10,25 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers.Indexing.Resources;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Orm.Building;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Indexing.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
 using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
-using PF = Xtensive.Storage.Providers.ProviderFeatures;
+using PF = Xtensive.Orm.Providers.ProviderFeatures;
 using StorageIndexInfo = Xtensive.Storage.Model.IndexInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// <see cref="Domain"/>-level handler for index storage.

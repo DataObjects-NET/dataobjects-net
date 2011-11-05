@@ -10,7 +10,7 @@ using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A query task (i.e. SELECT) for <see cref="CommandProcessor"/>.

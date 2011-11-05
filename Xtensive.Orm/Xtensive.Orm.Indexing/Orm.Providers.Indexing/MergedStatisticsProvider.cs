@@ -12,7 +12,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Indexing.Optimization;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   [Serializable]
   internal sealed class MergedStatisticsProvider : IOptimizationInfoProvider<Tuple>, IStatistics<Tuple>

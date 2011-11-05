@@ -14,7 +14,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Resources;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   partial class SessionHandler
   {

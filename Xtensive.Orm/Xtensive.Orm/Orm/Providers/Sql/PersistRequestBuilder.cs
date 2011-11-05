@@ -13,7 +13,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Builder of <see cref="Request"/>s.

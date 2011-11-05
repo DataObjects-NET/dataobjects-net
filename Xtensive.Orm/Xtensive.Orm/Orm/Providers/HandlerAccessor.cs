@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Storage handler accessor.

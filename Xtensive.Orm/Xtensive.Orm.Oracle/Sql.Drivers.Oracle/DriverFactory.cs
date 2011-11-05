@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Drivers.Oracle.Resources;
 
-namespace Xtensive.Sql.Oracle
+namespace Xtensive.Sql.Drivers.Oracle
 {
   /// <summary>
   /// A <see cref="SqlDriver"/> factory for Oracle.

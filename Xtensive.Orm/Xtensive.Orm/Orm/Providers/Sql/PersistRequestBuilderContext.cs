@@ -10,7 +10,7 @@ using Xtensive.Collections;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// <see cref="PersistRequestBuilder"/> context.

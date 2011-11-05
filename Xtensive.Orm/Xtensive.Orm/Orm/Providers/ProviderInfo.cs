@@ -8,7 +8,7 @@ using System;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Provider's features provider.

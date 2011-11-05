@@ -8,7 +8,7 @@ using Oracle.DataAccess.Client;
 using System.Data;
 using System.Data.Common;
 
-namespace Xtensive.Sql.Oracle
+namespace Xtensive.Sql.Drivers.Oracle
 {
   internal class Connection : SqlConnection
   {

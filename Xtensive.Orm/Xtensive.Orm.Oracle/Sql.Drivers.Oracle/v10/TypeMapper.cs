@@ -9,7 +9,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using Oracle.DataAccess.Client;
 
-namespace Xtensive.Sql.Oracle.v10
+namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class TypeMapper : v09.TypeMapper
   {

@@ -13,7 +13,7 @@ using Xtensive.Indexing.Optimization;
 using Xtensive.Orm.Model;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   [Serializable]
   internal sealed class OptimizationInfoProviderResolver : IOptimizationInfoProviderResolver

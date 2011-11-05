@@ -12,7 +12,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Disconnected;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Operations;
 
 namespace Xtensive.Orm.ReferentialIntegrity

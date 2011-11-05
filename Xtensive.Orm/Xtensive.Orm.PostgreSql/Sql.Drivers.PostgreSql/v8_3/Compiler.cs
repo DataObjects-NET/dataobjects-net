@@ -15,7 +15,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
 
-namespace Xtensive.Sql.PostgreSql.v8_3
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class Compiler : v8_2.Compiler
   {

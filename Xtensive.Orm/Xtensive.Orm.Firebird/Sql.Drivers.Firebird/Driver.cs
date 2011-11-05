@@ -7,7 +7,7 @@
 using Xtensive.Sql.Info;
 using FirebirdSql.Data.FirebirdClient;
 
-namespace Xtensive.Sql.Firebird
+namespace Xtensive.Sql.Drivers.Firebird
 {
     internal abstract class Driver : SqlDriver
     {

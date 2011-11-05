@@ -8,7 +8,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Describes SQL parameter binding.

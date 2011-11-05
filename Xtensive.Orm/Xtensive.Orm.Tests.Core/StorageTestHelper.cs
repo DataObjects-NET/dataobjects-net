@@ -5,7 +5,7 @@
 // Created:    2009.12.17
 
 using System;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Tests
 {
@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests
       var sqlHandler = handler as SessionHandler;
       if (sqlHandler!=null)
         return sqlHandler.Connection.ActiveTransaction;
-      var indexHandler = handler as Storage.Providers.Indexing.SessionHandler;
+      var indexHandler = handler as Providers.Indexing.SessionHandler;
       if (indexHandler!=null)
         return indexHandler.StorageView;
       throw new InvalidOperationException();

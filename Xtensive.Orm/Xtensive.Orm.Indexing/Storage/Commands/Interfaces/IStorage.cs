@@ -6,7 +6,7 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Storage.Commands
 {

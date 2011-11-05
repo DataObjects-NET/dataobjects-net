@@ -17,7 +17,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse.Providers;
 using System;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Unified SQL provider implementation (<see cref="ExecutableProvider"/>).
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected DomainHandler DomainHandler { get { return (DomainHandler) handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    public override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
+    public override IEnumerable<Tuple> OnEnumerate(Storage.Rse.Providers.EnumerationContext context)
     {
       var sessionContext = (EnumerationContext) context;
       var sessionHandler = sessionContext.SessionHandler;

@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.MySql
+namespace Xtensive.Orm.Providers.MySql
 {
   /// <summary>
   /// Storage provider for MySql.

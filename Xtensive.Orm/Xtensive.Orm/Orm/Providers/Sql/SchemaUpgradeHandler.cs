@@ -12,16 +12,16 @@ using Xtensive.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Orm.Upgrade;
 using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Upgrades storage schema.

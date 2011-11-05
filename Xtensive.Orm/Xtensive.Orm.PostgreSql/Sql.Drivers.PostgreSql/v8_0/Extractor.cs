@@ -17,7 +17,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Threading;
 using System.Linq;
 
-namespace Xtensive.Sql.PostgreSql.v8_0
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Extractor : Model.Extractor
   {

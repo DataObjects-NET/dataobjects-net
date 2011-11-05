@@ -16,7 +16,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Commands;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// Client-side storage view proxy.

@@ -19,7 +19,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   partial class SessionHandler
   {

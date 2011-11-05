@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.14
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Base handler factory for SQL storages.

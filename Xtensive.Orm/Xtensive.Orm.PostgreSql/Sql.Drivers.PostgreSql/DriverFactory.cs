@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
 
-namespace Xtensive.Sql.PostgreSql
+namespace Xtensive.Sql.Drivers.PostgreSql
 {
   /// <summary>
   /// A <see cref="SqlDriver"/> factory for PostgreSQL.

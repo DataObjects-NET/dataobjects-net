@@ -6,7 +6,7 @@
 
 using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Stage of <see cref="UpgradeActionSequence"/>.

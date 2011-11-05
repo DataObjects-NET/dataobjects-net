@@ -16,10 +16,10 @@ namespace Xtensive.Sql.Tests
     private static Dictionary<string, Type> factoryRegistry = new Dictionary<string, Type> {
         {"sqlserver", typeof (Sql.SqlServer.DriverFactory)},
         {"sqlserverce", typeof (Sql.SqlServerCe.DriverFactory)},
-        {"oracle", typeof (Sql.Oracle.DriverFactory)},
-        {"postgresql", typeof (Sql.PostgreSql.DriverFactory)},
-        {"firebird", typeof (Sql.Firebird.DriverFactory)},
-        {"mysql", typeof (Sql.MySql.DriverFactory)}
+        {"oracle", typeof (Drivers.Oracle.DriverFactory)},
+        {"postgresql", typeof (Drivers.PostgreSql.DriverFactory)},
+        {"firebird", typeof (Drivers.Firebird.DriverFactory)},
+        {"mysql", typeof (Drivers.MySql.DriverFactory)}
       };
 
     /// <summary>

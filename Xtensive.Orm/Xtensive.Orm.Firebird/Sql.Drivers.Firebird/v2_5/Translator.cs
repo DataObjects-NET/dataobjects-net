@@ -14,7 +14,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Model;
 
 
-namespace Xtensive.Sql.Firebird.v2_5
+namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class Translator : SqlTranslator
   {

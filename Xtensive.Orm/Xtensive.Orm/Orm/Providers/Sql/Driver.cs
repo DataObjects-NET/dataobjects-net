@@ -10,7 +10,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// SQL provider driver.

@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Sql.Compiler;
 
-namespace Xtensive.Sql.Oracle.v10
+namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class Translator : v09.Translator
   {

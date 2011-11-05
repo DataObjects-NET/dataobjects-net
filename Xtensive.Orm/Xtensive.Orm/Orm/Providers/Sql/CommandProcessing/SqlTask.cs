@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.10.30
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// An abstract task for <see cref="CommandProcessor"/>.

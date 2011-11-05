@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// An attribute that must be applied to <see cref="HandlerFactory"/>

@@ -16,7 +16,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Action = System.Action;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A command processor.

@@ -13,7 +13,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.MySql
+namespace Xtensive.Orm.Providers.MySql
 {
   internal class SqlCompiler : Sql.SqlCompiler
   {

@@ -9,7 +9,7 @@ using Xtensive.Threading;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Base class for any SQL request.

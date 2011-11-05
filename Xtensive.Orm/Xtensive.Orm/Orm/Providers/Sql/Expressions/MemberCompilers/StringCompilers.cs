@@ -11,12 +11,12 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Providers.Sql.Resources;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
   internal static class StringCompilers

@@ -7,7 +7,7 @@
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Oracle.v10
+namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class Driver : Oracle.Driver
   {

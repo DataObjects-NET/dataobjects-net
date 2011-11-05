@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-namespace Xtensive.Sql.PostgreSql
+namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal class RelOptions
   {

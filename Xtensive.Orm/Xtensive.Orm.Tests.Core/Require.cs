@@ -9,9 +9,9 @@ using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Orm.Model;
 using Xtensive.Sql.Tests;
-using Xtensive.Storage.Providers;
-using SqlProviderInfoBuilder = Xtensive.Storage.Providers.Sql.ProviderInfoBuilder;
-using IndexProviderInfoBuilder = Xtensive.Storage.Providers.Indexing.ProviderInfoBuilder;
+using Xtensive.Orm.Providers;
+using SqlProviderInfoBuilder = Xtensive.Orm.Providers.Sql.ProviderInfoBuilder;
+using IndexProviderInfoBuilder = Xtensive.Orm.Providers.Indexing.ProviderInfoBuilder;
 
 namespace Xtensive.Orm.Tests
 {

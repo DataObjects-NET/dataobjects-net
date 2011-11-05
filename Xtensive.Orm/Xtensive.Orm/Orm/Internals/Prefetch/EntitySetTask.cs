@@ -14,7 +14,7 @@ using Xtensive.Parameters;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Storage.Rse;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 

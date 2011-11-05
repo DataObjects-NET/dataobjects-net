@@ -15,9 +15,9 @@ using Xtensive.Indexing;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Commands;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Indexing;
+using Xtensive.Orm.Providers.Indexing;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// An abstract base class for all index storage views.

@@ -12,7 +12,7 @@ using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
 
 namespace Xtensive.Orm.Internals

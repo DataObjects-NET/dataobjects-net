@@ -19,7 +19,7 @@ using Xtensive.Comparison;
 using Xtensive.Collections;
 using Xtensive.Tuples.Transform;
 
-namespace Xtensive.Storage.Providers.Indexing.Memory
+namespace Xtensive.Orm.Providers.Indexing.Memory
 {
   /// <summary>
   /// In memory index storage.

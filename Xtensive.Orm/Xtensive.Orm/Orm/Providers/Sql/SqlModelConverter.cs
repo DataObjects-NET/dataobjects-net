@@ -24,7 +24,7 @@ using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Storage.Model.TableInfo;
 using Xtensive.Collections;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Converts <see cref="Catalog"/> to indexing storage model.

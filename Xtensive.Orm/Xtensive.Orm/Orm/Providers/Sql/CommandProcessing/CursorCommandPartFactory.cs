@@ -6,7 +6,7 @@
 
 using Xtensive.Sql;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A command part factory that wraps queries into "open cursor" statements

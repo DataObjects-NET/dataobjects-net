@@ -8,7 +8,7 @@ using Oracle.DataAccess.Client;
 using Oracle.DataAccess.Types;
 using System.Data.Common;
 
-namespace Xtensive.Sql.Oracle
+namespace Xtensive.Sql.Drivers.Oracle
 {
   internal sealed class CharacterLargeObject : ICharacterLargeObject
   {

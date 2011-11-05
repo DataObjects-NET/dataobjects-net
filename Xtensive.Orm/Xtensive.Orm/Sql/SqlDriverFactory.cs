@@ -29,7 +29,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Creates the driver from the specified <see cref="connectionString"/>.
+    /// Creates the driver from the specified <paramref name="connectionString"/>.
     /// </summary>
     /// <param name="connectionString">The connection string to create driver from.</param>
     /// <returns>Created driver.</returns>

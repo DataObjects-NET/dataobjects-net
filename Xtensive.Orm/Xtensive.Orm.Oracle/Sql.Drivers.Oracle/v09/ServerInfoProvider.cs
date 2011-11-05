@@ -8,7 +8,7 @@ using System;
 using Oracle.DataAccess.Client;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Oracle.v09
+namespace Xtensive.Sql.Drivers.Oracle.v09
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {

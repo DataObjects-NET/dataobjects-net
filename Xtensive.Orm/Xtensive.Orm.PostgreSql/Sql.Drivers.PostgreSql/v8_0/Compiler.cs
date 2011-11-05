@@ -7,7 +7,7 @@ using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.PostgreSql.v8_0
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Compiler : SqlCompiler
   {

@@ -16,7 +16,7 @@ using Xtensive.Orm.Services;
 using Xtensive.Storage.Services;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Default implementation of SQL temporary data provider.
@@ -51,13 +51,13 @@ namespace Xtensive.Storage.Providers.Sql
     #endregion
 
     /// <inheritdoc/>
-    public override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
+    public override void OnBeforeEnumerate(Storage.Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       LockAndStore(context, Source);
     }
 
-    public override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+    public override void OnAfterEnumerate(Storage.Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
       base.OnAfterEnumerate(context);

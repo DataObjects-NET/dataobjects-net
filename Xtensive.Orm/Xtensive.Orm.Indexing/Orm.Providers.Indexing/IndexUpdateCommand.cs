@@ -10,7 +10,7 @@ using Xtensive.Storage.Commands;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// Update command for indexing storage.

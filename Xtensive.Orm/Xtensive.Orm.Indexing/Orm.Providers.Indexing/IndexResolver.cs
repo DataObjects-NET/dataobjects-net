@@ -13,7 +13,7 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Commands;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// An <see cref="IIndexResolver"/> implementation that forwards all requests

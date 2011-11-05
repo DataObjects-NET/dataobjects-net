@@ -10,14 +10,14 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm;
+using Xtensive.Orm.Providers.Indexing.Resources;
 using Xtensive.Storage.Commands;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers.Indexing.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable.VirtualIndex;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <inheritdoc/>
   [Serializable]
@@ -41,14 +41,14 @@ namespace Xtensive.Storage.Providers.Indexing
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitIndex(Rse.Providers.Compilable.IndexProvider provider)
+    protected override ExecutableProvider VisitIndex(Storage.Rse.Providers.Compilable.IndexProvider provider)
     {
       var indexInfo = provider.Index.Resolve(Handlers.Domain.Model);
       var result = BuildIndexProvider(provider, indexInfo);
       return result;
     }
 
-    private ExecutableProvider BuildIndexProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    private ExecutableProvider BuildIndexProvider(Storage.Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
     {
       if (index.IsVirtual)
       {
@@ -69,27 +69,27 @@ namespace Xtensive.Storage.Providers.Indexing
 
     private ExecutableProvider BuildUnionProvider(CompilableProvider provider, IndexInfo index)
     {
-      var sourceProviders = index.UnderlyingIndexes.Select(i => BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(i), i)).ToArray();
+      var sourceProviders = index.UnderlyingIndexes.Select(i => BuildIndexProvider(Storage.Rse.Providers.Compilable.IndexProvider.Get(i), i)).ToArray();
       return sourceProviders.Length == 1 
         ? sourceProviders[0] 
         : new UnionIndexProvider(provider, sourceProviders);
     }
 
-    private ExecutableProvider BuildJoinProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    private ExecutableProvider BuildJoinProvider(Storage.Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
     {
       var firstUnderlyingIndex = index.UnderlyingIndexes.First();
       var baseIndexes = new List<IndexInfo>(index.UnderlyingIndexes);
-      var rootProvider = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      var rootProvider = BuildIndexProvider(Storage.Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
       var inheritorsProviders = new ExecutableProvider[baseIndexes.Count - 1];
       for (int i = 1; i < baseIndexes.Count; i++)
-        inheritorsProviders[i - 1] = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
+        inheritorsProviders[i - 1] = BuildIndexProvider(Storage.Rse.Providers.Compilable.IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
       return new JoinIndexProvider(provider, baseIndexes[0].KeyColumns.Count, index.ValueColumnsMap, rootProvider, inheritorsProviders);
     }
 
-    private ExecutableProvider BuildFilterProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    private ExecutableProvider BuildFilterProvider(Storage.Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
     {
       var firstUnderlyingIndex = index.UnderlyingIndexes.First();
-      var source = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      var source = BuildIndexProvider(Storage.Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
       int columnIndex;
       if (index.IsPrimary) {
         FieldInfo typeIdField = index.ReflectedType.Fields[WellKnown.TypeIdFieldName];
@@ -100,25 +100,25 @@ namespace Xtensive.Storage.Providers.Indexing
       return new FilterIndexProvider(provider, source, columnIndex, index.FilterByTypes.Select(t => t.TypeId).ToList());
     }
 
-    private ExecutableProvider BuildViewProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    private ExecutableProvider BuildViewProvider(Storage.Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
     {
       var firstUnderlyingIndex = index.UnderlyingIndexes.First();
-      var source = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      var source = BuildIndexProvider(Storage.Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
       var columnMap = index.SelectColumns.ToArray();
       return new ViewIndexProvider(provider, source, columnMap);
     }
 
-    private ExecutableProvider BuildTypedProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    private ExecutableProvider BuildTypedProvider(Storage.Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
     {
       var firstUnderlyingIndex = index.UnderlyingIndexes.First();
-      var source = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      var source = BuildIndexProvider(Storage.Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
       var typeIdColumnIndex = index.Columns
         .Select((c, i) => new {c, i})
         .Single(p => p.c.Field.IsTypeId).i;
       return new TypedIndexProvider(provider, source, typeIdColumnIndex, index.ReflectedType.TypeId);
     }
 
-    private ExecutableProvider BuildIndexProviderInternal(Rse.Providers.Compilable.IndexProvider provider)
+    private ExecutableProvider BuildIndexProviderInternal(Storage.Rse.Providers.Compilable.IndexProvider provider)
     {
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
       return new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index));

@@ -12,7 +12,7 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
+namespace Xtensive.Orm.Providers.Sql.Servers.SqlServer
 {
   internal class SqlCompiler : ManualPagingSqlCompiler
   {

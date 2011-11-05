@@ -15,7 +15,7 @@ using Xtensive.Disposing;
 using Xtensive.Linq;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;

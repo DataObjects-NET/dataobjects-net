@@ -9,7 +9,7 @@ using Npgsql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.PostgreSql.v8_3
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class Driver : PostgreSql.Driver
   {

@@ -9,7 +9,7 @@ using System.Transactions;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Transactions;
 
-namespace Xtensive.Storage.Providers.Indexing.Memory
+namespace Xtensive.Orm.Providers.Indexing.Memory
 {
   /// <summary>
   /// Indexing storage transaction.

@@ -5,10 +5,10 @@
 // Created:    2011.01.27
 
 using System;
-using Xtensive.Sql.Firebird;
+using Xtensive.Sql.Drivers.Firebird;
 using Xtensive.Storage.Rse.Compilation;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Firebird
+namespace Xtensive.Orm.Providers.Firebird
 {
   /// <summary>
   /// A domain handler for Firebird RDBMS.

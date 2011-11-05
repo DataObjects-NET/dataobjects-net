@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
 using Xtensive.Transactions;
 using SD=System.Data;

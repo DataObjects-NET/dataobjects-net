@@ -4,7 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2010.01.22
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Enumerates non-transactional stages.

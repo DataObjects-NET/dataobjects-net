@@ -10,7 +10,7 @@ using Xtensive.Orm;
 using Xtensive.Storage.Model;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Storage.Providers.Indexing.Memory
+namespace Xtensive.Orm.Providers.Indexing.Memory
 {
   /// <summary>
   /// <see cref="Session"/>-level handler for memory index storage.

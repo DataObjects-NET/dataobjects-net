@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.14
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Abstract base class for storage handlers having <see cref="Initialize"/> method.

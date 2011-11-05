@@ -8,7 +8,7 @@ using System;
 using MySql.Data.MySqlClient;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.MySql
+namespace Xtensive.Sql.Drivers.MySql
 {
   internal abstract class Driver : SqlDriver
   {

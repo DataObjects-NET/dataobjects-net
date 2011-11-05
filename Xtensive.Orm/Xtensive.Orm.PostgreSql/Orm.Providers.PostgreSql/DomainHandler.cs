@@ -4,10 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using Xtensive.Sql.PostgreSql;
+using Xtensive.Sql.Drivers.PostgreSql;
 using Xtensive.Storage.Rse.Compilation;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
+namespace Xtensive.Orm.Providers.PostgreSql
 {
   /// <summary>
   /// A domain handler specific to PostgreSQL RDBMS.

@@ -16,7 +16,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.MySql.v5_0
+namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class Translator : SqlTranslator
   {

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Sql.Oracle.v11
+namespace Xtensive.Sql.Drivers.Oracle.v11
 {
   internal class TypeMapper : v10.TypeMapper
   {

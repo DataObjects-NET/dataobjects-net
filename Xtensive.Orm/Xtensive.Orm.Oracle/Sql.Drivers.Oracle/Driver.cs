@@ -8,7 +8,7 @@ using System;
 using Oracle.DataAccess.Client;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Oracle
+namespace Xtensive.Sql.Drivers.Oracle
 {
   internal abstract class Driver : SqlDriver
   {

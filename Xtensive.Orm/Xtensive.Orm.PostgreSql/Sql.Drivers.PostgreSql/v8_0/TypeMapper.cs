@@ -12,7 +12,7 @@ using Npgsql;
 using NpgsqlTypes;
 
 
-namespace Xtensive.Sql.PostgreSql.v8_0
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {

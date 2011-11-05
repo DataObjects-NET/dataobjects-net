@@ -7,7 +7,7 @@
 using System.Data.Common;
 using System.Text;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// <see cref="DbCommand"/> related extension methods.

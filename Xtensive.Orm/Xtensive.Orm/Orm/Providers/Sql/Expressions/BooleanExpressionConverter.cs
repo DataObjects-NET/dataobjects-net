@@ -8,7 +8,7 @@ using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   internal sealed class BooleanExpressionConverter
   {

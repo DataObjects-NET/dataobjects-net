@@ -7,7 +7,7 @@
 using Xtensive.Sql.SqlServerCe;
 using Xtensive.Storage.Rse.Compilation;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
+namespace Xtensive.Orm.Providers.SqlServerCe
 {
   /// <summary>
   /// A domain handler specific to Microsoft SQL Server Compact Edition RDBMS.

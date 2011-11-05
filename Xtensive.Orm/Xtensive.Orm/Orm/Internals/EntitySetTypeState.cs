@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Tuples;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;

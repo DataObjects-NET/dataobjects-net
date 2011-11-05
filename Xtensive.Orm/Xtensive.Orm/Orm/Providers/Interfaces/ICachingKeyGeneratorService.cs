@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Handler for <see cref="CachingKeyGenerator{TKeyType}"/>.

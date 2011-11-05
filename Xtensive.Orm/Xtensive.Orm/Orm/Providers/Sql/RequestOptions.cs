@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Options for <see cref="Request"/>.

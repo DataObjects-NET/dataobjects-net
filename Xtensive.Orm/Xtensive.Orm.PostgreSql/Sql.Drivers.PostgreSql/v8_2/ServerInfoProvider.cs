@@ -4,7 +4,7 @@
 
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.PostgreSql.v8_2
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {
   internal class ServerInfoProvider : v8_1.ServerInfoProvider
   {

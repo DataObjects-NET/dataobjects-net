@@ -14,7 +14,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
 
-namespace Xtensive.Sql.Oracle.v09
+namespace Xtensive.Sql.Drivers.Oracle.v09
 {
   internal class Translator : SqlTranslator
   {

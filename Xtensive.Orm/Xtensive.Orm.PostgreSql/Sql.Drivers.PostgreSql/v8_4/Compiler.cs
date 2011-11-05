@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Sql.PostgreSql.v8_4
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_4
 {
   internal class Compiler : v8_3.Compiler
   {

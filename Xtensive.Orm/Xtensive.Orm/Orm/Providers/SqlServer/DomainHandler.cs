@@ -7,7 +7,7 @@
 using Xtensive.Sql.SqlServer;
 using Xtensive.Storage.Rse.Compilation;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
+namespace Xtensive.Orm.Providers.Sql.Servers.SqlServer
 {
   /// <summary>
   /// A domain handler specific to Microsoft SQL Server RDBMS.

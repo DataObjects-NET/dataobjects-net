@@ -9,7 +9,7 @@ using System.Data.Common;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Services;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// A handler used by <see cref="DirectSqlAccessor"/>.

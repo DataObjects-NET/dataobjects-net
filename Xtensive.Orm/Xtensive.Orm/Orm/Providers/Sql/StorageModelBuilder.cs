@@ -7,17 +7,17 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Providers.Sql.Expressions;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Expressions;
-using Xtensive.Storage.Providers.Sql.Resources;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 using TypeInfo = Xtensive.Storage.Model.TypeInfo;
 using PartialIndexFilterInfo = Xtensive.Storage.Model.PartialIndexFilterInfo;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// <see cref="StorageModelBuilder"/> for SQL storages.

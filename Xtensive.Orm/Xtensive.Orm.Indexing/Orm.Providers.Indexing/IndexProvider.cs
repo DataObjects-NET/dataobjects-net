@@ -13,7 +13,7 @@ using Xtensive.Storage.Commands;
 using Xtensive.Storage.Rse.Providers;
 using StorageIndexInfo = Xtensive.Storage.Model.IndexInfo;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// General index provider for all indexing storage handlers.
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers.Indexing
     }
 
     /// <inheritdoc/>
-    public override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
+    public override IEnumerable<Tuple> OnEnumerate(Storage.Rse.Providers.EnumerationContext context)
     {
       var storageEnumerationContext = (EnumerationContext) EnumerationContext.Current;
       var storageSessionHandler = (SessionHandler) (storageEnumerationContext.SessionHandler.GetRealHandler());

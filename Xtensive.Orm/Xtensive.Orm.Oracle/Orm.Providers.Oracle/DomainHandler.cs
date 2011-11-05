@@ -4,10 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.04
 
-using Xtensive.Sql.Oracle;
+using Xtensive.Sql.Drivers.Oracle;
 using Xtensive.Storage.Rse.Compilation;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
+namespace Xtensive.Orm.Providers.Oracle
 {
   /// <summary>
   /// A domain handler for Oracle RDBMS.

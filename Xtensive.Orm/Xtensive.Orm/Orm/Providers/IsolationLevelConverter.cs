@@ -7,7 +7,7 @@
 using System.Transactions;
 using SD=System.Data;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   ///<summary>
   /// Converts <see cref="IsolationLevel"/> to <see cref="SD.IsolationLevel"/>.

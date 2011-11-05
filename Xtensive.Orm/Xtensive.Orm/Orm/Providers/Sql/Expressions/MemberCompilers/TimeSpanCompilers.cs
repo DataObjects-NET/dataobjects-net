@@ -10,7 +10,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
   internal static class TimeSpanCompilers

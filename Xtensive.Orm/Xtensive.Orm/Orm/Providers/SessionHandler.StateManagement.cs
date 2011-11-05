@@ -12,7 +12,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   partial class SessionHandler
   {

@@ -7,12 +7,12 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Providers.Sql.Resources;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   partial class ExpressionProcessor
   {

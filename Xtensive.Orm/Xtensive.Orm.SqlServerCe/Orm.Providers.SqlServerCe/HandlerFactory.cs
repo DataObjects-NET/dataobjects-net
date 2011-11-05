@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
+namespace Xtensive.Orm.Providers.SqlServerCe
 {
   /// <summary>
   /// Storage provider for Microsoft SQL Server CE.

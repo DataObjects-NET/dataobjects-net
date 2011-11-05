@@ -6,13 +6,14 @@
 
 using System;
 using System.Linq;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Firebird
+namespace Xtensive.Orm.Providers.Firebird
 {
   internal class SqlCompiler : Sql.SqlCompiler
   {

@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Firebird
+namespace Xtensive.Orm.Providers.Firebird
 {
   /// <summary>
   /// Storage provider for Firebird.

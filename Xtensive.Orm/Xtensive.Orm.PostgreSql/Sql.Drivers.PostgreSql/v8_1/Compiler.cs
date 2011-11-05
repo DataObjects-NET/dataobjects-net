@@ -6,7 +6,7 @@
 
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.PostgreSql.v8_1
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
 {
   internal class Compiler : v8_0.Compiler
   {

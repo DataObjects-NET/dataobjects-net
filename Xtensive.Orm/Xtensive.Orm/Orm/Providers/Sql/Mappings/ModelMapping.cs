@@ -10,7 +10,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
-namespace Xtensive.Storage.Providers.Sql.Mappings
+namespace Xtensive.Orm.Providers.Sql.Mappings
 {
   /// <summary>
   /// Defines model mapping.

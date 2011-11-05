@@ -10,17 +10,17 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm.Providers.Sql.Expressions;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Providers.Sql.Expressions;
-using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <inheritdoc/>
   [Serializable]
@@ -334,7 +334,7 @@ namespace Xtensive.Storage.Providers.Sql
       var source =
         provider.Source as ExecutableProvider
           ?? (provider.Source is RawProvider
-            ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
+            ? (ExecutableProvider) (new Storage.Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
             : Compile((CompilableProvider) provider.Source));
       if (provider.Scope!=TemporaryDataScope.Enumeration)
         throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, provider.Scope));

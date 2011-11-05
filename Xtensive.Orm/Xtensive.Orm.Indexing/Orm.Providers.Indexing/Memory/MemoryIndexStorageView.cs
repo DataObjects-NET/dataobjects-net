@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing;
 using Xtensive.Modelling.Actions;
+using Xtensive.Orm.Providers.Indexing.Resources;
 using Xtensive.Storage.Commands;
 using Xtensive.Storage.Model;
 using Xtensive.Transactions;
@@ -17,9 +18,8 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using System.Transactions;
 using Xtensive.Tuples.Transform;
-using Xtensive.Storage.Providers.Indexing.Resources;
 
-namespace Xtensive.Storage.Providers.Indexing.Memory
+namespace Xtensive.Orm.Providers.Indexing.Memory
 {
   /// <summary>
   /// View of "in memory" indexing storage.

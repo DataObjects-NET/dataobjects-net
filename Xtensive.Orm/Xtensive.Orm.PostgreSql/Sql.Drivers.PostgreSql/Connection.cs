@@ -9,7 +9,7 @@ using Npgsql;
 using System.Data;
 using System.Data.Common;
 
-namespace Xtensive.Sql.PostgreSql
+namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal class Connection : SqlConnection
   {
@@ -37,7 +37,7 @@ namespace Xtensive.Sql.PostgreSql
 #endif
     public override void BeginTransaction()
     {
- 	    EnsureTrasactionIsNotActive();
+      EnsureTrasactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
@@ -65,8 +65,8 @@ namespace Xtensive.Sql.PostgreSql
     {
       EnsureTransactionIsActive();
       var commandText = string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
- 	    using (var command = CreateCommand(commandText))
- 	      command.ExecuteNonQuery();
+      using (var command = CreateCommand(commandText))
+        command.ExecuteNonQuery();
     }
 
     /// <inheritdoc/>

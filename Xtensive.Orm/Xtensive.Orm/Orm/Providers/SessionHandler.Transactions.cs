@@ -8,7 +8,7 @@ using System;
 using Xtensive.Orm;
 using Xtensive.Orm.Resources;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   partial class SessionHandler
   {

@@ -7,7 +7,7 @@ using System.Security;
 using Npgsql;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.PostgreSql
+namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal abstract class Driver : SqlDriver
   {

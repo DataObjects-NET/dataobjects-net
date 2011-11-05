@@ -20,7 +20,7 @@ using Xtensive.Sorting;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Services;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// <see cref="Orm.Domain"/>-level handler.
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers
     public ProviderInfo ProviderInfo { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="Rse.Compilation.CompilationService"/>
+    /// Gets the <see cref="Storage.Rse.Compilation.CompilationService"/>
     /// associated with the domain.
     /// </summary>
     public CompilationService CompilationService { get; private set; }

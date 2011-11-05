@@ -12,7 +12,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   partial class SqlCompiler 
   {

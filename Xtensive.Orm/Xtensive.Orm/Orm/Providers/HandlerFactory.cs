@@ -11,7 +11,7 @@ using Xtensive.Orm;
 using Xtensive.Reflection;
 using Xtensive.Orm.Resources;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// An abstract base class for any storage factories.

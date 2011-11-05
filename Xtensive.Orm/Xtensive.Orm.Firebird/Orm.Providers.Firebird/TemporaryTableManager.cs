@@ -5,9 +5,10 @@
 // Created:    2010.02.11
 
 using System;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Firebird
+namespace Xtensive.Orm.Providers.Firebird
 {
   /// <summary>
   /// A temporary table manager specific to Firebird

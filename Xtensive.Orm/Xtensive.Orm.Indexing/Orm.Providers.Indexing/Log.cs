@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Diagnostics;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// Log for this namespace.

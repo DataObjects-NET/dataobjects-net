@@ -24,7 +24,7 @@ using Xtensive.Orm.Configuration;
 using System.Linq;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Name builder for <see cref="Orm.Model.DomainModel"/> nodes 
@@ -147,9 +147,9 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Build table column name by <see cref="Model.ColumnInfo"/>.
+    /// Build table column name by <see cref="Storage.Model.ColumnInfo"/>.
     /// </summary>
-    /// <param name="columnInfo"><see cref="Model.ColumnInfo"/> to build column table name for.</param>
+    /// <param name="columnInfo"><see cref="Storage.Model.ColumnInfo"/> to build column table name for.</param>
     /// <returns>Column name.</returns>
     public virtual string BuildTableColumnName(ColumnInfo columnInfo)
     {

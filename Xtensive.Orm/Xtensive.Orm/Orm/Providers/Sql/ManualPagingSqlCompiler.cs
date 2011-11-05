@@ -11,7 +11,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Collections.Generic;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   public abstract class ManualPagingSqlCompiler : SqlCompiler
   {

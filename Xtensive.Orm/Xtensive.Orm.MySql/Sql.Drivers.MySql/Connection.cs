@@ -9,7 +9,7 @@ using System.Data.Common;
 using System.Security;
 using MySql.Data.MySqlClient;
 
-namespace Xtensive.Sql.MySql
+namespace Xtensive.Sql.Drivers.MySql
 {
   internal class Connection : SqlConnection
   {

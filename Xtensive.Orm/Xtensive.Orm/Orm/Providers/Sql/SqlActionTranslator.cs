@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Upgrade;
@@ -23,7 +24,6 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Resources;
 using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 using ReferentialAction = Xtensive.Storage.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
@@ -32,7 +32,7 @@ using TableInfo = Xtensive.Storage.Model.TableInfo;
 using UpgradeStage = Xtensive.Modelling.Comparison.UpgradeStage;
 using WellKnown = Xtensive.Orm.WellKnown;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Translates upgrade <see cref="NodeAction"/>s to SQL.

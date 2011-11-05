@@ -8,7 +8,7 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Sql;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   internal class ExpressionTranslationContext
   {

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Enumerates all the features supported by storage providers.

@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Services
 {

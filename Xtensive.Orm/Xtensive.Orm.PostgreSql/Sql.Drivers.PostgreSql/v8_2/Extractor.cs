@@ -7,7 +7,7 @@ using System.Data.Common;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.PostgreSql.v8_2
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {
   internal class Extractor : v8_1.Extractor
   {

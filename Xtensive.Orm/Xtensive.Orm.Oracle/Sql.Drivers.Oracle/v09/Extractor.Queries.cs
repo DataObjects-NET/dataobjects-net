@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.16
 
-namespace Xtensive.Sql.Oracle.v09
+namespace Xtensive.Sql.Drivers.Oracle.v09
 {
   partial class Extractor 
   {

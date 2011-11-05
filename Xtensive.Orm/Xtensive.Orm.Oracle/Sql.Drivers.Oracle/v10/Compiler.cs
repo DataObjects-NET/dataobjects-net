@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Sql.Compiler;
 
-namespace Xtensive.Sql.Oracle.v10
+namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class Compiler : v09.Compiler
   {

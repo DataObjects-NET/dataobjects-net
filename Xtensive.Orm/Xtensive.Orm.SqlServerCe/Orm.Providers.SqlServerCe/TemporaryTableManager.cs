@@ -4,9 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.11
 
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
+namespace Xtensive.Orm.Providers.SqlServerCe
 {
   /// <summary>
   /// A temporary table manager specific to SQL Server CE

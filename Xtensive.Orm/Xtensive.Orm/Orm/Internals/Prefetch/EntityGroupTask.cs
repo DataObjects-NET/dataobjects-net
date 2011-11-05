@@ -13,7 +13,7 @@ using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Orm.Internals.Prefetch

@@ -6,13 +6,14 @@
 
 using System;
 using Xtensive.Disposing;
+using Xtensive.Storage.Rse.Providers;
 using RseEnumerationScope = Xtensive.Storage.Rse.Providers.EnumerationScope;
 using RseEnumerationContext = Xtensive.Storage.Rse.Providers.EnumerationContext;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
-  /// An implementation of <see cref="Rse.Providers.EnumerationScope"/> 
+  /// An implementation of <see cref="Storage.Rse.Providers.EnumerationScope"/> 
   /// suitable for storage.
   /// </summary>
   public class EnumerationScope : RseEnumerationScope

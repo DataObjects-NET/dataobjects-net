@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   internal static class ProviderInfoBuilder
   {

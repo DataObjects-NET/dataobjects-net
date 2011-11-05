@@ -16,7 +16,7 @@ using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Building;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Upgrade
 {

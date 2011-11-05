@@ -4,10 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2009.10.14
 
-using System.Collections.Generic;
 using Xtensive.Orm.Resources;
 
-namespace Xtensive.Orm
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// <see cref="Session"/> related extension methods.

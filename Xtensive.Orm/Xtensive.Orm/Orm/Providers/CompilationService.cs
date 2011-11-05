@@ -7,12 +7,12 @@
 using System;
 using Xtensive.Storage.Rse.Compilation;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
-  /// An implementation of <see cref="Rse.Compilation.CompilationService"/> suitable for storage.
+  /// An implementation of <see cref="Storage.Rse.Compilation.CompilationService"/> suitable for storage.
   /// </summary>
-  public sealed class CompilationService : Rse.Compilation.CompilationService
+  public sealed class CompilationService : Storage.Rse.Compilation.CompilationService
   {
     // Constructors
 

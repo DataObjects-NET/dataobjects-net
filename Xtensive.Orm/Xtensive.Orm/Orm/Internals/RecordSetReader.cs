@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Tuples;
 using Xtensive.Orm.Linq.Materialization;
 using Tuple = Xtensive.Tuples.Tuple;

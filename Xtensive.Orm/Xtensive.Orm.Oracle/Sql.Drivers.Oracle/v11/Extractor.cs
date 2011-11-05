@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Oracle.v11
+namespace Xtensive.Sql.Drivers.Oracle.v11
 {
   internal class Extractor : v10.Extractor
   {

@@ -6,7 +6,7 @@
 
 using Xtensive.IoC;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   internal class ExpressionTranslationScope : Scope<ExpressionTranslationContext>
   {

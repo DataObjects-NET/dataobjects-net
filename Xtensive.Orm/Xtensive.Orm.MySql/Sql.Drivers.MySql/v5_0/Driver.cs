@@ -7,7 +7,7 @@
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.MySql.v5_0
+namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class Driver : MySql.Driver
   {

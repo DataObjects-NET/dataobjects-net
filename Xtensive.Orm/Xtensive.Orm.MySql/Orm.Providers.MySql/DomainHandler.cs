@@ -4,10 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.25
 
-using Xtensive.Sql.MySql;
+using Xtensive.Sql.Drivers.MySql;
 using Xtensive.Storage.Rse.Compilation;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.MySql
+namespace Xtensive.Orm.Providers.MySql
 {
   /// <summary>
   /// A domain handler for MySql RDBMS.

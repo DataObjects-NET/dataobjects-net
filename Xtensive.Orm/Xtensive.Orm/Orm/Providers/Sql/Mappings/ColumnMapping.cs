@@ -11,7 +11,7 @@ using Xtensive.Sql;
 using Xtensive.Storage.Model;
 using ColumnInfo = Xtensive.Orm.Model.ColumnInfo;
 
-namespace Xtensive.Storage.Providers.Sql.Mappings
+namespace Xtensive.Orm.Providers.Sql.Mappings
 {
   /// <summary>
   /// Defines column mapping.

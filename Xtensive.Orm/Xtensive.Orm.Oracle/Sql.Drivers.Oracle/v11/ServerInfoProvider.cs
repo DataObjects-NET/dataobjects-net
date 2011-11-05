@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-namespace Xtensive.Sql.Oracle.v11
+namespace Xtensive.Sql.Drivers.Oracle.v11
 {
   internal class ServerInfoProvider : v10.ServerInfoProvider
   {

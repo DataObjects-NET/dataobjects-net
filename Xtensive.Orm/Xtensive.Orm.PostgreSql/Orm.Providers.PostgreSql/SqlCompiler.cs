@@ -9,13 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql;
-using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
+namespace Xtensive.Orm.Providers.PostgreSql
 {
   internal class SqlCompiler : Sql.SqlCompiler
   {

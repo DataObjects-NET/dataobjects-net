@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.MySql
+namespace Xtensive.Sql.Drivers.MySql
 {
   /// <summary>
   /// A <see cref="SqlDriver"/> factory for MySQL.

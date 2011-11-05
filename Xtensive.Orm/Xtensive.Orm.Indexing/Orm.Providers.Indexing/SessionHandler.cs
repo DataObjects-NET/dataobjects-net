@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Orm.Providers.Indexing.Resources;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -17,9 +18,8 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Commands;
 using Xtensive.Storage.Model;
 using Xtensive.Orm.Internals;
-using Xtensive.Storage.Providers.Indexing.Resources;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// <see cref="Orm.Session"/>-level handler for index storage.

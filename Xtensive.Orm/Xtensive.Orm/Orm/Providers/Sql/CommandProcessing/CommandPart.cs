@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A part of a command.

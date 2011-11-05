@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Tuples;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Rse;
 using System.Linq;

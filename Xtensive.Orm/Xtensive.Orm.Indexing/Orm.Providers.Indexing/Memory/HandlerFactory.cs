@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Indexing.Memory
+namespace Xtensive.Orm.Providers.Indexing.Memory
 {
   /// <summary>
   /// Handlers factory for memory index storage.

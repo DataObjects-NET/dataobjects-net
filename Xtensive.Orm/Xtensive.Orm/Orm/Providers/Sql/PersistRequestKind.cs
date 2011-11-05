@@ -4,7 +4,7 @@
 // Created by: 
 // Created:    2008.08.29
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Kinds of <see cref="PersistRequest"/>.

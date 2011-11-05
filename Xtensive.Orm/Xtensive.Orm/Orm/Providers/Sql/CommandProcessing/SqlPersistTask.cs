@@ -9,7 +9,7 @@ using Xtensive.Collections;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A persist task (i.e. INSERT, UPDATE, DELETE) for <see cref="CommandProcessor"/>.

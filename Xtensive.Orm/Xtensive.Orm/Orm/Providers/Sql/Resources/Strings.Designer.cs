@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Xtensive.Storage.Providers.Sql.Resources {
+namespace Xtensive.Orm.Providers.Sql.Resources {
     using System;
     
     

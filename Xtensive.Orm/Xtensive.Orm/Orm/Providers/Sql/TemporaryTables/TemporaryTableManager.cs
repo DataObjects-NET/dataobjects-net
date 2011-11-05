@@ -15,9 +15,9 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Orm.Providers.Sql.Resources;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A manager of temporary tables.

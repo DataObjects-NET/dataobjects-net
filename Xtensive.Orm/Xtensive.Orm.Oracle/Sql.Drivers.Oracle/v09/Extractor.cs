@@ -12,7 +12,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
 using Constraint=Xtensive.Sql.Model.Constraint;
 
-namespace Xtensive.Sql.Oracle.v09
+namespace Xtensive.Sql.Drivers.Oracle.v09
 {
   internal partial class Extractor : Model.Extractor
   {

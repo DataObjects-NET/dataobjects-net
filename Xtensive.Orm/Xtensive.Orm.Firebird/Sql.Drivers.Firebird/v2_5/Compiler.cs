@@ -11,7 +11,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Resources;
 
-namespace Xtensive.Sql.Firebird.v2_5
+namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class Compiler : SqlCompiler
   {

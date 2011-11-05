@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   partial class SqlCompiler 
   {

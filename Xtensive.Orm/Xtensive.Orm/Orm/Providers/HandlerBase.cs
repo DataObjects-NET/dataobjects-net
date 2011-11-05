@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Abstract base class for any storage handler.

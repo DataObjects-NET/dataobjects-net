@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
+namespace Xtensive.Orm.Providers.PostgreSql
 {
   public class PartialIndexFilterNormalizer : Sql.PartialIndexFilterNormalizer
   {

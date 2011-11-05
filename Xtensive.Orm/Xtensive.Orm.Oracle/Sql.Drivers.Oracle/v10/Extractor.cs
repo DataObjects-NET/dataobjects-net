@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace Xtensive.Sql.Oracle.v10
+namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class Extractor : v09.Extractor
   {

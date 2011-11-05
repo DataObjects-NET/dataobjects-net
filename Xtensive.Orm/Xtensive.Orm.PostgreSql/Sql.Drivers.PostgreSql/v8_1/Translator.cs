@@ -6,7 +6,7 @@ using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.PostgreSql.v8_1
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
 {
   internal class Translator : v8_0.Translator
   {

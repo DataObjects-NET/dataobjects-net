@@ -8,7 +8,7 @@ using System.Data;
 using System.Data.Common;
 using FirebirdSql.Data.FirebirdClient;
 
-namespace Xtensive.Sql.Firebird
+namespace Xtensive.Sql.Drivers.Firebird
 {
     internal class Connection : SqlConnection
     {

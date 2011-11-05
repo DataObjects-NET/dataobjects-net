@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
+namespace Xtensive.Orm.Providers.Oracle
 {
   /// <summary>
   /// Storage provider for Oracle.

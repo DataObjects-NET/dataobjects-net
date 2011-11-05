@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A registry of temporary tables.

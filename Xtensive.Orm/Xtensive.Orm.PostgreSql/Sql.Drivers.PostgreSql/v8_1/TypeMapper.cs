@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Sql.PostgreSql.v8_1
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
 {
   internal class TypeMapper : v8_0.TypeMapper
   {

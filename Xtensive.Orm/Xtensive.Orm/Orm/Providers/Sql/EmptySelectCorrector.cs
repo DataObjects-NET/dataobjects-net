@@ -5,7 +5,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   internal class EmptySelectCorrector : IPostCompiler, ISqlVisitor
   {

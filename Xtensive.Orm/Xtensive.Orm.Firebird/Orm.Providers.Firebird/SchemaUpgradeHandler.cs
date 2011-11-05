@@ -10,7 +10,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Upgrade;
 using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Firebird
+namespace Xtensive.Orm.Providers.Firebird
 {
   /// <summary>
   /// Upgrades storage schema.

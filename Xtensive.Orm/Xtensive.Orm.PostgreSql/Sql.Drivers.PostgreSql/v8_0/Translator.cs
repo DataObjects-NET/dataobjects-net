@@ -11,7 +11,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
 
-namespace Xtensive.Sql.PostgreSql.v8_0
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {

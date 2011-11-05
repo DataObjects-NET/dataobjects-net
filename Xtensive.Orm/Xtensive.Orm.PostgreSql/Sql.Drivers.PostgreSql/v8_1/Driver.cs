@@ -10,7 +10,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.PostgreSql.v8_1
+namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
 {
   internal class Driver : PostgreSql.Driver
   {

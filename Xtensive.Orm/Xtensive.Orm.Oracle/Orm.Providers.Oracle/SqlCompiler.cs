@@ -7,13 +7,14 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Orm.Providers.Sql;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
+namespace Xtensive.Orm.Providers.Oracle
 {
   internal class SqlCompiler : ManualPagingSqlCompiler
   {

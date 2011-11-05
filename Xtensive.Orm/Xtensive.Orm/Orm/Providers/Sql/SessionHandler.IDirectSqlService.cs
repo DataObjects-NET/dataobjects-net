@@ -6,9 +6,9 @@
 
 using System;
 using System.Data.Common;
-using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Orm.Providers.Sql.Resources;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   public partial class SessionHandler
   {

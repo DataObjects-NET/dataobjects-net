@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// Upgrades storage schema.

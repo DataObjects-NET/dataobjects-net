@@ -4,7 +4,7 @@
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
-namespace Xtensive.Sql.MySql.v5_0
+namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal partial class Extractor
   {

@@ -18,7 +18,7 @@ using Xtensive.Modelling;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
 using ColumnInfo = Xtensive.Orm.Model.ColumnInfo;
 using FullTextIndexInfo = Xtensive.Orm.Model.FullTextIndexInfo;

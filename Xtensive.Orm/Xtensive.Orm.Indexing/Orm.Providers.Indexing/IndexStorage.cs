@@ -16,7 +16,7 @@ using Xtensive.Storage.Commands;
 using Xtensive.Storage.Model;
 using Xtensive.Tuples.Transform;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// An abstract base class for all index storages.

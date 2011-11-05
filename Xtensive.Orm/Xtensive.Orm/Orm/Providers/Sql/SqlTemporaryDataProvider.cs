@@ -11,7 +11,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Abstract base class for any SQL temporary data provider.
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected readonly TemporaryTableDescriptor tableDescriptor;
     
-    protected void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
+    protected void LockAndStore(Storage.Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
     {
       var storageContext = (EnumerationContext)context;
       var tableLock = DomainHandler.TemporaryTableManager.Acquire(storageContext, tableDescriptor);
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Providers.Sql
       executor.Store(tableDescriptor, data);
     }
 
-    protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)
+    protected bool ClearAndUnlock(Storage.Rse.Providers.EnumerationContext context)
     {
       var tableLock = context.GetValue<IDisposable>(this, TemporaryTableLockName);
       if (tableLock==null)

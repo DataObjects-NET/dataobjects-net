@@ -11,7 +11,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Parameters;
 using Xtensive.Tuples;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Storage.Rse;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;

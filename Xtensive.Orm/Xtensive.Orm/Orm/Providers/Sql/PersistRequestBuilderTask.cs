@@ -7,7 +7,7 @@
 using System.Collections;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A task for <see cref="PersistRequestBuilder"/>.

@@ -9,7 +9,7 @@ using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Transactions;
 
-namespace Xtensive.Storage.Providers.Indexing
+namespace Xtensive.Orm.Providers.Indexing
 {
   /// <summary>
   /// Client-side transaction object proxy.

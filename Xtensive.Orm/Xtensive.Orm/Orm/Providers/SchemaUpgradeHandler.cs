@@ -11,7 +11,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Upgrades storage schema.

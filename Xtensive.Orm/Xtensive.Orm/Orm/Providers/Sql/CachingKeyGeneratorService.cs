@@ -11,14 +11,14 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// <see cref="ICachingKeyGeneratorService"/> implementation for SQL databases.

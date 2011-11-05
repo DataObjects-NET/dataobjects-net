@@ -15,7 +15,7 @@ using Xtensive.Sql;
 using Xtensive.Orm.Internals;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// <see cref="Session"/>-level handler for SQL storages.

@@ -10,18 +10,18 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   internal sealed partial class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {

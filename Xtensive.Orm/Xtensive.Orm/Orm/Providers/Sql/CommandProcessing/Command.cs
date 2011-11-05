@@ -11,7 +11,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A command ready for execution.

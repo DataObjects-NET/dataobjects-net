@@ -8,7 +8,7 @@ using Xtensive.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Storage.Providers.Sql.Expressions
+namespace Xtensive.Orm.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
   internal static class VbStringsCompilers

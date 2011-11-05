@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Sql;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// A special version of <see cref="QueryParameterBinding"/> used for complex filters.

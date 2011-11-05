@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Xtensive.Storage.Providers.Indexing.Resources {
+namespace Xtensive.Orm.Providers.Indexing.Resources {
     using System;
     
     

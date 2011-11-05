@@ -7,7 +7,7 @@
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Possible types of <see cref="QueryParameterBinding"/>.

@@ -13,13 +13,13 @@ using Xtensive.Orm;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
-  /// An implementation of <see cref="Rse.Providers.EnumerationContext"/> 
+  /// An implementation of <see cref="Storage.Rse.Providers.EnumerationContext"/> 
   /// suitable for storage.
   /// </summary>
-  public sealed class EnumerationContext : Rse.Providers.EnumerationContext
+  public sealed class EnumerationContext : Storage.Rse.Providers.EnumerationContext
   {
     private readonly EnumerationContextOptions options;
 
@@ -93,13 +93,13 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <inheritdoc/>
-    public override Rse.Providers.EnumerationContext CreateNew()
+    public override Storage.Rse.Providers.EnumerationContext CreateNew()
     {
       return new EnumerationContext(SessionHandler, options);
     }
 
     /// <inheritdoc/>
-    protected override Rse.Providers.EnumerationScope CreateActiveScope()
+    protected override Storage.Rse.Providers.EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);
     }

@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
+namespace Xtensive.Orm.Providers.Sql.Servers.SqlServer
 {
   /// <summary>
   /// Storage provider for Microsoft SQL Server.

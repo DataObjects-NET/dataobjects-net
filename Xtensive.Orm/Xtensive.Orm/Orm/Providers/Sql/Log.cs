@@ -7,7 +7,7 @@
 using System.Reflection;
 using Xtensive.Diagnostics;
 
-namespace Xtensive.Storage.Providers.Sql
+namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Log for this namespace.

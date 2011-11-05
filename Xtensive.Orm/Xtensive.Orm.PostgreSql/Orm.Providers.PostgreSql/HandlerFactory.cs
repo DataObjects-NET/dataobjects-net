@@ -6,7 +6,7 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
+namespace Xtensive.Orm.Providers.PostgreSql
 {
   /// <summary>
   /// Storage provider for PostgreSQL.
