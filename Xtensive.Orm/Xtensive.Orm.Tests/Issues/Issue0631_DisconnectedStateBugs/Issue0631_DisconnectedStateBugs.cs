@@ -10,7 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0631_DisconnectedStateBugs
 {

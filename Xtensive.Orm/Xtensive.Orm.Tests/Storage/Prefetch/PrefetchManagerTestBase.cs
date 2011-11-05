@@ -12,7 +12,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 

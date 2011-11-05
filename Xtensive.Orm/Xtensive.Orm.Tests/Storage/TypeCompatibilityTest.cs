@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel

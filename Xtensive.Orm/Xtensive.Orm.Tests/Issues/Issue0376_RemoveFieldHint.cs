@@ -10,7 +10,7 @@ using Xtensive.Collections;
 using Xtensive.Disposing;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using System.Reflection;
 using System.Linq;

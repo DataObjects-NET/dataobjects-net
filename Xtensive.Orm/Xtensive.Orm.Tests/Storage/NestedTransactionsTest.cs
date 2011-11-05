@@ -10,7 +10,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.TransactionsTestModel;
 
 namespace Xtensive.Orm.Tests.Storage

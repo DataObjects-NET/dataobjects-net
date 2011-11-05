@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Orm.Linq;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 

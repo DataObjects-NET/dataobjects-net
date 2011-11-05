@@ -16,7 +16,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 

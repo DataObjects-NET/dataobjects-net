@@ -10,7 +10,7 @@ using System.Linq;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Tuples;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;

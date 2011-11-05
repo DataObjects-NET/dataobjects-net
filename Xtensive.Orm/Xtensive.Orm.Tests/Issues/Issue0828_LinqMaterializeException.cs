@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues_Issue0828_LinqMaterializeException;
 
 namespace Xtensive.Orm.Tests.Issues_Issue0828_LinqMaterializeException

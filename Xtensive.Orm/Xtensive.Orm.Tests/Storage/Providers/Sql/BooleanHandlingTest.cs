@@ -11,7 +11,7 @@ using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.BooleanHandlingTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.BooleanHandlingTestModel

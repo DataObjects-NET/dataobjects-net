@@ -2,7 +2,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues_Issue0817_LocalCollectionWithEnum;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Issues_Issue0817_LocalCollectionWithEnum
 {

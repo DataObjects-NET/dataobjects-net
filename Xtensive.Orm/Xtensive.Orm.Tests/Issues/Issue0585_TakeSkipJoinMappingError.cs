@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.Xtensive.Storage.Tests.Issues.Issue0585_TakeSkipJoinMappingError_Model;
 
 namespace Xtensive.Orm.Tests.Issues

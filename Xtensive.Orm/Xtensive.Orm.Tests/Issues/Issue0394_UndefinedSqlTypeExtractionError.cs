@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Tests.ObjectModel.Northwind;
 using System.Linq;
 using System;

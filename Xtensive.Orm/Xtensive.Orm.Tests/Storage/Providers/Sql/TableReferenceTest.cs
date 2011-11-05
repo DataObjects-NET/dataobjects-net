@@ -14,7 +14,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Sql.Tests;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel

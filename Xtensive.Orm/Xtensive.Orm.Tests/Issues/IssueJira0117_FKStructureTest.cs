@@ -10,9 +10,9 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql.Model;
-using DomainHandler = Xtensive.Storage.Providers.Sql.DomainHandler;
+using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 
 namespace Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel
 {

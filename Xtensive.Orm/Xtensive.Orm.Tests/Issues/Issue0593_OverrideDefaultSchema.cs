@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql.Tests;
-using SqlDomainHandler = Xtensive.Storage.Providers.Sql.DomainHandler;
+using SqlDomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 
 namespace Xtensive.Orm.Tests.Issues
 {

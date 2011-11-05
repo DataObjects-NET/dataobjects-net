@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues_Issue0806_ColumnNamingError;
 
 namespace Xtensive.Orm.Tests.Issues_Issue0806_ColumnNamingError

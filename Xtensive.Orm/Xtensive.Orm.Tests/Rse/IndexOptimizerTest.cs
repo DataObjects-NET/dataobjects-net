@@ -19,7 +19,7 @@ using Xtensive.Parameters;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers.Indexing;
+using Xtensive.Orm.Providers.Indexing;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers.Compilable;

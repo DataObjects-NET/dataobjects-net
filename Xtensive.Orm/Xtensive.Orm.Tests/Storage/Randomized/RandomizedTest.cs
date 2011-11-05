@@ -13,7 +13,7 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage.Randomized
 {

@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using System.Linq;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model;

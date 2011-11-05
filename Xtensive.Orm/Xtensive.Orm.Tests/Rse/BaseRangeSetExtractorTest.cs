@@ -16,7 +16,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers.Indexing;
+using Xtensive.Orm.Providers.Indexing;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using Xtensive.Orm.Tests.Storage.SnakesModel;

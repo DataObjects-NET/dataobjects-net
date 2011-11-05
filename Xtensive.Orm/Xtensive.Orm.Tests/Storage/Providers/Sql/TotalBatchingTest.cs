@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
 

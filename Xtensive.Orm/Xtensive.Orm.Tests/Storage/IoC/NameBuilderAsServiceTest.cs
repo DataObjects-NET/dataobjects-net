@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.IoC.NameBuilderAsServiceTest_Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage.IoC.NameBuilderAsServiceTest_Model
 {

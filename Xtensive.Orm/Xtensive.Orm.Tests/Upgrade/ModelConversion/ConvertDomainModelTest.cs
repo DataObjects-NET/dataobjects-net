@@ -10,7 +10,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.ConvertDomainModel.Model;
 using TypeInfo = Xtensive.Storage.Model.TypeInfo;
 

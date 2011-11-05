@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.Issue0485_EntitySetDescendant_Model;
 using System.Linq;
 
