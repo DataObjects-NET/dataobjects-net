@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.03.02
 
-namespace Xtensive.Sql.SqlServer.Azure
+namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
   internal class Extractor : v10.Extractor
   {

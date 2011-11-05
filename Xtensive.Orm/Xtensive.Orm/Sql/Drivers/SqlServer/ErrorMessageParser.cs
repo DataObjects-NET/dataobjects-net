@@ -11,9 +11,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using System.Collections.ObjectModel;
-using Xtensive.Sql.SqlServer.Resources;
+using Xtensive.Sql.Drivers.SqlServer.Resources;
 
-namespace Xtensive.Sql.SqlServer
+namespace Xtensive.Sql.Drivers.SqlServer
 {
   /// <summary>
   /// Parser of SQL Server error messages.

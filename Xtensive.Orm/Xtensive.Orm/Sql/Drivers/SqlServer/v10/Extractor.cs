@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-namespace Xtensive.Sql.SqlServer.v10
+namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Extractor : v09.Extractor
   {

@@ -9,7 +9,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer
+namespace Xtensive.Sql.Drivers.SqlServer
 {
   internal class Connection : SqlConnection
   {

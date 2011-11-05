@@ -12,7 +12,7 @@ using System.Data.SqlTypes;
 using Xtensive.Sql.Info;
 using Xtensive.Sql;
 
-namespace Xtensive.Sql.SqlServer.v09
+namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   public class TypeMapper : Sql.TypeMapper
   {

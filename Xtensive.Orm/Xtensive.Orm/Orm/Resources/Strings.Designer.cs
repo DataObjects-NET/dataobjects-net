@@ -4536,7 +4536,7 @@ namespace Xtensive.Orm.Resources {
                 return ResourceManager.GetString("XW0001", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;none&gt;.
         /// </summary>

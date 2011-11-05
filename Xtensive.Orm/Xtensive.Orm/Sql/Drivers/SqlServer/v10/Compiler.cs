@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.SqlServer.v10
+namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Compiler : v09.Compiler
   {

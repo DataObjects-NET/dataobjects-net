@@ -7,7 +7,7 @@
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer.Azure
+namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
   internal class ServerInfoProvider : v10.ServerInfoProvider
   {

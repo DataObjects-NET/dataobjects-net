@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.SqlServer.v09
+namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   [Serializable]
   internal class ColumnResolver

@@ -6,7 +6,7 @@ using System;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer.v09
+namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {

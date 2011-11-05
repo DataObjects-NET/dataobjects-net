@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.SqlServer
+namespace Xtensive.Sql.Drivers.SqlServer
 {
   internal abstract class Driver : SqlDriver
   {

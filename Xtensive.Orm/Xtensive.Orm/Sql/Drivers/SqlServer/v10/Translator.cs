@@ -7,7 +7,7 @@
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.SqlServer.v10
+namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Translator : v09.Translator
   {

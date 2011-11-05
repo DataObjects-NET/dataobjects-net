@@ -11,10 +11,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.SqlServer.Resources;
+using Xtensive.Sql.Drivers.SqlServer.Resources;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer
+namespace Xtensive.Sql.Drivers.SqlServer
 {
   /// <summary>
   /// A <see cref="SqlDriver"/> factory for Microsoft SQL Server.

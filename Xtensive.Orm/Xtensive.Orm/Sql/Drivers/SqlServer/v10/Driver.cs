@@ -9,7 +9,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer.v10
+namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Driver : SqlServer.Driver
   {

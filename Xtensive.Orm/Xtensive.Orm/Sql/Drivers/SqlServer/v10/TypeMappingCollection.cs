@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtensive.Sql.SqlServer.v10
+namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   /// <summary>
   /// A collection of <see cref="TypeMapping"/> objects.

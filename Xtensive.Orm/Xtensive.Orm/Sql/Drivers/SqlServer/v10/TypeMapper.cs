@@ -9,7 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace Xtensive.Sql.SqlServer.v10
+namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   public class TypeMapper : v09.TypeMapper
   {

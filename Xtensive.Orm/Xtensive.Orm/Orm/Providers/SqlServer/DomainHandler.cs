@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using Xtensive.Sql.SqlServer;
+using Xtensive.Sql.Drivers.SqlServer;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.Sql.Servers.SqlServer

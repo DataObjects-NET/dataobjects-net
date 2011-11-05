@@ -7,12 +7,12 @@
 using System;
 using System.Linq;
 using Xtensive.Sql.Compiler;
-using Xtensive.Sql.SqlServer.Resources;
+using Xtensive.Sql.Drivers.SqlServer.Resources;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.SqlServer.v09
+namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class Compiler : SqlCompiler
   {

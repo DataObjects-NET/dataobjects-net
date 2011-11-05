@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Sql.Model;
 using DataTable=Xtensive.Sql.Model.DataTable;
 
-namespace Xtensive.Sql.SqlServer.v09
+namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class Extractor : Model.Extractor
   {
