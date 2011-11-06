@@ -10,7 +10,7 @@ using System.Data.Common;
 using System.Data.SqlServerCe;
 using System.Security;
 
-namespace Xtensive.Sql.SqlServerCe
+namespace Xtensive.Sql.Drivers.SqlServerCe
 {
   internal class Connection : SqlConnection
   {

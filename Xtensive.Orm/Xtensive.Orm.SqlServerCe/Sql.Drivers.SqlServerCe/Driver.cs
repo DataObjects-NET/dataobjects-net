@@ -9,7 +9,7 @@ using System.Data.SqlServerCe;
 using System.Security;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.SqlServerCe
+namespace Xtensive.Sql.Drivers.SqlServerCe
 {
   internal abstract class Driver : SqlDriver
   {

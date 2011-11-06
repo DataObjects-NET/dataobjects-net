@@ -6,7 +6,7 @@ using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.SqlServerCe.v3_5
+namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
 {
   internal class Driver : SqlServerCe.Driver
   {

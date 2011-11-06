@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.SqlServerCe
+namespace Xtensive.Sql.Drivers.SqlServerCe
 {
   /// <summary>
   /// A <see cref="SqlDriver"/> factory for Microsoft SQL Server.

@@ -5,7 +5,7 @@
 using System;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.SqlServerCe.v3_5
+namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {

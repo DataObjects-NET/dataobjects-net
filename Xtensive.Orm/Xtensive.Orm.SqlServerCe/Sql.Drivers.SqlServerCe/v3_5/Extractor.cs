@@ -13,7 +13,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using UniqueConstraint=Xtensive.Sql.Model.UniqueConstraint;
 
-namespace Xtensive.Sql.SqlServerCe.v3_5
+namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
 {
   internal class Extractor : Model.Extractor
   {

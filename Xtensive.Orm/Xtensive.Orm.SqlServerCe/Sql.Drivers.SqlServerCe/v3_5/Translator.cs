@@ -17,7 +17,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Drivers.SqlServerCe.Resources;
 using Xtensive.Sql;
 
-namespace Xtensive.Sql.SqlServerCe.v3_5
+namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
 {
   internal class Translator : SqlTranslator
   {
