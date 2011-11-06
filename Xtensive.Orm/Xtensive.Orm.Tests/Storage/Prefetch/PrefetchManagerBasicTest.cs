@@ -723,9 +723,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, null, true, true,
           failingValidator));
         prefetchManager.InvokePrefetch(book1Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
-          notificationValidator.Bind(book1Key, BookTitleField, title1Key, 1)));
+          notificationValidator.Bind(book1Key).Bind(BookTitleField).Bind(title1Key).Bind(1)));
         prefetchManager.InvokePrefetch(book2Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
-          notificationValidator.Bind(book2Key, BookTitleField, title2Key, 2)));
+          notificationValidator.Bind(book2Key).Bind(BookTitleField).Bind(title2Key).Bind(2)));
         prefetchManager.InvokePrefetch(book3Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
           failingValidator));
         prefetchManager.ExecuteTasks();
