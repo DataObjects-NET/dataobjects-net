@@ -377,7 +377,7 @@ namespace Xtensive.Storage.Providers
             : string.Format("{0}.{1}", type, index.MappingName);
         }
         else if (index.IsVirtual) {
-          result = string.Format("{0}.{1}", type, index.DeclaringIndex.Name);
+          result = index.DeclaringIndex.Name;
         }
         else {
           var keyFields = new HashSet<FieldInfo>();
@@ -404,15 +404,16 @@ namespace Xtensive.Storage.Providers
       string suffix = string.Empty;
       if (index.IsVirtual) {
         if ((index.Attributes & IndexAttributes.Filtered)!=IndexAttributes.None)
-          suffix = ".FILTERED";
+          suffix = ".FILTERED.";
         else if ((index.Attributes & IndexAttributes.Join)!=IndexAttributes.None)
-          suffix = ".JOIN";
+          suffix = ".JOIN.";
         else if ((index.Attributes & IndexAttributes.Union)!=IndexAttributes.None)
-          suffix = ".UNION";
+          suffix = ".UNION.";
         else if ((index.Attributes & IndexAttributes.View)!=IndexAttributes.None)
-          suffix = ".VIEW";
+          suffix = ".VIEW.";
         else if ((index.Attributes & IndexAttributes.Typed) != IndexAttributes.None)
-          suffix = ".TYPED";
+          suffix = ".TYPED.";
+        suffix += type.Name;
       }
       return ApplyNamingRules(string.Concat(result, suffix));
     }
