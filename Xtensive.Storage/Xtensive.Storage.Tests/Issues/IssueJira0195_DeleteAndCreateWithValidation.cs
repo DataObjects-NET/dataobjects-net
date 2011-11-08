@@ -5,7 +5,9 @@
 // Created:    2011.09.23
 
 using System;
+using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.IssueJira0195_DeleteAndCreateWithValidationModel;
@@ -59,7 +61,26 @@ namespace Xtensive.Storage.Tests.Issues
           new Guider(id) {Name = "321"};
           Assert.IsTrue(g.IsRemoved); // Check that IsRemoved is accessible
           g.Validate(); // Check that Validate() is no-op for removed entities
-          t.Complete();
+          // rollback
+        }
+      }
+    }
+
+    [Test]
+    public void RegressionTest()
+    {
+      // Ensure no regression:
+      // it should be imposible to create entity with the same key
+      // if old entity is not removed
+
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          var id = Guid.NewGuid();
+          var expected = new Guider(id) {Name = "123"};
+          AssertEx.Throws<Exception>(() => new Guider(id) {Name = "321"});
+          var actual = Query.All<Guider>().Single();
+          Assert.AreSame(expected, actual);
+          Assert.AreEqual("123", actual.Name);
         }
       }
     }

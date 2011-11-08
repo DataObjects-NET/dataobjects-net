@@ -65,13 +65,13 @@ namespace Xtensive.Storage
 
     internal Entity CreateEntity(Type type, Key key)
     {
-      var state = CreateEntityState(key);
+      var state = CreateEntityState(key, true);
       return Activator.CreateEntity(type, state);
     }
 
     internal Entity CreateOrInitializeExistingEntity(Type type, Key key)
     {
-      var state = CreateEntityState(key);
+      var state = CreateEntityState(key, false);
       var entity = state.TryGetEntity();
       if (entity==null)
         return Activator.CreateEntity(type, state);
@@ -115,7 +115,7 @@ namespace Xtensive.Storage
       entity.SystemInitialize(materialize);
     }
 
-    internal EntityState CreateEntityState(Key key)
+    internal EntityState CreateEntityState(Key key, bool failIfStateIsAlreadyBound)
     {
       // Checking for deleted entity with the same key
       var result = EntityStateCache[key, false];
@@ -138,6 +138,8 @@ namespace Xtensive.Storage
         EntityStateCache.Add(result);
       }
       else {
+        if (result.Entity!=null && failIfStateIsAlreadyBound)
+          throw new UniqueConstraintViolationException(string.Format(Strings.ExEntityWithKeyXAlreadyExists, key));
         result.Key = key;
         result.Tuple = tuple;
         result.PersistenceState = PersistenceState.New;

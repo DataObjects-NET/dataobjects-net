@@ -770,7 +770,7 @@ namespace Xtensive.Storage
     {
       try {
         var key = Key.Create(Session.Domain, GetType());
-        State = Session.CreateEntityState(key);
+        State = Session.CreateEntityState(key, true);
         SystemBeforeInitialize(false);
       }
       catch (Exception error) {
@@ -789,7 +789,7 @@ namespace Xtensive.Storage
       try {
         ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
         var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
-        State = Session.CreateEntityState(key);
+        State = Session.CreateEntityState(key, true);
         SystemBeforeInitialize(false);
         Initialize(GetType());
       }
@@ -821,7 +821,7 @@ namespace Xtensive.Storage
       try {
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
-        State = Session.CreateEntityState(key);
+        State = Session.CreateEntityState(key, true);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
           if (operations.CanRegisterOperation)
