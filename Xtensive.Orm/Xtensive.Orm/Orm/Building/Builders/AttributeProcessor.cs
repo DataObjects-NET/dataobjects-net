@@ -190,7 +190,13 @@ namespace Xtensive.Orm.Building.Builders
       if (string.IsNullOrEmpty(attribute.Filter))
         return;
       var declaringType = indexDef.Type.UnderlyingType;
-      indexDef.FilterExpression = GetExpressionFromProvider(attribute.FilterType ?? declaringType, attribute.Filter, declaringType, typeof (bool));
+      var filterType = attribute.FilterType ?? declaringType;
+      indexDef.FilterExpression = GetExpressionFromProvider(filterType, attribute.Filter, declaringType, typeof (bool));
+      if (indexDef.MappingName == null) {
+        var nameBuilder = BuildingContext.Demand().NameBuilder;
+        var name = nameBuilder.BuildPartialIndexName(indexDef, filterType, attribute.Filter);
+        ProcessMappingName(indexDef, name, ValidationRule.Index);
+      }
     }
 
     private static void ProcessDefault(FieldDef fieldDef, FieldAttribute attribute)
