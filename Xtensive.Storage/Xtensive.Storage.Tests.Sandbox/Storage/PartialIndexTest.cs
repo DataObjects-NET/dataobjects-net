@@ -207,6 +207,25 @@ namespace Xtensive.Storage.Tests.Storage.PartialIndexTestModel
     public int TestField { get; set; }
   }
 
+  [HierarchyRoot,
+    Index("TestField", Filter = "More"),
+    Index("TestField", Filter = "Less")]
+  public class DoubleIndexWithoutName : TestBase
+  {
+    public static Expression<Func<DoubleIndexWithoutName, bool>> More()
+    {
+      return test => test.TestField > 1000;
+    }
+
+    public static Expression<Func<DoubleIndexWithoutName, bool>> Less()
+    {
+      return test => test.TestField < 100;
+    }
+
+    [Field]
+    public int TestField { get; set; }
+  }
+
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class InheritanceClassTableBase : TestBase
   {
@@ -384,6 +403,12 @@ namespace Xtensive.Storage.Tests.Storage
     public void DoubleIndexWithNameTest()
     {
       AssertBuildSuccess(typeof (DoubleIndexWithName));
+    }
+    
+    [Test]
+    public void DoubleIndexWithoutNameTest()
+    {
+      AssertBuildSuccess(typeof (DoubleIndexWithoutName));
     }
 
     [Test]

@@ -429,6 +429,18 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
+    /// Builds name for partial index.
+    /// </summary>
+    /// <param name="index">Index to build name for.</param>
+    /// <param name="filterType">Type that defines filter for partial index.</param>
+    /// <param name="filterMember">Member that defines filter for partial index.</param>
+    /// <returns>Name for <paramref name="index"/>.</returns>
+    public virtual string BuildPartialIndexName(IndexDef index, Type filterType, string filterMember)
+    {
+      return string.Format("IXP_{0}.{1}", filterType.Name, filterMember);
+    }
+
+    /// <summary>
     /// Builds the name for the <see cref="AssociationInfo"/>.
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
