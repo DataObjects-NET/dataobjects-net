@@ -376,6 +376,9 @@ namespace Xtensive.Storage.Providers
             ? string.Format("{0}.{1}.{2}", type, index.DeclaringType, index.MappingName)
             : string.Format("{0}.{1}", type, index.MappingName);
         }
+        else if (index.IsVirtual) {
+          result = string.Format("{0}.{1}", type, index.DeclaringIndex.Name);
+        }
         else {
           var keyFields = new HashSet<FieldInfo>();
           foreach (var keyColumn in index.KeyColumns.Keys) {
