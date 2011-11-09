@@ -135,7 +135,7 @@ namespace Xtensive.Orm
         EntityStateCache.Add(result);
       }
       else {
-        if (result.Entity!=null && failIfStateIsAlreadyBound)
+        if (result.Entity!=null && !result.Entity.IsRemoved && failIfStateIsAlreadyBound)
           throw new UniqueConstraintViolationException(string.Format(Strings.ExEntityWithKeyXAlreadyExists, key));
         result.Key = key;
         result.Tuple = tuple;
