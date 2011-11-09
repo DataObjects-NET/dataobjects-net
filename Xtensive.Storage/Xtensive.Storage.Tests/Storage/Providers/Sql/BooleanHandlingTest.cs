@@ -380,6 +380,12 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       }
     }
 
+    [Test]
+    public void CastToObjectAndBackTest()
+    {
+      TestQuery(() => Query.All<MyEntity>().Select(e => (object)e.Flag).Where(f => (bool)f));
+    }
+
     private void TestQuery<T>(Func<IQueryable<T>> query)
     {
       using (Session.Open(Domain)) {

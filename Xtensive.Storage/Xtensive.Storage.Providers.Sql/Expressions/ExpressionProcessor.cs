@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       var sourceType = cast.Operand.Type.StripNullable();
       var targetType = cast.Type.StripNullable();
-      if (sourceType==targetType || targetType==typeof(object))
+      if (sourceType==targetType || targetType==typeof(object) || sourceType==typeof(object))
         return operand;
       // Special case for boolean cast
       if (fixBooleanExpressions && IsBooleanExpression(cast.Operand)) {
