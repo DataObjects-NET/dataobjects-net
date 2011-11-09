@@ -377,7 +377,7 @@ namespace Xtensive.Storage.Providers
             ? string.Format("{0}.{1}.{2}", type, index.DeclaringType, index.MappingName)
             : string.Format("{0}.{1}", type, index.MappingName);
         }
-        else if (index.IsVirtual) {
+        else if (index.IsVirtual && index.DeclaringIndex.Name!=null) {
           result = index.DeclaringIndex.Name;
         }
         else {
