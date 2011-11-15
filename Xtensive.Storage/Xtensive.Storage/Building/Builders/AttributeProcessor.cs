@@ -154,7 +154,15 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(FieldDef fieldDef, TypeDiscriminatorAttribute attribute)
     {
-      if (!typeof(Entity).IsAssignableFrom(fieldDef.UnderlyingProperty.DeclaringType))
+      var reflectedType = fieldDef.UnderlyingProperty.ReflectedType;
+
+      // Skip type discriminator declarations for interfaces
+      // Those has no effect on interface itself,
+      // but allow implementors to inherit discriminator declaration.
+      if (reflectedType.IsInterface)
+        return;
+
+      if (!typeof(Entity).IsAssignableFrom(reflectedType))
         throw new DomainBuilderException(
           string.Format(Strings.ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator, fieldDef.Name));
       fieldDef.IsTypeDiscriminator = true;
