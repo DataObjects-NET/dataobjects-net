@@ -138,6 +138,7 @@ namespace Xtensive.Orm.Model
     public bool IsTypeDiscriminator {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.TypeDiscriminator) != 0; }
+      set { Attributes = value ? Attributes | FieldAttributes.TypeDiscriminator : Attributes & ~FieldAttributes.TypeDiscriminator; }
     }
 
     /// <summary>
