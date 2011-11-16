@@ -15,7 +15,11 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
 {
-
+  public static class CodeRegistry
+  {
+    public const string GuidKeyValue = "b4fa0c56-be9a-4bd0-a50f-17c4c6b4af91";
+    public const string GuidDefaultValue = "6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA";
+  }
   #region Various enums
 
   public enum EByte : byte
@@ -60,6 +64,17 @@ namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
 
   #endregion
 
+  [HierarchyRoot]
+  public class XRef : Entity
+  {
+    [Field, Key]
+    public Guid Id { get; private set;}
+
+    public XRef(Guid key)
+      : base(key)
+    {}
+  }
+
   [Serializable]
   [HierarchyRoot]
   public class X : Entity
@@ -98,7 +113,7 @@ namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = ulong.MaxValue)]
     public ulong FULong { get; set; }
 
-    [Field(DefaultValue = "6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA")]
+    [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid FGuid { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -152,6 +167,7 @@ namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = EULong.Max)]
     public EULong FEULong { get; set; }
 
+    // Nullable fields
 
     [Field(DefaultValue = true)]
     public bool? FNBool { get; set; }
@@ -183,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = ulong.MaxValue)]
     public ulong? FNULong { get; set; }
 
-    [Field(DefaultValue = "6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA")]
+    [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid? FNGuid { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -225,6 +241,9 @@ namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = EULong.Max)]
     public EULong? FNEULong { get; set; }
 
+    [Field(DefaultValue = CodeRegistry.GuidKeyValue)]
+    public XRef Ref { get; set; }
+
   }
 }
 
@@ -246,8 +265,9 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         Key key;
         using (var t = Transaction.Open()) {
-          X x = new X();
-          key = x.Key;
+          // To be sure that the reference field (X.Ref) would have meaning
+          new XRef(new Guid(CodeRegistry.GuidKeyValue));
+          key = new X().Key;
           t.Complete();
         }
         var domainHandler = Domain.Handlers.DomainHandler as DomainHandler;
@@ -275,7 +295,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(EULong.Max, x.FEULong);
           Assert.AreEqual(EUShort.Max, x.FEUShort);
           Assert.AreEqual(float.MaxValue, x.FFloat);
-          Assert.AreEqual(new Guid("6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA"), x.FGuid);
+          Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FGuid);
           Assert.AreEqual(int.MaxValue, x.FInt);
           Assert.AreEqual(long.MaxValue, x.FLong);
           Assert.AreEqual(new byte[] {10,10,10,10}, x.FLongByteArray);
@@ -302,7 +322,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(EULong.Max, x.FNEULong);
           Assert.AreEqual(EUShort.Max, x.FNEUShort);
           Assert.AreEqual(float.MaxValue, x.FNFloat);
-          Assert.AreEqual(new Guid("6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA"), x.FNGuid);
+          Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FNGuid);
           Assert.AreEqual(int.MaxValue, x.FNInt);
           Assert.AreEqual(long.MaxValue, x.FNLong);
           Assert.AreEqual(sbyte.MaxValue, x.FNSByte);
@@ -311,6 +331,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(uint.MaxValue, x.FNUInt);
           Assert.AreEqual(ulong.MaxValue, x.FNULong);
           Assert.AreEqual(ushort.MaxValue, x.FNUShort);
+          Assert.IsNotNull(x.Ref);
 
           t.Complete();
         }

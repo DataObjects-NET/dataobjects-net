@@ -75,12 +75,6 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent == null))
             BuildInheritedField(context, typeInfo, fieldInfo);
         }
-        if (typeDef.TypeDiscriminatorValue != null) {
-          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeDef.TypeDiscriminatorValue);
-          typeInfo.TypeDiscriminatorValue = typeDef.TypeDiscriminatorValue;
-        }
-        if (typeDef.IsDefaultTypeInHierarchy)
-          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
       }
       else if (typeDef.IsInterface) {
         var hierarchyDef = context.ModelDef.FindHierarchy(typeDef.Implementors[0]);
@@ -91,6 +85,23 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       return typeInfo;
+    }
+
+    public static void BuildTypeDiscriminatorMap(TypeDef typeDef, TypeInfo typeInfo)
+    {
+        if (typeDef.TypeDiscriminatorValue != null) {
+          var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator);
+          if (targetField == null)
+            throw new DomainBuilderException(string.Format("Type discriminator field is not found for {0} type", typeInfo.Name));
+          if (targetField.IsEntity) {
+            targetField = targetField.Fields.First();
+            targetField.IsTypeDiscriminator = true;
+          }
+          typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
+          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeInfo.TypeDiscriminatorValue);
+        }
+        if (typeDef.IsDefaultTypeInHierarchy)
+          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
     }
 
     /// <summary>
@@ -199,14 +210,10 @@ namespace Xtensive.Storage.Building.Builders
         ItemType = fieldDef.ItemType,
         Length = fieldDef.Length,
         Scale = fieldDef.Scale,
-        Precision = fieldDef.Precision,
-        DefaultValue = fieldDef.DefaultValue
+        Precision = fieldDef.Precision
       };
 
       type.Fields.Add(fieldInfo);
-
-      if (fieldDef.IsTypeDiscriminator)
-        type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
 
       if (fieldInfo.IsEntitySet) {
         AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
@@ -215,17 +222,29 @@ namespace Xtensive.Storage.Building.Builders
 
       if (fieldInfo.IsEntity) {
         var fields = context.Model.Types[fieldInfo.ValueType].Fields.Where(f => f.IsPrimaryKey);
+        // Adjusting default value if any
+        if (fields.Count() == 1 && fieldDef.DefaultValue != null) {
+          fieldInfo.DefaultValue = ValueTypeBuilder.AdjustValue(fieldInfo, fields.First().ValueType, fieldDef.DefaultValue);
+        }
         BuildNestedFields(context, null, fieldInfo, fields);
 
         if (!IsAuxiliaryType(type))
           AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
+
+        // Adjusting type discriminator field for references
+        if (fieldDef.IsTypeDiscriminator)
+          type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo.Fields.First();
       }
 
       if (fieldInfo.IsStructure)
         BuildNestedFields(context, null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
 
-      if (fieldInfo.IsPrimitive)
+      if (fieldInfo.IsPrimitive) {
+        fieldInfo.DefaultValue = fieldDef.DefaultValue;
         fieldInfo.Column = BuildDeclaredColumn(context, fieldInfo);
+        if (fieldDef.IsTypeDiscriminator)
+          type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
+      }
       return fieldInfo;
     }
 
@@ -258,8 +277,10 @@ namespace Xtensive.Storage.Building.Builders
           clone.Name = context.NameBuilder.BuildNestedFieldName(target, field);
           clone.OriginalName = field.OriginalName;
           // One-field reference
-          if (target.IsEntity && buffer.Count == 1)
+          if (target.IsEntity && buffer.Count == 1) {
             clone.MappingName = target.MappingName;
+            clone.DefaultValue = target.DefaultValue;
+          }
           else
             clone.MappingName = context.NameBuilder.BuildMappingName(target, field);
         }
@@ -330,6 +351,7 @@ namespace Xtensive.Storage.Building.Builders
       column.IsPrimaryKey = field.IsPrimaryKey;
       column.IsNullable = field.IsNullable;
       column.IsSystem = field.IsSystem;
+      column.DefaultValue = field.DefaultValue;
 
       return column;
     }

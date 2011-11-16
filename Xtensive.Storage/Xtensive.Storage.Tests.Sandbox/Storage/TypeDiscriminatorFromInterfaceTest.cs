@@ -18,19 +18,47 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage.AdvancedDefaultAndTypeDiscrimin
     public const string DefaultCode = "{9F011719-DD4D-4B45-84F8-56B05A47952B}";
   }
 
-  public interface IDiscriminated : IEntity
+  public interface IDiscriminatedByValue : IEntity
   {
     [Field, TypeDiscriminator]
     Guid Code { get; }
   }
 
   [HierarchyRoot, TypeDiscriminatorValue(CodeRegistry.DefaultCode)]
-  public class Discriminated : Entity, IDiscriminated
+  public class DiscriminatedByValue : Entity, IDiscriminatedByValue
   {
     [Field, Key]
     public int Id { get; private set; }
 
+    [Field]
     public Guid Code { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Ref : Entity
+  {
+    [Field, Key]
+    public Guid Id { get; private set; }
+
+    public Ref(Guid id)
+      : base(id)
+    {}
+  }
+
+  public interface IDiscriminatedByRef : IEntity
+  {
+    [Field, TypeDiscriminator]
+    Ref Ref { get; }
+  }
+
+  [HierarchyRoot, TypeDiscriminatorValue(CodeRegistry.DefaultCode)]
+  public class DiscriminatedByRef : Entity, IDiscriminatedByRef
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public Ref Ref { get; set; }
   }
 }
 
@@ -41,19 +69,40 @@ namespace Xtensive.Storage.Tests.Sandbox.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Discriminated).Assembly, typeof (Discriminated).Namespace);
+      config.Types.Register(typeof (DiscriminatedByValue).Assembly, typeof (DiscriminatedByValue).Namespace);
       return config;
     }
 
     [Test]
-    public void MainTest()
+    public void DiscriminateByValueTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
-          var d = new Discriminated();
-          var items = Query.All<Discriminated>().ToList();
-          Assert.AreEqual(new Guid(CodeRegistry.DefaultCode), d.Code);
-        }
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var d = new DiscriminatedByValue();
+        var items = Query.All<DiscriminatedByValue>().ToList();
+        Assert.AreEqual(new Guid(CodeRegistry.DefaultCode), d.Code);
+      }
+    }
+
+    [Test]
+    public void DiscriminateByRefTest()
+    {
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var r = new Ref(new Guid(CodeRegistry.DefaultCode));
+        var d = new DiscriminatedByRef()
+                  {
+                    Ref = r
+                  };
+        t.Complete();
+      }
+
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var items = Query.All<DiscriminatedByRef>().ToList();
+        var d = items[0];
+        Assert.IsNotNull(d.Ref);
+        Assert.AreEqual(new Guid(CodeRegistry.DefaultCode), d.Ref.Id);
       }
     }
   }

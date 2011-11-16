@@ -137,6 +137,7 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var typeDef in typeDefs) {
           var typeInfo = context.Model.Types[typeDef.UnderlyingType];
           TypeBuilder.BuildFields(typeDef, typeInfo);
+          TypeBuilder.BuildTypeDiscriminatorMap(typeDef, typeInfo);
         }
     }
 

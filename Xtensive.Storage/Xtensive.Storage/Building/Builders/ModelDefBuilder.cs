@@ -28,10 +28,8 @@ namespace Xtensive.Storage.Building.Builders
         var context = BuildingContext.Demand();
         context.ModelDef = new DomainModelDef();
 
-        using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
+        using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types))
           ProcessTypes();
-          AdjustTypeDiscriminatorValues();
-        }
       }
     }
 
@@ -311,25 +309,6 @@ namespace Xtensive.Storage.Building.Builders
         index.Name = BuildingContext.Demand().NameBuilder.BuildIndexName(typeDef, index);
 
       return index;
-    }
-
-    private static void AdjustTypeDiscriminatorValues()
-    {
-      var modelDef = BuildingContext.Demand().ModelDef;
-      var hierarchiesToProcess = modelDef.Hierarchies
-        .Select(hierarchy => new {
-          Root = hierarchy.Root,
-          DiscriminatorField = hierarchy.Root.Fields.FirstOrDefault(field => field.IsTypeDiscriminator)
-        })
-        .Where(item => item.Root!=null && item.DiscriminatorField!=null);
-      foreach (var item in hierarchiesToProcess) {
-        var rootType = item.Root.UnderlyingType;
-        var field = item.DiscriminatorField;
-        var inheritorsToProcess = modelDef.Types
-          .Where(type => type.TypeDiscriminatorValue!=null && rootType.IsAssignableFrom(type.UnderlyingType));
-        foreach (var type in inheritorsToProcess)
-          type.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(field, type.TypeDiscriminatorValue);
-      }
     }
 
     #endregion
