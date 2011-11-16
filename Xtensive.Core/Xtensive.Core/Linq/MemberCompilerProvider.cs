@@ -116,29 +116,29 @@ namespace Xtensive.Linq
       }
     }
 
-    private static bool ParameterTypeMatches(Type originalParameterType, Type candidateParameterType)
+    private static bool ParameterTypeMatches(Type inputParameterType, Type candidateParameterType)
     {
-      return originalParameterType.IsGenericParameter
-        ? candidateParameterType==originalParameterType
-        : (candidateParameterType.IsGenericParameter || originalParameterType==candidateParameterType);
+      return inputParameterType.IsGenericParameter
+        ? candidateParameterType==inputParameterType
+        : (candidateParameterType.IsGenericParameter || inputParameterType==candidateParameterType);
     }
 
     private static bool AllParameterTypesMatch(
-      IEnumerable<Type> originalParameterTypes, IEnumerable<Type> candidateParameterTypes)
+      IEnumerable<Type> inputParameterTypes, IEnumerable<Type> candidateParameterTypes)
     {
-      return originalParameterTypes
+      return inputParameterTypes
         .Zip(candidateParameterTypes)
         .All(pair => ParameterTypeMatches(pair.First, pair.Second));
     }
 
-    private static MethodBase FindBestMethod(MethodBase[] allCandidates, MethodBase originalMethod)
+    private static MethodBase GetCanonicalMethod(MethodBase inputMethod, MethodBase[] possibleCanonicalMethods)
     {
-      var originalParameterTypes = originalMethod.GetParameterTypes();
+      var inputParameterTypes = inputMethod.GetParameterTypes();
 
-      var candidates = allCandidates
-        .Where(candidate => candidate.Name==originalMethod.Name
-          && candidate.GetParameters().Length==originalParameterTypes.Length
-          && candidate.IsStatic==originalMethod.IsStatic)
+      var candidates = possibleCanonicalMethods
+        .Where(candidate => candidate.Name==inputMethod.Name
+          && candidate.GetParameters().Length==inputParameterTypes.Length
+          && candidate.IsStatic==inputMethod.IsStatic)
         .ToArray();
 
       if (candidates.Length==0)
@@ -148,7 +148,7 @@ namespace Xtensive.Linq
 
       candidates = candidates
         .Where(candidate =>
-          AllParameterTypesMatch(originalParameterTypes, candidate.GetParameterTypes()))
+          AllParameterTypesMatch(inputParameterTypes, candidate.GetParameterTypes()))
         .ToArray();
 
       if (candidates.Length!=1)
@@ -342,9 +342,9 @@ namespace Xtensive.Linq
         if (canonicalMember is FieldInfo)
           canonicalMember = targetType.GetField(canonicalMember.Name);
         else if (canonicalMember is MethodInfo)
-          canonicalMember = FindBestMethod(targetType.GetMethods(), (MethodInfo) canonicalMember);
+          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
         else if (canonicalMember is ConstructorInfo)
-          canonicalMember = FindBestMethod(targetType.GetConstructors(), (ConstructorInfo) canonicalMember);
+          canonicalMember = GetCanonicalMethod((ConstructorInfo) canonicalMember, targetType.GetConstructors());
         else
           canonicalMember = null;
       }

@@ -313,6 +313,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Translation of In/Contains is not supported in this case.
+        /// </summary>
+        internal static string ExTranslationOfInContainsIsNotSupportedInThisCase {
+            get {
+                return ResourceManager.GetString("ExTranslationOfInContainsIsNotSupportedInThisCase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; has no primary index..
         /// </summary>
         internal static string ExTypeHasNoPrimaryIndex {

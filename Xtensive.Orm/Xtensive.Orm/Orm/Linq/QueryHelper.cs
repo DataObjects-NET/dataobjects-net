@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -125,6 +126,27 @@ namespace Xtensive.Orm.Linq
         outerSelector,
         innerSelector,
         resultSelector);
+    }
+
+    [Conditional("NET40")]
+    public static void TryAddConvarianceCast(ref Expression source, Type baseType)
+    {
+      var elementType = GetSequenceElementType(source.Type);
+      if (elementType == null)
+        return;
+      if (!baseType.IsAssignableFrom(elementType) || baseType==elementType)
+        return;
+      var castMethod = source.Type.IsOfGenericInterface(typeof (IQueryable<>))
+        ? WellKnownMembers.Queryable.Cast
+        : WellKnownMembers.Enumerable.Cast;
+      source = Expression.Call(castMethod.MakeGenericMethod(baseType), source);
+    }
+
+    public static Type GetSequenceElementType(Type type)
+    {
+      var sequenceType =  type.GetGenericType(typeof (IEnumerable<>))
+        ?? type.GetInterfaces().Select(i => i.GetGenericType(typeof (IEnumerable<>))).FirstOrDefault(i => i!=null);
+      return sequenceType != null ? sequenceType.GetGenericArguments()[0] : null;
     }
   }
 }
