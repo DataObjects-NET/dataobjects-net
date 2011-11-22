@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void GroupByFakeKeyWithProjectionTest()
+    public void AggregateOnFakeGroupTestWithProjectionTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void GroupByFakeKeyTest()
+    public void AggregateOnFakeGroupTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void SimpleAggregateWithProjectionTest()
+    public void AggregateOnAllTestWithProjectionTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void SimpleAggregateTest()
+    public void AggregateOnAllTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
