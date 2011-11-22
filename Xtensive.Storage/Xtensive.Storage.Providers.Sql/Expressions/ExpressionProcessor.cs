@@ -326,12 +326,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private SqlExpression VisitTupleAccess(MethodCallExpression tupleAccess)
     {
       int columnIndex = tupleAccess.GetTupleAccessArgument();
-      var parameter = tupleAccess.GetApplyParameter();
-      if (parameter!=null)
-        return VisitOuterParameterReference(columnIndex, parameter);
-
-      var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
-      SqlExpression result = queryRef[columnIndex];
+      SqlExpression result;
+      var applyParameter = tupleAccess.GetApplyParameter();
+      if (applyParameter != null) {
+        result = VisitOuterParameterReference(columnIndex, applyParameter);
+      }
+      else {
+        var queryRef = sourceMapping[(ParameterExpression)tupleAccess.Object];
+        result = queryRef[columnIndex];
+      }
       if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
         result = booleanExpressionConverter.IntToBoolean(result);
       return result;
