@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Sandbox.Issues.IssueJira0202_OnRemoveActionOverriding_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Sandbox.Issues.IssueJira0202_OnRemoveActionOverriding_Model;
 
-namespace Xtensive.Storage.Tests.Sandbox.Issues.IssueJira0202_OnRemoveActionOverriding_Model
+namespace Xtensive.Orm.Tests.Sandbox.Issues.IssueJira0202_OnRemoveActionOverriding_Model
 {
     public interface IBaseEntity : IEntity
     {
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Sandbox.Issues.IssueJira0202_OnRemoveActionOver
     }
 }
 
-namespace Xtensive.Storage.Tests.Sandbox.Issues
+namespace Xtensive.Orm.Tests.Sandbox.Issues
 {
     public class IssueJira0202_OnRemoveActionOverriding : AutoBuildTest
     {
