@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Building.Builders
     public static void BuildTypeDiscriminatorMap(TypeDef typeDef, TypeInfo typeInfo)
     {
         if (typeDef.TypeDiscriminatorValue != null) {
-          var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator);
+          var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent == null);
           if (targetField == null)
             throw new DomainBuilderException(string.Format("Type discriminator field is not found for {0} type", typeInfo.Name));
           if (targetField.IsEntity) {
