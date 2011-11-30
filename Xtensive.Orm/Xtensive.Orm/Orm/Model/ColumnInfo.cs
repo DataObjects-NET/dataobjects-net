@@ -173,6 +173,8 @@ namespace Xtensive.Orm.Model
     public object DefaultValue {
       [DebuggerStepThrough]
       get { return defaultValue; }
+      [DebuggerStepThrough]
+      set { defaultValue = value; }
     }
 
     /// <summary>

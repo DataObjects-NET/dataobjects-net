@@ -4,8 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.10
 
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Tests.Linq
 {
@@ -354,6 +357,42 @@ namespace Xtensive.Tests.Linq
         string s3)
       {
         return "OK";
+      }
+    }
+
+    #endregion
+
+    #region Enumerable / Array overload test
+
+    public static class EachExtensions
+    {
+      public static void Each<T>(Action<T> action, IEnumerable<T> items)
+      {
+        foreach (var item in items)
+          action.Invoke(item);
+      }
+
+      public static void Each<T>(Action<T> action, params T[] items)
+      {
+        foreach (var item in items)
+          action.Invoke(item);
+      }
+    }
+
+    public static class EachCompilers
+    {
+      [Compiler(typeof (EachExtensions), "Each", TargetKind.Static | TargetKind.Method,  1)]
+      public static string EachInArray(MemberInfo member, string action,
+        [Type(typeof(MethodHelper.AnyArrayPlaceholder))] string items)
+      {
+        return "EachInArray";
+      }
+
+      [Compiler(typeof(EachExtensions), "Each", TargetKind.Static | TargetKind.Method, 1)]
+      public static string EachInEnumerable(MemberInfo member, string action,
+        [Type(typeof(IEnumerable<>))] string items)
+      {
+        return "EachInEnumerable";
       }
     }
 

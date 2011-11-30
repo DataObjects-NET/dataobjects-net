@@ -212,7 +212,6 @@ namespace Xtensive.Orm.Tests.Model
         }
         // Cache is invalidated here
         using (session.OpenTransaction()) {
-          AssertEx.Throws<Exception>(()=>enumerator.MoveNext());  
           Assert.AreEqual(4, a.OneToManyMaster.Count()); // Enumerate through recordset request
           foreach (F f in a.OneToManyMaster) {
             // a.OneToManyMaster.Contains(f.Key); // Enumerate through recordset request

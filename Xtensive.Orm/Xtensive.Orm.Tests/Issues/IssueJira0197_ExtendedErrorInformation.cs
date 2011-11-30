@@ -50,11 +50,11 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void InsertNullTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           try {
             new ErrorProvider(1);
-            session.Persist();
+            session.SaveChanges();
           }
           catch (CheckConstraintViolationException exception) {
             var expected = Domain.Model.Types[typeof (ErrorProvider)];
@@ -68,13 +68,13 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void DuplicateUniqueIndexTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           try {
-            new ErrorProvider(1) {NotNull = string.Empty, Unique = 1};
-            session.Persist();
-            new ErrorProvider(2) {NotNull = string.Empty, Unique = 1};
-            session.Persist();
+            new ErrorProvider(2) {NotNull = string.Empty, Unique = 2};
+            session.SaveChanges();
+            new ErrorProvider(3) {NotNull = string.Empty, Unique = 2};
+            session.SaveChanges();
             Assert.Fail();
           }
           catch (UniqueConstraintViolationException exception) {
@@ -87,17 +87,22 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void DuplicatePrimaryKeyTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+          new ErrorProvider(3) {NotNull = string.Empty, Unique = 31};
+          t.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
           try {
-            new ErrorProvider(1) {NotNull = string.Empty, Unique = 1};
-            session.Persist();
-            new ErrorProvider(1) {NotNull = string.Empty, Unique = 2};
-            session.Persist();
+            new ErrorProvider(3) {NotNull = string.Empty, Unique = 32};
+            session.SaveChanges();
             Assert.Fail();
           }
           catch (UniqueConstraintViolationException exception) {
-            Assert.AreEqual(Domain.Model.Types[typeof(ErrorProvider)], exception.Info.Type);
+            Assert.AreEqual(Domain.Model.Types[typeof (ErrorProvider)], exception.Info.Type);
           }
         }
       }

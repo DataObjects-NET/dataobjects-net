@@ -377,6 +377,9 @@ namespace Xtensive.Orm.Providers
             ? string.Format("{0}.{1}.{2}", type, index.DeclaringType, index.MappingName)
             : string.Format("{0}.{1}", type, index.MappingName);
         }
+        else if (index.IsVirtual && index.DeclaringIndex.Name!=null) {
+          result = index.DeclaringIndex.Name;
+        }
         else {
           var keyFields = new HashSet<FieldInfo>();
           foreach (var keyColumn in index.KeyColumns.Keys) {
@@ -402,15 +405,16 @@ namespace Xtensive.Orm.Providers
       string suffix = string.Empty;
       if (index.IsVirtual) {
         if ((index.Attributes & IndexAttributes.Filtered)!=IndexAttributes.None)
-          suffix = ".FILTERED";
+          suffix = ".FILTERED.";
         else if ((index.Attributes & IndexAttributes.Join)!=IndexAttributes.None)
-          suffix = ".JOIN";
+          suffix = ".JOIN.";
         else if ((index.Attributes & IndexAttributes.Union)!=IndexAttributes.None)
-          suffix = ".UNION";
+          suffix = ".UNION.";
         else if ((index.Attributes & IndexAttributes.View)!=IndexAttributes.None)
-          suffix = ".VIEW";
+          suffix = ".VIEW.";
         else if ((index.Attributes & IndexAttributes.Typed) != IndexAttributes.None)
-          suffix = ".TYPED";
+          suffix = ".TYPED.";
+        suffix += type.Name;
       }
       return ApplyNamingRules(string.Concat(result, suffix));
     }
@@ -424,6 +428,18 @@ namespace Xtensive.Orm.Providers
     {
       var result = string.Format("FT_{0}", typeInfo.MappingName ?? typeInfo.Name);
       return ApplyNamingRules(result);
+    }
+
+    /// <summary>
+    /// Builds name for partial index.
+    /// </summary>
+    /// <param name="index">Index to build name for.</param>
+    /// <param name="filterType">Type that defines filter for partial index.</param>
+    /// <param name="filterMember">Member that defines filter for partial index.</param>
+    /// <returns>Name for <paramref name="index"/>.</returns>
+    public virtual string BuildPartialIndexName(IndexDef index, Type filterType, string filterMember)
+    {
+      return string.Format("IXP_{0}.{1}", filterType.Name, filterMember);
     }
 
     /// <summary>

@@ -85,11 +85,15 @@ namespace Xtensive.Testing
     public static void Throws<TException>(Action action) 
       where TException: Exception
     {
+      bool thrown = false;
       try {
         action.Invoke();
-        Assert.Fail(string.Format("Expected '{0}' was not thrown.", typeof(TException).GetShortName()));
       } 
-      catch (TException) {}
+      catch (TException) {
+        thrown = true;
+      }
+      if (!thrown)
+        Assert.Fail(string.Format("Expected '{0}' was not thrown.", typeof(TException).GetShortName()));
     }
 
     public static void ThrowsNotSupportedException(Action action)

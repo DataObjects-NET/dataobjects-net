@@ -275,4 +275,7 @@
   <data name="ExOuterParameterReferenceFoundButNoSqlCompilerProvided" xml:space="preserve">
     <value>Outer parameter reference found, but no SqlCompiler provided</value>
   </data>
+  <data name="ExTranslationOfInContainsIsNotSupportedInThisCase">
+    <value xml:space="preserve">Translation of In/Contains is not supported in this case</value>
+  </data>
 </root>

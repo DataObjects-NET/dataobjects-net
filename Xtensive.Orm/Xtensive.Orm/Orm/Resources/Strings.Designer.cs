@@ -977,6 +977,15 @@ namespace Xtensive.Orm.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity with key &apos;{0}&apos; already exists.
+        /// </summary>
+        internal static string ExEntityWithKeyXAlreadyExists {
+            get {
+                return ResourceManager.GetString("ExEntityWithKeyXAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Entity &apos;{0}&apos; is bound to another Session..
         /// </summary>
         internal static string ExEntityXIsBoundToAnotherSession {
