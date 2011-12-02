@@ -4,11 +4,14 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
+using System.Collections.Generic;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   internal class EmptySelectCorrector : IPostCompiler, ISqlVisitor
   {
+    private HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
+
     public ExecutableProvider Process(ExecutableProvider rootProvider)
     {
       this.Visit(((SqlProvider) rootProvider).Request.SelectStatement);
@@ -17,7 +20,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlAggregate node)
     {
-      if (node.Expression!=null)
+      if (!node.Expression.IsNullReference())
         Visit(node.Expression);
     }
 
@@ -49,7 +52,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (node.Left!=null)
         Visit(node.Left);
-      if (node.Right!=null)
+      if (!node.Right.IsNullReference())
         Visit(node.Right);
     }
 
@@ -59,19 +62,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlBetween node)
     {
-      if (node.Left!=null)
+      if (!node.Left.IsNullReference())
         Visit(node.Left);
-      if (node.Right!=null)
+      if (!node.Right.IsNullReference())
         Visit(node.Right);
-      if (node.Expression!=null)
+      if (!node.Expression)
         Visit(node.Expression);
     }
 
     public void Visit(SqlBinary node)
     {
-      if (node.Left!=null)
+      if (!node.Left.IsNullReference())
         Visit(node.Left);
-      if (node.Right!=null)
+      if (!node.Right.IsNullReference())
         Visit(node.Right);
     }
 
@@ -81,15 +84,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlCase node)
     {
-      if (node.Value!=null)
+      if (!node.Value.IsNullReference())
         Visit(node.Value);
-      if (node.Else!=null)
+      if (!node.Else.IsNullReference())
         Visit(node.Else);
     }
 
     public void Visit(SqlCast node)
     {
-      if (node.Operand!=null)
+      if (!node.Operand.IsNullReference())
         Visit(node.Operand);
     }
 
@@ -99,13 +102,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlCollate node)
     {
-      if (node.Operand!=null)
+      if (!node.Operand.IsNullReference())
         Visit(node.Operand);
     }
 
     public void Visit(SqlColumnRef node)
     {
-      if (node.SqlColumn!=null)
+      if (!node.SqlColumn.IsNullReference())
         Visit(node.SqlColumn);
     }
 
@@ -189,7 +192,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (node.From!=null)
         Visit(node.From);
-      if (node.Where!=null)
+      if (!node.Where.IsNullReference())
         Visit(node.Where);
     }
 
@@ -251,7 +254,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlExtract node)
     {
-      if (node.Operand!=null)
+      if (!node.Operand.IsNullReference())
         Visit(node.Operand);
     }
 
@@ -289,7 +292,7 @@ namespace Xtensive.Storage.Providers.Sql
         Visit(node.True);
       if (node.False!=null)
         Visit(node.False);
-      if (node.Condition!=null)
+      if (!node.Condition.IsNullReference())
         Visit(node.Condition);
     }
 
@@ -305,7 +308,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlJoinExpression node)
     {
-      if (node.Expression!=null)
+      if (!node.Expression.IsNullReference())
         Visit(node.Expression);
       if (node.Left!=null)
         Visit(node.Left);
@@ -319,11 +322,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlLike node)
     {
-      if (node.Expression!=null)
+      if (!node.Expression.IsNullReference())
         Visit(node.Expression);
-      if (node.Escape!=null)
+      if (!node.Escape.IsNullReference())
         Visit(node.Escape);
-      if (node.Pattern!=null)
+      if (!node.Pattern.IsNullReference())
         Visit(node.Pattern);
     }
 
@@ -333,9 +336,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlMatch node)
     {
-      if (node.Value!=null)
+      if (!node.Value.IsNullReference())
         Visit(node.Value);
-      if (node.SubQuery!=null)
+      if (!node.SubQuery.IsNullReference())
         Visit(node.SubQuery);
     }
 
@@ -361,7 +364,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlOrder node)
     {
-      if (node.Expression!=null)
+      if (!node.Expression.IsNullReference())
         Visit(node.Expression);
     }
 
@@ -371,9 +374,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlRound node)
     {
-      if (node.Argument!=null)
+      if (!node.Argument.IsNullReference())
         Visit(node.Argument);
-      if (node.Length!=null)
+      if (!node.Length.IsNullReference())
         Visit(node.Length);
     }
 
@@ -425,7 +428,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlTrim node)
     {
-      if (node.Expression!=null)
+      if (!node.Expression.IsNullReference())
         Visit(node.Expression);
     }
 
@@ -439,13 +442,13 @@ namespace Xtensive.Storage.Providers.Sql
         Visit(column);
       if (node.From!=null)
         Visit(node.From);
-      if (node.Having!=null)
+      if (!node.Having.IsNullReference())
         Visit(node.Having);
-      if (node.Limit!=null)
+      if (!node.Limit.IsNullReference())
         Visit(node.Limit);
-      if (node.Offset!=null)
+      if (!node.Offset.IsNullReference())
         Visit(node.Offset);
-      if (node.Where!=null)
+      if (!node.Where.IsNullReference())
         Visit(node.Where);
       foreach (var hint in node.Hints)
         Visit(hint);
@@ -462,7 +465,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlUnary node)
     {
-      if (node.Operand!=null)
+      if (!node.Operand.IsNullReference())
         Visit(node.Operand);
     }
 
@@ -472,7 +475,7 @@ namespace Xtensive.Storage.Providers.Sql
         Visit(node.From);
       if (node.Update!=null)
         Visit(node.Update);
-      if (node.Where!=null)
+      if (!node.Where.IsNullReference())
         Visit(node.Where);
       foreach (var value in node.Values.Values)
         Visit(value);
@@ -482,7 +485,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlUserColumn node)
     {
-      if (node.Expression!=null)
+      if (!node.Expression.IsNullReference())
         Visit(node.Expression);
     }
 
@@ -506,7 +509,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlWhile node)
     {
-      if (node.Condition!=null)
+      if (!node.Condition.IsNullReference())
         Visit(node.Condition);
       if (node.Statement!=null)
         Visit(node.Statement);
@@ -518,6 +521,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlExpression sqlExpression)
     {
+      if (visitedExpressions.Contains(sqlExpression))
+        return;
+      visitedExpressions.Add(sqlExpression);
       sqlExpression.AcceptVisitor(this);
     }
 

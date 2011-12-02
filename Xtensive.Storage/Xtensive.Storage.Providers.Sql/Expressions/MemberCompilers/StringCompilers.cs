@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (trimChars is SqlNull)
         return SqlDml.Trim(_this, trimType);
       var container = trimChars as SqlContainer;
-      if (container==null)
+      if (container.IsNullReference())
         throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
       var chars = container.Value as char[];
       if (chars==null)
@@ -445,7 +445,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         return StringContains(sequence, value);
       // Otherwise translate into general IN clause
       var container = sequence as SqlContainer;
-      if (container == null)
+      if (container.IsNullReference())
         throw new NotSupportedException(Strings.ExTranslationOfInContainsIsNotSupportedInThisCase);
       var items = container.Value as IEnumerable;
       if (items == null)
