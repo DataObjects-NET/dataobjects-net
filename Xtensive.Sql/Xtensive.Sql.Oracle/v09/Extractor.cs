@@ -333,13 +333,27 @@ namespace Xtensive.Sql.Oracle.v09
     private static long ReadLong(IDataRecord row, int index)
     {
       decimal value = row.GetDecimal(index);
-      return value > long.MaxValue ? long.MaxValue : (long) value;
+
+      if (value > long.MaxValue)
+        return long.MaxValue;
+
+      if (value < long.MinValue)
+        return long.MinValue;
+
+      return (long)value;
     }
 
     private static int ReadInt(IDataRecord row, int index)
     {
       decimal value = row.GetDecimal(index);
-      return value > int.MaxValue ? int.MaxValue : (int) value;
+
+      if (value > int.MaxValue)
+        return int.MaxValue;
+
+      if (value < int.MinValue)
+        return int.MinValue;
+
+      return (int)value;
     }
 
     private static string ReadStringOrNull(IDataRecord row, int index)
