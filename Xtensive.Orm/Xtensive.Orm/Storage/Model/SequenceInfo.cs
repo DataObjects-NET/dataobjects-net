@@ -50,8 +50,9 @@ namespace Xtensive.Storage.Model
       get { return increment; }
       set
       {
-        ArgumentValidator
-          .EnsureArgumentIsGreaterThan(value, 0, "Increment");
+//        Increment value can be negative
+//        ArgumentValidator
+//          .EnsureArgumentIsGreaterThan(value, 0, "Increment");
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Increment", value)) {
           increment = value;

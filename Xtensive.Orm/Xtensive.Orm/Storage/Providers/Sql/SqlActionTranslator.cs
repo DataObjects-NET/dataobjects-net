@@ -358,7 +358,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (column == null)
         return;
 
-      if (column.DefaultValue!=null) {
+      if (!column.DefaultValue.IsNullReference()) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>()
           .FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
@@ -421,7 +421,7 @@ namespace Xtensive.Storage.Providers.Sql
       RegisterCommand(update, SqlUpgradeStage.Upgrade);
 
       // Drop old column
-      if (column.DefaultValue!=null) {
+      if (!column.DefaultValue.IsNullReference()) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
@@ -775,7 +775,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       // Drop old column
-      if (column.DefaultValue!=null) {
+      if (!column.DefaultValue.IsNullReference()) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
