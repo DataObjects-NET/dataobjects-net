@@ -520,8 +520,9 @@ namespace Xtensive.Sql.Compiler
             builder.Append("BITMAP ");
           else if (index.IsSpatial)
             builder.Append("SPATIAL ");
-          if (index.IsClustered)
-            builder.Append("CLUSTERED ");
+          if ((Driver.ServerInfo.Index.Features & IndexFeatures.Clustered) == IndexFeatures.Clustered)
+            if (index.IsClustered)
+              builder.Append("CLUSTERED ");
           builder.Append("INDEX " + QuoteIdentifier(index.DbName));
           builder.Append(" ON " + Translate(index.DataTable));
           return builder.ToString();

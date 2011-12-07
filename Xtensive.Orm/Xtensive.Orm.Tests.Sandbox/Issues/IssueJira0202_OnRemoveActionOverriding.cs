@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Tests.Sandbox.Issues.IssueJira0202_OnRemoveActionOverridi
 
 namespace Xtensive.Orm.Tests.Sandbox.Issues
 {
+    [Ignore]
     public class IssueJira0202_OnRemoveActionOverriding : AutoBuildTest
     {
         protected override DomainConfiguration BuildConfiguration()

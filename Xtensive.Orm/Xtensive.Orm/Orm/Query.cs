@@ -17,7 +17,6 @@ namespace Xtensive.Orm
   /// create future (delayed) and compiled queries,
   /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
   /// </summary>
-  [Obsolete("Use Session.Query type instead")]
   public static class Query
   {
     /// <summary>
@@ -30,7 +29,6 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> enumerating all the instances
     /// of type <typeparamref name="T"/>.
     /// </returns>
-    [Obsolete("Use Session.Query.All method instead")]
     public static IQueryable<T> All<T>()
       where T: class, IEntity
     {
@@ -47,7 +45,6 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable"/> enumerating all the instances
     /// of type <paramref name="elementType"/>.
     /// </returns>
-    [Obsolete("Use Session.Query.All method instead")]
     public static IQueryable All(Type elementType)
     {
       return Session.Demand().Query.All(elementType);
@@ -62,7 +59,6 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
     /// </returns>
-    [Obsolete("Use Session.Query.FreeText method instead")]
     public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria) 
       where T: Entity
     {
@@ -78,7 +74,6 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
     /// </returns>
-    [Obsolete("Use Session.Query.FreeText method instead")]
     public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria) 
       where T: Entity
     {
@@ -94,7 +89,6 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
     /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
-    [Obsolete("Use Session.Query.Single method instead")]
     public static Entity Single(Key key)
     {
       return Session.Demand().Query.Single(key);
@@ -109,7 +103,6 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    [Obsolete("Use Session.Query.SingleOrDefault method instead")]
     public static Entity SingleOrDefault(Key key)
     {
       return Session.Demand().Query.SingleOrDefault(key);
@@ -125,7 +118,6 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    [Obsolete("Use Session.Query.Single method instead")]
     public static T Single<T>(Key key)
       where T : class, IEntity
     {
@@ -142,7 +134,6 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    [Obsolete("Use Session.Query.Single method instead")]
     public static T Single<T>(params object[] keyValues)
       where T : class, IEntity
     {
@@ -158,7 +149,6 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
-    [Obsolete("Use Session.Query.SingleOrDefault method instead")]
     public static T SingleOrDefault<T>(Key key)
       where T : class, IEntity
     {
@@ -174,7 +164,6 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// </returns>
-    [Obsolete("Use Session.Query.SingleOrDefault method instead")]
     public static T SingleOrDefault<T>(params object[] keyValues)
       where T : class, IEntity
     {
@@ -191,7 +180,6 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    [Obsolete("Use Session.Query.Execute method instead")]
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
       return Session.Demand().Query.Execute(query.Method, qe => query());
@@ -207,7 +195,6 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    [Obsolete("Use Session.Query.Execute method instead")]
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
     {
       return Session.Demand().Query.Execute(key, qe => query());
@@ -223,7 +210,6 @@ namespace Xtensive.Orm
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    [Obsolete("Use Session.Query.Execute method instead")]
     public static TResult Execute<TResult>(Func<TResult> query)
     {
       return Session.Demand().Query.Execute(qe => query());
@@ -239,7 +225,6 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    [Obsolete("Use Session.Query.Execute method instead")]
     public static TResult Execute<TResult>(object key, Func<TResult> query)
     {
       return Session.Demand().Query.Execute(key, qe => query());
@@ -255,7 +240,6 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    [Obsolete("Use Session.Query.ExecuteFutureScalar method instead")]
     public static Delayed<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
       return Session.Demand().Query.ExecuteDelayed(key, qe => query());
@@ -270,7 +254,6 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    [Obsolete("Use Session.Query.ExecuteFutureScalar method instead")]
     public static Delayed<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
       return Session.Demand().Query.ExecuteDelayed(qe => query());
@@ -286,7 +269,6 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    [Obsolete("Use Session.Query.ExecuteFuture method instead")]
     public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
     {
       return Session.Demand().Query.ExecuteDelayed(key, qe => query());
@@ -301,7 +283,6 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    [Obsolete("Use Session.Query.ExecuteFuture method instead")]
     public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
     {
       return Session.Demand().Query.ExecuteDelayed(qe => query());
@@ -315,7 +296,6 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the sequence element.</typeparam>
     /// <param name="source">The sequence to store.</param>
     /// <returns><see cref="IQueryable{T}"/> providing access to the stored sequence.</returns>
-    [Obsolete("Use Session.Query.Store method instead")]
     public static IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
       return Session.Demand().Query.Store(source);

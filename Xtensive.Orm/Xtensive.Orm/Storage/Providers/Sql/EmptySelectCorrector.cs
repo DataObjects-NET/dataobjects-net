@@ -4,11 +4,14 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
+using System.Collections.Generic;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   internal class EmptySelectCorrector : IPostCompiler, ISqlVisitor
   {
+    private HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
+
     public ExecutableProvider Process(ExecutableProvider rootProvider)
     {
       this.Visit(((SqlProvider) rootProvider).Request.SelectStatement);
@@ -518,6 +521,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlExpression sqlExpression)
     {
+      if (visitedExpressions.Contains(sqlExpression))
+        return;
+      visitedExpressions.Add(sqlExpression);
       sqlExpression.AcceptVisitor(this);
     }
 
