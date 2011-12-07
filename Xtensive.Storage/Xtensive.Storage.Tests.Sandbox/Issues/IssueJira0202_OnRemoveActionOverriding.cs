@@ -47,6 +47,7 @@ namespace Xtensive.Storage.Tests.Sandbox.Issues.IssueJira0202_OnRemoveActionOver
 
 namespace Xtensive.Storage.Tests.Sandbox.Issues
 {
+    [Ignore]
     public class IssueJira0202_OnRemoveActionOverriding : AutoBuildTest
     {
         protected override DomainConfiguration BuildConfiguration()
