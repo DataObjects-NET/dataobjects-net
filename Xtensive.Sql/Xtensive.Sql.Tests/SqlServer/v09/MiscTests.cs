@@ -219,7 +219,7 @@ namespace Xtensive.Sql.Tests.SqlServer.v09
       int i = 0;
       SqlTableRef[] refs = new [] {tr1, tr2, tr3};
       foreach (SqlTable source in select.From)
-        Assert.AreEqual(refs[i++], source);
+        Assert.AreSame(refs[i++], source);
     }
 
     [Test]

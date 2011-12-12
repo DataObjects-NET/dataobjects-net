@@ -1344,10 +1344,10 @@ namespace Xtensive.Sql
       return new SqlDelete();
     }
 
-    public static SqlDelete Delete(SqlTableRef tableRef)
+    public static SqlDelete Delete(SqlTable table)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tableRef, "table");
-      return new SqlDelete(tableRef);
+      ArgumentValidator.EnsureArgumentNotNull(table, "table");
+      return new SqlDelete(table);
     }
 
     public static SqlUpdate Update()
@@ -1694,13 +1694,13 @@ namespace Xtensive.Sql
 
     #region DataTable & Column
 
-    internal static SqlTableColumn TableColumn(SqlTable sqlTable)
+    public static SqlTableColumn TableColumn(SqlTable sqlTable)
     {
       ArgumentValidator.EnsureArgumentNotNull(sqlTable, "table");
       return new SqlTableColumn(sqlTable, string.Empty);
     }
 
-    internal static SqlTableColumn TableColumn(SqlTable sqlTable, string name)
+    public static SqlTableColumn TableColumn(SqlTable sqlTable, string name)
     {
       ArgumentValidator.EnsureArgumentNotNull(sqlTable, "table");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
