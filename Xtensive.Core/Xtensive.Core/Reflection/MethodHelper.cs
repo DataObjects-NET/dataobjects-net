@@ -20,6 +20,15 @@ namespace Xtensive.Core.Reflection
   public static class MethodHelper
   {
     /// <summary>
+    /// This class is used internally by <see cref="MethodHelper"/> to denote
+    /// an array of any type when matching parameter types
+    /// in <see cref="MethodHelper.GetMethod"/> and <see cref="MethodHelper.GetConstructor"/>.
+    /// </summary>
+    public struct AnyArrayPlaceholder
+    {
+    }
+
+    /// <summary>
     /// Gets generic method by names \ types of its arguments.
     /// </summary>
     /// <param name="type">Type to search the method in.</param>
@@ -41,12 +50,13 @@ namespace Xtensive.Core.Reflection
         parameterTypes = ArrayUtils<object>.EmptyArray;
       bool parameterTypesAreFullyDefined = true;
       for (int i = 0; i<parameterTypes.Length; i++) {
-        if (!(parameterTypes[i] is Type)) {
+        var parameterType = parameterTypes[i] as Type;
+        if (parameterType==null || parameterType.IsGenericTypeDefinition || parameterType==typeof (AnyArrayPlaceholder)) {
           parameterTypesAreFullyDefined = false;
           break;
         }
       }
-      
+
       if (parameterTypesAreFullyDefined) {
         // Let's try to find an exact match
         Type[] exactParameterTypes = new Type[parameterTypes.Length];
@@ -322,13 +332,19 @@ namespace Xtensive.Core.Reflection
         return false;
       matchCount = 0;
       for (int i = 0; i<parameters.Length; i++) {
-        string parameterTypeName = parameterTypes[i] as string;
-        Type parameterType = parameterTypes[i] as Type;
+        string requiredParameterTypeName = parameterTypes[i] as string;
+        Type requiredParameterType = parameterTypes[i] as Type;
         bool isMatch;
-        if (!parameterTypeName.IsNullOrEmpty())
-          isMatch = parameters[i].ParameterType.Name==parameterTypeName;
-        else if (parameterType!=null)
-          isMatch = parameters[i].ParameterType==parameterType;
+        var actualParameterType = parameters[i].ParameterType;
+        if (!requiredParameterTypeName.IsNullOrEmpty())
+          isMatch = actualParameterType.Name==requiredParameterTypeName;
+        else if (requiredParameterType!=null)
+          isMatch = actualParameterType==requiredParameterType
+            || requiredParameterType.IsGenericTypeDefinition
+               && actualParameterType.IsGenericType
+               && actualParameterType.GetGenericTypeDefinition()==requiredParameterType
+            || requiredParameterType==typeof(AnyArrayPlaceholder)
+               && actualParameterType.IsArray;
         else
           isMatch = true;
         if (!isMatch)

@@ -57,6 +57,7 @@ namespace Xtensive.Storage.Services
     public DbCommand CreateCommand()
     {
       EnsureIsAvailable();
+      Session.EnsureTransactionIsStarted();
       return service.CreateCommand();
     }
 

@@ -27,16 +27,22 @@ namespace Xtensive.Storage.Linq.Expressions
     public TranslatorContext Context { get; private set; }
     public Expression Item { get; private set; }
 
-    public bool IsPrimitive
+    public bool IsPrimitive { get { return CheckItemIsPrimitive(Item); } }
+
+    private bool CheckItemIsPrimitive(Expression item)
     {
-      get
-      {
-        var expression = Item.StripCasts();
-        var extendedExpression = expression as ExtendedExpression;
-        if (extendedExpression==null)
+      var extendedItem = item.StripCasts() as ExtendedExpression;
+      if (extendedItem==null)
+        return false;
+      switch (extendedItem.ExtendedType) {
+        case ExtendedExpressionType.Column:
+        case ExtendedExpressionType.Field:
+          return true;
+        case ExtendedExpressionType.Marker:
+          var marker = (MarkerExpression) extendedItem;
+          return CheckItemIsPrimitive(marker.Target);
+        default:
           return false;
-        return extendedExpression.ExtendedType==ExtendedExpressionType.Column ||
-          extendedExpression.ExtendedType==ExtendedExpressionType.Field;
       }
     }
 

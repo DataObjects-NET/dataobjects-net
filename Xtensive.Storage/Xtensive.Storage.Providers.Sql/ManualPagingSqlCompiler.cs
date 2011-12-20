@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void GetWhereParts(SqlSelect sourceQuery, out SqlBinary currentPart, out SqlExpression prevPart)
     {
       var whereAsBinary = sourceQuery.Where as SqlBinary;
-      if (whereAsBinary!=null) {
+      if (!whereAsBinary.IsNullReference()) {
         var rightAsBinary = whereAsBinary.Right as SqlBinary;
         currentPart = rightAsBinary ?? whereAsBinary;
         prevPart = rightAsBinary.IsNullReference() ? whereAsBinary : whereAsBinary.Left && currentPart;

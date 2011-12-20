@@ -43,6 +43,10 @@ namespace Xtensive.Storage.Providers.Sql
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToList();
+
+      var upgradeContext = UpgradeContext.Current;
+      var skipConstraints = upgradeContext!=null && upgradeContext.Stage==UpgradeStage.Upgrading;
+
       var translator = new SqlActionTranslator(
         upgradeActions,
         (Schema) GetNativeExtractedSchema(),
@@ -51,13 +55,13 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         queryExecutor.ExecuteScalar,
         queryExecutor.ExecuteNonQuery,
-        SessionHandler.GetNextImplementation);
+        SessionHandler.GetNextImplementation,
+        !skipConstraints);
 
       var result = translator.Translate();
 
       LogTranslatedStatements(result);
 
-      var upgradeContext = UpgradeContext.Current;
       if (upgradeContext!=null)
         foreach (var pair in upgradeContext.UpgradeHandlers)
           pair.Value.OnBeforeExecuteActions(result);

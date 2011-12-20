@@ -1614,4 +1614,7 @@ Error: {1}]]></value>
   <data name="ExpressionXShouldTakeYParameters">
     <value xml:space="preserve">Expression '{0}' should take {1} parameters</value>
   </data>
+  <data name="ExEntityWithKeyXAlreadyExists">
+    <value xml:space="preserve">Entity with key '{0}' already exists</value>
+  </data>
 </root>

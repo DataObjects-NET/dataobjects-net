@@ -49,6 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly Func<ISqlCompileUnit, object> scalarExecutor;
     private readonly Func<ISqlCompileUnit, int> nonQueryExecutor;
     private readonly Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler;
+    private readonly bool allowCreateConstraints;
 
     private readonly ActionSequence actions;
     private readonly Schema schema;
@@ -356,7 +357,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (column == null)
         return;
 
-      if (column.DefaultValue!=null) {
+      if (!column.DefaultValue.IsNullReference()) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>()
           .FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
@@ -419,7 +420,7 @@ namespace Xtensive.Storage.Providers.Sql
       RegisterCommand(update, SqlUpgradeStage.Upgrade);
 
       // Drop old column
-      if (column.DefaultValue!=null) {
+      if (!column.DefaultValue.IsNullReference()) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
@@ -468,6 +469,8 @@ namespace Xtensive.Storage.Providers.Sql
       var secondaryIndexInfo = action.Difference.Target as SecondaryIndexInfo;
       var table = FindTable(secondaryIndexInfo.Parent.Name);
       var index = CreateSecondaryIndex(table, secondaryIndexInfo);
+      if (index.IsUnique && !allowCreateConstraints)
+        return;
       RegisterCommand(SqlDdl.Create(index));
     }
 
@@ -492,6 +495,9 @@ namespace Xtensive.Storage.Providers.Sql
     
     private void VisitCreateForeignKeyAction(CreateNodeAction action)
     {
+      if (!allowCreateConstraints)
+        return;
+
       var foreignKeyInfo = action.Difference.Target as ForeignKeyInfo;
       var table = FindTable(foreignKeyInfo.Parent.Name);
       var foreignKey = CreateForeignKey(foreignKeyInfo);
@@ -768,7 +774,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       // Drop old column
-      if (column.DefaultValue!=null) {
+      if (!column.DefaultValue.IsNullReference()) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
@@ -1118,6 +1124,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="typeIdColumnName">Name of the type id column.</param>
     /// <param name="enforceChangedColumns">Columns thats types must be changed 
     /// enforced (without type conversion verification).</param>
+    /// <param name="allowCreateConstraints">If set to true creation of unique and reference constraints
+    /// is allowed, otherwise such constraints will not be created.</param>
     public SqlActionTranslator(
       ActionSequence actions, 
       Schema schema, 
@@ -1129,9 +1137,9 @@ namespace Xtensive.Storage.Providers.Sql
       List<string> enforceChangedColumns, 
       Func<ISqlCompileUnit, object> scalarExecutor, 
       Func<ISqlCompileUnit, int> nonQueryExecutor,
-      Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler)
+      Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler,
+      bool allowCreateConstraints)
     {
-      
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
@@ -1153,6 +1161,7 @@ namespace Xtensive.Storage.Providers.Sql
       this.scalarExecutor = scalarExecutor;
       this.nonQueryExecutor = nonQueryExecutor;
       this.getNextImplementationHandler = getNextImplementationHandler;
+      this.allowCreateConstraints = allowCreateConstraints;
     }
   }
 }

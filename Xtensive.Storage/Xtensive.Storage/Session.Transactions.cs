@@ -153,7 +153,7 @@ namespace Xtensive.Storage
       }
     }
 
-    private void EnsureTransactionIsStarted()
+    internal void EnsureTransactionIsStarted()
     {
       var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
       if (transaction==null)

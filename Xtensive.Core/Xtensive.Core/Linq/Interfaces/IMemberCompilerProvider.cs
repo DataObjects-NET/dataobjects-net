@@ -22,7 +22,7 @@ namespace Xtensive.Core.Linq
     Type ExpressionType { get; }
 
     /// <summary>
-    /// Gets untyped compiler for <see cref="target"/>.
+    /// Gets untyped compiler for <see paramref="target"/>.
     /// </summary>
     /// <param name="target">Member to get compiler for.</param>
     /// <returns>Compiler for <see cref="target"/></returns>

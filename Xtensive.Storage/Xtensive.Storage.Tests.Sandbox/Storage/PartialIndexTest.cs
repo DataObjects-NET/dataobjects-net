@@ -28,6 +28,21 @@ namespace Xtensive.Storage.Tests.Storage.PartialIndexTestModel
   {
   }
 
+  [HierarchyRoot, KeyGenerator(KeyGeneratorKind.None)]
+  public class ComplexTargetEntity : Entity
+  {
+    [Field, Key(0)]
+    public int Id1 { get; private set; }
+
+    [Field, Key(1)]
+    public int Id2 { get; private set; }
+
+    public ComplexTargetEntity(int id1, int id2)
+      : base(id1, id2)
+    {
+    }
+  }
+
   public interface ITestInterface : IEntity
   {
     [Field]
@@ -68,6 +83,18 @@ namespace Xtensive.Storage.Tests.Storage.PartialIndexTestModel
 
     [Field]
     public TargetEntity Target { get; set; } 
+  }
+
+  [HierarchyRoot, Index("Target", Filter = "Index")]
+  public class FilterOnComplexReferenceField : TestBase
+  {
+    public static Expression<Func<FilterOnComplexReferenceField, bool>> Index()
+    {
+      return test => test.Target!=null;
+    }
+
+    [Field]
+    public ComplexTargetEntity Target { get; set; }
   }
 
   [HierarchyRoot, Index("Target", Filter = "Index")]
@@ -119,6 +146,84 @@ namespace Xtensive.Storage.Tests.Storage.PartialIndexTestModel
 
     [Field]
     public string TestField { get; set; }
+  }
+
+  [HierarchyRoot, Index("TestField", Filter = "Index")]
+  public class InOperatorSupport : TestBase
+  {
+    public static Expression<Func<InOperatorSupport, bool>> Index
+    {
+      get { return test => test.TestField.In("1", "2", "3"); }
+    }
+
+    [Field]
+    public string TestField { get; set; }
+  }
+
+  [HierarchyRoot, Index("TestField", Filter = "Index")]
+  public class InOperatorSupport2 : TestBase
+  {
+    public static Expression<Func<InOperatorSupport2, bool>> Index
+    {
+      get {
+        return test => test.TestField.In(
+          new Guid("{D27F71D7-D4FC-446C-8C7E-E89DC2209863}"),
+          new Guid("{94ED80D9-6749-41E2-B60D-BEDE1CDCA237}"));
+      }
+    }
+
+    [Field]
+    public Guid TestField { get; set; }
+  }
+
+  [HierarchyRoot, Index("TestField", Filter = "Index")]
+  public class ContainsOperatorSupport : TestBase
+  {
+    public static Expression<Func<ContainsOperatorSupport, bool>> Index
+    {
+      get { return test => new[] {"1", "2", "3"}.Contains(test.TestField); }
+    }
+
+    [Field]
+    public string TestField { get; set; }
+  }
+
+  [HierarchyRoot,
+    Index("TestField", Filter = "More", Name = "MoreIndex"),
+    Index("TestField", Filter = "Less", Name = "LessIndex")]
+  public class DoubleIndexWithName : TestBase
+  {
+    public static Expression<Func<DoubleIndexWithName, bool>> More()
+    {
+      return test => test.TestField > 1000;
+    }
+
+    public static Expression<Func<DoubleIndexWithName, bool>> Less()
+    {
+      return test => test.TestField < 100;
+    }
+
+    [Field]
+    public int TestField { get; set; }
+  }
+
+  [HierarchyRoot,
+    Index("TestField", Filter = "More"),
+    Index("TestField", Filter = "Less")]
+  public class DoubleIndexWithoutName : TestBase
+  {
+    public static Expression<Func<DoubleIndexWithoutName, bool>> More()
+    {
+      return test => test.TestField > 1000;
+    }
+
+    public static Expression<Func<DoubleIndexWithoutName, bool>> Less()
+    {
+      return test => test.TestField < 100;
+    }
+
+    [Field]
+    public int TestField { get; set; }
   }
 
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
@@ -253,6 +358,12 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void FilterOnComplexReferenceFieldTest()
+    {
+      AssertBuildSuccess(typeof (FilterOnComplexReferenceField));
+    }
+
+    [Test]
     public void FilterOnReferenceFieldIdTest()
     {
       AssertBuildSuccess(typeof (FilterOnReferenceIdField));
@@ -268,6 +379,36 @@ namespace Xtensive.Storage.Tests.Storage
     public void MultipleFieldUsesTest()
     {
       AssertBuildSuccess(typeof(MultipleFieldUses));
+    }
+
+    [Test]
+    public void InOperatorSupportTest()
+    {
+      AssertBuildSuccess(typeof (InOperatorSupport));
+    }
+
+    [Test]
+    public void InOperatorSupport2Test()
+    {
+      AssertBuildSuccess(typeof(InOperatorSupport2));
+    }
+
+    [Test]
+    public void ContainsOperatorSupportTest()
+    {
+      AssertBuildSuccess(typeof(ContainsOperatorSupport));
+    }
+
+    [Test]
+    public void DoubleIndexWithNameTest()
+    {
+      AssertBuildSuccess(typeof (DoubleIndexWithName));
+    }
+    
+    [Test]
+    public void DoubleIndexWithoutNameTest()
+    {
+      AssertBuildSuccess(typeof (DoubleIndexWithoutName));
     }
 
     [Test]

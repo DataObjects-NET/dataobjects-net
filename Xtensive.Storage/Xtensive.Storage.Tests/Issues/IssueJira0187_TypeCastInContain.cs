@@ -8,6 +8,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue_TypeCastInContain_Model;
+using System.Collections.Generic;
 
 namespace Xtensive.Storage.Tests.Issues.Issue_TypeCastInContain_Model
 {
@@ -32,6 +33,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue_TypeCastInContain_Model
 
         [Field]
         public bool SomeBool { get; set; }
+        
+        [Field]
+        public BaseClass Base { get; set; }
     }
 }
 
@@ -56,6 +60,21 @@ namespace Xtensive.Storage.Tests.Issues
                     var t = Query.All<BaseClass>().ToArray();
                     var k = Query.All<Children>().Where(a => t.Contains(a as BaseClass)).ToArray();
                     var m = Query.All<Children>().Where(a => t.Contains(a)).ToArray();
+                }
+            }
+        }
+
+        [Test]
+        public void MainTest2()
+        {
+            using (var s = Session.Open(Domain))
+            {
+                using (var transactionScope = Transaction.Open())
+                {
+                    var c = Query.All<Children>().ToArray();
+                    var m1 = Query.All<Children>().Where(a => c.Contains(a.Base)).ToArray();
+                    var m2 = Query.All<Children>().Where(a => (c as IEnumerable<BaseClass>).Contains(a.Base)).ToArray();
+                    var n = Query.All<Children>().Where(a => a.Base.In(c)).ToArray();
                 }
             }
         }

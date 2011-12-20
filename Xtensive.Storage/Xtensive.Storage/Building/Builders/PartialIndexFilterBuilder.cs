@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Building.Builders
       if (memberAccessSequence.Count==0 || !IsEntityParameter(memberAccess.Expression))
         return base.VisitMemberAccess(originalMemberAccess);
       memberAccessSequence.Reverse();
-      var fieldName = string.Join(".", memberAccessSequence.Select(item => item.Member.Name));
+      var fieldName = StringExtensions.Join(".", memberAccessSequence.Select(item => item.Member.Name));
       var field = reflectedType.Fields[fieldName];
       if (field==null)
         throw UnableToTranslate(originalMemberAccess, Strings.MemberAccessSequenceContainsNonPersistentFields);

@@ -154,7 +154,15 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(FieldDef fieldDef, TypeDiscriminatorAttribute attribute)
     {
-      if (!typeof(Entity).IsAssignableFrom(fieldDef.UnderlyingProperty.DeclaringType))
+      var reflectedType = fieldDef.UnderlyingProperty.ReflectedType;
+
+      // Skip type discriminator declarations for interfaces
+      // Those has no effect on interface itself,
+      // but allow implementors to inherit discriminator declaration.
+      if (reflectedType.IsInterface)
+        return;
+
+      if (!typeof(Entity).IsAssignableFrom(reflectedType))
         throw new DomainBuilderException(
           string.Format(Strings.ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator, fieldDef.Name));
       fieldDef.IsTypeDiscriminator = true;
@@ -190,7 +198,13 @@ namespace Xtensive.Storage.Building.Builders
       if (string.IsNullOrEmpty(attribute.Filter))
         return;
       var declaringType = indexDef.Type.UnderlyingType;
-      indexDef.FilterExpression = GetExpressionFromProvider(attribute.FilterType ?? declaringType, attribute.Filter, declaringType, typeof (bool));
+      var filterType = attribute.FilterType ?? declaringType;
+      indexDef.FilterExpression = GetExpressionFromProvider(filterType, attribute.Filter, declaringType, typeof (bool));
+      if (indexDef.MappingName == null) {
+        var nameBuilder = BuildingContext.Demand().NameBuilder;
+        var name = nameBuilder.BuildPartialIndexName(indexDef, filterType, attribute.Filter);
+        ProcessMappingName(indexDef, name, ValidationRule.Index);
+      }
     }
 
     private static void ProcessDefault(FieldDef fieldDef, FieldAttribute attribute)
@@ -386,7 +400,7 @@ namespace Xtensive.Storage.Building.Builders
       var expression = (LambdaExpression) method.Invoke(null, new object[0]);
       if (expression.Parameters.Count!=1 || !expression.Parameters[0].Type.IsAssignableFrom(parameterType))
         throw new DomainBuilderException(string.Format(Strings.ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt, memberName, parameterType.FullName));
-      if (!returnType.IsAssignableFrom(expression.ReturnType))
+      if (!returnType.IsAssignableFrom(expression.GetReturnType()))
         throw new DomainBuilderException(string.Format(Strings.ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY, memberName, returnType.FullName));
 
       return expression;

@@ -5,6 +5,7 @@
 // Created:    2009.02.10
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -131,6 +132,27 @@ namespace Xtensive.Core.Tests.Linq
     }
 
     [Test]
+    public void ArrayAndEnumerableOverloadTest()
+    {
+      var provider = MemberCompilerProviderFactory.Create<string>();
+      provider.RegisterCompilers(typeof (EachCompilers));
+      var eachArray = typeof (EachExtensions)
+        .GetMethods()
+        .Single(method => method.GetParameterTypes().Any(type => type.IsArray))
+        .MakeGenericMethod(typeof (int));
+      var eachArrayCompiler = provider.GetCompiler(eachArray);
+      Assert.AreEqual("EachInArray", eachArrayCompiler.Invoke(null, dummy));
+
+      var eachEnumerable = typeof (EachExtensions)
+        .GetMethods()
+        .Single(method => method.GetParameterTypes()
+          .Any(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof(IEnumerable<>)))
+        .MakeGenericMethod(typeof (int));
+      var eachEnumerableCompiler = provider.GetCompiler(eachEnumerable);
+      Assert.AreEqual("EachInEnumerable", eachEnumerableCompiler.Invoke(null, dummy));
+    }
+
+    [Test]
     public void ConflictKeepOldTest()
     {
       var provider = MemberCompilerProviderFactory.Create<string>();
@@ -147,7 +169,7 @@ namespace Xtensive.Core.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.Overwrite);
       var d = GetCompilerForMethod(provider, typeof(ConflictTarget), "ConflictMethod");
-      Assert.AreEqual("Compiler2", d(null, dummy));      
+      Assert.AreEqual("Compiler2", d(null, dummy));
     }
 
     [Test]

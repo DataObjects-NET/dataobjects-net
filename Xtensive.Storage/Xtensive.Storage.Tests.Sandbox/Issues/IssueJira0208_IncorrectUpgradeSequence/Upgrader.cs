@@ -58,8 +58,10 @@ namespace Xtensive.Storage.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
 
     public override void OnUpgrade()
     {
-#pragma warning disable 612,618
-#pragma warning restore 612,618
+      // Ensure uniqueness of newly created field
+      int i = 0;
+      foreach (var entity in Query.All<M2.VeryUniqueEntity>())
+        entity.Field = ++i;
     }
 
     private static List<UpgradeHint> Version1To2Hints {

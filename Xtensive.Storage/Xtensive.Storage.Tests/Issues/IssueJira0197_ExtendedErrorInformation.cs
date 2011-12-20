@@ -69,9 +69,9 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           try {
-            new ErrorProvider(1) {NotNull = string.Empty, Unique = 1};
+            new ErrorProvider(2) {NotNull = string.Empty, Unique = 2};
             session.Persist();
-            new ErrorProvider(2) {NotNull = string.Empty, Unique = 1};
+            new ErrorProvider(3) {NotNull = string.Empty, Unique = 2};
             session.Persist();
             Assert.Fail();
           }
@@ -87,10 +87,15 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
+          new ErrorProvider(3) {NotNull = string.Empty, Unique = 31};
+          t.Complete();
+        }
+      }
+
+      using (var session = Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
           try {
-            new ErrorProvider(1) {NotNull = string.Empty, Unique = 1};
-            session.Persist();
-            new ErrorProvider(1) {NotNull = string.Empty, Unique = 2};
+            new ErrorProvider(3) {NotNull = string.Empty, Unique = 32};
             session.Persist();
             Assert.Fail();
           }
