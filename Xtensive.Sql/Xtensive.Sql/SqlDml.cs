@@ -1344,7 +1344,7 @@ namespace Xtensive.Sql
       return new SqlDelete();
     }
 
-    public static SqlDelete Delete(SqlTable table)
+    public static SqlDelete Delete(SqlTableRef table)
     {
       ArgumentValidator.EnsureArgumentNotNull(table, "table");
       return new SqlDelete(table);

@@ -688,10 +688,15 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, DeleteSection.Entry));
-        if (node.From==null)
+        if (node.Delete==null)
           throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
 
         using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
+          node.Delete.AcceptVisitor(this);
+        }
+
+        if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteFrom) && node.From!=null) {
+          context.Output.AppendText(translator.Translate(context, node, DeleteSection.From));
           node.From.AcceptVisitor(this);
         }
 
@@ -1275,7 +1280,7 @@ namespace Xtensive.Sql.Compiler
           }
         }
 
-        if (node.From!=null) {
+        if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateFrom) && node.From!=null) {
           context.Output.AppendText(translator.Translate(context, node, UpdateSection.From));
           node.From.AcceptVisitor(this);
         }
