@@ -6,11 +6,11 @@
 
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.Issue_TypeCastInContain_Model;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.Issue_TypeCastInContain_Model;
 using System.Collections.Generic;
 
-namespace Xtensive.Storage.Tests.Issues.Issue_TypeCastInContain_Model
+namespace Xtensive.Orm.Tests.Issues.Issue_TypeCastInContain_Model
 {
     [HierarchyRoot]
     public class BaseClass : Entity
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_TypeCastInContain_Model
     }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
     public class Issue_TypeCastInContain : AutoBuildTest
     {

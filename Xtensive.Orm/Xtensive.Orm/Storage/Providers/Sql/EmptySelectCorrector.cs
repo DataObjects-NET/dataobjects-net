@@ -190,8 +190,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Visit(SqlDelete node)
     {
-      if (node.From!=null)
-        Visit(node.From);
+      if (node.Delete!=null)
+        Visit(node.Delete);
       if (!node.Where.IsNullReference())
         Visit(node.Where);
     }

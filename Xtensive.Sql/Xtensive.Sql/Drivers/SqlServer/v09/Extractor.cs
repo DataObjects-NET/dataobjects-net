@@ -259,7 +259,7 @@ namespace Xtensive.Sql.SqlServer.v09
             // Index is a part of primary key constraint
             if (reader.GetBoolean(6)) {
               primaryKey = ((Table) table.Table).CreatePrimaryKey(indexName);
-              if ((Driver.ServerInfo.PrimaryKey.Features & PrimaryKeyConstraintFeatures.Clustered) == PrimaryKeyConstraintFeatures.Clustered)
+              if (Driver.ServerInfo.PrimaryKey.Features.Supports(PrimaryKeyConstraintFeatures.Clustered))
                 primaryKey.IsClustered = reader.GetByte(5)==1;
             }
             else {
@@ -271,7 +271,7 @@ namespace Xtensive.Sql.SqlServer.v09
               else {
                 index = table.Table.CreateIndex(indexName);
                 index.IsUnique = reader.GetBoolean(7);
-                if ((Driver.ServerInfo.Index.Features & IndexFeatures.Clustered) == IndexFeatures.Clustered)
+                if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Clustered))
                   index.IsClustered = reader.GetByte(5)==1;
                 index.FillFactor = reader.GetByte(9);
                 if (!reader.IsDBNull(15) && reader.GetBoolean(15))
@@ -280,7 +280,7 @@ namespace Xtensive.Sql.SqlServer.v09
                 // Index is a part of unique constraint
                 if (reader.GetBoolean(8)) {
                   uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(indexName);
-                  if (index.IsClustered && (Driver.ServerInfo.UniqueConstraint.Features & UniqueConstraintFeatures.Clustered) == UniqueConstraintFeatures.Clustered)
+                  if (index.IsClustered && Driver.ServerInfo.UniqueConstraint.Features.Supports(UniqueConstraintFeatures.Clustered))
                     uniqueConstraint.IsClustered = true;
                 }
               }

@@ -119,6 +119,7 @@ namespace Xtensive.Sql.Compiler
     Entry = 0,
     Exit = 1,
     Where = 2,
+    From = 3,
   }
 
   public enum FetchSection

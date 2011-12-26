@@ -135,11 +135,11 @@ namespace Xtensive.Sql.SqlServer.v09
     {
       switch (section) {
         case ConstraintSection.Unique:
-          if ((Driver.ServerInfo.UniqueConstraint.Features & UniqueConstraintFeatures.Clustered) == UniqueConstraintFeatures.Clustered)
+          if (Driver.ServerInfo.UniqueConstraint.Features.Supports(UniqueConstraintFeatures.Clustered))
             return ((UniqueConstraint) constraint).IsClustered ? "UNIQUE CLUSTERED (" : "UNIQUE NONCLUSTERED (";
           return "UNIQUE (";
         case ConstraintSection.PrimaryKey:
-          if ((Driver.ServerInfo.PrimaryKey.Features & PrimaryKeyConstraintFeatures.Clustered) == PrimaryKeyConstraintFeatures.Clustered)
+          if (Driver.ServerInfo.PrimaryKey.Features.Supports(PrimaryKeyConstraintFeatures.Clustered))
             return ((PrimaryKey) constraint).IsClustered ? "PRIMARY KEY CLUSTERED (" : "PRIMARY KEY NONCLUSTERED (";
           return "PRIMARY KEY (";
         case ConstraintSection.Exit:
