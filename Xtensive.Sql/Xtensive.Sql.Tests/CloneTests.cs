@@ -546,7 +546,7 @@ namespace Xtensive.Sql.Tests
       SqlDelete dClone = (SqlDelete) d.Clone();
 
       Assert.AreNotEqual(d, dClone);
-      Assert.AreNotEqual(d.From, dClone.From);
+      Assert.AreNotEqual(d.Delete, dClone.Delete);
       Assert.AreEqual(d.NodeType, dClone.NodeType);
       Assert.AreEqual(d.Hints.Count, dClone.Hints.Count);
       if (!d.Where.IsNullReference()) {
