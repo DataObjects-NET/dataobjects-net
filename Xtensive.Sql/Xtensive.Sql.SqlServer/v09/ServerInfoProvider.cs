@@ -190,6 +190,7 @@ namespace Xtensive.Sql.SqlServer.v09
         QueryFeatures.Batches |
         QueryFeatures.CrossApply |
         QueryFeatures.UpdateFrom |
+        QueryFeatures.DeleteFrom |
         QueryFeatures.Limit |
         QueryFeatures.DefaultValues |
         QueryFeatures.RowNumber |
