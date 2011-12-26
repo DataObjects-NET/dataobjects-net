@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Serialization
         : DeserializeKeyFields(typeInfo, info, context);
       var key = Key.Create(domain, typeInfo, TypeReferenceAccuracy.ExactType, keyValue);
 
-      var entityState = session.CreateEntityState(key);
+      var entityState = session.CreateEntityState(key, false);
       entity.State = entityState;
       session.InitializeEntity(entity, false);
     }

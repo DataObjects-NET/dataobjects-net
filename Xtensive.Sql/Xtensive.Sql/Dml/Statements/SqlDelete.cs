@@ -13,16 +13,17 @@ namespace Xtensive.Sql.Dml
   public class SqlDelete : SqlQueryStatement, ISqlCompileUnit
   {
     private SqlExpression where;
-    private SqlTableRef from;
+    private SqlTableRef delete;
+    private SqlTable from;
 
     /// <summary>
     /// Gets or sets the table.
     /// </summary>
     /// <value>The table to change.</value>
-    public SqlTableRef From
+    public SqlTableRef Delete
     {
-      get { return from; }
-      set { from = value; }
+      get { return delete; }
+      set { delete = value; }
     }
 
     /// <summary>
@@ -40,14 +41,25 @@ namespace Xtensive.Sql.Dml
       }
     }
 
+    /// <summary>
+    /// Gets or sets the FROM clause expression.
+    /// </summary>
+    public SqlTable From 
+    {
+      get { return from;}
+      set { from = value; }
+    }
+
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
       SqlDelete clone = new SqlDelete();
-      if (From!=null)
-        clone.From = (SqlTableRef)From.Clone(context);
+      if (Delete!=null)
+        clone.Delete = (SqlTableRef)Delete.Clone(context);
+      if (from!=null)
+        clone.From = (SqlQueryRef)from.Clone(context);
       if (!where.IsNullReference())
         clone.Where = (SqlExpression) where.Clone(context);
 
@@ -65,9 +77,9 @@ namespace Xtensive.Sql.Dml
     {
     }
 
-    internal SqlDelete(SqlTableRef tableRef) : this()
+    internal SqlDelete(SqlTableRef table) : this()
     {
-      from = tableRef;
+      delete = table;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

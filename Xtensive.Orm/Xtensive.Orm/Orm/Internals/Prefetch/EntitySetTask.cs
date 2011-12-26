@@ -29,11 +29,12 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       public readonly FieldInfo ReferencingField;
       public readonly int? ItemCountLimit;
-      private int? cachedHashCode;
+      private int cachedHashCode;
 
       public bool Equals(CacheKey other)
       {
-        return other.ItemCountLimit.Equals(ItemCountLimit) && Equals(other.ReferencingField, ReferencingField);
+        return (ItemCountLimit==null) == (other.ItemCountLimit==null)
+          && Equals(other.ReferencingField, ReferencingField);
       }
 
       public override bool Equals(object obj)
@@ -47,12 +48,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       public override int GetHashCode()
       {
-        if (cachedHashCode==null)
-          unchecked {
-            cachedHashCode = (ReferencingField.GetHashCode() * 397)
-              ^ (ItemCountLimit.HasValue ? 1 : 0);
-          }
-        return cachedHashCode.Value;
+        return cachedHashCode;
       }
 
 
@@ -62,7 +58,10 @@ namespace Xtensive.Orm.Internals.Prefetch
       {
         this.ReferencingField = referencingField;
         this.ItemCountLimit = itemCountLimit;
-        cachedHashCode = null;
+        unchecked {
+          cachedHashCode = (ReferencingField.GetHashCode()*397)
+                           ^ (ItemCountLimit.HasValue ? 1 : 0);
+        }
       }
     }
 

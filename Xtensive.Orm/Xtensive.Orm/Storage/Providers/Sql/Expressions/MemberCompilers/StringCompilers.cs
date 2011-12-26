@@ -5,12 +5,16 @@
 // Created:    2009.02.13
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
+using Xtensive.Orm;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -123,7 +127,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (trimChars is SqlNull)
         return SqlDml.Trim(_this, trimType);
       var container = trimChars as SqlContainer;
-      if (container==null)
+      if (container.IsNullReference())
         throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
       var chars = container.Value as char[];
       if (chars==null)
@@ -437,10 +441,36 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       MemberInfo member, SqlExpression sequence, SqlExpression value)
     {
       var method = (MethodInfo) member;
-      if (method.GetGenericArguments()[0] != typeof(char))
-        throw new NotSupportedException();
-      return StringContains(sequence, value);
+      // Try string.Contains first
+      if (method.GetGenericArguments()[0]==typeof (char))
+        return StringContains(sequence, value);
+      // Otherwise translate into general IN clause
+      var container = sequence as SqlContainer;
+      if (container.IsNullReference())
+        throw new NotSupportedException(Strings.ExTranslationOfInContainsIsNotSupportedInThisCase);
+      var items = container.Value as IEnumerable;
+      if (items == null)
+        throw new NotSupportedException(Strings.ExTranslationOfInContainsIsNotSupportedInThisCase);
+      var expressions = new List<SqlExpression>();
+      foreach (var item in items)
+        expressions.Add(SqlDml.Literal(item));
+      return SqlDml.In(value, SqlDml.Row(expressions));
     }
+
+    [Compiler(typeof (QueryableExtensions), "In", TargetKind.Static | TargetKind.Method, 1)]
+    public static SqlExpression EnumerableExtensionsInEnumerable(
+      MemberInfo member, SqlExpression value, [Type(typeof(IEnumerable<>))] SqlExpression sequence)
+    {
+      return EnumerableContains(member, sequence, value);
+    }
+
+    [Compiler(typeof(QueryableExtensions), "In", TargetKind.Static | TargetKind.Method, 1)]
+    public static SqlExpression EnumerableExtensionsInArray(
+      MemberInfo member, SqlExpression value, [Type(typeof(MethodHelper.AnyArrayPlaceholder))] SqlExpression sequence)
+    {
+      return EnumerableContains(member, sequence, value);
+    }
+
 
     [Compiler(typeof(string), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression StringOperatorEquality(SqlExpression left, SqlExpression right)
