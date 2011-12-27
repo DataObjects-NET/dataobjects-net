@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Linq
       return query.Execute(new ParameterContext());
     }
 
-    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
+    public TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
       try {
         var context = new TranslatorContext(expression, Domain.Demand());
