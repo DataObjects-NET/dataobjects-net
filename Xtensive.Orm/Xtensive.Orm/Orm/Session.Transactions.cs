@@ -275,7 +275,7 @@ namespace Xtensive.Orm
       }
     }
 
-    internal void EnsureTransactionIsStarted()
+    public void EnsureTransactionIsStarted()
     {
       var transaction = Transaction;
       if (transaction==null)
