@@ -41,7 +41,7 @@ namespace Xtensive.Orm
     public class QueryEndpoint
     {
       private readonly Session session;
-      internal QueryProvider Provider { get; private set; }
+      public QueryProvider Provider { get; private set; }
 
       /// <summary>
       /// The "starting point" for any LINQ query -
