@@ -25,7 +25,7 @@ namespace Xtensive.Core.Linq
     /// Gets untyped compiler for <see paramref="target"/>.
     /// </summary>
     /// <param name="target">Member to get compiler for.</param>
-    /// <returns>Compiler for <see cref="target"/></returns>
+    /// <returns>Compiler for <see paramref="target"/></returns>
     Delegate GetUntypedCompiler(MemberInfo target);
 
     /// <summary>
