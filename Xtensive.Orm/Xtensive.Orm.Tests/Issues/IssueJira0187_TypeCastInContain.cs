@@ -12,71 +12,94 @@ using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_TypeCastInContain_Model
 {
-    [HierarchyRoot]
-    public class BaseClass : Entity
+  [HierarchyRoot]
+  public class Parent : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    public Parent(Session session)
+      : base(session)
     {
-        public BaseClass(Session session)
-            : base(session)
-        {
-        }
-
-        [Field, Key]
-        public int Id { get; private set; }
     }
+  }
 
-    class Children : BaseClass
+  public class Child : Parent
+  {
+    [Field]
+    public bool SomeBool { get; set; }
+
+    [Field]
+    public Parent Parent { get; set; }
+
+    public Child(Session session)
+      : base(session)
     {
-        public Children(Session session)
-            : base(session)
-        {
-        }
-
-        [Field]
-        public bool SomeBool { get; set; }
-        
-        [Field]
-        public BaseClass Base { get; set; }
     }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
 {
-    public class Issue_TypeCastInContain : AutoBuildTest
+  public class Issue_TypeCastInContain : AutoBuildTest
+  {
+    protected override DomainConfiguration BuildConfiguration()
     {
-        protected override DomainConfiguration BuildConfiguration()
-        {
-            var config = base.BuildConfiguration();
-            config.Types.Register(typeof(BaseClass).Assembly, typeof(BaseClass).Namespace);
-            return config;
-        }
-
-        [Test]
-        public void MainTest()
-        {
-            using (var session = Session.Open(Domain))
-            {
-                using (var transactionScope = Transaction.Open())
-                {
-                    var t = Query.All<BaseClass>().ToArray();
-                    var k = Query.All<Children>().Where(a => t.Contains(a as BaseClass)).ToArray();
-                    var m = Query.All<Children>().Where(a => t.Contains(a)).ToArray();
-                }
-            }
-        }
-
-        [Test]
-        public void MainTest2()
-        {
-            using (var s = Session.Open(Domain))
-            {
-                using (var transactionScope = Transaction.Open())
-                {
-                    var c = Query.All<Children>().ToArray();
-                    var m1 = Query.All<Children>().Where(a => c.Contains(a.Base)).ToArray();
-                    var m2 = Query.All<Children>().Where(a => (c as IEnumerable<BaseClass>).Contains(a.Base)).ToArray();
-                    var n = Query.All<Children>().Where(a => a.Base.In(c)).ToArray();
-                }
-            }
-        }
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (Parent).Assembly, typeof (Parent).Namespace);
+      return config;
     }
+
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+      CreateSessionAndTransaction();
+    }
+
+    [Test]
+    public void ParentsContainsChildWithImplicitCastTest()
+    {
+      var parents = Query.All<Parent>().ToArray();
+      var result = Query.All<Child>().Where(child => parents.Contains(child)).ToArray();
+    }
+
+    [Test]
+    public void ParentsContainsChildWithExplicitCastTest()
+    {
+      var parents = Query.All<Parent>().ToArray();
+      var result = Query.All<Child>().Where(child => parents.Contains(child as Parent)).ToArray();
+    }
+
+    [Test]
+    public void ChildInParentsTest()
+    {
+      var parents = Query.All<Parent>().ToArray();
+      var result = Query.All<Child>().Where(child => child.In(parents)).ToArray();
+    }
+
+    #if NET40
+
+    [Test]
+    public void ChildContainsParentWithImplicitCast()
+    {
+      var children = Query.All<Child>().ToArray();
+      var result = Query.All<Child>().Where(a => children.Contains(a.Parent)).ToArray();
+    }
+
+    [Test]
+    public void ChildContainsParentWithExplicitCast()
+    {
+      var children = Query.All<Child>().ToArray();
+      var result = Query.All<Child>().Where(a => (children as IEnumerable<Parent>).Contains(a.Parent)).ToArray();
+    }
+
+    [Test]
+    public void ParentInChildrenTest()
+    {
+      var children = Query.All<Child>().ToArray();
+      var result = Query.All<Child>().Where(a => a.Parent.In(children)).ToArray();
+    }
+
+    #endif
+  }
 }
