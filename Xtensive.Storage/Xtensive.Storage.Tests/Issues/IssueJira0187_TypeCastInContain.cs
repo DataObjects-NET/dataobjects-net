@@ -77,15 +77,17 @@ namespace Xtensive.Storage.Tests.Issues
       var result = Query.All<Child>().Where(child => child.In(parents)).ToArray();
     }
 
+    #if NET40
+
     [Test]
-    public void ChildContainsBaseWithImplicitCast()
+    public void ChildContainsParentWithImplicitCast()
     {
       var children = Query.All<Child>().ToArray();
       var result = Query.All<Child>().Where(a => children.Contains(a.Parent)).ToArray();
     }
 
     [Test]
-    public void ChildContainsBaseWithExplicitCast()
+    public void ChildContainsParentWithExplicitCast()
     {
       var children = Query.All<Child>().ToArray();
       var result = Query.All<Child>().Where(a => (children as IEnumerable<Parent>).Contains(a.Parent)).ToArray();
@@ -97,5 +99,7 @@ namespace Xtensive.Storage.Tests.Issues
       var children = Query.All<Child>().ToArray();
       var result = Query.All<Child>().Where(a => a.Parent.In(children)).ToArray();
     }
+
+    #endif
   }
 }
