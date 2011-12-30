@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -45,7 +46,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="statement">The statement.</param>
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
     /// <param name="options">The options.</param>
-    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, RequestOptions options)
+    public QueryRequest(ISqlCompileUnit statement, TupleDescriptor tupleDescriptor, RequestOptions options)
       : this(statement, tupleDescriptor, options, EnumerableUtils<QueryParameterBinding>.Empty)
     {
     }
@@ -57,7 +58,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
     /// <param name="options">The options.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, RequestOptions options, IEnumerable<QueryParameterBinding> parameterBindings)
+    public QueryRequest(ISqlCompileUnit statement, TupleDescriptor tupleDescriptor, RequestOptions options, IEnumerable<QueryParameterBinding> parameterBindings)
       : base(statement, options)
     {
       ParameterBindings = parameterBindings.ToHashSet();

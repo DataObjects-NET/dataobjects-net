@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
   {
     private const string DataSourceFormat = "{0}/{1}";
     private const string DatabaseAndSchemaQuery =
-      "select db_name(), default_schema_name from sys.database_principals where name=user";
+      "select db_name(), coalesce(default_schema_name, 'dbo') from sys.database_principals where name=user";
 
     private const string MessagesQuery = "select msg.error, msg.description " +
       "from [master].[sys].[sysmessages] msg join [master].[sys].[syslanguages] lang on msg.msglangid = lang.msglangid " +

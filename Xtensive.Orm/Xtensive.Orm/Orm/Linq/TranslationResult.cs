@@ -10,7 +10,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Orm.Linq
 {
-  internal abstract class TranslationResult
+  public abstract class TranslationResult
   {
     public TranslatedQuery UntypedQuery { get; private set; }
     public RecordQuery RecordQuery { get; private set; }
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Linq
     }
   }
 
-  internal sealed class TranslationResult<TResult> : TranslationResult
+  public sealed class TranslationResult<TResult> : TranslationResult
   {
     public TranslatedQuery<TResult> Query { get; private set; }
     

@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    internal TranslationResult<TResult> Translate<TResult>(Expression expression)
+    public TranslationResult<TResult> Translate<TResult>(Expression expression)
     {
       try {
         var context = new TranslatorContext(expression, session.Domain);

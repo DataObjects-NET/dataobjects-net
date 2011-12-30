@@ -21,9 +21,6 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
       @"(.*Data Source *= *)(.*)($|;.*)",
       RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private const string DatabaseAndSchemaQuery =
-      "select db_name(), default_schema_name from sys.database_principals where name=user";
-
     private string GetDataSource(string connectionString)
     {
       var match = DataSourceExtractor.Match(connectionString);

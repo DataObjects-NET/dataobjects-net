@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Providers
     TemporaryTables = 0x400000000,
     TableRename = 0x800000000,
     PartialIndexes = 0x1000000000,
+    DeleteFrom = 0x2000000000,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,

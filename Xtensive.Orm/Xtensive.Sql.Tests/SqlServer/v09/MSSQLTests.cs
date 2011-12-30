@@ -3975,6 +3975,24 @@ namespace Xtensive.Sql.Tests.SqlServer.v09
       }
     }
 
+    [Test]
+    public void TestDeleteFrom()
+    {
+      string nativeSql = "DELETE FROM Production.Product "
+        +"FROM Production.Product AS p "
+          +"INNER JOIN Purchasing.ProductVendor AS pv "
+            +"ON p.ProductID = pv.ProductID AND pv.VendorID = 0;";
+
+      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      SqlTableRef pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
+
+      SqlDelete delete = SqlDml.Delete(product);
+      delete.From = p.InnerJoin(pv, p["ProductID"]==pv["ProductID"] && pv["VendorID"]==0);
+
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
+    }
+
     /*
 
 SELECT EmpSSN AS "Employee Social Security Number "

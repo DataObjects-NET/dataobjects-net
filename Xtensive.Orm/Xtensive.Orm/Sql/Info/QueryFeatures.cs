@@ -101,6 +101,11 @@ namespace Xtensive.Sql.Info
     UpdateDefaultValues = 0x8000,
 
     /// <summary>
+    /// Indicates that RDBMS supports DELETE ... FROM statements.
+    /// </summary>
+    DeleteFrom = 0x8000,
+
+    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,

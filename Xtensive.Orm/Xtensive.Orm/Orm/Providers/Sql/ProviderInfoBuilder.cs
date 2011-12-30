@@ -59,6 +59,8 @@ namespace Xtensive.Orm.Providers.Sql
         f |= ProviderFeatures.NamedParameters;
       if (queryFeatures.Supports(QueryFeatures.UpdateFrom))
         f |= ProviderFeatures.UpdateFrom;
+      if (queryFeatures.Supports(QueryFeatures.DeleteFrom))
+        f |= ProviderFeatures.DeleteFrom;
       if (queryFeatures.Supports(QueryFeatures.Limit))
         f |= ProviderFeatures.Take | ProviderFeatures.NativeTake;
       if (queryFeatures.Supports(QueryFeatures.Offset))

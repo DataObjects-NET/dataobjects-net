@@ -69,5 +69,21 @@ namespace Xtensive.Sql.Info
     {
       return (available & required)==required;
     }
+
+    /// <summary>
+    /// Determines whether the specified active features is supported.
+    /// </summary>
+    public static bool Supports(this UniqueConstraintFeatures available, UniqueConstraintFeatures required)
+    {
+      return (available & required)==required;
+    }
+
+    /// <summary>
+    /// Determines whether the specified active features is supported.
+    /// </summary>
+    public static bool Supports(this PrimaryKeyConstraintFeatures available, PrimaryKeyConstraintFeatures required)
+    {
+      return (available & required)==required;
+    }
   }
 }
