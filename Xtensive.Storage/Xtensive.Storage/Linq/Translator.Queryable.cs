@@ -1329,13 +1329,10 @@ namespace Xtensive.Storage.Linq
           ? sequence.Type.GetGenericArguments()[0]
           : sequence.Type;
 
-        Type itemType = sequenceType
-          .GetInterfaces()
-          .AddOne(sequenceExpression.Type)
-          .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
-          .GetGenericArguments()[0];
-
-        return (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType).Invoke(this, new object[] {sequence});
+        var itemType = QueryHelper.GetSequenceElementType(sequenceType);
+        return (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo
+          .MakeGenericMethod(itemType)
+          .Invoke(this, new object[] {sequence});
       }
 
       var visitedExpression = Visit(sequenceExpression).StripCasts();
