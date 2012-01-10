@@ -912,12 +912,6 @@
   <data name="ExScopeBoundTransactionCanBeCommittedOnlyByItsScope" xml:space="preserve">
     <value>Scope-bound transaction can be committed only by its scope. Use TransactionScopeBase.Complete() \  Dispose() methods of  appropriate TransactionScopeBase descendant instance to do this.</value>
   </data>
-  <data name="ExRangeIsEmpty" xml:space="preserve">
-    <value>Range is empty.</value>
-  </data>
-  <data name="ExCantPassNoInfinityToThisConstructor" xml:space="preserve">
-    <value>InfinityType.None can't be passed to this constructor.</value>
-  </data>
   <data name="ExExpression0MustReferenceField">
     <value><![CDATA[Expression '{0}' must reference field.]]></value>
   </data>

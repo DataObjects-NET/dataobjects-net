@@ -75,18 +75,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       return provider;
     }
 
-    protected override Provider VisitRangeSet(RangeSetProvider provider)
-    {
-      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
-      return provider;
-    }
-
-    protected override Provider VisitRange(RangeProvider provider)
-    {
-      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
-      return provider;
-    }
-
     protected override Provider VisitSeek(SeekProvider provider)
     {
       mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();

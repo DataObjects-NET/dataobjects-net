@@ -12,7 +12,6 @@ using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
 
@@ -107,30 +106,6 @@ namespace Xtensive.Storage.Rse.Providers
     protected override Provider VisitRaw(RawProvider provider)
     {
       return provider;
-    }
-
-    /// <inheritdoc/>
-    protected override Provider VisitRange(RangeProvider provider)
-    {
-      OnRecursionEntrance(provider);
-      var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      var range = translate(provider, provider.Range);
-      if (source == provider.Source && range == provider.Range)
-        return provider;
-      return new RangeProvider(source, (Expression<Func<Range<Entire<Tuple>>>>) range);
-    }
-
-    /// <inheritdoc/>
-    protected override Provider VisitRangeSet(RangeSetProvider provider)
-    {
-      OnRecursionEntrance(provider);
-      var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      var range = translate(provider, provider.Range);
-      if (source == provider.Source && range == provider.Range)
-        return provider;
-      return new RangeSetProvider(source, (Expression<Func<RangeSet<Entire<Tuple>>>>)range);
     }
 
     /// <inheritdoc/>

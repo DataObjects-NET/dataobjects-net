@@ -11,18 +11,13 @@ namespace Xtensive.Orm.Tests
 {
   public static class StorageTestHelper
   {
-    public const string MemoryProviderName = "memory";
-
     public static object GetNativeTransaction()
     {
       var handler = Session.Demand().Handler;
       var sqlHandler = handler as SessionHandler;
       if (sqlHandler!=null)
         return sqlHandler.Connection.ActiveTransaction;
-      var indexHandler = handler as Providers.Indexing.SessionHandler;
-      if (indexHandler!=null)
-        return indexHandler.StorageView;
-      throw new InvalidOperationException();
+      throw new NotSupportedException();
     }
   }
 }

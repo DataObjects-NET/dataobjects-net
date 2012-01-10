@@ -33,7 +33,6 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      isProtocolMemory = config.ConnectionInfo.Provider==StorageTestHelper.MemoryProviderName;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Tree).Assembly, typeof(Tree).Namespace);
       return config;
@@ -261,7 +260,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     {
       if (isSettingUp)
         return;
-      if (!isProtocolMemory && randomProvider.Next(0, 2) == 1)
+      if (randomProvider.Next(0, 2)==1)
         throw new InvalidOperationException();
       tx.Complete();
     }

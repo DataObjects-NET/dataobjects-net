@@ -133,13 +133,11 @@ namespace Xtensive.Orm.Providers.Sql
       bool isOrderSensitive = provider.Type==ProviderType.Skip 
         || provider.Type == ProviderType.Take
         || provider.Type == ProviderType.Seek
-        || provider.Type == ProviderType.Range
         || provider.Type == ProviderType.Paging
         || provider.Type == ProviderType.RowNumber;
       bool preservesOrder = provider.Type==ProviderType.Take
         || provider.Type == ProviderType.Skip
         || provider.Type == ProviderType.Seek
-        || provider.Type == ProviderType.Range
         || provider.Type == ProviderType.RowNumber
         || provider.Type == ProviderType.Paging
         || provider.Type == ProviderType.Distinct

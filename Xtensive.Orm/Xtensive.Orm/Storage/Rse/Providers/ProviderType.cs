@@ -22,8 +22,6 @@ namespace Xtensive.Storage.Rse.Providers
     Join,
     PredicateJoin,
     Sort,
-    Range,
-    RangeSet,
     Raw,
     Seek,
     Select,

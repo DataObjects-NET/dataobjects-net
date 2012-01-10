@@ -10,8 +10,7 @@ using Xtensive.Sql;
 using Xtensive.Orm.Model;
 using Xtensive.Sql.Tests;
 using Xtensive.Orm.Providers;
-using SqlProviderInfoBuilder = Xtensive.Orm.Providers.Sql.ProviderInfoBuilder;
-using IndexProviderInfoBuilder = Xtensive.Orm.Providers.Indexing.ProviderInfoBuilder;
+using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Tests
 {
@@ -131,20 +130,12 @@ namespace Xtensive.Orm.Tests
       var config = DomainConfigurationFactory.Create();
       activeProvider = ParseProvider(config.ConnectionInfo.Provider);
 
-      // ProviderInfo
-      if ((activeProvider & StorageProvider.Sql)==activeProvider)
-        activeProviderInfo = SqlProviderInfoBuilder.Build(TestSqlDriver.Create(config.ConnectionInfo));
-      else if ((activeProvider & StorageProvider.Index)==activeProvider)
-        activeProviderInfo = IndexProviderInfoBuilder.Build();
-      else
-        throw new NotSupportedException();
+      activeProviderInfo = ProviderInfoBuilder.Build(TestSqlDriver.Create(config.ConnectionInfo));
     }
 
     private static StorageProvider ParseProvider(string provider)
     {
       switch (provider) {
-      case StorageTestHelper.MemoryProviderName:
-        return StorageProvider.Memory;
       case WellKnown.Provider.SqlServer:
         return StorageProvider.SqlServer;
       case WellKnown.Provider.SqlServerCe:

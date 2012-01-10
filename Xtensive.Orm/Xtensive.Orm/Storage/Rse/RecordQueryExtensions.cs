@@ -12,11 +12,9 @@ using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Tuples;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse
@@ -26,78 +24,6 @@ namespace Xtensive.Storage.Rse
   /// </summary>
   public static class RecordQueryExtensions
   {
-    public static RecordQuery Range(this RecordQuery recordQuery, Func<Range<Entire<Tuple>>> range)
-    {
-      return new RangeProvider(recordQuery.Provider, () => range.Invoke()) { CompiledRange = range }.Result;
-    }
-
-    public static RecordQuery Range(this RecordQuery recordQuery, Expression<Func<Range<Entire<Tuple>>>> range, bool isExpression)
-    {
-      return new RangeProvider(recordQuery.Provider, range).Result;
-    }
-
-    public static RecordQuery Range(this RecordQuery recordQuery, Range<Entire<Tuple>> range)
-    {
-      return new RangeProvider(recordQuery.Provider, range).Result;
-    }
-
-    public static RecordQuery Range(this RecordQuery recordQuery, Entire<Tuple> from, Entire<Tuple> to)
-    {
-      return Range(recordQuery, new Range<Entire<Tuple>>(from, to));
-    }
-
-    public static RecordQuery Range(this RecordQuery recordQuery, Tuple from, Tuple to)
-    {
-      Entire<Tuple> xPoint;
-      Entire<Tuple> yPoint;
-      Direction rangeDirection = new Range<Tuple>(from,to).GetDirection(AdvancedComparer<Tuple>.Default);
-      DirectionCollection<int> directions = recordQuery.Provider.Header.Order;
-
-      if (directions.Count > from.Count) {
-        Direction fromDirection = directions[from.Count].Value;
-        xPoint = new Entire<Tuple>(from, (Direction)((int)rangeDirection * (int)fromDirection * -1));
-      }
-      else
-        xPoint = new Entire<Tuple>(from);
-
-      if (directions.Count > to.Count) {
-        Direction toDirection = directions[to.Count].Value;
-        yPoint = new Entire<Tuple>(to, (Direction)((int)rangeDirection * (int)toDirection));
-      }
-      else
-        yPoint = new Entire<Tuple>(to);
-
-      return Range(recordQuery, new Range<Entire<Tuple>>(xPoint, yPoint));
-    }
-
-    public static RecordQuery RangeSet(this RecordQuery recordQuery, Func<RangeSet<Entire<Tuple>>> range)
-    {
-      return new RangeSetProvider(recordQuery.Provider, () => range.Invoke()) { CompiledRange = range }.Result;
-    }
-
-    public static RecordQuery RangeSet(this RecordQuery recordQuery, Expression<Func<RangeSet<Entire<Tuple>>>> range, bool isExpression)
-    {
-      return new RangeSetProvider(recordQuery.Provider, range).Result;
-    }
-
-    public static RecordQuery RangeSet(this RecordQuery recordQuery, RangeSet<Entire<Tuple>> range)
-    {
-      return new RangeSetProvider(recordQuery.Provider, range).Result;
-    }
-
-    public static RecordQuery Like(this RecordQuery recordQuery, Tuple beginning)
-    {
-      var from = beginning.Clone();
-      var to = beginning.Clone();
-      for (int i = 0; i < beginning.Count; i++) {
-        if (beginning.Descriptor[i]==typeof (string)) {
-            from.SetValue(i, beginning.GetValue<string>(i).ToLower(CultureInfo.InvariantCulture));
-            to.SetValue(i, beginning.GetValue<string>(i).ToUpper(CultureInfo.InvariantCulture) + '\u00FF');
-        }
-      }
-      return Range(recordQuery, from, to);
-    }
-
     public static RecordQuery Calculate(this RecordQuery recordQuery, params CalculatedColumnDescriptor[] columns)
     {
       return new CalculateProvider(recordQuery.Provider, columns).Result;
