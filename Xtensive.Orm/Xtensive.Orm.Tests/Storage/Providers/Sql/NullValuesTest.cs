@@ -18,11 +18,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   {
     private bool emptyStringIsNull;
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();

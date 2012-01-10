@@ -53,12 +53,6 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture, Category("Upgrade")]
   public class SkipUpgradeTest
   {
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [Test]
     public void CombinedTest()
     {

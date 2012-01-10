@@ -11,15 +11,11 @@ namespace Xtensive.Orm.Tests
   [Flags]
   public enum StorageProvider
   {
-    Memory = 0x1,
-    SqlServer = 0x2,
-    SqlServerCe = 0x4,
-    PostgreSql = 0x8,
-    Oracle = 0x10,
-    MySql = 0x40,
+    SqlServer = 0x1,
+    SqlServerCe = 0x2,
+    PostgreSql = 0x4,
+    Oracle = 0x8,
+    MySql = 0x10,
     Firebird = 0x20,
-
-    Sql = SqlServer | PostgreSql | Oracle | SqlServerCe | Firebird | MySql,
-    Index = Memory,
   }
 }

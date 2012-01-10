@@ -12,12 +12,6 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
   [TestFixture]
   public class Many2SingleClassTest
   {
-    [TestFixtureSetUp]
-    public void SetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [Test]
     public void CombinedTest()
     {

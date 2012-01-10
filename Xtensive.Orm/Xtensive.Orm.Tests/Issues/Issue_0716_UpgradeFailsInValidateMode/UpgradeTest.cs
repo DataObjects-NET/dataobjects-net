@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
     [TestFixtureSetUp]
     public void TestSetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Memory);
       Require.AllFeaturesSupported(ProviderFeatures.FullText);
     }
 

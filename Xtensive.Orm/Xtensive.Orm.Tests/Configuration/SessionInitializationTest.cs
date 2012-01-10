@@ -17,12 +17,6 @@ namespace Xtensive.Orm.Tests.Configuration
   [TestFixture]
   public class SessionInitializationTest
   {
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.ProviderIs(StorageProvider.Memory);
-    }
-
     [Test]
     public void TestSessionCache()
     {

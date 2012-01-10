@@ -25,12 +25,6 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     private Domain domain;
     private StoredDomainModel storedModel;
 
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [SetUp]
     public void SetUp()
     {

@@ -31,11 +31,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       return configuration;
     }
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     [Test]
     public void PersistTest()
     {

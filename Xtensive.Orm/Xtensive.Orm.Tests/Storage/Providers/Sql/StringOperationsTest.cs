@@ -19,11 +19,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
     private bool emptyStringIsNull;
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();

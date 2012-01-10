@@ -49,12 +49,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [Test]
     public void MainTest()
     {

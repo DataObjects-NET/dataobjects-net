@@ -21,11 +21,6 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class LockTest : NorthwindDOModelTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     [Test]
     public void UpdateLockThrowTest()
     {

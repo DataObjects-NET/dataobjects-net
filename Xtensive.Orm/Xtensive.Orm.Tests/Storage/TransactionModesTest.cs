@@ -16,11 +16,6 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public sealed class TransactionModesTest : NorthwindDOModelTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     [Test]
     public void DefaultTransactionsTest()
     {

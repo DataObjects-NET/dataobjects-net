@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
     [TestFixtureSetUp]
     public void TestSetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Memory | StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird);
     }
 
     [SetUp]

@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2
     public void TestSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
-      Require.ProviderIsNot(StorageProvider.Memory);
     }
 
     [SetUp]

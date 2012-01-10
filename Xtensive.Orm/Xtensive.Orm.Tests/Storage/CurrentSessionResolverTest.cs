@@ -12,12 +12,6 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class CurrentSessionResolverTest
   {
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.ProviderIs(StorageProvider.Memory);
-    }
-
     [TearDown]
     public void TearDown()
     {

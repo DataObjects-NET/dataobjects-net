@@ -23,12 +23,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [SetUp]
     public void SetUp()
     {

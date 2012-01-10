@@ -87,11 +87,6 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class IssueJira0117_FKStructureTest : AutoBuildTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

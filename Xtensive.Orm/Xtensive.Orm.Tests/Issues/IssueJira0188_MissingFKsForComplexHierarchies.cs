@@ -94,11 +94,6 @@ namespace Xtensive.Orm.Tests.Issues
   {
     private Schema schema;
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

@@ -155,11 +155,6 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class Issue0376_RemoveFieldHint : AutoBuildTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

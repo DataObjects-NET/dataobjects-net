@@ -42,12 +42,7 @@ namespace Xtensive.Orm.Tests.Storage.TransactionsTestModel
 namespace Xtensive.Orm.Tests.Storage
 {
   public class TransactionsTest : AutoBuildTest
-  {    
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
+  {
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
