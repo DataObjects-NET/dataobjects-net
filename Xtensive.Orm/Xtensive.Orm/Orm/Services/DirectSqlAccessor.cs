@@ -57,7 +57,8 @@ namespace Xtensive.Orm.Services
     public DbCommand CreateCommand()
     {
       EnsureIsAvailable();
-      Session.EnsureTransactionIsStarted();
+      if (Session.Transaction!=null)
+        Session.EnsureTransactionIsStarted();
       return service.CreateCommand();
     }
 
