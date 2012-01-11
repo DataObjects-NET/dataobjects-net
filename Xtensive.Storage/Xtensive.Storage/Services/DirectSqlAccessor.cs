@@ -57,7 +57,9 @@ namespace Xtensive.Storage.Services
     public DbCommand CreateCommand()
     {
       EnsureIsAvailable();
-      Session.EnsureTransactionIsStarted();
+      var hasTransaction = Session.GetTransactionFromSessionOrDisconnectedState()!=null;
+      if (hasTransaction)
+        Session.EnsureTransactionIsStarted();
       return service.CreateCommand();
     }
 

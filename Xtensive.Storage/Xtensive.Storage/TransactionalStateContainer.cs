@@ -95,7 +95,7 @@ namespace Xtensive.Storage
     {
       if (Transaction==null)
         return false;
-      var currentTransaction = Session.Transaction ?? (Session.IsDisconnected ? Session.DisconnectedState.AlreadyOpenedTransaction : null);
+      var currentTransaction = Session.GetTransactionFromSessionOrDisconnectedState();
       if (currentTransaction==null)
         return false;
       return Transaction.AreChangesVisibleTo(currentTransaction);
@@ -103,7 +103,7 @@ namespace Xtensive.Storage
 
     private void BindToCurrentTransaction(bool skipValidation)
     {
-      var currentTransaction = Session.Transaction ?? (Session.IsDisconnected ? Session.DisconnectedState.AlreadyOpenedTransaction : null);
+      var currentTransaction = Session.GetTransactionFromSessionOrDisconnectedState();
       if (currentTransaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       if (!skipValidation)

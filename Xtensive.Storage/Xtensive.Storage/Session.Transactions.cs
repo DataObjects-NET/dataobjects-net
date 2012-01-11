@@ -153,13 +153,18 @@ namespace Xtensive.Storage
       }
     }
 
-    public void EnsureTransactionIsStarted()
+    internal void EnsureTransactionIsStarted()
     {
-      var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
+      var transaction = GetTransactionFromSessionOrDisconnectedState();
       if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       if (!transaction.IsActuallyStarted)
         StartTransaction(transaction);
+    }
+
+    internal Transaction GetTransactionFromSessionOrDisconnectedState()
+    {
+      return Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
     }
 
     /// <exception cref="InvalidOperationException">Can't create a transaction

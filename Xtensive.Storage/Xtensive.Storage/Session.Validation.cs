@@ -18,7 +18,7 @@ namespace Xtensive.Storage
     public ValidationContext ValidationContext {
       get
       {
-        var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
+        var transaction = GetTransactionFromSessionOrDisconnectedState();
         if (transaction==null)
           throw new InvalidOperationException(Strings.ExCanNotGetValidationContextThereIsNoActiveTransaction);
         return transaction.ValidationContext;
