@@ -18,7 +18,17 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void UseInTransaction()
+    public void GetDbTransactionInTransaction()
+    {
+      using (var session = OpenSession())
+      using (var tx = Transaction.Open(session)) {
+        var accessor = session.Services.Get<DirectSqlAccessor>();
+        Assert.That(accessor.Transaction, Is.Not.Null);
+      }
+    }
+
+    [Test]
+    public void CreateCommandInTransaction()
     {
       using (var session = OpenSession())
       using (var tx = Transaction.Open(session)) {
@@ -29,12 +39,21 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void UseWithoutTransaction()
+    public void GetDbTransactionWithoutTransaction()
     {
       using (var session = OpenSession()) {
         var accessor = session.Services.Get<DirectSqlAccessor>();
         var command = accessor.CreateCommand();
         Assert.That(command.Transaction, Is.Null);
+      }
+    }
+
+    [Test]
+    public void CreateCommandWithoutTransaction()
+    {
+      using (var session = OpenSession()) {
+        var accessor = session.Services.Get<DirectSqlAccessor>();
+        Assert.That(accessor.Transaction, Is.Null);
       }
     }
 
