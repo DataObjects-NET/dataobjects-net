@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers
     /// <exception cref="InvalidOperationException">Transaction is not opened.</exception>
     protected void EnsureTransactionIsOpened()
     {
-      var transaction = Session.Transaction ?? (Session.IsDisconnected ? Session.DisconnectedState.AlreadyOpenedTransaction : null);
+      var transaction = Session.GetTransactionFromSessionOrDisconnectedState();
       if (transaction == null)
         throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
     }

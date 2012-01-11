@@ -346,13 +346,18 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      var itemType = match.Type;
-      var sourceElementType = QueryHelper.GetSequenceElementType(source.Type);
-      if (sourceElementType != itemType) {
-        if (sourceElementType.IsAssignableFrom(itemType))
-          match = Expression.TypeAs(match, sourceElementType);
-        else
-          QueryHelper.TryAddConvarianceCast(ref source, match.Type);
+      var matchedElementType = match.Type;
+      var sequenceElementType = QueryHelper.GetSequenceElementType(source.Type);
+      if (sequenceElementType != matchedElementType) {
+        if (sequenceElementType.IsAssignableFrom(matchedElementType)) {
+          // Collection<Parent>.Contains(child)
+          match = Expression.TypeAs(match, sequenceElementType);
+        }
+        else {
+          // Collection<Child>.Contains(parent)
+          if (!isRoot && !source.IsLocalCollection(context))
+            QueryHelper.TryAddConvarianceCast(ref source, match.Type);
+        }
       }
 
       var p = Expression.Parameter(match.Type, "p");
@@ -1324,13 +1329,10 @@ namespace Xtensive.Storage.Linq
           ? sequence.Type.GetGenericArguments()[0]
           : sequence.Type;
 
-        Type itemType = sequenceType
-          .GetInterfaces()
-          .AddOne(sequenceExpression.Type)
-          .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
-          .GetGenericArguments()[0];
-
-        return (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType).Invoke(this, new object[] {sequence});
+        var itemType = QueryHelper.GetSequenceElementType(sequenceType);
+        return (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo
+          .MakeGenericMethod(itemType)
+          .Invoke(this, new object[] {sequence});
       }
 
       var visitedExpression = Visit(sequenceExpression).StripCasts();

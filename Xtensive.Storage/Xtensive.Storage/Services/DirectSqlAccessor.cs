@@ -49,6 +49,7 @@ namespace Xtensive.Storage.Services
     public DbTransaction Transaction {
       get {
         EnsureIsAvailable();
+        TryStartTransaction();
         return service.Transaction;
       }
     }
@@ -57,8 +58,15 @@ namespace Xtensive.Storage.Services
     public DbCommand CreateCommand()
     {
       EnsureIsAvailable();
-      Session.EnsureTransactionIsStarted();
+      TryStartTransaction();
       return service.CreateCommand();
+    }
+
+    private void TryStartTransaction()
+    {
+      var hasTransaction = Session.GetTransactionFromSessionOrDisconnectedState()!=null;
+      if (hasTransaction)
+        Session.EnsureTransactionIsStarted();
     }
 
     /// <exception cref="NotSupportedException">Underlying storage provider 
