@@ -15,7 +15,7 @@ using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Linq;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Helpers;

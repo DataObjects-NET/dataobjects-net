@@ -13,7 +13,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Tests.Storage.ManyToManyValidationTest_Model;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Tests.Storage
 {

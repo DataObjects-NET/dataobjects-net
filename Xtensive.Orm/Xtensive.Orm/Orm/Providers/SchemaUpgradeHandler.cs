@@ -8,7 +8,7 @@ using System;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm;
 using Xtensive.Orm.Building;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Providers

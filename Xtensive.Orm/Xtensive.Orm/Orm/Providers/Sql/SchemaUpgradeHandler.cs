@@ -17,9 +17,9 @@ using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Upgrade;
-using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
+using ModelTypeInfo = Xtensive.Orm.Upgrade.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers.Sql
 {

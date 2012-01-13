@@ -11,7 +11,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {

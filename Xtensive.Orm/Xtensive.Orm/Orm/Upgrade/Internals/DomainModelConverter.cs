@@ -17,15 +17,15 @@ using Xtensive.Sorting;
 using Xtensive.Modelling;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Linq;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
 using ColumnInfo = Xtensive.Orm.Model.ColumnInfo;
 using FullTextIndexInfo = Xtensive.Orm.Model.FullTextIndexInfo;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
-using IndexingModel = Xtensive.Storage.Model;
-using ReferentialAction = Xtensive.Storage.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
+using IndexingModel = Xtensive.Orm.Upgrade.Model;
+using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
+using SequenceInfo = Xtensive.Orm.Upgrade.Model.SequenceInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Upgrade
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode Visit(Model.Node node)
+    protected override IPathNode Visit(Orm.Model.Node node)
     {
       var indexInfo = node as Orm.Model.IndexInfo;
       if (indexInfo!=null && indexInfo.IsPrimary)
@@ -271,7 +271,7 @@ namespace Xtensive.Orm.Upgrade
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Thrown always by this method.</exception>
-    protected override IPathNode VisitSequenceInfo(Model.SequenceInfo info)
+    protected override IPathNode VisitSequenceInfo(Orm.Model.SequenceInfo info)
     {
       throw new NotSupportedException();
     }

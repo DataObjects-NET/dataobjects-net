@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Sql.Model;
 using Xtensive.Sql;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using ColumnInfo = Xtensive.Orm.Model.ColumnInfo;
 
 namespace Xtensive.Orm.Providers.Sql.Mappings

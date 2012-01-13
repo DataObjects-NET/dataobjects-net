@@ -5,7 +5,7 @@
 // Created:    2011.10.10
 
 using System;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="indexName">Name of index.</param>
     /// <param name="originalModelIndex">Original index from mapping model.</param>
     /// <returns>Created <see cref="SecondaryIndexInfo"/>.</returns>
-    public virtual SecondaryIndexInfo CreateSecondaryIndex(TableInfo owningTable, string indexName, Model.IndexInfo originalModelIndex)
+    public virtual SecondaryIndexInfo CreateSecondaryIndex(TableInfo owningTable, string indexName, Orm.Model.IndexInfo originalModelIndex)
     {
       return new SecondaryIndexInfo(owningTable, indexName);
     }

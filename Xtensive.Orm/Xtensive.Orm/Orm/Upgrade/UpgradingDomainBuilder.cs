@@ -13,7 +13,7 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Resources;
 using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
 

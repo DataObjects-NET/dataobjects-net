@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Sql.Model;
 using Xtensive.Sql;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using ColumnInfo = Xtensive.Orm.Model.ColumnInfo;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 

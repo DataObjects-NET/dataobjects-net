@@ -23,12 +23,12 @@ using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Model;
-using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
-using ReferentialAction = Xtensive.Storage.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
+using Xtensive.Orm.Upgrade.Model;
+using ColumnInfo = Xtensive.Orm.Upgrade.Model.ColumnInfo;
+using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
+using SequenceInfo = Xtensive.Orm.Upgrade.Model.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
-using TableInfo = Xtensive.Storage.Model.TableInfo;
+using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
 using UpgradeStage = Xtensive.Modelling.Comparison.UpgradeStage;
 using WellKnown = Xtensive.Orm.WellKnown;
 

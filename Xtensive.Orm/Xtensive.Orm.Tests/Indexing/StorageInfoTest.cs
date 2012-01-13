@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Modelling.Actions;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests.Indexing

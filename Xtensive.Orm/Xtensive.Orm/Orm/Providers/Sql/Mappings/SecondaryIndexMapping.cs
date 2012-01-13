@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Providers.Sql.Mappings

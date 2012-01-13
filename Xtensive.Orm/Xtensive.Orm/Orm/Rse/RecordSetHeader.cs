@@ -14,7 +14,7 @@ using Xtensive.Threading;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using System.Linq;
-using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
+using ColumnInfo = Xtensive.Orm.Upgrade.Model.ColumnInfo;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Rse

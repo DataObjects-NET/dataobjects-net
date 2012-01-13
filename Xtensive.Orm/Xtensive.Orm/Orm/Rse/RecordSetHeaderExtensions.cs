@@ -12,7 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Rse
 {

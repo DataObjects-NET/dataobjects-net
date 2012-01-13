@@ -9,7 +9,7 @@ using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Tests.Indexing
 {

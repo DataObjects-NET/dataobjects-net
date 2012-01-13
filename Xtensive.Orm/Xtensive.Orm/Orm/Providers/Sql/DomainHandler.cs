@@ -18,7 +18,7 @@ using Xtensive.Threading;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.PreCompilation;
 using Xtensive.Orm.Rse.PreCompilation.Correction;

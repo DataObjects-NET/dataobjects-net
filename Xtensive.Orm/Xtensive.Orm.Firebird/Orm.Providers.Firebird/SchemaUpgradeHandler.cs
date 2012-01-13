@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Upgrade;
-using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
+using ModelTypeInfo = Xtensive.Orm.Upgrade.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers.Firebird
 {

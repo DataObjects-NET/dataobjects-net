@@ -12,10 +12,10 @@ using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
-using TypeInfo = Xtensive.Storage.Model.TypeInfo;
-using PartialIndexFilterInfo = Xtensive.Storage.Model.PartialIndexFilterInfo;
+using TypeInfo = Xtensive.Orm.Upgrade.Model.TypeInfo;
+using PartialIndexFilterInfo = Xtensive.Orm.Upgrade.Model.PartialIndexFilterInfo;
 
 namespace Xtensive.Orm.Providers.Sql
 {

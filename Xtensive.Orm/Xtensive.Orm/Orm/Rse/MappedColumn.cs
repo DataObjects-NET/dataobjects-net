@@ -8,7 +8,7 @@ using System;
 using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Rse
 {

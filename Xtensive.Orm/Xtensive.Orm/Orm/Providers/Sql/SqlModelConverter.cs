@@ -14,14 +14,14 @@ using Xtensive.Modelling;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Model;
-using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
-using IndexInfo = Xtensive.Storage.Model.IndexInfo;
+using Xtensive.Orm.Upgrade.Model;
+using ColumnInfo = Xtensive.Orm.Upgrade.Model.ColumnInfo;
+using IndexInfo = Xtensive.Orm.Upgrade.Model.IndexInfo;
 using Node = Xtensive.Sql.Model.Node;
-using ReferentialAction = Xtensive.Storage.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
+using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
+using SequenceInfo = Xtensive.Orm.Upgrade.Model.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
-using TableInfo = Xtensive.Storage.Model.TableInfo;
+using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     /// <summary>
     /// Converts the <see cref="Xtensive.Sql.ReferentialAction"/> to 
-    /// <see cref="Xtensive.Storage.Model.ReferentialAction"/>.
+    /// <see cref="Xtensive.Orm.Upgrade.Model.ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>
