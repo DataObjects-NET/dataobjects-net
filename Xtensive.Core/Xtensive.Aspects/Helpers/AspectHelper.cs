@@ -10,12 +10,8 @@ using System.Linq;
 using System.Reflection;
 using PostSharp.Extensibility;
 using Xtensive.Aspects.Resources;
-using Xtensive.Core;
-using Xtensive.IoC;
 using Xtensive.Reflection;
-using Xtensive.Collections;
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
-using WellKnown = Xtensive.Reflection.WellKnown;
 
 namespace Xtensive.Aspects.Helpers
 {
@@ -63,7 +59,7 @@ namespace Xtensive.Aspects.Helpers
     /// <returns>String representation of the member.</returns>
     public static string FormatConstructor(Type type, Type returnType, params Type[] parameterTypes)
     {
-      return FormatMethod(type, returnType, WellKnown.CtorName, parameterTypes);
+      return FormatMethod(type, returnType, CtorName, parameterTypes);
     }
 
     /// <summary>
@@ -124,16 +120,21 @@ namespace Xtensive.Aspects.Helpers
       if (ti!=null)
         return FormatType(type);
       if (ci!=null)
-        return FormatConstructor(type, ci.DeclaringType, ci.GetParameterTypes());
+        return FormatConstructor(type, ci.DeclaringType, GetParameterTypes(ci));
       if (mi!=null)
-        return FormatMethod(type, mi.ReturnType, member.GetShortName(false), mi.GetParameterTypes());
+        return FormatMethod(type, mi.ReturnType, member.Name, GetParameterTypes(mi));
       if (fi!=null)
         return FormatMember(type, fi.FieldType, member.Name);
       if (pi!=null)
-        return FormatMember(type, pi.PropertyType, member.GetShortName(false));
+        return FormatMember(type, pi.PropertyType, member.Name);
       if (ei!=null)
-        return FormatMember(type, ei.EventHandlerType, member.GetShortName(false));
+        return FormatMember(type, ei.EventHandlerType, member.Name);
       return FormatMember(type, typeof(void), member.Name);
+    }
+
+    private static Type[] GetParameterTypes(MethodBase method)
+    {
+      return method.GetParameters().Select(parameter => parameter.ParameterType).ToArray();
     }
 
     #endregion
