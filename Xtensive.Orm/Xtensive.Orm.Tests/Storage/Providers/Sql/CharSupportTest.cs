@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.CharSupportTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.CharSupportTestModel
@@ -33,11 +33,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   public class CharSupportTest : AutoBuildTest
   {
     private string charColumn;
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
 
     protected override DomainConfiguration BuildConfiguration()
     {

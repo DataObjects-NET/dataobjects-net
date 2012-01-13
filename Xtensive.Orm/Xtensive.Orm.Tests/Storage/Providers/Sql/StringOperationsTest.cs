@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using System.Linq;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql
@@ -18,11 +18,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     #region Configuration
 
     private bool emptyStringIsNull;
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
 
     protected override DomainConfiguration BuildConfiguration()
     {

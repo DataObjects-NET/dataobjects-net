@@ -12,7 +12,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.Model.Version1;
 using Xtensive.Orm.Tests.Upgrade.Model.Version2;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Testing;
 using Address = Xtensive.Orm.Tests.Upgrade.Model.Version1.Address;
 using Boy = Xtensive.Orm.Tests.Upgrade.Model.Version2.Boy;
@@ -45,12 +45,6 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class DomainUpgradeTest
   {
     private Domain domain;
-
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
 
     [SetUp]
     public void SetUp()

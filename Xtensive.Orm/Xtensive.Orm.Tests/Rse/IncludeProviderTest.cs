@@ -12,7 +12,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Tests.Rse
 {

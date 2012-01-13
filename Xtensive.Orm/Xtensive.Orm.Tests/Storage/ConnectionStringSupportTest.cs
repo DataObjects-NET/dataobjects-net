@@ -12,11 +12,6 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class ConnectionStringSupportTest : AutoBuildTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       return DomainConfigurationFactory.Create(true);

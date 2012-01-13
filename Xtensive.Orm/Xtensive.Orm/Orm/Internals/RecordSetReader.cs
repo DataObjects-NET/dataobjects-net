@@ -10,13 +10,13 @@ using System.Linq;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Tuples;
 using Xtensive.Orm.Linq.Materialization;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Internals

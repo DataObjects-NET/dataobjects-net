@@ -12,7 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Building
 {

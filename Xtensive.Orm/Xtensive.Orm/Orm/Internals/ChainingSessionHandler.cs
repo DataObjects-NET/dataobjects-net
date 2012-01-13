@@ -12,7 +12,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Model;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals
 {
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Internals
   /// The base class for <see cref="SessionHandler"/>s which support the chaining 
   /// with another handler.
   /// </summary>
-  public abstract class ChainingSessionHandler : Xtensive.Storage.Providers.SessionHandler
+  public abstract class ChainingSessionHandler : Providers.SessionHandler
   {
     /// <summary>
     /// The chained handler.
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Internals
     }
 
     /// <inheritdoc/>
-    public override Storage.Rse.Providers.EnumerationContext CreateEnumerationContext()
+    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       return ChainedHandler.CreateEnumerationContext();
     }

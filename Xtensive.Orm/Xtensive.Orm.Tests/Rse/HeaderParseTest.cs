@@ -12,7 +12,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.BookAuthorModel;
 
 namespace Xtensive.Orm.Tests.Rse

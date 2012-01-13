@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {

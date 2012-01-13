@@ -8,7 +8,7 @@ using System;
 using Xtensive.Aspects;
 using Xtensive.Disposing;
 using Xtensive.IoC;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Services
 {

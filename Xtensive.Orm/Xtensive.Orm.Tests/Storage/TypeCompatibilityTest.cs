@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
@@ -333,7 +333,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ValidateTest()
     {
-      Require.ProviderIs(StorageProvider.Sql);
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.Types.Register(typeof (X));

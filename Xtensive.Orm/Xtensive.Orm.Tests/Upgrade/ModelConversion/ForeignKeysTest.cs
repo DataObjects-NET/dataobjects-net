@@ -11,7 +11,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
@@ -28,11 +28,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (TargetSchemaVerifier.Enable("1")) {
         BuildDomain(BuildConfiguration());
       }
-    }
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
     }
 
     protected override DomainConfiguration BuildConfiguration()
@@ -90,7 +85,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       if (ConcreteTableSchemaModifier.IsEnabled 
         || SingleTableSchemaModifier.IsEnabled)
         return;
-      var targetSchema = context.SchemaHints.TargetModel as StorageInfo;
+      var targetSchema = context.SchemaHints.TargetModel as StorageModel;
       var tableA = targetSchema.Tables["A"];
       var tableB = targetSchema.Tables["B"];
       var tableC = targetSchema.Tables["C"];

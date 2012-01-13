@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
 {

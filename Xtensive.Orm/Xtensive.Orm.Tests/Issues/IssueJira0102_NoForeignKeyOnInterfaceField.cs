@@ -8,8 +8,8 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0102_NoForeignKeyOnInterfaceField_Model;
-using Xtensive.Storage.Providers;
-using DomainHandler = Xtensive.Storage.Providers.Sql.DomainHandler;
+using Xtensive.Orm.Providers;
+using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0102_NoForeignKeyOnInterfaceField_Model

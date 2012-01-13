@@ -5,27 +5,27 @@
 // Created:    2011.10.10
 
 using System;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// Factory that allows storage providers to override some logic
-  /// when constructing <see cref="StorageInfo"/> model via <see cref="DomainModelConverter"/>.
+  /// when constructing <see cref="StorageModel"/> model via <see cref="DomainModelConverter"/>.
   /// </summary>
   public class StorageModelBuilder
   {
     /// <summary>
-    /// Creates <see cref="TypeInfo"/>.
+    /// Creates <see cref="StorageTypeInfo"/>.
     /// </summary>
     /// <param name="type">Type.</param>
     /// <param name="length">Length.</param>
     /// <param name="precision">Precision.</param>
     /// <param name="scale">Scale.</param>
-    /// <returns>Created <see cref="TypeInfo"/>.</returns>
-    public virtual TypeInfo CreateType(Type type, int? length, int? precision, int? scale)
+    /// <returns>Created <see cref="StorageTypeInfo"/>.</returns>
+    public virtual StorageTypeInfo CreateType(Type type, int? length, int? precision, int? scale)
     {
-      return new TypeInfo(type, length, scale, precision, null);
+      return new StorageTypeInfo(type, length, scale, precision, null);
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="indexName">Name of index.</param>
     /// <param name="originalModelIndex">Original index from mapping model.</param>
     /// <returns>Created <see cref="SecondaryIndexInfo"/>.</returns>
-    public virtual SecondaryIndexInfo CreateSecondaryIndex(TableInfo owningTable, string indexName, Model.IndexInfo originalModelIndex)
+    public virtual SecondaryIndexInfo CreateSecondaryIndex(TableInfo owningTable, string indexName, Orm.Model.IndexInfo originalModelIndex)
     {
       return new SecondaryIndexInfo(owningTable, indexName);
     }

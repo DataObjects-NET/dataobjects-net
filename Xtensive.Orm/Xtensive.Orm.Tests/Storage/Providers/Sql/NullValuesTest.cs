@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Disposing;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql
@@ -17,11 +17,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   public class NullValuesTest : AutoBuildTest
   {
     private bool emptyStringIsNull;
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
 
     public override void TestFixtureSetUp()
     {

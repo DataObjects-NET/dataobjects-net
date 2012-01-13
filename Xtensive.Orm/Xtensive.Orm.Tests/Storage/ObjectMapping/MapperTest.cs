@@ -19,7 +19,7 @@ using Xtensive.Testing;
 using Xtensive.Orm.Disconnected;
 using Xtensive.Orm.ObjectMapping;
 using Xtensive.Orm.Operations;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.ObjectMapping.Model;
 using GraphComparisonResult = Xtensive.Orm.ObjectMapping.GraphComparisonResult;
 

@@ -14,7 +14,7 @@ using Xtensive.Testing;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using ErrorCases = Xtensive.Orm.Tests.Storage.ClusteredIndexesTestModels.ErrorCases;
 using NonClustered = Xtensive.Orm.Tests.Storage.ClusteredIndexesTestModels.NonClusteredHierarchy;
 using Clustered = Xtensive.Orm.Tests.Storage.ClusteredIndexesTestModels.ClusteredHierarchy;
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Tests.Storage
       var declaringType = domain.Model.Types[type];
       if (declaringType.Hierarchy.InheritanceSchema==InheritanceSchema.SingleTable)
         declaringType = declaringType.Hierarchy.Root;
-      return ((Xtensive.Storage.Providers.Sql.DomainHandler) domain.Handler).Schema.Tables[declaringType.MappingName];
+      return ((Providers.Sql.DomainHandler) domain.Handler).Schema.Tables[declaringType.MappingName];
     }
 
     private void CheckType(Type type, bool primaryKeyIsClustered, string clusteredSecondaryIndexColumn)

@@ -8,8 +8,8 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Issues.Issue0012_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0012_Model

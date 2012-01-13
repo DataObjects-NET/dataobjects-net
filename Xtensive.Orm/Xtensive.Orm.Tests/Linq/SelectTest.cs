@@ -11,7 +11,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Tuples;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;

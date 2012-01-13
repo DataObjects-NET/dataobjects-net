@@ -10,13 +10,12 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Testing;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;
 using NUnit.Framework;
-using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 using Person = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1.Person;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -30,7 +29,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
     [TestFixtureSetUp]
     public void TestSetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Memory | StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird);
     }
 
     [SetUp]
@@ -68,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
       }
     }
 
-    private ColumnInfo GetColumnInfo(StorageInfo schema, TypeInfo type, string fieldName)
+    private StorageColumnInfo GetColumnInfo(StorageModel schema, TypeInfo type, string fieldName)
     {
       var table = schema.Tables[type.MappingName];
       var field = type.Fields[fieldName];

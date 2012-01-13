@@ -51,19 +51,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void IndexStorageTest()
-    {
-      Require.ProviderIs(StorageProvider.Index);
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var directSql = session.Services.Demand<DirectSqlAccessor>();
-          Assert.IsFalse(directSql.IsAvailable);
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
     public void SqlStorageTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

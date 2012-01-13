@@ -18,10 +18,10 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
 using Activator = System.Activator;
 using UpgradeContext = Xtensive.Orm.Upgrade.UpgradeContext;
@@ -100,9 +100,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = BuildingContext.Demand().Configuration.ConnectionInfo.Provider;
-        var thisAssembly = typeof (DomainBuilder).Assembly;
-        GetProviderAssemblyName(protocol); // Just to validate a protocol
-        var providerAssembly = thisAssembly;
+        var providerAssembly = GetProviderAssembly(protocol);
         
         // Creating the provider
         var handlerProviderType = providerAssembly.GetTypes()
@@ -123,18 +121,20 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static string GetProviderAssemblyName(string providerName)
+    private static Assembly GetProviderAssembly(string providerName)
     {
+      const string indexingAssembly = "Xtensive.Orm.Indexing";
+      const string sqlAssemblyFormat = "Xtensive.Orm.{0}";
+
       switch (providerName) {
-      case WellKnown.Provider.Memory:
-        return WellKnown.ProviderAssembly.Indexing;
       case WellKnown.Provider.SqlServer:
+        return typeof(DomainBuilder).Assembly;
       case WellKnown.Provider.SqlServerCe:
       case WellKnown.Provider.PostgreSql:
       case WellKnown.Provider.Oracle:
-    case WellKnown.Provider.Firebird:
+      case WellKnown.Provider.Firebird:
       case WellKnown.Provider.MySql:
-        return WellKnown.ProviderAssembly.Sql;
+        return AssemblyHelper.LoadExtensionAssembly(string.Format(sqlAssemblyFormat, providerName));
       default:
         throw new NotSupportedException(
           string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Building.Builders
         SchemaComparisonResult result;
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
-          var emptySchema = new StorageInfo();
+          var emptySchema = new StorageModel();
           result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model);
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
@@ -359,16 +359,16 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static Pair<StorageInfo, StorageInfo> BuildSchemasAsync(Domain domain, SchemaUpgradeHandler upgradeHandler)
+    private static Pair<StorageModel, StorageModel> BuildSchemasAsync(Domain domain, SchemaUpgradeHandler upgradeHandler)
     {
       var extractedSchema = upgradeHandler.GetExtractedSchemaProvider().InvokeAsync();
       var targetSchema = upgradeHandler.GetTargetSchemaProvider().InvokeAsync();
 
-      Func<Func<StorageInfo>, Pair<StorageInfo,StorageInfo>> cloner = schemaProvider => {
+      Func<Func<StorageModel>, Pair<StorageModel,StorageModel>> cloner = schemaProvider => {
         var origin = schemaProvider.Invoke();
         origin.Lock();
-        var clone = (StorageInfo) origin.Clone(null, StorageInfo.DefaultName);
-        return new Pair<StorageInfo, StorageInfo>(origin, clone);
+        var clone = (StorageModel) origin.Clone(null, StorageModel.DefaultName);
+        return new Pair<StorageModel, StorageModel>(origin, clone);
       };
 
       var extractedSchemaCloner = cloner.InvokeAsync(extractedSchema);
@@ -390,7 +390,7 @@ namespace Xtensive.Orm.Building.Builders
       Thread.MemoryBarrier();
 
       // Returning unlocked clones
-      return new Pair<StorageInfo, StorageInfo>(extractedSchemas.Second, targetSchemas.Second);
+      return new Pair<StorageModel, StorageModel>(extractedSchemas.Second, targetSchemas.Second);
     }
   }
 }

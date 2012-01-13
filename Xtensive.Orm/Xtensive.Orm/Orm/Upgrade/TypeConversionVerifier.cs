@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Upgrade
     /// <see langword="true"/> if the source type can be converted to the 
     /// target type; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool CanConvert(TypeInfo from, TypeInfo to)
+    public static bool CanConvert(StorageTypeInfo from, StorageTypeInfo to)
     {
       ArgumentValidator.EnsureArgumentNotNull(from, "from");
       ArgumentValidator.EnsureArgumentNotNull(to, "to");
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Upgrade
     /// <see langword="true"/> if the source type can be converted to the 
     /// target type without loss of data; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool CanConvertSafely(TypeInfo from, TypeInfo to)
+    public static bool CanConvertSafely(StorageTypeInfo from, StorageTypeInfo to)
     {
       ArgumentValidator.EnsureArgumentNotNull(from, "from");
       ArgumentValidator.EnsureArgumentNotNull(to, "to");
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Upgrade
       return true;
     }
 
-    private static bool CanConvertToString(TypeInfo from, int length)
+    private static bool CanConvertToString(StorageTypeInfo from, int length)
     {
       switch (Type.GetTypeCode(from.Type.StripNullable())) {
       case TypeCode.Char:
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private static bool CheckLength(TypeInfo from, TypeInfo to)
+    private static bool CheckLength(StorageTypeInfo from, StorageTypeInfo to)
     {
       if (!to.Length.HasValue)
         return true; // Conversion to Var*(max) is always possible, or both types have no length
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Upgrade
       return from.Length.Value <= to.Length.Value; 
     }
 
-    private static bool CheckScaleAndPrecision(TypeInfo from, TypeInfo to)
+    private static bool CheckScaleAndPrecision(StorageTypeInfo from, StorageTypeInfo to)
     {
       return 
         (from.Scale <= to.Scale) && 

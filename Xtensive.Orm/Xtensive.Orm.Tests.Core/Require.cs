@@ -8,9 +8,9 @@ using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
-using SqlProviderInfoBuilder = Xtensive.Storage.Providers.Sql.ProviderInfoBuilder;
-using IndexProviderInfoBuilder = Xtensive.Storage.Providers.Indexing.ProviderInfoBuilder;
+using Xtensive.Sql.Tests;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Tests
 {
@@ -130,20 +130,12 @@ namespace Xtensive.Orm.Tests
       var config = DomainConfigurationFactory.Create();
       activeProvider = ParseProvider(config.ConnectionInfo.Provider);
 
-      // ProviderInfo
-      if ((activeProvider & StorageProvider.Sql)==activeProvider)
-        activeProviderInfo = SqlProviderInfoBuilder.Build(SqlDriver.Create(config.ConnectionInfo));
-      else if ((activeProvider & StorageProvider.Index)==activeProvider)
-        activeProviderInfo = IndexProviderInfoBuilder.Build();
-      else
-        throw new NotSupportedException();
+      activeProviderInfo = ProviderInfoBuilder.Build(TestSqlDriver.Create(config.ConnectionInfo));
     }
 
     private static StorageProvider ParseProvider(string provider)
     {
       switch (provider) {
-      case WellKnown.Provider.Memory:
-        return StorageProvider.Memory;
       case WellKnown.Provider.SqlServer:
         return StorageProvider.SqlServer;
       case WellKnown.Provider.SqlServerCe:

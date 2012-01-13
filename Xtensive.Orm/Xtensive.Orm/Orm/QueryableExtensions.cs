@@ -12,7 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Resources;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm
 {

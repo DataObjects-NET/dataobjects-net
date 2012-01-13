@@ -17,8 +17,8 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 
@@ -723,9 +723,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, null, true, true,
           failingValidator));
         prefetchManager.InvokePrefetch(book1Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
-          notificationValidator.Bind(book1Key, BookTitleField, title1Key, 1)));
+          notificationValidator.Bind(book1Key).Bind(BookTitleField).Bind(title1Key).Bind(1)));
         prefetchManager.InvokePrefetch(book2Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
-          notificationValidator.Bind(book2Key, BookTitleField, title2Key, 2)));
+          notificationValidator.Bind(book2Key).Bind(BookTitleField).Bind(title2Key).Bind(2)));
         prefetchManager.InvokePrefetch(book3Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
           failingValidator));
         prefetchManager.ExecuteTasks();

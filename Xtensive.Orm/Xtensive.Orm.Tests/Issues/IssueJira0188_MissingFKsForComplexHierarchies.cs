@@ -9,7 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Tests.Issues.IssueJira0188_MissingFKsForComplexHierarchiesModel;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -93,11 +93,6 @@ namespace Xtensive.Orm.Tests.Issues
   public class IssueJira0188_MissingFKsForComplexHierarchies : AutoBuildTest
   {
     private Schema schema;
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
 
     protected override DomainConfiguration BuildConfiguration()
     {

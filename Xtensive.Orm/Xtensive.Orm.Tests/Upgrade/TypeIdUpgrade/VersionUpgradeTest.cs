@@ -7,7 +7,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
 {

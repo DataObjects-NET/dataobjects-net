@@ -16,7 +16,7 @@ using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
 {

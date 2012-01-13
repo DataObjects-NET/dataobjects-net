@@ -20,11 +20,19 @@ namespace Xtensive.Orm.Configuration.Internals
   public sealed class DomainTypeRegistrationHandler : TypeRegistrationProcessorBase
   {
     private readonly static Type objectType = typeof (object);
+    private const string providersNamespace = "Xtensive.Orm.Providers.";
 
     /// <inheritdoc/>
     public override Type BaseType
     {
       get { return objectType; }
+    }
+
+    protected override bool IsAcceptable(TypeRegistry registry, TypeRegistration registration, Type type)
+    {
+      // Disallow implicit (via assembly scan) registration of types in Orm.Providers namespace
+      return base.IsAcceptable(registry, registration, type)
+        && (registration.Type!=null || !type.FullName.StartsWith(providersNamespace));
     }
 
     /// <inheritdoc/>

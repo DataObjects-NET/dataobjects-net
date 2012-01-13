@@ -9,7 +9,8 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
-using SqlDomainHandler = Xtensive.Storage.Providers.Sql.DomainHandler;
+using Xtensive.Sql.Tests;
+using SqlDomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -46,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private static void EnsureSchemaExists(ConnectionInfo connectionInfo)
     {
-      var driver = SqlDriver.Create(connectionInfo);
+      var driver = TestSqlDriver.Create(connectionInfo);
       using (var connection = driver.CreateConnection()) {
         connection.Open();
         string checkSchemaQuery = string.Format("select schema_id('{0}')", SchemaName);

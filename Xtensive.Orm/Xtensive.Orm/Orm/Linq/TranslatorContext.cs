@@ -10,15 +10,14 @@ using System.Linq.Expressions;
 using Xtensive.Helpers;
 using Xtensive.Linq;
 using Xtensive.Parameters;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq

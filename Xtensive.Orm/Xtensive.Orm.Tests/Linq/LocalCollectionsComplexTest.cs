@@ -10,7 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.LocalCollectionsComplexTestModel;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Linq.LocalCollectionsComplexTestModel
 {

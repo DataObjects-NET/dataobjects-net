@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using System.Linq;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 
@@ -16,11 +16,6 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public sealed class TransactionModesTest : NorthwindDOModelTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     [Test]
     public void DefaultTransactionsTest()
     {

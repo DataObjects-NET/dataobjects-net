@@ -14,7 +14,7 @@ using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
 {
@@ -58,11 +58,6 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
     public bool registerBook = true;
     public bool registerPerson = true;
     public bool registerAuthor = false;
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
 
     protected override DomainConfiguration BuildConfiguration()
     {

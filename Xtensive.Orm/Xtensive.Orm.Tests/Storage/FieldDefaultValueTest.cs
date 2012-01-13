@@ -12,7 +12,7 @@ using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Storage.Tests.Storage.FieldDefaultValueModel;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
@@ -343,7 +343,6 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ValidateTest()
     {
-      Require.ProviderIs(StorageProvider.Sql);
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.Types.Register(typeof (X));

@@ -12,7 +12,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.PartialIndexTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.PartialIndexTestModel

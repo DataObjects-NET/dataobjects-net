@@ -10,7 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 
 namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
@@ -19,12 +19,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
   public class Issue0754_CopyFieldHint_MoveFieldHint
   {
     private Domain domain;
-
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
 
     [SetUp]
     public void SetUp()

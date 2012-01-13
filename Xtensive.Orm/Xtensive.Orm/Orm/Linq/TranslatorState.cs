@@ -9,7 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Disposing;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
 {

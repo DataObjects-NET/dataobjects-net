@@ -17,7 +17,7 @@ using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Storage.DisconnectedTests.Model;
 using Xtensive.Orm.Operations;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 #region Model
 

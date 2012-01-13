@@ -17,12 +17,6 @@ namespace Xtensive.Orm.Tests.Configuration
   [TestFixture]
   public class SessionInitializationTest
   {
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.ProviderIs(StorageProvider.Memory);
-    }
-
     [Test]
     public void TestSessionCache()
     {
@@ -32,11 +26,11 @@ namespace Xtensive.Orm.Tests.Configuration
       TestCacheType(configuration, typeof (LruCache<,>));
       // Lru CacheType
       configuration = DomainConfigurationFactory.Create();
-      configuration.Sessions.Add(new SessionConfiguration(Orm.WellKnown.Sessions.Default) {CacheType = SessionCacheType.LruWeak});
+      configuration.Sessions[WellKnown.Sessions.Default].CacheType = SessionCacheType.LruWeak;
       TestCacheType(configuration, typeof (LruCache<,>));
       // Infinite CacheType
       configuration = DomainConfigurationFactory.Create();
-      configuration.Sessions.Add(new SessionConfiguration(Orm.WellKnown.Sessions.Default) {CacheType = SessionCacheType.Infinite});
+      configuration.Sessions[WellKnown.Sessions.Default].CacheType = SessionCacheType.Infinite;
       TestCacheType(configuration, typeof (InfiniteCache<,>));
     }
 
@@ -55,7 +49,7 @@ namespace Xtensive.Orm.Tests.Configuration
     public void TestNamedConfigurations()
     {
       var config = DomainConfigurationFactory.Create();
-      AssertEx.ThrowsArgumentNullException(() => config.Sessions.Add(new SessionConfiguration()));
+      AssertEx.ThrowsInvalidOperationException(() => config.Sessions.Add(new SessionConfiguration()));
       config.Sessions.Add(new SessionConfiguration("SomeName"));
       AssertEx.ThrowsInvalidOperationException(() => config.Sessions.Add(new SessionConfiguration("SomeName")));
     }

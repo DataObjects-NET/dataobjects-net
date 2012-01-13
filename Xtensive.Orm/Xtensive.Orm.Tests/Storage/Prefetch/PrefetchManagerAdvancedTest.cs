@@ -16,8 +16,8 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
@@ -736,7 +736,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var cacheEntryType = typeof (Xtensive.Storage.Rse.Compilation.CompilationService)
+        var cacheEntryType = typeof (Orm.Rse.Compilation.CompilationService)
           .GetNestedType("CacheEntry", BindingFlags.NonPublic);
         var keyField = cacheEntryType.GetField("Key");
         var nameField = typeof (Person).GetTypeInfo(Domain).Fields["Name"];

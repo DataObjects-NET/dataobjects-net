@@ -19,12 +19,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [SetUp]
     public void SetUp()
     {

@@ -13,7 +13,7 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage.Randomized
 {
@@ -33,7 +33,6 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      isProtocolMemory = config.ConnectionInfo.Provider==WellKnown.Provider.Memory;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Tree).Assembly, typeof(Tree).Namespace);
       return config;
@@ -261,7 +260,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     {
       if (isSettingUp)
         return;
-      if (!isProtocolMemory && randomProvider.Next(0, 2) == 1)
+      if (randomProvider.Next(0, 2)==1)
         throw new InvalidOperationException();
       tx.Complete();
     }

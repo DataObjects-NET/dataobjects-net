@@ -20,12 +20,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [Test]
     public void NoneTest()
     {

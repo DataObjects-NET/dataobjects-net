@@ -134,12 +134,6 @@ namespace Xtensive.Orm.Tests.Storage.DisconnectedStateSideEffectsTest
       return domain;
     }
 
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [Test]
     public void FiltersTest()
     {

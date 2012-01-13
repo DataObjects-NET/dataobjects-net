@@ -23,23 +23,20 @@ namespace Xtensive.Core
 <#
 PushIndent("    ");
 foreach (var delegateType in DelegateGenerator.GetDelegateTypes())
-for (int total = 1; total <= DelegateGenerator.MaxNumberOfArguments; total++)
-for (int bound = 1; bound <= total; bound++) {
-  Write("/// <summary>Binds first ");
-  Write(bound.ToString());
-  WriteLine(" argument(s) to specified delegate.</summary>");
+for (int total = 1; total <= DelegateGenerator.MaxNumberOfArguments; total++) {
+  WriteLine("/// <summary>Binds first argument to specified delegate.</summary>");
   WriteLine("/// <returns> A delegate that takes the rest of arguments of original delegate.</returns>");
   Write("public static ");
-  Write(DelegateGenerator.GenerateDelegate(delegateType, null, bound + 1, total - bound));
+  Write(DelegateGenerator.GenerateDelegate(delegateType, null, 2, total - 1));
   Write(" Bind");
   Write(DelegateGenerator.GenerateDelegateArguments(delegateType, null, 1, total));
   var firstArgument = string.Format("this {0} d", DelegateGenerator.GenerateDelegate(delegateType, null, 1, total));
-  WriteLine(DelegateGenerator.GenerateArgumentDeclaration(firstArgument, 1, bound));
+  WriteLine(DelegateGenerator.GenerateArgumentDeclaration(firstArgument, 1, 1));
   WriteLine("{");
   PushIndent("  ");
   WriteLine("if (d==null) return null; // someone's dirty hack");
   Write("return ");
-  Write(DelegateGenerator.GenerateArgumentUsage(null, bound+1, total-bound));
+  Write(DelegateGenerator.GenerateArgumentUsage(null, 2, total-1));
   Write(" => d.Invoke");
   Write(DelegateGenerator.GenerateArgumentUsage(null, 1, total));
   WriteLine(";");

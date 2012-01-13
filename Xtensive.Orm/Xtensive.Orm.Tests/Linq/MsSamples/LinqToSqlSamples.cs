@@ -10,7 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Disposing;
 using Xtensive.Testing;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Orm.Linq;

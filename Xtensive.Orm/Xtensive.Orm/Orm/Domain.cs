@@ -13,19 +13,16 @@ using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Disposing;
 using Xtensive.IoC;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Threading;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Orm.Resources;
-using Xtensive.Storage.Rse.Providers.Executable;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
-using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Orm
 {
@@ -126,12 +123,12 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the storage schema.
     /// </summary>
-    internal StorageInfo Schema { get; set; }
+    internal StorageModel Schema { get; set; }
 
     /// <summary>
     /// Gets the extracted storage schema.
     /// </summary>
-    internal StorageInfo ExtractedSchema { get; set; }
+    internal StorageModel ExtractedSchema { get; set; }
 
     /// <summary>
     /// Gets the domain-level temporary data.

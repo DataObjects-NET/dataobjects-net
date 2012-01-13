@@ -10,8 +10,8 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql
@@ -29,11 +29,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
       return configuration;
-    }
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
     }
 
     [Test]

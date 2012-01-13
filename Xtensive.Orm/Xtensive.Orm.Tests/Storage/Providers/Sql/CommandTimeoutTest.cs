@@ -13,12 +13,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   [TestFixture]
   public class CommandTimeoutTest
   {
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     [Test]
     public void ConfigTest()
     {

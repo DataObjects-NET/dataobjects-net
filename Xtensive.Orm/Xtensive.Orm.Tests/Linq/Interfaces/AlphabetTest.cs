@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 using System.Linq;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Linq.Interfaces
 {

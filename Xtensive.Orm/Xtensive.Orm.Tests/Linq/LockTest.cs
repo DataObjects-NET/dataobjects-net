@@ -11,8 +11,8 @@ using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Testing;
-using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 
@@ -21,11 +21,6 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class LockTest : NorthwindDOModelTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     [Test]
     public void UpdateLockThrowTest()
     {

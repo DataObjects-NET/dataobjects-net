@@ -9,7 +9,7 @@ using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Testing;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests.Indexing
@@ -17,14 +17,14 @@ namespace Xtensive.Orm.Tests.Indexing
   [TestFixture]
   public class PrimaryIndexInfoTest
   {
-    private StorageInfo storage;
+    private StorageModel storage;
     private TableInfo table;
     private PrimaryIndexInfo index;
 
     [SetUp]
     public void CreateStorage()
     {
-      storage = new StorageInfo("s1");
+      storage = new StorageModel("s1");
       table = new TableInfo(storage, "table");
       index = new PrimaryIndexInfo(table, "i");
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void AddRemoveColumnsTest()
     {
-      var column = new ColumnInfo(table, "c");
+      var column = new StorageColumnInfo(table, "c");
       Assert.AreEqual(1, table.Columns.Count);
       column.Remove();
       Assert.AreEqual(0, table.Columns.Count);
@@ -50,14 +50,14 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void DenyAddColumnTest()
     {
-      var column = new ColumnInfo(table, "c");
-      AssertEx.Throws<ArgumentException>(() => new ColumnInfo(table, "c"));
+      var column = new StorageColumnInfo(table, "c");
+      AssertEx.Throws<ArgumentException>(() => new StorageColumnInfo(table, "c"));
     }
 
     [Test]
     public void AddRemoveKeyColumnRefs()
     {
-      var column = new ColumnInfo(table, "col1");
+      var column = new StorageColumnInfo(table, "col1");
       var colRef = new KeyColumnRef(index, column, Direction.Positive);
       Assert.AreEqual(1, index.KeyColumns.Count);
       colRef.Remove();
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void AddRemoveValueColumnRefs()
     {
-      var column = new ColumnInfo(table, "col1");
+      var column = new StorageColumnInfo(table, "col1");
       var colRef = new ValueColumnRef(index, column);
       Assert.AreEqual(1, index.ValueColumns.Count);
       colRef.Remove();
@@ -78,8 +78,8 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void ValidateEmptyKeys()
     {
-      new ColumnInfo(table, "c1", new TypeInfo(typeof(string), null));
-      new ColumnInfo(table, "c2", new TypeInfo(typeof(string), null));
+      new StorageColumnInfo(table, "c1", new StorageTypeInfo(typeof(string), null));
+      new StorageColumnInfo(table, "c2", new StorageTypeInfo(typeof(string), null));
 
       AssertEx.Throws<AggregateException>(index.Validate);
     }
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void ValidateNullableKeyColumns()
     {
-      var col = new ColumnInfo(table, "c2", new TypeInfo(typeof (string), true, null));
+      var col = new StorageColumnInfo(table, "c2", new StorageTypeInfo(typeof (string), true, null));
       new KeyColumnRef(index, col, Direction.Positive);
 
       AssertEx.Throws<AggregateException>(index.Validate);
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void ValidateDoubleColumnRefs()
     {
-      var column = new ColumnInfo(table, "c");
+      var column = new StorageColumnInfo(table, "c");
       new KeyColumnRef(index, column, Direction.Positive);
       new ValueColumnRef(index, column);
 
@@ -106,8 +106,8 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void ValidateNotReferencedColumns()
     {
-      new KeyColumnRef(index, new ColumnInfo(table, "key"), Direction.Positive);
-      new ColumnInfo(table, "col");
+      new KeyColumnRef(index, new StorageColumnInfo(table, "key"), Direction.Positive);
+      new StorageColumnInfo(table, "col");
 
       AssertEx.Throws<AggregateException>(index.Validate);
     }
@@ -115,8 +115,8 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void ValidateDoubleKeysAndValuesColumnRefs()
     {
-      var key = new ColumnInfo(table, "key");
-      var value = new ColumnInfo(table, "value");
+      var key = new StorageColumnInfo(table, "key");
+      var value = new StorageColumnInfo(table, "value");
       new KeyColumnRef(index, key, Direction.Positive);
       new KeyColumnRef(index, key, Direction.Negative);
       new ValueColumnRef(index, value);
@@ -129,8 +129,8 @@ namespace Xtensive.Orm.Tests.Indexing
     public void ValidateRefToColumnFromAnotherIndex()
     {
       var anoterTable = new TableInfo(storage, "t2");
-      var key = new ColumnInfo(anoterTable, "key");
-      var value = new ColumnInfo(anoterTable, "value");
+      var key = new StorageColumnInfo(anoterTable, "key");
+      var value = new StorageColumnInfo(anoterTable, "value");
       
       new KeyColumnRef(index, key, Direction.Positive);
       new ValueColumnRef(index, value);

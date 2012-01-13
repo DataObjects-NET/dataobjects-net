@@ -17,16 +17,10 @@ using Xtensive.Sorting;
 using Xtensive.Modelling;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Linq;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
-using ColumnInfo = Xtensive.Orm.Model.ColumnInfo;
-using FullTextIndexInfo = Xtensive.Orm.Model.FullTextIndexInfo;
-using IndexInfo = Xtensive.Orm.Model.IndexInfo;
-using IndexingModel = Xtensive.Storage.Model;
-using ReferentialAction = Xtensive.Storage.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
-using TypeInfo = Xtensive.Orm.Model.TypeInfo;
+using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -43,7 +37,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the storage info.
     /// </summary>
-    private StorageInfo storageInfo;
+    private StorageModel storageModel;
 
     /// <summary>
     /// Gets the currently converting model.
@@ -80,24 +74,24 @@ namespace Xtensive.Orm.Upgrade
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
-    /// <see cref="storageInfo"/>.
+    /// <see cref="storageModel"/>.
     /// </summary>
     /// <param name="domainModel">The domain model.</param>
     /// <returns>The storage model.</returns>
-    public IndexingModel.StorageInfo Convert(DomainModel domainModel)
+    public StorageModel Convert(DomainModel domainModel)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
 
-      storageInfo = new IndexingModel.StorageInfo();
+      storageModel = new StorageModel();
       model = domainModel;
       Visit(domainModel);
-      return storageInfo;
+      return storageModel;
     }
 
     /// <inheritdoc/>
-    protected override IPathNode Visit(Model.Node node)
+    protected override IPathNode Visit(Orm.Model.Node node)
     {
-      var indexInfo = node as Orm.Model.IndexInfo;
+      var indexInfo = node as IndexInfo;
       if (indexInfo!=null && indexInfo.IsPrimary)
         return VisitPrimaryIndexInfo(indexInfo);
 
@@ -127,7 +121,7 @@ namespace Xtensive.Orm.Upgrade
         Visit(keyInfo);
 
       if (!buildHierarchyForeignKeys || !providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints))
-        return storageInfo;
+        return storageModel;
 
       // Build hierarchy foreign keys
       var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
@@ -153,8 +147,8 @@ namespace Xtensive.Orm.Upgrade
       foreach (var indexPair in indexPairs.Keys) {
         var referencedIndex = indexPair.First;
         var referencingIndex = indexPair.Second;
-        var referencingTable = storageInfo.Tables[referencingIndex.ReflectedType.MappingName];
-        var referencedTable = storageInfo.Tables[referencedIndex.ReflectedType.MappingName];
+        var referencingTable = storageModel.Tables[referencingIndex.ReflectedType.MappingName];
+        var referencedTable = storageModel.Tables[referencedIndex.ReflectedType.MappingName];
         var storageReferencingIndex = FindIndex(referencingTable,
           new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
 
@@ -162,21 +156,21 @@ namespace Xtensive.Orm.Upgrade
         CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
       }
 
-      return storageInfo;
+      return storageModel;
     }
 
     /// <inheritdoc/>
     protected IPathNode VisitIndexInfo(IndexInfo primaryIndex, IndexInfo index)
     {
-      IndexingModel.TableInfo table = currentTable;
+      TableInfo table = currentTable;
       var secondaryIndex = storageModelBuilder.CreateSecondaryIndex(table, index.MappingName, index);
       secondaryIndex.IsUnique = index.IsUnique;
       var isClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
       secondaryIndex.IsClustered = isClustered;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
-        IndexingModel.ColumnInfo column = table.Columns[columName];
-        new IndexingModel.KeyColumnRef(secondaryIndex, column,
+        StorageColumnInfo column = table.Columns[columName];
+        new KeyColumnRef(secondaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
@@ -188,8 +182,8 @@ namespace Xtensive.Orm.Upgrade
       if (providerInfo.Supports(ProviderFeatures.IncludedColumns) && !isClustered) {
         foreach (var includedColumn in index.IncludedColumns) {
           string columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
-          IndexingModel.ColumnInfo column = table.Columns[columName];
-          new IndexingModel.IncludedColumnRef(secondaryIndex, column);
+          StorageColumnInfo column = table.Columns[columName];
+          new IncludedColumnRef(secondaryIndex, column);
         }
       }
       secondaryIndex.PopulatePrimaryKeyColumns();
@@ -202,12 +196,12 @@ namespace Xtensive.Orm.Upgrade
       var nonNullableType = column.ValueType;
       var nullableType    = ToNullable(nonNullableType, column.IsNullable);
 
-      var typeInfoPrototype = new IndexingModel.TypeInfo(nullableType, column.IsNullable, 
+      var typeInfoPrototype = new StorageTypeInfo(nullableType, column.IsNullable, 
         column.Length, column.Scale, column.Precision, null);
       var nativeTypeInfo = storageModelBuilder.CreateType(nonNullableType, column.Length, column.Precision, column.Scale);
 
       // We need the same type as in SQL database here (i.e. the same as native)
-      var typeInfo = new IndexingModel.TypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
+      var typeInfo = new StorageTypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
         nativeTypeInfo.Length, nativeTypeInfo.Scale, nativeTypeInfo.Precision, nativeTypeInfo.NativeType);
 
       var defaultValue = GetColumnDefaultValue(column, typeInfo);
@@ -219,7 +213,7 @@ namespace Xtensive.Orm.Upgrade
         }
       }
 
-      return new IndexingModel.ColumnInfo(currentTable, column.Name, typeInfo) {
+      return new StorageColumnInfo(currentTable, column.Name, typeInfo) {
         DefaultValue = defaultValue
       };
     }
@@ -261,7 +255,7 @@ namespace Xtensive.Orm.Upgrade
       long increment = 1;
       if (providerInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement) || providerInfo.Supports(ProviderFeatures.Sequences))
         increment = sequenceInfo.Increment;
-      var sequence = new IndexingModel.SequenceInfo(storageInfo, sequenceInfo.MappingName) {
+      var sequence = new StorageSequenceInfo(storageModel, sequenceInfo.MappingName) {
         Seed = sequenceInfo.Seed,
         Increment = increment,
         Type = storageModelBuilder.CreateType(keyInfo.TupleDescriptor[0], null, null, null),
@@ -271,7 +265,7 @@ namespace Xtensive.Orm.Upgrade
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Thrown always by this method.</exception>
-    protected override IPathNode VisitSequenceInfo(Model.SequenceInfo info)
+    protected override IPathNode VisitSequenceInfo(Orm.Model.SequenceInfo info)
     {
       throw new NotSupportedException();
     }
@@ -281,13 +275,13 @@ namespace Xtensive.Orm.Upgrade
     {
       var table = GetTable(fullTextIndex.PrimaryIndex.ReflectedType);
       var primaryIndex = table.PrimaryIndex;
-      var ftIndex = new IndexingModel.FullTextIndexInfo(table, fullTextIndex.Name);
+      var ftIndex = new StorageFullTextIndexInfo(table, fullTextIndex.Name);
       foreach (var fullTextColumn in fullTextIndex.Columns) {
         var column = table.Columns[fullTextColumn.Name];
         var typeColumn = fullTextColumn.TypeColumn == null
           ? null
           : primaryIndex.ValueColumns[fullTextColumn.TypeColumn.Name];
-        var ftColumn = new IndexingModel.FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
+        var ftColumn = new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       return ftIndex;
     }
@@ -300,7 +294,7 @@ namespace Xtensive.Orm.Upgrade
     private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
       var tableName = index.ReflectedType.MappingName;
-      currentTable = new IndexingModel.TableInfo(storageInfo, tableName);
+      currentTable = new TableInfo(storageModel, tableName);
       foreach (var column in index.Columns)
         Visit(column);
 
@@ -309,11 +303,11 @@ namespace Xtensive.Orm.Upgrade
       if (string.IsNullOrEmpty(name))
         name = index.MappingName;
 
-      var primaryIndex = new IndexingModel.PrimaryIndexInfo(currentTable, name);
+      var primaryIndex = new PrimaryIndexInfo(currentTable, name);
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         string columName = GetPrimaryIndexColumnName(index, pair.Key, index);
         var column = currentTable.Columns[columName];
-        new IndexingModel.KeyColumnRef(primaryIndex, column,
+        new KeyColumnRef(primaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
@@ -369,7 +363,7 @@ namespace Xtensive.Orm.Upgrade
 
     #region Helper methods
 
-    private object GetColumnDefaultValue(ColumnInfo column, IndexingModel.TypeInfo typeInfo)
+    private object GetColumnDefaultValue(ColumnInfo column, StorageTypeInfo typeInfo)
     {
       if (column.DefaultValue!=null)
         return column.DefaultValue;
@@ -399,7 +393,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private static IndexingModel.IndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
+    private static StorageIndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
     {
       IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
       if (primaryKeyColumns.Except(keyColumns)
@@ -444,10 +438,10 @@ namespace Xtensive.Orm.Upgrade
     private TableInfo GetTable(TypeInfo type)
     {
       if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
-        return storageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
+        return storageModel.Tables.FirstOrDefault(table => table.Name==type.MappingName);
       if (type.IsInterface)
         return null;
-      return storageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
+      return storageModel.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
     }
 
     private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
@@ -474,7 +468,7 @@ namespace Xtensive.Orm.Upgrade
         new ForeignKeyColumnRef(foreignKey, foreignColumn);
     }
 
-    private static void CreateHierarchyForeignKey(TableInfo referencingTable, TableInfo referencedTable, IndexingModel.IndexInfo referencingIndex, string foreignKeyName)
+    private static void CreateHierarchyForeignKey(TableInfo referencingTable, TableInfo referencedTable, StorageIndexInfo referencingIndex, string foreignKeyName)
     {
       var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
       {

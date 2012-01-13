@@ -10,18 +10,13 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.TransactionsTestModel;
 
 namespace Xtensive.Orm.Tests.Storage
 {
   public class NestedTransactionsTest : AutoBuildTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();

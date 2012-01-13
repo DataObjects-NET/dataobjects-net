@@ -563,8 +563,6 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void OneToZero()
     {
-      Require.ProviderIs(StorageProvider.Sql);
-
       using (var session = Domain.OpenSession()) {
         A a;
         B b;

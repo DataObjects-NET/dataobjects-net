@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0647_WrongLinqQuery_Model;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Issues
 {

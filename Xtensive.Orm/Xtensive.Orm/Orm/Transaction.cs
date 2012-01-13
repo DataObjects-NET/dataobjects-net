@@ -11,8 +11,7 @@ using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Validation;
-using Xtensive.Storage.Rse.Providers.Executable;
-using Xtensive.Transactions;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm
 {

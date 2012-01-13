@@ -13,7 +13,7 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Resources;
 using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Upgrade
       return current;
     }
 
-    private static void BuildSchemaHints(StorageInfo extractedSchema, StorageInfo targetSchema)
+    private static void BuildSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
     {
       var context = UpgradeContext.Demand();
       var oldModel = context.ExtractedDomainModel;

@@ -17,7 +17,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Resources;
 using Xtensive.Reflection;
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Upgrade
     public TransactionScope TransactionScope { get; set; }
 
     internal object      NativeExtractedSchemaCache { get; set; }
-    internal StorageInfo ExtractedSchemaCache { get; set; }
+    internal StorageModel ExtractedSchemaCache { get; set; }
 
     #region IContext<...> methods
 

@@ -25,12 +25,6 @@ namespace Xtensive.Storage.Orm.Upgrade
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Memory);
-    }
-
     [SetUp]
     public void SetUp()
     {

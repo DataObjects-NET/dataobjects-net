@@ -12,7 +12,7 @@ using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Providers;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests
 {

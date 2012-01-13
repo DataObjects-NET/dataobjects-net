@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
 {

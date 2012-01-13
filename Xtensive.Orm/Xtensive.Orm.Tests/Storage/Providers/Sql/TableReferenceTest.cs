@@ -13,7 +13,8 @@ using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Providers.Sql;
+using Xtensive.Sql.Tests;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel
@@ -146,11 +147,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql {
   {
     private Schema existingSchema;
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Sql);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -163,7 +159,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql {
       var domain = base.BuildDomain(configuration);
       // Get current SQL model
 
-      var driver = SqlDriver.Create(domain.Configuration.ConnectionInfo);
+      var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
       using (var connection = driver.CreateConnection()) {
         connection.Open();
         try {
