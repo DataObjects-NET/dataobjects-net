@@ -35,7 +35,8 @@ namespace Xtensive.Orm.Tests.Storage
         return isSessionActive ? session : null;
       };
 
-      Assert.AreNotEqual(session, Session.Current);
+      Assert.IsNull(Session.Current);
+
       Assert.AreEqual(1, resolveCount);
       Assert.IsFalse(session.IsActive);
       Assert.AreEqual(2, resolveCount);

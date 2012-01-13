@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Manual.Intro.HelloWorld
     public void MainTest()
     {
       // Creatign new Domain configuration
-      var config = new DomainConfiguration("memory://localhost/DO40-Tests") {
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
         UpgradeMode = DomainUpgradeMode.Recreate
       };
       // Modifying it by registering the persistent types
