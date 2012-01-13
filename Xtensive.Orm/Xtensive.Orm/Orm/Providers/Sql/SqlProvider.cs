@@ -14,7 +14,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 using System;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers.Sql
     protected DomainHandler DomainHandler { get { return (DomainHandler) handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    public override IEnumerable<Tuple> OnEnumerate(Storage.Rse.Providers.EnumerationContext context)
+    public override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var sessionContext = (EnumerationContext) context;
       var sessionHandler = sessionContext.SessionHandler;

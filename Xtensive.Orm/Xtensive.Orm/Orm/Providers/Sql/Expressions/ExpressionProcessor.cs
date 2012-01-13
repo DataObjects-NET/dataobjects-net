@@ -16,10 +16,10 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Helpers;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.Helpers;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers.Sql.Expressions
 {

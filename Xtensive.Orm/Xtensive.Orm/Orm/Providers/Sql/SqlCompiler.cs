@@ -15,10 +15,10 @@ using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -334,7 +334,7 @@ namespace Xtensive.Orm.Providers.Sql
       var source =
         provider.Source as ExecutableProvider
           ?? (provider.Source is RawProvider
-            ? (ExecutableProvider) (new Storage.Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
+            ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
             : Compile((CompilableProvider) provider.Source));
       if (provider.Scope!=TemporaryDataScope.Enumeration)
         throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, provider.Scope));

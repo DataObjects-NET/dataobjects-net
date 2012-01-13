@@ -5,7 +5,7 @@
 // Created:    2009.08.04
 
 using Xtensive.Sql.Drivers.Oracle;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.Oracle
 {

@@ -7,10 +7,10 @@
 using System;
 using Xtensive.Tuples;
 using Xtensive.Orm.Providers;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Internals
 {

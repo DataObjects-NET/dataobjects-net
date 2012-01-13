@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Metadata;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using Type=System.Type;
 using System.Linq;
 using Xtensive.Reflection;

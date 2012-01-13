@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Orm;

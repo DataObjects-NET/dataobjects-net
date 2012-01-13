@@ -9,9 +9,9 @@ using System.Linq;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.Firebird
 {

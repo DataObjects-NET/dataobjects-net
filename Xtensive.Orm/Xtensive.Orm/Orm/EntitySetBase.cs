@@ -28,7 +28,7 @@ using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Validation;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using OperationType = Xtensive.Orm.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;

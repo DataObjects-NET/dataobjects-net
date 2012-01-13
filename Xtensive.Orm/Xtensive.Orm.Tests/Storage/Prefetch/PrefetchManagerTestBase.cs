@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         BindingFlags.NonPublic | BindingFlags.Instance);
       PrefetchProcessorField = typeof (SessionHandler).GetField("prefetchManager",
         BindingFlags.NonPublic | BindingFlags.Instance);
-      CompilationContextCacheField = typeof (Xtensive.Storage.Rse.Compilation.CompilationService)
+      CompilationContextCacheField = typeof (Orm.Rse.Compilation.CompilationService)
         .GetField("cache", BindingFlags.NonPublic | BindingFlags.Instance);
       PrefetchTestHelper.FillDataBase(Domain);
     }

@@ -13,8 +13,8 @@ using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql;
 using Xtensive.Orm.Providers.Sql.Resources;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {

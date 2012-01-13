@@ -12,7 +12,7 @@ using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Testing;
 using Xtensive.Orm.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 

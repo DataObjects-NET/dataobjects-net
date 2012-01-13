@@ -16,7 +16,7 @@ using Xtensive.Orm.Linq.Materialization;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Internals

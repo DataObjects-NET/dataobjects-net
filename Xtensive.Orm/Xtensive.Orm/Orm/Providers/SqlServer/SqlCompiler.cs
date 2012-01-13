@@ -9,8 +9,8 @@ using Xtensive.Collections;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using System.Linq;
 
 namespace Xtensive.Orm.Providers.SqlServer

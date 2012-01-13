@@ -12,7 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq

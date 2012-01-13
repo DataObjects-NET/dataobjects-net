@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using System.Collections.Generic;
 
 namespace Xtensive.Orm.Providers.Sql

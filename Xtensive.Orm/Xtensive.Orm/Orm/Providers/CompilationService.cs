@@ -5,14 +5,14 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
-  /// An implementation of <see cref="Storage.Rse.Compilation.CompilationService"/> suitable for storage.
+  /// An implementation of <see cref="Xtensive.Orm.Rse.Compilation.CompilationService"/> suitable for storage.
   /// </summary>
-  public sealed class CompilationService : Storage.Rse.Compilation.CompilationService
+  public sealed class CompilationService : Rse.Compilation.CompilationService
   {
     // Constructors
 

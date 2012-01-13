@@ -22,7 +22,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Resources;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 

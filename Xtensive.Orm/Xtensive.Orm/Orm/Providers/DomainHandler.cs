@@ -17,7 +17,7 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Resources;
 using Xtensive.Sorting;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Storage.Services;
 
 namespace Xtensive.Orm.Providers
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Providers
     public ProviderInfo ProviderInfo { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="Storage.Rse.Compilation.CompilationService"/>
+    /// Gets the <see cref="Xtensive.Orm.Rse.Compilation.CompilationService"/>
     /// associated with the domain.
     /// </summary>
     public CompilationService CompilationService { get; private set; }

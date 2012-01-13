@@ -5,7 +5,7 @@
 // Created:    2008.07.04
 
 using Xtensive.Sql.Drivers.SqlServer;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.SqlServer
 {

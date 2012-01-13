@@ -24,8 +24,8 @@ using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using FieldInfo = System.Reflection.FieldInfo;
 using Xtensive.Orm.Linq;
 

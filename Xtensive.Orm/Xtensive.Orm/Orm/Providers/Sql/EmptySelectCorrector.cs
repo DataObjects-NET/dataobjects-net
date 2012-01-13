@@ -2,8 +2,8 @@
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.Providers;
 using System.Collections.Generic;
 
 namespace Xtensive.Orm.Providers.Sql

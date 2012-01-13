@@ -15,7 +15,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Internals.Prefetch

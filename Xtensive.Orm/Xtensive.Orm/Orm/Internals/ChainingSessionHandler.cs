@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Internals
     }
 
     /// <inheritdoc/>
-    public override Storage.Rse.Providers.EnumerationContext CreateEnumerationContext()
+    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       return ChainedHandler.CreateEnumerationContext();
     }

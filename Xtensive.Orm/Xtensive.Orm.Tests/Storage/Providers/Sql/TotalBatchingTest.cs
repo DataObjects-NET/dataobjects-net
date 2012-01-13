@@ -11,7 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql

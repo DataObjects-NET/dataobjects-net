@@ -19,12 +19,12 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.PreCompilation;
-using Xtensive.Storage.Rse.PreCompilation.Correction;
-using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
-using Xtensive.Storage.Rse.PreCompilation.Optimization;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.PreCompilation;
+using Xtensive.Orm.Rse.PreCompilation.Correction;
+using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;
+using Xtensive.Orm.Rse.PreCompilation.Optimization;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Providers.Sql

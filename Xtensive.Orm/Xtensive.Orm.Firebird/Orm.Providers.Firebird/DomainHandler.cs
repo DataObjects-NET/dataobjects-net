@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Sql.Drivers.Firebird;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.Firebird
 {

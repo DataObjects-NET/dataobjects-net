@@ -16,8 +16,8 @@ using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {

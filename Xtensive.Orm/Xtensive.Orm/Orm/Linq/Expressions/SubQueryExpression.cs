@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Linq.Expressions

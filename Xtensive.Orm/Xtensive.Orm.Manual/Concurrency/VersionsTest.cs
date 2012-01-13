@@ -14,7 +14,7 @@ using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Manual.Concurrency.Versions

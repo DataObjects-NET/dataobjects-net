@@ -7,7 +7,7 @@ using Xtensive.Testing;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.Performance.CrudModel;
 
 namespace Xtensive.Orm.Tests.Storage.Performance

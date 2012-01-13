@@ -24,7 +24,7 @@ using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Resources;
-using EnumerationContext=Xtensive.Storage.Rse.Providers.EnumerationContext;
+using EnumerationContext=Xtensive.Orm.Rse.Providers.EnumerationContext;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Xtensive.Orm

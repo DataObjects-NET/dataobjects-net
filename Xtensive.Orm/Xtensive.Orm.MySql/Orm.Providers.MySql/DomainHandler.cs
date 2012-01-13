@@ -5,7 +5,7 @@
 // Created:    2011.03.25
 
 using Xtensive.Sql.Drivers.MySql;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.MySql
 {

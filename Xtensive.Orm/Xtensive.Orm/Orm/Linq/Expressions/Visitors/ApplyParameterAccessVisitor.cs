@@ -8,8 +8,8 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Linq;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Helpers;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Helpers;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors

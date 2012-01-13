@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {

@@ -5,8 +5,8 @@
 // Created:    2008.08.14
 
 using Xtensive.Orm.Model;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm
 {

@@ -12,7 +12,7 @@ using Xtensive.Core;
 using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Xtensive.Orm.Providers;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Internals.Prefetch;

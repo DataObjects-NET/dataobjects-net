@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 using System.Linq;
 
 namespace Xtensive.Orm.Internals

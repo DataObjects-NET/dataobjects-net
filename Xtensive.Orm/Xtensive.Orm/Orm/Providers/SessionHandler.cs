@@ -17,7 +17,7 @@ using Xtensive.Parameters;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
     /// Creates enumeration context.
     /// </summary>
     /// <returns>Created context.</returns>
-    public virtual Storage.Rse.Providers.EnumerationContext CreateEnumerationContext()
+    public virtual Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       return new EnumerationContext(this, GetEnumerationContextOptions());
     }

@@ -12,9 +12,9 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers.Sql
     private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
 
     /// <inheritdoc/>
-    public override void OnBeforeEnumerate(Storage.Rse.Providers.EnumerationContext context)
+    public override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       switch (Origin.Algorithm) {
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void OnAfterEnumerate(Storage.Rse.Providers.EnumerationContext context)
+    public override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
       base.OnAfterEnumerate(context);

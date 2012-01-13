@@ -9,7 +9,7 @@ using Xtensive.Core;
 using System.Collections.Generic;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     protected readonly TemporaryTableDescriptor tableDescriptor;
     
-    protected void LockAndStore(Storage.Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
+    protected void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
     {
       var storageContext = (EnumerationContext)context;
       var tableLock = DomainHandler.TemporaryTableManager.Acquire(storageContext, tableDescriptor);
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Providers.Sql
       executor.Store(tableDescriptor, data);
     }
 
-    protected bool ClearAndUnlock(Storage.Rse.Providers.EnumerationContext context)
+    protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)
     {
       var tableLock = context.GetValue<IDisposable>(this, TemporaryTableLockName);
       if (tableLock==null)

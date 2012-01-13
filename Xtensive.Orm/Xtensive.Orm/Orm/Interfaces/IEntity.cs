@@ -8,7 +8,7 @@ using System.ComponentModel;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
-using Xtensive.Storage.Rse;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm
 {

@@ -11,15 +11,15 @@ using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm;
 using Xtensive.Orm.Linq.Materialization;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
-  /// An implementation of <see cref="Storage.Rse.Providers.EnumerationContext"/> 
+  /// An implementation of <see cref="Xtensive.Orm.Rse.Providers.EnumerationContext"/> 
   /// suitable for storage.
   /// </summary>
-  public sealed class EnumerationContext : Storage.Rse.Providers.EnumerationContext
+  public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
     private readonly EnumerationContextOptions options;
 
@@ -93,13 +93,13 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override Storage.Rse.Providers.EnumerationContext CreateNew()
+    public override Rse.Providers.EnumerationContext CreateNew()
     {
       return new EnumerationContext(SessionHandler, options);
     }
 
     /// <inheritdoc/>
-    protected override Storage.Rse.Providers.EnumerationScope CreateActiveScope()
+    protected override Rse.Providers.EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);
     }
