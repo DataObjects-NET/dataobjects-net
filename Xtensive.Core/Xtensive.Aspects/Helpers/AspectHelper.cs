@@ -304,25 +304,5 @@ namespace Xtensive.Aspects.Helpers
         method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null ||
         method.DeclaringType.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritNone)!=null;
     }
-
-    /// <summary>
-    /// Determines whether the specified method should not activate contexts with specified type.
-    /// </summary>
-    /// <param name="method">The method to check.</param>
-    /// <param name="contextType">Type of the context.</param>
-    /// <returns>
-    ///   <see langword="true"/> if the specified method should suppress context activation; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool ContextActivationIsSuppressed(MethodBase method, Type contextType)
-    {
-      var attributes = method
-        .GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.Default)
-        .Concat(method.DeclaringType.GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.InheritNone))
-        .ToList();
-      if (attributes.Count == 0)
-        return false;
-      return attributes
-        .Any(attribute => attribute.ContextType==contextType);
-    }
   }
 }

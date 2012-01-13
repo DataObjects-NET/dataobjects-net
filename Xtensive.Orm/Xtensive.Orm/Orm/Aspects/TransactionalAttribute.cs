@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Transactions;
@@ -68,7 +69,7 @@ namespace Xtensive.Orm
     {
       var canActivate = typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) 
         && !method.IsStatic
-        && !AspectHelper.ContextActivationIsSuppressed(method, typeof(Session));
+        && !ContextActivationIsSuppressed(method, typeof(Session));
       if (!canActivate) 
         ActivateSession = false;
       if (Mode == TransactionalBehavior.Suppress) 
@@ -133,6 +134,18 @@ namespace Xtensive.Orm
     {
       var disposable = (IDisposable) args.MethodExecutionTag;
       disposable.DisposeSafely();
+    }
+
+    private static bool ContextActivationIsSuppressed(MethodBase method, Type contextType)
+    {
+      var attributes = method
+        .GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.Default)
+        .Concat(method.DeclaringType.GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.InheritNone))
+        .ToList();
+      if (attributes.Count == 0)
+        return false;
+      return attributes
+        .Any(attribute => attribute.ContextType == contextType);
     }
 
 
