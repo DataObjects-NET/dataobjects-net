@@ -5,6 +5,7 @@
 // Created:    2009.07.20
 
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage
@@ -22,6 +23,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void Tests()
     {
       var config = DomainConfigurationFactory.Create();
+      config.Sessions[WellKnown.Sessions.Default].Options = SessionOptions.ServerProfile;
       var domain = Domain.Build(config);
       var session = domain.OpenSession();
 
@@ -44,37 +46,15 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.AreEqual(3, resolveCount);
       Assert.IsTrue(session.IsActive);
       Assert.AreEqual(4, resolveCount);
-      Assert.AreEqual(5, resolveCount);
 
       isSessionActive = false;
 
       using (session.Activate()) {
-
         Assert.AreEqual(session, Session.Current);
         Assert.IsTrue(session.IsActive);
-
-        isSessionActive = true;
-
-        Assert.AreEqual(session, Session.Current);
-        Assert.IsTrue(session.IsActive);
-        session.Activate();
       }
 
-      isSessionActive = false;
-
-      using (session.Activate()) {
-
-        Assert.AreEqual(session, Session.Current);
-        Assert.IsTrue(session.IsActive);
-
-        isSessionActive = true;
-
-        Assert.AreEqual(session, Session.Current);
-        Assert.IsTrue(session.IsActive);
-        session.Activate();
-      }
-
-      Assert.AreEqual(5, resolveCount);
+      Assert.AreEqual(4, resolveCount);
     }
   }
 }
