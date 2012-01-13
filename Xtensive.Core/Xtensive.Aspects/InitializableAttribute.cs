@@ -14,8 +14,6 @@ using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Aspects.Helpers;
-using Xtensive.Collections;
-using Xtensive.Reflection;
 
 namespace Xtensive.Aspects
 {

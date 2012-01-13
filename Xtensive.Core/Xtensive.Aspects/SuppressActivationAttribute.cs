@@ -5,7 +5,6 @@
 // Created:    2008.07.02
 
 using System;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Aspects
 {
@@ -29,7 +28,7 @@ namespace Xtensive.Aspects
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of the <see cref="SuppressActivationAttribute"/> class.
     /// </summary>
     /// <param name="contextType">Type of the context to suppress activation for.</param>
     public SuppressActivationAttribute(Type contextType)

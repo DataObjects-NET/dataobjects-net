@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Aspects
 {
@@ -24,7 +23,7 @@ namespace Xtensive.Aspects
 
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="OverrideFieldNameAttribute"/> class.
     /// </summary>
     public OverrideFieldNameAttribute(string name)
     {

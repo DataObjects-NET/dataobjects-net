@@ -9,7 +9,6 @@ using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Aspects
 {
@@ -46,7 +45,7 @@ namespace Xtensive.Aspects
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="ImplementFactoryMethod"/> class.
     /// </summary>
     /// <param name="parameterTypes"><see cref="ParameterTypes"/> property value.</param>
     public ImplementFactoryMethod(params Type[] parameterTypes)

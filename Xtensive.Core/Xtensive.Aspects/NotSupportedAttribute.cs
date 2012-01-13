@@ -8,7 +8,6 @@ using System;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Aspects
 {
@@ -24,13 +23,13 @@ namespace Xtensive.Aspects
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="NotSupportedAttribute"/> class.
     /// </summary>
     public NotSupportedAttribute()
     {}
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="NotSupportedAttribute"/> class.
     /// </summary>
     public NotSupportedAttribute(string text)
     {

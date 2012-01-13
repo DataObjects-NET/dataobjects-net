@@ -14,8 +14,6 @@ using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Aspects.Helpers;
 using Xtensive.Aspects.Resources;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Reflection;
 using System.Linq;
 
 namespace Xtensive.Aspects
@@ -63,12 +61,10 @@ namespace Xtensive.Aspects
         return false;
       }
 
-      var compilerGeneratedAttribute = accessorInfo
-        .GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.Default);
-      var debuggerNonUserCodeAttribute = accessorInfo
-        .GetAttribute<DebuggerNonUserCodeAttribute>(AttributeSearchOptions.Default);
+      var isCompilerGenerated = accessorInfo.IsDefined<CompilerGeneratedAttribute>();
+      var isDebuggerNonUserCode = accessorInfo.IsDefined<DebuggerNonUserCodeAttribute>();
 
-      var result = compilerGeneratedAttribute != null || debuggerNonUserCodeAttribute != null;
+      var result = isCompilerGenerated || isDebuggerNonUserCode;
       if (!result) {
         // Validation fo VB
         var property = method.ReflectedType.FindMembers(MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic,
@@ -86,7 +82,7 @@ namespace Xtensive.Aspects
           var field = method.ReflectedType.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, Type.FilterName, string.Format("_{0}", property.Name))
             .SingleOrDefault();
           if (field != null)
-            result = field.GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.Default) != null;
+            result = field.IsDefined<CompilerGeneratedAttribute>();
         }
       }
       return result;
@@ -96,7 +92,7 @@ namespace Xtensive.Aspects
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="ReplaceAutoProperty"/> class.
     /// </summary>
     /// <param name="handlerMethodSuffix"><see cref="HandlerMethodSuffix"/> property value.</param>
     public ReplaceAutoProperty(string handlerMethodSuffix)

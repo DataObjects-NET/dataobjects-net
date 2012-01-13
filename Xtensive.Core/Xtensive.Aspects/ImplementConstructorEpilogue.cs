@@ -12,8 +12,6 @@ using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Aspects.Helpers;
-using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Aspects
 {
@@ -107,7 +105,7 @@ namespace Xtensive.Aspects
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="ImplementConstructorEpilogue"/> class.
     /// </summary>
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
@@ -117,7 +115,7 @@ namespace Xtensive.Aspects
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="ImplementConstructorEpilogue"/> class.
     /// </summary>
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>

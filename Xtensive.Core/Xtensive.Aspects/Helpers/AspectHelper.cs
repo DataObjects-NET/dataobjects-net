@@ -10,8 +10,6 @@ using System.Linq;
 using System.Reflection;
 using PostSharp.Extensibility;
 using Xtensive.Aspects.Resources;
-using Xtensive.Reflection;
-using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
 
 namespace Xtensive.Aspects.Helpers
 {
@@ -44,9 +42,8 @@ namespace Xtensive.Aspects.Helpers
     public static string FormatType(Type type)
     {
       if (type==null)
-        return String.Empty;
-      else
-        return type.GetShortName();
+        return string.Empty;
+      return type.FullName; // TODO: return less verbose name
     }
 
     /// <summary>
@@ -313,8 +310,20 @@ namespace Xtensive.Aspects.Helpers
     public static bool IsInfrastructureMethod(MethodBase method)
     {
       return 
-        method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null ||
-        method.DeclaringType.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritNone)!=null;
+        method.IsDefinedOrInherited<InfrastructureAttribute>() ||
+        method.DeclaringType.IsDefined<InfrastructureAttribute>();
+    }
+
+    public static bool IsDefined<TAttribute>(this MemberInfo member)
+      where TAttribute : Attribute
+    {
+      return member.IsDefined(typeof (TAttribute), false);
+    }
+
+    public static bool IsDefinedOrInherited<TAttribute>(this MemberInfo member)
+      where TAttribute : Attribute
+    {
+      return member.IsDefined(typeof (TAttribute), true);
     }
   }
 }
