@@ -124,10 +124,7 @@ namespace Xtensive.Aspects.Weaver
                          targetMethod.IsNew &&
                          targetMethod.IsVirtual &&
                          targetMethod.Visibility == Visibility.Private;
-        var propertyFilter = isGetter
-          ? (Func<MethodDefDeclaration, PropertyDeclaration, bool>)((m, p) => p.Getter == m)
-          : (m, p) => p.Setter == m;
-        var condition = propertyFilter.Bind(targetMethod);
+        var condition = MakePropertyFilter(targetMethod, isGetter);
         var targetProperty = targetType.Properties.Single(condition);
         var propertyName = targetProperty.Name;
         var isNew = false;
@@ -142,7 +139,7 @@ namespace Xtensive.Aspects.Weaver
         if (isExplicit) {
           var interfaceMethod = (MethodDefDeclaration)targetMethod.InterfaceImplementations.Single().ImplementedMethod;
           var interfaceType = interfaceMethod.DeclaringType;
-          var interfaceCondition = propertyFilter.Bind(interfaceMethod);
+          var interfaceCondition = MakePropertyFilter(interfaceMethod, isGetter);
           var interfaceProperty = interfaceType.Properties.Single(interfaceCondition);
           propertyName = string.Format("{0}.{1}", interfaceType.ShortName, interfaceProperty.Name);
         }
@@ -236,6 +233,13 @@ namespace Xtensive.Aspects.Weaver
       public override MethodBodyTransformationOptions GetOptions(MetadataDeclaration originalTargetElement, MethodSemantics semantic)
       {
         return MethodBodyTransformationOptions.CreateMethodBody;
+      }
+
+      private static Func<PropertyDeclaration, bool> MakePropertyFilter(MethodDefDeclaration accessor, bool isGetter)
+      {
+        if (isGetter)
+          return property => property.Getter==accessor;
+        return property => property.Setter==accessor;
       }
 
 
