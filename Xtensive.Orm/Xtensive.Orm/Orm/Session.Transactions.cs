@@ -13,7 +13,6 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Resources;
-using Xtensive.Transactions;
 using SD=System.Data;
 
 namespace Xtensive.Orm

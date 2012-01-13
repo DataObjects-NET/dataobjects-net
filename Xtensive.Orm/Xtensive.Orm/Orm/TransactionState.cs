@@ -6,10 +6,10 @@
 
 using System;
 
-namespace Xtensive.Transactions
+namespace Xtensive.Orm
 {
   /// <summary>
-  /// Indicates operational state of the <see cref="TransactionBase"/> instance.
+  /// Indicates operational state of the <see cref="Transaction"/> instance.
   /// </summary>
   [Serializable]
   public enum TransactionState
@@ -44,7 +44,7 @@ namespace Xtensive.Transactions
     /// </summary>
     Committed = 8+1,
     /// <summary>
-    /// The transaction has started <see cref="TransactionBase.Commit"/> method but still running.
+    /// The transaction has started <see cref="Transaction.Commit"/> method but still running.
     /// </summary>
     Committing = 8+6,
     
@@ -54,7 +54,7 @@ namespace Xtensive.Transactions
     RolledBack = 16+1,
 
     /// <summary>
-    /// The transaction has started <see cref="TransactionBase.Rollback"/> method but still running.
+    /// The transaction has started <see cref="Transaction.Rollback"/> method but still running.
     /// </summary>
     RollingBack = 16+6,
   }

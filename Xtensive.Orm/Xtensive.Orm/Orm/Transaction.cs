@@ -12,7 +12,6 @@ using Xtensive.Disposing;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Transactions;
 
 namespace Xtensive.Orm
 {

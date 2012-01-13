@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.02
 
-namespace Xtensive.Transactions
+namespace Xtensive.Orm
 {
   /// <summary>
   /// <see cref="TransactionState"/> related extension methods.
