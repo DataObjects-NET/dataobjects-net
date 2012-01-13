@@ -73,7 +73,7 @@ namespace Xtensive.Aspects.Helpers
       return string.Format(Strings.MethodFormat,
         FormatType(returnType),
         namePrefix + methodName,
-        parameterTypes.Select(p => FormatType(p)).ToCommaDelimitedString());
+        string.Join(", ", parameterTypes.Select(FormatType).ToArray()));
     }
 
     /// <summary>

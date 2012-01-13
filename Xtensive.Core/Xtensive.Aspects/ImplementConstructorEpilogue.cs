@@ -82,7 +82,7 @@ namespace Xtensive.Aspects
         targetMethod, false, MethodAttributes.Virtual))
         return false;
 
-      if (!ErrorHandlerMethodName.IsNullOrEmpty()) {
+      if (!string.IsNullOrEmpty(ErrorHandlerMethodName)) {
         if (!AspectHelper.ValidateMethod(this, SeverityType.Error,
           HandlerType, true,
           BindingFlags.Instance |

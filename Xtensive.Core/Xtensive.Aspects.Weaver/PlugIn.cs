@@ -138,7 +138,7 @@ namespace Xtensive.Aspects.Weaver
       var path = Path.Combine(directory, XtensiveLicensingManagerExe);
       if (!File.Exists(path))
         throw new FileNotFoundException(path);
-      if (!Environment.UserInteractive || Environment.OSVersion.Platform!=PlatformID.Win32NT || path.IsNullOrEmpty())
+      if (!Environment.UserInteractive || Environment.OSVersion.Platform!=PlatformID.Win32NT || string.IsNullOrEmpty(path))
         return;
       var startInfo = new ProcessStartInfo(path, "wait") {
         UseShellExecute = false

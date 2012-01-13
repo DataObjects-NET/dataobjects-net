@@ -78,10 +78,13 @@ namespace Xtensive.Aspects
     private static Type GetFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
     {
       // Looking for the first method declaration starting from the very base type
-      var bases = EnumerableUtils
-        .Unfold(descendantType, type => type.BaseType)
-        .Reverse()
-        .Skip(1); // Skipping object type
+      var bases = new Stack<Type>();
+      var type = descendantType;
+      while (type!=typeof(object)) {
+        bases.Push(type);
+        type = type.BaseType;
+      }
+
       foreach (Type currentBase in bases) {
         MethodInfo method = null;
         try {

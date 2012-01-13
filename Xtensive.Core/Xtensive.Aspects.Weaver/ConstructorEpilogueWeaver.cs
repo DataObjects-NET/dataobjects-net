@@ -136,7 +136,7 @@ namespace Xtensive.Aspects.Weaver
         {
           Initialize();
           var module = parent.AspectWeaver.Module;
-          var hasOnError = !parent.errorHandlerMethodName.IsNullOrEmpty();
+          var hasOnError = !string.IsNullOrEmpty(parent.errorHandlerMethodName);
           var exceptionType = hasOnError 
             ? module.Cache.GetType(typeof (Exception)) 
             : null;
@@ -169,7 +169,8 @@ namespace Xtensive.Aspects.Weaver
             handlerSignature.Translate(module),
             BindingOptions.Default).Translate(module);
 
-          if (parent.errorHandlerMethodName.IsNullOrEmpty()) return;
+          if (string.IsNullOrEmpty(parent.errorHandlerMethodName))
+            return;
           var errorHandlerSignature = new MethodSignature(
             module, 
             CallingConvention.HasThis, 

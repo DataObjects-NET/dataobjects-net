@@ -92,7 +92,7 @@ namespace Xtensive.Aspects.Weaver
           writer.AttachInstructionSequence(sequence);
           writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
 
-          var hasDescription = !text.IsNullOrEmpty();
+          var hasDescription = !string.IsNullOrEmpty(text);
           if (hasDescription)
             writer.EmitInstructionString(OpCodeNumber.Ldstr, new LiteralString(text));
 
@@ -102,7 +102,7 @@ namespace Xtensive.Aspects.Weaver
               module.FindMethod(typeof (InvalidOperationException).GetConstructor(new[] {typeof (string)}), BindingOptions.RequireGenericDefinition));
           var ctorEmpty =
             module.Cache.GetItem(() =>
-              module.FindMethod(typeof (InvalidOperationException).GetConstructor(ArrayUtils<Type>.EmptyArray), BindingOptions.RequireGenericDefinition));
+              module.FindMethod(typeof (InvalidOperationException).GetConstructor(Type.EmptyTypes), BindingOptions.RequireGenericDefinition));
 
           writer.EmitInstructionMethod(OpCodeNumber.Newobj, hasDescription ? ctorString : ctorEmpty);
           writer.EmitInstruction(OpCodeNumber.Throw);
