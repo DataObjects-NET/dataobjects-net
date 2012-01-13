@@ -34,18 +34,7 @@ namespace Xtensive.Aspects.Weaver
       "Xtensive.Core",
       "Xtensive.Aspects",
       "Xtensive.Aspects.Weaver",
-      "Xtensive.Indexing",
-      "Xtensive.Sql",
-      "Xtensive.Sql.Oracle",
-      "Xtensive.Sql.PostgreSql",
-      "Xtensive.Sql.SqlServer",
-      "Xtensive.Sql.SqlServerCe",
       "Xtensive.Orm",
-      "Xtensive.Orm.Indexing",
-      "Xtensive.Orm.Indexing.Model",
-      "Xtensive.Orm.Model",
-      "Xtensive.Storage.Providers.Index",
-      "Xtensive.Storage.Providers.Sql",
     };
 
     public static LicenseInfo CurrentLicense;
