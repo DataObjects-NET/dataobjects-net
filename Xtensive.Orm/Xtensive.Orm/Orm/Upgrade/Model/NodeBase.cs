@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// </summary>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
-  public abstract class NodeBase<TParent> : Node<TParent, StorageInfo>
+  public abstract class NodeBase<TParent> : Node<TParent, StorageModel>
     where TParent : Node
   {
 //    /// <inheritdoc/>

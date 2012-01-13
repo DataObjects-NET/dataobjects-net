@@ -12,14 +12,13 @@ using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.ConvertDomainModel.Model;
-using TypeInfo = Xtensive.Orm.Upgrade.Model.TypeInfo;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
   [TestFixture, Category("Upgrade")]
   public class ConvertDomainModelTest
   {
-    protected StorageInfo Schema { get; set; }
+    protected StorageModel Schema { get; set; }
 
     protected Domain Domain { get; set; }
     
@@ -54,7 +53,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.AreEqual(1, Schema.Tables["A"].SecondaryIndexes.Count);
       Assert.AreEqual(2, Schema.Tables["A"].SecondaryIndexes[0].KeyColumns.Count);
       Assert.IsTrue(Schema.Tables["A"].SecondaryIndexes[0].IsUnique);
-      Assert.AreEqual(new TypeInfo(typeof (string), 125, null),
+      Assert.AreEqual(new StorageTypeInfo(typeof (string), 125, null),
         Schema.Tables["A"].Columns["Col3"].Type);
 
       Assert.IsNotNull(Schema.Tables["B"]);

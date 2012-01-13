@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers
     /// Gets the target schema.
     /// </summary>
     /// <returns>The target schema.</returns>
-    public Func<StorageInfo> GetTargetSchemaProvider()
+    public Func<StorageModel> GetTargetSchemaProvider()
     {
       var buildingContext = BuildingContext.Demand();
       var domainHandler = Handlers.DomainHandler;
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Providers
     /// This method caches the schema inside <see cref="UpgradeContext"/>.
     /// </summary>
     /// <returns>The extracted schema.</returns>
-    public Func<StorageInfo> GetExtractedSchemaProvider()
+    public Func<StorageModel> GetExtractedSchemaProvider()
     {
       var upgradeContext = UpgradeContext.Current;
       if (upgradeContext!=null && upgradeContext.ExtractedSchemaCache!=null)
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Providers
       var buildingContext = BuildingContext.Current;
       var session = Session.Current;
       return () => {
-        StorageInfo schema;
+        StorageModel schema;
         using (upgradeContext==null ? null : upgradeContext.Activate())
         using (buildingContext==null ? null : new BuildingScope(buildingContext))
         using (session==null ? null : session.Activate()) {
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Providers
     /// Extracts the schema.
     /// </summary>
     /// <returns>The extracted schema.</returns>
-    protected abstract StorageInfo ExtractSchema();
+    protected abstract StorageModel ExtractSchema();
 
     /// <summary>
     /// Extracts the native schema.
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="upgradeActions">The upgrade actions.</param>
     /// <param name="sourceSchema">The source schema.</param>
     /// <param name="targetSchema">The target schema.</param>
-    public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema);
+    public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceSchema, StorageModel targetSchema);
 
     // Initialization
 

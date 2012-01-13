@@ -24,9 +24,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
-using ColumnInfo = Xtensive.Orm.Upgrade.Model.ColumnInfo;
 using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Orm.Upgrade.Model.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
 using UpgradeStage = Xtensive.Modelling.Comparison.UpgradeStage;
@@ -55,8 +53,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private readonly ActionSequence actions;
     private readonly Schema schema;
-    private readonly StorageInfo sourceModel;
-    private readonly StorageInfo targetModel;
+    private readonly StorageModel sourceModel;
+    private readonly StorageModel targetModel;
     private readonly Driver driver;
     
     private UpgradeActionSequence translationResult;
@@ -165,7 +163,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       if (action.Type == typeof(TableInfo))
         VisitCreateTableAction(action);
-      else if (action.Type == typeof(ColumnInfo))
+      else if (action.Type == typeof(StorageColumnInfo))
         VisitCreateColumnAction(action);
       else if (action.Type == typeof(PrimaryIndexInfo))
         VisitCreatePrimaryKeyAction(action);
@@ -173,9 +171,9 @@ namespace Xtensive.Orm.Providers.Sql
         VisitCreateSecondaryIndexAction(action);
       else if (action.Type == typeof(ForeignKeyInfo))
         VisitCreateForeignKeyAction(action);
-      else if (action.Type == typeof(SequenceInfo))
+      else if (action.Type == typeof(StorageSequenceInfo))
         VisitCreateSequenceAction(action);
-      else if (action.Type == typeof(FullTextIndexInfo))
+      else if (action.Type == typeof(StorageFullTextIndexInfo))
         VisitCreateFullTextIndexAction(action);
     }
 
@@ -184,7 +182,7 @@ namespace Xtensive.Orm.Providers.Sql
       var node = action.Difference.Source;
       if (node.GetType() == typeof(TableInfo))
         VisitRemoveTableAction(action);
-      else if (node.GetType() == typeof(ColumnInfo))
+      else if (node.GetType() == typeof(StorageColumnInfo))
         VisitRemoveColumnAction(action);
       else if (node.GetType() == typeof(PrimaryIndexInfo))
         VisitRemovePrimaryKeyAction(action);
@@ -192,9 +190,9 @@ namespace Xtensive.Orm.Providers.Sql
         VisitRemoveSecondaryIndexAction(action);
       else if (node.GetType() == typeof(ForeignKeyInfo))
         VisitRemoveForeignKeyAction(action);
-      else if (node.GetType() == typeof(SequenceInfo))
+      else if (node.GetType() == typeof(StorageSequenceInfo))
         VisitRemoveSequenceAction(action);
-      else if (node.GetType() == typeof(FullTextIndexInfo))
+      else if (node.GetType() == typeof(StorageFullTextIndexInfo))
         VisitRemoveFullTextIndexAction(action);
     }
 
@@ -203,9 +201,9 @@ namespace Xtensive.Orm.Providers.Sql
       var propertyChangeAction = action as PropertyChangeAction;
       if (propertyChangeAction != null) {
         var changedNode = targetModel.Resolve(propertyChangeAction.Path, true);
-        if (changedNode.GetType()==typeof (SequenceInfo))
+        if (changedNode.GetType()==typeof (StorageSequenceInfo))
           VisitAlterSequenceAction(propertyChangeAction);
-        else if (changedNode.GetType()==typeof (ColumnInfo))
+        else if (changedNode.GetType()==typeof (StorageColumnInfo))
           VisitAlterColumnAction(propertyChangeAction);
         return;
       }
@@ -216,7 +214,7 @@ namespace Xtensive.Orm.Providers.Sql
       var node = moveNodeAction.Difference.Source;
       if (node.GetType()==typeof (TableInfo))
         VisitAlterTableAction(moveNodeAction);
-      else if (node.GetType()==typeof (ColumnInfo))
+      else if (node.GetType()==typeof (StorageColumnInfo))
         VisitMoveColumnAction(moveNodeAction);
       else if (node.GetType()==typeof (PrimaryIndexInfo))
         VisitAlterPrimaryKeyAction(moveNodeAction);
@@ -254,13 +252,13 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var hint = action.DataHint as CopyDataHint;
       var copiedColumns = hint.CopiedColumns
-        .Select(pair => new Pair<ColumnInfo>(
-          sourceModel.Resolve(pair.First, true) as ColumnInfo,
-          targetModel.Resolve(pair.Second, true) as ColumnInfo)).ToArray();
+        .Select(pair => new Pair<StorageColumnInfo>(
+          sourceModel.Resolve(pair.First, true) as StorageColumnInfo,
+          targetModel.Resolve(pair.Second, true) as StorageColumnInfo)).ToArray();
       var identityColumns = hint.Identities
-        .Select(pair => new Pair<ColumnInfo>(
-          sourceModel.Resolve(pair.Source, true) as ColumnInfo,
-          targetModel.Resolve(pair.Target, true) as ColumnInfo)).ToArray();
+        .Select(pair => new Pair<StorageColumnInfo>(
+          sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
+          targetModel.Resolve(pair.Target, true) as StorageColumnInfo)).ToArray();
       if (copiedColumns.Length == 0 || identityColumns.Length == 0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
@@ -362,7 +360,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)
     {
-      var columnInfo = createColumnAction.Difference.Target as ColumnInfo;
+      var columnInfo = createColumnAction.Difference.Target as StorageColumnInfo;
       var table = FindTable(columnInfo.Parent.Name);
       
       // Ensure table is not newly created
@@ -377,7 +375,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
     {
-      var columnInfo = removeColumnAction.Difference.Source as ColumnInfo;
+      var columnInfo = removeColumnAction.Difference.Source as StorageColumnInfo;
       var table = FindTable(columnInfo.Parent.Name);
 
       // Ensure table is not removed
@@ -417,7 +415,7 @@ namespace Xtensive.Orm.Providers.Sql
       var movementInfo = ((NodeDifference) action.Difference).MovementInfo;
       if ((movementInfo & MovementInfo.NameChanged)!=0) {
         // Process name changing
-        var oldColumnInfo = sourceModel.Resolve(action.Path, true) as ColumnInfo;
+        var oldColumnInfo = sourceModel.Resolve(action.Path, true) as StorageColumnInfo;
         var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
         RenameColumn(column, action.Name);
         oldColumnInfo.Name = action.Name;
@@ -557,7 +555,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitCreateSequenceAction(CreateNodeAction action)
     {
-      var sequenceInfo = action.Difference.Target as SequenceInfo;
+      var sequenceInfo = action.Difference.Target as StorageSequenceInfo;
       if (IsSequencesAllowed) {
         var sequence = schema.CreateSequence(sequenceInfo.Name);
         sequence.SequenceDescriptor = new SequenceDescriptor(sequence,
@@ -574,7 +572,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveSequenceAction(RemoveNodeAction action)
     {
-      var sequenceInfo = action.Difference.Source as SequenceInfo;
+      var sequenceInfo = action.Difference.Source as StorageSequenceInfo;
       if (IsSequencesAllowed) {
         var sequence = schema.Sequences[sequenceInfo.Name];
         RegisterCommand(SqlDdl.Drop(sequence));
@@ -587,7 +585,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitAlterSequenceAction(PropertyChangeAction action)
     {
-      var sequenceInfo = targetModel.Resolve(action.Path, true) as SequenceInfo;
+      var sequenceInfo = targetModel.Resolve(action.Path, true) as StorageSequenceInfo;
 
       // Check if sequence is not newly created
       if ((IsSequencesAllowed 
@@ -613,7 +611,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitCreateFullTextIndexAction(CreateNodeAction action)
     {
-      var fullTextIndexInfo = (FullTextIndexInfo) action.Difference.Target;
+      var fullTextIndexInfo = (StorageFullTextIndexInfo) action.Difference.Target;
       var fullTextSupported = providerInfo.Supports(ProviderFeatures.FullText);
       if (!fullTextSupported)
         return;
@@ -634,7 +632,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveFullTextIndexAction(RemoveNodeAction action)
     {
-      var fullTextIndexInfo = (FullTextIndexInfo)action.Difference.Source;
+      var fullTextIndexInfo = (StorageFullTextIndexInfo)action.Difference.Source;
       var fullTextSupported = providerInfo.Supports(ProviderFeatures.FullText);
       if (!fullTextSupported)
         return;
@@ -704,8 +702,8 @@ namespace Xtensive.Orm.Providers.Sql
       var update = SqlDml.Update(table);
 
       var updatedColumns = hint.UpdateParameter
-        .Select(pair => new Pair<ColumnInfo, object>(
-          sourceModel.Resolve(pair.First, true) as ColumnInfo,
+        .Select(pair => new Pair<StorageColumnInfo, object>(
+          sourceModel.Resolve(pair.First, true) as StorageColumnInfo,
           pair.Second)).ToArray();
       if (updatedColumns.Length==0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
@@ -811,8 +809,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
     {
-      var targetColumn = targetModel.Resolve(action.Path, true) as ColumnInfo;
-      var sourceColumn = sourceModel.Resolve(action.Path, true) as ColumnInfo;
+      var targetColumn = targetModel.Resolve(action.Path, true) as StorageColumnInfo;
+      var sourceColumn = sourceModel.Resolve(action.Path, true) as StorageColumnInfo;
       var column = FindColumn(targetColumn.Parent.Name, targetColumn.Name);
       var table = column.Table;
       var originalName = column.Name;
@@ -822,7 +820,7 @@ namespace Xtensive.Orm.Providers.Sql
       RenameColumn(column, tempName);
 
       // Create new columns
-      var newTypeInfo = targetColumn.Type as TypeInfo;
+      var newTypeInfo = targetColumn.Type as StorageTypeInfo;
       var newSqlType = (SqlValueType) newTypeInfo.NativeType;
       var newColumn = table.CreateColumn(originalName, newSqlType);
       
@@ -880,7 +878,7 @@ namespace Xtensive.Orm.Providers.Sql
       return table;
     }
 
-    private TableColumn CreateColumn(ColumnInfo columnInfo, Table table)
+    private TableColumn CreateColumn(StorageColumnInfo columnInfo, Table table)
     {
       var type = (SqlValueType) columnInfo.Type.NativeType;
       var column = table.CreateColumn(columnInfo.Name, type);
@@ -953,7 +951,7 @@ namespace Xtensive.Orm.Providers.Sql
       return index;
     }
 
-    private void CreateGeneratorTable(SequenceInfo sequenceInfo)
+    private void CreateGeneratorTable(StorageSequenceInfo sequenceInfo)
     {
       var sequenceTable = schema.CreateTable(sequenceInfo.Name);
       createdTables.Add(sequenceTable);
@@ -972,7 +970,7 @@ namespace Xtensive.Orm.Providers.Sql
       RegisterCommand(SqlDdl.Create(sequenceTable));
     }
 
-    private void DropGeneratorTable(SequenceInfo sequenceInfo)
+    private void DropGeneratorTable(StorageSequenceInfo sequenceInfo)
     {
       var sequenceTable = FindTable(sequenceInfo.Name);
       RegisterCommand(SqlDdl.Drop(sequenceTable));
@@ -1048,13 +1046,13 @@ namespace Xtensive.Orm.Providers.Sql
       if (hint.Identities.Any(pair => !pair.IsIdentifiedByConstant)) {
         var identityColumnPairs = hint.Identities
           .Where(pair => !pair.IsIdentifiedByConstant).Select(pair =>
-            new Pair<ColumnInfo, ColumnInfo>(
-              sourceModel.Resolve(pair.Target, true) as ColumnInfo,
-              sourceModel.Resolve(pair.Source, true) as ColumnInfo)).ToArray();
+            new Pair<StorageColumnInfo, StorageColumnInfo>(
+              sourceModel.Resolve(pair.Target, true) as StorageColumnInfo,
+              sourceModel.Resolve(pair.Source, true) as StorageColumnInfo)).ToArray();
         var identityConstantPairs = hint.Identities
           .Where(pair => pair.IsIdentifiedByConstant).Select(pair =>
-            new Pair<ColumnInfo, string>(
-              sourceModel.Resolve(pair.Source, true) as ColumnInfo,
+            new Pair<StorageColumnInfo, string>(
+              sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
               pair.Target)).ToArray();
         var selectColumns = identityColumnPairs.Select(columnPair => columnPair.First)
           .Concat(identityConstantPairs.Select(constantPair => constantPair.First)).ToArray();
@@ -1075,8 +1073,8 @@ namespace Xtensive.Orm.Providers.Sql
       else {
         var identityConstantPairs = hint.Identities
           .Where(pair => pair.IsIdentifiedByConstant).Select(pair =>
-            new Pair<ColumnInfo, string>(
-              sourceModel.Resolve(pair.Source, true) as ColumnInfo,
+            new Pair<StorageColumnInfo, string>(
+              sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
               pair.Target)).ToArray();
         if (identityConstantPairs.Count() == 0)
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
@@ -1136,7 +1134,7 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    private SqlExpression GetDefaultValueExpression(ColumnInfo columnInfo)
+    private SqlExpression GetDefaultValueExpression(StorageColumnInfo columnInfo)
     {
       var result = columnInfo.DefaultValue==null
         ? (SqlExpression) SqlDml.Null
@@ -1209,8 +1207,8 @@ namespace Xtensive.Orm.Providers.Sql
     public SqlActionTranslator(
       ActionSequence actions, 
       Schema schema, 
-      StorageInfo sourceModel, 
-      StorageInfo targetModel, 
+      StorageModel sourceModel, 
+      StorageModel targetModel, 
       ProviderInfo providerInfo, 
       Driver driver, 
       string typeIdColumnName, 

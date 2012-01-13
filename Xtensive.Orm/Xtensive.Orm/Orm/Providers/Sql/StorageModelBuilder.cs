@@ -14,7 +14,6 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
-using TypeInfo = Xtensive.Orm.Upgrade.Model.TypeInfo;
 using PartialIndexFilterInfo = Xtensive.Orm.Upgrade.Model.PartialIndexFilterInfo;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -27,10 +26,10 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly DomainHandler domainHandler;
     private readonly PartialIndexFilterNormalizer indexFilterNormalizer;
 
-    public override TypeInfo CreateType(Type type, int? length, int? precision, int? scale)
+    public override StorageTypeInfo CreateType(Type type, int? length, int? precision, int? scale)
     {
       var sqlValueType = domainHandler.Driver.BuildValueType(type, length, precision, scale);
-      return new TypeInfo(
+      return new StorageTypeInfo(
         sqlValueType.Type.ToClrType(),
         sqlValueType.Length,
         sqlValueType.Scale,

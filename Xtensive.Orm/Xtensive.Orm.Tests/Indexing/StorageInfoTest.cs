@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Indexing
   [TestFixture]
   public class StorageInfoTest
   {
-    protected StorageInfo storage;
+    protected StorageModel storage;
     protected TableInfo table1;
     protected TableInfo table2;
     protected PrimaryIndexInfo pi1;
@@ -25,22 +25,22 @@ namespace Xtensive.Orm.Tests.Indexing
     protected SecondaryIndexInfo si1;
     protected SecondaryIndexInfo si2;
     protected ForeignKeyInfo fk1;
-    protected ColumnInfo column1;
-    protected ColumnInfo column2;
-    protected ColumnInfo column3;
-    protected ColumnInfo column4;
-    protected ColumnInfo column5;
+    protected StorageColumnInfo column1;
+    protected StorageColumnInfo column2;
+    protected StorageColumnInfo column3;
+    protected StorageColumnInfo column4;
+    protected StorageColumnInfo column5;
 
     [SetUp]
     public void CreateModel()
     {
-      storage = new StorageInfo("storage") { Actions = new ActionSequence() };
+      storage = new StorageModel("storage") { Actions = new ActionSequence() };
       // Table 1
       table1 = new TableInfo(storage, "table1");
       pi1 = new PrimaryIndexInfo(table1, "pk1");
-      column1 = new ColumnInfo(table1, "col1", new TypeInfo(typeof(string), false, null));
-      column2 = new ColumnInfo(table1, "col2", new TypeInfo(typeof(string), null));
-      column3 = new ColumnInfo(table1, "col3", new TypeInfo(typeof(string), null));
+      column1 = new StorageColumnInfo(table1, "col1", new StorageTypeInfo(typeof(string), false, null));
+      column2 = new StorageColumnInfo(table1, "col2", new StorageTypeInfo(typeof(string), null));
+      column3 = new StorageColumnInfo(table1, "col3", new StorageTypeInfo(typeof(string), null));
       new KeyColumnRef(pi1, column1, Direction.Positive);
       pi1.PopulateValueColumns();
       si1 = new SecondaryIndexInfo(table1, "ix1");
@@ -50,8 +50,8 @@ namespace Xtensive.Orm.Tests.Indexing
       // Table 2
       table2 = new TableInfo(storage, "table2");
       pi2 = new PrimaryIndexInfo(table2, "pk2");
-      column4 = new ColumnInfo(table2, "col4", new TypeInfo(typeof(int), null));
-      column5 = new ColumnInfo(table2, "col5", new TypeInfo(typeof(string), null));
+      column4 = new StorageColumnInfo(table2, "col4", new StorageTypeInfo(typeof(int), null));
+      column5 = new StorageColumnInfo(table2, "col5", new StorageTypeInfo(typeof(string), null));
       new KeyColumnRef(pi2, column4, Direction.Negative);
       pi2.PopulateValueColumns();
       si2 = new SecondaryIndexInfo(table2, "ix2");

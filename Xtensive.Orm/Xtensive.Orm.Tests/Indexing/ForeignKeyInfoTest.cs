@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Tests.Indexing
   [TestFixture]
   public class ForeignKeyInfoTest
   {
-    private StorageInfo storage;
+    private StorageModel storage;
     private TableInfo referencingTable;
     private SecondaryIndexInfo referencingIndex;
     private SecondaryIndexInfo invalideReferencingIndex;
@@ -26,11 +26,11 @@ namespace Xtensive.Orm.Tests.Indexing
     [SetUp]
     public void BuildStorageModel()
     {
-      storage = new StorageInfo("storage");
+      storage = new StorageModel("storage");
       referencingTable = new TableInfo(storage, "referencingTable");
-      var pkColumn = new ColumnInfo(referencingTable, "Id", new TypeInfo(typeof (int), null));
-      var fkColumn = new ColumnInfo(referencingTable, "foreignId", new TypeInfo(typeof (int?), null));
-      var fkColumn2 = new ColumnInfo(referencingTable, "invalideForeignId", new TypeInfo(typeof (string), null));
+      var pkColumn = new StorageColumnInfo(referencingTable, "Id", new StorageTypeInfo(typeof (int), null));
+      var fkColumn = new StorageColumnInfo(referencingTable, "foreignId", new StorageTypeInfo(typeof (int?), null));
+      var fkColumn2 = new StorageColumnInfo(referencingTable, "invalideForeignId", new StorageTypeInfo(typeof (string), null));
       var primaryKey = new PrimaryIndexInfo(referencingTable, "PK1");
       new KeyColumnRef(primaryKey, pkColumn);
       referencingIndex = new SecondaryIndexInfo(referencingTable, "FK");
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Indexing
       primaryKey.PopulateValueColumns();
 
       referencedTable = new TableInfo(storage, "referencedTable");
-      pkColumn = new ColumnInfo(referencedTable, "Id", new TypeInfo(typeof (int), null));
+      pkColumn = new StorageColumnInfo(referencedTable, "Id", new StorageTypeInfo(typeof (int), null));
       foreignPrimary = new PrimaryIndexInfo(referencedTable, "Id");
       new KeyColumnRef(foreignPrimary, pkColumn);
     }

@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Upgrade.Model
         && CompareTypes(first.Value.Type, second.Value.Type);
     }
 
-    private static bool CompareTypes(TypeInfo first, TypeInfo second)
+    private static bool CompareTypes(StorageTypeInfo first, StorageTypeInfo second)
     {
       if (first==null || second==null)
         return false;

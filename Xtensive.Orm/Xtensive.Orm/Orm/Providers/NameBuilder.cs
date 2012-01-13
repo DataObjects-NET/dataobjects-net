@@ -147,9 +147,9 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <summary>
-    /// Build table column name by <see cref="Xtensive.Orm.Upgrade.Model.ColumnInfo"/>.
+    /// Build table column name by <see cref="Upgrade.Model.StorageColumnInfo"/>.
     /// </summary>
-    /// <param name="columnInfo"><see cref="Xtensive.Orm.Upgrade.Model.ColumnInfo"/> to build column table name for.</param>
+    /// <param name="columnInfo"><see cref="Upgrade.Model.StorageColumnInfo"/> to build column table name for.</param>
     /// <returns>Column name.</returns>
     public virtual string BuildTableColumnName(ColumnInfo columnInfo)
     {

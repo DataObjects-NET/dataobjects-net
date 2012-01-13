@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Primary index.
   /// </summary>
   [Serializable]
-  public sealed class PrimaryIndexInfo : IndexInfo
+  public sealed class PrimaryIndexInfo : StorageIndexInfo
   {
     /// <summary>
     /// Gets value columns.
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     /// <summary>
     /// Populates <see cref="ValueColumns"/> collection by
-    /// including all the columns except <see cref="IndexInfo.KeyColumns"/>
+    /// including all the columns except <see cref="StorageIndexInfo.KeyColumns"/>
     /// into it.
     /// </summary>
     public void PopulateValueColumns()

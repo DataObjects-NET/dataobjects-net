@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// The base abstract class for all indexes.
   /// </summary>
   [Serializable]
-  public abstract class IndexInfo : NodeBase<TableInfo>
+  public abstract class StorageIndexInfo : NodeBase<TableInfo>
   {
     private bool isUnique;
     private bool isClustered;
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="parent">The parent table.</param>
     /// <param name="name">The index.</param>
     /// <inheritdoc/>
-    protected IndexInfo(TableInfo parent, string name)
+    protected StorageIndexInfo(TableInfo parent, string name)
       : base(parent, name)
     {
     }

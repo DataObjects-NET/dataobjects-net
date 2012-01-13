@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Building.Builders
         SchemaComparisonResult result;
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
-          var emptySchema = new StorageInfo();
+          var emptySchema = new StorageModel();
           result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model);
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
@@ -359,16 +359,16 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static Pair<StorageInfo, StorageInfo> BuildSchemasAsync(Domain domain, SchemaUpgradeHandler upgradeHandler)
+    private static Pair<StorageModel, StorageModel> BuildSchemasAsync(Domain domain, SchemaUpgradeHandler upgradeHandler)
     {
       var extractedSchema = upgradeHandler.GetExtractedSchemaProvider().InvokeAsync();
       var targetSchema = upgradeHandler.GetTargetSchemaProvider().InvokeAsync();
 
-      Func<Func<StorageInfo>, Pair<StorageInfo,StorageInfo>> cloner = schemaProvider => {
+      Func<Func<StorageModel>, Pair<StorageModel,StorageModel>> cloner = schemaProvider => {
         var origin = schemaProvider.Invoke();
         origin.Lock();
-        var clone = (StorageInfo) origin.Clone(null, StorageInfo.DefaultName);
-        return new Pair<StorageInfo, StorageInfo>(origin, clone);
+        var clone = (StorageModel) origin.Clone(null, StorageModel.DefaultName);
+        return new Pair<StorageModel, StorageModel>(origin, clone);
       };
 
       var extractedSchemaCloner = cloner.InvokeAsync(extractedSchema);
@@ -390,7 +390,7 @@ namespace Xtensive.Orm.Building.Builders
       Thread.MemoryBarrier();
 
       // Returning unlocked clones
-      return new Pair<StorageInfo, StorageInfo>(extractedSchemas.Second, targetSchemas.Second);
+      return new Pair<StorageModel, StorageModel>(extractedSchemas.Second, targetSchemas.Second);
     }
   }
 }

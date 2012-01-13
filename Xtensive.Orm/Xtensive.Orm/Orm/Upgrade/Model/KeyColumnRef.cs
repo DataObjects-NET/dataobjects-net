@@ -15,19 +15,19 @@ namespace Xtensive.Orm.Upgrade.Model
   /// References to key column.
   /// </summary>
   [Serializable]
-  public sealed class KeyColumnRef : KeyColumnRef<IndexInfo>
+  public sealed class KeyColumnRef : KeyColumnRef<StorageIndexInfo>
   {
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<KeyColumnRef, IndexInfo, KeyColumnRefCollection>(this, "KeyColumns");
+      return new Nesting<KeyColumnRef, StorageIndexInfo, KeyColumnRefCollection>(this, "KeyColumns");
     }
 
 
     // Constructors
 
     /// <inheritdoc/>
-    public KeyColumnRef(IndexInfo parent)
+    public KeyColumnRef(StorageIndexInfo parent)
       : base(parent)
     {
     }
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
-    public KeyColumnRef(IndexInfo parent, ColumnInfo column)
+    public KeyColumnRef(StorageIndexInfo parent, StorageColumnInfo column)
       : base(parent, column)
     {
     }
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
     /// <param name="direction">The direction.</param>
-    public KeyColumnRef(IndexInfo parent, ColumnInfo column, Direction direction)
+    public KeyColumnRef(StorageIndexInfo parent, StorageColumnInfo column, Direction direction)
       : base(parent, column, direction)
     {
     }

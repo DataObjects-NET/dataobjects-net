@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// A collection of <see cref="FullTextColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class FullTextColumnRefCollection : NodeCollectionBase<FullTextColumnRef, FullTextIndexInfo>
+  public sealed class FullTextColumnRefCollection : NodeCollectionBase<FullTextColumnRef, StorageFullTextIndexInfo>
   {
 
     // Constructors
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FullTextColumnRefCollection(FullTextIndexInfo parent)
+    public FullTextColumnRefCollection(StorageFullTextIndexInfo parent)
       : base(parent, "Columns")
     {
     }

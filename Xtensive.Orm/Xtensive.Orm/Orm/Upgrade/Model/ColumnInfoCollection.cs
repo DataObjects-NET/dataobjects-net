@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Column collection.
   /// </summary>
   [Serializable]
-  public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>,
+  public sealed class ColumnInfoCollection : NodeCollectionBase<StorageColumnInfo, TableInfo>,
     IUnorderedNodeCollection
   {
     // Constructors

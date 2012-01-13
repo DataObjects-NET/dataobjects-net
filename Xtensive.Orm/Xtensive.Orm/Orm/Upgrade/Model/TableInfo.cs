@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Table.
   /// </summary>
   [Serializable]
-  public sealed class TableInfo : NodeBase<StorageInfo>
+  public sealed class TableInfo : NodeBase<StorageModel>
   {
     private PrimaryIndexInfo primaryIndex;
 
@@ -61,8 +61,8 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <summary>
     /// Gets all indexes belongs to the table.
     /// </summary>
-    /// <returns><see cref="IndexInfo"/> iterator.</returns>
-    public IEnumerable<IndexInfo> AllIndexes
+    /// <returns><see cref="StorageIndexInfo"/> iterator.</returns>
+    public IEnumerable<StorageIndexInfo> AllIndexes
     {
       get
       {
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<TableInfo, StorageInfo, TableInfoCollection>(this, "Tables");
+      return new Nesting<TableInfo, StorageModel, TableInfoCollection>(this, "Tables");
     }
 
     /// <inheritdoc/>
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
 
     /// <inheritdoc/>
-    public TableInfo(StorageInfo parent, string name)
+    public TableInfo(StorageModel parent, string name)
       : base(parent, name)
     {
     }

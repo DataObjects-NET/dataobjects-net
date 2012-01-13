@@ -23,7 +23,6 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Resources;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
-using TypeInfo=Xtensive.Orm.Upgrade.Model.TypeInfo;
 
 namespace Xtensive.Orm
 {
@@ -124,12 +123,12 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the storage schema.
     /// </summary>
-    internal StorageInfo Schema { get; set; }
+    internal StorageModel Schema { get; set; }
 
     /// <summary>
     /// Gets the extracted storage schema.
     /// </summary>
-    internal StorageInfo ExtractedSchema { get; set; }
+    internal StorageModel ExtractedSchema { get; set; }
 
     /// <summary>
     /// Gets the domain-level temporary data.

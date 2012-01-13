@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// References to foreign key column.
   /// </summary>
   [Serializable]
-  public sealed class ForeignKeyColumnRef : Ref<ColumnInfo, ForeignKeyInfo>
+  public sealed class ForeignKeyColumnRef : Ref<StorageColumnInfo, ForeignKeyInfo>
   {
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="parent">The foreign key.</param>
     /// <param name="column">The column.</param>
     /// <inheritdoc/>
-    public ForeignKeyColumnRef(ForeignKeyInfo parent, ColumnInfo column)
+    public ForeignKeyColumnRef(ForeignKeyInfo parent, StorageColumnInfo column)
       : base(parent)
     {
       Value = column;

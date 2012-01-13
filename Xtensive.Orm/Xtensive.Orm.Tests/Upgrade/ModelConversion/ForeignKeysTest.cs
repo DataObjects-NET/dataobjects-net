@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       if (ConcreteTableSchemaModifier.IsEnabled 
         || SingleTableSchemaModifier.IsEnabled)
         return;
-      var targetSchema = context.SchemaHints.TargetModel as StorageInfo;
+      var targetSchema = context.SchemaHints.TargetModel as StorageModel;
       var tableA = targetSchema.Tables["A"];
       var tableB = targetSchema.Tables["B"];
       var tableC = targetSchema.Tables["C"];

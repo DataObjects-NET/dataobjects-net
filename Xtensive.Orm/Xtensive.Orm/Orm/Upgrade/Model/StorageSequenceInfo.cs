@@ -18,9 +18,9 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Sequence.
   /// </summary>
   [Serializable]
-  public sealed class SequenceInfo : NodeBase<StorageInfo>
+  public sealed class StorageSequenceInfo : NodeBase<StorageModel>
   {
-    private TypeInfo type;
+    private StorageTypeInfo type;
     private long seed;
     private long increment;
 
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Gets or sets the type.
     /// </summary>
     [Property(IgnoreInComparison = true)]
-    public TypeInfo Type {
+    public StorageTypeInfo Type {
       get { return type; }
       set {
         EnsureIsEditable();
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<SequenceInfo, StorageInfo, SequenceInfoCollection>(this, "Sequences");
+      return new Nesting<StorageSequenceInfo, StorageModel, SequenceInfoCollection>(this, "Sequences");
     }
 
     /// <inheritdoc/>
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent.</param>
     /// <param name="name">The name.</param>
-    public SequenceInfo(StorageInfo parent, string name)
+    public StorageSequenceInfo(StorageModel parent, string name)
       : base(parent, name)
     {
     }

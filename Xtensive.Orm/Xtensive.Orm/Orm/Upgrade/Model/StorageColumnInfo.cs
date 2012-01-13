@@ -18,16 +18,16 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Column.
   /// </summary>
   [Serializable]
-  public sealed class ColumnInfo : NodeBase<TableInfo>
+  public sealed class StorageColumnInfo : NodeBase<TableInfo>
   {
-    private TypeInfo type;
+    private StorageTypeInfo type;
     private object defaultValue;
 
     /// <summary>
     /// Gets or sets the type of the column.
     /// </summary>
     [Property(Priority = -1000)]
-    public TypeInfo Type {
+    public StorageTypeInfo Type {
       get { return type; }
       set {
         EnsureIsEditable();
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<ColumnInfo, TableInfo, ColumnInfoCollection>(this, "Columns");
+      return new Nesting<StorageColumnInfo, TableInfo, ColumnInfoCollection>(this, "Columns");
     }
 
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="table">The parent table.</param>
     /// <param name="name">The name.</param>
-    public ColumnInfo(TableInfo table, string name)
+    public StorageColumnInfo(TableInfo table, string name)
       : base(table, name)
     {
     }
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="table">The parent table.</param>
     /// <param name="name">The column name.</param>
     /// <param name="type">Type of the column.</param>
-    public ColumnInfo(TableInfo table, string name, TypeInfo type)
+    public StorageColumnInfo(TableInfo table, string name, StorageTypeInfo type)
       : this(table, name)
     {
       Type = type;

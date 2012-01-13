@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
-    public PrimaryKeyColumnRef(SecondaryIndexInfo parent, ColumnInfo column)
+    public PrimaryKeyColumnRef(SecondaryIndexInfo parent, StorageColumnInfo column)
       : base(parent, column)
     {
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
     /// <param name="direction">The direction.</param>
-    public PrimaryKeyColumnRef(SecondaryIndexInfo parent, ColumnInfo column, Direction direction)
+    public PrimaryKeyColumnRef(SecondaryIndexInfo parent, StorageColumnInfo column, Direction direction)
       : base(parent, column, direction)
     {
     }

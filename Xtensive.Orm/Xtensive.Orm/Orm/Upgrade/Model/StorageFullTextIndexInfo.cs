@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Full-text index.
   /// </summary>
   [Serializable]
-  public sealed class FullTextIndexInfo : NodeBase<TableInfo>
+  public sealed class StorageFullTextIndexInfo : NodeBase<TableInfo>
   {
     /// <summary>
     /// Gets columns.
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<FullTextIndexInfo, TableInfo, FullTextIndexInfoCollection>(this, "FullTextIndexes");
+      return new Nesting<StorageFullTextIndexInfo, TableInfo, FullTextIndexInfoCollection>(this, "FullTextIndexes");
     }
 
     /// <inheritdoc/>
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent table.</param>
     /// <param name="name">The index.</param>
-    public FullTextIndexInfo(TableInfo parent, string name)
+    public StorageFullTextIndexInfo(TableInfo parent, string name)
       : base(parent, name)
     {
     }

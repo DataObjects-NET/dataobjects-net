@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
-    public ValueColumnRef(PrimaryIndexInfo parent, ColumnInfo column)
+    public ValueColumnRef(PrimaryIndexInfo parent, StorageColumnInfo column)
       : base(parent, column)
     {
     }

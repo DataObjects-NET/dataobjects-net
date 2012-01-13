@@ -19,14 +19,14 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Type of table column.
   /// </summary>
   [Serializable]
-  public sealed class TypeInfo : IEquatable<TypeInfo>,
+  public sealed class StorageTypeInfo : IEquatable<StorageTypeInfo>,
     IValidatable,
     ICloneable
   {
     /// <summary>
-    /// Gets the <see cref="TypeInfo"/> with undefined type.
+    /// Gets the <see cref="StorageTypeInfo"/> with undefined type.
     /// </summary>
-    public static TypeInfo Undefined { get { return new TypeInfo(); } }
+    public static StorageTypeInfo Undefined { get { return new StorageTypeInfo(); } }
 
     /// <summary>
     /// Gets a value indicating whether type is undefined.
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       if (IsTypeUndefined)
         return Undefined;
-      var clone = new TypeInfo(Type, IsNullable, NativeType);
+      var clone = new StorageTypeInfo(Type, IsNullable, NativeType);
       clone.Length = Length;
       clone.Culture = Culture;
       clone.Scale = Scale;
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Upgrade.Model
     #region Equality members
 
     /// <inheritdoc/>
-    public bool Equals(TypeInfo other)
+    public bool Equals(StorageTypeInfo other)
     {
       if (IsTypeUndefined)
         return false;
@@ -123,9 +123,9 @@ namespace Xtensive.Orm.Upgrade.Model
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (TypeInfo))
+      if (obj.GetType()!=typeof (StorageTypeInfo))
         return false;
-      return Equals((TypeInfo) obj);
+      return Equals((StorageTypeInfo) obj);
     }
 
     /// <inheritdoc/>
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(TypeInfo left, TypeInfo right)
+    public static bool operator ==(StorageTypeInfo left, StorageTypeInfo right)
     {
       return Equals(left, right);
     }
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(TypeInfo left, TypeInfo right)
+    public static bool operator !=(StorageTypeInfo left, StorageTypeInfo right)
     {
       return !Equals(left, right);
     }
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     #region Constructors
 
-    private TypeInfo()
+    private StorageTypeInfo()
     {
     }
 
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, object nativeType)
+    public StorageTypeInfo(Type type, object nativeType)
       : this(type, type.IsClass || type.IsNullable(), nativeType)
     {
     }
@@ -223,7 +223,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, int? length, object nativeType)
+    public StorageTypeInfo(Type type, int? length, object nativeType)
       : this(type, type.IsClass || type.IsNullable(), length, nativeType)
     {
     }
@@ -235,7 +235,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="length">The length.</param>
     /// <param name="culture">The culture.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, int? length, CultureInfo culture, object nativeType)
+    public StorageTypeInfo(Type type, int? length, CultureInfo culture, object nativeType)
       : this(type, type.IsClass || type.IsNullable(), length, culture, nativeType)
     {
     }
@@ -248,7 +248,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, int? length, int? scale, int? precision, object nativeType)
+    public StorageTypeInfo(Type type, int? length, int? scale, int? precision, object nativeType)
       : this(type, type.IsClass || type.IsNullable(), length, scale, precision, nativeType)
     {
     }
@@ -259,7 +259,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, bool isNullable, object nativeType)
+    public StorageTypeInfo(Type type, bool isNullable, object nativeType)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (isNullable && type.IsValueType && !type.IsNullable())
@@ -276,7 +276,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, bool isNullable, int? length, object nativeType)
+    public StorageTypeInfo(Type type, bool isNullable, int? length, object nativeType)
       : this(type, isNullable, nativeType)
     {
       Length = length;
@@ -290,7 +290,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="length">The length.</param>
     /// <param name="culture">The culture.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, bool isNullable, int? length, CultureInfo culture, object nativeType)
+    public StorageTypeInfo(Type type, bool isNullable, int? length, CultureInfo culture, object nativeType)
       : this(type, isNullable, length, nativeType)
     {
       ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
     /// <param name="nativeType">The native type.</param>
-    public TypeInfo(Type type, bool isNullable, int? length, int? scale, int? precision, object nativeType)
+    public StorageTypeInfo(Type type, bool isNullable, int? length, int? scale, int? precision, object nativeType)
       : this(type, isNullable, length, nativeType)
     {
       Scale = scale;

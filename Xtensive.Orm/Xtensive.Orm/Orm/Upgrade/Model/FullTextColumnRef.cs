@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Reference to full-text column.
   /// </summary>
   [Serializable]
-  public sealed class FullTextColumnRef : ColumnInfoRef<FullTextIndexInfo>
+  public sealed class FullTextColumnRef : ColumnInfoRef<StorageFullTextIndexInfo>
   {
     [Property(Priority = -1100, CaseInsensitiveComparison = true)]
     public string Configuration { get; set; }
@@ -25,31 +25,31 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<FullTextColumnRef, FullTextIndexInfo, FullTextColumnRefCollection>(this, "Columns");
+      return new Nesting<FullTextColumnRef, StorageFullTextIndexInfo, FullTextColumnRefCollection>(this, "Columns");
     }
 
 
     // Constructors
 
     /// <inheritdoc/>
-    public FullTextColumnRef(FullTextIndexInfo parent)
+    public FullTextColumnRef(StorageFullTextIndexInfo parent)
       : base(parent)
     {}
 
     /// <inheritdoc/>
-    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column)
+    public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column)
       : base(parent, column)
     {}
 
     /// <inheritdoc/>
-    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string configuration)
+    public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column, string configuration)
       : base(parent, column)
     {
       Configuration = configuration;
     }
 
     /// <inheritdoc/>
-    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string configuration, ValueColumnRef typeColumn)
+    public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column, string configuration, ValueColumnRef typeColumn)
       : base(parent, column)
     {
       Configuration = configuration;

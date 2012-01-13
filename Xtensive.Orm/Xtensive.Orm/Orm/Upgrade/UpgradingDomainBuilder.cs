@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Upgrade
       return current;
     }
 
-    private static void BuildSchemaHints(StorageInfo extractedSchema, StorageInfo targetSchema)
+    private static void BuildSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
     {
       var context = UpgradeContext.Demand();
       var oldModel = context.ExtractedDomainModel;

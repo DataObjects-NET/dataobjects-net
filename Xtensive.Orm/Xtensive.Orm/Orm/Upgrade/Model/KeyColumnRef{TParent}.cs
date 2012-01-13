@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// </summary>
   [Serializable]
   public abstract class KeyColumnRef<TParent> : ColumnInfoRef<TParent>
-    where TParent: IndexInfo
+    where TParent: StorageIndexInfo
   {
     private Direction direction;
 
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
-    public KeyColumnRef(TParent parent, ColumnInfo column)
+    public KeyColumnRef(TParent parent, StorageColumnInfo column)
       : base(parent, column)
     {
       Direction = Direction.Positive;
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
     /// <param name="direction">The direction.</param>
-    public KeyColumnRef(TParent parent, ColumnInfo column, Direction direction)
+    public KeyColumnRef(TParent parent, StorageColumnInfo column, Direction direction)
       : base(parent, column)
     {
       Direction = direction;

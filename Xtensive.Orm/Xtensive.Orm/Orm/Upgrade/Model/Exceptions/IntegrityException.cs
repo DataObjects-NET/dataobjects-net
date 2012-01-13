@@ -12,7 +12,7 @@ using Xtensive.Modelling;
 namespace Xtensive.Orm.Upgrade.Model
 {
   /// <summary>
-  /// Describes errors detected during <see cref="StorageInfo"/>.<see cref="Node.Validate"/> execution.
+  /// Describes errors detected during <see cref="StorageModel"/>.<see cref="Node.Validate"/> execution.
   /// </summary>
   [Serializable]
   public class IntegrityException : Exception

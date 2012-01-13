@@ -16,8 +16,6 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
-using ColumnInfo=Xtensive.Orm.Upgrade.Model.ColumnInfo;
-using TypeInfo=Xtensive.Orm.Upgrade.Model.TypeInfo;
 using UpgradeContext=Xtensive.Orm.Upgrade.UpgradeContext;
 using UpgradeStage=Xtensive.Modelling.Comparison.UpgradeStage;
 
@@ -35,7 +33,7 @@ namespace Xtensive.Orm.Building
     /// <param name="targetSchema">The target schema.</param>
     /// <param name="hints">The upgrade hints.</param>
     /// <returns>Comparison result.</returns>
-    public static SchemaComparisonResult Compare(StorageInfo sourceSchema, StorageInfo targetSchema, 
+    public static SchemaComparisonResult Compare(StorageModel sourceSchema, StorageModel targetSchema, 
       HintSet hints, SchemaUpgradeMode schemaUpgradeMode, DomainModel model)
     {
       if (hints == null)
@@ -87,12 +85,12 @@ namespace Xtensive.Orm.Building
       var createColumnActions = actions.Flatten()
         .OfType<CreateNodeAction>()
         .Where(action => {
-          var column = action.Difference.Target as ColumnInfo;
+          var column = action.Difference.Target as StorageColumnInfo;
           return column!=null && !systemTables.Contains(column.Parent.Name, StringComparer.OrdinalIgnoreCase);
         }).ToList();
       columnTypeChangeActions = columnTypeChangeActions.Where(action => {
-        var sourceType = action.Difference.Source as TypeInfo;
-        var targetType = action.Difference.Target as TypeInfo;
+        var sourceType = action.Difference.Source as StorageTypeInfo;
+        var targetType = action.Difference.Target as StorageTypeInfo;
         return sourceType==null 
           || targetType==null
           || sourceType.IsTypeUndefined 
@@ -134,7 +132,7 @@ namespace Xtensive.Orm.Building
         .ToHashSet();
       typeChangeAction
         .Where(action => !TypeConversionVerifier.CanConvertSafely(
-          action.Difference.Source as TypeInfo, action.Difference.Target as TypeInfo))
+          action.Difference.Source as StorageTypeInfo, action.Difference.Target as StorageTypeInfo))
         .Where(action1 => !columnsWithHint.Contains(action1.Path, StringComparer.OrdinalIgnoreCase))
         .ForEach(unsafeActions.Add);
 
@@ -170,8 +168,8 @@ namespace Xtensive.Orm.Building
         .OfType<PropertyChangeAction>()
         .Where(action =>
           action.Properties.ContainsKey("Type")
-            && action.Difference.Parent.Source is ColumnInfo
-            && action.Difference.Parent.Target is ColumnInfo);
+            && action.Difference.Parent.Source is StorageColumnInfo
+            && action.Difference.Parent.Target is StorageColumnInfo);
     }
 
     private static IEnumerable<NodeAction> GetColumnActions(ActionSequence upgradeActions)
@@ -181,7 +179,7 @@ namespace Xtensive.Orm.Building
         if (diff==null)
           return false;
         var item = diff.Source ?? diff.Target;
-        return item is ColumnInfo;
+        return item is StorageColumnInfo;
       };
 
       return upgradeActions
@@ -212,7 +210,7 @@ namespace Xtensive.Orm.Building
       
       var filter = schemaUpgradeMode != SchemaUpgradeMode.ValidateCompatible
         ? (Func<Type, bool>) (targetType => true)
-        : targetType => targetType.In(typeof(TableInfo), typeof(ColumnInfo));
+        : targetType => targetType.In(typeof(TableInfo), typeof(StorageColumnInfo));
       var hasCreateActions = actionList
         .OfType<CreateNodeAction>()
         .Select(action => action.Difference.Target.GetType())
@@ -220,7 +218,7 @@ namespace Xtensive.Orm.Building
       var hasRemoveActions = actionList
         .OfType<RemoveNodeAction>()
         .Select(action => action.Difference.Source.GetType())
-        .Any(sourceType => sourceType.In(typeof(TableInfo), typeof(ColumnInfo)));
+        .Any(sourceType => sourceType.In(typeof(TableInfo), typeof(StorageColumnInfo)));
       
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;

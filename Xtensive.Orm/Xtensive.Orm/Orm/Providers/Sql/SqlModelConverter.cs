@@ -15,11 +15,8 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
-using ColumnInfo = Xtensive.Orm.Upgrade.Model.ColumnInfo;
-using IndexInfo = Xtensive.Orm.Upgrade.Model.IndexInfo;
 using Node = Xtensive.Sql.Model.Node;
 using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
-using SequenceInfo = Xtensive.Orm.Upgrade.Model.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
 using Xtensive.Collections;
@@ -34,7 +31,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the storage info.
     /// </summary>
-    protected StorageInfo StorageInfo { get; private set; }
+    protected StorageModel StorageModel { get; private set; }
 
     /// <summary>
     /// Gets the provider info.
@@ -53,17 +50,17 @@ namespace Xtensive.Orm.Providers.Sql
 
     /// <summary>
     /// Get the result of conversion specified 
-    /// <see cref="Schema"/> to <see cref="StorageInfo"/>.
+    /// <see cref="Schema"/> to <see cref="StorageModel"/>.
     /// </summary>
     /// <returns>The storage model.</returns>
-    public StorageInfo GetConversionResult()
+    public StorageModel GetConversionResult()
     {
-      if (StorageInfo == null) {
-        StorageInfo = new StorageInfo();
+      if (StorageModel == null) {
+        StorageModel = new StorageModel();
         Visit(Schema);
       }
 
-      return StorageInfo;
+      return StorageModel;
     }
 
     #region SqlModelVisitor<IPathNode> implementation
@@ -101,7 +98,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitTable(Table table)
     {
-      var tableInfo = new TableInfo(StorageInfo, table.Name);
+      var tableInfo = new TableInfo(StorageModel, table.Name);
 
       foreach (var column in table.TableColumns)
         Visit(column);
@@ -120,17 +117,17 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitTableColumn(TableColumn tableColumn)
     {
-      var tableInfo = StorageInfo.Tables[tableColumn.Table.Name];
+      var tableInfo = StorageModel.Tables[tableColumn.Table.Name];
       var typeInfo = ExtractType(tableColumn);
-      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, typeInfo);
+      var columnInfo = new StorageColumnInfo(tableInfo, tableColumn.Name, typeInfo);
       return columnInfo;
     }
 
     /// <inheritdoc/>
     protected override IPathNode VisitForeignKey(ForeignKey key)
     {
-      var referencingTable = StorageInfo.Tables[key.Table.Name];
-      var referencingColumns = new List<ColumnInfo>();
+      var referencingTable = StorageModel.Tables[key.Table.Name];
+      var referencingColumns = new List<StorageColumnInfo>();
       foreach (var refColumn in key.Columns)
         referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
 
@@ -139,7 +136,7 @@ namespace Xtensive.Orm.Providers.Sql
         OnRemoveAction = ConvertReferentialAction(key.OnDelete)
       };
 
-      var referencedTable = StorageInfo.Tables[key.ReferencedTable.Name];
+      var referencedTable = StorageModel.Tables[key.ReferencedTable.Name];
       foreignKeyInfo.PrimaryKey = referencedTable.PrimaryIndex;
 
       foreach (var column in referencingColumns)
@@ -151,7 +148,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitPrimaryKey(PrimaryKey key)
     {
-      var tableInfo = StorageInfo.Tables[key.Table.Name];
+      var tableInfo = StorageModel.Tables[key.Table.Name];
       var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name) {IsClustered = key.IsClustered};
 
       foreach (var keyColumn in key.Columns)
@@ -166,11 +163,11 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitFullTextIndex(FullTextIndex index)
     {
-      var tableInfo = StorageInfo.Tables[index.DataTable.Name];
+      var tableInfo = StorageModel.Tables[index.DataTable.Name];
       var name = index.Name.IsNullOrEmpty()
         ? string.Format("FT_{0}", index.DataTable.Name)
         : index.Name;
-      var ftIndex = new FullTextIndexInfo(tableInfo, name) {
+      var ftIndex = new StorageFullTextIndexInfo(tableInfo, name) {
         FullTextCatalog = index.FullTextCatalog
       };
       foreach (var column in index.Columns) {
@@ -183,7 +180,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitIndex(Index index)
     {
-      var tableInfo = StorageInfo.Tables[index.DataTable.Name];
+      var tableInfo = StorageModel.Tables[index.DataTable.Name];
       var native = index.Where as SqlNative;
       var filter = !native.IsNullReference() && !string.IsNullOrEmpty(native.Value)
         ? new PartialIndexFilterInfo(native.Value, IndexFilterNormalizer.Normalize(native.Value))
@@ -220,9 +217,9 @@ namespace Xtensive.Orm.Providers.Sql
       catch (ArgumentException) {
         type = null;
       }
-      var typeInfo = type!=null ? new TypeInfo(type, null) : TypeInfo.Undefined;
+      var typeInfo = type!=null ? new StorageTypeInfo(type, null) : StorageTypeInfo.Undefined;
 
-      var sequenceInfo = new SequenceInfo(StorageInfo, sequence.Name) {
+      var sequenceInfo = new StorageSequenceInfo(StorageModel, sequence.Name) {
         Increment = sequence.SequenceDescriptor.Increment.Value,
         // StartValue = sequence.SequenceDescriptor.StartValue.Value,
         Type = typeInfo
@@ -244,7 +241,7 @@ namespace Xtensive.Orm.Providers.Sql
       var increment = idColumn.SequenceDescriptor.Increment;
       var type = ExtractType(idColumn);
       var sequence =
-        new SequenceInfo(StorageInfo, generatorTable.Name) {
+        new StorageSequenceInfo(StorageModel, generatorTable.Name) {
           Seed = startValue ?? 0,
           Increment = increment ?? 1,
           Type = type,
@@ -254,11 +251,11 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <summary>
-    /// Extracts the <see cref="TypeInfo"/> from <see cref="TableColumn"/>.
+    /// Extracts the <see cref="StorageTypeInfo"/> from <see cref="TableColumn"/>.
     /// </summary>
     /// <param name="column">The column.</param>
     /// <returns>Data type.</returns>
-    protected virtual TypeInfo ExtractType(TableColumn column)
+    protected virtual StorageTypeInfo ExtractType(TableColumn column)
     {
       var sqlValueType = column.DataType;
       Type type;
@@ -273,7 +270,7 @@ namespace Xtensive.Orm.Providers.Sql
         else if (sqlTypeName=="blob sub type 1") // Firebird-specific!
           type = typeof (byte[]);
         else
-          return TypeInfo.Undefined;
+          return StorageTypeInfo.Undefined;
       }
 
       if (column.IsNullable 
@@ -281,7 +278,7 @@ namespace Xtensive.Orm.Providers.Sql
         && !type.IsNullable())
         type = type.ToNullable();
         
-      return new TypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
+      return new StorageTypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
     }
 
     /// <summary>
@@ -314,7 +311,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="table">The table.</param>
     /// <param name="keyColumns">The key columns.</param>
     /// <returns>The index.</returns>
-    protected virtual IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
+    protected virtual StorageIndexInfo FindIndex(TableInfo table, List<StorageColumnInfo> keyColumns)
     {
       var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value);
       if (primaryKeyColumns.Except(keyColumns)

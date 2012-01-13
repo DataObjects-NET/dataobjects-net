@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade
 
     private readonly StoredDomainModel storedModel;
     private readonly StoredDomainModel currentModel;
-    private readonly StorageInfo extractedModel;
+    private readonly StorageModel extractedModel;
 
     private readonly Dictionary<string, StoredTypeInfo> currentTypes;
     private readonly Dictionary<string, StoredTypeInfo> storedTypes;
@@ -1191,7 +1191,7 @@ namespace Xtensive.Orm.Upgrade
     
     // Constructors
 
-    public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
+    public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageModel extractedModel)
     {
       nameBuilder = Domain.Demand().Handlers.NameBuilder;
       reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();

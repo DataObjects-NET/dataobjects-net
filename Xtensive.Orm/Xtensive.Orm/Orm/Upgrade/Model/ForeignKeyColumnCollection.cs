@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// specified <paramref name="source"/> index.
     /// </summary>
     /// <param name="source">The index to use.</param>
-    public void Set(IndexInfo source)
+    public void Set(StorageIndexInfo source)
     {
       Clear();
       foreach (var keyColumn in source.KeyColumns)

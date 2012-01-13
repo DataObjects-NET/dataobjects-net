@@ -11,10 +11,10 @@ using Xtensive.Modelling;
 namespace Xtensive.Orm.Upgrade.Model
 {
   /// <summary>
-  /// The collection of <see cref="SequenceInfo"/> instances.
+  /// The collection of <see cref="StorageSequenceInfo"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class SequenceInfoCollection : NodeCollectionBase<SequenceInfo, StorageInfo>,
+  public sealed class SequenceInfoCollection : NodeCollectionBase<StorageSequenceInfo, StorageModel>,
     IUnorderedNodeCollection
   {
     // Constructors
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The storage.</param>
-    public SequenceInfoCollection(StorageInfo parent)
+    public SequenceInfoCollection(StorageModel parent)
       : base(parent, "Sequences")
     {
     }

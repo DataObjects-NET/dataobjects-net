@@ -19,7 +19,6 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Upgrade;
-using ModelTypeInfo = Xtensive.Orm.Upgrade.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -35,7 +34,7 @@ namespace Xtensive.Orm.Providers.Sql
     protected Driver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
-    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
+    public override void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceSchema, StorageModel targetSchema)
     {
       var queryExecutor = SessionHandler.GetService<IQueryExecutor>(true);
 
@@ -71,7 +70,7 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override StorageInfo ExtractSchema()
+    protected override StorageModel ExtractSchema()
     {
       var schema = (Schema) GetNativeExtractedSchema(); // Must rely on this method to avoid multiple extractions
       var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo, indexFilterNormalizer);

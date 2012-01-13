@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// An abstract base class for all columns refs.
   /// </summary>
   [Serializable]
-  public abstract class ColumnInfoRef<TParent> : Ref<ColumnInfo, TParent>
+  public abstract class ColumnInfoRef<TParent> : Ref<StorageColumnInfo, TParent>
     where TParent: NodeBase<TableInfo>
   {
     // Constructors
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The column.</param>
-    protected ColumnInfoRef(TParent parent, ColumnInfo column)
+    protected ColumnInfoRef(TParent parent, StorageColumnInfo column)
       : base(parent)
     {
       Value = column;

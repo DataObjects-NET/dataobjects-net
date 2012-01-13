@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// A collection of <see cref="KeyColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, IndexInfo>
+  public sealed class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, StorageIndexInfo>
   {
     // Constructors
 
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The parent.</param>
-    public KeyColumnRefCollection(IndexInfo parent)
+    public KeyColumnRefCollection(StorageIndexInfo parent)
       : base(parent, "KeyColumns")
     {
     }

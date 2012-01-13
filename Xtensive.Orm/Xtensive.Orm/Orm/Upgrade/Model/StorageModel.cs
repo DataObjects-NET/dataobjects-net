@@ -16,11 +16,11 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Storage schema.
   /// </summary>
   [Serializable]
-  public sealed class StorageInfo : NodeBase<StorageInfo>,
+  public sealed class StorageModel : NodeBase<StorageModel>,
     IModel
   {
     /// <summary>
-    /// Default <see cref="StorageInfo"/> node name.
+    /// Default <see cref="StorageModel"/> node name.
     /// </summary>
     public readonly static string DefaultName = ".";
 
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<StorageInfo, StorageInfo, StorageInfo>(this);
+      return new Nesting<StorageModel, StorageModel, StorageModel>(this);
     }
 
 
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The storage name.</param>
-    public StorageInfo(string name)
+    public StorageModel(string name)
       : base(null, name)
     {
     }
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public StorageInfo()
+    public StorageModel()
       : base(null, DefaultName)
     {
     }

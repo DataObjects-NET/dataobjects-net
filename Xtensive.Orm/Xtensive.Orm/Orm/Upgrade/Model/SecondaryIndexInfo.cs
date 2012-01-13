@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Secondary index.
   /// </summary>
   [Serializable]
-  public sealed class SecondaryIndexInfo : IndexInfo
+  public sealed class SecondaryIndexInfo : StorageIndexInfo
   {
     private PartialIndexFilterInfo filter;
 

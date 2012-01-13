@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <summary>
     /// Gets or sets the "schema ready" handler.
     /// </summary>
-    public Func<StorageInfo, StorageInfo, HintSet> SchemaReadyHandler { get; set; }
+    public Func<StorageModel, StorageModel, HintSet> SchemaReadyHandler { get; set; }
 
     /// <summary>
     /// Gets or sets the "upgrade actions ready" handler.
