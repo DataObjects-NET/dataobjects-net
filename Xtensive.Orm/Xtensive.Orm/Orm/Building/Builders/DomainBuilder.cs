@@ -127,8 +127,6 @@ namespace Xtensive.Orm.Building.Builders
       const string sqlAssemblyFormat = "Xtensive.Orm.{0}";
 
       switch (providerName) {
-      case "memory":
-        return AssemblyHelper.LoadExtensionAssembly(indexingAssembly);
       case WellKnown.Provider.SqlServer:
         return typeof(DomainBuilder).Assembly;
       case WellKnown.Provider.SqlServerCe:
