@@ -20,7 +20,6 @@ using PostSharp.Sdk.Collections;
 using PostSharp.Sdk.Extensibility.Tasks;
 using Xtensive.Aspects;
 using System.Linq;
-using Xtensive.Core;
 
 namespace Xtensive.Aspects.Weaver
 {

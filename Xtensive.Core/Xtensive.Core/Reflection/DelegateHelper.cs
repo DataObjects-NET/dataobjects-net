@@ -53,7 +53,7 @@ namespace Xtensive.Reflection
     /// Aspected factory method name.
     /// </summary>
     public static readonly string AspectedFactoryMethodName = 
-      "~Xtensive.Aspects.FactoryMethod";
+      "~Xtensive.Aspects.FactoryMethod"; // NOTE: Keep in sync with AspectHelper
 
     #endregion
 

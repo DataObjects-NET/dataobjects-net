@@ -16,7 +16,7 @@ using PostSharp.Sdk.CodeModel;
 using PostSharp.Sdk.CodeWeaver;
 using PostSharp.Sdk.Collections;
 using Xtensive.Aspects;
-using Xtensive.Reflection;
+using Xtensive.Aspects.Helpers;
 
 namespace Xtensive.Aspects.Weaver
 {
@@ -113,7 +113,7 @@ namespace Xtensive.Aspects.Weaver
 
         IMethod constructor;
         try {
-          constructor = genericType.Methods.GetMethod(WellKnown.CtorName,
+          constructor = genericType.Methods.GetMethod(AspectHelper.CtorName,
             ctorSignature.Translate(module),
             BindingOptions.Default);
         } catch (Exception e) {
@@ -122,7 +122,7 @@ namespace Xtensive.Aspects.Weaver
         }
   
         var factoryMathodDef = new MethodDefDeclaration();
-        factoryMathodDef.Name = DelegateHelper.AspectedFactoryMethodName;
+        factoryMathodDef.Name = AspectHelper.AspectedFactoryMethodName;
         factoryMathodDef.CallingConvention = CallingConvention.Default;
         factoryMathodDef.Attributes = MethodAttributes.Private | MethodAttributes.Static;
         typeDef.Methods.Add(factoryMathodDef);

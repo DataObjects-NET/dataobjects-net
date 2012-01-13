@@ -16,7 +16,7 @@ using PostSharp.Sdk.CodeModel;
 using PostSharp.Sdk.CodeWeaver;
 using PostSharp.Sdk.Collections;
 using Xtensive.Aspects;
-using Xtensive.Reflection;
+using Xtensive.Aspects.Helpers;
 using LicenseType = Xtensive.Licensing.LicenseType;
 
 namespace Xtensive.Aspects.Weaver
@@ -138,7 +138,7 @@ namespace Xtensive.Aspects.Weaver
         var module = AspectWeaver.Module;
         var helper = new WeavingHelper(module);
         var ctorDef = new MethodDefDeclaration();
-        ctorDef.Name = WellKnown.CtorName;
+        ctorDef.Name = AspectHelper.CtorName;
         ctorDef.CallingConvention = CallingConvention.HasThis;
         ctorDef.Attributes = MethodAttributes.Family | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
         typeDef.Methods.Add(ctorDef);
@@ -163,7 +163,7 @@ namespace Xtensive.Aspects.Weaver
             0);
 
         try {
-          baseConstructor = baseType.Methods.GetMethod(WellKnown.CtorName,
+          baseConstructor = baseType.Methods.GetMethod(AspectHelper.CtorName,
            ctorSignature.Translate(module),
            BindingOptions.Default).TranslateMethod(module);
         } catch (Exception e) {
