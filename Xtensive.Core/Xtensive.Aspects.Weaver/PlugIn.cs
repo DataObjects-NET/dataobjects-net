@@ -139,8 +139,8 @@ namespace Xtensive.Aspects.Weaver
 
     private static void FatalLicenseError(string format, params object[] args)
     {
-      ErrorLog.Write(SeverityType.Fatal, format, args);
       RunLicensingAgent();
+      ErrorLog.Write(SeverityType.Fatal, format, args);
     }
 
     private static void RunLicensingAgent()
@@ -151,9 +151,7 @@ namespace Xtensive.Aspects.Weaver
         throw new FileNotFoundException(path);
       if (!Environment.UserInteractive || Environment.OSVersion.Platform!=PlatformID.Win32NT || string.IsNullOrEmpty(path))
         return;
-      var startInfo = new ProcessStartInfo(path, "wait") {
-        UseShellExecute = false
-      };
+      var startInfo = new ProcessStartInfo(path) {UseShellExecute = false};
       Process.Start(startInfo);
     }
 
