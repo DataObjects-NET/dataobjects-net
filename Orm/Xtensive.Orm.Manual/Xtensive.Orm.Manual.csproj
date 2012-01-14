@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5DC22620-1262-4E00-8163-92D66D98E8B3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xtensive.Orm.Manual</RootNamespace>
+    <AssemblyName>Xtensive.Orm.Manual</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Npgsql, Version=1.99.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="PostSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="nunit.framework, Version=2.2.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System.Data.Entity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.XML" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Testing, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Concurrency\VersionsTest.cs" />
+    <Compile Include="Concurrency\LockingTest.cs" />
+    <Compile Include="ModellingDomain\AuditAndOpenGenericsTest.cs" />
+    <Compile Include="Services\DirectSqlAccessorTest.cs" />
+    <Compile Include="Services\DirectStateAccessorTest.cs" />
+    <Compile Include="Transactions\SessionSwitchingTest.cs" />
+    <Compile Include="Advanced\CustomLinqCompilerTest.cs" />
+    <Compile Include="Advanced\CustomSqlCompilerTest.cs" />
+    <Compile Include="Advanced\JoinsAndSubqueriesTest.cs" />
+    <Compile Include="Attributes\AttributesTest.cs" />
+    <Compile Include="Caching\CalculatedValueCachingTest.cs" />
+    <Compile Include="DomainAndSession\DomainAndSessionSample.cs" />
+    <Compile Include="Entities\TestFixture.cs" />
+    <Compile Include="EntitySets\EntitySetsTest.cs" />
+    <Compile Include="FutureQueries\FutureQueriesTest.cs" />
+    <Compile Include="Legacy\CustomKeyGenerators\CustomKeyGeneratorsTest.cs" />
+    <Compile Include="ModellingDomain\IndexAttributeTest.cs" />
+    <Compile Include="Indexes\TestFixture.cs" />
+    <Compile Include="Intro\CheatSheetTest.cs" />
+    <Compile Include="Intro\HelloWorldTest.cs" />
+    <Compile Include="ObjectMapper\ObjectMapperTest.cs" />
+    <Compile Include="Persistent\TestFixture.cs" />
+    <Compile Include="Prefetch\PrefetchTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Structures\TestFixture.cs" />
+    <Compile Include="Transactions\AutoTransactionsTest.cs" />
+    <Compile Include="Transactions\NestedTransactionsTest.cs" />
+    <Compile Include="Upgrade\Model_1\Model.cs" />
+    <Compile Include="Upgrade\Model_3\Upgrader.cs" />
+    <Compile Include="Upgrade\Model_2\Model.cs" />
+    <Compile Include="Upgrade\Model_2\Upgrader.cs" />
+    <Compile Include="Upgrade\Model_3\Model.cs" />
+    <Compile Include="Upgrade\Model_4\Model.cs" />
+    <Compile Include="Upgrade\Model_4\Upgrader.cs" />
+    <Compile Include="Upgrade\UpgradeHandlerEnabler.cs" />
+    <Compile Include="Upgrade\UpgradeTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FutureQueries\FutureQueries.sql" />
+    <None Include="Prefetch\Prefetch.sql" />
+    <None Include="Structures\DatabaseSchema.png" />
+    <None Include="Structures\Diagrams.pptx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EntitySets\DatabaseSchema.gif" />
+    <Content Include="EntitySets\ManyToManySchema.gif" />
+    <Content Include="Structures\InheritanceMappingSchema.png" />
+    <Content Include="Structures\MappingSchema.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="LazyLoading\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
+      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
+      <Name>Xtensive.Orm</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Condition="Exists('..\..\Common\Common.targets')" Project="..\..\Common\Subconfig.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Condition="Exists('..\..\Common\Common.targets')" Project="..\..\Common\Common.targets" />
+  <Import Condition="!Exists('..\..\Common\Common.targets')" Project="$(DataObjectsDotNetPath)\Common\DataObjects.Net.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

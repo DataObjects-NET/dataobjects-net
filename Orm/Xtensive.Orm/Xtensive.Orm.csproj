@@ -1,0 +1,1290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xtensive</RootNamespace>
+    <AssemblyName>Xtensive.Orm</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <DocumentationFile>bin\$(Configuration)\Xtensive.Orm.xml</DocumentationFile>
+    <ShareBinaries>true</ShareBinaries>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Common\Key.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PostSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
+      <SpecificVersion>True</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Orm\Aspects\TransactionalAttribute.cs" />
+    <Compile Include="Orm\Aspects\EntityAspect.cs" />
+    <Compile Include="Orm\Aspects\EntitySetAspect.cs" />
+    <Compile Include="Orm\Aspects\NonTransactionalAttribute.cs" />
+    <Compile Include="Orm\Aspects\PersistentAspect.cs" />
+    <Compile Include="Orm\Aspects\StructureAspect.cs" />
+    <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
+    <Compile Include="Orm\Aspects\TransactionalTypeAttribute.cs" />
+    <Compile Include="Orm\Attributes\KeyGeneratorKind.cs" />
+    <Compile Include="Orm\Attributes\TypeDiscriminatorAttribute.cs" />
+    <Compile Include="Orm\Attributes\MaterializedViewAttribute.cs" />
+    <Compile Include="Orm\Attributes\HierarchyRootAttribute.cs" />
+    <Compile Include="Orm\Attributes\StorageAttribute.cs" />
+    <Compile Include="Orm\Attributes\TypeDiscriminatorValueAttribute.cs" />
+    <Compile Include="Orm\Attributes\VersionAttribute.cs" />
+    <Compile Include="Orm\Attributes\VersionMode.cs" />
+    <Compile Include="Orm\Building\Builders\AssociationBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\IndexBuilder.ClusteredIndexes.cs" />
+    <Compile Include="Orm\Building\Builders\MemberCompilerProviderBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\PartialIndexFilterBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\ValueTypeBuilder.cs" />
+    <Compile Include="Orm\Building\Definitions\FullTextFieldDef.cs" />
+    <Compile Include="Orm\Building\Definitions\FullTextIndexDef.cs" />
+    <Compile Include="Orm\Building\Definitions\FullTextIndexDefCollection.cs" />
+    <Compile Include="Orm\Building\DependencyGraph\Graph.cs" />
+    <Compile Include="Orm\Building\DependencyGraph\Node.cs" />
+    <Compile Include="Orm\Building\FixupActions\BuildImplementorListAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\CopyKeyFieldsAction.cs" />
+    <Compile Include="Orm\Attributes\FullTextAttribute.cs" />
+    <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
+    <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
+    <Compile Include="Orm\DbCommandEventArgs.cs" />
+    <Compile Include="Orm\Interfaces\IQueryEndpointProvider.cs" />
+    <Compile Include="Orm\Exceptions\StorageExceptionInfo.cs" />
+    <Compile Include="Orm\Configuration\LinqExtensionRegistration.cs" />
+    <Compile Include="Orm\Configuration\LinqExtensionRegistry.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\IHasNestedNodes.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\KeyExtractorNode.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\Node.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\NodeAggregator.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\NodeVisitor.cs" />
+    <Compile Include="Orm\Internals\Prefetch\PrefetchFacade.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\FieldNode.cs" />
+    <Compile Include="Orm\Internals\Prefetch\PrefetchKeyIterator.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\NodeParser.cs" />
+    <Compile Include="Orm\Internals\Prefetch\PrefetchProcessor.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
+    <Compile Include="Orm\Providers\CompilationService.cs" />
+    <Compile Include="Orm\Providers\DomainHandler.cs" />
+    <Compile Include="Orm\Providers\EnumerationContext.cs" />
+    <Compile Include="Orm\Providers\EnumerationScope.cs" />
+    <Compile Include="Orm\Providers\HandlerAccessor.cs" />
+    <Compile Include="Orm\Providers\HandlerBase.cs" />
+    <Compile Include="Orm\Providers\HandlerFactory.cs" />
+    <Compile Include="Orm\Providers\InitializableHandlerBase.cs" />
+    <Compile Include="Orm\Providers\Interfaces\ICachingKeyGeneratorService.cs" />
+    <Compile Include="Orm\Providers\Interfaces\IDirectSqlService.cs" />
+    <Compile Include="Orm\Providers\IsolationLevelConverter.cs" />
+    <Compile Include="Orm\Providers\NameBuilder.cs" />
+    <Compile Include="Orm\Providers\ProviderAttribute.cs" />
+    <Compile Include="Orm\Providers\ProviderFeatures.cs" />
+    <Compile Include="Orm\Providers\ProviderInfo.cs" />
+    <Compile Include="Orm\Providers\SchemaUpgradeHandler.cs" />
+    <Compile Include="Orm\Providers\SessionHandler.cs" />
+    <Compile Include="Orm\Providers\SessionHandler.Fetching.cs" />
+    <Compile Include="Orm\Providers\SessionHandler.Persist.cs" />
+    <Compile Include="Orm\Providers\SessionHandler.References.cs" />
+    <Compile Include="Orm\Providers\SessionHandler.StateManagement.cs" />
+    <Compile Include="Orm\Providers\SessionHandler.Transactions.cs" />
+    <Compile Include="Orm\Providers\SqlServer\DomainHandler.cs" />
+    <Compile Include="Orm\Providers\SqlServer\HandlerFactory.cs" />
+    <Compile Include="Orm\Providers\SqlServer\PartialIndexFilterNormalizer.cs" />
+    <Compile Include="Orm\Providers\SqlServer\SqlCompiler.cs" />
+    <Compile Include="Orm\Providers\Sql\CachingKeyGeneratorService.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\BatchingCommandProcessor.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\Command.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandPart.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandPartFactory.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandProcessor.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandProcessorFactory.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\CursorCommandPartFactory.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\SimpleCommandProcessor.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlPersistTask.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlQueryTask.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlTask.cs" />
+    <Compile Include="Orm\Providers\Sql\DbCommandExtensions.cs" />
+    <Compile Include="Orm\Providers\Sql\DbDataReaderAccessor.cs" />
+    <Compile Include="Orm\Providers\Sql\DomainHandler.cs" />
+    <Compile Include="Orm\Providers\Sql\Driver.cs" />
+    <Compile Include="Orm\Providers\Sql\Driver.Operations.cs" />
+    <Compile Include="Orm\Providers\Sql\Driver.ValueTypeMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\EmptySelectCorrector.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\BooleanExpressionConverter.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.Helpers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\ExpressionTranslationContext.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\ExpressionTranslationHelpers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\ExpressionTranslationScope.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\DateTimeCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\DecimalCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\GuidCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\MathCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\NullableCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\NumericCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\StringCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\TimeSpanCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\VbConversionsCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\VbDateAndTimeCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\VBStringsCompilers.cs" />
+    <Compile Include="Orm\Providers\Sql\HandlerFactory.cs" />
+    <Compile Include="Orm\Providers\Sql\IQueryExecutor.cs" />
+    <Compile Include="Orm\Providers\Sql\Log.cs" />
+    <Compile Include="Orm\Providers\Sql\ManualPagingSqlCompiler.cs" />
+    <Compile Include="Orm\Providers\Sql\Mappings\ColumnMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\Mappings\ModelMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\Mappings\PrimaryIndexMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\Mappings\SecondaryIndexMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\NonTransactionalStage.cs" />
+    <Compile Include="Orm\Providers\Sql\ParameterBinding.cs" />
+    <Compile Include="Orm\Providers\Sql\PartialIndexFilterNormalizer.cs" />
+    <Compile Include="Orm\Providers\Sql\PersistParameterBinding.cs" />
+    <Compile Include="Orm\Providers\Sql\PersistParameterBindingType.cs" />
+    <Compile Include="Orm\Providers\Sql\PersistRequest.cs" />
+    <Compile Include="Orm\Providers\Sql\PersistRequestBuilder.cs" />
+    <Compile Include="Orm\Providers\Sql\PersistRequestBuilderContext.cs" />
+    <Compile Include="Orm\Providers\Sql\PersistRequestBuilderTask.cs" />
+    <Compile Include="Orm\Providers\Sql\PersistRequestKind.cs" />
+    <Compile Include="Orm\Providers\Sql\ProviderInfoBuilder.cs" />
+    <Compile Include="Orm\Providers\Sql\QueryParameterBinding.cs" />
+    <Compile Include="Orm\Providers\Sql\QueryParameterBindingType.cs" />
+    <Compile Include="Orm\Providers\Sql\QueryRequest.cs" />
+    <Compile Include="Orm\Providers\Sql\QueryRowFilterParameterBinding.cs" />
+    <Compile Include="Orm\Providers\Sql\Request.cs" />
+    <Compile Include="Orm\Providers\Sql\RequestOptions.cs" />
+    <Compile Include="Orm\Providers\Sql\Resources\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Orm\Providers\Sql\SchemaUpgradeHandler.cs" />
+    <Compile Include="Orm\Providers\Sql\SessionHandler.cs" />
+    <Compile Include="Orm\Providers\Sql\SessionHandler.IDirectSqlService.cs" />
+    <Compile Include="Orm\Providers\Sql\SessionHandler.IQueryExecutor.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlActionTranslator.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.Aggregate.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.Apply.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.Helpers.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.Include.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.Index.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.NotSupported.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlCompiler.Paging.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlIncludeProvider.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlModelConverter.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlProvider.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlStoreProvider.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlTemporaryDataProvider.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlUpgradeStage.cs" />
+    <Compile Include="Orm\Providers\Sql\StorageModelBuilder.cs" />
+    <Compile Include="Orm\Providers\Sql\TemporaryTables\TemporaryTableDescriptor.cs" />
+    <Compile Include="Orm\Providers\Sql\TemporaryTables\TemporaryTableManager.cs" />
+    <Compile Include="Orm\Providers\Sql\TemporaryTables\TemporaryTableStateRegistry.cs" />
+    <Compile Include="Orm\QueryEventArgs.cs" />
+    <Compile Include="Orm\Linq\Rewriters\NullComparsionRewriter.cs" />
+    <Compile Include="Orm\Model\AssociationInfo.cs" />
+    <Compile Include="Orm\Model\AssociationInfoCollection.cs" />
+    <Compile Include="Orm\Model\ColumnAttributes.cs" />
+    <Compile Include="Orm\Model\ColumnGroup.cs" />
+    <Compile Include="Orm\Model\ColumnIndexMap.cs" />
+    <Compile Include="Orm\Model\ColumnInfo.cs" />
+    <Compile Include="Orm\Model\ColumnInfoCollection.cs" />
+    <Compile Include="Orm\Model\ColumnInfoRef.cs" />
+    <Compile Include="Orm\Model\ComparerProvider.cs" />
+    <Compile Include="Orm\Model\DomainModel.cs" />
+    <Compile Include="Orm\Model\DomainModelExtensions.cs" />
+    <Compile Include="Orm\Model\FieldAttributes.cs" />
+    <Compile Include="Orm\Model\FieldInfo.cs" />
+    <Compile Include="Orm\Model\FieldInfoCollection.cs" />
+    <Compile Include="Orm\Model\FieldInfoRef.cs" />
+    <Compile Include="Orm\Model\FieldMap.cs" />
+    <Compile Include="Orm\Model\FullTextColumnInfo.cs" />
+    <Compile Include="Orm\Model\FullTextColumnInfoCollection.cs" />
+    <Compile Include="Orm\Model\FullTextIndexInfo.cs" />
+    <Compile Include="Orm\Model\FullTextIndexInfoCollection.cs" />
+    <Compile Include="Orm\Model\HierarchyInfo.cs" />
+    <Compile Include="Orm\Model\HierarchyInfoCollection.cs" />
+    <Compile Include="Orm\Model\IndexAttributes.cs" />
+    <Compile Include="Orm\Model\IndexInfo.cs" />
+    <Compile Include="Orm\Model\IndexInfoCollection.cs" />
+    <Compile Include="Orm\Model\IndexInfoRef.cs" />
+    <Compile Include="Orm\Model\InheritanceSchema.cs" />
+    <Compile Include="Orm\Model\Internals\TypePairComparer.cs" />
+    <Compile Include="Orm\Model\KeyField.cs" />
+    <Compile Include="Orm\Model\KeyInfo.cs" />
+    <Compile Include="Orm\Model\Log.cs" />
+    <Compile Include="Orm\Model\MappingNode.cs" />
+    <Compile Include="Orm\Model\ModelVisitor.cs" />
+    <Compile Include="Orm\Model\Multiplicity.cs" />
+    <Compile Include="Orm\Model\Node.cs" />
+    <Compile Include="Orm\Model\NodeCollection.cs" />
+    <Compile Include="Orm\Model\OnRemoveAction.cs" />
+    <Compile Include="Orm\Model\PartialIndexFilterInfo.cs" />
+    <Compile Include="Orm\Model\Resources\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Orm\Model\SequenceInfo.cs" />
+    <Compile Include="Orm\Model\Stored\Internals\ConverterToStoredModel.cs" />
+    <Compile Include="Orm\Model\Stored\Internals\ReferenceUpdater.cs" />
+    <Compile Include="Orm\Model\Stored\StoredAssociationInfo.cs" />
+    <Compile Include="Orm\Model\Stored\StoredDomainModel.cs" />
+    <Compile Include="Orm\Model\Stored\StoredFieldInfo.cs" />
+    <Compile Include="Orm\Model\Stored\StoredHierarchyInfo.cs" />
+    <Compile Include="Orm\Model\Stored\StoredNode.cs" />
+    <Compile Include="Orm\Model\Stored\StoredTypeInfo.cs" />
+    <Compile Include="Orm\Model\TypeAttributes.cs" />
+    <Compile Include="Orm\Model\TypeDiscriminatorMap.cs" />
+    <Compile Include="Orm\Model\TypeIndexInfoCollection.cs" />
+    <Compile Include="Orm\Model\TypeInfo.cs" />
+    <Compile Include="Orm\Model\TypeInfoCollection.cs" />
+    <Compile Include="Orm\Model\TypeInfoRef.cs" />
+    <Compile Include="Orm\EntitySetActionCompletedEventArgs.cs" />
+    <Compile Include="Orm\QueryEndpoint.cs" />
+    <Compile Include="Orm\Services\QueryFormatter.cs" />
+    <Compile Include="Orm\Services\TransactionMonitor.cs" />
+    <Compile Include="Orm\TransactionState.cs" />
+    <Compile Include="Orm\TransactionStateExtensions.cs" />
+    <Compile Include="Orm\Upgrade\StorageModelBuilder.cs" />
+    <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\EmailConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\FutureConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\LengthConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\NotEmptyConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\NotNullConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\NotNullOrEmptyConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\PastConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\RangeConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\Constraints\RegexConstraint.cs" />
+    <Compile Include="Orm\Validation\Aspects\InconsistentRegionAttribute.cs" />
+    <Compile Include="Orm\Validation\Aspects\Internals\ConstraintRegistry.cs" />
+    <Compile Include="Orm\Validation\Aspects\PropertyConstraintAspect.cs" />
+    <Compile Include="Orm\Validation\Exceptions\ConstraintViolationException.cs" />
+    <Compile Include="Orm\Validation\Log.cs" />
+    <Compile Include="Orm\Validation\Resources\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Orm\Validation\Interfaces\IValidationAware.cs" />
+    <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
+    <Compile Include="Orm\Validation\ValidationContext.cs" />
+    <Compile Include="Orm\Validation\ValidationMode.cs" />
+    <Compile Include="Orm\Internals\RecordSetMapping.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
+    <Compile Include="Orm\Linq\Rewriters\CoalesceRewriter.cs" />
+    <Compile Include="Orm\Linq\TranslationResult.cs" />
+    <Compile Include="Orm\Operations\EntityInitializeOperation.cs" />
+    <Compile Include="Orm\Operations\Internals\BlockingOperationRegistrationScope.cs" />
+    <Compile Include="Orm\Operations\KeySetOperation.cs" />
+    <Compile Include="Orm\Operations\OperationCompletedEventArgs.cs" />
+    <Compile Include="Orm\Operations\Internals\OperationRegistrationScope.cs" />
+    <Compile Include="Orm\OperationLogType.cs" />
+    <Compile Include="Orm\Operations\OperationRegistry.cs" />
+    <Compile Include="Orm\Operations\OperationType.cs" />
+    <Compile Include="Orm\EntityExtensions.cs" />
+    <Compile Include="Orm\EntityVersionInfoChangedEventArgs.cs" />
+    <Compile Include="Orm\EntitySetItemEventArgs.cs" />
+    <Compile Include="Orm\Exceptions\CheckConstraintViolationException.cs" />
+    <Compile Include="Orm\Exceptions\ConnectionErrorException.cs" />
+    <Compile Include="Orm\Exceptions\ConstraintViolationException.cs" />
+    <Compile Include="Orm\Exceptions\VersionConflictException.cs" />
+    <Compile Include="Orm\Exceptions\DeadlockException.cs" />
+    <Compile Include="Orm\Exceptions\OperationTimeoutException.cs" />
+    <Compile Include="Orm\Exceptions\ReferentialConstraintViolationException.cs" />
+    <Compile Include="Orm\Exceptions\SyntaxErrorException.cs" />
+    <Compile Include="Orm\Exceptions\UniqueConstraintViolationException.cs" />
+    <Compile Include="Orm\Exceptions\TransactionSerializationFailureException.cs" />
+    <Compile Include="Orm\Interfaces\IHasNullEntity.cs" />
+    <Compile Include="Orm\Interfaces\IVersionSetProvider.cs" />
+    <Compile Include="Orm\Internals\ReferentialIntegrity\NoneActionProcessor.cs" />
+    <Compile Include="Orm\Internals\TypeLevelCache.cs" />
+    <Compile Include="Orm\Internals\FieldAccessor.cs" />
+    <Compile Include="Orm\KeyGenerator{TKeyType}.cs" />
+    <Compile Include="Orm\Interfaces\IOperationSequence.cs" />
+    <Compile Include="Orm\Interfaces\IPrecondition.cs" />
+    <Compile Include="Orm\Linq\Rewriters\SubqueryFilterRemover.cs" />
+    <Compile Include="Orm\NotifyChangedOptions.cs" />
+    <Compile Include="Orm\Operations\EntityIdentifierType.cs" />
+    <Compile Include="Orm\Interfaces\IUniqueOperation.cs" />
+    <Compile Include="Orm\Operations\EntitySetItemRemoveOperation.cs" />
+    <Compile Include="Orm\Operations\EntitySetItemAddOperation.cs" />
+    <Compile Include="Orm\Operations\EntitySetClearOperation.cs" />
+    <Compile Include="Orm\Operations\KeyOperation.cs" />
+    <Compile Include="Orm\Operations\EntityCreateOperation.cs" />
+    <Compile Include="Orm\Operations\EntitiesRemoveOperation.cs" />
+    <Compile Include="Orm\Operations\KeyGenerateOperation.cs" />
+    <Compile Include="Orm\Operations\OperationCapturer.cs" />
+    <Compile Include="Orm\Operations\ValidateVersionOperation.cs" />
+    <Compile Include="Orm\RecordQueryExtensions.cs" />
+    <Compile Include="Orm\Services\DirectEntityAccessor.cs" />
+    <Compile Include="Orm\Services\DirectSqlAccessor.cs" />
+    <Compile Include="Orm\Services\DirectStateAccessor.cs" />
+    <Compile Include="Orm\Configuration\ReaderPreloadingPolicy.cs" />
+    <Compile Include="Orm\Services\EntitySetStateAccessor.cs" />
+    <Compile Include="Orm\Linq\Expressions\FullTextExpression.cs" />
+    <Compile Include="Orm\Linq\Rewriters\PersistentIndexerRewriter.cs" />
+    <Compile Include="Orm\Linq\TranslatorState.cs" />
+    <Compile Include="Orm\Configuration\DomainTypeRegistry.cs" />
+    <Compile Include="Orm\Interfaces\IDomainService.cs" />
+    <Compile Include="Orm\Interfaces\ISessionService.cs" />
+    <Compile Include="Orm\ObjectMapping\GraphComparisonResult.cs" />
+    <Compile Include="Orm\ObjectMapping\Interfaces\IHasBinaryVersion.cs" />
+    <Compile Include="Orm\Services\PersistentStateAccessor.cs" />
+    <Compile Include="Orm\PersistentFieldState.cs" />
+    <Compile Include="Orm\Services\SessionStateAccessor.cs" />
+    <Compile Include="Orm\Session.Events.cs" />
+    <Compile Include="Orm\Session.Query.cs" />
+    <Compile Include="Orm\SessionEventAccessor.cs" />
+    <Compile Include="Orm\TransactionalValue.cs" />
+    <Compile Include="Orm\FullTextMatch.cs" />
+    <Compile Include="Orm\Interfaces\IQueryPreprocessor.cs" />
+    <Compile Include="Orm\Internals\PersistReason.cs" />
+    <Compile Include="Orm\Interfaces\ISessionBound.cs" />
+    <Compile Include="Orm\Internals\Pinner.cs" />
+    <Compile Include="Orm\Exceptions\QueryTranslationException.cs" />
+    <Compile Include="Orm\ObjectMapping\Mapper.cs" />
+    <Compile Include="Orm\Transaction.Validation.cs" />
+    <Compile Include="Orm\Exceptions\ConnectionRequiredException.cs" />
+    <Compile Include="Orm\Internals\Disconnected\SerializableEntityState.cs" />
+    <Compile Include="Orm\Internals\Disconnected\SerializableReference.cs" />
+    <Compile Include="Orm\Internals\Disconnected\SerializableEntitySet.cs" />
+    <Compile Include="Orm\MergeMode.cs" />
+    <Compile Include="Orm\Internals\Prefetch\PrefetchManager.cs" />
+    <Compile Include="Orm\KeyMapping.cs" />
+    <Compile Include="Orm\Operations\EntityFieldOperation.cs" />
+    <Compile Include="Orm\Operations\EntitySetOperation.cs" />
+    <Compile Include="Orm\Operations\MethodCallOperation.cs" />
+    <Compile Include="Orm\Operation.cs" />
+    <Compile Include="Orm\Upgrade\DomainUpgradeModeExtensions.cs" />
+    <Compile Include="Orm\Upgrade\Hints\MergeTypeHint.cs" />
+    <Compile Include="Orm\Upgrade\Hints\RecycledTypeHint.cs" />
+    <Compile Include="Orm\VersionCapturer.cs" />
+    <Compile Include="Orm\VersionSet.cs" />
+    <Compile Include="Orm\VersionsProviderType.cs" />
+    <Compile Include="Orm\VersionsUsageOptions.cs" />
+    <Compile Include="Orm\VersionValidator.cs" />
+    <Compile Include="Orm\EntityRemoveCompletedEventArgs.cs" />
+    <Compile Include="Orm\EntitySetItemActionCompletedEventArgs.cs" />
+    <Compile Include="Orm\EntitySetEventArgs.cs" />
+    <Compile Include="Orm\EntityFieldValueSetCompletedEventArgs.cs" />
+    <Compile Include="Orm\EntityFieldValueSetEventArgs.cs" />
+    <Compile Include="Orm\Configuration\Elements\BuilderElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\ConfigurationSection.cs" />
+    <Compile Include="Orm\Configuration\Elements\DomainConfigurationElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\NamespaceSynonymElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\NamingConventionElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\SessionConfigurationElement.cs" />
+    <Compile Include="Orm\Configuration\SessionOptions.cs" />
+    <Compile Include="Orm\Configuration\SessionType.cs" />
+    <Compile Include="Orm\DisconnectedState.cs" />
+    <Compile Include="Orm\Interfaces\IOperation.cs" />
+    <Compile Include="Orm\Interfaces\IOperationLogger.cs" />
+    <Compile Include="Orm\Operations\OperationEventArgs.cs" />
+    <Compile Include="Orm\OperationLog.cs" />
+    <Compile Include="Orm\Operations\EntityOperation.cs" />
+    <Compile Include="Orm\Operations\EntitySetItemOperation.cs" />
+    <Compile Include="Orm\Operations\EntityFieldSetOperation.cs" />
+    <Compile Include="Orm\Internals\Disconnected\DisconnectedSessionHandler.cs" />
+    <Compile Include="Orm\Internals\Disconnected\EntitySetItemDesc.cs" />
+    <Compile Include="Orm\Internals\Disconnected\ReferenceDescriptor.cs" />
+    <Compile Include="Orm\Internals\Disconnected\DisconnectedEntityState.cs" />
+    <Compile Include="Orm\Internals\Disconnected\DisconnectedEntitySetState.cs" />
+    <Compile Include="Orm\Internals\Disconnected\StateRegistry.cs" />
+    <Compile Include="Orm\Operations\OperationExecutionContext.cs" />
+    <Compile Include="Orm\Internals\Disconnected\AssociationCache.cs" />
+    <Compile Include="Orm\EntitySetBase.cs" />
+    <Compile Include="Orm\Services\DirectEntitySetAccessor.cs" />
+    <Compile Include="Orm\Exceptions\ReprocessableException.cs" />
+    <Compile Include="Orm\Exceptions\StorageException.cs" />
+    <Compile Include="Orm\EntityFieldEventArgs.cs" />
+    <Compile Include="Orm\EntityFieldValueEventArgs.cs" />
+    <Compile Include="Orm\Delayed.cs" />
+    <Compile Include="Orm\EntityFieldValueGetCompletedEventArgs.cs" />
+    <Compile Include="Orm\Interfaces\IHasVersionRoots.cs" />
+    <Compile Include="Orm\Internals\Activator.cs" />
+    <Compile Include="Orm\Internals\DelegatingExpressionVisitor.cs" />
+    <Compile Include="Orm\Internals\Prefetch\EntitySetTask.cs" />
+    <Compile Include="Orm\Internals\Prefetch\Fetcher.cs" />
+    <Compile Include="Orm\Internals\Prefetch\EntityGroupTask.cs" />
+    <Compile Include="Orm\Internals\DelayedQueryResult.cs" />
+    <Compile Include="Orm\Internals\DelayedSequence.cs" />
+    <Compile Include="Orm\Internals\VersionGenerator.cs" />
+    <Compile Include="Orm\Internals\KeyFactory.cs" />
+    <Compile Include="Orm\Internals\LongKey.cs" />
+    <Compile Include="Orm\Internals\Prefetch\PrefetchHelper.cs" />
+    <Compile Include="Orm\Internals\Prefetch\PrefetchFieldDescriptor.cs" />
+    <Compile Include="Orm\Internals\Prefetch\RootEntityContainer.cs" />
+    <Compile Include="Orm\Internals\Prefetch\EntityContainer.cs" />
+    <Compile Include="Orm\Internals\Prefetch\GraphContainer.cs" />
+    <Compile Include="Orm\Internals\QueryTask.cs" />
+    <Compile Include="Orm\Internals\RecordSetReader.cs" />
+    <Compile Include="Orm\Internals\EntitySetState.cs" />
+    <Compile Include="Orm\Internals\PairIntegrity\OperationType.cs" />
+    <Compile Include="Orm\Internals\PairIntegrity\SyncContext.cs" />
+    <Compile Include="Orm\Internals\PairIntegrity\SyncActionSet.cs" />
+    <Compile Include="Orm\Internals\PairIntegrity\SyncManager.cs" />
+    <Compile Include="Orm\Internals\EntityChangeRegistry.cs" />
+    <Compile Include="Orm\Internals\Prefetch\ReferencedEntityContainer.cs" />
+    <Compile Include="Orm\Internals\Prefetch\StrongReferenceContainer.cs" />
+    <Compile Include="Orm\KeyEventArgs.cs" />
+    <Compile Include="Orm\KeyGenerator.cs" />
+    <Compile Include="Orm\Internals\FieldAccessors\EntitySetFieldAccessor.cs" />
+    <Compile Include="Orm\Internals\EntitySetItem.cs" />
+    <Compile Include="Orm\EntitySet{T}.cs" />
+    <Compile Include="Orm\Linq\Expressions\LocalCollectionExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\StructureExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\EntityExpressionJoiner.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\IncludeFilterMappingGatherer.cs" />
+    <Compile Include="Orm\Linq\ItemToTupleConverter.cs" />
+    <Compile Include="Orm\Linq\ItemToTupleConverter{TItem}.cs" />
+    <Compile Include="Orm\Linq\Expressions\ConstructorExpression.cs" />
+    <Compile Include="Orm\Linq\Rewriters\ClosureAccessRewriter.cs" />
+    <Compile Include="Orm\Services\DirectPersistentAccessor.cs" />
+    <Compile Include="Orm\Services\DirectSessionAccessor.cs" />
+    <Compile Include="Orm\PrefetchExtensions.cs" />
+    <Compile Include="Orm\ReferenceInfo.cs" />
+    <Compile Include="Orm\Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Orm\Session.Transactions.cs" />
+    <Compile Include="Orm\DomainBound.cs" />
+    <Compile Include="Orm\EntityState.cs" />
+    <Compile Include="Orm\Exceptions\ReferentialIntegrityException.cs" />
+    <Compile Include="Orm\IndexInfoExtensions.cs" />
+    <Compile Include="Orm\Internals\ColumnGroupMapping.cs" />
+    <Compile Include="Orm\Internals\TupleExtensions.cs" />
+    <Compile Include="Orm\Internals\TypeMapping.cs" />
+    <Compile Include="Orm\Internals\ReferentialIntegrity\CascadeActionProcessor.cs" />
+    <Compile Include="Orm\Internals\ReferentialIntegrity\ActionProcessor.cs" />
+    <Compile Include="Orm\Internals\ReferentialIntegrity\DenyActionProcessor.cs" />
+    <Compile Include="Orm\Internals\ReferentialIntegrity\ClearActionProcessor.cs" />
+    <Compile Include="Orm\RecordSetExtensions.cs" />
+    <Compile Include="Orm\Interfaces\IFieldValueAdapter.cs" />
+    <Compile Include="Orm\Internals\FieldAccessors\EnumFieldAccessor.cs" />
+    <Compile Include="Orm\Internals\FieldAccessors\EntityFieldAccessor.cs" />
+    <Compile Include="Orm\Internals\FieldAccessor{T}.cs" />
+    <Compile Include="Orm\Internals\FieldAccessors\StructureFieldAccessor.cs" />
+    <Compile Include="Orm\Internals\FieldAccessors\DefaultFieldAccessor.cs" />
+    <Compile Include="Orm\Internals\ReferentialIntegrity\RemovalProcessor.cs" />
+    <Compile Include="Orm\Building\Definitions\HierarchyDefCollection.cs" />
+    <Compile Include="Orm\Building\Definitions\HierarchyDef.cs" />
+    <Compile Include="Orm\Building\Definitions\TypeDefCollection.cs" />
+    <Compile Include="Orm\CachingKeyGenerator.cs" />
+    <Compile Include="Orm\Exceptions\DomainBuilderException.cs" />
+    <Compile Include="Orm\Log.cs" />
+    <Compile Include="Orm\Building\Log.cs" />
+    <Compile Include="Orm\Building\Builders\IndexBuilder.cs" />
+    <Compile Include="Orm\Building\Definitions\IndexDef.cs" />
+    <Compile Include="Orm\Building\Builders\AttributeProcessor.cs" />
+    <Compile Include="Orm\Building\Builders\ModelBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\TypeBuilder.cs" />
+    <Compile Include="Orm\Building\Definitions\FieldDef.cs" />
+    <Compile Include="Orm\Configuration\LetterCasePolicy.cs" />
+    <Compile Include="Orm\Configuration\NamingRules.cs" />
+    <Compile Include="Orm\Configuration\NamespacePolicy.cs" />
+    <Compile Include="Orm\Configuration\NamingConvention.cs" />
+    <Compile Include="Orm\Building\Definitions\TypeDef.cs" />
+    <Compile Include="Orm\Building\ValidationRule.cs" />
+    <Compile Include="Orm\Building\Validator.cs" />
+    <Compile Include="Orm\Persistent.cs" />
+    <Compile Include="Orm\SessionBound.cs" />
+    <Compile Include="Orm\Configuration\SessionConfiguration.cs" />
+    <Compile Include="Orm\Providers\SessionExtensions.cs" />
+    <Compile Include="Orm\SessionScope.cs" />
+    <Compile Include="Orm\Building\BuildingContext.cs" />
+    <Compile Include="Orm\Building\BuildingScope.cs" />
+    <Compile Include="Orm\Session.cs" />
+    <Compile Include="Orm\Building\BuildingStage.cs" />
+    <Compile Include="Orm\DomainUpgradeMode.cs" />
+    <Compile Include="Orm\Building\Definitions\DomainModelDef.cs" />
+    <Compile Include="Orm\Domain.cs" />
+    <Compile Include="Orm\Entity.cs" />
+    <Compile Include="Orm\Attributes\FieldAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Orm\Attributes\IndexAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Orm\Attributes\TableMappingAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Orm\Structure.cs" />
+    <Compile Include="Orm\Interfaces\IEntity.cs" />
+    <Compile Include="Orm\PersistenceState.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Orm\Building\Builders\DomainBuilder.cs" />
+    <Compile Include="Orm\Configuration\DomainConfiguration.cs" />
+    <Compile Include="Orm\Configuration\Internals\DomainTypeRegistrationHandler.cs" />
+    <Compile Include="Orm\Key.cs" />
+    <Compile Include="Orm\Transaction.cs" />
+    <Compile Include="Orm\Transaction.Open.cs" />
+    <Compile Include="Orm\TransactionalExtensions.cs" />
+    <Compile Include="Orm\TransactionalStateContainer.cs" />
+    <Compile Include="Orm\TransactionOpenMode.cs" />
+    <Compile Include="Orm\TransactionScope.cs" />
+    <Compile Include="Orm\Ref.cs" />
+    <Compile Include="Orm\TypeExtensions.cs" />
+    <Compile Include="Orm\TypeReference.cs" />
+    <Compile Include="Orm\TypeReferenceAccuracy.cs" />
+    <Compile Include="Orm\Upgrade\Hints\MoveFieldHint.cs" />
+    <Compile Include="Orm\Upgrade\Hints\RemoveFieldHint.cs" />
+    <Compile Include="Orm\Upgrade\Hints\RemoveTypeHint.cs" />
+    <Compile Include="Orm\Upgrade\Internals\HintGenerationResult.cs" />
+    <Compile Include="Orm\Session.Validation.cs" />
+    <Compile Include="Orm\Attributes\SystemTypeAttribute.cs" />
+    <Compile Include="Orm\Upgrade\UpgradeContext.cs" />
+    <Compile Include="Orm\Upgrade\UpgradeScope.cs" />
+    <Compile Include="Orm\Configuration\SessionConfigurationCollection.cs" />
+    <Compile Include="Orm\Internals\FieldAccessors\KeyFieldAccessor.cs" />
+    <Compile Include="Orm\Internals\ReferentialIntegrity\RemovalContext.cs" />
+    <Compile Include="Orm\Linq\Rewriters\EqualityRewriter.cs" />
+    <Compile Include="Orm\Linq\Expressions\ExtendedExpressionType.cs" />
+    <Compile Include="Orm\Linq\MemberType.cs" />
+    <Compile Include="Orm\Linq\ExpressionExtensions.cs" />
+    <Compile Include="Orm\Linq\ExpressionEvaluator.cs" />
+    <Compile Include="Orm\Linq\ParameterExtractor.cs" />
+    <Compile Include="Orm\Linq\Expressions\ProjectionExpression.cs" />
+    <Compile Include="Orm\Linq\Translator.Queryable.cs" />
+    <Compile Include="Orm\Linq\TranslatorContext.cs" />
+    <Compile Include="Orm\Linq\QueryProvider.cs" />
+    <Compile Include="Orm\Record.cs" />
+    <Compile Include="Orm\Session.Cache.cs" />
+    <Compile Include="Orm\Metadata\Assembly.cs" />
+    <Compile Include="Orm\Metadata\Type.cs" />
+    <Compile Include="Orm\Attributes\AssociationAttribute.cs" />
+    <Compile Include="Orm\Attributes\FieldMappingAttribute.cs" />
+    <Compile Include="Orm\Attributes\KeyAttribute.cs" />
+    <Compile Include="Orm\Attributes\KeyGeneratorAttribute.cs" />
+    <Compile Include="Orm\Building\Builders\IndexBuilder.SingleTable.cs" />
+    <Compile Include="Orm\Building\Builders\IndexBuilder.ConcreteTable.cs" />
+    <Compile Include="Orm\Building\Builders\DomainBuilderConfiguration.cs" />
+    <Compile Include="Orm\Building\Builders\IndexBuilder.ClassTable.cs" />
+    <Compile Include="Orm\Building\Builders\ModelDefBuilder.cs" />
+    <Compile Include="Orm\Building\FixupActions\AddForeignKeyIndexAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\AddPrimaryIndexAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\AddTypeIdFieldAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\BuildGenericTypeInstancesAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\FieldAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\MarkFieldAsSystemAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\RemoveTypeAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\MarkFieldAsNotNullableAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\TypeAction.cs" />
+    <Compile Include="Orm\Building\ModelInspectionResult.cs" />
+    <Compile Include="Orm\Building\ModelInspector.cs" />
+    <Compile Include="Orm\Building\FixupActionProcessor.cs" />
+    <Compile Include="Orm\Building\FixupActions\AddTypeIdToKeyFieldsAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\FixupAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\HierarchyAction.cs" />
+    <Compile Include="Orm\Building\FixupActions\ReorderFieldsAction.cs" />
+    <Compile Include="Orm\Building\DependencyGraph\Edge.cs" />
+    <Compile Include="Orm\Building\DependencyGraph\EdgeKind.cs" />
+    <Compile Include="Orm\Building\DependencyGraph\EdgeWeight.cs" />
+    <Compile Include="Orm\Internals\EntitySetTypeState.cs" />
+    <Compile Include="Orm\Session.Persist.cs" />
+    <Compile Include="Orm\Internals\GenericKeyTypeInfo.cs" />
+    <Compile Include="Orm\Internals\Key{T1,T2,T3,T4}.cs" />
+    <Compile Include="Orm\Internals\Key{T1,T2,T3}.cs" />
+    <Compile Include="Orm\EntityEventArgs.cs" />
+    <Compile Include="Orm\EntityEventBroker.cs" />
+    <Compile Include="Orm\EnumerableExtensions.cs" />
+    <Compile Include="Orm\Exceptions\SchemaSynchronizationException.cs" />
+    <Compile Include="Orm\ForeignKeyMode.cs" />
+    <Compile Include="Orm\Interfaces\IModule.cs" />
+    <Compile Include="Orm\Internals\ReferentialActions.cs" />
+    <Compile Include="Orm\Internals\FieldAccessors\CachingFieldAccessor.cs" />
+    <Compile Include="Orm\Internals\ChainingSessionHandler.cs" />
+    <Compile Include="Orm\Internals\PersistAction.cs" />
+    <Compile Include="Orm\Internals\PairIntegrity\SyncAction.cs" />
+    <Compile Include="Orm\Internals\PersistActionKind.cs" />
+    <Compile Include="Orm\Internals\Key{T}.cs" />
+    <Compile Include="Orm\Internals\Key{T1,T2}.cs" />
+    <Compile Include="Orm\Linq\ColumnExtractionModes.cs" />
+    <Compile Include="Orm\Linq\Expressions\MarkerExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\MarkerType.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\ApplyParameterAccessVisitor.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\EntityInfo.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\FirstSingleInfo.cs" />
+    <Compile Include="Orm\Linq\LinqBindingCollection.cs" />
+    <Compile Include="Orm\Linq\Expressions\ColumnExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\EntityFieldExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\EntitySetExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\ExtendedExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\FieldExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\EntityExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\GroupingExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\Interfaces\IEntityExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\Interfaces\IMappedExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\Interfaces\IPersistentExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\ItemProjectorExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\ParameterizedExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\StructureFieldExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\KeyExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\PersistentFieldExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\SubQueryExpression.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\ColumnGatherer.cs" />
+    <Compile Include="Orm\Linq\Materialization\ExpressionMaterializer.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\ExtendedExpressionVisitor.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\GenericExpressionVisitor.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\OwnerRemover.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\PersistentExpressionVisitor.cs" />
+    <Compile Include="Orm\Linq\Materialization\ItemMaterializationContext.cs" />
+    <Compile Include="Orm\Linq\Materialization\MaterializationContext.cs" />
+    <Compile Include="Orm\Linq\Materialization\MaterializationInfo.cs" />
+    <Compile Include="Orm\Linq\Materialization\MaterializationHelper.cs" />
+    <Compile Include="Orm\Linq\ParameterizedQuery.cs" />
+    <Compile Include="Orm\Linq\Queryable.cs" />
+    <Compile Include="Orm\QueryableExtensions.cs" />
+    <Compile Include="Orm\Linq\RemapContext.cs" />
+    <Compile Include="Orm\Linq\RemapScope.cs" />
+    <Compile Include="Orm\Linq\Rewriters\ApplyParameterRewriter.cs" />
+    <Compile Include="Orm\Linq\Rewriters\ApplyParameterToTupleParameterRewriter.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\FirstSingleEntityVisitor.cs" />
+    <Compile Include="Orm\Linq\Rewriters\ParameterRewriter.cs" />
+    <Compile Include="Orm\Linq\Rewriters\SelectManySelectorRewriter.cs" />
+    <Compile Include="Orm\Linq\SkipOwnerCheckScope.cs" />
+    <Compile Include="Orm\Linq\TranslatedQuery.cs" />
+    <Compile Include="Orm\Linq\TranslatedQuery{TResult}.cs" />
+    <Compile Include="Orm\Metadata\Extension.cs" />
+    <Compile Include="Orm\Metadata\MetadataBase.cs" />
+    <Compile Include="Orm\Query.cs" />
+    <Compile Include="Orm\ReferenceFinder.cs" />
+    <Compile Include="Orm\SessionEventArgs.cs" />
+    <Compile Include="Orm\TransactionEventArgs.cs" />
+    <Compile Include="Orm\Upgrade\Attributes\RecycledAttribute.cs" />
+    <Compile Include="Orm\Upgrade\Hints\ChangeFieldTypeHint.cs" />
+    <Compile Include="Orm\Upgrade\Hints\CopyFieldHint.cs" />
+    <Compile Include="Orm\Upgrade\Internals\DomainModelConverter.cs" />
+    <Compile Include="Orm\Upgrade\Internals\HintGenerator.cs" />
+    <Compile Include="Orm\Upgrade\Log.cs" />
+    <Compile Include="Orm\Building\SchemaComparer.cs" />
+    <Compile Include="Orm\Building\SchemaComparisonResult.cs" />
+    <Compile Include="Orm\Building\SchemaComparisonStatus.cs" />
+    <Compile Include="Orm\Upgrade\SystemUpgradeHandler.cs" />
+    <Compile Include="Orm\Upgrade\TypeConversionVerifier.cs" />
+    <Compile Include="Orm\Upgrade\UpgradeHandler.cs" />
+    <Compile Include="Orm\Upgrade\Attributes\AssemblyInfoAttribute.cs" />
+    <Compile Include="Orm\Upgrade\UpgradeStage.cs" />
+    <Compile Include="Orm\Upgrade\UpgradingDomainBuilder.cs" />
+    <Compile Include="Orm\Building\SchemaUpgradeMode.cs" />
+    <Compile Include="Orm\Building\Builders\TypeIdBuilder.cs" />
+    <Compile Include="Orm\Internals\QueryCachingScope.cs" />
+    <Compile Include="Orm\Linq\Expressions\ResultType.cs" />
+    <Compile Include="Orm\Linq\Expressions\Visitors\ExtendedExpressionReplacer.cs" />
+    <Compile Include="Orm\Linq\Rewriters\EntitySetAccessRewriter.cs" />
+    <Compile Include="Orm\Linq\Grouping.cs" />
+    <Compile Include="Orm\Configuration\SessionCacheType.cs" />
+    <Compile Include="Orm\Linq\QueryHelper.cs" />
+    <Compile Include="Orm\Linq\SubQuery.cs" />
+    <Compile Include="Orm\Linq\Translator.Expressions.cs" />
+    <Compile Include="Orm\Linq\WellKnownMembers.cs" />
+    <Compile Include="Orm\Serialization\DeserializationContext.cs" />
+    <Compile Include="Orm\Serialization\DeserializationScope.cs" />
+    <Compile Include="Orm\Serialization\EntityReference.cs" />
+    <Compile Include="Orm\Serialization\SerializationHelper.cs" />
+    <Compile Include="Orm\Serialization\SerializationContext.cs" />
+    <Compile Include="Orm\Serialization\SerializationKind.cs" />
+    <Compile Include="Orm\Serialization\SerializationScope.cs" />
+    <Compile Include="Orm\Upgrade\Hints\RenameFieldHint.cs" />
+    <Compile Include="Orm\Upgrade\Hints\RenameTypeHint.cs" />
+    <Compile Include="Orm\Upgrade\Hints\UpgradeHint.cs" />
+    <Compile Include="Orm\Upgrade\Interfaces\IUpgradeHandler.cs" />
+    <Compile Include="Orm\ValidationMode.cs" />
+    <Compile Include="Orm\VersionInfo.cs" />
+    <Compile Include="Orm\WellKnown.cs" />
+    <Compile Include="Orm\Linq\Translator.Materialization.cs" />
+    <Compile Include="Orm\Session.QueryTasks.cs" />
+    <Compile Include="Orm\Session.Open.cs" />
+    <Compile Include="Orm\Building\Builders\IndexBuilder.FullText.cs" />
+    <Compile Include="Sql\Compiler\Internals\Compressor.cs" />
+    <Compile Include="Sql\Compiler\Internals\ContextType.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\ContainerNode.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\CycleItemNode.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\CycleNode.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\DelimiterNode.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\Node.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\PlaceholderNode.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\TextNode.cs" />
+    <Compile Include="Sql\Compiler\Internals\Nodes\VariantNode.cs" />
+    <Compile Include="Sql\Compiler\Internals\NodeVisitor.cs" />
+    <Compile Include="Sql\Compiler\Internals\PostCompiler.cs" />
+    <Compile Include="Sql\Compiler\SqlCompilationResult.cs" />
+    <Compile Include="Sql\Compiler\SqlCompiler.cs" />
+    <Compile Include="Sql\Compiler\SqlCompilerConfiguration.cs" />
+    <Compile Include="Sql\Compiler\SqlCompilerContext.cs" />
+    <Compile Include="Sql\Compiler\SqlCompilerException.cs" />
+    <Compile Include="Sql\Compiler\SqlCompilerNamingOptions.cs" />
+    <Compile Include="Sql\Compiler\SqlCompilerNamingScope.cs" />
+    <Compile Include="Sql\Compiler\SqlCompilerOutputScope.cs" />
+    <Compile Include="Sql\Compiler\SqlDelimiterType.cs" />
+    <Compile Include="Sql\Compiler\SqlNodeSections.cs" />
+    <Compile Include="Sql\Compiler\SqlParameterNameProvider.cs" />
+    <Compile Include="Sql\Compiler\SqlPostCompilerConfiguration.cs" />
+    <Compile Include="Sql\Compiler\SqlTableNameProvider.cs" />
+    <Compile Include="Sql\Compiler\SqlTranslator.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlAction.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlAddColumn.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlAddConstraint.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlAlterIdentityInfo.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlCascadableAction.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlDropColumn.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlDropConstraint.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlDropDefault.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlRenameColumn.cs" />
+    <Compile Include="Sql\Ddl\Actions\SqlSetDefault.cs" />
+    <Compile Include="Sql\Ddl\Misc\SqlAlterIdentityInfoOptions.cs" />
+    <Compile Include="Sql\Ddl\Misc\SqlAlterPartitionFunctionOption.cs" />
+    <Compile Include="Sql\Ddl\Misc\SqlCommandType.cs" />
+    <Compile Include="Sql\Ddl\SqlAlterDomain.cs" />
+    <Compile Include="Sql\Ddl\SqlAlterPartitionFunction.cs" />
+    <Compile Include="Sql\Ddl\SqlAlterPartitionScheme.cs" />
+    <Compile Include="Sql\Ddl\SqlAlterSequence.cs" />
+    <Compile Include="Sql\Ddl\SqlAlterTable.cs" />
+    <Compile Include="Sql\Ddl\SqlCommand.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateAssertion.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateCharcterSet.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateCollation.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateDomain.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateIndex.cs" />
+    <Compile Include="Sql\Ddl\SqlCreatePartitionFunction.cs" />
+    <Compile Include="Sql\Ddl\SqlCreatePartitionScheme.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateSchema.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateSequence.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateTable.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateTranslation.cs" />
+    <Compile Include="Sql\Ddl\SqlCreateView.cs" />
+    <Compile Include="Sql\Ddl\SqlDropAssertion.cs" />
+    <Compile Include="Sql\Ddl\SqlDropCharacterSet.cs" />
+    <Compile Include="Sql\Ddl\SqlDropCollation.cs" />
+    <Compile Include="Sql\Ddl\SqlDropDomain.cs" />
+    <Compile Include="Sql\Ddl\SqlDropIndex.cs" />
+    <Compile Include="Sql\Ddl\SqlDropPartitionFunction.cs" />
+    <Compile Include="Sql\Ddl\SqlDropPartitionScheme.cs" />
+    <Compile Include="Sql\Ddl\SqlDropSchema.cs" />
+    <Compile Include="Sql\Ddl\SqlDropSequence.cs" />
+    <Compile Include="Sql\Ddl\SqlDropTable.cs" />
+    <Compile Include="Sql\Ddl\SqlDropTranslation.cs" />
+    <Compile Include="Sql\Ddl\SqlDropView.cs" />
+    <Compile Include="Sql\Ddl\SqlRenameTable.cs" />
+    <Compile Include="Sql\Dml\Collections\SqlColumnCollection.cs" />
+    <Compile Include="Sql\Dml\Collections\SqlOrderCollection.cs" />
+    <Compile Include="Sql\Dml\Collections\SqlTableColumnCollection.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlAggregate.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlArray.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlArray{T}.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlBetween.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlBinary.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlCase.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlCast.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlCollate.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlColumn.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlColumnRef.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlColumnStub.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlConcat.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlContainer.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlCursor.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlDefaultValue.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlDynamicFilter.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlExpression.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlExpressionList.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlExtract.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlFunctionCall.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlLike.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlLiteral.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlLiteral{T}.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlMatch.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlNative.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlNextValue.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlNull.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlParameterRef.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlPlaceholder.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlRound.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlRow.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlRowNumber.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlSubQuery.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlTableColumn.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlTrim.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlUnary.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlUserColumn.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlUserFunctionCall.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlVariable.cs" />
+    <Compile Include="Sql\Dml\Expressions\SqlVariant.cs" />
+    <Compile Include="Sql\Dml\Extensions.cs" />
+    <Compile Include="Sql\Dml\Hints\SqlFastFirstRowsHint.cs" />
+    <Compile Include="Sql\Dml\Hints\SqlForceJoinOrderHint.cs" />
+    <Compile Include="Sql\Dml\Hints\SqlHint.cs" />
+    <Compile Include="Sql\Dml\Hints\SqlJoinHint.cs" />
+    <Compile Include="Sql\Dml\Hints\SqlJoinMethod.cs" />
+    <Compile Include="Sql\Dml\Hints\SqlNativeHint.cs" />
+    <Compile Include="Sql\Dml\SqlDateTimePart.cs" />
+    <Compile Include="Sql\Dml\SqlFetchOption.cs" />
+    <Compile Include="Sql\Dml\SqlFragment.cs" />
+    <Compile Include="Sql\Dml\SqlFreeTextTable.cs" />
+    <Compile Include="Sql\Dml\SqlFunctionType.cs" />
+    <Compile Include="Sql\Dml\SqlIntervalPart.cs" />
+    <Compile Include="Sql\Dml\SqlJoinedTable.cs" />
+    <Compile Include="Sql\Dml\SqlJoinExpression.cs" />
+    <Compile Include="Sql\Dml\SqlJoinType.cs" />
+    <Compile Include="Sql\Dml\SqlLockType.cs" />
+    <Compile Include="Sql\Dml\SqlMatchType.cs" />
+    <Compile Include="Sql\Dml\SqlOrder.cs" />
+    <Compile Include="Sql\Dml\SqlQueryRef.cs" />
+    <Compile Include="Sql\Dml\SqlTable.cs" />
+    <Compile Include="Sql\Dml\SqlTableRef.cs" />
+    <Compile Include="Sql\Dml\SqlTrimType.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlAssignment.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlBatch.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlBreak.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlCloseCursor.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlContinue.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlDeclareCursor.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlDeclareVariable.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlDelete.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlFetch.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlIf.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlInsert.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlOpenCursor.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlQueryExpression.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlQueryStatement.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlSelect.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlStatementBlock.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlUpdate.cs" />
+    <Compile Include="Sql\Dml\Statements\SqlWhile.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\Azure\Driver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\Azure\Extractor.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\Azure\ServerInfoProvider.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\Connection.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\Driver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\DriverFactory.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\ErrorMessageParser.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v09\ColumnResolver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v09\Compiler.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v09\Driver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v09\Extractor.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v09\ServerInfoProvider.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v09\Translator.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v09\TypeMapper.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\Compiler.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\Driver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\Extractor.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\ServerInfoProvider.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\Translator.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\TypeMapper.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\TypeMappingCollection.cs" />
+    <Compile Include="Sql\Info\ColumnFeatures.cs" />
+    <Compile Include="Sql\Info\ColumnInfo.cs" />
+    <Compile Include="Sql\Info\Constaints\AssertConstraintInfo.cs" />
+    <Compile Include="Sql\Info\Constaints\CheckConstraintFeatures.cs" />
+    <Compile Include="Sql\Info\Constaints\CheckConstraintInfo.cs" />
+    <Compile Include="Sql\Info\Constaints\ForeignKeyConstraintActions.cs" />
+    <Compile Include="Sql\Info\Constaints\ForeignKeyConstraintFeatures.cs" />
+    <Compile Include="Sql\Info\Constaints\ForeignKeyConstraintInfo.cs" />
+    <Compile Include="Sql\Info\Constaints\PrimaryKeyConstraintFeatures.cs" />
+    <Compile Include="Sql\Info\Constaints\PrimaryKeyConstraintInfo.cs" />
+    <Compile Include="Sql\Info\Constaints\UniqueConstraintFeatures.cs" />
+    <Compile Include="Sql\Info\Constaints\UniqueConstraintInfo.cs" />
+    <Compile Include="Sql\Info\CoreServerInfo.cs" />
+    <Compile Include="Sql\Info\DataTypeCollection.cs" />
+    <Compile Include="Sql\Info\DataTypeFeatures.cs" />
+    <Compile Include="Sql\Info\DataTypeInfo.cs" />
+    <Compile Include="Sql\Info\DdlStatements.cs" />
+    <Compile Include="Sql\Info\EntityInfo.cs" />
+    <Compile Include="Sql\Info\FeaturesExtensions.cs" />
+    <Compile Include="Sql\Info\FullTextSearchFeatures.cs" />
+    <Compile Include="Sql\Info\FullTextSearchInfo.cs" />
+    <Compile Include="Sql\Info\IdentityFeatures.cs" />
+    <Compile Include="Sql\Info\IdentityInfo.cs" />
+    <Compile Include="Sql\Info\IndexFeatures.cs" />
+    <Compile Include="Sql\Info\IndexInfo.cs" />
+    <Compile Include="Sql\Info\IsolationLevels.cs" />
+    <Compile Include="Sql\Info\PartitionMethods.cs" />
+    <Compile Include="Sql\Info\QueryFeatures.cs" />
+    <Compile Include="Sql\Info\QueryInfo.cs" />
+    <Compile Include="Sql\Info\SequenceFeatures.cs" />
+    <Compile Include="Sql\Info\SequenceInfo.cs" />
+    <Compile Include="Sql\Info\ServerFeatures.cs" />
+    <Compile Include="Sql\Info\ServerInfo.cs" />
+    <Compile Include="Sql\Info\ServerInfoProvider.cs" />
+    <Compile Include="Sql\Info\TableInfo.cs" />
+    <Compile Include="Sql\Info\TemporaryTableFeatures.cs" />
+    <Compile Include="Sql\Info\TemporaryTableInfo.cs" />
+    <Compile Include="Sql\Info\ValueRange.cs" />
+    <Compile Include="Sql\Info\ValueRange.Types.cs" />
+    <Compile Include="Sql\Info\ValueRange{T}.cs" />
+    <Compile Include="Sql\Info\ViewFeatures.cs" />
+    <Compile Include="Sql\Interfaces\IBinaryLargeObject.cs" />
+    <Compile Include="Sql\Interfaces\ICharacterLargeObject.cs" />
+    <Compile Include="Sql\Interfaces\ILargeObject.cs" />
+    <Compile Include="Sql\Interfaces\ISqlCompileUnit.cs" />
+    <Compile Include="Sql\Interfaces\ISqlCursorFetchTarget.cs" />
+    <Compile Include="Sql\Interfaces\ISqlLValue.cs" />
+    <Compile Include="Sql\Interfaces\ISqlNode.cs" />
+    <Compile Include="Sql\Interfaces\ISqlQueryExpression.cs" />
+    <Compile Include="Sql\Interfaces\ISqlVisitor.cs" />
+    <Compile Include="Sql\Internals\SqlNodeCloneContext.cs" />
+    <Compile Include="Sql\Internals\SqlValidator.cs" />
+    <Compile Include="Sql\Model\Action.cs" />
+    <Compile Include="Sql\Model\BoundaryType.cs" />
+    <Compile Include="Sql\Model\Catalog.cs" />
+    <Compile Include="Sql\Model\CatalogNode.cs" />
+    <Compile Include="Sql\Model\CharacterSet.cs" />
+    <Compile Include="Sql\Model\CheckOptions.cs" />
+    <Compile Include="Sql\Model\Collation.cs" />
+    <Compile Include="Sql\Model\Constraints\Assertion.cs" />
+    <Compile Include="Sql\Model\Constraints\CheckConstraint.cs" />
+    <Compile Include="Sql\Model\Constraints\Constraint.cs" />
+    <Compile Include="Sql\Model\Constraints\DefaultConstraint.cs" />
+    <Compile Include="Sql\Model\Constraints\DomainConstraint.cs" />
+    <Compile Include="Sql\Model\Constraints\ForeignKey.cs" />
+    <Compile Include="Sql\Model\Constraints\PrimaryKey.cs" />
+    <Compile Include="Sql\Model\Constraints\TableConstraint.cs" />
+    <Compile Include="Sql\Model\Constraints\UniqueConstraint.cs" />
+    <Compile Include="Sql\Model\DataTable.cs" />
+    <Compile Include="Sql\Model\DataTableColumn.cs" />
+    <Compile Include="Sql\Model\DataTableNode.cs" />
+    <Compile Include="Sql\Model\Domain.cs" />
+    <Compile Include="Sql\Model\Extractor.cs" />
+    <Compile Include="Sql\Model\FullTextIndex.cs" />
+    <Compile Include="Sql\Model\Index.cs" />
+    <Compile Include="Sql\Model\IndexColumn.cs" />
+    <Compile Include="Sql\Model\Interfaces\IConstrainable.cs" />
+    <Compile Include="Sql\Model\Interfaces\IPairedNode.cs" />
+    <Compile Include="Sql\Model\Interfaces\IPartitionable.cs" />
+    <Compile Include="Sql\Model\Interfaces\IPermission.cs" />
+    <Compile Include="Sql\Model\Interfaces\ISequenceable.cs" />
+    <Compile Include="Sql\Model\Language.cs" />
+    <Compile Include="Sql\Model\Node.cs" />
+    <Compile Include="Sql\Model\NodeCollection.cs" />
+    <Compile Include="Sql\Model\PairedNodeCollection.cs" />
+    <Compile Include="Sql\Model\Partitioning\HashPartition.cs" />
+    <Compile Include="Sql\Model\Partitioning\ListPartition.cs" />
+    <Compile Include="Sql\Model\Partitioning\Partition.cs" />
+    <Compile Include="Sql\Model\Partitioning\PartitionDescriptor.cs" />
+    <Compile Include="Sql\Model\Partitioning\PartitionFunction.cs" />
+    <Compile Include="Sql\Model\Partitioning\PartitionSchema.cs" />
+    <Compile Include="Sql\Model\Partitioning\RangePartition.cs" />
+    <Compile Include="Sql\Model\PartitionMethod.cs" />
+    <Compile Include="Sql\Model\ReferentialAction.cs" />
+    <Compile Include="Sql\Model\Schema.cs" />
+    <Compile Include="Sql\Model\SchemaNode.cs" />
+    <Compile Include="Sql\Model\Sequence.cs" />
+    <Compile Include="Sql\Model\SequenceDescriptor.cs" />
+    <Compile Include="Sql\Model\SpatialIndex.cs" />
+    <Compile Include="Sql\Model\SqlModelVisitor.cs" />
+    <Compile Include="Sql\Model\Table.cs" />
+    <Compile Include="Sql\Model\TableColumn.cs" />
+    <Compile Include="Sql\Model\TemporaryTable.cs" />
+    <Compile Include="Sql\Model\Translation.cs" />
+    <Compile Include="Sql\Model\View.cs" />
+    <Compile Include="Sql\Model\ViewColumn.cs" />
+    <Compile Include="Sql\SqlConnection.cs" />
+    <Compile Include="Sql\SqlDdl.cs" />
+    <Compile Include="Sql\SqlDml.cs" />
+    <Compile Include="Sql\SqlDriver.cs" />
+    <Compile Include="Sql\SqlDriverBound.cs" />
+    <Compile Include="Sql\SqlDriverFactory.cs" />
+    <Compile Include="Sql\SqlExceptionInfo.cs" />
+    <Compile Include="Sql\SqlExceptionType.cs" />
+    <Compile Include="Sql\SqlExtensions.cs" />
+    <Compile Include="Sql\SqlHelper.cs" />
+    <Compile Include="Sql\SqlNode.cs" />
+    <Compile Include="Sql\SqlNodeType.cs" />
+    <Compile Include="Sql\SqlStatement.cs" />
+    <Compile Include="Sql\SqlType.cs" />
+    <Compile Include="Sql\SqlValueType.cs" />
+    <Compile Include="Sql\ValueTypeMapping\TypeMapper.cs" />
+    <Compile Include="Sql\ValueTypeMapping\TypeMapping.cs" />
+    <Compile Include="Sql\ValueTypeMapping\TypeMappingCollection.cs" />
+    <Compile Include="Sql\ValueTypeMapping\ValueRangeValidator.cs" />
+    <Compile Include="Sql\Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Sql\Drivers\SqlServer\Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Orm\Upgrade\Model\StorageColumnInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\ColumnInfoCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\ColumnInfoRef.cs" />
+    <Compile Include="Orm\Upgrade\Model\Exceptions\IntegrityException.cs" />
+    <Compile Include="Orm\Upgrade\Model\Exceptions\ValidationException.cs" />
+    <Compile Include="Orm\Upgrade\Model\ForeignKeyCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\ForeignKeyColumnCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\ForeignKeyColumnRef.cs" />
+    <Compile Include="Orm\Upgrade\Model\ForeignKeyInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\FullTextColumnRef.cs" />
+    <Compile Include="Orm\Upgrade\Model\FullTextColumnRefCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\StorageFullTextIndexInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\FullTextIndexInfoCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\IncludedColumnRef.cs" />
+    <Compile Include="Orm\Upgrade\Model\IncludedColumnRefCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\StorageIndexInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\KeyColumnRef.cs" />
+    <Compile Include="Orm\Upgrade\Model\KeyColumnRefCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\KeyColumnRef{TParent}.cs" />
+    <Compile Include="Orm\Upgrade\Model\Log.cs" />
+    <Compile Include="Orm\Upgrade\Model\NodeBase.cs" />
+    <Compile Include="Orm\Upgrade\Model\NodeCollectionBase.cs" />
+    <Compile Include="Orm\Upgrade\Model\PartialIndexFilterInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\PrimaryIndexInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\PrimaryKeyColumnRef.cs" />
+    <Compile Include="Orm\Upgrade\Model\PrimaryKeyColumnRefCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\Ref.cs" />
+    <Compile Include="Orm\Upgrade\Model\ReferentialAction.cs" />
+    <Compile Include="Orm\Upgrade\Model\Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Orm\Upgrade\Model\SecondaryIndexInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\SecondaryIndexInfoCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\StorageSequenceInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\SequenceInfoCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\StorageModel.cs" />
+    <Compile Include="Orm\Upgrade\Model\TableInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\TableInfoCollection.cs" />
+    <Compile Include="Orm\Upgrade\Model\StorageTypeInfo.cs" />
+    <Compile Include="Orm\Upgrade\Model\ValueColumnRef.cs" />
+    <Compile Include="Orm\Upgrade\Model\ValueColumnRefCollection.cs" />
+    <Compile Include="Orm\Rse\AggregateColumn.cs" />
+    <Compile Include="Orm\Rse\AggregateColumnDescriptor.cs" />
+    <Compile Include="Orm\Rse\AggregateType.cs" />
+    <Compile Include="Orm\Rse\ApplyParameter.cs" />
+    <Compile Include="Orm\Rse\ApplySequenceType.cs" />
+    <Compile Include="Orm\Rse\CalculatedColumn.cs" />
+    <Compile Include="Orm\Rse\CalculatedColumnDescriptor.cs" />
+    <Compile Include="Orm\Rse\Column.cs" />
+    <Compile Include="Orm\Rse\ColumnCollection.cs" />
+    <Compile Include="Orm\Rse\ColumnGroupCollection.cs" />
+    <Compile Include="Orm\Rse\Compilation\CompilationService.cs" />
+    <Compile Include="Orm\Rse\Compilation\Compiler.cs" />
+    <Compile Include="Orm\Rse\Compilation\EmptyPostCompiler.cs" />
+    <Compile Include="Orm\Rse\Compilation\EmptyPreCompiler.cs" />
+    <Compile Include="Orm\Rse\Compilation\Interfaces\ICompiler.cs" />
+    <Compile Include="Orm\Rse\Compilation\Interfaces\ICompiler{TResult}.cs" />
+    <Compile Include="Orm\Rse\Compilation\Interfaces\IPostCompiler.cs" />
+    <Compile Include="Orm\Rse\Compilation\Interfaces\IPreCompiler.cs" />
+    <Compile Include="Orm\Rse\Providers\Executable\RawProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\GlobalTemporaryData.cs" />
+    <Compile Include="Orm\Rse\Helpers\TupleAccessGatherer.cs" />
+    <Compile Include="Orm\Rse\Helpers\TupleAccessRewriter.cs" />
+    <Compile Include="Orm\Rse\Helpers\TupleExpressionHelper.cs" />
+    <Compile Include="Orm\Rse\IncludeAlgorithm.cs" />
+    <Compile Include="Orm\Rse\JoinAlgorithm.cs" />
+    <Compile Include="Orm\Rse\JoinType.cs" />
+    <Compile Include="Orm\Rse\LockBehavior.cs" />
+    <Compile Include="Orm\Rse\LockMode.cs" />
+    <Compile Include="Orm\Rse\Log.cs" />
+    <Compile Include="Orm\Rse\MappedColumn.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\CompositePreCompiler.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\ApplyProviderCorrector.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\ApplyFilterRewriter.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\ApplyParameterSearcher.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\ApplyPredicateCollector.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\ApplyProviderCorrectorRewriter.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\CalculateProviderCollector.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\CalculateRelatedExpressionRewriter.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\CollectorHelper.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\ParameterRewriter.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\Internals\OrderingRewriter.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\Internals\SkipTakeRewriter.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\Internals\SkipTakeRewriterState.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\OrderingCorrector.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\ProviderOrderingDescriptor.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Correction\SkipTakeCorrector.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Optimization\ColumnMappingInspector.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Optimization\RedundantColumnOptimizer.cs" />
+    <Compile Include="Orm\Rse\PreCompilation\Optimization\RedundantColumnRemover.cs" />
+    <Compile Include="Orm\Rse\Providers\CompilableProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\CompilableProviderVisitor.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\AggregateProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\AliasProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\ApplyProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\BinaryProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\CalculateProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\ConcatProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\DistinctProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\ExceptProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\ExistenceProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\FilterProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\FreeTextProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\IncludeProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\IndexProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\IntersectProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\JoinProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\LocationAwareProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\LockProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\OrderProviderBase.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\PagingProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\PredicateJoinProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\RawProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\ReindexProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\RowNumberProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\SeekProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\SelectProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\SkipProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\SortProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\StoreProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\TakeProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\TransferProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\UnaryProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\UnionProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\EnumerationContext.cs" />
+    <Compile Include="Orm\Rse\Providers\EnumerationContextOptions.cs" />
+    <Compile Include="Orm\Rse\Providers\EnumerationScope.cs" />
+    <Compile Include="Orm\Rse\Providers\ExecutableProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\ExecutableProvider{TOrigin}.cs" />
+    <Compile Include="Orm\Rse\Providers\Interfaces\ICachingProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Interfaces\IHasNamedResult.cs" />
+    <Compile Include="Orm\Rse\Providers\Interfaces\IInlinableProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Interfaces\IListProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Interfaces\IOrderedProvider.cs" />
+    <Compile Include="Orm\Rse\Providers\Provider.cs" />
+    <Compile Include="Orm\Rse\Providers\ProviderType.cs" />
+    <Compile Include="Orm\Rse\Providers\ProviderVisitor.cs" />
+    <Compile Include="Orm\Rse\RecordQuery.cs" />
+    <Compile Include="Orm\Rse\RecordQueryExtensions.cs" />
+    <Compile Include="Orm\Rse\RecordSet.cs" />
+    <Compile Include="Orm\Rse\RecordSetHeader.cs" />
+    <Compile Include="Orm\Rse\RecordSetHeaderExtensions.cs" />
+    <Compile Include="Orm\Rse\Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Orm\Rse\SystemColumn.cs" />
+    <Compile Include="Orm\Rse\TemporaryDataScope.cs" />
+    <Compile Include="Orm\Rse\Providers\TransactionTemporaryData.cs" />
+    <Compile Include="Orm\Rse\TransferType.cs" />
+    <Compile Include="Orm\Session.SystemLogic.cs" />
+    <EmbeddedResource Include="Orm\PostSharp.license" />
+    <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
+    <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />
+    <None Include="Orm\_Diagrams\Storage-Class-Attributes.cd" />
+    <None Include="Orm\_Diagrams\Storage-Exceptions.cd" />
+    <None Include="Orm\_Diagrams\Storage-DirectAccessors.cd" />
+    <None Include="Orm\_Diagrams\Storage-Keys.cd" />
+    <None Include="Orm\_Diagrams\Storage-Property-Attributes.cd" />
+    <None Include="Orm\_Diagrams\Storage-Upgrade-Hints.cd" />
+    <None Include="Orm\_Diagrams\Storage-Validation-Constraints.cd" />
+    <None Include="Orm\_Diagrams\Storage-Domain.cd" />
+    <None Include="Orm\_Diagrams\Storage-DisconnectedState.cd" />
+    <None Include="Orm\_Diagrams\Storage-EntitySet.cd" />
+    <None Include="Orm\_Diagrams\Storage-Persistents.cd" />
+    <None Include="Orm\_Diagrams\Storage-SessionTransaction.cd" />
+    <None Include="Orm\_Diagrams\Storage-Upgrade.cd" />
+    <None Include="Orm\Rse\_Diagrams\RecordSet.GetEnumerator.sdx" />
+    <None Include="Orm\Rse\_Diagrams\Storage-Rse.cd" />
+    <None Include="Properties\FileVersionInfo.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FileVersionInfo.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\FileVersionInfo.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FileVersionInfo.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Orm\Providers\Sql\Resources\Strings.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Orm\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Orm\Model\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Orm\Validation\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Orm\Rse\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Orm\Upgrade\Model\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sql\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sql\Drivers\SqlServer\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="..\..\Common\Subconfig.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\Common\Common.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
