@@ -112,7 +112,7 @@ namespace Xtensive.Aspects.Tests
     [Test]
     public void CombinedTest()
     {
-      Random r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
+      var r = new Random();
       var c = new TestClass();
       var d = new DerivedClass();
       var i = new Implementation();

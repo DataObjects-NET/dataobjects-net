@@ -48,9 +48,9 @@ namespace Xtensive.Aspects.Tests
     {
       var testClass = new TestClass("345");
       Assert.AreEqual("345", testClass.Value);
-      AssertEx.ThrowsInvalidOperationException(() => testClass.Value = "12");
+      Assert.Throws<InvalidOperationException>(() => testClass.Value = "12");
       Assert.AreEqual("345", testClass.Value);
-      AssertEx.ThrowsInvalidOperationException(() => testClass.Method(2));
+      Assert.Throws<InvalidOperationException>(() => testClass.Method(2));
     }
   }
 }

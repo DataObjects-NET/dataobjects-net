@@ -116,7 +116,7 @@ namespace Xtensive.Aspects.Tests
       Assert.AreEqual(1, i.InitializeCount);
 
       Assert.AreEqual(0, InitializableBase.ErrorCount);
-      AssertEx.Throws<ArgumentException>(() => {
+      Assert.Throws<ArgumentException>(() => {
         new InitializableSample(-1);
       });
       Assert.AreEqual(1, InitializableBase.ErrorCount);
