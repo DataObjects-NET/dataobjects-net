@@ -1225,15 +1225,6 @@
     <None Include="Orm\_Diagrams\Storage-Upgrade.cd" />
     <None Include="Orm\Rse\_Diagrams\RecordSet.GetEnumerator.sdx" />
     <None Include="Orm\Rse\_Diagrams\Storage-Rse.cd" />
-    <None Include="Properties\FileVersionInfo.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>FileVersionInfo.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\FileVersionInfo.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>FileVersionInfo.tt</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Orm\Providers\Sql\Resources\Strings.resx">

@@ -87,10 +87,6 @@
     <Compile Include="Sql.Drivers.MySql\v5_5\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_5\Translator.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_5\TypeMapper.cs" />
-    <None Include="Properties\FileVersionInfo.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>FileVersionInfo.cs</LastGenOutput>
-    </None>
     <EmbeddedResource Include="Sql.Drivers.MySql\Resources\Strings.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
@@ -99,11 +95,6 @@
     <Compile Include="Orm.Providers.MySql\DomainHandler.cs" />
     <Compile Include="Orm.Providers.MySql\HandlerFactory.cs" />
     <Compile Include="Orm.Providers.MySql\SqlCompiler.cs" />
-    <Compile Include="Properties\FileVersionInfo.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>FileVersionInfo.tt</DependentUpon>
-    </Compile>
     <Compile Include="Sql.Drivers.MySql\Resources\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
       <DesignTime>True</DesignTime>

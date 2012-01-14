@@ -77,10 +77,6 @@
     <Compile Include="Sql.Drivers.Firebird\v2_5\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.Firebird\v2_5\Translator.cs" />
     <Compile Include="Sql.Drivers.Firebird\v2_5\TypeMapper.cs" />
-    <None Include="Properties\FileVersionInfo.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>FileVersionInfo.cs</LastGenOutput>
-    </None>
     <EmbeddedResource Include="Sql.Drivers.Firebird\Resources\Strings.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
@@ -91,11 +87,6 @@
     <Compile Include="Orm.Providers.Firebird\SchemaUpgradeHandler.cs" />
     <Compile Include="Orm.Providers.Firebird\SqlCompiler.cs" />
     <Compile Include="Orm.Providers.Firebird\TemporaryTableManager.cs" />
-    <Compile Include="Properties\FileVersionInfo.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>FileVersionInfo.tt</DependentUpon>
-    </Compile>
     <Compile Include="Sql.Drivers.Firebird\Resources\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
       <DesignTime>True</DesignTime>
