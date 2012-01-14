@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -14,8 +13,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using PostSharp.Extensibility;
+using PostSharp.Hosting;
 using PostSharp.Sdk.AspectWeaver;
-using Xtensive.Aspects;
 using Xtensive.Licensing;
 using Xtensive.Licensing.Validator;
 
@@ -27,10 +26,10 @@ namespace Xtensive.Aspects.Weaver
   public sealed class PlugIn : AspectWeaverPlugIn
   {
     private static readonly Regex dateExtractor = new Regex(@"\d{2}.\d{2}.\d{4}$", RegexOptions.Compiled);
-    private static readonly byte[] tokenExpected = new byte[]{0x93, 0xa6, 0xc5,0x3d, 0x77, 0xa5, 0x29, 0x6c};
-    // "$(ProjectDir)..\..\Xtensive.Licensing\Protection\Protect.bat" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)" "true"
+    private static readonly byte[] tokenExpected = new byte[] {0x93, 0xa6, 0xc5, 0x3d, 0x77, 0xa5, 0x29, 0x6c};
+
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
-    private static List<string> knownAssemblies = new List<string> {
+    private static readonly List<string> knownAssemblies = new List<string> {
       "Xtensive.Core",
       "Xtensive.Aspects",
       "Xtensive.Aspects.Weaver",
@@ -38,29 +37,38 @@ namespace Xtensive.Aspects.Weaver
     };
 
     public static LicenseInfo CurrentLicense;
-    public static HashSet<string> ErrorMessages = new HashSet<string>();
-
-    // Check that public key token matches what's expected.
-    private static bool IsPublicTokenConsistent(byte[] assemblyToken)
-    {
-      // Check that lengths match
-      if (assemblyToken!= null && tokenExpected.Length == assemblyToken.Length) {
-        // Check that token contents match
-        return !assemblyToken.Where((t, i) => tokenExpected[i]!=t).Any();
-      }
-      return false;
-    }
+    public static readonly HashSet<string> ErrorMessages = new HashSet<string>();
 
     /// <exception cref="InvalidOperationException">Something went wrong.</exception>
     protected override void Initialize()
     {
       base.Initialize();
+
       var licenseInfo = LicenseValidator.GetLicense();
-      var isXtensiveAssembly = base.Project.Module.Assembly.IsStronglyNamed
-        && IsPublicTokenConsistent(base.Project.Module.Assembly.GetPublicKeyToken());
+      if (!ValidateTargetAssembly(licenseInfo))
+        return;
+      TryCheckLicense(licenseInfo);
+
+      if (licenseInfo==null || !licenseInfo.IsValid) {
+        FatalLicenseError("DataObjects.Net license is invalid.");
+        return;
+      }
+
+      BindAspectWeaver<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
+      BindAspectWeaver<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
+      BindAspectWeaver<NotSupportedAttribute, NotSupportedWeaver>();
+      BindAspectWeaver<ImplementConstructor, ImplementConstructorWeaver>();
+      BindAspectWeaver<ImplementFactoryMethod, ImplementFactoryMethodWeaver>();
+    }
+
+    private bool ValidateTargetAssembly(LicenseInfo licenseInfo)
+    {
+      var isXtensiveAssembly = Project.Module.Assembly.IsStronglyNamed
+        && IsPublicTokenConsistent(Project.Module.Assembly.GetPublicKeyToken());
+
       if (!isXtensiveAssembly) {
         CurrentLicense = licenseInfo;
-        var declarations = base.Project.Module.AssemblyRefs
+        var declarations = Project.Module.AssemblyRefs
           .Where(a => knownAssemblies.Contains(a.Name))
           .ToList();
         if (declarations.Count!=0)
@@ -78,51 +86,66 @@ namespace Xtensive.Aspects.Weaver
             .Select(s => DateTime.Parse(s, DateTimeFormatInfo.InvariantInfo))
             .Max();
           if (licenseInfo.ExpireOn < maxAssemblyDate) {
-            ErrorLog.Write(SeverityType.Fatal, "Your subscription expired {0} and is not valid for {1}.", licenseInfo.ExpireOn.ToShortDateString(), assemblyVersions.First());
-            return;
+            FatalLicenseError(
+              "Your subscription expired {0} and is not valid for {1}.",
+              licenseInfo.ExpireOn.ToShortDateString(), assemblyVersions.First());
+            return false;
           }
         }
       }
+
       if (!isXtensiveAssembly) {
-        ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license validation failed.");
-        return;
+        FatalLicenseError("DataObjects.Net license validation failed.");
+        return false;
       }
 
-      if (licenseInfo!=null)
-        try {
-          if (licenseInfo.IsValid && LicenseValidator.WeaverLicenseCheckIsRequired()) {
-            var companyLicenseData = licenseInfo.EvaluationMode
-              ? null
-              : LicenseValidator.GetCompanyLicenseData(LicenseValidator.GetLicensesPath());
-            var hardwareId = LicenseValidator.TrialLicense.HardwareId;
-            var request = new InternetCheckRequest(
-              companyLicenseData, licenseInfo.ExpireOn,
-              LicenseValidator.GetProductVersion(), hardwareId);
-            var result = InternetActivator.Check(request);
-            if (result.IsValid==false) {
-              LicenseValidator.InvalidateLicense(licenseInfo.HardwareId);
-              licenseInfo.HardwareKeyIsValid = false;
-            }
+      return true;
+    }
+
+    // Check that public key token matches what's expected.
+    private static bool IsPublicTokenConsistent(byte[] assemblyToken)
+    {
+      // Check that lengths match
+      if (assemblyToken!=null && tokenExpected.Length==assemblyToken.Length) {
+        // Check that token contents match
+        return !assemblyToken.Where((t, i) => tokenExpected[i]!=t).Any();
+      }
+      return false;
+    }
+
+    private static void TryCheckLicense(LicenseInfo licenseInfo)
+    {
+      if (licenseInfo==null)
+        return;
+      try {
+        if (licenseInfo.IsValid && LicenseValidator.WeaverLicenseCheckIsRequired()) {
+          var companyLicenseData = licenseInfo.EvaluationMode
+            ? null
+            : LicenseValidator.GetCompanyLicenseData(LicenseValidator.GetLicensesPath());
+          var hardwareId = LicenseValidator.TrialLicense.HardwareId;
+          var request = new InternetCheckRequest(
+            companyLicenseData, licenseInfo.ExpireOn,
+            LicenseValidator.GetProductVersion(), hardwareId);
+          var result = InternetActivator.Check(request);
+          if (result.IsValid==false) {
+            LicenseValidator.InvalidateLicense(licenseInfo.HardwareId);
+            licenseInfo.HardwareKeyIsValid = false;
           }
         }
-        catch { }
-
-      RunLicensingAgent(licenseInfo);
-      if (licenseInfo == null || !licenseInfo.IsValid) {
-        ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
       }
-      else {
-        BindAspectWeaver<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
-        BindAspectWeaver<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
-        BindAspectWeaver<NotSupportedAttribute, NotSupportedWeaver>();
-        BindAspectWeaver<ImplementConstructor, ImplementConstructorWeaver>();
-        BindAspectWeaver<ImplementFactoryMethod, ImplementFactoryMethodWeaver>();
+      catch {
       }
     }
 
-    private static void RunLicensingAgent(LicenseInfo licenseInfo)
+    private static void FatalLicenseError(string format, params object[] args)
     {
-      var directory = Path.GetDirectoryName(PostSharp.Hosting.Platform.Current.GetAssemblyLocation(typeof(PlugIn).Assembly));
+      ErrorLog.Write(SeverityType.Fatal, format, args);
+      RunLicensingAgent();
+    }
+
+    private static void RunLicensingAgent()
+    {
+      var directory = Path.GetDirectoryName(Platform.Current.GetAssemblyLocation(typeof (PlugIn).Assembly));
       var path = Path.Combine(directory, XtensiveLicensingManagerExe);
       if (!File.Exists(path))
         throw new FileNotFoundException(path);
