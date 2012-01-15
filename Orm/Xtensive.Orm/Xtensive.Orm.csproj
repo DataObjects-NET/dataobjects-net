@@ -13,7 +13,6 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <DocumentationFile>bin\$(Configuration)\Xtensive.Orm.xml</DocumentationFile>
-    <ShareBinaries>true</ShareBinaries>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\Common\Key.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
