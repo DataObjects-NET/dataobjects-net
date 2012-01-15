@@ -105,6 +105,9 @@
     <Compile Include="Upgrade\Model_4\Upgrader.cs" />
     <Compile Include="Upgrade\UpgradeHandlerEnabler.cs" />
     <Compile Include="Upgrade\UpgradeTest.cs" />
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -130,15 +133,5 @@
       <Name>Xtensive.Orm</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Condition="Exists('..\..\Common\Common.targets')" Project="..\..\Common\Subconfig.targets" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Condition="Exists('..\..\Common\Common.targets')" Project="..\..\Common\Common.targets" />
-  <Import Condition="!Exists('..\..\Common\Common.targets')" Project="$(DataObjectsDotNetPath)\Common\DataObjects.Net.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

@@ -596,6 +596,9 @@
     <Compile Include="Storage\SessionBoundTest.cs" />
     <Compile Include="Storage\LazyLoadTest.cs" />
     <Compile Include="Storage\StructureTest.cs" />
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -664,14 +667,5 @@
       <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Project="..\..\Common\Subconfig.targets" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\Common\Common.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
