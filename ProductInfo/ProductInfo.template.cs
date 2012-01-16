@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+#pragma warning disable 436
+
 [assembly: AssemblyProduct(ThisAssembly.ProductName)]
 [assembly: AssemblyCompany(ThisAssembly.ProductCompany)]
 [assembly: AssemblyCopyright(ThisAssembly.ProductCopyright)]
@@ -16,7 +18,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
+[assembly: CLSCompliant(false)]
 
 internal static class ThisAssembly
 {
