@@ -5,7 +5,6 @@
 // Created:    2008.07.31
 
 using System.Diagnostics;
-using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using System;
 using Xtensive.Disposing;
@@ -21,7 +20,6 @@ namespace Xtensive.Orm.Tests
   {
     private const string ErrorInTestFixtureSetup = "Error in TestFixtureSetUp:\r\n{0}";
     private DisposableSet disposables;
-    private static UnityContainer container;
 
     protected ProviderInfo ProviderInfo { get; set; }
     protected Domain Domain { get; set; }

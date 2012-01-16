@@ -93,7 +93,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         public override object ReadGuid(DbDataReader reader, int index)
         {
             string s = reader.GetString(index);
-            if (string.IsNullOrWhiteSpace(s))
+            if (string.IsNullOrEmpty(s))
                 return null;
             return SqlHelper.GuidFromString(s);
         }

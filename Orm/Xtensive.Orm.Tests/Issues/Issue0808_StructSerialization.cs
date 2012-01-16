@@ -10,7 +10,6 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq.SerializableExpressions;
 using Xtensive.Serialization.Binary;
-using Rhino.Mocks;
 
 namespace Xtensive.Storage.Tests.Issues
 {
