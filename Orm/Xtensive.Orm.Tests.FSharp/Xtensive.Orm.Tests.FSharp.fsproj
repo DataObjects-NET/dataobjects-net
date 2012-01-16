@@ -70,7 +70,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Transactions" />
     <Reference Include="WindowsBase" />
     <Reference Include="Xtensive.Aspects">
