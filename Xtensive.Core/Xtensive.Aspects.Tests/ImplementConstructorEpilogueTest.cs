@@ -71,7 +71,7 @@ namespace Xtensive.Aspects.Tests
       Assert.AreEqual(0, t.ErrorHandlerInvocationCount);
       Assert.AreEqual(1, t.CtorInvocationCount);
 
-      Assert.Throws<ApplicationException>(() => {
+      AssertEx.Throws<ApplicationException>(() => {
         new HandlerTargetBase(new ApplicationException("Test error."));
       });
       t = HandlerTargetBase.LastInstance;
@@ -79,7 +79,7 @@ namespace Xtensive.Aspects.Tests
       Assert.AreEqual(1, t.ErrorHandlerInvocationCount);
       Assert.AreEqual(1, t.CtorInvocationCount);
 
-      Assert.Throws<ApplicationException>(() => {
+      AssertEx.Throws<ApplicationException>(() => {
         new HandlerTarget(new ApplicationException("Test error."));
       });
       t = HandlerTargetBase.LastInstance;
