@@ -62,7 +62,7 @@
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PostSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
+    <Reference Include="PostSharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
       <HintPath>..\..\Lib\PostSharp\Reference Assemblies\.NET Framework 2.0\PostSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -1230,7 +1230,6 @@
     <Compile Include="Orm\Rse\Providers\TransactionTemporaryData.cs" />
     <Compile Include="Orm\Rse\TransferType.cs" />
     <Compile Include="Orm\Session.SystemLogic.cs" />
-    <EmbeddedResource Include="Orm\PostSharp.license" />
     <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
     <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />
     <None Include="Orm\_Diagrams\Storage-Class-Attributes.cd" />
@@ -1251,6 +1250,9 @@
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
+    <EmbeddedResource Include="..\..\Secure\PostSharp.license">
+      <Link>PostSharp.license</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Orm\Providers\Sql\Resources\Strings.resx">
