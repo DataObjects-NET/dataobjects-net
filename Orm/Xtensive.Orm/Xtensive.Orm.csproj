@@ -1295,5 +1295,5 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\MSBuild\Aspected.targets" />
+  <Import Project="..\..\MSBuild\Weaving.targets" />
 </Project>
