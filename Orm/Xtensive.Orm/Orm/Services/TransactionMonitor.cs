@@ -13,8 +13,7 @@ using Xtensive.IoC;
 using Xtensive.Core;
 using Xtensive.Orm;
 
-
-namespace Xtensive.Storage.Services
+namespace Xtensive.Orm.Services
 {
   [Service(typeof (TransactionMonitor))]
   [Infrastructure]

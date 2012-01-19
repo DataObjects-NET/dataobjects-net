@@ -7,7 +7,6 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Storage;
 
 namespace Xtensive.Orm
 {

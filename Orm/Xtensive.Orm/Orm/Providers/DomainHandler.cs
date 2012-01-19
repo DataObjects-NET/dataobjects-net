@@ -18,7 +18,6 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Resources;
 using Xtensive.Sorting;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Storage.Services;
 
 namespace Xtensive.Orm.Providers
 {
