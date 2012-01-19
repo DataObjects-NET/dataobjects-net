@@ -25,7 +25,6 @@ namespace Xtensive.Aspects.Weaver
   /// </summary>
   public sealed class PlugIn : AspectWeaverPlugIn
   {
-    private static readonly Regex dateExtractor = new Regex(@"\d{2}.\d{2}.\d{4}$", RegexOptions.Compiled);
     private static readonly byte[] tokenExpected = new byte[] {0x93, 0xa6, 0xc5, 0x3d, 0x77, 0xa5, 0x29, 0x6c};
 
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
@@ -75,20 +74,13 @@ namespace Xtensive.Aspects.Weaver
           isXtensiveAssembly = declarations.All(a => IsPublicTokenConsistent(a.GetPublicKeyToken()));
         if (isXtensiveAssembly) {
           var assemblyVersions = declarations
-            .Select(r => r.GetSystemAssembly())
-            .Select(a => a.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false).Single())
-            .Cast<AssemblyInformationalVersionAttribute>()
-            .Select(av => av.InformationalVersion)
+            .Select(r => GetAssemblyBuildDate(r.GetSystemAssembly()))
             .ToList();
-          var maxAssemblyDate = assemblyVersions
-            .Select(s => dateExtractor.Match(s))
-            .Select(m => m.Success ? m.Value : "01/01/2010")
-            .Select(s => DateTime.Parse(s, DateTimeFormatInfo.InvariantInfo))
-            .Max();
+          var maxAssemblyDate = assemblyVersions.Max();
           if (licenseInfo.ExpireOn < maxAssemblyDate) {
             FatalLicenseError(
-              "Your subscription expired {0} and is not valid for {1}.",
-              licenseInfo.ExpireOn.ToShortDateString(), assemblyVersions.First());
+              "Your subscription expired {0} and is not valid for this version of {1}.",
+              licenseInfo.ExpireOn.ToShortDateString(), ThisAssembly.ProductName);
             return false;
           }
         }
@@ -100,6 +92,26 @@ namespace Xtensive.Aspects.Weaver
       }
 
       return true;
+    }
+
+    private static DateTime GetAssemblyBuildDate(Assembly assembly)
+    {
+      const string format = "yyyy-MM-dd";
+      var fallback =new DateTime(2010, 01, 01);
+      var attribute = assembly
+        .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
+        .Cast<AssemblyInformationalVersionAttribute>()
+        .SingleOrDefault();
+      if (attribute==null)
+        return fallback;
+      var versionString = attribute.InformationalVersion;
+      if (versionString.Length < format.Length)
+        return fallback;
+      var dateString = versionString.Substring(versionString.Length - format.Length);
+      DateTime result;
+      var parsed = DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture,
+        DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out result);
+      return parsed ? result : fallback;
     }
 
     // Check that public key token matches what's expected.
