@@ -35,7 +35,10 @@ Help\*.chm
 Manual\Temp\*
 Release.Files\*
 
-Lib/.NET Reactor/license.v3lic
-Lib/.NET Reactor/reactor.license
-Lib/.NET Reactor/reactor.v3lic
+Lib/.NET Reactor/Reactor.license
+Lib/.NET Reactor/Reactor.v3lic
+Lib/.NET Reactor/Reactor.nrcfg
 
+_Build
+_Work
+Secure

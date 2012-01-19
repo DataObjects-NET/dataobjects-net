@@ -1,0 +1,673 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Net40-Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FF9927DD-5D2E-4C57-B81F-2CD10CEE50DC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xtensive.Orm.Tests</RootNamespace>
+    <AssemblyName>Xtensive.Orm.Tests</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <DontImportPostSharp>True</DontImportPostSharp>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Secure\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net35\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net35\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
+    <DefineConstants>TRACE;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ObjectBuilder2, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Unity\Microsoft.Practices.ObjectBuilder2.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Unity\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Unity\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.ServiceLocatorAdapter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Unity\Microsoft.Practices.Unity.ServiceLocatorAdapter.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="nunit.framework, Version=2.2.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="PostSharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Diagnostics.log4net, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Testing, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DomainConfigurationFactoryTest.cs" />
+    <Compile Include="Integrity\ConstraintsTest.cs" />
+    <Compile Include="Integrity\TestResources.Designer.cs">
+      <DependentUpon>TestResources.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
+    <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
+    <Compile Include="Issues\CustomCompilerException.cs" />
+    <Compile Include="Issues\CustomCompilerFeatureTest.cs" />
+    <Compile Include="Issues\InterfaceEntitySetTest.cs" />
+    <Compile Include="Issues\Issue0630_NullReferenceOnSelect.cs" />
+    <Compile Include="Issues\Issue0631_DisconnectedStateBugs.cs" />
+    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\EntityBase.cs" />
+    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\Issue0631_DisconnectedStateBugs.cs" />
+    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\LinqExtensions.cs" />
+    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\OwnedEntity.cs" />
+    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\OwnerEntity.cs" />
+    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\TestEntity.cs" />
+    <Compile Include="Issues\Issue0634_PairToMisuse.cs" />
+    <Compile Include="Issues\Issue0648_MultiThreadNullReference.cs" />
+    <Compile Include="Issues\Issue0647_WrongLinqQuery.cs" />
+    <Compile Include="Issues\Issue0643_EntitySetAddInCtor.cs" />
+    <Compile Include="Issues\Issue0641_GroupBySumError.cs" />
+    <Compile Include="Issues\Issue0628_ExecuteFutureScalarError.cs" />
+    <Compile Include="Issues\Issue0626_SequenceContainsNoElements.cs" />
+    <Compile Include="Issues\Issue0624_EntitySetSubqueryError.cs" />
+    <Compile Include="Issues\Issue0676_NonNullableReferenceBug.cs" />
+    <Compile Include="Issues\Issue0689_WeirdExceptionWhenMissingConnectionInfo.cs" />
+    <Compile Include="Issues\Issue0690_RemoveAndCreate.cs" />
+    <Compile Include="Issues\Issue0696_EntitySetItemAddBug.cs" />
+    <Compile Include="Issues\Issue0713_InconsistentDefaultDateTimeValues.cs" />
+    <Compile Include="Issues\Issue0715_NestedTypeBug.cs" />
+    <Compile Include="Issues\Issue0717_VersionCheckBug.cs" />
+    <Compile Include="Issues\Issue0725_DisconnectedStateDisconnectBug.cs" />
+    <Compile Include="Issues\Issue0733_UseINNER_JOIN.cs" />
+    <Compile Include="Issues\Issue0736_AutoValidationCloning.cs" />
+    <Compile Include="Issues\Issue0737_PersistentFieldState.cs" />
+    <Compile Include="Issues\Issue0751_EntitySetEquals.cs" />
+    <Compile Include="Issues\Issue0754_CopyFieldHint_MoveFieldHint\Issue0754_CopyFieldHint_MoveFieldHint.cs" />
+    <Compile Include="Issues\Issue0754_CopyFieldHint_MoveFieldHint\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue0754_CopyFieldHint_MoveFieldHint\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue0754_CopyFieldHint_MoveFieldHint\Upgrader.cs" />
+    <Compile Include="Issues\Issue0764_LinqTranslationError.cs" />
+    <Compile Include="Issues\Issue0765_LinqTranslationError.cs" />
+    <Compile Include="Issues\Issue0766_LinqTranslationError.cs" />
+    <Compile Include="Issues\Issue0767_QueryByInterfaceException.cs" />
+    <Compile Include="Issues\Issue0768_WrongJoinBehavior.cs" />
+    <Compile Include="Issues\Issue0771_AbstractTypeRegistration.cs" />
+    <Compile Include="Issues\Issue0773_UnableTranslateUnionQuery.cs" />
+    <Compile Include="Issues\Issue0775_WrongLinqQueryOverComputedFields.cs" />
+    <Compile Include="Issues\Issue0776_OrderingCorrectorOfAggregateProvider.cs" />
+    <Compile Include="Issues\Issue0777_WrongLinqQueryConditional.cs" />
+    <Compile Include="Issues\Issue0785_GenericStructureBugs.cs" />
+    <Compile Include="Issues\Issue0788_EntityIsDetached.cs" />
+    <Compile Include="Issues\Issue0792_OrderByWithDistinct.cs" />
+    <Compile Include="Issues\Issue0800_OrderByEnum.cs" />
+    <Compile Include="Issues\Issue0806_ColumnNamingError.cs" />
+    <Compile Include="Issues\Issue0808_StructSerialization.cs" />
+    <Compile Include="Issues\Issue0813_AuxilaryTableMappingNameBug.cs" />
+    <Compile Include="Issues\Issue0817_LocalCollectionWithEnum.cs" />
+    <Compile Include="Issues\Issue0818_NanosecondTrancation.cs" />
+    <Compile Include="Issues\Issue0820_GroupByWithDatePart.cs" />
+    <Compile Include="Issues\Issue0821_StructureNulComparisonInLinq.cs" />
+    <Compile Include="Issues\Issue0825_StrangeLinqBehavior.cs" />
+    <Compile Include="Issues\Issue0826_OperandTypeClash.cs" />
+    <Compile Include="Issues\Issue0827_LinqDtoMaterialization.cs" />
+    <Compile Include="Issues\Issue0828_LinqMaterializeException.cs" />
+    <Compile Include="Issues\Issue0835_QueryNestedTooDeep.cs" />
+    <Compile Include="Issues\Issue0839_MultithreadingBug.cs" />
+    <Compile Include="Issues\Issue0844_GroupByConstant.cs" />
+    <Compile Include="Issues\Issue0845_KeyTypeAccessBug.cs" />
+    <Compile Include="Issues\Issue0847_IsOperator.cs" />
+    <Compile Include="Issues\Issue0851_AnyMappingError.cs" />
+    <Compile Include="Issues\Issue0860_DateTimeDate.cs" />
+    <Compile Include="Issues\Issue679,681_EntitySetRelatedBugs.cs" />
+    <Compile Include="Issues\Issue0682_FieldInfoIsNullable.cs" />
+    <Compile Include="Issues\IssueA363_WrongInnerJoin.cs" />
+    <Compile Include="Issues\IssueA399_SetPropertyForPrivatePropertiesOfInheritors.cs" />
+    <Compile Include="Issues\IssueA401_AmbiguousMatchFoundException.cs" />
+    <Compile Include="Issues\IssueA408_TargetException.cs" />
+    <Compile Include="Issues\IssueA413_KeyNotFoundException.cs" />
+    <Compile Include="Issues\IssueA418_UnableToCompileModelWithPersistentInterface.cs" />
+    <Compile Include="Issues\IssueA424_QueryByInterfaceException.cs" />
+    <Compile Include="Issues\IssueJIRA0003_OrderByStructureFieldLost.cs" />
+    <Compile Include="Issues\IssueJIRA0020_CustomLINQCompilerContainerInterface.cs" />
+    <Compile Include="Issues\IssueJIRA0028_StructureOnSetError.cs" />
+    <Compile Include="Issues\IssueJIRA0036_AutoTransactionsOpenModeDoesNotWork.cs" />
+    <Compile Include="Issues\IssueJira0042_IndexAttributeIsOmitted.cs" />
+    <Compile Include="Issues\IssueJira0083_DtoMaterialization.cs" />
+    <Compile Include="Issues\IssueJIRA0085.cs" />
+    <Compile Include="Issues\IssueJira0102_NoForeignKeyOnInterfaceField.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexes.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexesModel\Generated.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexesModel\ICountry.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexesModel\IEmployee.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexesModel\IParty.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexesModel\IPerson.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexesModel\IRecord.cs" />
+    <Compile Include="Issues\IssueJira0116_InterfacesCastAndIndexesModel\Record.cs" />
+    <Compile Include="Issues\IssueJira0117_FKStructureTest.cs" />
+    <Compile Include="Issues\IssueJira0149_LinqTranslationError.cs" />
+    <Compile Include="Issues\IssueJira0165_CaseSensitiveFieldNames.cs" />
+    <Compile Include="Issues\IssueJira0179_NullableBooleanFieldsQuery.cs" />
+    <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion1.cs" />
+    <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion2.cs" />
+    <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\Upgrader.cs" />
+    <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\UpgradeTest.cs" />
+    <Compile Include="Issues\IssueJira0188_MissingFKsForComplexHierarchies.cs" />
+    <Compile Include="Issues\IssueJira0194_WrongResultWhenInClauseArgumentIsEmpty.cs" />
+    <Compile Include="Issues\IssueJira0195_DeleteAndCreateWithValidation.cs" />
+    <Compile Include="Issues\IssueJira0196_GuidAsTypeDiscriminator.cs" />
+    <Compile Include="Issues\IssueJira0197_ExtendedErrorInformation.cs" />
+    <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion3.cs" />
+    <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0716_UpgradeFailsInValidateMode\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0716_UpgradeFailsInValidateMode\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0716_UpgradeFailsInValidateMode\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0716_UpgradeFailsInValidateMode\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0743_UpgradeToNonNullableTypes\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0743_UpgradeToNonNullableTypes\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0743_UpgradeToNonNullableTypes\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0743_UpgradeToNonNullableTypes\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0769_ByteArrayColumnUpgrade\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0769_ByteArrayColumnUpgrade\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0769_ByteArrayColumnUpgrade\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0769_ByteArrayColumnUpgrade\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0837_HintGeneratorBug\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0837_HintGeneratorBug\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0837_HintGeneratorBug\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0837_HintGeneratorBug\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug2\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug2\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug2\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug2\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug3\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug3\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug3\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug3\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug4\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug4\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug4\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug4\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug\ModelVersion1.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug\ModelVersion2.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug\Upgrader.cs" />
+    <Compile Include="Issues\Issue_0841_HintGeneratorBug\UpgradeTest.cs" />
+    <Compile Include="Issues\Issue_OfTypeMissesImplementors.cs" />
+    <Compile Include="Issues\IssueJira0187_TypeCastInContain.cs" />
+    <Compile Include="Issues\KeyFormatBug.cs" />
+    <Compile Include="Issues\LocalCollectionsTest.cs" />
+    <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
+    <Compile Include="Storage\AbstractGenericsTest.cs" />
+    <Compile Include="Storage\ByteFieldStorageTest.cs" />
+    <Compile Include="Storage\ClientProfileSessionTest.cs" />
+    <Compile Include="Storage\ClientProfileTest.cs" />
+    <Compile Include="Storage\DiartisBugsTest.cs" />
+    <Compile Include="Storage\DisconnectedStateSideEffectsTest.cs" />
+    <Compile Include="Storage\DisconnectedStateTest2.cs" />
+    <Compile Include="Storage\EncryptedConnectionStringTest.cs" />
+    <Compile Include="Storage\IntermediateQueryTest.cs" />
+    <Compile Include="Storage\IoC\NameBuilderAsServiceTest.cs" />
+    <Compile Include="Storage\IoC\QueryFormatterServiceTest.cs" />
+    <Compile Include="Storage\IoC\SimpleNativeTest.cs" />
+    <Compile Include="Storage\ManyToManyValidationTest.cs" />
+    <Compile Include="Storage\NonPersistentCompositeObjectTest.cs" />
+    <Compile Include="Storage\NotifyXxxTest.cs" />
+    <Compile Include="Storage\OperationOrderTest.cs" />
+    <Compile Include="Storage\ReadRemovedObjectTest.cs" />
+    <Compile Include="Storage\RefTest.cs" />
+    <Compile Include="Storage\SessionDeactivationTest.cs" />
+    <Compile Include="Storage\SetFieldTest.cs" />
+    <Compile Include="Storage\SingleTableTest.cs" />
+    <Compile Include="Storage\StructureReferencesAnEntityTest.cs" />
+    <Compile Include="Storage\UpgradeModesTest.cs" />
+    <Compile Include="Upgrade\EntitySetUpgrade\ModelVersion1.cs" />
+    <Compile Include="Upgrade\EntitySetUpgrade\ModelVersion2.cs" />
+    <Compile Include="Upgrade\EntitySetUpgrade\Upgrader.cs" />
+    <Compile Include="Upgrade\EntitySetUpgrade\UpgradeTest.cs" />
+    <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion1.cs" />
+    <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion2.cs" />
+    <Compile Include="Upgrade\UpgradeAndNamingRules\Upgrader.cs" />
+    <Compile Include="Upgrade\UpgradeAndNamingRules\UpgradeTest.cs" />
+    <Compile Include="Upgrade\UpgradeToStructure\ModelVersion1.cs" />
+    <Compile Include="Upgrade\UpgradeToStructure\ModelVersion2.cs" />
+    <Compile Include="Upgrade\UpgradeToStructure\Upgrader.cs" />
+    <Compile Include="Upgrade\UpgradeToStructure\UpgradeTest.cs" />
+    <Compile Include="_Manual\Validation\Person.cs" />
+    <Compile Include="_Manual\Validation\PhoneNumberConstraint.cs" />
+    <Compile Include="_Manual\Validation\TestFixture.cs" />
+    <Compile Include="Model\InterfaceAssociationsModelGenerator.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InterfaceAssociationsModelGenerator.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Storage\AutoPropertyTest.cs" />
+    <Compile Include="Storage\FieldDefaultValueTest.cs" />
+    <Compile Include="Storage\CustomEntityConnectionTest.cs" />
+    <Compile Include="Issues\Issue0597_OpenGenericsInDomainModel.cs" />
+    <Compile Include="Issues\Issue0585_TakeSkipJoinMappingError.cs" />
+    <Compile Include="Issues\Issue0559_EntitySetQueryError.cs" />
+    <Compile Include="Issues\Issue0587_ByteArrayEquals.cs" />
+    <Compile Include="Issues\Issue0593_OverrideDefaultSchema.cs" />
+    <Compile Include="Linq\QueryMethodTests.cs" />
+    <Compile Include="Linq\SelectDtoTest.cs" />
+    <Compile Include="Model\GenericManyToManyTest.cs" />
+    <Compile Include="Model\RussianNamesTest.cs" />
+    <Compile Include="ObjectModel\GraphModel.cs" />
+    <Compile Include="Storage\GenericTest.cs" />
+    <Compile Include="Storage\Providers\Sql\CommandTimeoutTest.cs" />
+    <Compile Include="Storage\Providers\Sql\CustomConnectionInfoTest.cs" />
+    <Compile Include="Storage\VersionBehaviorTest.cs" />
+    <Compile Include="Upgrade\PrimaryKeyModelVersion2Perform.cs" />
+    <Compile Include="Storage\CmsTest.cs" />
+    <Compile Include="Configuration\SessionInitializationTest.cs" />
+    <Compile Include="Interfaces\KeyStructureConflictTest.cs" />
+    <Compile Include="Interfaces\TypeIdModeConflictTest.cs" />
+    <Compile Include="Interfaces\UnusedTypeRemovalTest.cs" />
+    <Compile Include="Issues\Issue0276_DuplicateIndex.cs" />
+    <Compile Include="Issues\Issue0376_RemoveFieldHint.cs" />
+    <Compile Include="Issues\Issue0391_OnRemoveActionNone.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\Container.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\CreateObjects.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\Document.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\Document.History.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\DocumentLink.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\EchoProcessor.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\ErrorDocument.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\HistoryEntry.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\HistoryEntryVisibility.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\Processor.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference_Model\QueueProcessor.cs" />
+    <Compile Include="Issues\Issue0409_ConstructorTransactional.cs" />
+    <Compile Include="Issues\Issue0408_EntitySetNullReference.cs" />
+    <Compile Include="Issues\Issue0402_WrongEntitySetQuery.cs" />
+    <Compile Include="Issues\Issue0271_EntityNotInserted.cs" />
+    <Compile Include="Issues\Issue0096_NumerousSchemaExtraction.cs" />
+    <Compile Include="Issues\Issue0036_AutomaticGenericTypesRegistration.cs" />
+    <Compile Include="Issues\Issue0082_ReferentialManagerProblem.cs" />
+    <Compile Include="Issues\Issue0167_SingleTableProblem.cs" />
+    <Compile Include="Issues\Issue0188_ModelBuilderError.cs" />
+    <Compile Include="Issues\Issue0245_StructureWhere.cs" />
+    <Compile Include="Issues\Issue0262_StructureAssignment.cs" />
+    <Compile Include="Issues\Issue0282_EntitySetContains.cs" />
+    <Compile Include="Issues\Issue0296_DeferredConstraints.cs" />
+    <Compile Include="Issues\Issue0298_InheritedAssociationIsIgnored.cs" />
+    <Compile Include="Issues\Issue0307_EntitySetOfType.cs" />
+    <Compile Include="Issues\Issue0331_ForgetHierarchyRoot.cs" />
+    <Compile Include="Issues\Issue0351_NameBuilderProblem.cs" />
+    <Compile Include="Issues\Issue0359_UpgradeUsingAutoshortenTransaction.cs" />
+    <Compile Include="Issues\Issue0370_EntitiSetIsNotHandledProperly.cs" />
+    <Compile Include="Issues\Issue0371_ObjectEquals.cs" />
+    <Compile Include="Issues\Issue0372_SelfReferenceWithInheritance.cs" />
+    <Compile Include="Issues\Issue0394_UndefinedSqlTypeExtractionError.cs" />
+    <Compile Include="Issues\Issue0422_GetStructureFieldsForComplexStructures.cs" />
+    <Compile Include="Issues\Issue0424_SqlCommandIsNull.cs" />
+    <Compile Include="Issues\Issue0435_BatchingFail.cs" />
+    <Compile Include="Issues\Issue0452_OrderByIncorrectColumn.cs" />
+    <Compile Include="Issues\Issue0457_EntityStateToString.cs" />
+    <Compile Include="Issues\Issue0485_EntitySetDescendant.cs" />
+    <Compile Include="Issues\Issue0493_BadImageFormatTest.cs" />
+    <Compile Include="Issues\Issue0490_GroupByWithTypeId.cs" />
+    <Compile Include="Issues\Issue0512_NullableGetValueOrDefaultIsNotSupported.cs" />
+    <Compile Include="Linq\ArrayTest.cs" />
+    <Compile Include="Linq\CustomExpressionCompilers.cs" />
+    <Compile Include="Linq\DataContextTest.cs" />
+    <Compile Include="Linq\ExecuteTest.cs" />
+    <Compile Include="Linq\IndexedMethodsTest.cs" />
+    <Compile Include="Linq\Interfaces\AlphabetTest.cs" />
+    <Compile Include="Linq\Interfaces\SlaveryTest.cs" />
+    <Compile Include="Linq\InTest.cs" />
+    <Compile Include="Linq\LocalCollectionsComplexTest.cs" />
+    <Compile Include="Linq\LocalCollectionsTest.cs" />
+    <Compile Include="Linq\LockTest.cs" />
+    <Compile Include="Linq\Interfaces\SimpleTest.cs" />
+    <Compile Include="Interfaces\InterfaceTest.cs" />
+    <Compile Include="Linq\MiscTest.cs" />
+    <Compile Include="Linq\SkipTakeElementAtTest.cs" />
+    <Compile Include="Linq\RefTest.cs" />
+    <Compile Include="Model\FieldConverterTest.cs" />
+    <Compile Include="Model\NonPublicFieldTest.cs" />
+    <Compile Include="Model\SerializationTest.cs" />
+    <Compile Include="Model\StringKeyTest.cs" />
+    <Compile Include="Model\VersionInfoTest.cs" />
+    <Compile Include="ObjectModel\Cms\AscxTemplate.cs" />
+    <Compile Include="ObjectModel\Cms\ContentDirectory.cs" />
+    <Compile Include="ObjectModel\Cms\ContentDirectoryCollection.cs" />
+    <Compile Include="ObjectModel\Cms\ContentFile.cs" />
+    <Compile Include="ObjectModel\Cms\ContentItem.cs" />
+    <Compile Include="ObjectModel\Cms\ContentItemCollection.cs" />
+    <Compile Include="ObjectModel\Cms\ContentReference.cs" />
+    <Compile Include="ObjectModel\Cms\ContentReferenceDto.cs" />
+    <Compile Include="ObjectModel\Cms\ContentReferenceType.cs" />
+    <Compile Include="ObjectModel\Cms\HtmlContentItem.cs" />
+    <Compile Include="ObjectModel\Cms\IContentStorageFile.cs" />
+    <Compile Include="ObjectModel\Cms\Menu.cs" />
+    <Compile Include="ObjectModel\Cms\NewsDirectory.cs" />
+    <Compile Include="ObjectModel\Cms\NewsList.cs" />
+    <Compile Include="ObjectModel\Cms\NewsPage.cs" />
+    <Compile Include="ObjectModel\Cms\Page.cs" />
+    <Compile Include="ObjectModel\Cms\PageTemplate.cs" />
+    <Compile Include="ObjectModel\Cms\WebSite.cs" />
+    <Compile Include="ObjectModel\Cms\WebSiteUrl.cs" />
+    <Compile Include="Linq\FreeTextTest.cs" />
+    <Compile Include="Storage\ConnectionStringSupportTest.cs" />
+    <Compile Include="Storage\DirectSqlTest.cs" />
+    <Compile Include="Storage\DuplicateIndexTest.cs" />
+    <Compile Include="Storage\GeneralBehaviorTest.cs" />
+    <Compile Include="Storage\IoC\ProxyContainerBase.cs" />
+    <Compile Include="Storage\IoC\UnityTest.cs" />
+    <Compile Include="Storage\IoC\NativeTest.cs" />
+    <Compile Include="Storage\LegacyDb\AnimalDbSkipTest.cs" />
+    <Compile Include="Storage\LegacyDb\AnimalDbValidateTest.cs" />
+    <Compile Include="Storage\LegacyDb\ContainerItemTest.cs" />
+    <Compile Include="Storage\LegacyDb\CrazyColumns2005Test.cs" />
+    <Compile Include="Storage\LegacyDb\LegacyDbAutoBuildTest.cs" />
+    <Compile Include="Storage\LegacyDb\CrazyColumns2008Test.cs" />
+    <Compile Include="Storage\NestedTransactionsTest.cs" />
+    <Compile Include="ObjectModel\GenericModel.cs" />
+    <Compile Include="ObjectModel\Interfaces\Alphabet.cs" />
+    <Compile Include="ObjectModel\Interfaces\Slavery.cs" />
+    <Compile Include="Rse\IncludeProviderTest.cs" />
+    <Compile Include="Storage\BatchingTest.cs" />
+    <Compile Include="Storage\ObjectMapping\DtoModel.cs" />
+    <Compile Include="Storage\ObjectMapping\Model.cs" />
+    <Compile Include="Storage\ObjectMapping\MapperTest.cs" />
+    <Compile Include="Storage\DisableSaveChangesTest.cs" />
+    <Compile Include="Storage\SerializedQueryTest.cs" />
+    <Compile Include="Storage\TransactionModesTest.cs" />
+    <Compile Include="Storage\AutoTransactionsTest.cs" />
+    <Compile Include="Storage\DisconnectedStateTest.cs" />
+    <Compile Include="Storage\LegacyDb\AnimalDbBaseTest.cs" />
+    <Compile Include="Storage\Performance\DoOracleCrudTest.cs" />
+    <Compile Include="Storage\Prefetch\Model.cs" />
+    <Compile Include="Storage\Prefetch\PrefetchManagerAdvancedTest.cs" />
+    <Compile Include="Storage\Prefetch\PrefetchManagerTestBase.cs" />
+    <Compile Include="Storage\Prefetch\PrefetchTestHelper.cs" />
+    <Compile Include="Storage\Randomized\RandomizedTest.cs" />
+    <Compile Include="Storage\Randomized\Tree.cs" />
+    <Compile Include="Storage\Randomized\TreeNode.cs" />
+    <Compile Include="Storage\UnexpectedBehaviorTest.cs" />
+    <Compile Include="Model\UselessTypeInTheMiddleTest.cs" />
+    <Compile Include="Storage\VersionRootTests.cs" />
+    <Compile Include="Storage\CurrentSessionResolverTest.cs" />
+    <Compile Include="Storage\DataErrorInfo.cs" />
+    <Compile Include="Storage\FutureTest.cs" />
+    <Compile Include="Storage\Modules\Assembly0.cs" />
+    <Compile Include="Storage\Modules\Assembly1.cs" />
+    <Compile Include="Storage\Modules\Assembly2.cs" />
+    <Compile Include="Storage\Modules\ModulesRegistrationTest.cs" />
+    <Compile Include="Storage\Performance\CrudModel\NonPairedSimplestContainerItem.cs" />
+    <Compile Include="Storage\Performance\CrudModel\SimplestContainer.cs" />
+    <Compile Include="Storage\Performance\CrudModel\PairedSimplestContainerItem.cs" />
+    <Compile Include="Storage\Performance\DoPostgreSqlCrudTest.cs" />
+    <Compile Include="Storage\Prefetch\PrefetchTest.cs" />
+    <Compile Include="Storage\Prefetch\PrefetchDelayedElementsTest.cs" />
+    <Compile Include="Storage\Prefetch\PrefetchManagerBasicTest.cs" />
+    <Compile Include="Storage\Prefetch\PrefetchWithSmallCacheTest.cs" />
+    <Compile Include="Storage\Providers\Sql\RoundingTest.cs" />
+    <Compile Include="Storage\Providers\Sql\StringOperationsTest.cs" />
+    <Compile Include="Storage\Providers\Sql\TotalBatchingTest.cs" />
+    <Compile Include="Storage\SessionEventsTest.cs" />
+    <Compile Include="Storage\UpdateVersionTest.cs" />
+    <Compile Include="Storage\ValidationContextTest.cs" />
+    <Compile Include="Storage\ValidationOnDemandTest.cs" />
+    <Compile Include="Storage\ValidationReferentialTest.cs" />
+    <Compile Include="Storage\VersionValidationTest.cs" />
+    <Compile Include="Upgrade\ColumnTypeTest.cs" />
+    <Compile Include="Upgrade\PrimaryKeyModelVersion2PerformSafely.cs" />
+    <Compile Include="Upgrade\DataUpgrade\DataUpgradeTest.cs" />
+    <Compile Include="Storage\PersistTest.cs" />
+    <Compile Include="Upgrade\DataUpgrade\Model1.cs" />
+    <Compile Include="Upgrade\DataUpgrade\Model2.cs" />
+    <Compile Include="Upgrade\DataUpgrade\Upgrader.cs" />
+    <Compile Include="Upgrade\DomainUpgradeSimpleTest.cs" />
+    <Compile Include="Upgrade\FullText\DomainUpgradeFullTextTest.cs" />
+    <Compile Include="Upgrade\FullText\ModelVersion5.cs" />
+    <Compile Include="Upgrade\FullText\ModelVersion6.cs" />
+    <Compile Include="Upgrade\FullText\ModelVersion4.cs" />
+    <Compile Include="Upgrade\FullText\ModelVersion1.cs" />
+    <Compile Include="Upgrade\FullText\ModelVersion2.cs" />
+    <Compile Include="Upgrade\FullText\ModelVersion3.cs" />
+    <Compile Include="Upgrade\FullText\Upgrader.cs" />
+    <Compile Include="Upgrade\IgnoreHintsTest.cs" />
+    <Compile Include="Upgrade\LegacyUpgrade\LegacyUpgradeTest.cs" />
+    <Compile Include="Upgrade\ModelConversion\ForeignKeysTest.cs" />
+    <Compile Include="Upgrade\ModelVersion3.cs" />
+    <Compile Include="Upgrade\DomainUpgradeTest.cs" />
+    <Compile Include="Upgrade\ModelVersion2.cs" />
+    <Compile Include="Upgrade\ModelVersion1.cs" />
+    <Compile Include="Upgrade\PrimaryKeyModelVersion1.cs" />
+    <Compile Include="Upgrade\PrimaryKeyUpgradeTest.cs" />
+    <Compile Include="Upgrade\Recycled\ModelVersion1.cs" />
+    <Compile Include="Upgrade\Recycled\ModelVersion2.cs" />
+    <Compile Include="Upgrade\Recycled\RecycledUpgradeTest.cs" />
+    <Compile Include="Upgrade\Recycled\Upgrader.cs" />
+    <Compile Include="Upgrade\Sample3\ModelVersion1.cs" />
+    <Compile Include="Upgrade\Sample3\ModelVersion2.cs" />
+    <Compile Include="Upgrade\Sample3\Sample3UpgradeTest.cs" />
+    <Compile Include="Upgrade\Sample3\Upgrader.cs" />
+    <Compile Include="Upgrade\SimpleModelVersion1.cs" />
+    <Compile Include="Upgrade\SimpleModelVersion2.cs" />
+    <Compile Include="Upgrade\SimpleUpgrader.cs" />
+    <Compile Include="Upgrade\SkipUpgradeTest.cs" />
+    <Compile Include="Upgrade\TypeConversionVerifierTest.cs" />
+    <Compile Include="Upgrade\TypeIdUpgrade\Many2SingleClassTest.cs" />
+    <Compile Include="Upgrade\TypeIdUpgrade\Model.cs" />
+    <Compile Include="Upgrade\TypeIdUpgrade\Single2ManyClassesTest.cs" />
+    <Compile Include="Upgrade\TypeIdUpgrade\Upgrader.cs" />
+    <Compile Include="Upgrade\TypeIdUpgrade\VersionUpgradeTest.cs" />
+    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly0.cs" />
+    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly1.cs" />
+    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly2.cs" />
+    <Compile Include="Upgrade\UpgradeHandlersSorting\UpgradeHandlersSortingTest.cs" />
+    <Compile Include="Upgrade\Upgrader.cs" />
+    <Compile Include="Upgrade\ModelConversion\ConvertDomainModelTest.cs" />
+    <Compile Include="Indexing\ForeignKeyInfoTest.cs" />
+    <Compile Include="Indexing\PrimaryIndexInfoTest.cs" />
+    <Compile Include="Indexing\SecondaryIndexInfoTest.cs" />
+    <Compile Include="Indexing\StorageActionTest.cs" />
+    <Compile Include="Indexing\StorageInfoTest.cs" />
+    <Compile Include="Issues\Issue0001_MultipleHierarchyRootAttributes.cs" />
+    <Compile Include="Issues\Issue0002_PrimaryKeyWithLazyLoad.cs" />
+    <Compile Include="Issues\Issue0003_NullablePrimaryKey.cs" />
+    <Compile Include="Issues\Issue0004_PairAttributeMisusageIsNotHandled.cs" />
+    <Compile Include="Issues\Issue0005_EntitySetItemEnhancement.cs" />
+    <Compile Include="Issues\Issue0007_InvalidNotNullConstraint.cs" />
+    <Compile Include="Issues\Issue0009_2SymmetricTablesForMNRelationship.cs" />
+    <Compile Include="Issues\Issue0013_SqlBuilderRequestTaskBug.cs" />
+    <Compile Include="Issues\Issue0012_TakeSkipSequence.cs" />
+    <Compile Include="Issues\Issue0011_MultipleFieldPersistence.cs" />
+    <Compile Include="Issues\Issue0014_SymmetricRelationshipIsUnsupported.cs" />
+    <Compile Include="Configuration\AppConfigTest.cs" />
+    <Compile Include="Issues\Issue0016_FieldOfInterfaceType.cs" />
+    <Compile Include="Issues\Issue0017_ReferentialActionCascade.cs" />
+    <Compile Include="Issues\Issue0021_InvalidSqlQuery.cs" />
+    <Compile Include="Issues\Issue0028_1_1SymmetricAssociationBug.cs" />
+    <Compile Include="Linq\ConditionalTest.cs" />
+    <Compile Include="Linq\EntitySetTest.cs" />
+    <Compile Include="Linq\MsSamples\LinqToEntitiesSamples.cs" />
+    <Compile Include="Linq\MsSamples\LinqToSqlSamples.cs" />
+    <Compile Include="Linq\AggregateTest.cs" />
+    <Compile Include="Linq\ComplexTest.cs" />
+    <Compile Include="Linq\ContainsAnyAllTest.cs" />
+    <Compile Include="Linq\DistinctTest.cs" />
+    <Compile Include="Linq\NestedCollectionsTest.cs" />
+    <Compile Include="Linq\QueryDumper.cs" />
+    <Compile Include="Linq\SelectManyTest.cs" />
+    <Compile Include="Linq\SetOperationsTest.cs" />
+    <Compile Include="Linq\TypeCastAndInheritanceTest.cs" />
+    <Compile Include="Model\CycleReferenceTest.cs" />
+    <Compile Include="Model\ReferencedKeys.cs" />
+    <Compile Include="Storage\AggregateTest.cs" />
+    <Compile Include="Storage\CompiledQueryTest.cs" />
+    <Compile Include="Storage\Performance\DoCrudTest.cs" />
+    <Compile Include="Storage\Performance\DoMemoryCrudTest.cs" />
+    <Compile Include="Storage\Providers\Sql\BooleanHandlingTest.cs" />
+    <Compile Include="Storage\ApplyTest.cs" />
+    <Compile Include="Storage\EntitySetTest.cs" />
+    <Compile Include="Linq\FirstSingleTest.cs" />
+    <Compile Include="Linq\GroupByTest.cs" />
+    <Compile Include="Linq\JoinTest.cs" />
+    <Compile Include="ObjectModel\NorthwindDOModelTest.cs" />
+    <Compile Include="Linq\OrderByTest.cs" />
+    <Compile Include="Linq\SelectTest.cs" />
+    <Compile Include="Model\CyclicContainedStructureTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Model\CyclicHierarchyDependenciesTest.cs" />
+    <Compile Include="Model\InheritedKeyFieldTest.cs" />
+    <Compile Include="Model\PairTest.cs" />
+    <Compile Include="Model\SelfContainedStructureTest.cs" />
+    <Compile Include="Linq\WhereTest.cs" />
+    <Compile Include="ObjectModel\Northwind.cs" />
+    <Compile Include="ObjectModel\NorthwindDO.cs" />
+    <Compile Include="Rse\HeaderParseTest.cs" />
+    <Compile Include="Storage\ConstraintsTest.cs" />
+    <Compile Include="Storage\AspectsTest.cs" />
+    <Compile Include="Storage\CoreServicesTest.cs" />
+    <Compile Include="Storage\CustomEntitySetTest.cs" />
+    <Compile Include="Storage\ForeignKeyTest.cs" />
+    <Compile Include="Storage\NotifyPropertyChangedTest.cs" />
+    <Compile Include="Storage\Performance\SqlClientCrudModel\Simplest.cs" />
+    <Compile Include="Storage\Performance\CrudModel\Simplest.cs" />
+    <Compile Include="Storage\Providers\Sql\CharSupportTest.cs" />
+    <Compile Include="Storage\Providers\Sql\NullValuesTest.cs" />
+    <Compile Include="Storage\Providers\Sql\TableReferenceTest.cs" />
+    <Compile Include="Storage\SerializationTest.cs" />
+    <Compile Include="Storage\IoC\ServiceTestBase.cs" />
+    <Compile Include="Storage\TypeCompatibilityTest.cs" />
+    <Compile Include="Storage\KeysTest.cs" />
+    <Compile Include="Storage\Performance\DoSqlServerCrudTest.cs" />
+    <Compile Include="Storage\Performance\SqlClientCrudTest.cs" />
+    <Compile Include="Storage\TransactionsTest.cs" />
+    <Compile Include="Storage\ValidationTest.cs" />
+    <Compile Include="Model\AssociationTest.cs" />
+    <Compile Include="Model\InheritanceSchemaTest.cs" />
+    <Compile Include="Model\LibraryTest.cs" />
+    <Compile Include="Configuration\TypeRegistryTest.cs" />
+    <Compile Include="Model\HierarchyTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Storage\ActivatorTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrityTest.cs" />
+    <Compile Include="Storage\SessionBoundTest.cs" />
+    <Compile Include="Storage\LazyLoadTest.cs" />
+    <Compile Include="Storage\StructureTest.cs" />
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\Xtensive.Orm.Tests.Core\Connections.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Model\InterfaceAssociationsModelGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>InterfaceAssociationsModelGenerator.cs</LastGenOutput>
+    </None>
+    <None Include="ObjectModel\Interfaces\Alphabet.cd" />
+    <None Include="ObjectModel\Interfaces\Slavery.cd" />
+    <None Include="ObjectModel\Northwind.cd" />
+    <None Include="ObjectModel\NorthwindDO.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DO40-Test.sdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
+      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
+      <Name>Xtensive.Orm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm.Tests.Core\Xtensive.Orm.Tests.Core.csproj">
+      <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>
+      <Name>Xtensive.Orm.Tests.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Sql.Tests\Xtensive.Sql.Tests.csproj">
+      <Project>{52FD4F16-3718-4828-A1EA-DFD34044FA25}</Project>
+      <Name>Xtensive.Sql.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Integrity\TestResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\MSBuild\Weaving.targets" />
+</Project>
