@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Linq.Expressions
       // Remap recordset parameters
       var visitor = new ApplyParameterAccessVisitor(ApplyParameter, (mc, index) => Call(mc.Object, mc.Method, Constant(index + offset)));
       var providerVisitor = new CompilableProviderVisitor((provider, expression) => visitor.Visit(expression));
-      var newDataSource = providerVisitor.VisitCompilable(ProjectionExpression.ItemProjector.DataSource.Provider).Result;
+      var newDataSource = providerVisitor.VisitCompilable(ProjectionExpression.ItemProjector.DataSource);
 
       // Remap Field parametrized parameters
       var item = GenericExpressionVisitor<IMappedExpression>.Process(ProjectionExpression.ItemProjector.Item, mapped => {
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Linq.Expressions
       // Remap recordset parameters
       var visitor = new ApplyParameterAccessVisitor(ApplyParameter, (mc, index) => Call(mc.Object, mc.Method, Constant(map.IndexOf(index))));
       var providerVisitor = new CompilableProviderVisitor((provider, expression) => visitor.Visit(expression));
-      var newDataSource = providerVisitor.VisitCompilable(ProjectionExpression.ItemProjector.DataSource.Provider).Result;
+      var newDataSource = providerVisitor.VisitCompilable(ProjectionExpression.ItemProjector.DataSource);
 
       // Remap Field parametrized parameters
       var item = GenericExpressionVisitor<IMappedExpression>.Process(ProjectionExpression.ItemProjector.Item, mapped => {

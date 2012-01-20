@@ -19,8 +19,6 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
   [Serializable]
   public sealed class IndexProvider : LocationAwareProvider
   {
-    private static ThreadSafeDictionary<IndexInfo, IndexProvider> cache = 
-      ThreadSafeDictionary<IndexInfo, IndexProvider>.Create(new object());
     private readonly RecordSetHeader indexHeader;
 
     /// <summary>
@@ -50,8 +48,6 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// <returns>Existing or newly created provider for the specified <paramref name="index"/>.</returns>
     public static IndexProvider Get(IndexInfo index)
     {
-      // TODO: Remove or fix cache.
-      /*return cache.GetValue(index, _index => new IndexProvider(_index));*/
       return new IndexProvider(index);
     }
 

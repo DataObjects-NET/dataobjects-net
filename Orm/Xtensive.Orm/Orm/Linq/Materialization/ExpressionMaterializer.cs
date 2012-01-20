@@ -146,10 +146,9 @@ namespace Xtensive.Orm.Linq.Materialization
       // 1. Rewrite recordset and ItemProjector to parameter<tuple>
       var subqueryTupleParameter = context.GetTupleParameter(subQueryExpression.OuterParameter);
       var newDataSource = ApplyParameterToTupleParameterRewriter.Rewrite(
-        subQueryExpression.ProjectionExpression.ItemProjector.DataSource.Provider,
+        subQueryExpression.ProjectionExpression.ItemProjector.DataSource,
         subqueryTupleParameter,
-        subQueryExpression.ApplyParameter)
-        .Result;
+        subQueryExpression.ApplyParameter);
 
       var newItemProjectorBody = ApplyParameterToTupleParameterRewriter.Rewrite(
         subQueryExpression.ProjectionExpression.ItemProjector.Item,

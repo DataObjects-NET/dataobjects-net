@@ -20,8 +20,7 @@ using Xtensive.Orm.Rse.Providers.Compilable;
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Base class for any compilable sorting providers
-  /// (<see cref="SortProvider"/> and <see cref="ReindexProvider"/>).
+  /// Base class for any compilable sorting providers (such as <see cref="SortProvider"/>).
   /// </summary>
   [Serializable]
   public abstract class OrderProviderBase : UnaryProvider

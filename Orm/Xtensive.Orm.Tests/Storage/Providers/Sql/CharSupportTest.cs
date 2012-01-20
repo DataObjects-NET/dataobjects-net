@@ -9,6 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.CharSupportTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.CharSupportTestModel
@@ -61,10 +62,10 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var rs = GetRecordQuery<MyEntity>();
+        var rs = GetRseQuery<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
-          .ToRecordSet(Session.Current)
+          .GetRecordSet(Session.Current)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(3, result.Count);
@@ -81,11 +82,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var y = 'Y';
-        var rs = GetRecordQuery<MyEntity>();
+        var rs = GetRseQuery<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0) == y)
-          .ToRecordSet(Session.Current)
+          .GetRecordSet(Session.Current)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);
@@ -99,11 +100,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var rs = GetRecordQuery<MyEntity>();
+        var rs = GetRseQuery<MyEntity>();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
-          .ToRecordSet(Session.Current)
+          .GetRecordSet(Session.Current)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);
@@ -112,9 +113,9 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       }
     }
 
-    private RecordQuery GetRecordQuery<T>() where T : Entity
+    private CompilableProvider GetRseQuery<T>() where T : Entity
     {
-      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordQuery();
+      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.GetQuery();
     }
   }
 }

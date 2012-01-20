@@ -12,7 +12,7 @@ using Xtensive.Helpers;
 namespace Xtensive.Orm.Model
 {
   /// <summary>
-  /// Represents a model of <see cref="Storage"/>.
+  /// A mapping model of storage.
   /// </summary>
   [Serializable]
   public sealed class DomainModel: Node

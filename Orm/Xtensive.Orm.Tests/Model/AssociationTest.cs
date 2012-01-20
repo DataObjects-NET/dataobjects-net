@@ -148,11 +148,11 @@ namespace Xtensive.Orm.Tests.Model
         using (session.OpenTransaction()) {
           var a1 = new A();
           var a2 = new A();
-          var rs = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordQuery();
+          var rs = a1.TypeInfo.Indexes.PrimaryIndex.GetQuery();
 
-          foreach (Tuple tuple in rs.ToRecordSet(Session.Current)) {
-            var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordQuery();
-            foreach (Tuple tuple2 in rs2.ToRecordSet(Session.Current)) {
+          foreach (Tuple tuple in rs.GetRecordSet(Session.Current)) {
+            var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.GetQuery();
+            foreach (Tuple tuple2 in rs2.GetRecordSet(Session.Current)) {
               Log.Debug(tuple2.ToString());
             }
           }

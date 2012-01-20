@@ -445,7 +445,7 @@ namespace Xtensive.Orm.Linq
 
       var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
-      var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured).Result;
+      var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured);
       var rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
       var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
@@ -897,19 +897,19 @@ namespace Xtensive.Orm.Linq
         var dataSource = oldResult.ItemProjector.DataSource;
 
         SortProvider sortProvider = null; 
-        if (dataSource.Provider is SortProvider) {
-          sortProvider = (SortProvider) dataSource.Provider;
-          dataSource = sortProvider.Source.Result;
+        if (dataSource is SortProvider) {
+          sortProvider = (SortProvider) dataSource;
+          dataSource = sortProvider.Source;
         }
 
         var columns = new List<CalculatedColumnDescriptor>();
-        if (state.AllowCalculableColumnCombine && dataSource.Provider is CalculateProvider && isInlined==((CalculateProvider) dataSource.Provider).IsInlined) {
-          var calculateProvider = ((CalculateProvider) dataSource.Provider);
+        if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
+          var calculateProvider = ((CalculateProvider) dataSource);
           var presentColumns = calculateProvider
             .CalculatedColumns
             .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression));
           columns.AddRange(presentColumns);
-          dataSource = calculateProvider.Source.Result;
+          dataSource = calculateProvider.Source;
         }
         columns.Add(ccd);
         dataSource = dataSource.Calculate(
@@ -937,7 +937,7 @@ namespace Xtensive.Orm.Linq
         throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
-      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
+      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index), context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
@@ -1136,19 +1136,19 @@ namespace Xtensive.Orm.Linq
 
         // Replace original recordset. New recordset is left join with old recordset
         ProjectionExpression originalResultExpression = context.Bindings[parameter];
-        RecordQuery originalRecordset = originalResultExpression.ItemProjector.DataSource;
+        var originalRecordset = originalResultExpression.ItemProjector.DataSource;
         int offset = originalRecordset.Header.Columns.Count;
 
         // Join primary index of target type
         IndexInfo joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-        RecordQuery joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+        var joinedRs = IndexProvider.Get(joinedIndex).Alias(context.GetNextAlias());
         IEnumerable<int> keySegment = entityExpression.Key.Mapping.GetItems();
         Pair<int>[] keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
 
         // Replace recordset.
-        RecordQuery joinedRecordQuery = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
+        var joinedRecordQuery = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
           joinedRecordQuery,
           context);
@@ -1177,7 +1177,7 @@ namespace Xtensive.Orm.Linq
         typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
         return; // All fields are already joined
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      RecordQuery joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(itemProjector.Context.GetNextAlias());
+      var joinedRs = IndexProvider.Get(joinedIndex).Alias(itemProjector.Context.GetNextAlias());
       Segment<int> keySegment = entityExpression.Key.Mapping;
       Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -1198,7 +1198,7 @@ namespace Xtensive.Orm.Linq
         return;
       TypeInfo typeInfo = entityFieldExpression.PersistentType;
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      RecordQuery joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      var joinedRs = IndexProvider.Get(joinedIndex).Alias(context.GetNextAlias());
       Segment<int> keySegment = entityFieldExpression.Mapping;
       Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -1241,7 +1241,7 @@ namespace Xtensive.Orm.Linq
       var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, value, translator.context.Model, sourceExpression);
       var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
-      var recordset = new StoreProvider(rawProvider).Result;
+      var recordset = new StoreProvider(rawProvider);
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
       if (translator.state.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);

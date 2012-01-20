@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using Xtensive.Orm.Rse;
 
@@ -44,15 +45,15 @@ namespace Xtensive.Orm.Linq
     }
 
     /// <summary>
-    /// Gets the <see cref="RecordQuery"/> this query is compiled to.
+    /// Gets the <see cref="CompilableProvider"/> this query is compiled to.
     /// </summary>
-    public RecordQuery Translated
+    public CompilableProvider Translated
     {
       get
       {
         var translatedRecordQuery = provider
           .Translate<IEnumerable<T>>(expression)
-          .RecordQuery;
+          .QueryProvider;
         return translatedRecordQuery;
       }
     }

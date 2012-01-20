@@ -383,7 +383,7 @@
     <Compile Include="Orm\Operations\KeyGenerateOperation.cs" />
     <Compile Include="Orm\Operations\OperationCapturer.cs" />
     <Compile Include="Orm\Operations\ValidateVersionOperation.cs" />
-    <Compile Include="Orm\RecordQueryExtensions.cs" />
+    <Compile Include="Orm\CompilableProviderExtensions.cs" />
     <Compile Include="Orm\Services\DirectEntityAccessor.cs" />
     <Compile Include="Orm\Services\DirectSqlAccessor.cs" />
     <Compile Include="Orm\Services\DirectStateAccessor.cs" />
@@ -1212,8 +1212,7 @@
     <Compile Include="Orm\Rse\Providers\Provider.cs" />
     <Compile Include="Orm\Rse\Providers\ProviderType.cs" />
     <Compile Include="Orm\Rse\Providers\ProviderVisitor.cs" />
-    <Compile Include="Orm\Rse\RecordQuery.cs" />
-    <Compile Include="Orm\Rse\RecordQueryExtensions.cs" />
+    <Compile Include="Orm\Rse\CompilableProviderExtensions.cs" />
     <Compile Include="Orm\Rse\RecordSet.cs" />
     <Compile Include="Orm\Rse\RecordSetHeader.cs" />
     <Compile Include="Orm\Rse\RecordSetHeaderExtensions.cs" />

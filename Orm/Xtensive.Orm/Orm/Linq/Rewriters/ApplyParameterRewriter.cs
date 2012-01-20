@@ -54,13 +54,13 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitGroupingExpression(GroupingExpression expression)
     {
-      var newProvider = Rewrite(expression.ProjectionExpression.ItemProjector.DataSource.Provider, oldApplyParameter, newApplyParameter);
+      var newProvider = Rewrite(expression.ProjectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
       var newItemProjectorBody = Visit(expression.ProjectionExpression.ItemProjector.Item);
       var newKeyExpression = Visit(expression.KeyExpression);
-      if (newProvider!=expression.ProjectionExpression.ItemProjector.DataSource.Provider
+      if (newProvider!=expression.ProjectionExpression.ItemProjector.DataSource
         || newItemProjectorBody!=expression.ProjectionExpression.ItemProjector.Item
           || newKeyExpression!=expression.KeyExpression) {
-        var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider.Result, expression.ProjectionExpression.ItemProjector.Context);
+        var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider, expression.ProjectionExpression.ItemProjector.Context);
         var newProjectionExpression = new ProjectionExpression(
           expression.ProjectionExpression.Type, 
           newItemProjector, 
@@ -73,10 +73,10 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
     {
-      var newProvider = Rewrite(expression.ProjectionExpression.ItemProjector.DataSource.Provider, oldApplyParameter, newApplyParameter);
+      var newProvider = Rewrite(expression.ProjectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
       var newItemProjectorBody = Visit(expression.ProjectionExpression.ItemProjector.Item);
-      if (newProvider!=expression.ProjectionExpression.ItemProjector.DataSource.Provider || newItemProjectorBody!=expression.ProjectionExpression.ItemProjector.Item) {
-        var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider.Result, expression.ProjectionExpression.ItemProjector.Context);
+      if (newProvider!=expression.ProjectionExpression.ItemProjector.DataSource || newItemProjectorBody!=expression.ProjectionExpression.ItemProjector.Item) {
+        var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider, expression.ProjectionExpression.ItemProjector.Context);
         var newProjectionExpression = new ProjectionExpression(
           expression.ProjectionExpression.Type, 
           newItemProjector, 

@@ -13,6 +13,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Linq;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Xtensive.Orm.Providers;
@@ -279,7 +280,7 @@ namespace Xtensive.Orm.Linq
 
       if (sourceType.IsAssignableFrom(targetType)) {
         var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+        var joinedRs = IndexProvider.Get(joinedIndex).Alias(context.GetNextAlias());
         offset = recordSet.Header.Columns.Count;
         var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
         var keyPairs = keySegment
@@ -405,7 +406,7 @@ namespace Xtensive.Orm.Linq
       var projection = predicate!=null
         ? VisitWhere(source, predicate)
         : VisitSequence(source);
-      RecordQuery rightDataSource = null;
+      CompilableProvider rightDataSource = null;
       switch (method.Name) {
       case Xtensive.Reflection.WellKnown.Queryable.First:
         applySequenceType = ApplySequenceType.First;
@@ -468,7 +469,7 @@ namespace Xtensive.Orm.Linq
       Func<int> compiledParameter;
       if (index.NodeType==ExpressionType.Quote)
         index = index.StripQuotes();
-      RecordQuery rs;
+      CompilableProvider rs;
       if (index.Type==typeof (Func<int>)) {
         Expression<Func<int>> elementAtIndex;
         if (QueryCachingScope.Current==null) {
@@ -671,15 +672,15 @@ namespace Xtensive.Orm.Linq
           var groupingProjection = context.Bindings[groupingParameter];
           var groupingDataSource = groupingProjection.ItemProjector.DataSource;
           var supportedAggregate = !(aggregateType == AggregateType.Count && argument != null);
-          var groupingProvider = groupingDataSource.Provider as AggregateProvider;
+          var groupingProvider = groupingDataSource as AggregateProvider;
           var oldApplyParameter = context.GetApplyParameter(groupingProjection.ItemProjector.DataSource);
           if (groupingProjection.ItemProjector.Item.IsGroupingExpression() && groupingProvider != null && supportedAggregate) {
             var filterRemover = new SubqueryFilterRemover(oldApplyParameter);
-            var newSourñe = filterRemover.VisitCompilable(innerProjection.ItemProjector.DataSource.Provider);
+            var newSourñe = filterRemover.VisitCompilable(innerProjection.ItemProjector.DataSource);
             var newRecordSet = new AggregateProvider(
               newSourñe, 
               groupingProvider.GroupColumnIndexes, 
-              groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray()).Result;
+              groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
             var newItemProjector = groupingProjection.ItemProjector.Remap(newRecordSet, 0);
             groupingProjection = new ProjectionExpression(
               groupingProjection.Type, 
@@ -864,13 +865,13 @@ namespace Xtensive.Orm.Linq
             .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct)
             .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
           var result = context.Bindings[le.Parameters[0]];
-          var sortProvider = (SortProvider) result.ItemProjector.DataSource.Provider;
+          var sortProvider = (SortProvider) result.ItemProjector.DataSource;
           var sortOrder = new DirectionCollection<int>(sortProvider.Order);
           foreach (var item in orderItems) {
             if (!sortOrder.ContainsKey(item.Key))
               sortOrder.Add(item);
           }
-          var recordSet = new SortProvider(sortProvider.Source, sortOrder).Result;
+          var recordSet = new SortProvider(sortProvider.Source, sortOrder);
           var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, recordSet, context);
           return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
         }
@@ -920,7 +921,7 @@ namespace Xtensive.Orm.Linq
     }
 
     private ProjectionExpression CombineProjections(ProjectionExpression outer, ProjectionExpression inner,
-      RecordQuery recordQuery, LambdaExpression resultSelector)
+      CompilableProvider recordQuery, LambdaExpression resultSelector)
     {
       var outerDataSource = outer.ItemProjector.DataSource;
       var outerLength = outerDataSource.Header.Length;
@@ -1161,7 +1162,7 @@ namespace Xtensive.Orm.Linq
 
           var parameterSource = context.Bindings[parameter];
           var parameterRecordSet = parameterSource.ItemProjector.DataSource;
-          var rawProvider = ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource.Provider).Source);
+          var rawProvider = ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource).Source);
           var tuples = rawProvider.Source;
           var mapping = IncludeFilterMappingGatherer.Visit(predicateLambda.Parameters[0], rawProvider.Header.Length, predicateLambda.Body);
 
@@ -1277,7 +1278,7 @@ namespace Xtensive.Orm.Linq
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
 
-    private Expression AddSubqueryColumn(Type columnType, RecordQuery subquery)
+    private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
     {
       if (subquery.Header.Length!=1)
         throw Exceptions.InternalError(String.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), Log.Instance);

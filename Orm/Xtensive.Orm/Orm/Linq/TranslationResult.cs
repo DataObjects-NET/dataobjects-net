@@ -7,21 +7,22 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq
 {
   public abstract class TranslationResult
   {
     public TranslatedQuery UntypedQuery { get; private set; }
-    public RecordQuery RecordQuery { get; private set; }
+    public CompilableProvider QueryProvider { get; private set; }
 
 
     // Constructors
 
-    protected TranslationResult(TranslatedQuery untypedQuery, RecordQuery recordQuery)
+    protected TranslationResult(TranslatedQuery untypedQuery, CompilableProvider recordQuery)
     {
       UntypedQuery = untypedQuery;
-      RecordQuery = recordQuery;
+      QueryProvider = recordQuery;
     }
   }
 
@@ -32,7 +33,7 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    public TranslationResult(TranslatedQuery<TResult> query, RecordQuery recordQuery)
+    public TranslationResult(TranslatedQuery<TResult> query, CompilableProvider recordQuery)
       : base(query, recordQuery)
     {
       Query = query;

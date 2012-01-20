@@ -14,9 +14,9 @@ using Xtensive.Orm.Rse.Providers;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// <see cref="RecordQuery"/> related extension methods.
+  /// <see cref="CompilableProvider"/> related extension methods.
   /// </summary>
-  public static class RecordQueryExtensions
+  public static class CompilableProviderExtensions
   {
     /// <summary>
     /// Compiles provided <paramref name="query"/> and returns new <see cref="RecordSet"/> bound to provided <paramref name="session"/>.
@@ -24,11 +24,11 @@ namespace Xtensive.Orm
     /// <param name="query">The query.</param>
     /// <param name="session">The session.</param>
     /// <returns>New <see cref="RecordSet"/> bound to provided <paramref name="session"/>.</returns>
-    public static RecordSet ToRecordSet (this RecordQuery query, Session session)
+    public static RecordSet GetRecordSet(this CompilableProvider query, Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      var executableProvider = session.CompilationService.Compile(query.Provider);
+      var executableProvider = session.CompilationService.Compile(query);
       return new RecordSet(session.CreateEnumerationContext(), executableProvider);
     }
 
@@ -38,22 +38,23 @@ namespace Xtensive.Orm
     /// <param name="query">The query.</param>
     /// <param name="session">The session.</param>
     /// <returns>Compiled <see cref="ExecutableProvider"/>.</returns>
-    public static ExecutableProvider Compile(this RecordQuery query, Session session)
+    public static ExecutableProvider Compile(this CompilableProvider query, Session session)
     {
-      return session.CompilationService.Compile(query.Provider);
+      return session.CompilationService.Compile(query);
     }
 
     /// <summary>
-    /// Creates new <see cref="RecordQuery"/> that calculates count of elements of provided <paramref name="recordQuery"/>, compiles and executes them.
+    /// Calculates count of elements of provided <paramref name="query"/>.
     /// </summary>
-    /// <param name="recordQuery">The record query.</param>
+    /// <param name="query">The record query.</param>
     /// <param name="session">The session.</param>
-    public static long Count(this RecordQuery recordQuery, Session session)
+    public static long Count(this CompilableProvider query, Session session)
     {
-      var resultQuery = recordQuery.Aggregate(null, 
-        new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-      var recordSet = resultQuery.ToRecordSet(session);
-      return recordSet.First().GetValue<long>(0);
+      return query
+        .Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count))
+        .GetRecordSet(session)
+        .First()
+        .GetValue<long>(0);
     }
   }
 }

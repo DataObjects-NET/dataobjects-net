@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
@@ -85,7 +86,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public FieldInfo ReferencingField {get { return referencingFieldDescriptor.Field; } }
 
-    public RecordQuery RecordQuery { get; private set; }
+    public CompilableProvider QueryProvider { get; private set; }
 
     public int? ItemCountLimit { get; private set; }
 
@@ -106,7 +107,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var areToNotifyAboutKeys = !manager.Owner.Session.Domain.Model
         .Types[referencingFieldDescriptor.Field.ItemType].IsLeaf;
       var reader = manager.Owner.Session.Domain.RecordSetReader;
-      var records = reader.Read(itemsQueryTask.Result, RecordQuery.Header, manager.Owner.Session);
+      var records = reader.Read(itemsQueryTask.Result, QueryProvider.Header, manager.Owner.Session);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       List<Pair<Key, Tuple>> auxEntities = null;
       var association = ReferencingField.Associations.Last();
@@ -177,20 +178,20 @@ namespace Xtensive.Orm.Internals.Prefetch
           itemCountLimitParameter.Value = ItemCountLimit.Value;
         object key = new Pair<object, CacheKey>(itemsQueryCachingRegion, cacheKey);
         Func<object, object> generator = CreateRecordSetLoadingItems;
-        RecordQuery = (RecordQuery) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
-        var executableProvider = manager.Owner.Session.CompilationService.Compile(RecordQuery.Provider);
+        QueryProvider = (CompilableProvider)manager.Owner.Session.Domain.Cache.GetValue(key, generator);
+        var executableProvider = manager.Owner.Session.CompilationService.Compile(QueryProvider);
         return new QueryTask(executableProvider, parameterContext);
       }
     }
 
-    private static RecordQuery CreateRecordSetLoadingItems(object cachingKey)
+    private static CompilableProvider CreateRecordSetLoadingItems(object cachingKey)
     {
       var pair = (Pair<object, CacheKey>) cachingKey;
       var association = pair.Second.ReferencingField.Associations.Last();
       var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
       ParameterExpression tupleParameter;
-      RecordQuery result;
+      CompilableProvider result;
       if (association.AuxiliaryType == null)
         result = CreateQueryForDirectAssociation(pair, primaryTargetIndex, resultColumns);
       else
@@ -201,7 +202,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return result;
     }
 
-    private static RecordQuery CreateQueryForAssociationViaAuxType(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static CompilableProvider CreateQueryForAssociationViaAuxType(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       var association = pair.Second.ReferencingField.Associations.Last();
       var associationIndex = association.UnderlyingIndex;
@@ -216,20 +217,20 @@ namespace Xtensive.Orm.Internals.Prefetch
         .Take(associationIndex.KeyColumns.Count)
         .Select(column => column.ValueType)
         .ToList();
-      return associationIndex.ToRecordQuery()
+      return associationIndex.GetQuery()
         .Filter(QueryHelper.BuildFilterLambda(firstKeyColumnIndex, keyColumnTypes, ownerParameter))
         .Alias("a")
-        .Join(primaryTargetIndex.ToRecordQuery(), joiningColumns);
+        .Join(primaryTargetIndex.GetQuery(), joiningColumns);
     }
 
-    private static RecordQuery CreateQueryForDirectAssociation(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static CompilableProvider CreateQueryForDirectAssociation(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var association = pair.Second.ReferencingField.Associations.Last();
       var field = association.Reversed.OwnerField;
       var keyColumnTypes = field.Columns.Select(column => column.ValueType).ToList();
       return primaryTargetIndex
-        .ToRecordQuery()
+        .GetQuery()
         .Filter(QueryHelper.BuildFilterLambda(field.MappingInfo.Offset, keyColumnTypes, ownerParameter));
     }
 

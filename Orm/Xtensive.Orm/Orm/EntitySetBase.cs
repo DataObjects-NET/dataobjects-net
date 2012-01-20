@@ -909,7 +909,8 @@ namespace Xtensive.Orm
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
       var association = field.Associations.Last();
-      var seek = entitySet.Session.CompilationService.Compile(association.UnderlyingIndex.ToRecordQuery().Seek(() => keyParameter.Value).Provider);
+      var seek = entitySet.Session.CompilationService.Compile(
+        association.UnderlyingIndex.GetQuery().Seek(() => keyParameter.Value));
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
 

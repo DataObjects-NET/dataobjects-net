@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         return mc;
       });
       var providerVisitor = new CompilableProviderVisitor((provider, expression) => visitor.Visit(expression));
-      providerVisitor.VisitCompilable(subQueryExpression.ProjectionExpression.ItemProjector.DataSource.Provider);
+      providerVisitor.VisitCompilable(subQueryExpression.ProjectionExpression.ItemProjector.DataSource);
 
       if (isTopSubquery)
         topSubquery = null;

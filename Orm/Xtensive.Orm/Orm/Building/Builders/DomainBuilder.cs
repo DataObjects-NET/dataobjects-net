@@ -30,7 +30,7 @@ using Tuple=Xtensive.Tuples.Tuple;
 namespace Xtensive.Orm.Building.Builders
 {
   /// <summary>
-  /// Utility class for <see cref="Storage"/> building.
+  /// Utility class for <see cref="Domain"/> building.
   /// </summary>
   internal static class DomainBuilder
   {

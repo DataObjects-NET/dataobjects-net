@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Linq.Expressions
 {
   internal class ItemProjectorExpression : ExtendedExpression
   {
-    public RecordQuery DataSource { get; set; }
+    public CompilableProvider DataSource { get; set; }
     public TranslatorContext Context { get; private set; }
     public Expression Item { get; private set; }
 
@@ -51,7 +52,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return ColumnGatherer.GetColumns(Item, columnExtractionModes);
     }
 
-    public ItemProjectorExpression Remap(RecordQuery dataSource, int offset)
+    public ItemProjectorExpression Remap(CompilableProvider dataSource, int offset)
     {
       if (offset==0)
         return new ItemProjectorExpression(Item, dataSource, Context);
@@ -59,7 +60,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ItemProjectorExpression(item, dataSource, Context);
     }
 
-    public ItemProjectorExpression Remap(RecordQuery dataSource, int[] columnMap)
+    public ItemProjectorExpression Remap(CompilableProvider dataSource, int[] columnMap)
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, dataSource, Context);
@@ -104,15 +105,8 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ItemProjectorExpression RewriteApplyParameter(ApplyParameter oldParameter, ApplyParameter newParameter)
     {
-      var newDataSource = ApplyParameterRewriter.Rewrite(
-        DataSource.Provider,
-        oldParameter,
-        newParameter)
-        .Result;
-      var newItemProjectorBody = ApplyParameterRewriter.Rewrite(
-        Item,
-        oldParameter,
-        newParameter);
+      var newDataSource = ApplyParameterRewriter.Rewrite(DataSource, oldParameter, newParameter);
+      var newItemProjectorBody = ApplyParameterRewriter.Rewrite(Item, oldParameter, newParameter);
       return new ItemProjectorExpression(newItemProjectorBody, newDataSource, Context);
     }
 
@@ -126,7 +120,7 @@ namespace Xtensive.Orm.Linq.Expressions
           if (typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
             return entityExpression;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-          var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(Context.GetNextAlias());
+          var joinedRs = IndexProvider.Get(joinedIndex).Alias(Context.GetNextAlias());
           var keySegment = entityExpression.Key.Mapping;
           var keyPairs = keySegment.GetItems()
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -144,7 +138,7 @@ namespace Xtensive.Orm.Linq.Expressions
             return entityFieldExpression.Entity;
           var typeInfo = entityFieldExpression.PersistentType;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-          var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(Context.GetNextAlias());
+          var joinedRs = IndexProvider.Get(joinedIndex).Alias(Context.GetNextAlias());
           var keySegment = entityFieldExpression.Mapping;
           var keyPairs = keySegment.GetItems()
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -175,7 +169,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Constructors
 
-    public ItemProjectorExpression(Expression expression, RecordQuery dataSource, TranslatorContext context)
+    public ItemProjectorExpression(Expression expression, CompilableProvider dataSource, TranslatorContext context)
       : base(ExtendedExpressionType.ItemProjector, expression.Type)
     {
       DataSource = dataSource;

@@ -92,10 +92,10 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     private void CreateQueries(int amount)
     {
       for (int i = 0; i < amount; i++) {
-        var rs = Domain.Model.Types[typeof (X)].Indexes.PrimaryIndex.ToRecordQuery()
+        var rs = Domain.Model.Types[typeof (X)].Indexes.PrimaryIndex.GetQuery()
           .Aggregate(ArrayUtils<int>.EmptyArray,
             new AggregateColumnDescriptor("_count_", 0, AggregateType.Count));
-        var compiledProvider = session.CompilationService.Compile(rs.Provider);
+        var compiledProvider = session.CompilationService.Compile(rs);
         var task = new QueryTask(compiledProvider, null);
         tasks.Add(task);
         Session.Current.RegisterDelayedQuery(task);

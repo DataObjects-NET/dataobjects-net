@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Linq
 
       // Compilation
       var dataSource = prepared.ItemProjector.DataSource;
-      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource.Provider);
+      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource);
 
       // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Linq
 
     private static ProjectionExpression Optimize(ProjectionExpression origin)
     {
-      var originProvider = origin.ItemProjector.DataSource.Provider;
+      var originProvider = origin.ItemProjector.DataSource;
 
       var usedColumns = origin.ItemProjector
         .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.KeepTypeId | ColumnExtractionModes.OmitLazyLoad)
@@ -81,8 +81,7 @@ namespace Xtensive.Orm.Linq
         usedColumns.Add(0);
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
-        var rs = resultProvider.Result;
-        var itemProjector = origin.ItemProjector.Remap(rs, usedColumns.ToArray());
+        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns.ToArray());
         var result = new ProjectionExpression(
           origin.Type,
           itemProjector,

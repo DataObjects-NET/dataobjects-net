@@ -68,9 +68,8 @@ namespace Xtensive.Orm.Linq
       return GetApplyParameter(projection.ItemProjector.DataSource);
     }
 
-    internal ApplyParameter GetApplyParameter(RecordQuery newRecordQuery)
+    internal ApplyParameter GetApplyParameter(CompilableProvider provider)
     {
-      var provider = newRecordQuery.Provider;
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
         parameter = new ApplyParameter(provider.GetType().GetShortName());
@@ -82,11 +81,11 @@ namespace Xtensive.Orm.Linq
       return parameter;
     }
 
-    internal void RebindApplyParameter(RecordQuery old, RecordQuery @new)
+    internal void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
     {
       ApplyParameter parameter;
-      if (applyParameters.TryGetValue(old.Provider, out parameter)) {
-        applyParameters[@new.Provider] = parameter;
+      if (applyParameters.TryGetValue(old, out parameter)) {
+        applyParameters[@new] = parameter;
       }
     }
 

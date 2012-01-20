@@ -229,11 +229,11 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       using (var session = Domain.OpenSession()) {
         int i = 0;
         using (var ts = session.OpenTransaction()) {
-          var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
+          var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
-              foreach (var tuple in rs.ToRecordSet(session)) {
+              foreach (var tuple in rs.GetRecordSet(session)) {
                 var o = new SqlClientCrudModel.Simplest
                           {
                             Id = tuple.GetValueOrDefault<long>(0),
@@ -394,11 +394,10 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
-              var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
-              rs = rs.Seek(() => pKey.Value);
+              var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(() => pKey.Value);
               using (new ParameterContext().Activate()) {
                 pKey.Value = Tuple.Create((long) (i%instanceCount));
-                var es = rs.ToRecordSet(session).ToEntities<Simplest>(0);
+                var es = rs.GetRecordSet(session).ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }
@@ -416,13 +415,12 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var pKey = new Parameter<Tuple>();
-          var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordQuery();
-          rs = rs.Seek(() => pKey.Value);
+          var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(() => pKey.Value);
           using (new ParameterContext().Activate()) {
             using (warmup ? null : new Measurement("Cached RSE query", count)) {
               for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create((long) (i%instanceCount));
-                var es = rs.ToRecordSet(session).ToEntities<Simplest>(0);
+                var es = rs.GetRecordSet(session).ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }

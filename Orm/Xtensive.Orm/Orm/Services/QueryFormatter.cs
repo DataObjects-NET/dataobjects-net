@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Services
 
       private CommandPart ToCommandPart<T>(IQueryable<T> query)
       {
-          var recordset = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression).RecordQuery;
+          var recordset = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression).QueryProvider;
           var executableProvider = recordset.Compile(Session);
           var sqlProvider = executableProvider as SqlProvider;
 

@@ -13,7 +13,7 @@ using Xtensive.Orm.Rse.Compilation;
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Provides access to some previously stored named <see cref="RecordQuery"/> 
+  /// Provides access to some previously stored named <see cref="Provider"/> 
   /// or stores the specified <see cref="Source"/> with the specified <see cref="Name"/>.
   /// </summary>
   [Serializable]

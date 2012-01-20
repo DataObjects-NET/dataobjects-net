@@ -284,10 +284,10 @@ namespace Xtensive.Orm
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
           return domain.Handler.CompilationService.Compile(
-            IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result
+            IndexProvider.Get(triplet.First.Indexes.PrimaryIndex)
               .Seek(keyParameter.Value)
               .Lock(() => triplet.Second, () => triplet.Third)
-              .Select().Provider);
+              .Select());
         };
         var source = (ExecutableProvider) domain.Cache.GetValue(key, generator);
         var recordSet = new RecordSet(Session.Handler.CreateEnumerationContext(), source);

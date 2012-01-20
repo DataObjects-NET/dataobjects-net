@@ -35,14 +35,14 @@ namespace Xtensive.Orm.Providers
         return FindReferences(target, association, true);
       object key = new Pair<object, AssociationInfo>(CachingRegion, association);
       Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second);
-      var pair = (Pair<RecordQuery, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
+      var pair = (Pair<CompilableProvider, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
       var recordSet = pair.First;
       var parameter = pair.Second;
       var parameterContext = new ParameterContext();
       ExecutableProvider executableProvider;
       using (parameterContext.Activate()) {
         parameter.Value = target.Key.Value;
-        executableProvider = Session.CompilationService.Compile(recordSet.Provider);
+        executableProvider = Session.CompilationService.Compile(recordSet);
       }
       var queryTask = new QueryTask(executableProvider, parameterContext);
       Session.RegisterDelayedQuery(queryTask);
@@ -95,9 +95,9 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private static Pair<RecordQuery,Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
+    private static Pair<CompilableProvider, Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
     {
-      var recordSet = (RecordQuery)null;
+      var provider = (CompilableProvider)null;
       var parameter = new Parameter<Tuple>();
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Providers
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>a.Index)
             .ToArray();
-          recordSet = index.ToRecordQuery()
+          provider = index.GetQuery()
             .Filter(QueryHelper.BuildFilterLambda(
               association.OwnerField.MappingInfo.Offset,
               association.OwnerField.Columns.Select(c => c.ValueType).ToList(),
@@ -127,13 +127,13 @@ namespace Xtensive.Orm.Providers
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>targetIndex.Columns.Count + a.Index)
             .ToArray();
-          recordSet = targetIndex.ToRecordQuery()
+          provider = targetIndex.GetQuery()
             .Filter(QueryHelper.BuildFilterLambda(0,
               association.TargetType.Key.TupleDescriptor,
               parameter))
             .Alias("a")
             .Join(
-              index.ToRecordQuery(), 
+              index.GetQuery(), 
               JoinAlgorithm.Loop, 
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
@@ -164,14 +164,14 @@ namespace Xtensive.Orm.Providers
           var referencedField = association.IsMaster
             ? association.AuxiliaryType.Fields[WellKnown.MasterFieldName]
             : association.AuxiliaryType.Fields[WellKnown.SlaveFieldName];
-          recordSet = targetIndex.ToRecordQuery()
+          provider = targetIndex.GetQuery()
             .Filter(QueryHelper.BuildFilterLambda(
               referencingField.MappingInfo.Offset,
               referencingType.Key.TupleDescriptor,
               parameter))
             .Alias("a")
             .Join(
-              index.ToRecordQuery(),
+              index.GetQuery(),
               JoinAlgorithm.Loop,
               referencedField.MappingInfo
                 .GetItems()
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Providers
           break;
         }
       }
-      return new Pair<RecordQuery, Parameter<Tuple>>(recordSet, parameter);
+      return new Pair<CompilableProvider, Parameter<Tuple>>(provider, parameter);
     }
   }
 }

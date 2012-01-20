@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -84,7 +85,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private List<QueryTask> queryTasks;
     private readonly CacheKey cacheKey;
 
-    public RecordQuery RecordQuery { get; private set; }
+    public CompilableProvider Provider { get; private set; }
 
     public void AddKey(Key key, bool exactType)
     {
@@ -158,20 +159,20 @@ namespace Xtensive.Orm.Internals.Prefetch
         includeParameter.Value = currentKeySet;
         object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
         Func<object, object> generator = CreateRecordSet;
-        RecordQuery = (RecordQuery) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
-        var executableProvider = manager.Owner.Session.CompilationService.Compile(RecordQuery.Provider);
+        Provider = (CompilableProvider) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
+        var executableProvider = manager.Owner.Session.CompilationService.Compile(Provider);
         return new QueryTask(executableProvider, parameterContext);
       }
     }
 
-    private static RecordQuery CreateRecordSet(object cachingKey)
+    private static CompilableProvider CreateRecordSet(object cachingKey)
     {
       var pair = (Pair<object, CacheKey>) cachingKey;
       var selectedColumnIndexes = pair.Second.ColumnIndexes;
       var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
         .Take(pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
       var columnCollectionLenght = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.Type.Indexes.PrimaryIndex.ToRecordQuery().Include(IncludeAlgorithm.ComplexCondition,
+      return pair.Second.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
         true, () => includeParameter.Value, String.Format("includeColumnName-{0}", Guid.NewGuid()),
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);
     }
@@ -179,7 +180,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,
       HashSet<Key> foundedKeys)
     {
-      var records = reader.Read(queryResult, RecordQuery.Header, manager.Owner.Session);
+      var records = reader.Read(queryResult, Provider.Header, manager.Owner.Session);
       foreach (var record in records) {
         if (record!=null) {
           var fetchedKey = record.GetKey();

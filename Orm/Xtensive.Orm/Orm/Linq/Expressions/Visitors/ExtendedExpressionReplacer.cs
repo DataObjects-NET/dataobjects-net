@@ -33,11 +33,11 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     protected override Expression VisitProjectionExpression(ProjectionExpression projectionExpression)
     {
       var item = Visit(projectionExpression.ItemProjector.Item);
-      var provider = providerVisitor.VisitCompilable(projectionExpression.ItemProjector.DataSource.Provider);
-      var providerChanged = provider!=projectionExpression.ItemProjector.DataSource.Provider;
+      var provider = providerVisitor.VisitCompilable(projectionExpression.ItemProjector.DataSource);
+      var providerChanged = provider!=projectionExpression.ItemProjector.DataSource;
       var itemChanged = item!=projectionExpression.ItemProjector.Item;
       if (providerChanged || itemChanged) {
-        var itemProjector = new ItemProjectorExpression(item, provider.Result, projectionExpression.ItemProjector.Context);
+        var itemProjector = new ItemProjectorExpression(item, provider, projectionExpression.ItemProjector.Context);
         return new ProjectionExpression(
           projectionExpression.Type,
           itemProjector,

@@ -10,6 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Orm;
@@ -21,8 +22,8 @@ namespace Xtensive.Orm.Tests.Storage
   {
     private List<Customer> allCustomers;
     private List<Order> allOrders;
-    private RecordQuery customerPrimary;
-    private RecordQuery orderPrimary;
+    private CompilableProvider customerPrimary;
+    private CompilableProvider orderPrimary;
     private int customerIdIndex;
     private int orderCustomerIndex;
 
@@ -34,14 +35,14 @@ namespace Xtensive.Orm.Tests.Storage
       var customerIdColumn = customerType.Fields["Id"].Column.Name;
       var orderCustomerColumn = orderType.Fields["Customer"].Fields[0].Column.Name;
 
-      customerPrimary = customerType.Indexes.PrimaryIndex.ToRecordQuery();
-      orderPrimary = orderType.Indexes.PrimaryIndex.ToRecordQuery();
+      customerPrimary = customerType.Indexes.PrimaryIndex.GetQuery();
+      orderPrimary = orderType.Indexes.PrimaryIndex.GetQuery();
 
       customerIdIndex = customerPrimary.Header.IndexOf(customerIdColumn);
       orderCustomerIndex = orderPrimary.Header.IndexOf(orderCustomerColumn);
 
-      allCustomers = customerPrimary.ToRecordSet(Session.Current).ToEntities<Customer>(0).ToList();
-      allOrders = orderPrimary.ToRecordSet(Session.Current).ToEntities<Order>(0).ToList();      
+      allCustomers = customerPrimary.GetRecordSet(Session.Current).ToEntities<Customer>(0).ToList();
+      allOrders = orderPrimary.GetRecordSet(Session.Current).ToEntities<Order>(0).ToList();      
     }
 
     [Test]
@@ -103,7 +104,7 @@ namespace Xtensive.Orm.Tests.Storage
             .Existence("LALALA");
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.Single, JoinType.Inner)
-            .ToRecordSet(Session.Current)
+            .GetRecordSet(Session.Current)
             .Count(t => (bool) t.GetValue(t.Count-1));
           Assert.AreEqual(total, result);
         }

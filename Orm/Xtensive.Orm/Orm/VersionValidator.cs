@@ -146,7 +146,7 @@ namespace Xtensive.Orm
     private QueryTask CreateFetchVersionTask(Key key)
     {
       var type = key.TypeInfo;
-      var provider = type.Indexes.PrimaryIndex.ToRecordQuery().Seek(key.Value).Provider;
+      var provider = type.Indexes.PrimaryIndex.GetQuery().Seek(key.Value);
       var execProvider = Session.CompilationService.Compile(provider);
       return new QueryTask(execProvider, null);
     }

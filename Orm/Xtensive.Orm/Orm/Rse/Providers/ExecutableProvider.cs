@@ -19,8 +19,7 @@ using IEnumerable = System.Collections.IEnumerable;
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
-  /// Abstract base class for any <see cref="RecordQuery"/> <see cref="RecordQuery.Provider"/>,
-  /// that does not need to be compiled.
+  /// Abstract base class for any query provider that can be directly executed.
   /// </summary>
   [Serializable]
   public abstract class ExecutableProvider : Provider,

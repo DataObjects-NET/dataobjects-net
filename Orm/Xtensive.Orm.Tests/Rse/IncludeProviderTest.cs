@@ -33,12 +33,12 @@ namespace Xtensive.Orm.Tests.Rse
       var suppliers = Session.Demand().Query.All<Supplier>().Take(10).ToList();
       var ids = suppliers.Select(supplier => (Tuple)Tuple.Create(supplier.Id));
 
-      var supplierRs = Domain.Model.Types[typeof (Supplier)].Indexes.PrimaryIndex.ToRecordQuery();
+      var supplierRs = Domain.Model.Types[typeof (Supplier)].Indexes.PrimaryIndex.GetQuery();
       var inRs = supplierRs.Include(() => ids, "columnName", new[] {0});
       var inIndex = inRs.Header.Columns.Count-1;
       var whereRs = inRs.Filter(tuple => tuple.GetValueOrDefault<bool>(inIndex));
-      var result = whereRs.ToRecordSet(Session.Current).ToList();
-      Assert.AreEqual(0, whereRs.ToRecordSet(Session.Current).Select(t => t.GetValue<int>(0)).Except(suppliers.Select(s => s.Id)).Count());
+      var result = whereRs.GetRecordSet(Session.Current).ToList();
+      Assert.AreEqual(0, whereRs.GetRecordSet(Session.Current).Select(t => t.GetValue<int>(0)).Except(suppliers.Select(s => s.Id)).Count());
     }
   }
 }

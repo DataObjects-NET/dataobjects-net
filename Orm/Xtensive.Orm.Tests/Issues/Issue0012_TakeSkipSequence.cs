@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Tests.Issues.Issue0012_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0012_Model
@@ -58,8 +59,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var trs = session.OpenTransaction()) {
         var e1 = new MyEntity();
         var e2 = new MyEntity();
-        RecordQuery rsMyEntities = Domain.Model.Types[typeof (MyEntity)]
-          .Indexes.PrimaryIndex.ToRecordQuery()
+        CompilableProvider rsMyEntities = Domain.Model.Types[typeof(MyEntity)]
+          .Indexes.PrimaryIndex.GetQuery()
           .Filter(t => t.GetValue<int>(0) == e1.Id || t.GetValue<int>(0) == e2.Id);
 
         Assert.AreEqual(2, rsMyEntities.Count(Session.Current));

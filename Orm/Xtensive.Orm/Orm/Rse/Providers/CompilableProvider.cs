@@ -9,18 +9,12 @@ using System;
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
-  /// Abstract base class for any <see cref="RecordQuery"/> <see cref="RecordQuery.Provider"/>,
-  /// that can be compiled.
+  /// Abstract base class for any query provider,
+  /// that requires storage-specific compilation before in can be executed.
   /// </summary>
   [Serializable]
   public abstract class CompilableProvider : Provider
   {
-    /// <summary>
-    /// Creates the <see cref="RecordQuery"/> wrapping this provider.
-    /// </summary>
-    public RecordQuery Result { get { return new RecordQuery(this); } }
-
-
     // Constructors
 
     /// <inheritdoc/>

@@ -10,6 +10,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Threading;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -19,7 +20,7 @@ using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 namespace Xtensive.Orm.Rse
 {
   /// <summary>
-  /// Header of <see cref="RecordQuery"/>.
+  /// Header of <see cref="Provider"/>.
   /// </summary>
   [Serializable]
   public sealed class RecordSetHeader
@@ -37,23 +38,23 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// Gets the <see cref="RecordQuery"/> keys.
+    /// Gets the <see cref="Provider"/> keys.
     /// </summary>
     /// <value>The keys.</value>
     public ColumnGroupCollection ColumnGroups { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="RecordQuery"/> columns.
+    /// Gets the <see cref="Provider"/> columns.
     /// </summary>
     public ColumnCollection Columns { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="RecordQuery"/> tuple descriptor.
+    /// Gets the <see cref="Provider"/> tuple descriptor.
     /// </summary>
     public TupleDescriptor TupleDescriptor { get; private set; }
 
     /// <summary>
-    /// Gets the indexes of columns <see cref="RecordQuery"/> is ordered by.
+    /// Gets the indexes of columns <see cref="Provider"/> is ordered by.
     /// </summary>
     public DirectionCollection<int> Order { get; private set; }
 
