@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   public enum ProviderType
   {
     Index,
-    Reindex,
     Store,
     Aggregate,
     Alias,
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Rse.Providers
     Select,
     Skip,
     Take,
-    Transfer,
     Apply,
     RowNumber,
     Existence,

@@ -31,9 +31,6 @@ namespace Xtensive.Orm.Rse.Providers
         case ProviderType.Index:
           result = VisitIndex((IndexProvider) cp);
           break;
-        case ProviderType.Reindex:
-          result = VisitReindex((ReindexProvider) cp);
-          break;
         case ProviderType.Store:
           result = VisitStore((StoreProvider) cp);
           break;
@@ -75,9 +72,6 @@ namespace Xtensive.Orm.Rse.Providers
           break;
         case ProviderType.Paging:
           result = VisitPaging((PagingProvider)cp);
-          break;
-        case ProviderType.Transfer:
-          result = VisitTransfer((TransferProvider) cp);
           break;
         case ProviderType.RowNumber:
           result = VisitRowNumber((RowNumberProvider)cp);
@@ -135,12 +129,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="provider">Apply provider.</param>
     protected abstract Provider VisitApply(ApplyProvider provider);
-
-    /// <summary>
-    /// Visits <see cref="TransferProvider"/>.
-    /// </summary>
-    /// <param name="provider">Execution site provider.</param>
-    protected abstract Provider VisitTransfer(TransferProvider provider);
 
     /// <summary>
     /// Visits <see cref="RowNumberProvider"/>.
@@ -238,13 +226,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="provider">Index provider.</param>
     protected abstract Provider VisitIndex(IndexProvider provider);
-
-    /// <summary>
-    /// Visits the <see cref="ReindexProvider"/>.
-    /// </summary>
-    /// <param name="provider">Reindex provider.</param>
-    /// <returns></returns>
-    protected abstract Provider VisitReindex(ReindexProvider provider);
 
     /// <summary>
     /// Visits the <see cref="IntersectProvider"/>.

@@ -36,17 +36,6 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitTransfer(TransferProvider provider)
-    {
-      OnRecursionEntrance(provider);
-      var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new TransferProvider(source, provider.Options, provider.Location);
-    }
-
-    /// <inheritdoc/>
     protected override Provider VisitTake(TakeProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -242,17 +231,6 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       OnRecursionExit(provider);
       return provider;
-    }
-
-    /// <inheritdoc/>
-    protected override Provider VisitReindex(ReindexProvider provider)
-    {
-      OnRecursionEntrance(provider);
-      var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new ReindexProvider(source, provider.Order);
     }
 
     /// <inheritdoc/>

@@ -59,9 +59,6 @@ namespace Xtensive.Orm.Rse.Compilation
         case ProviderType.Index:
           result = VisitIndex((IndexProvider)cp);
           break;
-        case ProviderType.Reindex:
-          result = VisitReindex((ReindexProvider)cp);
-          break;
         case ProviderType.Store:
           result = VisitStore((StoreProvider)cp);
           break;
@@ -107,9 +104,6 @@ namespace Xtensive.Orm.Rse.Compilation
         case ProviderType.Paging:
           result = VisitPaging((PagingProvider)cp);
           break;
-        case ProviderType.Transfer:
-          result = VisitTransfer((TransferProvider)cp);
-          break;
         case ProviderType.Apply:
           result = VisitApply((ApplyProvider)cp);
           break;
@@ -146,12 +140,6 @@ namespace Xtensive.Orm.Rse.Compilation
       result.Location = Location;
       return result;
     }
-
-    /// <summary>
-    /// Compiles <see cref="TransferProvider"/>.
-    /// </summary>
-    /// <param name="provider">Execution site provider.</param>
-    protected abstract TResult VisitTransfer(TransferProvider provider);
 
     /// <summary>
     /// Compiles <see cref="TakeProvider"/>.
@@ -249,13 +237,6 @@ namespace Xtensive.Orm.Rse.Compilation
     /// </summary>
     /// <param name="provider">Index provider.</param>
     protected abstract TResult VisitIndex(IndexProvider provider);
-
-    /// <summary>
-    /// Compiles <see cref="ReindexProvider"/>.
-    /// </summary>
-    /// <param name="provider">Reindex provider.</param>
-    /// <returns></returns>
-    protected abstract TResult VisitReindex(ReindexProvider provider);
 
     /// <summary>
     /// Compiles <see cref="ApplyProvider"/>.

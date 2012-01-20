@@ -12,19 +12,7 @@ namespace Xtensive.Orm.Providers.Sql
   partial class SqlCompiler 
   {
     /// <inheritdoc/>
-    protected override SqlProvider VisitTransfer(TransferProvider provider)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
     protected override SqlProvider VisitRaw(RawProvider provider)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    protected override SqlProvider VisitReindex(ReindexProvider provider)
     {
       throw new NotSupportedException();
     }

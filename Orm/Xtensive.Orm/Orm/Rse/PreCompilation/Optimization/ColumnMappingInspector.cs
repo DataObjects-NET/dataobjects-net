@@ -215,16 +215,6 @@ namespace Xtensive.Orm.Rse.PreCompilation.Optimization
         : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
-    protected override Provider VisitReindex(ReindexProvider provider)
-    {
-      mappings[provider.Source] = Merge(mappings[provider], provider.Order.Keys);
-      var source = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
-      if (source==provider.Source)
-        return provider;
-      return new ReindexProvider(source, provider.Order);
-    }
-
     protected override Provider VisitAggregate(AggregateProvider provider)
     {
       var map = provider.AggregateColumns

@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Providers.Sql
         || provider.Type == ProviderType.Union
         || provider.Type == ProviderType.Concat
         || provider.Type == ProviderType.Existence;
-      bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex || provider.Type == ProviderType.Index;
+      bool isSorter = provider.Type==ProviderType.Sort || provider.Type == ProviderType.Index;
       return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
     

@@ -1191,7 +1191,6 @@
     <Compile Include="Orm\Rse\Providers\Compilable\PagingProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\PredicateJoinProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\RawProvider.cs" />
-    <Compile Include="Orm\Rse\Providers\Compilable\ReindexProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\RowNumberProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\SeekProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\SelectProvider.cs" />
@@ -1199,7 +1198,6 @@
     <Compile Include="Orm\Rse\Providers\Compilable\SortProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\StoreProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\TakeProvider.cs" />
-    <Compile Include="Orm\Rse\Providers\Compilable\TransferProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\UnaryProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\UnionProvider.cs" />
     <Compile Include="Orm\Rse\Providers\EnumerationContext.cs" />

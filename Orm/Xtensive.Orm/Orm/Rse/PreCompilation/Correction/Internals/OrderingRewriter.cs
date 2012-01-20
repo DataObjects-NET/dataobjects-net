@@ -140,13 +140,6 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction
       return provider;
     }
 
-    protected override Provider VisitReindex(ReindexProvider provider)
-    {
-      var reindex = base.VisitReindex(provider);
-      sortOrder = reindex.Header.Order;
-      return reindex;
-    }
-
     protected override Provider VisitStore(StoreProvider provider)
     {
       sortOrder = new DirectionCollection<int>();

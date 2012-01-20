@@ -92,14 +92,6 @@ namespace Xtensive.Orm.Rse
       return new SortProvider(recordQuery.Provider, columnIndexes).Result;
     }
 
-    public static RecordQuery OrderBy(this RecordQuery recordQuery, DirectionCollection<int> columnIndexes, bool reindex)
-    {
-      if (reindex)
-        return new ReindexProvider(recordQuery.Provider, columnIndexes).Result;
-      else
-        return new SortProvider(recordQuery.Provider, columnIndexes).Result;
-    }
-
     public static RecordQuery Alias(this RecordQuery recordQuery, string alias)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
@@ -178,11 +170,6 @@ namespace Xtensive.Orm.Rse
     public static RecordQuery Save(this RecordQuery recordQuery, TemporaryDataScope scope, string name)
     {
       return new StoreProvider(recordQuery.Provider, scope, name).Result;
-    }
-
-    public static RecordQuery ExecuteAt(this RecordQuery recordQuery, TransferType options)
-    {
-      return new TransferProvider(recordQuery.Provider, options).Result;
     }
 
     public static RecordQuery ToRecordSet(this IEnumerable<Tuple> tuples, RecordSetHeader header)
