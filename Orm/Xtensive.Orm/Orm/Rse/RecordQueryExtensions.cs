@@ -129,19 +129,6 @@ namespace Xtensive.Orm.Rse
       return new AggregateProvider(recordQuery.Provider, groupIndexes, descriptors).Result;
     }
 
-    public static long Count(this RecordQuery recordQuery, EnumerationContext context, CompilationService compilationService)
-    {
-      var resultQuery = recordQuery.Aggregate(null, 
-        new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-      var recordSet = new RecordSet(context, compilationService.Compile(resultQuery.Provider));
-      return recordSet.First().GetValue<long>(0);
-    }
-
-    public static RecordSet ToRecordSet(this RecordQuery recordQuery, EnumerationContext context, CompilationService compilationService)
-    {
-      return new RecordSet(context, compilationService.Compile(recordQuery.Provider));
-    }
-
     public static RecordQuery Skip(this RecordQuery recordQuery, Func<int> count)
     {
       return new SkipProvider(recordQuery.Provider, count).Result;
@@ -232,29 +219,12 @@ namespace Xtensive.Orm.Rse
       return new UnionProvider(left.Provider, right.Provider).Result;
     }
 
-    /// <summary>
-    /// Creates the <see cref="LockProvider"/>.
-    /// </summary>
-    /// <param name="source">The source.</param>
-    /// <param name="lockMode">The lock mode.</param>
-    /// <param name="lockBehavior">The lock behavior.</param>
-    /// <returns>The <see cref="RecordSet"/> which is the result of 
-    /// the created <see cref="LockProvider"/>.</returns>
     public static RecordQuery Lock(this RecordQuery source, LockMode lockMode, LockBehavior lockBehavior)
     {
       return new LockProvider(source.Provider, lockMode, lockBehavior).Result;
     }
 
-    /// <summary>
-    /// Creates the <see cref="LockProvider"/>.
-    /// </summary>
-    /// <param name="source">The source.</param>
-    /// <param name="lockMode">The delegate returning the lock mode.</param>
-    /// <param name="lockBehavior">The delegate returning the lock behavior.</param>
-    /// <returns>The <see cref="RecordSet"/> which is the result of 
-    /// the created <see cref="LockProvider"/>.</returns>
-    public static RecordQuery Lock(this RecordQuery source, Func<LockMode> lockMode,
-      Func<LockBehavior> lockBehavior)
+    public static RecordQuery Lock(this RecordQuery source, Func<LockMode> lockMode, Func<LockBehavior> lockBehavior)
     {
       return new LockProvider(source.Provider, lockMode, lockBehavior).Result;
     }
