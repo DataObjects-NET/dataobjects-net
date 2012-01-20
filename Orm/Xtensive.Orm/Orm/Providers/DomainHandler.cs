@@ -167,11 +167,7 @@ namespace Xtensive.Orm.Providers
 
     private void BuildCompilationContext()
     {
-      CompilationService = new CompilationService(
-        CreateCompiler,
-        CreatePreCompiler,
-        CreatePostCompiler,
-        Domain.Configuration.RseQueryCacheSize);
+      CompilationService = new CompilationService(CreateCompiler, CreatePreCompiler, CreatePostCompiler);
     }
 
     #endregion

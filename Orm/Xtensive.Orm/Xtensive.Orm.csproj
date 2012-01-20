@@ -130,7 +130,6 @@
     <Compile Include="Orm\Internals\Prefetch\PrefetchProcessor.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
-    <Compile Include="Orm\Providers\CompilationService.cs" />
     <Compile Include="Orm\Providers\DomainHandler.cs" />
     <Compile Include="Orm\Providers\EnumerationContext.cs" />
     <Compile Include="Orm\Providers\EnumerationScope.cs" />

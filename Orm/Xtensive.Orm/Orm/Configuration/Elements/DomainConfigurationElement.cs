@@ -29,7 +29,6 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string KeyCacheSizeElementName = "keyCacheSize";
     private const string KeyGeneratorCacheSizeElementName = "generatorCacheSize";
     private const string QueryCacheSizeElementName = "queryCacheSize";
-    private const string RseQueryCacheSizeElementName = "rseQueryCacheSize";
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
     private const string DefaultSchemaElementName = "defaultSchema";
@@ -137,17 +136,6 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.RseQueryCacheSize" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(RseQueryCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultRseQueryCacheSize)]
-    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
-    public int RseQueryCacheSize
-    {
-      get { return (int) this[RseQueryCacheSizeElementName]; }
-      set { this[RseQueryCacheSizeElementName] = value; }
-    }
-
-    /// <summary>
     /// <see cref="DomainConfiguration.RecordSetMappingCacheSize" copy="true"/>
     /// </summary>
     [ConfigurationProperty(RecordSetMappingCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultRecordSetMappingCacheSize)]
@@ -245,7 +233,6 @@ namespace Xtensive.Orm.Configuration.Elements
         KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
-        RseQueryCacheSize = RseQueryCacheSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         AutoValidation = AutoValidation,
         DefaultSchema = DefaultSchema,
@@ -281,7 +268,8 @@ namespace Xtensive.Orm.Configuration.Elements
             throw new ArgumentNullException();
         }
         return new ConnectionInfo(Provider, realConnectionString);
-      }      return null;
+      }
+      return null;
     }
   }
 }
