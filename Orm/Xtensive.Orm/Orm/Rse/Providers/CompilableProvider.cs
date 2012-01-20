@@ -5,11 +5,6 @@
 // Created:    2008.07.03
 
 using System;
-using Xtensive.Collections;
-using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -21,34 +16,17 @@ namespace Xtensive.Orm.Rse.Providers
   public abstract class CompilableProvider : Provider
   {
     /// <summary>
-    /// Gets the empty order.
-    /// </summary>
-    protected internal static DirectionCollection<int> EmptyOrder { get; private set; }
-
-    /// <summary>
     /// Creates the <see cref="RecordQuery"/> wrapping this provider.
     /// </summary>
-    public RecordQuery Result
-    {
-      get { return new RecordQuery(this); }
-    }
+    public RecordQuery Result { get { return new RecordQuery(this); } }
+
 
     // Constructors
 
     /// <inheritdoc/>
     protected CompilableProvider(ProviderType type, params Provider[] sources)
       : base(type, sources)
-    {}
-
-    // Type initializer
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.TypeInitializer" copy="true"/>
-    /// </summary>
-    static CompilableProvider()
     {
-      EmptyOrder = new DirectionCollection<int>();
-      EmptyOrder.Lock(true);
     }
   }
 }
