@@ -1184,7 +1184,6 @@
     <Compile Include="Orm\Rse\Providers\Compilable\IndexProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\IntersectProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\JoinProvider.cs" />
-    <Compile Include="Orm\Rse\Providers\Compilable\LocationAwareProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\LockProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\OrderProviderBase.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\PagingProvider.cs" />

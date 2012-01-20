@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
   /// Gives access to the specified <see cref="Index"/>.
   /// </summary>
   [Serializable]
-  public sealed class IndexProvider : LocationAwareProvider
+  public sealed class IndexProvider : CompilableProvider
   {
     private readonly RecordSetHeader indexHeader;
 
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     private IndexProvider(IndexInfo index)
-      : base (ProviderType.Index, DefaultServerLocation)
+      : base (ProviderType.Index)
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
