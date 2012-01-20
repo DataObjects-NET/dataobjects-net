@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers
       Func<IPreCompiler> optimizerProvider,
       Func<ICompiler,IPostCompiler> postCompilerProvider,
       int cacheSize)
-      : base(compilerProvider, optimizerProvider, postCompilerProvider)
+      : base(compilerProvider, optimizerProvider, postCompilerProvider, cacheSize)
     {}
   }
 }
