@@ -354,12 +354,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(customer0Key, null, new PrefetchFieldDescriptor(CityField));
         prefetchManager.ExecuteTasks(true);
-        var cache = (IEnumerable) CompilationContextCacheField.GetValue(session.CompilationService);
-        var expectedCachedProviders = cache.Cast<object>().ToList();
         
         prefetchManager.InvokePrefetch(customer1Key, null, new PrefetchFieldDescriptor(CityField));
         prefetchManager.ExecuteTasks(true);
-        Assert.IsTrue(expectedCachedProviders.SequenceEqual(cache.Cast<object>()));
       }
     }
 
@@ -394,14 +391,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(order0Key, null, new PrefetchFieldDescriptor(DetailsField, 3));
         prefetchManager.ExecuteTasks(true);
-        var cache = (IEnumerable)CompilationContextCacheField.GetValue(session.CompilationService);
-        var expectedCachedProviders = cache.Cast<object>().ToList();
         
         prefetchManager.InvokePrefetch(order1Key, null, new PrefetchFieldDescriptor(DetailsField, 2));
         prefetchManager.ExecuteTasks(true);
         ValidateLoadedEntitySet(order0Key, DetailsField, 3, false, session);
         ValidateLoadedEntitySet(order1Key, DetailsField, 2, false, session);
-        Assert.IsTrue(expectedCachedProviders.SequenceEqual(cache.Cast<object>()));
       }
 
       using (var session = Domain.OpenSession())
@@ -409,14 +403,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(order0Key, null, new PrefetchFieldDescriptor(DetailsField));
         prefetchManager.ExecuteTasks(true);
-        var cache = (IEnumerable)CompilationContextCacheField.GetValue(session.CompilationService);
-        var expectedCachedProviders = cache.Cast<object>().ToList();
         
         prefetchManager.InvokePrefetch(order1Key, null, new PrefetchFieldDescriptor(DetailsField));
         prefetchManager.ExecuteTasks(true);
         ValidateLoadedEntitySet(order0Key, DetailsField, 4, true, session);
         ValidateLoadedEntitySet(order1Key, DetailsField, 4, true, session);
-        Assert.IsTrue(expectedCachedProviders.SequenceEqual(cache.Cast<object>()));
       }
     }
 
@@ -712,129 +703,6 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         Assert.IsNotNull(session.Query.Single<IdOnly>(key));
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.TypeInfo, session, IsFieldKeyOrSystem);
       }
-    }
-
-    [Test]
-    public void RequestsGroupingByTypeAndColumnsTest()
-    {
-      Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      Key customer0Key;
-      Key customer1Key;
-      Key customer2Key;
-      Key order0Key;
-      Key order1Key;
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        customer0Key = session.Query.All<Customer>().OrderBy(c => c.Id).First().Key;
-        customer1Key = session.Query.All<Customer>().OrderBy(c => c.Id).Skip(1).First().Key;
-        var customer = new Customer {Age = 25, City = "A", Name = "B"};
-        customer2Key = customer.Key;
-        order0Key = session.Query.All<Order>().OrderBy(o => o.Id).First().Key;
-        order1Key = session.Query.All<Order>().OrderBy(o => o.Id).Skip(1).First().Key;
-        tx.Complete();
-      }
-
-      using (var session = Domain.OpenSession())
-      using (session.OpenTransaction()) {
-        var cacheEntryType = typeof (Orm.Rse.Compilation.CompilationService)
-          .GetNestedType("CacheEntry", BindingFlags.NonPublic);
-        var keyField = cacheEntryType.GetField("Key");
-        var nameField = typeof (Person).GetTypeInfo(Domain).Fields["Name"];
-        var cache = (IEnumerable)CompilationContextCacheField.GetValue(session.CompilationService);
-        cache.GetType().GetMethod("Clear").Invoke(cache, null);
-        var originalCachedItems = cache.Cast<object>().ToList();
-        var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
-        var inProviderEntryCustomer01 = TestGroupingWithSameTypeAndFieldSet(customer0Key, customer1Key,
-          nameField, keyField, originalCachedItems, prefetchManager, session, cache);
-
-        var inProviderEntryCustomer02 = TestGoupingWithSameTypeButDifferentFieldSets(customer0Key,
-          customer1Key, customer2Key, nameField, keyField, inProviderEntryCustomer01, prefetchManager,
-          session, cache, originalCachedItems);
-
-        TestGroupingWithDifferentTypesAndFieldSets(customer0Key, customer1Key, order0Key, order1Key, nameField,
-          keyField, inProviderEntryCustomer01, inProviderEntryCustomer02, cache, session, originalCachedItems,
-          prefetchManager);
-      }
-    }
-    
-    private void TestGroupingWithDifferentTypesAndFieldSets(Key customer0Key, Key customer1Key, Key order0Key,
-      Key order1Key, Xtensive.Orm.Model.FieldInfo nameField, FieldInfo keyField,
-      object inProviderEntryCustomer01, object inProviderEntryCustomer2, IEnumerable cache, Session session,
-      List<object> originalCachedItems, PrefetchManager prefetchManager)
-    {
-      var numberField = OrderType.Fields["Number"];
-      Assert.AreEqual(nameField.MappingInfo.Offset, numberField.MappingInfo.Offset);
-
-      prefetchManager.InvokePrefetch(customer0Key, null, new PrefetchFieldDescriptor(nameField));
-      prefetchManager.InvokePrefetch(customer1Key, null, new PrefetchFieldDescriptor(nameField));
-      prefetchManager.InvokePrefetch(order0Key, null, new PrefetchFieldDescriptor(numberField));
-      prefetchManager.InvokePrefetch(order1Key, null, new PrefetchFieldDescriptor(numberField));
-      prefetchManager.ExecuteTasks(true);
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customer0Key, customer0Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(nameField));
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customer1Key, customer1Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(nameField));
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order0Key, order0Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(numberField));
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order1Key, order1Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(numberField));
-
-      var currentCachedItems = cache.Cast<object>().ToList();
-      Assert.AreEqual(originalCachedItems.Count + 3, currentCachedItems.Count);
-      var inProviderEntryOrder01 = currentCachedItems.Except(originalCachedItems)
-        .Except(EnumerableUtils.One(inProviderEntryCustomer01)
-          .Concat(EnumerableUtils.One(inProviderEntryCustomer2)))
-        .Single();
-      Assert.IsNotNull(GetIncludeProvider(inProviderEntryOrder01, keyField));
-    }
-
-    private object TestGoupingWithSameTypeButDifferentFieldSets(Key customer0Key, Key customer1Key,
-      Key customer2Key, Xtensive.Orm.Model.FieldInfo nameField, FieldInfo keyField,
-      object inProviderEntryCustomer01, PrefetchManager prefetchManager, Session session,
-      IEnumerable cache, List<object> originalCachedItems)
-    {
-      prefetchManager.InvokePrefetch(customer0Key, null, new PrefetchFieldDescriptor(nameField));
-      prefetchManager.InvokePrefetch(customer1Key, null, new PrefetchFieldDescriptor(nameField));
-      prefetchManager.InvokePrefetch(customer2Key, null, new PrefetchFieldDescriptor(CityField));
-      prefetchManager.ExecuteTasks(true);
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customer0Key, customer0Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(nameField));
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customer1Key, customer1Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(nameField));
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customer2Key, customer1Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(CityField));
-
-      var currentCachedItems = cache.Cast<object>().ToList();
-      Assert.AreEqual(originalCachedItems.Count + 2, currentCachedItems.Count);
-      var inProviderEntryCustomer2 = currentCachedItems.Except(originalCachedItems)
-        .Except(EnumerableUtils.One(inProviderEntryCustomer01)).Single();
-      Assert.IsNotNull(GetIncludeProvider(inProviderEntryCustomer2, keyField));
-      return inProviderEntryCustomer2;
-    }
-
-    private static object TestGroupingWithSameTypeAndFieldSet(Key customer0Key, Key customer1Key,
-      Xtensive.Orm.Model.FieldInfo nameField, FieldInfo keyField, List<object> originalCachedItems,
-      PrefetchManager prefetchManager, Session session, IEnumerable cache)
-    {
-      prefetchManager.InvokePrefetch(customer0Key, null, new PrefetchFieldDescriptor(nameField));
-      prefetchManager.InvokePrefetch(customer1Key, null, new PrefetchFieldDescriptor(nameField));
-      prefetchManager.ExecuteTasks(true);
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customer0Key, customer0Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(nameField));
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customer1Key, customer1Key.TypeInfo, session,
-        field => IsFieldKeyOrSystem(field) || field.Equals(nameField));
-
-      var currentCachedItems = cache.Cast<object>().ToList();
-      Assert.AreEqual(originalCachedItems.Count + 1, currentCachedItems.Count);
-      var inProviderEntryCustomer01 = currentCachedItems.Except(originalCachedItems).Single();
-      Assert.IsNotNull(GetIncludeProvider(inProviderEntryCustomer01, keyField));
-      return inProviderEntryCustomer01;
-    }
-
-    private static IncludeProvider GetIncludeProvider(object cacheEntry, FieldInfo keyField)
-    {
-      return (IncludeProvider) ((FilterProvider) ((SelectProvider) keyField
-        .GetValue(cacheEntry)).Source).Source;
     }
 
     private void CreateBookAndTitle(out Key titleKey, out Key bookKey)
