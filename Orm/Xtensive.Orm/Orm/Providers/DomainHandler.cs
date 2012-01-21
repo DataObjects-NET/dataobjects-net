@@ -47,17 +47,6 @@ namespace Xtensive.Orm.Providers
     public CompilationService CompilationService { get; private set; }
 
     /// <summary>
-    /// Builds the <see cref="ICompiler"/>.
-    /// Invoked from <see cref="Initialize"/>.
-    /// </summary>
-    public ICompiler ServerSideCompiler { get; protected set; }
-
-    /// <summary>
-    /// Gets the storage location.
-    /// </summary>
-    public Location StorageLocation { get; protected set; }
-
-    /// <summary>
     /// Gets the ordered sequence of query preprocessors to apply to any LINQ query.
     /// </summary>
     /// <returns>The ordered sequence of query preprocessors to apply to any LINQ query.</returns>

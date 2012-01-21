@@ -50,18 +50,6 @@ namespace Xtensive.Orm.Providers.Sql
     protected HandlerAccessor Handlers { get; private set; }
 
     /// <inheritdoc/>
-    public override bool IsCompatible(ExecutableProvider provider)
-    {
-      return provider is SqlProvider;
-    }
-
-    /// <inheritdoc/>
-    public override SqlProvider ToCompatible(ExecutableProvider provider)
-    {
-      return Compile(new StoreProvider(provider));
-    }
-
-    /// <inheritdoc/>
     protected override SqlProvider VisitAlias(AliasProvider provider)
     {
       var source = Compile(provider.Source);
@@ -489,7 +477,6 @@ namespace Xtensive.Orm.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers.DomainHandler.StorageLocation)
     {
       Handlers = handlers;
 

@@ -11,32 +11,15 @@ namespace Xtensive.Orm.Rse.Compilation
   /// Abstract base class for RSE <see cref="Provider"/> compilers that implements visitor pattern.
   /// Compiles <see cref="CompilableProvider"/>s into <see cref="ExecutableProvider"/>.
   /// </summary>
-  public abstract class Compiler<TResult> : ICompiler<TResult> 
+  public abstract class Compiler<TResult> : ICompiler
     where TResult : ExecutableProvider
   {
     private CompilableProvider rootProvider;
 
     protected CompilableProvider RootProvider { get { return rootProvider; } }
 
-    /// <summary>
-    /// Gets execution site location.
-    /// </summary>
-    public Location Location { get; private set; }
-
     /// <inheritdoc/>
     public BindingCollection<ApplyParameter, ExecutableProvider> OuterReferences { get; private set; }
-
-    /// <inheritdoc/>
-    public abstract bool IsCompatible(ExecutableProvider provider);
-
-    /// <inheritdoc/>
-    ExecutableProvider ICompiler.ToCompatible(ExecutableProvider provider)
-    {
-      return ToCompatible(provider);
-    }
-
-    /// <inheritdoc/>
-    public abstract TResult ToCompatible(ExecutableProvider provider);
 
     /// <inheritdoc/>
     ExecutableProvider ICompiler.Compile(CompilableProvider provider)
@@ -48,7 +31,7 @@ namespace Xtensive.Orm.Rse.Compilation
     /// Compiles the specified <see cref="CompilableProvider"/>.
     /// </summary>
     /// <param name="cp">The provider to compile.</param>
-    public TResult Compile (CompilableProvider cp)
+    public TResult Compile(CompilableProvider cp)
     {
       if (cp == null)
         return null;
@@ -137,7 +120,6 @@ namespace Xtensive.Orm.Rse.Compilation
         default:
           throw new ArgumentOutOfRangeException();
       }
-      result.Location = Location;
       return result;
     }
 
@@ -305,10 +287,8 @@ namespace Xtensive.Orm.Rse.Compilation
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="location">Location.</param>
-    protected Compiler(Location location)
+    protected Compiler()
     {
-      Location = location;
       OuterReferences = new BindingCollection<ApplyParameter, ExecutableProvider>();
     }
   }

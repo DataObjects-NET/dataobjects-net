@@ -38,7 +38,6 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
       var version = new Version(3, 5, 1, 0);
       var dataSource = GetDataSource(connectionString);
       var coreServerInfo = new CoreServerInfo {
-        ServerLocation = new Location("sqlserverce", dataSource),
         ServerVersion = version,
         ConnectionString = connectionString,
         DatabaseName = string.Empty,

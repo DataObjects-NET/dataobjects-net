@@ -33,7 +33,6 @@ namespace Xtensive.Sql.Drivers.Firebird
                 var dataSource = new FbConnectionStringBuilder(connectionString).DataSource;
                 var coreServerInfo = new CoreServerInfo
                 {
-                    ServerLocation = new Location("firebird", dataSource),
                     ServerVersion = connection.ServerVersionNumber,
                     ConnectionString = connectionString,
                     MultipleActiveResultSets = true,

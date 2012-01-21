@@ -27,8 +27,6 @@ namespace Xtensive.Orm.Providers.Sql
     public string BatchBegin { get { return translator.BatchBegin; } }
     public string BatchEnd { get { return translator.BatchEnd; } }
 
-    public Location StorageLocation { get; private set; }
-
     public ProviderInfo BuildProviderInfo()
     {
       // We extracted this method to a separate class for tests.
@@ -51,17 +49,7 @@ namespace Xtensive.Orm.Providers.Sql
       string schemaName = domain.Configuration.DefaultSchema.IsNullOrEmpty()
         ? underlyingDriver.CoreServerInfo.DefaultSchemaName
         : domain.Configuration.DefaultSchema;
-
       var schema = underlyingDriver.ExtractSchema(connection, schemaName);
-
-      if (underlyingDriver.CoreServerInfo.ServerLocation.Provider.ToLower().StartsWith("sqlserver")) {
-        // This code works for Microsoft SQL Server and Microsoft SQL Server CE
-        var tables = schema.Tables;
-        var sysdiagrams = tables["sysdiagrams"];
-        if (sysdiagrams!=null)
-          tables.Remove(sysdiagrams);
-      }
-
       return schema;
     }
 
@@ -80,8 +68,6 @@ namespace Xtensive.Orm.Providers.Sql
 
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
-
-      StorageLocation = underlyingDriver.CoreServerInfo.ServerLocation;
 
       isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
     }

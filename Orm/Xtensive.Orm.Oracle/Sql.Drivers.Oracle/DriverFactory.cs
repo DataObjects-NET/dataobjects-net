@@ -68,7 +68,6 @@ namespace Xtensive.Sql.Drivers.Oracle
         var version = ParseVersion(connection.ServerVersion);
         var dataSource = new OracleConnectionStringBuilder(connectionString).DataSource;
         var coreServerInfo = new CoreServerInfo {
-          ServerLocation = new Location("oracle", dataSource),
           ServerVersion = version,
           ConnectionString = connectionString,
           MultipleActiveResultSets = true,

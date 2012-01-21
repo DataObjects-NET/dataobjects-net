@@ -15,25 +15,11 @@ namespace Xtensive.Sql.Info
   /// </summary>
   public class CoreServerInfo : LockableBase
   {
-    private Location serverLocation;
     private Version serverVersion;
     private string connectionString;
     private string databaseName;
     private string defaultSchemaName;
     private bool multipleActiveResultSets;
-    
-    /// <summary>
-    /// Gets or sets the server location.
-    /// </summary>
-    public Location ServerLocation {
-      get {
-        return serverLocation;
-      }
-      set {
-        this.EnsureNotLocked();
-        serverLocation = value;
-      }
-    }
 
     /// <summary>
     /// Gets or sets the server version.

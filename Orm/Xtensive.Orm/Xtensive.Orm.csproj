@@ -1133,7 +1133,6 @@
     <Compile Include="Orm\Rse\Compilation\EmptyPostCompiler.cs" />
     <Compile Include="Orm\Rse\Compilation\EmptyPreCompiler.cs" />
     <Compile Include="Orm\Rse\Compilation\Interfaces\ICompiler.cs" />
-    <Compile Include="Orm\Rse\Compilation\Interfaces\ICompiler{TResult}.cs" />
     <Compile Include="Orm\Rse\Compilation\Interfaces\IPostCompiler.cs" />
     <Compile Include="Orm\Rse\Compilation\Interfaces\IPreCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Executable\RawProvider.cs" />

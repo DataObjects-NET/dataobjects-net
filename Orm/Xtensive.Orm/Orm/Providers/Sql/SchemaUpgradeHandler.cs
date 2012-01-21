@@ -80,7 +80,17 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override object ExtractNativeSchema()
     {
-      return DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
+      var schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
+      bool isSqlServerFamily = DomainHandler.Domain.Configuration.ConnectionInfo.Provider
+        .In(WellKnown.Provider.SqlServer, WellKnown.Provider.SqlServerCe);
+      if (isSqlServerFamily) {
+        // This code works for Microsoft SQL Server and Microsoft SQL Server CE
+        var tables = schema.Tables;
+        var sysdiagrams = tables["sysdiagrams"];
+        if (sysdiagrams!=null)
+          tables.Remove(sysdiagrams);
+      }
+      return schema;
     }
 
     /// <inheritdoc/>

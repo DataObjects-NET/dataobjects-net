@@ -66,7 +66,6 @@ namespace Xtensive.Sql.Drivers.MySql
         string dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);
         var coreServerInfo = new CoreServerInfo
                                {
-                                 ServerLocation = new Location("mysql", dataSource),
                                  ServerVersion = version,
                                  ConnectionString = connectionString,
                                  MultipleActiveResultSets = false,

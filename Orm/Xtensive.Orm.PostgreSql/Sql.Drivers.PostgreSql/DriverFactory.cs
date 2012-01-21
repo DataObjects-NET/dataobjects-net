@@ -64,7 +64,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.Host, builder.Port, builder.Database);
         var coreServerInfo = new CoreServerInfo {
-          ServerLocation = new Location("postgresql", dataSource),
           ServerVersion = version,
           ConnectionString = connectionString,
           MultipleActiveResultSets = false,

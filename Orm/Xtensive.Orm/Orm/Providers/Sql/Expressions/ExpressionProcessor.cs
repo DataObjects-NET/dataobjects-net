@@ -346,10 +346,6 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
         throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, Log.Instance);
 
       ExecutableProvider provider = compiler.OuterReferences[parameter];
-      if (!compiler.IsCompatible(provider)) {
-        provider = compiler.ToCompatible(provider);
-        compiler.OuterReferences.ReplaceBound(parameter, provider);
-      }
 
       // TODO: Check out this sh..t
       var sqlProvider = (SqlProvider) provider;

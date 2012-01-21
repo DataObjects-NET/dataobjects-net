@@ -94,7 +94,6 @@ namespace Xtensive.Sql.Drivers.SqlServer
         var builder = new SqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.DataSource, builder.InitialCatalog);
         var coreServerInfo = new CoreServerInfo {
-          ServerLocation = new Location("sqlserver", dataSource),
           ServerVersion = version,
           ConnectionString = connectionString,
         };
