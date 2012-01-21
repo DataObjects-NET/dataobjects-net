@@ -38,14 +38,6 @@ namespace Xtensive.Orm.Rse.Providers
     public CompilableProvider Origin { get; private set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance can be
-    /// cached and further returned as result of compilation of
-    /// <see cref="Origin"/> once more by the same 
-    /// <see cref="CompilationService"/>.
-    /// </summary>
-    public bool IsCacheable { get; protected set; }
-
-    /// <summary>
     /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
     /// Returns either cached result (if available), or a result of <see cref="OnEnumerate"/>.
     /// </summary>
@@ -253,19 +245,6 @@ namespace Xtensive.Orm.Rse.Providers
       return Origin.Header;
     }
 
-    /// <exception cref="ArgumentNullException"><see cref="Origin"/> is null.</exception>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      bool isCacheable = IsCacheable;
-      foreach (var source in Sources) {
-        var ep = source as ExecutableProvider;
-        if (ep!=null)
-          isCacheable &= ep.IsCacheable;
-      }
-      IsCacheable = isCacheable;
-    }
-
 
     // Constructors
 
@@ -280,7 +259,6 @@ namespace Xtensive.Orm.Rse.Providers
       if (origin==null)
         throw new ArgumentNullException("origin");
       Origin = origin;
-      IsCacheable = true;
     }
   }
 }

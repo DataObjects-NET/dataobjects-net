@@ -23,13 +23,13 @@ namespace Xtensive.Orm.Rse.Providers
   [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Length}")]
   public abstract class Provider
   {
-    protected const string ToString_ProviderTypeSuffix = "Provider";
-    protected const string ToString_Parameters = " ({0})";
-    protected const int    ToString_IndentSize = 2;
+    private const string ToString_ProviderTypeSuffix = "Provider";
+    private const string ToString_Parameters = " ({0})";
+    private const int    ToString_IndentSize = 2;
+
     private Provider[] sources;
     private RecordSetHeader header;
     private bool isInitialized;
-
 
     /// <summary>
     /// Gets <see cref="ProviderType"/> of the current instance.
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
       [DebuggerStepThrough]
       get { return sources; }
       [DebuggerStepThrough]
-      protected set {
+      private set {
         if (sources!=null)
           throw Exceptions.AlreadyInitialized("Sources");
         sources = value;
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Rse.Providers
       [DebuggerStepThrough]
       get { return header; }
       [DebuggerStepThrough]
-      protected set {
+      private set {
         if (header!=null)
           throw Exceptions.AlreadyInitialized("Header");
         header = value;
@@ -101,11 +101,6 @@ namespace Xtensive.Orm.Rse.Providers
       Header = BuildHeader();
     }
 
-    protected internal void SetHeader(RecordSetHeader newHeader)
-    {
-      header = newHeader;
-    }
-
     #region ToString method
 
     /// <inheritdoc/>
@@ -116,12 +111,7 @@ namespace Xtensive.Orm.Rse.Providers
       return sb.ToString();
     }
 
-    /// <summary>
-    /// Appends the provider's representation to the specified <see cref="StringBuilder"/>.
-    /// </summary>
-    /// <param name="sb">The <see cref="StringBuilder"/> to use.</param>
-    /// <param name="indent">The indent.</param>
-    protected internal void AppendBodyTo(StringBuilder sb, int indent)
+    private void AppendBodyTo(StringBuilder sb, int indent)
     {
       AppendTitleTo(sb, indent);
       indent = indent + ToString_IndentSize;
@@ -139,12 +129,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
     }
 
-    /// <summary>
-    /// Appends the provider's title representation to the specified <see cref="StringBuilder"/>.
-    /// </summary>
-    /// <param name="sb">The <see cref="StringBuilder"/> to use.</param>
-    /// <param name="indent">The indent.</param>
-    protected internal void AppendTitleTo(StringBuilder sb, int indent)
+    private void AppendTitleTo(StringBuilder sb, int indent)
     {      
       sb.Append(TitleToString().Indent(indent))
         .AppendLine();
