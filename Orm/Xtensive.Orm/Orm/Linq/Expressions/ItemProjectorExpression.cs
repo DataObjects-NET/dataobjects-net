@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Xtensive.Tuples;
@@ -120,7 +121,7 @@ namespace Xtensive.Orm.Linq.Expressions
           if (typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
             return entityExpression;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-          var joinedRs = IndexProvider.Get(joinedIndex).Alias(Context.GetNextAlias());
+          var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
           var keySegment = entityExpression.Key.Mapping;
           var keyPairs = keySegment.GetItems()
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -138,7 +139,7 @@ namespace Xtensive.Orm.Linq.Expressions
             return entityFieldExpression.Entity;
           var typeInfo = entityFieldExpression.PersistentType;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-          var joinedRs = IndexProvider.Get(joinedIndex).Alias(Context.GetNextAlias());
+          var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
           var keySegment = entityFieldExpression.Mapping;
           var keyPairs = keySegment.GetItems()
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))

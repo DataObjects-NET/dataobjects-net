@@ -22,7 +22,7 @@ namespace Xtensive.Orm
     /// <returns>Newly created <see cref="IndexProvider"/> object.</returns>
     public static IndexProvider GetQuery(this IndexInfo index)
     {
-      return IndexProvider.Get(index);
+      return new IndexProvider(index);
     }
   }
 }

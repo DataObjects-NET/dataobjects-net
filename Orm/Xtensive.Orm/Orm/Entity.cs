@@ -283,14 +283,15 @@ namespace Xtensive.Orm
         object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
+          IndexInfo index = triplet.First.Indexes.PrimaryIndex;
           return domain.Handler.CompilationService.Compile(
-            IndexProvider.Get(triplet.First.Indexes.PrimaryIndex)
+            index.GetQuery()
               .Seek(keyParameter.Value)
               .Lock(() => triplet.Second, () => triplet.Third)
               .Select());
         };
         var source = (ExecutableProvider) domain.Cache.GetValue(key, generator);
-        var recordSet = new RecordSet(Session.Handler.CreateEnumerationContext(), source);
+        var recordSet = source.GetRecordSet(Session);
         recordSet.First();
       }
     }

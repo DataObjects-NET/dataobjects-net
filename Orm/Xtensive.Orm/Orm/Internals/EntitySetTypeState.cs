@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Internals
   [Serializable]
   internal sealed class EntitySetTypeState
   {
-    private readonly ExecutableProvider seekProvider;
+    public readonly ExecutableProvider SeekProvider;
 
     public readonly MapTransform SeekTransform;
 
@@ -25,15 +25,10 @@ namespace Xtensive.Orm.Internals
 
     public readonly Func<QueryEndpoint,long> ItemCountQuery;
 
-    public RecordSet GetSeekRecordSet (SessionHandler handler)
-    {
-      return new RecordSet(handler.CreateEnumerationContext(), seekProvider);
-    }
-
     public EntitySetTypeState(ExecutableProvider seekProvider, MapTransform seekTransform,
       Func<Tuple, Entity> itemCtor, Func<QueryEndpoint, long> itemCountQuery)
     {
-      this.seekProvider = seekProvider;
+      SeekProvider = seekProvider;
       SeekTransform = seekTransform;
       ItemCtor = itemCtor;
       ItemCountQuery = itemCountQuery;

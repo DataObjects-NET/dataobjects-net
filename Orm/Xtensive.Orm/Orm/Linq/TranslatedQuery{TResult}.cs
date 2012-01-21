@@ -54,11 +54,7 @@ namespace Xtensive.Orm.Linq
     /// <returns>Query execution result.</returns>
     public TResult Execute(Session session, ParameterContext parameterContext)
     {
-      return Materializer.Invoke(
-        new RecordSet(session.CreateEnumerationContext(), DataSource),
-        session, 
-        TupleParameterBindings, 
-        parameterContext);
+      return Materializer.Invoke(DataSource.GetRecordSet(session), session, TupleParameterBindings, parameterContext);
     }
 
 

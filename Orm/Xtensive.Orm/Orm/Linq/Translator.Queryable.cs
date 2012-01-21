@@ -13,6 +13,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Linq;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
@@ -280,7 +281,7 @@ namespace Xtensive.Orm.Linq
 
       if (sourceType.IsAssignableFrom(targetType)) {
         var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-        var joinedRs = IndexProvider.Get(joinedIndex).Alias(context.GetNextAlias());
+        var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
         offset = recordSet.Header.Columns.Count;
         var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
         var keyPairs = keySegment

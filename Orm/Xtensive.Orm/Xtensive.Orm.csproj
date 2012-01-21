@@ -383,7 +383,7 @@
     <Compile Include="Orm\Operations\KeyGenerateOperation.cs" />
     <Compile Include="Orm\Operations\OperationCapturer.cs" />
     <Compile Include="Orm\Operations\ValidateVersionOperation.cs" />
-    <Compile Include="Orm\CompilableProviderExtensions.cs" />
+    <Compile Include="Orm\ProviderExtensions.cs" />
     <Compile Include="Orm\Services\DirectEntityAccessor.cs" />
     <Compile Include="Orm\Services\DirectSqlAccessor.cs" />
     <Compile Include="Orm\Services\DirectStateAccessor.cs" />

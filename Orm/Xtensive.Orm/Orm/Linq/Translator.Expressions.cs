@@ -937,7 +937,7 @@ namespace Xtensive.Orm.Linq
         throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
-      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index), context);
+      var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
@@ -1141,7 +1141,7 @@ namespace Xtensive.Orm.Linq
 
         // Join primary index of target type
         IndexInfo joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-        var joinedRs = IndexProvider.Get(joinedIndex).Alias(context.GetNextAlias());
+        var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
         IEnumerable<int> keySegment = entityExpression.Key.Mapping.GetItems();
         Pair<int>[] keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -1177,7 +1177,7 @@ namespace Xtensive.Orm.Linq
         typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
         return; // All fields are already joined
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      var joinedRs = IndexProvider.Get(joinedIndex).Alias(itemProjector.Context.GetNextAlias());
+      var joinedRs = joinedIndex.GetQuery().Alias(itemProjector.Context.GetNextAlias());
       Segment<int> keySegment = entityExpression.Key.Mapping;
       Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -1198,7 +1198,7 @@ namespace Xtensive.Orm.Linq
         return;
       TypeInfo typeInfo = entityFieldExpression.PersistentType;
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      var joinedRs = IndexProvider.Get(joinedIndex).Alias(context.GetNextAlias());
+      var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
       Segment<int> keySegment = entityFieldExpression.Mapping;
       Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))

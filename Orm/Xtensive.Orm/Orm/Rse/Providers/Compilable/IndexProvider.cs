@@ -38,28 +38,14 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       return Index.ToString();
     }
 
- 
-    // Factory method
-
-    /// <summary>
-    /// Gets the <see cref="IndexProvider"/> for the specified <paramref name="index"/>.
-    /// </summary>
-    /// <param name="index">The index to get the provider for.</param>
-    /// <returns>Existing or newly created provider for the specified <paramref name="index"/>.</returns>
-    public static IndexProvider Get(IndexInfo index)
-    {
-      return new IndexProvider(index);
-    }
-
 
     // Constructors
 
-    private IndexProvider(IndexInfo index)
-      : base (ProviderType.Index)
+    public IndexProvider(IndexInfo index)
+      : base(ProviderType.Index)
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
-      Initialize(typeof(IndexProvider)); // Since .ctor is private!
     }
   }
 }
