@@ -20,32 +20,15 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
   [Serializable]
   public sealed class SeekProvider : UnaryProvider
   {
-    private Func<Tuple> compiledKey;
-
     /// <summary>
     /// Seek parameter.
     /// </summary>
-    public Expression<Func<Tuple>> Key { get; private set; }
-
-    /// <summary>
-    /// Gets the compiled <see cref="Key"/>.
-    /// </summary>
-    public Func<Tuple> CompiledKey {
-      get {
-        if (compiledKey==null)
-          compiledKey = Key.CachingCompile();
-        return compiledKey;
-      }
-      internal set {
-        compiledKey = value;
-      }
-    }
-
+    public Func<Tuple> Key { get; private set; }
 
     /// <inheritdoc/>
     public override string ParametersToString()
     {
-      return Key.ToString(true);
+      return Key.Method.ToString();
     }
 
 
@@ -56,7 +39,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="key">The <see cref="Key"/> property value.</param>
-    public SeekProvider(CompilableProvider source, Expression<Func<Tuple>> key)
+    public SeekProvider(CompilableProvider source, Func<Tuple> key)
       : base(ProviderType.Seek, source)
     {
       Key = key;

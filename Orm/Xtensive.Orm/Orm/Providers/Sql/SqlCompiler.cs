@@ -19,6 +19,7 @@ using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -261,13 +262,17 @@ namespace Xtensive.Orm.Providers.Sql
         var sqlColumn = query.Columns[columnIndex];
         var column = provider.Header.Columns[columnIndex];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
-        int index = i;
-        var binding = new QueryParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
+        var binding = new QueryParameterBinding(GetSeekKeyElementAccessor(provider.Key, i), typeMapping);
         parameterBindings.Add(binding);
         query.Where &= sqlColumn==binding.ParameterReference;
       }
 
       return CreateProvider(query, parameterBindings, provider, compiledSource);
+    }
+
+    private static Func<object> GetSeekKeyElementAccessor(Func<Tuple> seekKeyAccessor, int index)
+    {
+      return () => seekKeyAccessor.Invoke().GetValue(index);
     }
 
     /// <inheritdoc/>

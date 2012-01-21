@@ -85,10 +85,9 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      var key = translate(provider, provider.Key);
-      if (source == provider.Source && key == provider.Key)
+      if (source==provider.Source)
         return provider;
-      return new SeekProvider(source, (Expression<Func<Tuple>>) key);
+      return new SeekProvider(source, provider.Key);
     }
 
     /// <inheritdoc/>

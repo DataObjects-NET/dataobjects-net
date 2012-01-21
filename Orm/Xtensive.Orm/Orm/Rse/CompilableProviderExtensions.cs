@@ -89,11 +89,6 @@ namespace Xtensive.Orm.Rse
 
     public static CompilableProvider Seek(this CompilableProvider source, Func<Tuple> key)
     {
-      return new SeekProvider(source, () => key.Invoke()) { CompiledKey = key };
-    }
-
-    public static CompilableProvider Seek(this CompilableProvider source, Expression<Func<Tuple>> key, bool isExpression)
-    {
       return new SeekProvider(source, key);
     }
 
