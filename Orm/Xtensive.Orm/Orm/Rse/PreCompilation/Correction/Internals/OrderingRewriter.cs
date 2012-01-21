@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction
       var rightOrder = sortOrder;
       var result = left == provider.Left && right == provider.Right
         ? provider
-        : new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm, provider.EqualIndexes);
+        : new JoinProvider(left, right, provider.JoinType, provider.EqualIndexes);
       sortOrder = ComputeBinaryOrder(provider, leftOrder, rightOrder);
       return result;
     }

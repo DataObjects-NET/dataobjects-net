@@ -134,7 +134,6 @@ namespace Xtensive.Orm.Providers
             .Alias("a")
             .Join(
               index.GetQuery(), 
-              JoinAlgorithm.Loop, 
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
                 .Select((l,r) => new Pair<int>(l,r))
@@ -172,7 +171,6 @@ namespace Xtensive.Orm.Providers
             .Alias("a")
             .Join(
               index.GetQuery(),
-              JoinAlgorithm.Loop,
               referencedField.MappingInfo
                 .GetItems()
                 .Select((l, r) => new Pair<int>(l, r))

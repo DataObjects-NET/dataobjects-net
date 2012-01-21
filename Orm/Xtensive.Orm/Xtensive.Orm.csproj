@@ -1141,7 +1141,6 @@
     <Compile Include="Orm\Rse\Helpers\TupleAccessRewriter.cs" />
     <Compile Include="Orm\Rse\Helpers\TupleExpressionHelper.cs" />
     <Compile Include="Orm\Rse\IncludeAlgorithm.cs" />
-    <Compile Include="Orm\Rse\JoinAlgorithm.cs" />
     <Compile Include="Orm\Rse\JoinType.cs" />
     <Compile Include="Orm\Rse\LockBehavior.cs" />
     <Compile Include="Orm\Rse\LockMode.cs" />
@@ -1222,7 +1221,6 @@
     <Compile Include="Orm\Rse\SystemColumn.cs" />
     <Compile Include="Orm\Rse\TemporaryDataScope.cs" />
     <Compile Include="Orm\Rse\Providers\TransactionTemporaryData.cs" />
-    <Compile Include="Orm\Rse\TransferType.cs" />
     <Compile Include="Orm\Session.SystemLogic.cs" />
     <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
     <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />

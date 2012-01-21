@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Linq
         var keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
-        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+        recordSet = recordSet.Join(joinedRs, keyPairs);
       }
       var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);

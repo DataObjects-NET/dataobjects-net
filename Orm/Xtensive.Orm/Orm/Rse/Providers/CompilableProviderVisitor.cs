@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Rse.Providers
       var equalIndexes = OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm,
+      return new JoinProvider(left, right, provider.JoinType,
         equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 

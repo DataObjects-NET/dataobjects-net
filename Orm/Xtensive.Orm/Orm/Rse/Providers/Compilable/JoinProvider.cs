@@ -29,11 +29,6 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     public JoinType JoinType { get; private set; }
 
     /// <summary>
-    /// Join algorithm.
-    /// </summary>
-    public JoinAlgorithm JoinAlgorithm { get; private set; }
-
-    /// <summary>
     /// Pairs of equal column indexes.
     /// </summary>
     public Pair<int>[] EqualIndexes { get; private set; }
@@ -72,18 +67,15 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
     /// <param name="joinType">The join operation type.</param>
-    /// <param name="joinAlgorithm">The join algorithm.</param>
     /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType,
-      JoinAlgorithm joinAlgorithm, params Pair<int>[] equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params Pair<int>[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
       if (equalIndexes==null || equalIndexes.Length==0)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
       JoinType = joinType;
-      JoinAlgorithm = joinAlgorithm;
       EqualIndexes = equalIndexes;
     }
 
@@ -93,14 +85,11 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
     /// <param name="joinType">The join operation type.</param>
-    /// <param name="joinAlgorithm">The join algorithm.</param>
     /// <param name="equalIndexes">Transformed to the <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType,
-      JoinAlgorithm joinAlgorithm, params int[] equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params int[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
-      JoinAlgorithm = joinAlgorithm;
       if (equalIndexes==null || equalIndexes.Length<2)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
@@ -108,7 +97,6 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       for (int i = 0, j = 0; i < ei.Length; i++)
         ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
       JoinType = joinType;
-      JoinAlgorithm = joinAlgorithm;
       EqualIndexes = ei;
     }
   }

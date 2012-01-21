@@ -208,8 +208,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
         EnsureAbsenceOfApplyProviderRequiringConversion();
 
       if (left != provider.Left || right != provider.Right)
-        return new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm,
-          provider.EqualIndexes);
+        return new JoinProvider(left, right, provider.JoinType, provider.EqualIndexes);
       return provider;
     }
 

@@ -1148,7 +1148,7 @@ namespace Xtensive.Orm.Linq
           .ToArray();
 
         // Replace recordset.
-        var joinedRecordQuery = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
+        var joinedRecordQuery = originalRecordset.LeftJoin(joinedRs, keyPairs);
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
           joinedRecordQuery,
           context);
@@ -1185,8 +1185,8 @@ namespace Xtensive.Orm.Linq
       int offset = itemProjector.DataSource.Header.Length;
       var oldDataSource = itemProjector.DataSource;
       var newDataSource = entityExpression.IsNullable
-        ? itemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
-        : itemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+        ? itemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
+        : itemProjector.DataSource.Join(joinedRs, keyPairs);
       itemProjector.DataSource = newDataSource;
       EntityExpression.Fill(entityExpression, offset);
       context.RebindApplyParameter(oldDataSource, newDataSource);
@@ -1209,8 +1209,8 @@ namespace Xtensive.Orm.Linq
       int offset = originalItemProjector.DataSource.Header.Length;
       var oldDataSource = originalItemProjector.DataSource;
       var newDataSource = entityFieldExpression.IsNullable
-        ? originalItemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
-        : originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+        ? originalItemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
+        : originalItemProjector.DataSource.Join(joinedRs, keyPairs);
       originalItemProjector.DataSource = newDataSource;
       entityFieldExpression.RegisterEntityExpression(offset);
       context.RebindApplyParameter(oldDataSource, newDataSource);

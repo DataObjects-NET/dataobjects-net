@@ -120,8 +120,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Optimization
         var newRightIndex = rightMapping.IndexOf(pair.Second);
         newIndexes.Add(new Pair<int>(newLeftIndex, newRightIndex));
       }
-      return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, provider.JoinAlgorithm,
-        newIndexes.ToArray());
+      return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, newIndexes.ToArray());
     }
 
     protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)

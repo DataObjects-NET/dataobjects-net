@@ -44,55 +44,25 @@ namespace Xtensive.Orm.Rse
     public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
       params Pair<int>[] joinedColumnIndexes)
     {
-      return new JoinProvider(left, right, JoinType.Inner, JoinAlgorithm.Default, joinedColumnIndexes);
+      return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
     }
 
     public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
       params int[] joinedColumnIndexes)
     {
-      return new JoinProvider(left, right, JoinType.Inner, JoinAlgorithm.Default, joinedColumnIndexes);
+      return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
     }
 
     public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
       params Pair<int>[] joinedColumnIndexes)
     {
-      return new JoinProvider(left, right, JoinType.LeftOuter, JoinAlgorithm.Default,
-        joinedColumnIndexes);
+      return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
     }
 
     public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
       params int[] joinedColumnIndexes)
     {
-      return new JoinProvider(left, right, JoinType.LeftOuter, JoinAlgorithm.Default,
-        joinedColumnIndexes);
-    }
-
-    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
-      JoinAlgorithm joinAlgorithm, params Pair<int>[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.Inner, joinAlgorithm,
-        joinedColumnIndexes);
-    }
-
-    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
-      JoinAlgorithm joinAlgorithm, params int[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.Inner, joinAlgorithm,
-        joinedColumnIndexes);
-    }
-
-    public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
-      JoinAlgorithm joinAlgorithm, params Pair<int>[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.LeftOuter, joinAlgorithm,
-        joinedColumnIndexes);
-    }
-
-    public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
-      JoinAlgorithm joinAlgorithm, params int[] joinedColumnIndexes)
-    {
-      return new JoinProvider(left, right, JoinType.LeftOuter, joinAlgorithm,
-        joinedColumnIndexes);
+      return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
     }
 
     public static CompilableProvider OrderBy(this CompilableProvider source, DirectionCollection<int> columnIndexes)
