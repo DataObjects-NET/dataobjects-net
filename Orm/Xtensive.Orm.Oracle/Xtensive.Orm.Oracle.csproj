@@ -78,11 +78,13 @@
   <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
     <Reference Include="Oracle.DataAccess">
       <HintPath>..\..\Lib\Oracle\Net35\Oracle.DataAccess.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
     <Reference Include="Oracle.DataAccess">
       <HintPath>..\..\Lib\Oracle\Net40\Oracle.DataAccess.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
