@@ -16,6 +16,6 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
     [TestFixture, Explicit]
     public class TypeMappingTest : Xtensive.Sql.Tests.TypeMappingTest
     {
-        protected override string Url { get { return TestUrl.MySQL50; } }
+        protected override string Url { get { return TestUrl.MySql50; } }
     }
 }

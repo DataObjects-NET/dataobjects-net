@@ -14,12 +14,12 @@ using Xtensive.Sql.Dml;
 using DataTable=System.Data.DataTable;
 using UniqueConstraint=Xtensive.Sql.Model.UniqueConstraint;
 
-namespace Xtensive.Sql.Tests.PostgreSql.v8_0
+namespace Xtensive.Sql.Tests.PostgreSql
 {
   [TestFixture, Explicit]
-  public class SqlDomTests
+  public abstract class SqlDomTests
   {
-    protected virtual string Url { get { return TestUrl.PostgreSql80; } }
+    protected abstract string Url { get; }
 
     protected SqlDriver Driver { get; private set; }
 

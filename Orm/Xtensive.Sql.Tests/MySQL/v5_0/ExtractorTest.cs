@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
     [TestFixture]
     public class ExtractorTest : SqlTest
     {
-        protected override string Url { get { return TestUrl.MySQL50; } }
+        protected override string Url { get { return TestUrl.MySql50; } }
 
         #region Test DDL
 
@@ -176,7 +176,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
 
     public abstract class MySqlExtractorTestBase
     {
-        private const string connectionUrl = TestUrl.MySQL50;
+        private const string connectionUrl = TestUrl.MySql50;
 
         public virtual string CleanUpScript
         {

@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Tests
     public const string SqlServer2005 =
       "Data Source=localhost;Initial Catalog=DO40-Tests;Integrated Security=True;Persist Security Info=False";
 
-    public const string MySQL50 =
+    public const string MySql50 =
       "Server=localhost;Database=do40test;Uid=root;Pwd=admin;";
 
     public const string Firebird25 =

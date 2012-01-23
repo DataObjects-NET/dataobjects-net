@@ -9,16 +9,11 @@ using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.PostgreSql.v8_0
+namespace Xtensive.Sql.Tests.PostgreSql
 {
   [TestFixture, Explicit]
-  public class ExtractorTest : SqlTest
+  public abstract class ExtractorTest : SqlTest
   {
-    protected override string Url
-    {
-      get { return TestUrl.PostgreSql80; }
-    }
-
     [Test]
     public void ExpressionIndexExtractorTest()
     {

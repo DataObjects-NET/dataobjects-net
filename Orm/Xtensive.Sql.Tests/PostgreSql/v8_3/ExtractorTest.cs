@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace Xtensive.Sql.Tests.PostgreSql.v8_3
 {
   [TestFixture]
-  public class ExtractorTest : v8_2.ExtractorTest
+  public class ExtractorTest : PostgreSql.ExtractorTest
   {
     protected override string Url
     {

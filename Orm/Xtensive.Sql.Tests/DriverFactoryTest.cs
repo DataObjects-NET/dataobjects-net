@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Tests
         {
             TestProvider("sqlserver", TestConnectionString.SqlServer2005, TestUrl.SqlServer2005);
             TestProvider("postgresql", TestConnectionString.PostgreSql84, TestUrl.PostgreSql84);
-            TestProvider("mysql", TestConnectionString.MySQL50, TestUrl.MySQL50);
+            TestProvider("mysql", TestConnectionString.MySql50, TestUrl.MySql50);
             // TestProvider("oracle", TestConnectionString.Oracle11, TestUrl.Oracle11);
         }
 

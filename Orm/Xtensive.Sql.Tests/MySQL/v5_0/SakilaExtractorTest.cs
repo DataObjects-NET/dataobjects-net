@@ -95,7 +95,7 @@ namespace Xtensive.Sql.Tests.MySQL.v5_0
         [TestFixtureSetUp]
         public override void SetUp()
         {
-            sqlDriver = TestSqlDriver.Create(TestUrl.MySQL50);
+            sqlDriver = TestSqlDriver.Create(TestUrl.MySql50);
             sqlConnection = sqlDriver.CreateConnection();
 
             dbCommand = sqlConnection.CreateCommand();
