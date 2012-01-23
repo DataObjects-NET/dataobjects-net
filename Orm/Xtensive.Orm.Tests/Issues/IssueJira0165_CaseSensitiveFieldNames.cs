@@ -41,8 +41,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (Domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
           
 
           // Rollback

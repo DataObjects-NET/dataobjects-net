@@ -78,11 +78,11 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (TransactionScope t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (TransactionScope t = session.OpenTransaction()) {
 
           new ProductModel();
-          session.Persist();
+          session.SaveChanges();
 
           var model = session.Query.All<ProductModel>().FirstOrDefault();
 //works

@@ -74,15 +74,15 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (Domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
           
           var c = new Container();
           new Branch1();
           new Node1();
           c.Reference = new Node2();
 
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
 
           var items = Query.All<Root>().Where(e => e is IHasImplementors).ToList();
           Assert.AreEqual(3, items.Count);
@@ -91,8 +91,8 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
 
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (Domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
           
           var c = Query.All<Container>().First();
           Assert.IsNotNull(c.Reference);

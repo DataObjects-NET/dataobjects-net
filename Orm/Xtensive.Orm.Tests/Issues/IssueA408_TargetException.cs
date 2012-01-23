@@ -62,8 +62,9 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var s = Domain.OpenSession())
-        using (var t = s.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction())
+      {
         var some = new Some {Tag = 100500, Reference = new Ref{Tag = 9000}, Structure = new Struct{Tag = 777}};
         var tagObject = some.GetProperty<object>("Tag");
         var tagValue = some.GetProperty<uint>("Tag");

@@ -40,8 +40,8 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var blobData = new byte[] {0, 1};
 
-      using (var s = Domain.OpenSession()) {
-        using (var transactionScope = s.OpenTransaction()) {
+      using (Domain.OpenSession()) {
+        using (var transactionScope = Session.Current.OpenTransaction()) {
           var blob = new BlobEntity();
 
           blob.BlobData = blobData;
@@ -49,9 +49,10 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
       }
-      using (var s = Domain.OpenSession()) {
-        using (var transactionScope = s.OpenTransaction()) {
-          var blob = s.Query.All<BlobEntity>().Single();
+
+      using (Domain.OpenSession()) {
+        using (var transactionScope = Session.Current.OpenTransaction()) {
+          var blob = Query.All<BlobEntity>().Single();
           Assert.AreEqual(blobData.Length, blob.BlobData.Length);
           Assert.AreEqual(blobData, blob.BlobData);
           transactionScope.Complete();

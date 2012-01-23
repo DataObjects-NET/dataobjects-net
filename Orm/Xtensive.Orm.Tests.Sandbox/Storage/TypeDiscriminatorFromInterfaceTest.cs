@@ -87,8 +87,8 @@ namespace Xtensive.Orm.Tests.Sandbox.Storage
     [Test]
     public void DiscriminateByRefTest()
     {
-      using (Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var r = new Ref(new Guid(CodeRegistry.DefaultCode));
         var d = new DiscriminatedByRef()
                   {
@@ -97,8 +97,8 @@ namespace Xtensive.Orm.Tests.Sandbox.Storage
         t.Complete();
       }
 
-      using (Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var items = Query.All<DiscriminatedByRef>().ToList();
         var d = items[0];
         Assert.IsNotNull(d.Ref);

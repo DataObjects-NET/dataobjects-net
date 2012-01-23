@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var s = Domain.OpenSession())
-        using (var t = s.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var derived = new Derived();
 
 //        Assert.AreEqual("FOO", derived.Foo);

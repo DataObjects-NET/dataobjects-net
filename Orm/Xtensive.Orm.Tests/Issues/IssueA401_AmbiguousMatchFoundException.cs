@@ -52,11 +52,11 @@ namespace Xtensive.Orm.Tests.Issues
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(ConcreteEntity).Assembly, typeof(ConcreteEntity).Namespace);
       var domain = Domain.Build(config);
-      using (var s = domain.OpenSession())
-        using (var t = s.OpenTransaction()) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var concrete = new ConcreteEntity(new Some());
 
-        var result = s.Query.All<ConcreteEntity>().ToList();
+        var result = Query.All<ConcreteEntity>().ToList();
         Assert.AreEqual(1, result.Count);
         t.Complete();
       }

@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (Domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
           
           new Container
             {
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Storage
             };
           t.Complete();
         }
-        using (var t = Transaction.Open()) {
+        using (var t = Session.Current.OpenTransaction()) {
 
           var c = Query.All<Container>().First();
           Assert.IsNotNull(c.Geometry);

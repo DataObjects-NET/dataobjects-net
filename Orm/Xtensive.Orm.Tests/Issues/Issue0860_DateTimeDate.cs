@@ -37,16 +37,16 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var s = Domain.OpenSession()) {
-        using (var transactionScope = s.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
           var random = RandomManager.CreateRandom();
           var randomDate = InstanceGeneratorProvider.Default.GetInstanceGenerator<DateTime>().GetInstance(random);
           var date = randomDate.Date;
           var document = new Issue0860_DateTimeDate_Model.Document {DateTime1 = randomDate, DateTime2 = date};
-          s.SaveChanges();
+          session.SaveChanges();
 
           var query =
-            from d in s.Query.All<Issue0860_DateTimeDate_Model.Document>()
+            from d in Query.All<Issue0860_DateTimeDate_Model.Document>()
             where d.DateTime1.Date==d.DateTime2
             select d;
           var result = query.ToList();
