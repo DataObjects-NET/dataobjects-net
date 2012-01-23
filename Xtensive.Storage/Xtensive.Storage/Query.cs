@@ -469,7 +469,8 @@ namespace Xtensive.Storage
       var closureType = target.GetType();
       var parameterType = typeof(Parameter<>).MakeGenericType(closureType);
       var valueMemberInfo = parameterType.GetProperty("Value", closureType);
-      var queryParameter = (Parameter)Activator.CreateInstance(parameterType, "pClosure", target);
+      var queryParameter = (Parameter) Activator.CreateInstance(
+        parameterType, "pClosure", Activator.CreateInstance(target.GetType()));
       replacer = new ExtendedExpressionReplacer(e => {
         if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
           if (e.Type == closureType)
