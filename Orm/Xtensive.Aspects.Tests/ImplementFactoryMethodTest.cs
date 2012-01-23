@@ -58,7 +58,7 @@ namespace Xtensive.Aspects.Tests
       }
     }
 
-    [ImplementFactoryMethod(typeof(int))]
+    [ImplementFactoryMethod(typeof(int), typeof(bool))]
     public class ProtectedCtorClassD
     {
       protected ProtectedCtorClassD(int i, bool ignore)
