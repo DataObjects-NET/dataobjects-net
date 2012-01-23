@@ -70,11 +70,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PostgreSQL below 8.0 is not supported..
+        ///   Looks up a localized string similar to PostgreSQL below 8.3 is not supported..
         /// </summary>
-        internal static string ExPostgreSqlBelow80IsNotSupported {
+        internal static string ExPostgreSqlBelow83IsNotSupported {
             get {
-                return ResourceManager.GetString("ExPostgreSqlBelow80IsNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExPostgreSqlBelow83IsNotSupported", resourceCulture);
             }
         }
         

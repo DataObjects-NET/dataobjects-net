@@ -79,11 +79,11 @@ namespace Xtensive.Sql.Drivers.Oracle.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Oracle below 9i2 is not supported..
+        ///   Looks up a localized string similar to Oracle below 10g is not supported..
         /// </summary>
-        internal static string ExOracleBelow9i2IsNotSupported {
+        internal static string ExOracleBelow10gIsNotSupported {
             get {
-                return ResourceManager.GetString("ExOracleBelow9i2IsNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExOracleBelow10gIsNotSupported", resourceCulture);
             }
         }
         

@@ -69,14 +69,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           MultipleActiveResultSets = false,
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
-        if (version.Major < 8)
-          throw new NotSupportedException(Strings.ExPostgreSqlBelow80IsNotSupported);
-        if (version.Major==8 && version.Minor==0)
-          return new v8_0.Driver(coreServerInfo);
-        if (version.Major==8 && version.Minor==1)
-          return new v8_1.Driver(coreServerInfo);
-        if (version.Major==8 && version.Minor==2)
-          return new v8_2.Driver(coreServerInfo);
+        if (version.Major < 8 || version.Major==8 && version.Minor < 3)
+          throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
         if (version.Major==8 && version.Minor==3)
           return new v8_3.Driver(coreServerInfo);
         return new v8_4.Driver(coreServerInfo);

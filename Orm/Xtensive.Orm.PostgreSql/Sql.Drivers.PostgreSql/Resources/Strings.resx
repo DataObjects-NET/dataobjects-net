@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ExPostgreSqlBelow80IsNotSupported" xml:space="preserve">
-    <value>PostgreSQL below 8.0 is not supported.</value>
+  <data name="ExPostgreSqlBelow83IsNotSupported" xml:space="preserve">
+    <value>PostgreSQL below 8.3 is not supported.</value>
   </data>
   <data name="ExUrlContainsInvalidXSpecificationXHasToBeY" xml:space="preserve">
     <value>URL contains invalid {0} specification. {0} has to be {1}.</value>
