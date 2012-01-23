@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using PostSharp;
 using PostSharp.Extensibility;
 using PostSharp.Sdk.AspectInfrastructure;
 using PostSharp.Sdk.AspectWeaver;
@@ -17,6 +18,7 @@ using PostSharp.Sdk.CodeWeaver;
 using PostSharp.Sdk.Collections;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
+using Xtensive.Licensing;
 using LicenseType = Xtensive.Licensing.LicenseType;
 
 namespace Xtensive.Aspects.Weaver
@@ -95,7 +97,7 @@ namespace Xtensive.Aspects.Weaver
 
     private class Instance : StructuralTransformationInstance
     {
-      private const string ParameterNamePrefix = "arg";
+      private const string parameterNamePrefix = "arg";
       private readonly ITypeSignature[] argumentTypes;
 
       public override void Implement(TransformationContext context)
@@ -107,11 +109,10 @@ namespace Xtensive.Aspects.Weaver
             ? SeverityType.Info 
             : SeverityType.Error;
           if (typeDef.GenericParameters.Count > 0) {
-            var genericMessage = string.Format("Unsupported type \"{1}\". DataObjects.Net {0} edition does not support generic types. Please acquire at least Standard edition.",
-              currentLicense.LicenseType, typeDef.Name);
+            var genericMessage = GetErrorForGenericPersistentType(typeDef, currentLicense);
             if (!PlugIn.ErrorMessages.Contains(genericMessage)) {
               PlugIn.ErrorMessages.Add(genericMessage);
-              ErrorLog.Write(severityType, genericMessage);
+              ErrorLog.Write(MessageLocation.Of(typeDef), severityType, genericMessage);
             }
           }
 
@@ -124,11 +125,10 @@ namespace Xtensive.Aspects.Weaver
               var persistentInterface = interfaces
                 .FirstOrDefault(i => !i.MatchesReference(iEntity) && i.IsAssignableTo(iEntity));
               if (persistentInterface != null) {
-                var interfaceMessage = string.Format("Unsupported type \"{1}\". DataObjects.Net {0} edition does not support persistent interfaces. Please acquire at least Standard edition.",
-                  currentLicense.LicenseType, ((NamedMetadataDeclaration)persistentInterface).Name);
+                var interfaceMessage = GetErrorForPersistentInterface(persistentInterface, currentLicense);
                 if (!PlugIn.ErrorMessages.Contains(interfaceMessage)) {
                   PlugIn.ErrorMessages.Add(interfaceMessage);
-                  ErrorLog.Write(severityType, interfaceMessage);
+                  ErrorLog.Write(MessageLocation.Of(typeDef), severityType, interfaceMessage);
                 }
               }
             }
@@ -149,7 +149,7 @@ namespace Xtensive.Aspects.Weaver
         ctorDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
   
         for (int i = 0; i < argumentTypes.Length; i++)
-          ctorDef.Parameters.Add(new ParameterDeclaration(i, ParameterNamePrefix + i, argumentTypes[i].TranslateType(module)));
+          ctorDef.Parameters.Add(new ParameterDeclaration(i, parameterNamePrefix + i, argumentTypes[i].TranslateType(module)));
         ctorDef.MethodBody = new MethodBodyDeclaration();
         ctorDef.MethodBody.RootInstructionBlock = ctorDef.MethodBody.CreateInstructionBlock();
         IMethod baseConstructor = null;
@@ -163,11 +163,12 @@ namespace Xtensive.Aspects.Weaver
             0);
 
         try {
-          baseConstructor = baseType.Methods.GetMethod(AspectHelper.CtorName,
-           ctorSignature.Translate(module),
-           BindingOptions.Default).TranslateMethod(module);
-        } catch (Exception e) {
-          ErrorLog.Write(SeverityType.Error, "{0}", e);
+          baseConstructor = baseType.Methods
+            .GetMethod(AspectHelper.CtorName, ctorSignature.Translate(module), BindingOptions.Default)
+            .TranslateMethod(module);
+        }
+        catch (Exception e) {
+          ErrorLog.Write(MessageLocation.Of(typeDef), SeverityType.Error, "{0}", e);
           return;
         }
 
@@ -183,6 +184,24 @@ namespace Xtensive.Aspects.Weaver
           writer.EmitInstruction(OpCodeNumber.Ret);
           writer.DetachInstructionSequence();
         }
+      }
+
+      private static string GetErrorForPersistentInterface(ITypeSignature persistentInterface, LicenseInfo currentLicense)
+      {
+        return string.Format(
+          "Unsupported type \"{1}\". DataObjects.Net {0} edition does not support persistent interfaces. " +
+          "Please acquire at least Standard edition.",
+          currentLicense.LicenseType,
+          ((NamedMetadataDeclaration) persistentInterface).Name);
+      }
+
+      private static string GetErrorForGenericPersistentType(TypeDefDeclaration typeDef, LicenseInfo currentLicense)
+      {
+        return string.Format(
+          "Unsupported type \"{1}\". DataObjects.Net {0} edition does not support generic types. " +
+          "Please acquire at least Standard edition.",
+          currentLicense.LicenseType,
+          typeDef.Name);
       }
 
 

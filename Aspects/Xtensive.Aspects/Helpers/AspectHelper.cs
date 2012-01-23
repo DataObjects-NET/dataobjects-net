@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using PostSharp;
 using PostSharp.Extensibility;
 using Xtensive.Aspects.Resources;
 
@@ -202,11 +203,13 @@ namespace Xtensive.Aspects.Helpers
       MemberInfo member, bool containsFlags, MemberTypes memberTypes)
     {
       if (((member.MemberType & memberTypes)!=0) != containsFlags) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
+        ErrorLog.Write(
+          MessageLocation.Of(member),
+          severityType,
+          Strings.AspectExRequiresToBe,
           FormatType(aspect.GetType()),
           FormatMember(member.DeclaringType, member),
-          containsFlags ? String.Empty : Strings.Not,
-          memberTypes);
+          containsFlags ? String.Empty : Strings.Not, memberTypes);
         return false;
       }
       return true;
@@ -229,7 +232,10 @@ namespace Xtensive.Aspects.Helpers
       Type type, bool mustImplement, Type baseType)
     {
       if ((baseType.IsAssignableFrom(type)) != mustImplement) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToImplement,
+        ErrorLog.Write(
+          MessageLocation.Of(type),
+          severityType,
+          Strings.AspectExRequiresToImplement,
           FormatType(aspect.GetType()), 
           FormatType(type),
           mustImplement ? String.Empty : Strings.Not,
@@ -256,7 +262,10 @@ namespace Xtensive.Aspects.Helpers
       MethodBase method, bool containsFlags, MethodAttributes methodAttributes)
     {
       if (((method.Attributes & methodAttributes)!=0) != containsFlags) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
+        ErrorLog.Write(
+          MessageLocation.Of(method),
+          severityType,
+          Strings.AspectExRequiresToBe,
           FormatType(aspect.GetType()),
           FormatMember(method.DeclaringType, method),
           containsFlags ? String.Empty : Strings.Not,
@@ -299,7 +308,10 @@ namespace Xtensive.Aspects.Helpers
         method = null;      
       
       if ((method!=null) != mustHave) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
+        ErrorLog.Write(
+          MessageLocation.Of(method),
+          severityType,
+          Strings.AspectExRequiresToHave,
           FormatType(aspect.GetType()), 
           FormatType(type), 
           mustHave ? String.Empty : Strings.Not,
@@ -307,7 +319,7 @@ namespace Xtensive.Aspects.Helpers
 
         return false;
       }
-      return true;      
+      return true;
     }
     
     /// <summary>

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using PostSharp;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Aspects.Internals;
@@ -108,8 +109,10 @@ namespace Xtensive.Orm.Validation
         return false;
 
       if (setMethod==null) {
-        ErrorLog.Write(SeverityType.Error, string.Format(
-          Strings.AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX, 
+        ErrorLog.Write(
+          MessageLocation.Of(Property),
+          SeverityType.Error,
+          string.Format(Strings.AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX,
           AspectHelper.FormatMember(Property.DeclaringType, Property)));
         return false;
       }
@@ -118,7 +121,9 @@ namespace Xtensive.Orm.Validation
         return false;
 
       if (!IsSupported(Property.PropertyType)) { 
-        ErrorLog.Write(SeverityType.Error, 
+        ErrorLog.Write(
+          MessageLocation.Of(Property),
+          SeverityType.Error, 
           Strings.AspectExXDoesNotSupportYValueTypeLocationZ, 
           GetType().Name, 
           Property.PropertyType.Name, 
@@ -131,7 +136,9 @@ namespace Xtensive.Orm.Validation
         ValidateSelf(true);
       }
       catch (Exception exception) {
-        ErrorLog.Write(SeverityType.Error,
+        ErrorLog.Write(
+          MessageLocation.Of(Property),
+          SeverityType.Error,
           Strings.AspectExApplyingXToPropertyYFailedZ,
           AspectHelper.FormatType(GetType()),
           AspectHelper.FormatMember(Property.DeclaringType, Property),
@@ -140,14 +147,18 @@ namespace Xtensive.Orm.Validation
       }
 
       if (string.IsNullOrEmpty(MessageResourceName) ^ MessageResourceType==null)
-        ErrorLog.Write(SeverityType.Error,
+        ErrorLog.Write(
+          MessageLocation.Of(Property),
+          SeverityType.Error,
           string.Format(Strings.AspectExXAndYPropertiesMustBeUsedTogetherLocationZ, 
           MessageResourceNamePropertyName, 
           MessageResourceTypePropertyName,
           AspectHelper.FormatMember(Property.DeclaringType, Property)));
 
       if (!string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(MessageResourceName))
-        ErrorLog.Write(SeverityType.Error, 
+        ErrorLog.Write(
+          MessageLocation.Of(Property),
+          SeverityType.Error, 
           Strings.AspectExBothLocalizableMessageResourceAndNotLocalizableMessageCanNotBeSpecifiedAtOnceLocationX,
           AspectHelper.FormatMember(Property.DeclaringType, Property));
 

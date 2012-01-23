@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using PostSharp;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -37,7 +38,9 @@ namespace Xtensive.Orm.Validation
         var methodInfo = method as MethodInfo;
         if (methodInfo.IsGetter()) {
           // Property getter is marked as [InconsistentRegion]
-          ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
+          ErrorLog.Write(
+            MessageLocation.Of(methodInfo),
+            SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
             AspectHelper.FormatType(GetType()),
             AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
         }

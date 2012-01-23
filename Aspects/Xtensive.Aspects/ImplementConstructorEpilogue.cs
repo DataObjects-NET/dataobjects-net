@@ -52,14 +52,11 @@ namespace Xtensive.Aspects
     {
       if (AspectHelper.IsInfrastructureMethod(method))
         return false;
-      if (!AspectHelper.ValidateMemberType(this, SeverityType.Error,
-        method, true, MemberTypes.Constructor))
+      if (!AspectHelper.ValidateMemberType(this, SeverityType.Error, method, true, MemberTypes.Constructor))
         return false;
-      if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
-        method, false, MethodAttributes.Static))
+      if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error, method, false, MethodAttributes.Static))
         return false;
-      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error,
-        method.DeclaringType, true, HandlerType))
+      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, method.DeclaringType, true, HandlerType))
         return false;
 
       MethodInfo targetMethod; 

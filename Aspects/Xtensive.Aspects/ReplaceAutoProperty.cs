@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
+using PostSharp;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -53,7 +54,10 @@ namespace Xtensive.Aspects
         return false;
       var accessorInfo = method as MethodInfo;
       if (accessorInfo == null) {
-        ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectRequiresToBe,
+        ErrorLog.Write(
+          MessageLocation.Of(method),
+          SeverityType.Error,
+          AspectMessageType.AspectRequiresToBe,
           AspectHelper.FormatType(GetType()),
           AspectHelper.FormatMember(method.DeclaringType, method),
           string.Empty,

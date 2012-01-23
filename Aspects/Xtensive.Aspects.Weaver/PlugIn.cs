@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using PostSharp;
 using PostSharp.Extensibility;
 using PostSharp.Hosting;
 using PostSharp.Sdk.AspectWeaver;
@@ -152,7 +153,7 @@ namespace Xtensive.Aspects.Weaver
     private static void FatalLicenseError(string format, params object[] args)
     {
       RunLicensingAgent();
-      ErrorLog.Write(SeverityType.Fatal, format, args);
+      ErrorLog.Write(MessageLocation.Unknown, SeverityType.Fatal, format, args);
     }
 
     private static void RunLicensingAgent()

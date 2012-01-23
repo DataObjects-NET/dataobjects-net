@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using PostSharp;
 using PostSharp.Extensibility;
 using PostSharp.Sdk.AspectInfrastructure;
 using PostSharp.Sdk.AspectWeaver;
@@ -94,7 +95,8 @@ namespace Xtensive.Aspects.Weaver
 
     private class Instance : StructuralTransformationInstance
     {
-      private const string ParameterNamePrefix = "arg";
+      private const string parameterNamePrefix = "arg";
+
       private readonly ITypeSignature[] argumentTypes;
 
       public override void Implement(TransformationContext context)
@@ -113,11 +115,11 @@ namespace Xtensive.Aspects.Weaver
 
         IMethod constructor;
         try {
-          constructor = genericType.Methods.GetMethod(AspectHelper.CtorName,
-            ctorSignature.Translate(module),
-            BindingOptions.Default);
-        } catch (Exception e) {
-          ErrorLog.Write(SeverityType.Warning, "{0}", e);
+          constructor = genericType.Methods
+           .GetMethod(AspectHelper.CtorName, ctorSignature.Translate(module), BindingOptions.Default);
+        }
+        catch (Exception e) {
+          ErrorLog.Write(MessageLocation.Of(typeDef), SeverityType.Warning, "{0}", e);
           return;
         }
   
@@ -134,7 +136,7 @@ namespace Xtensive.Aspects.Weaver
         factoryMathodDef.CustomAttributes.Add(helper.GetCompilerGeneratedAttribute());
   
         for (int i = 0; i < argumentTypes.Length; i++) {
-          var parameter = new ParameterDeclaration(i, ParameterNamePrefix+i, argumentTypes[i]);
+          var parameter = new ParameterDeclaration(i, parameterNamePrefix+i, argumentTypes[i]);
           factoryMathodDef.Parameters.Add(parameter);
         }
   
