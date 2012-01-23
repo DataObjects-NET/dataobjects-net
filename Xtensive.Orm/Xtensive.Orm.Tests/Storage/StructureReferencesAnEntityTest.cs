@@ -47,10 +47,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var some = new Some {Name = " Alpha"};
-        session.Persist();
+        session.SaveChanges();
         some.Remove();
         t.Complete();
       }

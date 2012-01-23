@@ -936,12 +936,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       instanceCount = 10;
       for (int i = 0; i < instanceCount; i++) {
-        using (var session = Session.Open(Domain))
-        using (var t = Transaction.Open()) {
+        using (var session = Domain.OpenSession())
+        using (var t = session.OpenTransaction()) {
           session.Extensions.Set(new MemoryLeakTester());
           var newOrder = new Order();
           var orderDetail = new OrderDetail {Product = new Product()};
-          session.Persist();
+          session.SaveChanges();
           var order = EnumerableUtils.One(newOrder).Prefetch(o => o.Details).First();
           Assert.That(order, Is.Not.Null);
           var product = EnumerableUtils.One(orderDetail).Prefetch(d => d.Product).First();

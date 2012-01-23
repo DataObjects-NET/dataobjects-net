@@ -264,9 +264,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DefaultValuesTest()
     {
-      using (Session.Open(Domain)) {
+      using (Domain.OpenSession()) {
         Key key;
-        using (var t = Transaction.Open()) {
+        using (var t = Session.Current.OpenTransaction()) {
           // To be sure that the reference field (X.Ref) would have meaning
           new XRef(new Guid(CodeRegistry.GuidKeyValue));
           key = new X().Key;
@@ -280,7 +280,7 @@ namespace Xtensive.Storage.Tests.Storage
           var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
           minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
         }
-        using (var t = Transaction.Open()) {
+        using (var t = Session.Current.OpenTransaction()) {
           X x = Query.SingleOrDefault<X>(key);
           Assert.AreEqual(true, x.FBool);
           Assert.AreEqual(byte.MaxValue, x.FByte);

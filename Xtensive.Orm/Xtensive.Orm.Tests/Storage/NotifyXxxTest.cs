@@ -193,8 +193,8 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
     {
       Key key;
 
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (Domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
 
           var b = new Book();
           key = b.Key;
@@ -202,8 +202,8 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
         }
       }
 
-      using (Session.Open(Domain)) {
-        using (Transaction.Open()) {
+      using (Domain.OpenSession()) {
+        using (Session.Current.OpenTransaction()) {
 
           //var b = Query.All<Book>().First();
           var c = Query.Single<Book>(key);

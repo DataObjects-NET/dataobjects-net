@@ -54,8 +54,8 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
 
     protected override void PupulateData()
     {
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var book = new CoolBook { Title = "Book" };
         var otherBook = new Book {Title = "OtherBook" };
         book.OtherCoolBooks.Add(otherBook);
@@ -68,8 +68,8 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
     [Test]
     public void StandardModeTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var book = (CoolBook) Query.All<Book>().Where(b => b.Key == key).Single();
         var otherCoolBooksBackup = book.OtherCoolBooks;
         book.Remove();
@@ -95,8 +95,8 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
       var sc = Domain.Configuration.Sessions.Default.Clone();
       sc.Options |= SessionOptions.ReadRemovedObjects;
 
-      using (var session = Session.Open(Domain, sc))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession(sc))
+      using (var tx = session.OpenTransaction()) {
         var book = (CoolBook) Query.All<Book>().Where(b => b.Key == key).Single();
         book.Remove();
 
@@ -112,8 +112,8 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         // tx.Complete();
       }
 
-      using (var session = Session.Open(Domain, sc))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession(sc))
+      using (var tx = session.OpenTransaction()) {
         var book = Query.All<CoolBook>().Where(b => b.Key == key).Single();
         book.Remove();
 
@@ -124,8 +124,8 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         // tx.Complete();
       }
 
-      using (var session = Session.Open(Domain, sc))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession(sc))
+      using (var tx = session.OpenTransaction()) {
         var book = Query.All<CoolBook>().Where(b => b.Key == key).Single();
         var lazyPopulatiry = book.LazyPopularity;
         book.Remove();
@@ -140,8 +140,8 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
     [Test]
     public void UnexpectedLazyPropertyReadBugTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var book = Query.All<CoolBook>().Where(b => b.Key == key).Single();
         var psa = DirectStateAccessor.Get(book);
 
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         book.OtherCoolBooks.Add(book); // (1)
         Assert.IsTrue(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded));
 
-        session.Persist();
+        session.SaveChanges();
         book.Remove(); // Fails, but only if (1) is enabled!
         Assert.IsTrue(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded));
       }

@@ -104,14 +104,14 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new A {Tag = "Alpha", B = new B {Item = new Item {Name = "Item name"}}};
         t.Complete();
       }
 
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) { 
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var query = 
           from a in Query.All<A>()
           where a.Tag == "Alpha"
@@ -129,14 +129,14 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void EnumTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new My {Status = MyStatus.Closed};
         t.Complete();
       }
 
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var x = from e in Query.All<My>()
                 select new MyEntityViewModel(e.Status);
         var list = x.ToList();

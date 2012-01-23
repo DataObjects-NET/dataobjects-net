@@ -72,8 +72,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Session.Open(Domain))
-      using (var t = Transaction.Open(session))
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction())
       {
 
         Query.All<IHasLegs>().ToList();

@@ -50,8 +50,8 @@ namespace Xtensive.Orm.Tests.Issues
       config.Types.Register(typeof (IWithReference).Assembly, typeof (IWithReference).Namespace);
       var domain = Domain.Build(config);
 
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open(session)) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         new SomeWithReference {Reference = new Reference()};
 
         var result = Query.All<SomeWithReference>()

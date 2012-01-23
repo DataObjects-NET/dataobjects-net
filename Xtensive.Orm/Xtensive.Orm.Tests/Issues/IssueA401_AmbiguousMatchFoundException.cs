@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Tests.Issues
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(ConcreteEntity).Assembly, typeof(ConcreteEntity).Namespace);
       var domain = Domain.Build(config);
-      using (var session = Session.Open(domain))
-      using (var t = Transaction.Open(session)) {
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
         var concrete = new ConcreteEntity(new Some());
 
         var result = Query.All<ConcreteEntity>().ToList();

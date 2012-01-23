@@ -35,8 +35,8 @@ namespace Xtensive.Storage.Orm.Upgrade
     public void SetUp()
     {
       BuildDomain(Mode.Recreate);
-      using (Session.Open(domain)) {
-        using (var t = Transaction.Open()) {
+      using (domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
           var x = new X {
             FInt = 1,
             FInt2 = 12345,

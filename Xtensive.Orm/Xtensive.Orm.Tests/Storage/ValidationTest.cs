@@ -145,8 +145,8 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     [Test]
     public void OnSetValueModeTest()
     {
-      using (var session = Session.Open(Domain)) {
-        using (var t = Transaction.Open(session)) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var target = new ValidationTarget();
           target.Name = "name";
