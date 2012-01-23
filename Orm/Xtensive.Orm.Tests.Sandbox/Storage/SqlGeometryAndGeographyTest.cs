@@ -40,6 +40,12 @@ namespace Xtensive.Storage.Tests.Storage
       return config;
     }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtLeast(new Version(10, 0));
+    }
+
     [Test]
     public void MainTest()
     {

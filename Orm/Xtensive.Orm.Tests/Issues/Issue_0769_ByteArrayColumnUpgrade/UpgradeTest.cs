@@ -9,8 +9,10 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
 using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Sql.Tests;
 using Xtensive.Testing;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
@@ -44,7 +46,9 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
           };
 
           var bytesColumn = GetColumnInfo(domain.Schema, person.TypeInfo, "Bytes");
-          Assert.AreEqual(4000, bytesColumn.Type.Length);
+          var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
+          var expected = driver.TypeMappings[typeof (byte[])].BuildSqlType().Length;
+          Assert.AreEqual(expected, bytesColumn.Type.Length);
 
           tx.Complete();
         }
