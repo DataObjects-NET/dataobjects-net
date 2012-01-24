@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
   [TestFixture]
   public class PrefetchManagerBasicTest : PrefetchManagerTestBase
   {
-    private static int instanceCount;
+    private volatile static int instanceCount;
 
     #region Nested class
 
@@ -950,8 +950,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           t.Complete();
         }
       }
-      GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-      GC.WaitForPendingFinalizers();
+      TestHelper.CollectGarbage(true);
       Assert.That(instanceCount, Is.EqualTo(0));
     }
 
