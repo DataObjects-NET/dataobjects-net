@@ -73,11 +73,5 @@ namespace Xtensive.Orm
     /// The same as <see cref="PerformSafely"/>
     /// </summary>
     Default = PerformSafely,
-
-    /// <summary>
-    /// The same as <see cref="LegacyValidate"/> for backward compatibility.
-    /// </summary>
-    [Obsolete("Use DomainUpgradeMode.LegacyValidate")]
-    Legacy = LegacyValidate,
   }
 }
