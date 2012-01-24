@@ -61,13 +61,13 @@ namespace Xtensive.Orm.Tests
 
       var config = BuildConfiguration();
       Domain = BuildDomain(config);
-      PupulateData();
+      PopulateData();
 
       if (Domain!=null)
         ProviderInfo = Domain.StorageProviderInfo;
     }
 
-    protected virtual void PupulateData()
+    protected virtual void PopulateData()
     {
     }
 

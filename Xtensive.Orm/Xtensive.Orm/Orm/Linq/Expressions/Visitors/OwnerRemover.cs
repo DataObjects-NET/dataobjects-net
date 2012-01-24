@@ -6,7 +6,9 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
@@ -41,6 +43,28 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     protected override Expression VisitKeyExpression(KeyExpression expression)
     {
       return expression;
+    }
+
+    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    {
+      var oldConstructorArguments = expression.ConstructorArguments.ToList().AsReadOnly();
+      var newConstructorArguments = VisitExpressionList(oldConstructorArguments);
+
+      var oldBindings = expression.Bindings.Select(b => b.Value).ToList().AsReadOnly();
+      var newBindings = VisitExpressionList(oldBindings);
+
+      var notChanged =
+        ReferenceEquals(oldConstructorArguments, newConstructorArguments)
+        && ReferenceEquals(oldBindings, newBindings);
+
+      if (notChanged)
+        return expression;
+
+      var bindings = expression.Bindings
+        .Zip(newBindings)
+        .ToDictionary(item => item.First.Key, item => item.Second);
+
+      return new ConstructorExpression(expression.Type, bindings, expression.Constructor, newConstructorArguments);
     }
 
     protected override Expression VisitEntityExpression(EntityExpression expression)

@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
       return configuration;
     }
 
-    protected override void PupulateData()
+    protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
