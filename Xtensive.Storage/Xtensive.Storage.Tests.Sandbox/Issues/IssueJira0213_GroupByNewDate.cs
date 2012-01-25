@@ -55,10 +55,12 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain))
       using (Transaction.Open()) {
+
         var q =
           from i in Query.All<EntityWithDate>()
           group i by new DateTime(i.Date.Year, i.Date.Month, 1) into g
           select g;
+
         Assert.That(q.Count(), Is.EqualTo(1));
       }
     }
@@ -68,11 +70,13 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain))
       using (Transaction.Open()) {
+
         var q =
           from i in Query.All<EntityWithDate>()
           let x = new DateTime(i.Date.Year, i.Date.Month, 1)
           group i by x into g
           select g;
+
         Assert.That(q.Count(), Is.EqualTo(1));
       }
     }
@@ -117,6 +121,43 @@ namespace Xtensive.Storage.Tests.Issues
           select i;
 
         Assert.That(q.ToList(), Is.EqualTo(expected));
+      }
+    }
+
+    [Test]
+    public void WhereNewDateDirectly()
+    {
+      using (Session.Open(Domain))
+      using (Transaction.Open()) {
+
+        var now = DateTime.Now;
+        var firstDay = new DateTime(now.Year, now.Month, 1);
+
+        var q =
+          from i in Query.All<EntityWithDate>()
+          where new DateTime(i.Date.Year, i.Date.Month, 11 - i.Date.Day)==firstDay 
+          select i;
+
+        Assert.That(q.Single().Date.Day, Is.EqualTo(10));
+      }
+    }
+
+    [Test]
+    public void WhereNewDateWithIntermediateProjection()
+    {
+      using (Session.Open(Domain))
+      using (Transaction.Open()) {
+
+        var now = DateTime.Now;
+        var firstDay = new DateTime(now.Year, now.Month, 1);
+
+        var q =
+          from i in Query.All<EntityWithDate>()
+          let x = new DateTime(i.Date.Year, i.Date.Month, 11 - i.Date.Day)
+          where x==firstDay
+          select i;
+
+        Assert.That(q.Single().Date.Day, Is.EqualTo(10));
       }
     }
   }
