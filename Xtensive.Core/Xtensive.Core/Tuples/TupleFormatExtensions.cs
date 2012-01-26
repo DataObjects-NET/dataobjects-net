@@ -29,34 +29,6 @@ namespace Xtensive.Core.Tuples
     private const char Escape = '\\';
     private const char Comma = ',';
 
-    #region Nested types: FormatData, ParseData
-
-    private struct FormatData
-    {
-      public Tuple Source;
-      public string[] Target;
-
-      public FormatData(Tuple source)
-      {
-        Source = source;
-        Target = new string[source.Count];
-      }
-    }
-
-    private struct ParseData
-    {
-      public string[] Source;
-      public Tuple Target;
-
-      public ParseData(string[] parts, TupleDescriptor targetDescriptor)
-      {
-        Source = parts;
-        Target = Tuple.Create(targetDescriptor);
-      }
-    }
-
-    #endregion
-
     /// <summary>
     /// Converts the <paramref name="source"/> <see cref="Tuple"/> to 
     /// its string representation.
@@ -71,21 +43,21 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <summary>
-    /// Returns string representation of the specified <paramref name="tuple"/>.
+    /// Returns string representation of the specified <paramref name="source"/>.
     /// </summary>
-    /// <param name="tuple">The <see cref="Tuple"/> to format.</param>
+    /// <param name="source">The <see cref="Tuple"/> to format.</param>
     /// <returns>
-    /// String representation of the specified <paramref name="tuple"/>.
+    /// String representation of the specified <paramref name="source"/>.
     /// </returns>
-    public static string Format(this Tuple tuple)
+    public static string Format(this Tuple source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
-      var actionData = new FormatData(tuple);
-      var descriptor = tuple.Descriptor;
-      var count = tuple.Count;
+      ArgumentValidator.EnsureArgumentNotNull(source, "tuple");
+      var descriptor = source.Descriptor;
+      var count = source.Count;
+      var targets = new string[count];
       for (int i = 0; i < count; i++)
-        FormatHandler.Get(descriptor[i]).Execute(ref actionData, i);
-      return actionData.Target.RevertibleJoin(Escape, Comma);
+        FormatHandler.Get(descriptor[i]).Execute(source, targets, i);
+      return targets.RevertibleJoin(Escape, Comma);
     }
 
     /// <summary>
@@ -100,19 +72,19 @@ namespace Xtensive.Core.Tuples
     public static Tuple Parse(this TupleDescriptor descriptor, string source)
     {
       ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
-      var actionData = new ParseData(source.RevertibleSplit(Escape, Comma).ToArray(), descriptor);
-      var tuple = actionData.Target;
-      var count = tuple.Count;
+      var target = Tuple.Create(descriptor);
+      var count = target.Count;
+      var sources = source.RevertibleSplit(Escape, Comma).ToArray();
       for (int i = 0; i < count; i++)
-        ParseHandler.Get(descriptor[i]).Execute(ref actionData, i);
-      return actionData.Target;
+        ParseHandler.Get(descriptor[i]).Execute(sources, target, i);
+      return target;
     }
 
     #region Handler classes
 
     private abstract class FormatHandler
     {
-      public abstract void Execute(ref FormatData actionData, int fieldIndex);
+      public abstract void Execute(Tuple source, string[] targets, int fieldIndex);
 
       public static FormatHandler Get(Type fieldType)
       {
@@ -122,10 +94,9 @@ namespace Xtensive.Core.Tuples
 
     private sealed class FormatHandler<TFieldType> : FormatHandler
     {
-      public override void Execute(ref FormatData actionData, int fieldIndex)
+      public override void Execute(Tuple source, string[] targets, int fieldIndex)
       {
-        var tuple = actionData.Source;
-        var fieldState = tuple.GetFieldState(fieldIndex);
+        var fieldState = source.GetFieldState(fieldIndex);
         string result;
         if (!fieldState.IsAvailable())
           result = string.Empty;
@@ -134,17 +105,17 @@ namespace Xtensive.Core.Tuples
         else {
           result = AdvancedConverterProvider.Default
             .GetConverter<TFieldType, string>()
-            .Convert(tuple.GetValue<TFieldType>(fieldIndex, out fieldState));
+            .Convert(source.GetValue<TFieldType>(fieldIndex, out fieldState));
           if (result.IsNullOrEmpty() || result==NullValue || result.Contains(Quote))
             result = Quote + (result ?? string.Empty).Escape(Escape, new char[Quote]) + Quote; // Quoting
         }
-        actionData.Target[fieldIndex] = result;
+        targets[fieldIndex] = result;
       }
     }
 
     private abstract class ParseHandler
     {
-      public abstract void Execute(ref ParseData actionData, int fieldIndex);
+      public abstract void Execute(string[] source, Tuple target, int fieldIndex);
 
       public static ParseHandler Get(Type fieldType)
       {
@@ -154,21 +125,21 @@ namespace Xtensive.Core.Tuples
 
     private sealed class ParseHandler<TFieldType> : ParseHandler
     {
-      public override void Execute(ref ParseData actionData, int fieldIndex)
+      public override void Execute(string[] sources, Tuple target, int fieldIndex)
       {
-        string source = actionData.Source[fieldIndex];
+        string source = sources[fieldIndex];
         if (source.IsNullOrEmpty())
           return;
         if (source==NullValue) {
-          actionData.Target.SetValue(fieldIndex, null);
+          target.SetValue(fieldIndex, null);
           return;
         }
-        if (source[0]==Quote && source[source.Length -1 ] == Quote)
+        if (source[0]==Quote && source[source.Length - 1]==Quote)
           source = source.Substring(1, source.Length - 2).Unescape(Escape);
-        actionData.Target.SetValue(fieldIndex, 
-          AdvancedConverterProvider.Default
-            .GetConverter<string, TFieldType>()
-            .Convert(source));
+        var result = AdvancedConverterProvider.Default
+          .GetConverter<string, TFieldType>()
+          .Convert(source);
+        target.SetValue(fieldIndex, result);
       }
     }
 
