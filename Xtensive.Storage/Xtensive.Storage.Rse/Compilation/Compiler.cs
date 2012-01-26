@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -14,8 +16,28 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class Compiler<TResult> : ICompiler<TResult> 
     where TResult : ExecutableProvider
   {
+    private readonly Stack<CompilableProvider> traversalStack = new Stack<CompilableProvider>();
+    private CompilableProvider owner;
     private CompilableProvider rootProvider;
 
+    /// <summary>
+    /// Gets <see cref="CompilableProvider"/>
+    /// that is just above <see cref="CompilableProvider"/> that is currently processed.
+    /// For root provider returns <see langword="null"/>.
+    /// </summary>
+    protected CompilableProvider Owner
+    {
+      get
+      {
+        if (owner==null && traversalStack.Count >= 2)
+          owner = traversalStack.ElementAt(1);
+        return owner;
+      }
+    }
+
+    /// <summary>
+    /// Gets root of <see cref="CompilableProvider"/> tree.
+    /// </summary>
     protected CompilableProvider RootProvider { get { return rootProvider; } }
 
     /// <summary>
@@ -55,6 +77,7 @@ namespace Xtensive.Storage.Rse.Compilation
       if (rootProvider == null)
         rootProvider = cp;
       TResult result;
+      traversalStack.Push(cp);
       switch (cp.Type) {
         case ProviderType.Index:
           result = VisitIndex((IndexProvider)cp);
@@ -147,6 +170,8 @@ namespace Xtensive.Storage.Rse.Compilation
           throw new ArgumentOutOfRangeException();
       }
       result.Location = Location;
+      traversalStack.Pop();
+      owner = null;
       return result;
     }
 

@@ -303,8 +303,11 @@ namespace Xtensive.Storage.Providers.Sql
       var query = ExtractSqlSelect(provider, compiledSource);
       var rootSelectProvider = RootProvider as SelectProvider;
       var currentIsRoot = RootProvider==provider;
+      var currentIsOwnedRootSelect = (rootSelectProvider!=null && rootSelectProvider.Source==provider);
+      var currentIsOwnedByPaging = !currentIsRoot
+        && Owner.Type.In(ProviderType.Take, ProviderType.Skip);
 
-      if (currentIsRoot || (rootSelectProvider != null && rootSelectProvider.Source == provider)) {
+      if (currentIsRoot || currentIsOwnedRootSelect || currentIsOwnedByPaging) {
         query.OrderBy.Clear();
         if (currentIsRoot) {
           foreach (var pair in provider.Header.Order)
