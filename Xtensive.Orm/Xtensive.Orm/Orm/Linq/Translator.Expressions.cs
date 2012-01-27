@@ -334,7 +334,7 @@ namespace Xtensive.Orm.Linq
             return ConstructQueryable(mc);
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.FreeTextString, WellKnownMembers.Query.FreeTextExpression))
-            return CosntructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
           // Query.Single<T> & Query.SingleOrDefault<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
             WellKnownMembers.Query.SingleKey,
@@ -349,7 +349,7 @@ namespace Xtensive.Orm.Linq
             return ConstructQueryable(mc);
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.QueryEndpoint.FreeTextString, WellKnownMembers.QueryEndpoint.FreeTextExpression))
-            return CosntructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
           // Query.Single<T> & Query.SingleOrDefault<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
             WellKnownMembers.QueryEndpoint.SingleKey,
@@ -408,7 +408,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private Expression CosntructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
+    private Expression ConstructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
     {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))

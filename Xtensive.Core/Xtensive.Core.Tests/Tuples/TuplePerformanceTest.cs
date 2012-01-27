@@ -275,5 +275,44 @@ namespace Xtensive.Tests.Tuples
         while (iteration++ <= iterationCount)
           tuplesList.Add(tuple.CreateNew());
     }
+
+    [Test]
+    [Explicit, Category("Performance")]
+    public void FormatTest()
+    {
+      const int iterationCount = 1000000;
+      var output = new List<string>(iterationCount);
+
+      var descriptor = TupleDescriptor.Create(typicalFieldTypes);
+      var tuple = Tuple.Create(descriptor);
+      tuple.SetValue(0, 123L);
+      tuple.SetValue(2, "hello");
+
+      using (new Measurement("Format", iterationCount))
+      for (int i = 0; i < iterationCount; i++) {
+        var formatted = tuple.Format();
+        output.Add(formatted);
+      }
+    }
+
+    [Test]
+    [Explicit, Category("Performance")]
+    public void ParseTest()
+    {
+      const int iterationCount = 1000000;
+      var output = new List<Tuple>(iterationCount);
+
+      var descriptor = TupleDescriptor.Create(typicalFieldTypes);
+      var tuple = Tuple.Create(descriptor);
+      tuple.SetValue(0, 123L);
+      tuple.SetValue(2, "hello");
+      var source = tuple.Format();
+
+      using (new Measurement("Parse", iterationCount))
+      for (int i = 0; i < iterationCount; i++) {
+        var parsed = descriptor.Parse(source);
+        output.Add(parsed);
+      }
+    }
   }
 }
