@@ -281,6 +281,8 @@ namespace Xtensive.Orm.Providers.Sql
       }
 
       if (origin.Type == ProviderType.Sort) {
+        if (distinctIsUsed)
+          return true;
         var orderingOverCalculatedColumn = origin.Header.Order
           .Select(order => order.Key)
           .Any(calculatedColumnIndexes.Contains);

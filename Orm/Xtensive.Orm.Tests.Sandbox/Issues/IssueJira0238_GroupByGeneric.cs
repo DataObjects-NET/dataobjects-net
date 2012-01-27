@@ -50,16 +50,46 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (Domain.OpenSession())
       using (Session.Current.OpenTransaction()) {
+        new Person {City = "A", Surname = "1"};
+        new Person {City = "A", Surname = "1"};
+        new Person {City = "A", Surname = "2"};
+        new Person {City = "B", Surname = "3"};
+
         // This works
         var result1 = Query.All<Person>()
           .GroupBy(p => new {Key1 = p.City, Key2 = p.Surname})
           .Select(group => new {group.Key, Count = group.Count()})
+          .OrderBy(item => item.Key)
           .ToList();
+
+        Assert.That(result1.Count, Is.EqualTo(3));
+        Assert.That(result1[0].Key.Key1, Is.EqualTo("A"));
+        Assert.That(result1[0].Key.Key2, Is.EqualTo("1"));
+        Assert.That(result1[0].Count, Is.EqualTo(2));
+        Assert.That(result1[1].Key.Key1, Is.EqualTo("A"));
+        Assert.That(result1[1].Key.Key2, Is.EqualTo("2"));
+        Assert.That(result1[1].Count, Is.EqualTo(1));
+        Assert.That(result1[2].Key.Key1, Is.EqualTo("B"));
+        Assert.That(result1[2].Key.Key2, Is.EqualTo("3"));
+        Assert.That(result1[2].Count, Is.EqualTo(1));
+
         // This does not work
         var result2 = Query.All<Person>()
           .GroupBy(p => new GroupKey<string, string> {Key1 = p.City, Key2 = p.Surname})
           .Select(group => new {group.Key, Count = group.Count()})
+          .OrderBy(item => item.Key)
           .ToList();
+
+        Assert.That(result2.Count, Is.EqualTo(3));
+        Assert.That(result2[0].Key.Key1, Is.EqualTo("A"));
+        Assert.That(result2[0].Key.Key2, Is.EqualTo("1"));
+        Assert.That(result2[0].Count, Is.EqualTo(2));
+        Assert.That(result2[1].Key.Key1, Is.EqualTo("A"));
+        Assert.That(result2[1].Key.Key2, Is.EqualTo("2"));
+        Assert.That(result2[1].Count, Is.EqualTo(1));
+        Assert.That(result2[2].Key.Key1, Is.EqualTo("B"));
+        Assert.That(result2[2].Key.Key2, Is.EqualTo("3"));
+        Assert.That(result2[2].Count, Is.EqualTo(1));
       }
     }
   }

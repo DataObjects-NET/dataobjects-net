@@ -21,7 +21,8 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
-    
+
+    private readonly bool includeSqlInExceptions;
     private readonly bool isLoggingEnabled;
 
     public string BatchBegin { get { return translator.BatchBegin; } }
@@ -70,6 +71,7 @@ namespace Xtensive.Orm.Providers.Sql
       translator = underlyingDriver.Translator;
 
       isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
+      includeSqlInExceptions = domain.Configuration.IncludeSqlInExceptions;
     }
   }
 }
