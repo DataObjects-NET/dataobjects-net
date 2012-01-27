@@ -43,6 +43,16 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void MartinTest()
+    {
+      Session.Query.All<Supplier>()
+        .LeftJoin(Session.Query.All<Product>(), s => s, p => p.Supplier, (s, p) => new { Supplier = s, Product = p} )
+        .GroupBy(i => new { i.Supplier.CompanyName, i.Supplier.ContactName })
+        .Select(g => new { Key = g.Key, Count = g.Count(j => j.Product != null) })
+        .ToList();
+    }
+
+    [Test]
     public void LongSequenceIntTest()
     {
       // Wrong JOIN mapping for temptable version of .In
