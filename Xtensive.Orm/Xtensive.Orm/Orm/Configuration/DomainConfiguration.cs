@@ -66,6 +66,8 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultAutoValidation = true;
 
+    public const bool DefaultIncludeSqlInExceptions = true;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -88,6 +90,7 @@ namespace Xtensive.Orm.Configuration
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
     private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
+    private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -338,6 +341,20 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets indicating whether SQL text of a query
+    /// that caused error should be included in exception message.
+    /// </summary>
+    public bool IncludeSqlInExceptions
+    {
+      get { return includeSqlInExceptions; }
+      set
+      {
+        this.EnsureNotLocked();
+        includeSqlInExceptions = value;
+      }
+    }
+
+    /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
@@ -387,7 +404,8 @@ namespace Xtensive.Orm.Configuration
       autoValidation = configuration.autoValidation;
       validationMode = configuration.validationMode;
       foreignKeyMode = configuration.foreignKeyMode;
-      ServiceContainerType = configuration.ServiceContainerType;
+      serviceContainerType = configuration.serviceContainerType;
+      includeSqlInExceptions = configuration.includeSqlInExceptions;
     }
 
     /// <summary>

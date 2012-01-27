@@ -39,6 +39,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
+    private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -226,7 +227,18 @@ namespace Xtensive.Orm.Configuration.Elements
     public string DefaultSchema
     {
       get { return (string) this[DefaultSchemaElementName]; }
-      set { this[DefaultSchemaElementName] = DefaultSchemaElementName; }
+      set { this[DefaultSchemaElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.IncludeSqlInExceptions" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(IncludeSqlInExceptionsElementName,
+      DefaultValue = DomainConfiguration.DefaultIncludeSqlInExceptions)]
+    public bool IncludeSqlInExceptions
+    {
+      get { return (bool) this[IncludeSqlInExceptionsElementName]; }
+      set { this[IncludeSqlInExceptionsElementName] = value; }
     }
 
     /// <summary>
@@ -252,7 +264,8 @@ namespace Xtensive.Orm.Configuration.Elements
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
-        ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType)
+        ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
+        IncludeSqlInExceptions = IncludeSqlInExceptions,
       };
 
       foreach (var entry in Types)

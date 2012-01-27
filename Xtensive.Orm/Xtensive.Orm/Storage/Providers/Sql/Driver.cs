@@ -25,7 +25,8 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
-    
+
+    private readonly bool includeSqlInExceptions;
     private readonly bool isDebugLoggingEnabled;
 
     public string BatchBegin { get { return translator.BatchBegin; } }
@@ -88,6 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
       StorageLocation = underlyingDriver.CoreServerInfo.ServerLocation;
 
       isDebugLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      includeSqlInExceptions = domain.Configuration.IncludeSqlInExceptions;
     }
   }
 }

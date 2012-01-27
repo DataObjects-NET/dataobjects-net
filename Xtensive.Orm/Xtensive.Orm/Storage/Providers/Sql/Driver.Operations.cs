@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Providers.Sql
         builder.AppendLine();
         builder.AppendFormat(Strings.SqlErrorDetailsX, sqlErrorDetails);
       }
-      if (!string.IsNullOrEmpty(queryText)) {
+      if (!string.IsNullOrEmpty(queryText) && includeSqlInExceptions) {
         builder.AppendLine();
         builder.AppendFormat(Strings.QueryX, queryText);
       }
