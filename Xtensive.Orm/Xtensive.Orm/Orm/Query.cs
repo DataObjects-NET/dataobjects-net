@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm
 {
@@ -182,7 +183,8 @@ namespace Xtensive.Orm
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.Execute(query.Method, qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
     }
 
     /// <summary>
@@ -197,7 +199,8 @@ namespace Xtensive.Orm
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.Execute(key, qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
     }
 
     /// <summary>
@@ -212,7 +215,8 @@ namespace Xtensive.Orm
     /// <returns>Query result.</returns>
     public static TResult Execute<TResult>(Func<TResult> query)
     {
-      return Session.Demand().Query.Execute(qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
     }
 
     /// <summary>
@@ -227,7 +231,8 @@ namespace Xtensive.Orm
     /// <returns>Query result.</returns>
     public static TResult Execute<TResult>(object key, Func<TResult> query)
     {
-      return Session.Demand().Query.Execute(key, qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
     }
 
     /// <summary>
@@ -242,7 +247,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static Delayed<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
-      return Session.Demand().Query.ExecuteDelayed(key, qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteDelayed(WrapQuery(query));
     }
 
     /// <summary>
@@ -256,7 +262,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static Delayed<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
-      return Session.Demand().Query.ExecuteDelayed(qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayed(WrapQuery(query));
     }
 
     /// <summary>
@@ -271,7 +278,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.ExecuteDelayed(key, qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteDelayed(WrapQuery(query));
     }
 
     /// <summary>
@@ -285,7 +293,13 @@ namespace Xtensive.Orm
     /// </returns>
     public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
     {
-      return Session.Demand().Query.ExecuteDelayed(qe => query());
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayed(WrapQuery(query));
+    }
+
+    private static Func<Session.QueryEndpoint, TResult> WrapQuery<TResult>(Func<TResult> query)
+    {
+      return _ => query.Invoke();
     }
 
     /// <summary>

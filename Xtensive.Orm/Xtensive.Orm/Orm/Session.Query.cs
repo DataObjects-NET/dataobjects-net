@@ -277,7 +277,7 @@ namespace Xtensive.Orm
       /// <returns>Query result.</returns>
       public IEnumerable<TElement> Execute<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
       {
-        return Execute(query.Method, query);
+        return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query);
       }
 
       /// <summary>
@@ -292,7 +292,7 @@ namespace Xtensive.Orm
       /// <returns>Query result.</returns>
       public IEnumerable<TElement> Execute<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
       {
-        return ExecuteInternal(GetParameterizedQuery(key, query), query.Target);
+        return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
       }
 
       /// <summary>
@@ -307,7 +307,7 @@ namespace Xtensive.Orm
       /// <returns>Query result.</returns>
       public TResult Execute<TResult>(Func<QueryEndpoint,TResult> query)
       {
-        return Execute(query.Method, query);
+        return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query);
       }
 
       /// <summary>
@@ -322,32 +322,7 @@ namespace Xtensive.Orm
       /// <returns>Query result.</returns>
       public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
-        var domain = session.Domain;
-        var target = query.Target;
-        var cache = domain.QueryCache;
-        Pair<object, TranslatedQuery> item;
-        ParameterizedQuery<TResult> parameterizedQuery = null;
-        lock (cache)
-          if (cache.TryGetItem(key, true, out item))
-            parameterizedQuery = (ParameterizedQuery<TResult>)item.Second;
-        if (parameterizedQuery == null) {
-          ExtendedExpressionReplacer replacer;
-          var queryParameter = BuildQueryParameter(target, out replacer);
-          using (var queryCachingScope = new QueryCachingScope(queryParameter, replacer)) {
-            TResult result;
-            using (new ParameterContext().Activate()) {
-              if (queryParameter != null)
-                queryParameter.Value = target;
-              result = query.Invoke(this);
-            }
-            parameterizedQuery = (ParameterizedQuery<TResult>)queryCachingScope.ParameterizedQuery;
-            lock (cache)
-              if (!cache.TryGetItem(key, false, out item))
-                cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-            return result;
-          }
-        }
-        return ExecuteInternal(parameterizedQuery, target);
+        return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
       }
 
       /// <summary>
@@ -362,33 +337,7 @@ namespace Xtensive.Orm
       /// </returns>
       public Delayed<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
       {
-        var domain = session.Domain;
-        var target = query.Target;
-        var cache = domain.QueryCache;
-        Pair<object, TranslatedQuery> item;
-        ParameterizedQuery<TResult> parameterizedQuery = null;
-        lock (cache)
-          if (cache.TryGetItem(key, true, out item))
-            parameterizedQuery = (ParameterizedQuery<TResult>)item.Second;
-        if (parameterizedQuery == null) {
-          ExtendedExpressionReplacer replacer;
-          var queryParameter = BuildQueryParameter(target, out replacer);
-          using (var queryCachingScope = new QueryCachingScope(queryParameter, replacer, false)) {
-            using (new ParameterContext().Activate()) {
-              if (queryParameter != null)
-                queryParameter.Value = target;
-              query.Invoke(this);
-            }
-            parameterizedQuery = (ParameterizedQuery<TResult>)queryCachingScope.ParameterizedQuery;
-            lock (cache)
-              if (!cache.TryGetItem(key, false, out item))
-                cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-          }
-        }
-        var parameterContext = CreateParameterContext(target, parameterizedQuery);
-        var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
-        session.RegisterDelayedQuery(result.Task);
-        return result;
+        return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
       }
 
       /// <summary>
@@ -402,7 +351,7 @@ namespace Xtensive.Orm
       /// </returns>
       public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
       {
-        return ExecuteDelayed(query.Method, query);
+        return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
       }
 
       /// <summary>
@@ -417,11 +366,7 @@ namespace Xtensive.Orm
       /// </returns>
       public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query)
       {
-        var parameterizedQuery = GetParameterizedQuery(key, query);
-        var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
-        var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
-        session.RegisterDelayedQuery(result.Task);
-        return result;
+        return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
       }
 
       /// <summary>
@@ -435,7 +380,7 @@ namespace Xtensive.Orm
       /// </returns>
       public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint,IQueryable<TElement>> query)
       {
-        return ExecuteDelayed(query.Method, query);
+        return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
       }
 
       public IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
@@ -462,96 +407,6 @@ namespace Xtensive.Orm
             return (keyValue as Entity).Key;
         }
         return Key.Create(session.Domain, typeof(T), keyValues);
-      }
-
-      /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
-      private Parameter BuildQueryParameter(object target, out ExtendedExpressionReplacer replacer)
-      {
-        if (target == null) {
-          replacer = new ExtendedExpressionReplacer(e => e);
-          return null;
-        }
-        var closureType = target.GetType();
-        var parameterType = typeof(Parameter<>).MakeGenericType(closureType);
-        var valueMemberInfo = parameterType.GetProperty("Value", closureType);
-        var queryParameter = (Parameter) Activator.CreateInstance(parameterType, "pClosure");
-        replacer = new ExtendedExpressionReplacer(e => {
-          if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
-            if (e.Type == closureType)
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            throw new NotSupportedException(String.Format(Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, e));
-          }
-          return null;
-        });
-        return queryParameter;
-      }
-
-      private TResult ExecuteInternal<TResult>(ParameterizedQuery<TResult> query, object target)
-      {
-        var context = CreateParameterContext(target, query);
-        return query.Execute(session, context);
-      }
-
-      private ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query) 
-      {
-        var domain = session.Domain;
-        var cache = domain.QueryCache;
-        Pair<object, TranslatedQuery> item;
-        ParameterizedQuery<IEnumerable<TElement>> parameterizedQuery = null;
-        lock (cache)
-          if (cache.TryGetItem(key, true, out item))
-            parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>)item.Second;
-        if (parameterizedQuery == null) {
-          ExtendedExpressionReplacer replacer;
-          var queryParameter = BuildQueryParameter(query.Target, out replacer);
-          using (new QueryCachingScope(queryParameter, replacer)) {
-            var result = query.Invoke(this);
-            var translationResult = Provider.Translate<IEnumerable<TElement>>(result.Expression);
-            parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>)translationResult.Query;
-            lock (cache)
-              if (!cache.TryGetItem(key, false, out item))
-                cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-          }
-        }
-        return parameterizedQuery;
-      }
-
-      private Expression ReplaceClosure(Expression source, out object target, out Parameter parameter)
-      {
-        Type currentClosureType = null;
-        Parameter queryParameter = null;
-        Type parameterType = null;
-        PropertyInfo valueMemberInfo = null;
-        object currentTarget = null;
-        var replacer = new ExtendedExpressionReplacer(e => {
-          if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
-            if (currentClosureType == null) {
-              currentClosureType = e.Type;
-              currentTarget = ((ConstantExpression)e).Value;
-              parameterType = typeof(Parameter<>).MakeGenericType(currentClosureType);
-              valueMemberInfo = parameterType.GetProperty("Value", currentClosureType);
-              queryParameter = (Parameter)Activator.CreateInstance(parameterType, "pClosure", currentTarget);
-            }
-            if (e.Type == currentClosureType)
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType),
-                valueMemberInfo);
-            throw new InvalidOperationException(Strings.ExQueryContainsClosuresOfDifferentTypes);
-          }
-          return null;
-        });
-        var result = replacer.Replace(source);
-        target = currentTarget;
-        parameter = queryParameter;
-        return result;
-      }
-
-      private ParameterContext CreateParameterContext<TResult>(object target, ParameterizedQuery<TResult> query)
-      {
-        var parameterContext = new ParameterContext();
-        if (query.QueryParameter != null)
-          using (parameterContext.Activate())
-            query.QueryParameter.Value = target;
-        return parameterContext;
       }
 
       #endregion

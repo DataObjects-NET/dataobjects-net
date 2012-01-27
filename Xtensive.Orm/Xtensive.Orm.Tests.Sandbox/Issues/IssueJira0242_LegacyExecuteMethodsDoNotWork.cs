@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
 using MetadataType = Xtensive.Orm.Metadata.Type;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -34,7 +33,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void CompiledSequenceWithKeyTest()
     {
       var id = GetId();
-      var r = Query.Execute(this, () => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.Execute(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id==id));
       VerifyResult(r);
     }
 
@@ -50,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void CompiledScalarWithKeyTest()
     {
       var id = GetId();
-      var r = Query.Execute(this, () => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.Execute(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id==id));
       VerifyResult(r);
     }
 
@@ -70,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureSequenceWithKeyTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFuture(this, () => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.ExecuteFuture(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id==id));
       VerifyResult(r);
     }
 
@@ -86,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureScalarWithKeyTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFutureScalar(this, () => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.ExecuteFutureScalar(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id==id));
       VerifyResult(r.Value);
     }
 
@@ -107,6 +106,11 @@ namespace Xtensive.Orm.Tests.Issues
     private int GetId()
     {
       return Domain.Model.Types[typeof (MetadataType)].TypeId;
+    }
+
+    private object GetKey()
+    {
+      return new object();
     }
   }
 }
