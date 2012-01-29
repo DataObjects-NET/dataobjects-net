@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Providers.Sql
       var currentIsRoot = RootProvider==provider;
       var currentIsOwnedRootSelect = (rootSelectProvider!=null && rootSelectProvider.Source==provider);
       var currentIsOwnedByPaging = !currentIsRoot
-        && Owner.Type.In(ProviderType.Take, ProviderType.Skip);
+        && Owner.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Paging);
 
       if (currentIsRoot || currentIsOwnedRootSelect || currentIsOwnedByPaging) {
         query.OrderBy.Clear();
