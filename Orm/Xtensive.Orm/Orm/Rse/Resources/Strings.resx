@@ -213,4 +213,7 @@
   <data name="ExCurrentCompilerIsNotSuitableForThisOperationMostLikelyThereIsNoActiveSession" xml:space="preserve">
     <value>Current compiler is not suitable for this operation, most likely there is no active Session.</value>
   </data>
+  <data name="ExProcessingOfVoidProviderIsNotSupported">
+    <value xml:space="preserve">Processing of VoidProvider is not supported.</value>
+  </data>
 </root>

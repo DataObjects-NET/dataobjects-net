@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Rse.Providers
     Lock,
     Include,
     FreeText,
-    Paging
+    Paging,
+    Void,
   }
 }

@@ -250,6 +250,15 @@ namespace Xtensive.Orm.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Processing of VoidProvider is not supported..
+        /// </summary>
+        internal static string ExProcessingOfVoidProviderIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExProcessingOfVoidProviderIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Provider must be either CompilableProvider or ExecutableProvider.
         /// </summary>
         internal static string ExProviderMustBeEitherCompilableProviderOrExecutableProvider {

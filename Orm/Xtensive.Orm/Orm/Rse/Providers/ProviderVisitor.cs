@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.Resources;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -106,6 +107,8 @@ namespace Xtensive.Orm.Rse.Providers
         case ProviderType.FreeText:
           result = VisitFreeText((FreeTextProvider) cp);
           break;
+        case ProviderType.Void:
+          throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
         default:
           throw new ArgumentOutOfRangeException();
       }

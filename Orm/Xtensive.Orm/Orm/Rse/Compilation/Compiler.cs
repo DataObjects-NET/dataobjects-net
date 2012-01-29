@@ -6,6 +6,7 @@ using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Resources;
 
 namespace Xtensive.Orm.Rse.Compilation
 {
@@ -140,6 +141,8 @@ namespace Xtensive.Orm.Rse.Compilation
         case ProviderType.FreeText:
           result = VisitFreeText((FreeTextProvider) cp);
           break;
+        case ProviderType.Void:
+          throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
         default:
           throw new ArgumentOutOfRangeException();
       }

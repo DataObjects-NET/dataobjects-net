@@ -213,5 +213,10 @@ namespace Xtensive.Orm.Rse
     {
       return new LockProvider(source, lockMode, lockBehavior);
     }
+
+    public static CompilableProvider MakeVoid(this CompilableProvider source)
+    {
+      return new VoidProvider(source.Header);
+    }
   }
 }
