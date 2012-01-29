@@ -115,18 +115,8 @@ namespace Xtensive.Orm.Rse.Providers
     {
       AppendTitleTo(sb, indent);
       indent = indent + ToString_IndentSize;
-      AppendDescriptionTo(sb, indent);
       foreach (var source in Sources)
         source.AppendBodyTo(sb, indent);
-    }
-
-    /// <summary>
-    /// Appends the provider's description to the specified <see cref="StringBuilder"/>.
-    /// </summary>
-    /// <param name="builder">The <see cref="StringBuilder"/> to use.</param>
-    /// <param name="indent">The indent.</param>
-    protected virtual void AppendDescriptionTo(StringBuilder builder, int indent)
-    {
     }
 
     private void AppendTitleTo(StringBuilder sb, int indent)
@@ -135,12 +125,7 @@ namespace Xtensive.Orm.Rse.Providers
         .AppendLine();
     }
 
-    /// <summary>
-    /// Gets the string representation of provider title
-    /// for the <see cref="ToString"/> method.    
-    /// </summary>
-    /// <returns>Provider title as a single line string.</returns>
-    public virtual string TitleToString()
+    private string TitleToString()
     {
       var sb = new StringBuilder();
       string providerName = GetType().GetShortName().TryCutSuffix(ToString_ProviderTypeSuffix);
@@ -154,10 +139,10 @@ namespace Xtensive.Orm.Rse.Providers
 
     /// <summary>
     /// Gets the string representation of provider parameters 
-    /// for the <see cref="ToString"/> method.    
+    /// for the <see cref="ToString"/> method.
     /// </summary>
     /// <returns>Provider parameters as a single line string.</returns>
-    public virtual string ParametersToString()
+    protected virtual string ParametersToString()
     {
       return string.Empty;
     }

@@ -68,35 +68,13 @@ namespace Xtensive.Orm.Providers.Sql
     #region ToString related methods
 
     /// <inheritdoc/>
-    public override string ParametersToString()
+    protected override string ParametersToString()
     {
       // No need to show parameters - they are meaningless, since provider is always the same.
       // Finally, they're printed as part of the [Origin: ...]
       return string.Empty;
     }
-    
-    /// <inheritdoc/>
-    protected override void AppendDescriptionTo(StringBuilder builder, int indent)
-    {
-      AppendOriginTo(builder, indent);
-      var result = Request.GetCompiledStatement((DomainHandler) handlers.DomainHandler);
-      AppendCommandTo(result, builder, indent);
-    }
 
-    /// <inheritdoc/>
-    protected virtual void AppendCommandTo(SqlCompilationResult result, StringBuilder builder, int indent)
-    {
-      var configuration = new SqlPostCompilerConfiguration();
-      int i = 0;
-      foreach (var item in Request.ParameterBindings) {
-        configuration.PlaceholderValues.Add(item, ParameterNamePrefix + i);
-        i++;
-      }
-
-      builder.Append(new string(' ', indent))
-        .AppendFormat(ToStringFormat, result.GetCommandText(configuration))
-        .AppendLine();
-    }
 
     #endregion
     

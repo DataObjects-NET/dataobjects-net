@@ -27,7 +27,6 @@ namespace Xtensive.Orm.Rse.Providers
     IHasServices,
     ICachingProvider
   {
-    protected const string ToString_Origin = "[Origin: {0}]";
     private const string CachedResultName = "Results";
 
     private readonly HashSet<Type> supportedServices = new HashSet<Type>();
@@ -210,31 +209,6 @@ namespace Xtensive.Orm.Rse.Providers
         if (!enumerated)
           OnAfterEnumerate(context);
       }
-    }
-
-    #endregion
-
-    #region ToString related methods
-
-    protected override void AppendDescriptionTo(StringBuilder builder, int indent)
-    {
-      // Could append Origin to desctiprion part of ToString(),
-      // But here it does nothing.
-      // AppendOriginTo(builder, indent);
-    }
-
-    protected virtual void AppendOriginTo(StringBuilder sb, int indent)
-    {
-      if (Origin==null)
-        return;
-      sb.Append(string.Format(ToString_Origin, Origin.TitleToString()).Indent(indent))
-        .AppendLine();
-    }
-
-    /// <inheritdoc/>
-    public override string ParametersToString()
-    {
-      return Origin.ParametersToString();
     }
 
     #endregion

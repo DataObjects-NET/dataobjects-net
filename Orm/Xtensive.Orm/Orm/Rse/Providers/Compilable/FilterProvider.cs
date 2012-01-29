@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <inheritdoc/>
-    public override string ParametersToString()
+    protected override string ParametersToString()
     {
       return Predicate.ToString(true);
     }

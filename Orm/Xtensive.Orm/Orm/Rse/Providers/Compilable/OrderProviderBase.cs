@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <inheritdoc/>
-    public override string ParametersToString()
+    protected override string ParametersToString()
     {
       return Order
         .Select(pair => Header.Columns[pair.Key].Name + (pair.Value == Direction.Negative ? " desc" : string.Empty))

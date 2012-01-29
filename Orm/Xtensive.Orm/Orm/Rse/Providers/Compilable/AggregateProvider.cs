@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <inheritdoc/>
-    public override string ParametersToString()
+    protected override string ParametersToString()
     {
       if (GroupColumnIndexes.Length==0)
         return AggregateColumns.ToCommaDelimitedString();

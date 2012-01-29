@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     public Pair<Column>[] EqualColumns { get; private set; }
 
     /// <inheritdoc/>
-    public override string ParametersToString()
+    protected override string ParametersToString()
     {
       return string.Format(ToStringFormat,
         JoinType,

@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     public Func<Tuple> Key { get; private set; }
 
     /// <inheritdoc/>
-    public override string ParametersToString()
+    protected override string ParametersToString()
     {
       return Key.Method.ToString();
     }
