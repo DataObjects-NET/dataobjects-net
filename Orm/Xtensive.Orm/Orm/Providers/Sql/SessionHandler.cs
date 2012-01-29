@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Providers.Sql
         var nonBatchedTasks = new List<QueryTask>();
         foreach (var task in queryTasks) {
           var sqlProvider = task.DataSource as SqlProvider;
-          if (sqlProvider!=null && sqlProvider.Request.CheckOptions(RequestOptions.AllowBatching))
+          if (sqlProvider!=null && sqlProvider.Request.CheckOptions(RequestOptions.AllowOptimization))
             RegisterQueryTask(task, sqlProvider.Request);
           else
             nonBatchedTasks.Add(task);

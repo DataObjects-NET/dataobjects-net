@@ -20,8 +20,8 @@ namespace Xtensive.Orm.Providers.Sql
     Empty = 0,
 
     /// <summary>
-    /// Batching of this request is allowed.
+    /// Optimization of this request is allowed.
     /// </summary>
-    AllowBatching = 0x1
+    AllowOptimization = 0x1
   }
 }

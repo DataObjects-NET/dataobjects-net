@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Providers.Sql
         resultExpression = CreateIncludeViaComplexConditionExpression(
           provider, BuildRowFilterParameterAccessor(filterDataSource, false),
           sourceColumns, out extraBinding);
-        requestOptions |= RequestOptions.AllowBatching;
+        requestOptions |= RequestOptions.AllowOptimization;
         break;
       case IncludeAlgorithm.TemporaryTable:
         resultExpression = CreateIncludeViaTemporaryTableExpression(

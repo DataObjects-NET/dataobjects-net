@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement.</param>
     protected Request(ISqlCompileUnit statement)
-      : this(statement, RequestOptions.AllowBatching)
+      : this(statement, RequestOptions.AllowOptimization)
     {
     }
   }

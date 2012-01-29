@@ -47,12 +47,12 @@ namespace Xtensive.Orm.Providers.Sql
 
       bool allowBatching = sqlSources
         .Aggregate(true, (current, provider) =>
-          current && provider.Request.CheckOptions(RequestOptions.AllowBatching));
+          current && provider.Request.CheckOptions(RequestOptions.AllowOptimization));
       var tupleDescriptor = origin.Header.TupleDescriptor;
 
       var options = RequestOptions.Empty;
       if (allowBatching)
-        options |= RequestOptions.AllowBatching;
+        options |= RequestOptions.AllowOptimization;
 
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.Head(statement.Columns.Count);
