@@ -104,6 +104,10 @@ namespace Xtensive.Orm.Providers.Sql
         ClearRequest = new PersistRequest(SqlDml.Delete(tableRef), null),
         QueryStatement = queryStatement
       };
+
+      result.StoreRequest.Prepare(DomainHandler);
+      result.ClearRequest.Prepare(DomainHandler);
+
       return result;
     }
 
