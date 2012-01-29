@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     public ExecutableProvider Process(ExecutableProvider rootProvider)
     {
-      this.Visit(((SqlProvider) rootProvider).Request.SelectStatement);
+      this.Visit(((SqlProvider) rootProvider).Request.Statement);
       return rootProvider;
     }
 

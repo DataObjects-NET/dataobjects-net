@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm;
@@ -100,7 +101,7 @@ namespace Xtensive.Orm.Providers.Sql
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
         StoreRequest = new PersistRequest(insertStatement, storeRequestBindings),
-        ClearRequest = new PersistRequest(SqlDml.Delete(tableRef)),
+        ClearRequest = new PersistRequest(SqlDml.Delete(tableRef), null),
         QueryStatement = queryStatement
       };
       return result;

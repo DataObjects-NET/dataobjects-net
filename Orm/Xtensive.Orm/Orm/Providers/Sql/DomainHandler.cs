@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
     {
-      return new EmptySelectCorrector();
+      return new CompositePostCompiler(new EmptySelectCorrector(), new SqlProviderPreparer(Handlers));
     }
 
     /// <summary>

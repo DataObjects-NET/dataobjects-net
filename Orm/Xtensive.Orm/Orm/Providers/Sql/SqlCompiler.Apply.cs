@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Providers.Sql
 
       var left = Compile(provider.Left);
       var shouldUseQueryReference = true;
-      var sourceSelect = left.Request.SelectStatement;
+      var sourceSelect = left.Request.Statement;
 
       if (processViaCrossApply) {
         shouldUseQueryReference = ShouldUseQueryReference(provider, left);
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers.Sql
         shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains) 
           || groupByIsUsed 
           || provider.Left.Type.In(ProviderType.Store, ProviderType.Include)
-          || left.Header.Columns.Count != left.Request.SelectStatement.From.Columns.Count;
+          || left.Header.Columns.Count != left.Request.Statement.From.Columns.Count;
       }
       if (!shouldUseQueryReference)
         left = new SqlProvider(left, sourceSelect.From);
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Providers.Sql
     }
     private SqlSelect ProcessApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
     {
-      var rightQuery = right.Request.SelectStatement;
+      var rightQuery = right.Request.Statement;
       SqlSelect query;
       if (shouldUseQueryReference) {
         var leftTable = left.PermanentReference;
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Providers.Sql
         query.Columns.AddRange(leftTable.Columns.Cast<SqlColumn>());
       }
       else
-        query = left.Request.SelectStatement.ShallowClone();
+        query = left.Request.Statement.ShallowClone();
 
       if (provider.Right.Type==ProviderType.Existence) {
         var column = rightQuery.Columns[0];
@@ -156,18 +156,18 @@ namespace Xtensive.Orm.Providers.Sql
       var leftShouldUseReference = ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
         ? left.PermanentReference
-        : left.Request.SelectStatement.From;
+        : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlColumn>()
-        : left.Request.SelectStatement.Columns;
+        : left.Request.Statement.Columns;
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
-        : right.Request.SelectStatement.From;
+        : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlColumn>()
-        : right.Request.SelectStatement.Columns;
+        : right.Request.Statement.Columns;
 
       var joinType = provider.ApplyType==JoinType.LeftOuter
         ? SqlJoinType.LeftOuterApply
@@ -182,9 +182,9 @@ namespace Xtensive.Orm.Providers.Sql
 
       var query = SqlDml.Select(joinedTable);
       if (!leftShouldUseReference)
-        query.Where &= left.Request.SelectStatement.Where;
+        query.Where &= left.Request.Statement.Where;
       if (!rightShouldUseReference)
-        query.Where &= right.Request.SelectStatement.Where;
+        query.Where &= right.Request.Statement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
       return query;
     }

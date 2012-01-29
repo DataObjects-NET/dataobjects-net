@@ -16,13 +16,13 @@ using Xtensive.Orm.Model;
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
-  /// Builder of <see cref="Request"/>s.
+  /// Builder of <see cref="PersistRequest"/>s.
   /// </summary>
   public class PersistRequestBuilder : InitializableHandlerBase
   {
     private bool useLargeObjects;
 
-    protected DomainHandler DomainHandler { get; private set; }
+    private DomainHandler DomainHandler { get; set; }
 
     /// <summary>
     /// Builds the request.
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers.Sql
     public IEnumerable<PersistRequest> Build(PersistRequestBuilderTask task)
     {
       var context = new PersistRequestBuilderContext(task);
-      List<PersistRequest> result = null;
+      List<PersistRequest> result;
       switch (task.Kind) {
         case PersistRequestKind.Insert:
           result = BuildInsertRequest(context);
@@ -43,6 +43,8 @@ namespace Xtensive.Orm.Providers.Sql
         case PersistRequestKind.Update:
           result = BuildUpdateRequest(context);
           break;
+        default:
+          throw new ArgumentOutOfRangeException("task.Kind");
       }
 
       // Merging requests for servers which support batching
@@ -50,11 +52,17 @@ namespace Xtensive.Orm.Providers.Sql
         var batch = SqlDml.Batch();
         var bindings = new HashSet<PersistParameterBinding>();
         foreach (var request in result) {
-          batch.Add((SqlStatement) request.Statement);
+          batch.Add(request.Statement);
           bindings.UnionWith(request.ParameterBindings);
         }
-        return EnumerableUtils.One(new PersistRequest(batch, bindings));
+        var batchRequest = new PersistRequest(batch, bindings);
+        batchRequest.Prepare(DomainHandler);
+        return EnumerableUtils.One(batchRequest);
       }
+
+      foreach (var item in result)
+        item.Prepare(DomainHandler);
+
       return result;
     }
     

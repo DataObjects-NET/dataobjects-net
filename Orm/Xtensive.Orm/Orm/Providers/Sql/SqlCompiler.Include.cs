@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers.Sql
       var sourceColumns = ExtractColumnExpressions(resultQuery, provider);
       var bindings = source.Request.ParameterBindings;
       var filterDataSource = provider.FilterDataSource.CachingCompile();
-      var requestOptions = RequestOptions.Empty;
+      var requestOptions = QueryRequestOptions.Empty;
       SqlExpression resultExpression;
       TemporaryTableDescriptor tableDescriptor = null;
       QueryParameterBinding extraBinding = null;
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Providers.Sql
         resultExpression = CreateIncludeViaComplexConditionExpression(
           provider, BuildRowFilterParameterAccessor(filterDataSource, false),
           sourceColumns, out extraBinding);
-        requestOptions |= RequestOptions.AllowOptimization;
+        requestOptions |= QueryRequestOptions.AllowOptimization;
         break;
       case IncludeAlgorithm.TemporaryTable:
         resultExpression = CreateIncludeViaTemporaryTableExpression(

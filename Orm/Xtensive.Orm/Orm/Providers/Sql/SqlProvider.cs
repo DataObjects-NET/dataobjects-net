@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Providers.Sql
     public SqlTable PermanentReference {
       get {
         if (ReferenceEquals(null, permanentReference))
-          permanentReference = SqlDml.QueryRef(Request.SelectStatement);
+          permanentReference = SqlDml.QueryRef(Request.Statement);
         return permanentReference;
       }
     }

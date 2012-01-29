@@ -215,8 +215,7 @@
     <Compile Include="Orm\Providers\Sql\QueryParameterBindingType.cs" />
     <Compile Include="Orm\Providers\Sql\QueryRequest.cs" />
     <Compile Include="Orm\Providers\Sql\QueryRowFilterParameterBinding.cs" />
-    <Compile Include="Orm\Providers\Sql\Request.cs" />
-    <Compile Include="Orm\Providers\Sql\RequestOptions.cs" />
+    <Compile Include="Orm\Providers\Sql\QueryRequestOptions.cs" />
     <Compile Include="Orm\Providers\Sql\Resources\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -237,6 +236,7 @@
     <Compile Include="Orm\Providers\Sql\SqlCompiler.Paging.cs" />
     <Compile Include="Orm\Providers\Sql\SqlIncludeProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlModelConverter.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlProviderPreparer.cs" />
     <Compile Include="Orm\Providers\Sql\SqlProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlStoreProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlTemporaryDataProvider.cs" />
@@ -307,6 +307,7 @@
     <Compile Include="Orm\Model\TypeInfoRef.cs" />
     <Compile Include="Orm\EntitySetActionCompletedEventArgs.cs" />
     <Compile Include="Orm\QueryEndpoint.cs" />
+    <Compile Include="Orm\Rse\Compilation\CompositePostCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\VoidProvider.cs" />
     <Compile Include="Orm\Services\QueryFormatter.cs" />
     <Compile Include="Orm\Services\TransactionMonitor.cs" />

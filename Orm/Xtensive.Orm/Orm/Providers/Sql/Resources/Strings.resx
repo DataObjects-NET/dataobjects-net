@@ -278,4 +278,7 @@
   <data name="ExTranslationOfInContainsIsNotSupportedInThisCase">
     <value xml:space="preserve">Translation of In/Contains is not supported in this case</value>
   </data>
+  <data name="ExRequestIsNotPrepared">
+    <value xml:space="preserve">Request is not prepared</value>
+  </data>
 </root>

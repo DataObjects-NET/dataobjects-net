@@ -47,12 +47,12 @@ namespace Xtensive.Orm.Providers.Sql
 
       bool allowBatching = sqlSources
         .Aggregate(true, (current, provider) =>
-          current && provider.Request.CheckOptions(RequestOptions.AllowOptimization));
+          current && provider.Request.CheckOptions(QueryRequestOptions.AllowOptimization));
       var tupleDescriptor = origin.Header.TupleDescriptor;
 
-      var options = RequestOptions.Empty;
+      var options = QueryRequestOptions.Empty;
       if (allowBatching)
-        options |= RequestOptions.AllowOptimization;
+        options |= QueryRequestOptions.AllowOptimization;
 
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.Head(statement.Columns.Count);
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     protected static SqlSelect ExtractSqlSelect(CompilableProvider origin, SqlProvider compiledSource)
     {
-      var sourceSelect = compiledSource.Request.SelectStatement;
+      var sourceSelect = compiledSource.Request.Statement;
       if (ShouldUseQueryReference(origin, compiledSource)) {
         var queryRef = compiledSource.PermanentReference;
         var query = SqlDml.Select(queryRef);
@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
     {
-      var sourceSelect = compiledSource.Request.SelectStatement;
+      var sourceSelect = compiledSource.Request.Statement;
 
       var calculatedColumnIndexes = sourceSelect.Columns
         .Select((c, i) => IsCalculatedColumn(c) ? i : -1)

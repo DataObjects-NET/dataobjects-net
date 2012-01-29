@@ -241,6 +241,15 @@ namespace Xtensive.Orm.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Request is not prepared.
+        /// </summary>
+        internal static string ExRequestIsNotPrepared {
+            get {
+                return ResourceManager.GetString("ExRequestIsNotPrepared", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ROW_NUMBER window function is not supported on this version of PostgreSQL.
         /// </summary>
         internal static string ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql {

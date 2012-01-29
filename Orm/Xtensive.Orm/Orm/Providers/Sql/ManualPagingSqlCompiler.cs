@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Providers.Sql
       var bindings = new List<QueryParameterBinding> {skipParameterBinding};
 
       var compiledSource = Compile(provider.Source);
-      var source = compiledSource.Request.SelectStatement;
+      var source = compiledSource.Request.Statement;
       var queryRef = SqlDml.QueryRef(source);
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Providers.Sql
       var bindings = new List<QueryParameterBinding> { takeParameterBinding };
 
       var compiledSource = Compile(provider.Source);
-      var source = compiledSource.Request.SelectStatement;
+      var source = compiledSource.Request.Statement;
       var queryRef = SqlDml.QueryRef(source);
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers.Sql
       var bindings = new List<QueryParameterBinding> { fromParameterBinding, toParameterBinding };
 
       var compiledSource = Compile(provider.Source);
-      var source = compiledSource.Request.SelectStatement;
+      var source = compiledSource.Request.Statement;
       var queryRef = SqlDml.QueryRef(source);
       var query = SqlDml.Select(queryRef);
       var rowNumberColumn = queryRef.Columns.Last();

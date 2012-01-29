@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-      SqlSelect sourceSelect = source.Request.SelectStatement;
+      SqlSelect sourceSelect = source.Request.Statement;
       var sqlSelect = sourceSelect.ShallowClone();
       var columns = sqlSelect.Columns.ToList();
       sqlSelect.Columns.Clear();
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Providers.Sql
 
       SqlSelect sqlSelect;
       if (provider.Source.Header.Length==0) {
-        SqlSelect sourceSelect = source.Request.SelectStatement;
+        SqlSelect sourceSelect = source.Request.Statement;
         sqlSelect = sourceSelect.ShallowClone();
         sqlSelect.Columns.Clear();
       }
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-      var sourceSelect = source.Request.SelectStatement;
+      var sourceSelect = source.Request.Statement;
       SqlSelect query;
       if (!sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference()) {
         var queryRef = SqlDml.QueryRef(sourceSelect);
@@ -147,24 +147,24 @@ namespace Xtensive.Orm.Providers.Sql
       var leftShouldUseReference = ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
         ? left.PermanentReference
-        : left.Request.SelectStatement.From;
+        : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlColumn>()
-        : left.Request.SelectStatement.Columns;
+        : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(left.Request.SelectStatement, provider.Left);
+        : ExtractColumnExpressions(left.Request.Statement, provider.Left);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
-        : right.Request.SelectStatement.From;
+        : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlColumn>()
-        : right.Request.SelectStatement.Columns;
+        : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(right.Request.SelectStatement, provider.Right);
+        : ExtractColumnExpressions(right.Request.Statement, provider.Right);
 
       var joinType = provider.JoinType==JoinType.LeftOuter
         ? SqlJoinType.LeftOuterJoin
@@ -183,9 +183,9 @@ namespace Xtensive.Orm.Providers.Sql
 
       var query = SqlDml.Select(joinedTable);
       if (!leftShouldUseReference)
-        query.Where &= left.Request.SelectStatement.Where;
+        query.Where &= left.Request.Statement.Where;
       if (!rightShouldUseReference)
-        query.Where &= right.Request.SelectStatement.Where;
+        query.Where &= right.Request.Statement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
       return CreateProvider(query, provider, left, right);
     }
@@ -199,24 +199,24 @@ namespace Xtensive.Orm.Providers.Sql
       var leftShouldUseReference = ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
         ? left.PermanentReference
-        : left.Request.SelectStatement.From;
+        : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlColumn>()
-        : left.Request.SelectStatement.Columns;
+        : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(left.Request.SelectStatement, provider.Left);
+        : ExtractColumnExpressions(left.Request.Statement, provider.Left);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
-        : right.Request.SelectStatement.From;
+        : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlColumn>()
-        : right.Request.SelectStatement.Columns;
+        : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(right.Request.SelectStatement, provider.Right);
+        : ExtractColumnExpressions(right.Request.Statement, provider.Right);
 
 
       var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
@@ -235,9 +235,9 @@ namespace Xtensive.Orm.Providers.Sql
 
       var query = SqlDml.Select(joinedTable);
       if (!leftShouldUseReference)
-        query.Where &= left.Request.SelectStatement.Where;
+        query.Where &= left.Request.Statement.Where;
       if (!rightShouldUseReference)
-        query.Where &= right.Request.SelectStatement.Where;
+        query.Where &= right.Request.Statement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
       return CreateProvider(query, bindings, provider, left, right);
     }
@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var compiledSource = Compile(provider.Source);
 
-      SqlSelect source = compiledSource.Request.SelectStatement;
+      SqlSelect source = compiledSource.Request.Statement;
       var query = source.ShallowClone();
       var parameterBindings = new List<QueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
@@ -337,7 +337,7 @@ namespace Xtensive.Orm.Providers.Sql
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(provider.Name, provider.Header.TupleDescriptor, columnNames);
-      var request = new QueryRequest(descriptor.QueryStatement, descriptor.TupleDescriptor, RequestOptions.Empty);
+      var request = new QueryRequest(descriptor.QueryStatement, descriptor.TupleDescriptor, QueryRequestOptions.Empty, null);
       return new SqlStoreProvider(Handlers, request, descriptor, provider, source);
     }
     
@@ -346,7 +346,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-      var query = source.Request.SelectStatement.ShallowClone();
+      var query = source.Request.Statement.ShallowClone();
       query.Columns.Clear();
       query.Columns.Add(query.Asterisk);
       query.OrderBy.Clear();
@@ -365,8 +365,8 @@ namespace Xtensive.Orm.Providers.Sql
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
 
-      var leftSelect = left.Request.SelectStatement;
-      var rightSelect = right.Request.SelectStatement;
+      var leftSelect = left.Request.Statement;
+      var rightSelect = right.Request.Statement;
       leftSelect.OrderBy.Clear();
       rightSelect.OrderBy.Clear();
       var result = SqlDml.Intersect(leftSelect, rightSelect);
@@ -384,8 +384,8 @@ namespace Xtensive.Orm.Providers.Sql
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
 
-      var leftSelect = left.Request.SelectStatement;
-      var rightSelect = right.Request.SelectStatement;
+      var leftSelect = left.Request.Statement;
+      var rightSelect = right.Request.Statement;
       leftSelect.OrderBy.Clear();
       rightSelect.OrderBy.Clear();
       var result = SqlDml.Except(leftSelect, rightSelect);
@@ -402,8 +402,8 @@ namespace Xtensive.Orm.Providers.Sql
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
 
-      var leftSelect = left.Request.SelectStatement;
-      var rightSelect = right.Request.SelectStatement;
+      var leftSelect = left.Request.Statement;
+      var rightSelect = right.Request.Statement;
       leftSelect.OrderBy.Clear();
       rightSelect.OrderBy.Clear();
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
@@ -420,8 +420,8 @@ namespace Xtensive.Orm.Providers.Sql
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
 
-      var leftSelect = left.Request.SelectStatement;
-      var rightSelect = right.Request.SelectStatement;
+      var leftSelect = left.Request.Statement;
+      var rightSelect = right.Request.Statement;
       leftSelect.OrderBy.Clear();
       rightSelect.OrderBy.Clear();
       var result = SqlDml.Union(leftSelect, rightSelect);
@@ -453,7 +453,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-      var query = source.Request.SelectStatement.ShallowClone();
+      var query = source.Request.Statement.ShallowClone();
       switch (provider.LockMode.Invoke()) {
       case LockMode.Shared:
         query.Lock = SqlLockType.Shared;

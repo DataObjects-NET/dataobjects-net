@@ -9,10 +9,10 @@ using System;
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
-  /// Options for <see cref="Request"/>.
+  /// Options for <see cref="QueryRequest"/>.
   /// </summary>
   [Flags]
-  public enum RequestOptions
+  public enum QueryRequestOptions
   {
     /// <summary>
     /// Empty option set.

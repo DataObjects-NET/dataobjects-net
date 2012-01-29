@@ -9,20 +9,59 @@ using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
-  /// Modification (Insert, Update, Delete) request.
+  /// Modification (INSERT, UPDATE, DELETE) request.
   /// </summary>
-  public class PersistRequest : Request
+  public class PersistRequest
   {
+    private ISqlCompileUnit compileUnit;
+    private SqlCompilationResult compiledStatement;
+
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
     public IEnumerable<PersistParameterBinding> ParameterBindings { get; private set; }
-    
+
+    /// <summary>
+    /// Gets statement.
+    /// </summary>
+    public SqlStatement Statement { get; private set; }
+
+    /// <summary>
+    /// Gets compiled statement.
+    /// </summary>
+    public SqlCompilationResult GetCompiledStatement()
+    {
+      if (compiledStatement==null)
+        throw new InvalidOperationException(Strings.ExRequestIsNotPrepared);
+      return compiledStatement;
+    }
+
+    /// <inheritdoc/>
+    public void Prepare(DomainHandler domainHandler)
+    {
+      if (compiledStatement!=null)
+        return;
+      compiledStatement = domainHandler.Driver.Compile(compileUnit);
+      compileUnit = null;
+      Statement = null;
+    }
+
+    private void Initialize(SqlStatement statement, ISqlCompileUnit unit, IEnumerable<PersistParameterBinding> parameterBindings)
+    {
+      Statement = statement;
+      compileUnit = unit;
+      ParameterBindings = parameterBindings!=null
+        ? parameterBindings.ToHashSet()
+        : new HashSet<PersistParameterBinding>();
+    }
 
     // Constructors
 
@@ -30,9 +69,10 @@ namespace Xtensive.Orm.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    public PersistRequest(ISqlCompileUnit statement)
-      : this(statement, EnumerableUtils<PersistParameterBinding>.Empty)
+    /// <param name="parameterBindings">The parameter bindings.</param>
+    public PersistRequest(SqlInsert statement, IEnumerable<PersistParameterBinding> parameterBindings)
     {
+      Initialize(statement, statement, parameterBindings);
     }
 
     /// <summary>
@@ -40,10 +80,30 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public PersistRequest(ISqlCompileUnit statement, IEnumerable<PersistParameterBinding> parameterBindings)
-      : base(statement)
+    public PersistRequest(SqlUpdate statement, IEnumerable<PersistParameterBinding> parameterBindings)
     {
-      ParameterBindings = parameterBindings.ToHashSet();
+      Initialize(statement, statement, parameterBindings);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    /// <param name="parameterBindings">The parameter bindings.</param>
+    public PersistRequest(SqlDelete statement, IEnumerable<PersistParameterBinding> parameterBindings)
+    {
+      Initialize(statement, statement, parameterBindings);
+    }
+
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    /// <param name="parameterBindings">The parameter bindings.</param>
+    public PersistRequest(SqlBatch statement, IEnumerable<PersistParameterBinding> parameterBindings)
+    {
+      Initialize(statement, statement, parameterBindings);
     }
   }
 }

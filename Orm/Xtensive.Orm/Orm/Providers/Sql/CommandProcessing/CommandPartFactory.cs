@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Providers.Sql
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
         var tuple = task.Tuple;
-        var compilationResult = request.GetCompiledStatement(domainHandler);
+        var compilationResult = request.GetCompiledStatement();
         var configuration = new SqlPostCompilerConfiguration();
         var part = new CommandPart();
         
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var request = task.Request;
       int parameterIndex = 0;
-      var compilationResult = request.GetCompiledStatement(domainHandler);
+      var compilationResult = request.GetCompiledStatement();
       var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
 
