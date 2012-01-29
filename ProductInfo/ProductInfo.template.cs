@@ -25,9 +25,9 @@ internal static class ThisAssembly
   public const string ProductName = "${ProductName}";
   public const string ProductCompany = "${ProductCompany}";
   public const string ProductCopyright = "© ${ProductCopyright}";
-  public const string ProductVersion = "${VersionFull} " + Configuration + " ${BuildStamp}";
-  public const string Version = "${Version}.0";
-  public const string FileVersion = "${VersionNum}";
+  public const string ProductVersion = "${VersionName} " + Configuration + " ${BuildStamp}";
+  public const string Version = "${Version2}.0.0";
+  public const string FileVersion = "${Version4}";
 
   #if NET40
     #if DEBUG
