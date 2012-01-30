@@ -41,8 +41,16 @@ namespace Xtensive.Orm.Internals.Prefetch
       parser.Visit(expression.Body);
       if (parser.extractorExpression==null && parser.nodes.Count==0)
         return null;
+      var extractor = parser.extractorExpression ?? parameter;
+      var path = GetMemberPath(extractor);
+      var keyExtractor = BuildKeyExtractor<T>(extractor, parameter);
+      return new KeyExtractorNode<T>(path, keyExtractor, new ReadOnlyCollection<FieldNode>(parser.nodes));
+    }
+
+    private static string GetMemberPath(Expression extractor)
+    {
       var pathStack = new Stack<string>();
-      var memberSequence = parser.extractorExpression ?? parameter;
+      var memberSequence = extractor;
       while (memberSequence.NodeType==ExpressionType.MemberAccess) {
         var memberExpression = (MemberExpression) memberSequence;
         pathStack.Push(memberExpression.Member.Name);
@@ -51,8 +59,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var path = pathStack.ToDelimitedString(".");
       if (path.IsNullOrEmpty())
         path = "*";
-      var keyExtractor = BuildKeyExtractor<T>(parser.extractorExpression, parameter);
-      return new KeyExtractorNode<T>(path, keyExtractor, new ReadOnlyCollection<FieldNode>(parser.nodes));
+      return path;
     }
 
     private static Expression<Func<T, IEnumerable<Key>>> BuildKeyExtractor<T>(
