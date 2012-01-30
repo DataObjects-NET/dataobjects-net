@@ -32,21 +32,21 @@ namespace Xtensive.Orm.Internals.Prefetch
     private int? top;
     private readonly List<FieldNode> nodes;
 
-    public static KeyExtractorNode<T> Parse<T,TValue>(DomainModel model, Expression<Func<T, TValue>> expression)
+    public static KeyExtractorNode<T> Parse<T, TValue>(DomainModel model, Expression<Func<T, TValue>> expression)
     {
       var parameter = expression.Parameters.Single();
-      if (expression.Body == parameter)
+      if (expression.Body==parameter)
         return null;
       var parser = new NodeParser(model, parameter);
       parser.Visit(expression.Body);
-      if (parser.extractorExpression == null)
+      if (parser.extractorExpression==null && parser.nodes.Count==0)
         return null;
       var pathStack = new Stack<string>();
-      var e = parser.extractorExpression;
-      while(e.NodeType == ExpressionType.MemberAccess) {
-        var memberExpression = (MemberExpression) e;
+      var memberSequence = parser.extractorExpression ?? parameter;
+      while (memberSequence.NodeType==ExpressionType.MemberAccess) {
+        var memberExpression = (MemberExpression) memberSequence;
         pathStack.Push(memberExpression.Member.Name);
-        e = memberExpression.Expression;
+        memberSequence = memberExpression.Expression;
       }
       var path = pathStack.ToDelimitedString(".");
       if (path.IsNullOrEmpty())
@@ -55,15 +55,17 @@ namespace Xtensive.Orm.Internals.Prefetch
       return new KeyExtractorNode<T>(path, keyExtractor, new ReadOnlyCollection<FieldNode>(parser.nodes));
     }
 
-    private static Expression<Func<T, IEnumerable<Key>>> BuildKeyExtractor<T>(Expression keyExtractorExpression, ParameterExpression parameter)
+    private static Expression<Func<T, IEnumerable<Key>>> BuildKeyExtractor<T>(
+      Expression keyExtractorExpression, ParameterExpression parameter)
     {
-      if (typeof(IEntity).IsAssignableFrom(keyExtractorExpression.Type)) {
+      if (typeof (IEntity).IsAssignableFrom(keyExtractorExpression.Type)) {
         Expression<Func<IEntity, IEnumerable<Key>>> extractor = e => Enumerable.Repeat(e.Key, 1);
         var body = extractor.BindParameters(keyExtractorExpression);
         return Expression.Lambda<Func<T, IEnumerable<Key>>>(body, parameter);
       }
-      if (typeof(IEnumerable).IsAssignableFrom(keyExtractorExpression.Type)) {
-        Expression<Func<IEnumerable, IEnumerable<Key>>> extractor = enumerable => enumerable.OfType<IEntity>().Select(e => e.Key);
+      if (typeof (IEnumerable).IsAssignableFrom(keyExtractorExpression.Type)) {
+        Expression<Func<IEnumerable, IEnumerable<Key>>> extractor
+          = enumerable => enumerable.OfType<IEntity>().Select(e => e.Key);
         var body = extractor.BindParameters(keyExtractorExpression);
         return Expression.Lambda<Func<T, IEnumerable<Key>>>(body, parameter);
       }
@@ -73,7 +75,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static IList<FieldNode> Parse(DomainModel model, LambdaExpression expression)
     {
       var parameter = expression.Parameters.Single();
-      if (expression.Body == parameter)
+      if (expression.Body==parameter)
         return null;
       var parser = new NodeParser(model, parameter);
       parser.Visit(expression.Body);
@@ -83,17 +85,24 @@ namespace Xtensive.Orm.Internals.Prefetch
     protected override Expression Visit(Expression e)
     {
       e = e.StripCasts();
-      if (!e.NodeType.In(ExpressionType.MemberAccess, ExpressionType.Call, ExpressionType.New, ExpressionType.Lambda, ExpressionType.Parameter))
-        throw new NotSupportedException(string.Format(Strings.ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX, e));
+
+      var isSupported = e.NodeType.In(
+        ExpressionType.MemberAccess, ExpressionType.Call, ExpressionType.New,
+        ExpressionType.Lambda, ExpressionType.Parameter);
+
+      if (!isSupported)
+        throw new NotSupportedException(string.Format(
+          Strings.ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX, e));
+
       return base.Visit(e);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression e)
     {
-      if (e.Expression == null)
+      if (e.Expression==null)
         return e;
 
-      if (typeof(IEntity).IsAssignableFrom(e.Expression.Type)) {
+      if (typeof (IEntity).IsAssignableFrom(e.Expression.Type)) {
         var entityType = model.Types[e.Expression.Type];
         var path = e.Member.Name;
         var field = entityType.Fields[path];
@@ -105,10 +114,10 @@ namespace Xtensive.Orm.Internals.Prefetch
           nodes.Add(new SetNode(path, model.Types[field.ItemType], field, top, nestedNodes));
         else
           nodes.Add(new FieldNode(path, field));
-        var visited = (MemberExpression)base.VisitMemberAccess(e);
+        var visited = (MemberExpression) base.VisitMemberAccess(e);
         return visited;
       }
-      if (extractorExpression == null)
+      if (extractorExpression==null)
         extractorExpression = e;
       return e;
     }
@@ -125,20 +134,22 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     protected override Expression VisitParameter(ParameterExpression e)
     {
-      if (extractorExpression == null)
+      if (extractorExpression==null)
         extractorExpression = e;
       return e;
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression e)
     {
-      if (e.Method.DeclaringType != typeof (PrefetchExtensions) 
-        || e.Method.Name != "Prefetch" 
-        || e.Method.GetParameters().Length != 2)
-      {
+      var isPrefetchMethod = e.Method.DeclaringType==typeof (PrefetchExtensions)
+        && e.Method.Name=="Prefetch"
+        && e.Method.GetParameters().Length==2;
+
+      if (!isPrefetchMethod) {
         throw new NotSupportedException(
           string.Format(Strings.ExOnlyPrefetchMethodSupportedButFoundX, e.ToString(true)));
       }
+
       var source = e.Arguments[0];
       var lambda = e.Arguments[1].StripQuotes();
       var fieldNodes = Parse(model, lambda);
