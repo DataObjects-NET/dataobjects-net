@@ -12,23 +12,42 @@ using Xtensive.Orm.Tests.Issues.IssueJira0243_PrefetchSyntaxSugarModel;
 namespace Xtensive.Orm.Tests.Issues.IssueJira0243_PrefetchSyntaxSugarModel
 {
   [HierarchyRoot]
-  public class Jira0243Owner : Entity
+  public class Owner : Entity
   {
     [Field, Key]
     public int Id { get; private set; }
 
     [Field]
-    public Jira0243Target Target1 { get; set; }
+    public Target Target1 { get; set; }
 
     [Field]
-    public Jira0243Target Target2 { get; set; }
+    public Target Target2 { get; set; }
+
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear, OnOwnerRemove = OnRemoveAction.Clear)]
+    public EntitySet<Item> Items1 { get; private set; }
+
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear, OnOwnerRemove = OnRemoveAction.Clear)]
+    public EntitySet<Item> Items2 { get; private set; }
   }
 
   [HierarchyRoot]
-  public class Jira0243Target : Entity
+  public class Item : Entity
   {
     [Field, Key]
     public int Id { get; private set; }
+
+    [Field]
+    public Target RelatedTarget { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Target : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public Target RelatedTarget { get; set; }
   }
 }
 
@@ -39,47 +58,110 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Jira0243Owner).Assembly, typeof (Jira0243Target).Namespace);
+      configuration.Types.Register(typeof (Owner).Assembly, typeof (Target).Namespace);
       return configuration;
     }
 
-    private Key target1Key;
-    private Key target2Key;
-
-    protected override void PopulateData()
+    [Test]
+    public void ShortcutTest()
     {
+      Key target1Key;
+      Key target2Key;
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var owner = new Jira0243Owner {
-          Target1 = new Jira0243Target(),
-          Target2 = new Jira0243Target(),
-        };
+        Reset();
+        var owner = new Owner {Target1 = new Target(), Target2 = new Target()};
         target1Key = owner.Target1.Key;
         target2Key = owner.Target2.Key;
         tx.Complete();
       }
-    }
 
-    [Test]
-    public void MainTest()
-    {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         // The following statement should prefetch Target1 and Target2
-        var result = session.Query.All<Jira0243Owner>()
+        var result = session.Query.All<Owner>()
           .Prefetch(x => new {x.Target1, x.Target2})
           .ToList();
-
         // Check that Target1 and Target2 are loaded into session.
-        AssertEntityIsFetched(session, target1Key);
-        AssertEntityIsFetched(session, target2Key);
+        Assert.IsTrue(IsFetched(target1Key));
+        Assert.IsTrue(IsFetched(target2Key));
       }
     }
 
-    private void AssertEntityIsFetched(Session session, Key key)
+    [Test]
+    public void NestedShortcutTest()
+    {
+      Key target1Key;
+      Key target2Key;
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        Reset();
+        var target1 = new Target();
+        var target2 = new Target();
+        var owner = new Owner();
+        owner.Items1.Add(new Item {RelatedTarget = target1});
+        owner.Items1.Add(new Item {RelatedTarget = target2});
+        target1Key = target1.Key;
+        target2Key = target2.Key;
+        tx.Complete();
+      }
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        // The following statement should prefetch Target1 and Target2
+        var result = session.Query.All<Owner>()
+          .Prefetch(x => x.Items1.Prefetch(y => new {y.RelatedTarget}))
+          .ToList();
+        // Check that Target1 and Target2 are loaded into session.
+        Assert.IsTrue(IsFetched(target1Key));
+        Assert.IsTrue(IsFetched(target2Key));
+      }
+    }
+
+    [Test]
+    public void NestingInShortcutTest()
+    {
+      Key target1Key;
+      Key target2Key;
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        Reset();
+        var target1 = new Target();
+        var target2 = new Target();
+        var owner = new Owner();
+        owner.Items1.Add(new Item {RelatedTarget = target1});
+        owner.Items1.Add(new Item {RelatedTarget = target2});
+        target1Key = target1.Key;
+        target2Key = target2.Key;
+        tx.Complete();
+      }
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        // The following statement should prefetch Target1 and Target2
+        var result = session.Query.All<Owner>()
+          .Prefetch(x => new {v = x.Items1.Prefetch(y => y.RelatedTarget)})
+          .ToList();
+        // Check that Target1 and Target2 are loaded into session.
+        Assert.IsTrue(IsFetched(target1Key));
+        Assert.IsTrue(IsFetched(target2Key));
+      }
+    }
+
+    private void Reset()
+    {
+      Query.All<Item>().Remove();
+      Query.All<Owner>().Remove();
+      Query.All<Target>().Remove();
+    }
+
+    private bool IsFetched(Key key)
     {
       EntityState dummy;
-      Assert.That(session.EntityStateCache.TryGetItem(key, false, out dummy), Is.True);
+      return Session.Demand().EntityStateCache.TryGetItem(key, false, out dummy);
     }
   }
 }
