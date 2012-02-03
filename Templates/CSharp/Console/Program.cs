@@ -10,7 +10,7 @@ namespace $safeprojectname$
 	{
 		static void Main(string[] args)
 		{
-			// Loading configuration section for SQL Server database. 
+			// Loading configuration section for local SQL Server database. 
 			// See other cases in App.config file.
 			var config = DomainConfiguration.Load("Default");
 			var domain = Domain.Build(config);
