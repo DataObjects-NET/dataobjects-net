@@ -5,7 +5,7 @@ Imports Xtensive.Orm.Configuration
 Module Program
 
     Sub Main(args As String())
-      ' Loading configuration section for in-memory database. 
+      ' Loading configuration section for local SQL Server database.
       ' See other cases in App.config file.
       Dim config = DomainConfiguration.Load("Default")
       Dim myDomain = Domain.Build(config)
