@@ -16,8 +16,7 @@ namespace Xtensive.Orm.Configuration.Internals
   /// </summary>
   /// <remarks>This implementation provides topologically sorted list 
   /// of <see cref="Type"/>s.</remarks>
-  [Serializable]
-  public sealed class DomainTypeRegistrationHandler : TypeRegistrationProcessorBase
+  internal sealed class DomainTypeRegistrationHandler : TypeRegistrationProcessorBase
   {
     private readonly static Type objectType = typeof (object);
     private const string providersNamespace = "Xtensive.Orm.Providers.";
