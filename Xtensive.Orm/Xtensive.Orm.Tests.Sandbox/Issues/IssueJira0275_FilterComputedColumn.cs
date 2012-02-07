@@ -6,10 +6,10 @@
 
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.IssueJira0275_FilterComputedColumnModel;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.IssueJira0275_FilterComputedColumnModel;
 
-namespace Xtensive.Storage.Tests.Issues.IssueJira0275_FilterComputedColumnModel
+namespace Xtensive.Orm.Tests.Issues.IssueJira0275_FilterComputedColumnModel
 {
   [HierarchyRoot]
   public sealed class FilterTarget : Entity
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Issues.IssueJira0275_FilterComputedColumnModel
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0275_FilterComputedColumn : AutoBuildTest
   {
@@ -35,8 +35,8 @@ namespace Xtensive.Storage.Tests.Issues
 
     protected override void PopulateData()
     {
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         new FilterTarget {Code = "AA123"};
         new FilterTarget {Code = "BB123"};
         new FilterTarget {Code = "AA321"};
@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ContainsWithProjectionTest()
     {
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
           .Select(t => new {Target = t, Subcode = t.Code.Substring(3, 2)})
@@ -63,8 +63,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void ContainsTest()
     {
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
           .Where(t => codes.Contains(t.Code.Substring(3, 2)))
@@ -76,8 +76,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void InWithProjectionTest()
     {
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
           .Select(t => new {Target = t, Subcode = t.Code.Substring(3, 2)})
@@ -90,8 +90,8 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void InTest()
     {
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
           .Where(t => t.Code.Substring(3, 2).In(codes))
