@@ -91,6 +91,20 @@ namespace Xtensive.Orm.Tests.Configuration
       ValidateAdvancedMappingConfiguration(configuration);
       var clone = configuration.Clone();
       ValidateAdvancedMappingConfiguration(clone);
+
+      var bad1 = configuration.Clone();
+      bad1.DefaultDatabase = null;
+      AssertEx.ThrowsInvalidOperationException(bad1.Lock);
+
+      var bad2 = configuration.Clone();
+      bad2.DefaultSchema = null;
+      AssertEx.ThrowsInvalidOperationException(bad2.Lock);
+
+      var good = configuration.Clone();
+      good.DefaultDatabase = null;
+      good.MappingRules.Clear();
+      good.MappingRules.Map(GetType().Namespace).ToSchema("check");
+      good.Lock();
     }
 
     private void ValidateAdvancedMappingConfiguration(DomainConfiguration configuration)
@@ -112,6 +126,8 @@ namespace Xtensive.Orm.Tests.Configuration
       var alias2 = configuration.DatabaseAliases[1];
       Assert.That(alias2.Name, Is.EqualTo("other"));
       Assert.That(alias2.Database, Is.EqualTo("Other-DO40-Tests"));
+
+      configuration.Lock(); // ensure configuration is correct
     }
   }
 }

@@ -382,6 +382,10 @@ namespace Xtensive.Orm.Configuration
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
     public override void Lock(bool recursive)
     {
+      // This couldn't be done in Validate() method
+      // because override sequence of Lock() is so broken.
+      ValidateMappingConfiguration();
+
       types.Lock(true);
       sessions.Lock(true);
       linqExtensions.Lock(true);
@@ -394,7 +398,6 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public override void Validate()
     {
-      ValidateMappingConfiguration();
     }
 
     private void ValidateMappingConfiguration()
@@ -406,7 +409,7 @@ namespace Xtensive.Orm.Configuration
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined);
       
-      if ((hasSchemaRules || hasDatabaseRules) && string.IsNullOrEmpty(DefaultDatabase))
+      if (hasDatabaseRules && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAreDefined);
     }
