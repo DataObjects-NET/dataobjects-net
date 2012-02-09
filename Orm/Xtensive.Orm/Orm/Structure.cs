@@ -20,7 +20,7 @@ using Xtensive.Orm.Services;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Serialization;
 using Xtensive.Orm.Services;
 

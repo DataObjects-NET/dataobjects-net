@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Xtensive.Core;
-using Xtensive.Orm.Model.Resources;
+
 
 namespace Xtensive.Orm.Model
 {

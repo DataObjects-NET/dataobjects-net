@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Model.Resources;
+
 
 namespace Xtensive.Orm.Model
 {

@@ -15,7 +15,7 @@ using Xtensive.Sorting;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Building.Builders
 {

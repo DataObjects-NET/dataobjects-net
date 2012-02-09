@@ -8,7 +8,7 @@ using System;
 using System.Text;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

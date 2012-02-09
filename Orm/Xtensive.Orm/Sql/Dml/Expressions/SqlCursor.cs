@@ -4,7 +4,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Dml
 {

@@ -24,7 +24,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Services;
 using Activator = Xtensive.Orm.Internals.Activator;
 using AggregateException = Xtensive.Core.AggregateException;

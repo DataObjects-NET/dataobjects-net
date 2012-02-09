@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public static EntityExpression Create(TypeInfo typeInfo, int offset, bool keyFieldsOnly)
     {
       if (!typeInfo.IsEntity && !typeInfo.IsInterface)
-        throw new ArgumentException(string.Format(Resources.Strings.ExPersistentTypeXIsNotEntityOrPersistentInterface, typeInfo.Name), "typeInfo");
+        throw new ArgumentException(string.Format(Strings.ExPersistentTypeXIsNotEntityOrPersistentInterface, typeInfo.Name), "typeInfo");
       var fields = new List<PersistentFieldExpression>();
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       fields.Add(keyExpression);
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
       if (nestedField.IsEntitySet)
           return EntitySetExpression.CreateEntitySet(nestedField);
-      throw new NotSupportedException(string.Format(Resources.Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
+      throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 
     public override string ToString()

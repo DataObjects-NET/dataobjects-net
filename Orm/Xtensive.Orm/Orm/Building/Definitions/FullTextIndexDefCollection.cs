@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Building.Definitions
         var result = TryGetValue(key);
         if (result != null)
           return result;
-        throw new ArgumentException(String.Format(Resources.Strings.ExItemByKeyXWasNotFound, key), "key");
+        throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
       }
     }
   }

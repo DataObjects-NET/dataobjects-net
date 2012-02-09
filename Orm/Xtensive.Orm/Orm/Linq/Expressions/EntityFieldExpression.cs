@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public static EntityFieldExpression CreateEntityField(FieldInfo entityField, int offset)
     {
       if (!entityField.IsEntity)
-        throw new ArgumentException(string.Format(Resources.Strings.ExFieldXIsNotEntity, entityField.Name), "entityField");
+        throw new ArgumentException(string.Format(Strings.ExFieldXIsNotEntity, entityField.Name), "entityField");
       var entityType = entityField.ValueType;
       var persistentType = entityField.ReflectedType.Model.Types[entityType];
       var mapping = new Segment<int>(entityField.MappingInfo.Offset + offset, entityField.MappingInfo.Length);
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return CreateField(nestedField, offset);
       if (nestedField.IsEntity)
         return CreateEntityField(nestedField, offset);
-      throw new NotSupportedException(string.Format(Resources.Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
+      throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 
 

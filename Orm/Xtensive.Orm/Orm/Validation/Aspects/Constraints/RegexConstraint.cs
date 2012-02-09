@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Validation.Resources;
 
 namespace Xtensive.Orm.Validation
 {

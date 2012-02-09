@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var offset = map.IndexOf(Mapping.Offset);
       if (offset < 0) {
         if (owner == null && !SkipOwnerCheckScope.IsActive)
-          throw new InvalidOperationException(Resources.Strings.ExUnableToRemapFieldExpression);
+          throw new InvalidOperationException(Strings.ExUnableToRemapFieldExpression);
         processedExpressions.Add(this, null);
         if (owner != null)
           Owner.Remap(map, processedExpressions);
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public static FieldExpression CreateField(FieldInfo field, int offset)
     {
       if (!field.IsPrimitive)
-        throw new ArgumentException(string.Format(Resources.Strings.ExFieldXIsNotPrimitive, field.Name), "field");
+        throw new ArgumentException(string.Format(Strings.ExFieldXIsNotPrimitive, field.Name), "field");
       var mapping = new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length);
       return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false);
     }

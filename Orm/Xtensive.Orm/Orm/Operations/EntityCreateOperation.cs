@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Operations
 {

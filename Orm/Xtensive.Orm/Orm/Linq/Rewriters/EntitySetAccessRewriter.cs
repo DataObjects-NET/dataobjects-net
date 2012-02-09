@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq.Rewriters
           .MakeGenericMethod(mc.Object.Type.GetGenericArguments()[0]);
         return Expression.Call(method, Visit(mc.Object), Visit(mc.Arguments[0]));
       }
-      throw new NotSupportedException(String.Format(Resources.Strings.ExMethodXIsntSupported, mc.Method.Name));
+      throw new NotSupportedException(String.Format(Strings.ExMethodXIsntSupported, mc.Method.Name));
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -46,8 +46,8 @@ namespace Xtensive.Orm.Linq.Rewriters
         return Expression.Call(method, Visit(m.Expression));
       }
       throw new NotSupportedException(IsEntitySet(m.Expression)
-        ? Resources.Strings.ExCantAccessMemberOfTypeEntitySet 
-        : String.Format(Resources.Strings.CantAccessMemberX, m.Member.Name));
+        ? Strings.ExCantAccessMemberOfTypeEntitySet 
+        : String.Format(Strings.CantAccessMemberX, m.Member.Name));
     }
 
     private static bool IsEntitySet(Expression expression)

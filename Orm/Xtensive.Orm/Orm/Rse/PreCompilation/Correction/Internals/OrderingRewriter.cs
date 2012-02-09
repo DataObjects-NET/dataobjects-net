@@ -12,7 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Resources;
+
 using System.Linq;
 
 namespace Xtensive.Orm.Rse.PreCompilation.Correction

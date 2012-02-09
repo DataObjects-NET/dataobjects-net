@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
-      throw new NotSupportedException(String.Format(Resources.Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.SourceExpression));
+      throw new NotSupportedException(String.Format(Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.SourceExpression));
     }
 
     protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Linq.Materialization
       }
 
       if (itemMaterializationContextParameter==null)
-        throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX, context.Translator.state.CurrentLambda, expression.PersistentType.UnderlyingType.FullName));
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX, context.Translator.state.CurrentLambda, expression.PersistentType.UnderlyingType.FullName));
 
       var typeIdField = expression.Fields.SingleOrDefault(f => f.Name==WellKnown.TypeIdFieldName);
       int typeIdIndex = typeIdField==null ? -1 : typeIdField.Mapping.Offset;

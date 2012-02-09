@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Model.Resources;
+
 
 namespace Xtensive.Orm.Model
 {

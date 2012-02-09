@@ -12,7 +12,7 @@ using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Reflection;
 using Xtensive.Orm.Linq.Expressions;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Linq
 {

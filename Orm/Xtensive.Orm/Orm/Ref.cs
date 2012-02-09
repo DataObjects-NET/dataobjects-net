@@ -11,7 +11,7 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

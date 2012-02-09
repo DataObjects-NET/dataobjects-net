@@ -12,7 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

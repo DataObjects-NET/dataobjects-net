@@ -12,7 +12,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 

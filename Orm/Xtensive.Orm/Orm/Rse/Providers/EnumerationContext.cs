@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
-using Xtensive.Orm.Rse.Resources;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers

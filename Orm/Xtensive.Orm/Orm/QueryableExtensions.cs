@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm
@@ -93,7 +93,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
-      var errorMessage = Resources.Strings.ExElementAtDoesNotSupportQueryProviderOfTypeX;
+      var errorMessage = Strings.ExElementAtDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
@@ -116,7 +116,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
-      var errorMessage = Resources.Strings.ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX;
+      var errorMessage = Strings.ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));

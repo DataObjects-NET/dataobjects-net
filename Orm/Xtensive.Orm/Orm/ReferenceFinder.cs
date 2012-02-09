@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

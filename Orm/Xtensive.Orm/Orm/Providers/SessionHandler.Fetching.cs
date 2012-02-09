@@ -11,7 +11,7 @@ using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers

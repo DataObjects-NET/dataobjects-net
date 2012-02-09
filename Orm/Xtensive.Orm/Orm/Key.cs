@@ -13,7 +13,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Reflection;
 using Xtensive.Helpers;
 using System.Linq;

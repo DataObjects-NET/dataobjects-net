@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Rse.Resources;
+
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {

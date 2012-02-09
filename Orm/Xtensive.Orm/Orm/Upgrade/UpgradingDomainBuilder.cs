@@ -14,7 +14,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Orm.Resources;
+
 using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Upgrade

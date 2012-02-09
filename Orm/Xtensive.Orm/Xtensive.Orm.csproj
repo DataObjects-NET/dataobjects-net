@@ -285,11 +285,6 @@
     <Compile Include="Orm\Model\NodeCollection.cs" />
     <Compile Include="Orm\Model\OnRemoveAction.cs" />
     <Compile Include="Orm\Model\PartialIndexFilterInfo.cs" />
-    <Compile Include="Orm\Model\Resources\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="Orm\Model\SequenceInfo.cs" />
     <Compile Include="Orm\Model\Stored\Internals\ConverterToStoredModel.cs" />
     <Compile Include="Orm\Model\Stored\Internals\ReferenceUpdater.cs" />
@@ -329,11 +324,6 @@
     <Compile Include="Orm\Validation\Aspects\PropertyConstraintAspect.cs" />
     <Compile Include="Orm\Validation\Exceptions\ConstraintViolationException.cs" />
     <Compile Include="Orm\Validation\Log.cs" />
-    <Compile Include="Orm\Validation\Resources\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="Orm\Validation\Interfaces\IValidationAware.cs" />
     <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
     <Compile Include="Orm\Validation\ValidationContext.cs" />
@@ -514,11 +504,6 @@
     <Compile Include="Orm\Services\DirectSessionAccessor.cs" />
     <Compile Include="Orm\PrefetchExtensions.cs" />
     <Compile Include="Orm\ReferenceInfo.cs" />
-    <Compile Include="Orm\Resources\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
     <Compile Include="Orm\Session.Transactions.cs" />
     <Compile Include="Orm\DomainBound.cs" />
     <Compile Include="Orm\EntityState.cs" />
@@ -1068,16 +1053,6 @@
     <Compile Include="Sql\ValueTypeMapping\TypeMapping.cs" />
     <Compile Include="Sql\ValueTypeMapping\TypeMappingCollection.cs" />
     <Compile Include="Sql\ValueTypeMapping\ValueRangeValidator.cs" />
-    <Compile Include="Sql\Resources\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Sql\Drivers\SqlServer\Resources\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
     <Compile Include="Orm\Upgrade\Model\StorageColumnInfo.cs" />
     <Compile Include="Orm\Upgrade\Model\ColumnInfoCollection.cs" />
     <Compile Include="Orm\Upgrade\Model\ColumnInfoRef.cs" />
@@ -1106,11 +1081,6 @@
     <Compile Include="Orm\Upgrade\Model\PrimaryKeyColumnRefCollection.cs" />
     <Compile Include="Orm\Upgrade\Model\Ref.cs" />
     <Compile Include="Orm\Upgrade\Model\ReferentialAction.cs" />
-    <Compile Include="Orm\Upgrade\Model\Resources\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
     <Compile Include="Orm\Upgrade\Model\SecondaryIndexInfo.cs" />
     <Compile Include="Orm\Upgrade\Model\SecondaryIndexInfoCollection.cs" />
     <Compile Include="Orm\Upgrade\Model\StorageSequenceInfo.cs" />
@@ -1216,15 +1186,19 @@
     <Compile Include="Orm\Rse\RecordSet.cs" />
     <Compile Include="Orm\Rse\RecordSetHeader.cs" />
     <Compile Include="Orm\Rse\RecordSetHeaderExtensions.cs" />
-    <Compile Include="Orm\Rse\Resources\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
     <Compile Include="Orm\Rse\SystemColumn.cs" />
     <Compile Include="Orm\Rse\TemporaryDataScope.cs" />
     <Compile Include="Orm\Rse\Providers\TransactionTemporaryData.cs" />
     <Compile Include="Orm\Session.SystemLogic.cs" />
+    <Compile Include="Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
     <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />
     <None Include="Orm\_Diagrams\Storage-Class-Attributes.cd" />
@@ -1252,37 +1226,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Orm\Providers\Sql\Resources\Strings.resx">
       <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Orm\Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Orm\Model\Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Orm\Validation\Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Orm\Rse\Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Orm\Upgrade\Model\Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sql\Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sql\Drivers\SqlServer\Resources\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>

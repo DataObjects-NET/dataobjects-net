@@ -10,7 +10,7 @@ using System.IO;
 using System.Transactions;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Configuration.Elements
 {

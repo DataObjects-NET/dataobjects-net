@@ -15,7 +15,7 @@ using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Sorting;
 using Xtensive.Orm.Rse.Compilation;
 

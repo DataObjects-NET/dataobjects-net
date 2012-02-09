@@ -5,7 +5,7 @@
 // Created:    2009.04.02
 
 using System;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Model
       if (fullTextIndex != null)
         return VisitFullTextIndexInfo(fullTextIndex);
 
-      throw new ArgumentException(Model.Resources.Strings.ExNodeTypeIsUnknown, "node");
+      throw new ArgumentException(Strings.ExNodeTypeIsUnknown, "node");
     }
 
     /// <summary>

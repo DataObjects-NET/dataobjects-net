@@ -15,7 +15,7 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Metadata;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
-using Xtensive.Orm.Resources;
+
 using M = Xtensive.Orm.Metadata;
 using Type = Xtensive.Orm.Metadata.Type;
 

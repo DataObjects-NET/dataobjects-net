@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Orm;
 using Xtensive.Reflection;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Providers
 {

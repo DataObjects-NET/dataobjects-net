@@ -11,7 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -315,7 +315,7 @@ namespace Xtensive.Orm.Building.Builders
 
         if (columns.Count==0)
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.ExColumnXIsNotFound, pair.Key));
+            string.Format(Strings.ExColumnXIsNotFound, pair.Key));
 
         foreach (var column in columns)
           result.KeyColumns.Add(column, pair.Value);
@@ -328,7 +328,7 @@ namespace Xtensive.Orm.Building.Builders
 
         if (columns.Count==0)
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.ExColumnXIsNotFound, fieldName));
+            string.Format(Strings.ExColumnXIsNotFound, fieldName));
 
         foreach (var column in columns)
           result.IncludedColumns.Add(column);

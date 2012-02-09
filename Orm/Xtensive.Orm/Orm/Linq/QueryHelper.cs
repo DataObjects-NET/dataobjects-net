@@ -17,7 +17,7 @@ using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Linq

@@ -16,7 +16,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm

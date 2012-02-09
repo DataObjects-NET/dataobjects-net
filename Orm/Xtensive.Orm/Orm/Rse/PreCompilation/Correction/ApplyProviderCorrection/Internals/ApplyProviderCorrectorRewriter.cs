@@ -14,7 +14,7 @@ using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Resources;
+
 
 namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {

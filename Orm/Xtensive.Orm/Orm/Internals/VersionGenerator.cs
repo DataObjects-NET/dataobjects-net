@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Internals
 {

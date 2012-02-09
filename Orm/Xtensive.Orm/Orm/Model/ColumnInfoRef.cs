@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Model.Resources;
+
 
 namespace Xtensive.Orm.Model
 {

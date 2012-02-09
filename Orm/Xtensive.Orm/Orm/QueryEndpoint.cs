@@ -9,7 +9,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Activator = System.Activator;

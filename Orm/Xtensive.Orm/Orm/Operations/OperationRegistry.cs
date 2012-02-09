@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Disposing;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Operations
 {

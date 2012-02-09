@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Notifications;
 using Xtensive.Reflection;
-using Xtensive.Orm.Model.Resources;
+
 
 namespace Xtensive.Orm.Model
 {

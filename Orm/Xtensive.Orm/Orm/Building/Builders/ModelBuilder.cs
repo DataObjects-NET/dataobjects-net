@@ -16,7 +16,7 @@ using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using TypeHelper=Xtensive.Reflection.TypeHelper;
 
 namespace Xtensive.Orm.Building.Builders

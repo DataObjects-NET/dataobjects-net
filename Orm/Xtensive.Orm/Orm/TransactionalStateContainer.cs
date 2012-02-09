@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Aspects;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

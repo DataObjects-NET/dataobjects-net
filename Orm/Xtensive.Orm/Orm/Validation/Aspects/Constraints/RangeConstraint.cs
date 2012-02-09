@@ -13,7 +13,6 @@ using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Threading;
-using Xtensive.Orm.Validation.Resources;
 
 namespace Xtensive.Orm.Validation
 {

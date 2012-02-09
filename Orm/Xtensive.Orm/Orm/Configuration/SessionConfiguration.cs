@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Configuration
     {
       // Currently disabled
       // if (Type != SessionType.User)
-      //   throw new InvalidOperationException(Resources.Strings.ExUnableToCloneNonUserSessionConfiguration);
+      //   throw new InvalidOperationException(Strings.ExUnableToCloneNonUserSessionConfiguration);
       return new SessionConfiguration(Name, Options);
     }
 

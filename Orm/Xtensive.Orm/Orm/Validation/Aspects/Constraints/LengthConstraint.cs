@@ -11,7 +11,6 @@ using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Validation.Resources;
 
 namespace Xtensive.Orm.Validation
 {

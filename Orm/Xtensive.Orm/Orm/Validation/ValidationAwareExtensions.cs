@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
-using Xtensive.Orm.Validation.Resources;
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Validation

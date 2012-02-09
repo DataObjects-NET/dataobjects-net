@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Services
 {

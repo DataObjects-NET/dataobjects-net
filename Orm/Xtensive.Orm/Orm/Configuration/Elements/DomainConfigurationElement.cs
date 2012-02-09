@@ -9,7 +9,7 @@ using System.Configuration;
 using Xtensive.Collections.Configuration;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Configuration.Elements
 {

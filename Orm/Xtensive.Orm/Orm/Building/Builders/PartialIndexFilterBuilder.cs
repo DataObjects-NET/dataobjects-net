@@ -14,7 +14,7 @@ using Xtensive.Orm;
 using Xtensive.Reflection;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 

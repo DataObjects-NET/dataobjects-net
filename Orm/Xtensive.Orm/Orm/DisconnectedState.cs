@@ -20,7 +20,7 @@ using Xtensive.Orm.Disconnected;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Services;
 
 namespace Xtensive.Orm

@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Orm.Resources;
 using Xtensive.Orm.Tests.Storage.GeneralBehaviorTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.GeneralBehaviorTestModel

@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Building.Definitions
 
       if (property.ReflectedType != UnderlyingType)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.GetFullName()));
+          string.Format(Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.GetFullName()));
             
       FieldDef fieldDef = ModelDefBuilder.DefineField(property);
       fields.Add(fieldDef);

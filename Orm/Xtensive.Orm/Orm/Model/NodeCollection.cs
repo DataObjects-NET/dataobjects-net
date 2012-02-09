@@ -11,7 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Notifications;
-using Xtensive.Orm.Model.Resources;
+
 
 namespace Xtensive.Orm.Model
 {

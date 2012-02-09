@@ -20,7 +20,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 

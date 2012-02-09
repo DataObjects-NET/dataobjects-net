@@ -13,7 +13,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
 {

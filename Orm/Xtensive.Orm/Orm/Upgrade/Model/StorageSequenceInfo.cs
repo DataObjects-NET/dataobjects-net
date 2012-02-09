@@ -10,7 +10,6 @@ using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Orm.Upgrade.Model.Resources;
 
 namespace Xtensive.Orm.Upgrade.Model
 {

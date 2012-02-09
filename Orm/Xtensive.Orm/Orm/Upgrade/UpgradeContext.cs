@@ -19,7 +19,7 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model.Stored;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade

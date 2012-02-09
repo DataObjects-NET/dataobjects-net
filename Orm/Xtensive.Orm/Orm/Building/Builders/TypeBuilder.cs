@@ -17,7 +17,7 @@ using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 

@@ -19,7 +19,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Resources;
+
 using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
 
 namespace Xtensive.Orm.Upgrade

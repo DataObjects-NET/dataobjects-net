@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Definitions;
-using Xtensive.Orm.Resources;
+
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 
 namespace Xtensive.Orm.Building

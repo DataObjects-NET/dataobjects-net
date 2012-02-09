@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Orm.Rse.Resources;
+
 using Xtensive.Orm;
 
 namespace Xtensive.Orm.Rse.PreCompilation.Correction

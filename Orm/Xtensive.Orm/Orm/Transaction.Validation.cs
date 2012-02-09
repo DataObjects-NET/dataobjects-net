@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Orm.Resources;
+
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm
