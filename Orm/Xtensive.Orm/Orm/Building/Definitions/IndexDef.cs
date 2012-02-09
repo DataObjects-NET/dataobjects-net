@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Building.Definitions
 {

@@ -12,7 +12,6 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.Resources;
 
 namespace Xtensive.Orm.Rse.Compilation
 {

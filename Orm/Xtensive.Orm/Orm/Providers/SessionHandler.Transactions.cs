@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Orm;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Providers
 {

@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Building.Definitions
       {
         TypeDef result = TryGetValue(key);
         if (result == null)
-          throw new ArgumentException(String.Format(Resources.Strings.ExItemByKeyXWasNotFound, key), "key");
+          throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
         return result;
 
       }

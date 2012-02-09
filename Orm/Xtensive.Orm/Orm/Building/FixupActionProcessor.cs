@@ -13,7 +13,7 @@ using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Building
 {

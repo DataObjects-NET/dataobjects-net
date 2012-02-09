@@ -11,7 +11,7 @@ using Xtensive.Notifications;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using System.Linq;
 
 namespace Xtensive.Orm.Building.Definitions

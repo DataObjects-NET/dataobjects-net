@@ -8,7 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Serialization
 {

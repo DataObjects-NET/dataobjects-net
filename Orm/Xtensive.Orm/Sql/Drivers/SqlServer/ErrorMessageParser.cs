@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using System.Collections.ObjectModel;
-using Xtensive.Sql.Drivers.SqlServer.Resources;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {

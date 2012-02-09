@@ -8,7 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Disconnected;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

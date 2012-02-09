@@ -9,7 +9,6 @@ using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {

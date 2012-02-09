@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 

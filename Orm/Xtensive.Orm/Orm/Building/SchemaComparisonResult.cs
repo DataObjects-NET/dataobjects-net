@@ -12,7 +12,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Resources;
+
 using System.Linq;
 
 namespace Xtensive.Orm.Building

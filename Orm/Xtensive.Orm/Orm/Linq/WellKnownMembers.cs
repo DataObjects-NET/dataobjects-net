@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Linq
         new string[numberOfGenericArgument],
         new object[numberOfArguments]);
       if (method==null)
-        throw new InvalidOperationException(String.Format(Resources.Strings.ExMethodXNotFound, name));
+        throw new InvalidOperationException(String.Format(Strings.ExMethodXNotFound, name));
       return method;
     }
 

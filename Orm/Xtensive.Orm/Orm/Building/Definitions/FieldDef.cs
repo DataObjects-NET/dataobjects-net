@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Building.Definitions
       set
       {
         if (!(IsEntity || IsEntitySet))
-          throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
+          throw new InvalidOperationException(String.Format(Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
         onTargetRemove = value;
       }
     }
@@ -248,7 +248,7 @@ namespace Xtensive.Orm.Building.Definitions
       set
       {
         if (!(IsEntity || IsEntitySet))
-          throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
+          throw new InvalidOperationException(String.Format(Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
         onOwnerRemove = value;
       }
     }
@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Building.Definitions
       set
       {
         if (!(IsEntity || IsEntitySet))
-          throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
+          throw new InvalidOperationException(String.Format(Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
         pairTo = value;
       }
     }

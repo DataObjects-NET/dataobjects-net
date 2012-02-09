@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq.Expressions
       {
         var value = base.Owner;
         if (value==null)
-          throw Exceptions.InternalError(Resources.Strings.ExUnableToHandleEntitySetExpressionWithoutSpecifiedOwner, Log.Instance);
+          throw Exceptions.InternalError(Strings.ExUnableToHandleEntitySetExpressionWithoutSpecifiedOwner, Log.Instance);
         return value;
       }
       internal set { base.Owner = value; }
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override FieldExpression RemoveOwner()
     {
-      throw Exceptions.InternalError(Resources.Strings.ExUnableToRemoveOwnerFromEntitySetExpression, Log.Instance);
+      throw Exceptions.InternalError(Strings.ExUnableToRemoveOwnerFromEntitySetExpression, Log.Instance);
     }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)

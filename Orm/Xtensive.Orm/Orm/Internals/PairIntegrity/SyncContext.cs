@@ -10,7 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Orm.ReferentialIntegrity;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.PairIntegrity
 {

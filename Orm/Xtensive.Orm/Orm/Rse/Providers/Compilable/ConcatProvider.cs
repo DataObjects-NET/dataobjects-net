@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Rse.Resources;
+
 using System.Linq;
 
 namespace Xtensive.Orm.Rse.Providers.Compilable

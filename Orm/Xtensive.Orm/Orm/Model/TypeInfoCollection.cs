@@ -11,7 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Reflection;
-using Xtensive.Orm.Model.Resources;
+
 
 namespace Xtensive.Orm.Model
 {

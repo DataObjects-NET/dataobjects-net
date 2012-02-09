@@ -11,7 +11,7 @@ using Xtensive.Configuration;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Configuration.Elements;
-using Xtensive.Orm.Resources;
+
 using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration

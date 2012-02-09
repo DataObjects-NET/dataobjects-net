@@ -7,7 +7,6 @@
 using System;
 using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
-using Xtensive.Orm.Validation.Resources;
 
 namespace Xtensive.Orm.Validation
 {

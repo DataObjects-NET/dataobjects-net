@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         structure = structure.Owner as StructureFieldExpression;
       }
       if (entity == null)
-        throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToResolveOwnerOfStructureExpressionX, expression));
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToResolveOwnerOfStructureExpressionX, expression));
 
       EntityInfo entityInfo;
       if (entities.TryGetValue(entity.PersistentType, out entityInfo))

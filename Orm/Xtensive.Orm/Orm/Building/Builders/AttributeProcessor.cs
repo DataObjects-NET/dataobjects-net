@@ -12,7 +12,7 @@ using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;

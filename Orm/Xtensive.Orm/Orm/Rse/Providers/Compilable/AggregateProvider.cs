@@ -14,8 +14,6 @@ using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using Xtensive.Orm.Rse.Resources;
-
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {

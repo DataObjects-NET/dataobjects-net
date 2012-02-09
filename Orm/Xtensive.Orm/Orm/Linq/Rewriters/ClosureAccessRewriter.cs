@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         var fieldInfo = (FieldInfo) memberExpression.Member;
         if (!fieldInfo.FieldType.IsOfGenericType(typeof (EntitySet<>))) {
           if (QueryCachingScope.Current!=null ) 
-            throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
+            throw new InvalidOperationException(String.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
           var queryable = (IQueryable) fieldInfo.GetValue(constantValue);
           return queryable.Expression;

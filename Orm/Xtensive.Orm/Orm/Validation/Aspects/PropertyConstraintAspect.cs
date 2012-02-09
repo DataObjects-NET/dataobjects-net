@@ -18,7 +18,6 @@ using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Orm.Validation;
-using Xtensive.Orm.Validation.Resources;
 using Xtensive.Threading;
 
 namespace Xtensive.Orm.Validation

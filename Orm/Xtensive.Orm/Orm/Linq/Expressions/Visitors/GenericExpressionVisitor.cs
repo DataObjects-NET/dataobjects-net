@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     {
       if (genericProcessor!=null)
         return genericProcessor.Invoke(generic);
-      throw new NotSupportedException(Resources.Strings.ExUnableToUseBaseImplementationOfVisitGenericExpressionWithoutSpecifyingGenericProcessorDelegate);
+      throw new NotSupportedException(Strings.ExUnableToUseBaseImplementationOfVisitGenericExpressionWithoutSpecifyingGenericProcessorDelegate);
     }
 
 

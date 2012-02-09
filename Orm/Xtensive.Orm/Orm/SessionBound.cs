@@ -12,7 +12,7 @@ using Xtensive.Aspects;
 using Xtensive.IoC;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

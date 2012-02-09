@@ -20,7 +20,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

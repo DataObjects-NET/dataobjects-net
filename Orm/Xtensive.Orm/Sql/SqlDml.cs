@@ -10,7 +10,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.Resources;
 using System.Linq;
 
 namespace Xtensive.Sql

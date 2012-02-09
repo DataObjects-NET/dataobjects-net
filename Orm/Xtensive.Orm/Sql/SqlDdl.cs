@@ -9,7 +9,6 @@ using Xtensive.Core;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
 {

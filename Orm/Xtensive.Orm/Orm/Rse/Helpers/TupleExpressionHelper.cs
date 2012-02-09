@@ -11,7 +11,6 @@ using System.Linq.Expressions;
 using Xtensive.Reflection;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Resources;
 
 namespace Xtensive.Orm.Rse.Helpers
 {

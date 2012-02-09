@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         structure = structure.Owner as StructureFieldExpression;
       }
       if (entity==null)
-        throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToResolveOwnerOfFieldExpressionX, fieldExpression));
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToResolveOwnerOfFieldExpressionX, fieldExpression));
 
       AddColumns(fieldExpression,
         entity

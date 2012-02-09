@@ -14,7 +14,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

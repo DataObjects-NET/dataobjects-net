@@ -5,7 +5,6 @@
 // Created:    2009.07.15
 
 using System;
-using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Info
 {

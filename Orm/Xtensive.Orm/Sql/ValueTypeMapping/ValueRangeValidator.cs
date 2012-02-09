@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Reflection;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
 {

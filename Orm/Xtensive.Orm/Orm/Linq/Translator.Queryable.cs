@@ -25,7 +25,7 @@ using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Orm.Linq.Rewriters;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq
@@ -939,7 +939,7 @@ namespace Xtensive.Orm.Linq
     private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer, Expression expressionPart)
     {
       if (keyComparer!=null)
-        throw new InvalidOperationException(String.Format(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin, expressionPart));
+        throw new InvalidOperationException(String.Format(Strings.ExKeyComparerNotSupportedInGroupJoin, expressionPart));
       var visitedInnerSource = Visit(innerSource);
       var visitedOuterSource = Visit(outerSource);
       var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, visitedInnerSource.Type.GetGenericArguments()[0]);

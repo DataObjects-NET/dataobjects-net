@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Internals.FieldAccessors

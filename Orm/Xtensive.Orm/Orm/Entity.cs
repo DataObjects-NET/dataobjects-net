@@ -30,7 +30,7 @@ using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Orm.Serialization;

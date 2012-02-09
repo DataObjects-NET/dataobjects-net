@@ -12,7 +12,7 @@ using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 

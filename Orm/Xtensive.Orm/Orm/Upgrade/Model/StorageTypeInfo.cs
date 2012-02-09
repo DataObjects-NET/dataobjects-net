@@ -11,7 +11,6 @@ using Xtensive.Internals.DocTemplates;
 using System.Text;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Validation;
-using Xtensive.Orm.Upgrade.Model.Resources;
 
 namespace Xtensive.Orm.Upgrade.Model
 {

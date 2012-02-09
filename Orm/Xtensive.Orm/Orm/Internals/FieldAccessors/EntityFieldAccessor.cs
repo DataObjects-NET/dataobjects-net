@@ -5,7 +5,7 @@
 // Created:    2008.05.26
 
 using System;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Internals.FieldAccessors

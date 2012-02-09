@@ -13,7 +13,7 @@ using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Providers;

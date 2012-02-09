@@ -12,7 +12,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Resources;
+
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {

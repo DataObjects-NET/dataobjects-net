@@ -14,7 +14,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Rse;
 using Activator = Xtensive.Orm.Internals.Activator;
 

@@ -14,12 +14,12 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
   {
     protected override Expression VisitProjectionExpression(ProjectionExpression projectionExpression)
     {
-      throw Exceptions.InternalError(String.Format(Resources.Strings.ExXDoesNotSupportX, typeof (PersistentExpressionVisitor), typeof (ProjectionExpression)), Log.Instance);
+      throw Exceptions.InternalError(String.Format(Strings.ExXDoesNotSupportX, typeof (PersistentExpressionVisitor), typeof (ProjectionExpression)), Log.Instance);
     }
 
     protected override Expression VisitItemProjectorExpression(ItemProjectorExpression itemProjectorExpression)
     {
-      throw Exceptions.InternalError(String.Format(Resources.Strings.ExXDoesNotSupportX, typeof (PersistentExpressionVisitor), typeof (ItemProjectorExpression)), Log.Instance);
+      throw Exceptions.InternalError(String.Format(Strings.ExXDoesNotSupportX, typeof (PersistentExpressionVisitor), typeof (ItemProjectorExpression)), Log.Instance);
     }
   }
 }

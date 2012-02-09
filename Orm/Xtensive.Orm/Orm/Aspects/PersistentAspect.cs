@@ -14,7 +14,7 @@ using PostSharp.Extensibility;
 using Xtensive.Aspects;
 using Xtensive.Reflection;
 using Xtensive.Orm.Validation;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

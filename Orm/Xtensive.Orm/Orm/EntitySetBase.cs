@@ -26,7 +26,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Rse;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;

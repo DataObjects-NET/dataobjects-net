@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm

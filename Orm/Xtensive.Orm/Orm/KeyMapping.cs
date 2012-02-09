@@ -14,7 +14,7 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

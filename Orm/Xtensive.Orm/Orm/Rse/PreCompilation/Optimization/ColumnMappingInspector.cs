@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Optimization
       foreach (var pair in provider.Order) {
         var index = sourceMap.IndexOf(pair.Key);
         if (index < 0)
-          throw Exceptions.InternalError(Resources.Strings.ExOrderKeyNotFoundInMapping, Log.Instance);
+          throw Exceptions.InternalError(Strings.ExOrderKeyNotFoundInMapping, Log.Instance);
         order.Add(index, pair.Value);
       }
       mappings[provider] = sourceMap;

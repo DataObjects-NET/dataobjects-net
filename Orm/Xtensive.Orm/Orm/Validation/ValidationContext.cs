@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Validation.Resources;
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Validation

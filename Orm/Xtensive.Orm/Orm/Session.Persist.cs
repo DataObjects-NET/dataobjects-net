@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Services;
 using System.Linq;
 

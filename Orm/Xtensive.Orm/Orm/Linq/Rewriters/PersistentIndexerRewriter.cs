@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         if (leftExpression!=null
           && rightExpression!=null
             && rightExpression.Type!=leftExpression.Type)
-          throw new InvalidOperationException(String.Format(Resources.Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
+          throw new InvalidOperationException(String.Format(Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
 
         if (leftExpression!=null) {
           leftExpression = leftExpression;
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var propertyInfo = mc.Object.Type.GetProperties(BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).SingleOrDefault(property => property.Name==name);
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
-      throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
+      throw new InvalidOperationException(String.Format(Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
     }
 
     private bool IsIndexerAccessor(Expression expression)

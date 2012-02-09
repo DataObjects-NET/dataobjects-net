@@ -16,7 +16,7 @@ using Xtensive.Linq;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Core;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;

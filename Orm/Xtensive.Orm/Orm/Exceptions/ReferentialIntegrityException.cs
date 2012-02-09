@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm
 {

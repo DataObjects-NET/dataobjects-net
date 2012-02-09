@@ -11,7 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using System.Linq;
-using Xtensive.Orm.Resources;
+
 
 namespace Xtensive.Orm.Linq.Expressions
 {

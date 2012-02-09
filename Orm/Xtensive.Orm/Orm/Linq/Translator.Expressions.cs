@@ -23,7 +23,7 @@ using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Resources;
+
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
 using FieldInfo = System.Reflection.FieldInfo;

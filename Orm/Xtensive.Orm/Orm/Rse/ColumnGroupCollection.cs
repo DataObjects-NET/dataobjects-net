@@ -14,7 +14,6 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Model;
 using Xtensive.Threading;
 using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Orm.Rse.Resources;
 
 namespace Xtensive.Orm.Rse
 {

@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Rse.Helpers;
-using Xtensive.Orm.Rse.Resources;
+
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
