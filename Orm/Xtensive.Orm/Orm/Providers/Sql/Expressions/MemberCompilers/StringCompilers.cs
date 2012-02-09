@@ -13,7 +13,6 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Orm;
 using Xtensive.Reflection;
 using Xtensive.Sql;

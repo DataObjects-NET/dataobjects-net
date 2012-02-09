@@ -11,7 +11,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;

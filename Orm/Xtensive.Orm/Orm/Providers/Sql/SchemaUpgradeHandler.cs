@@ -12,7 +12,6 @@ using Xtensive.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Building;

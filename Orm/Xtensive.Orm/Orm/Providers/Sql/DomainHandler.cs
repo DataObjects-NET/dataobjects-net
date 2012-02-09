@@ -12,7 +12,6 @@ using Xtensive.Orm;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers.Sql.Expressions;
 using Xtensive.Orm.Providers.Sql.Mappings;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Threading;
 using Xtensive.Tuples;

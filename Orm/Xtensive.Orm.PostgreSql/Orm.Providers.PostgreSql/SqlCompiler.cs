@@ -12,7 +12,6 @@ using Xtensive.Core;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
 
