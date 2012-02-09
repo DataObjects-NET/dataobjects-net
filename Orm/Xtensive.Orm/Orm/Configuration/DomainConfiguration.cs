@@ -404,11 +404,11 @@ namespace Xtensive.Orm.Configuration
 
       if (hasSchemaRules && string.IsNullOrEmpty(DefaultSchema))
         throw new InvalidOperationException(
-          "DefaultSchema should be specified when mapping rules for schemas are defined");
+          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined);
       
       if ((hasSchemaRules || hasDatabaseRules) && string.IsNullOrEmpty(DefaultDatabase))
         throw new InvalidOperationException(
-          "DefaultSchema and DefaultDatabase should be specified when mapping rules for databases are defined");
+          Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAreDefined);
     }
 
     /// <inheritdoc/>

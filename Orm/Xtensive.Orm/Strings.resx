@@ -2344,4 +2344,10 @@ Error: {1}</value>
   <data name="ConstraintX" xml:space="preserve">
     <value> Constraint: {0};</value>
   </data>
+  <data name="ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined">
+    <value xml:space="preserve">DefaultSchema should be specified when mapping rules for schemas are defined</value>
+  </data>
+  <data name="ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAreDefined">
+    <value xml:space="preserve">DefaultSchema and DefaultDatabase should be specified when mapping rules for databases are defined</value>
+  </data>
 </root>
