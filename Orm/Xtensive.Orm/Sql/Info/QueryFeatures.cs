@@ -66,24 +66,24 @@ namespace Xtensive.Sql.Info
     UpdateFrom = 0x100,
 
     /// <summary>
+    /// Indicates that RDBMS supports DELETE ... FROM statements.
+    /// </summary>
+    DeleteFrom = 0x200,
+
+    /// <summary>
     /// Indicates that RDBMS supports result limiting operator (LIMIT and TOP).
     /// </summary>
-    Limit = 0x200,
+    Limit = 0x400,
 
     /// <summary>
     /// Indicates that RDBMS supports result skipping operator (OFFSET and SKIP).
     /// </summary>
-    Offset = 0x400,
+    Offset = 0x800,
 
     /// <summary>
     /// Indicates that RDBMS supports multicolumn IN operator.
     /// </summary>
-    MulticolumnIn = 0x800,
-    
-    /// <summary>
-    /// Indicates whether RDBMS supports INSERT INTO Table DEFAULT VALUES syntax.
-    /// </summary>
-    InsertDefaultValues = 0x1000,
+    MulticolumnIn = 0x1000,
 
     /// <summary>
     /// Indicates whether RDBMS supports ROW_NUMBER window function.
@@ -94,16 +94,16 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS supports subqueries that return a scalar result.
     /// </summary>
     ScalarSubquery = 0x4000,
-    
+
+    /// <summary>
+    /// Indicates whether RDBMS supports INSERT INTO Table DEFAULT VALUES syntax.
+    /// </summary>
+    InsertDefaultValues = 0x8000,
+
     /// <summary>
     /// Indicates whether RDBMS supports UPDATE Table SET COLUMN = DEFAULT syntax.
     /// </summary>
-    UpdateDefaultValues = 0x8000,
-
-    /// <summary>
-    /// Indicates that RDBMS supports DELETE ... FROM statements.
-    /// </summary>
-    DeleteFrom = 0x8000,
+    UpdateDefaultValues = 0x10000,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
