@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Upgrade;

@@ -16,7 +16,6 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
-using Xtensive.Orm.Providers.Sql.Resources;
 
 namespace Xtensive.Orm.Providers.Sql
 {

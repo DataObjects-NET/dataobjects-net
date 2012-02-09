@@ -7,7 +7,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;

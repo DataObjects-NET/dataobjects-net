@@ -11,7 +11,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Providers.Sql.Expressions;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;

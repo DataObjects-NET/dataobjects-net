@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers.Sql.Resources;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;

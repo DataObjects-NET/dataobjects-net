@@ -224,11 +224,6 @@
     <Compile Include="Orm\Providers\Sql\QueryRequest.cs" />
     <Compile Include="Orm\Providers\Sql\QueryRowFilterParameterBinding.cs" />
     <Compile Include="Orm\Providers\Sql\QueryRequestOptions.cs" />
-    <Compile Include="Orm\Providers\Sql\Resources\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
     <Compile Include="Orm\Providers\Sql\SchemaUpgradeHandler.cs" />
     <Compile Include="Orm\Providers\Sql\SessionHandler.cs" />
     <Compile Include="Orm\Providers\Sql\SessionHandler.IDirectSqlService.cs" />
@@ -1229,13 +1224,6 @@
     </Compile>
     <EmbeddedResource Include="..\..\Secure\PostSharp.license">
       <Link>PostSharp.license</Link>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Orm\Providers\Sql\Resources\Strings.resx">
-      <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
