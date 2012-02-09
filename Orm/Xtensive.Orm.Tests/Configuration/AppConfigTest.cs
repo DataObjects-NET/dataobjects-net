@@ -83,5 +83,35 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.AreEqual(1000, defaultSession.EntityChangeRegistrySize);
       Assert.AreEqual(1000, defaultSession.Clone().EntityChangeRegistrySize);
     }
+
+    [Test]
+    public void AdvancedMappingTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "AdvancedMappingTest");
+      ValidateAdvancedMappingConfiguration(configuration);
+      var clone = configuration.Clone();
+      ValidateAdvancedMappingConfiguration(clone);
+    }
+
+    private void ValidateAdvancedMappingConfiguration(DomainConfiguration configuration)
+    {
+      Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
+
+      Assert.That(configuration.MappingRules.Count, Is.EqualTo(2));
+      var rule1 = configuration.MappingRules[0];
+      Assert.That(rule1.Namespace, Is.EqualTo("Xtensive.Orm.Tests.Configuration"));
+      Assert.That(rule1.Schema, Is.EqualTo("myschema"));
+      var rule2 = configuration.MappingRules[1];
+      Assert.That(rule2.Assembly, Is.EqualTo(GetType().Assembly));
+      Assert.That(rule2.Database, Is.EqualTo("other"));
+
+      Assert.That(configuration.DatabaseAliases.Count, Is.EqualTo(2));
+      var alias1 = configuration.DatabaseAliases[0];
+      Assert.That(alias1.Name, Is.EqualTo("main"));
+      Assert.That(alias1.Database, Is.EqualTo("DO40-Tests"));
+      var alias2 = configuration.DatabaseAliases[1];
+      Assert.That(alias2.Name, Is.EqualTo("other"));
+      Assert.That(alias2.Database, Is.EqualTo("Other-DO40-Tests"));
+    }
   }
 }

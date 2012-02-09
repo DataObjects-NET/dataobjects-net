@@ -113,6 +113,14 @@
     <Compile Include="Orm\Attributes\FullTextAttribute.cs" />
     <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
+    <Compile Include="Orm\Configuration\DatabaseAlias.cs" />
+    <Compile Include="Orm\Configuration\DatabaseAliasCollection.cs" />
+    <Compile Include="Orm\Configuration\MappingRule.cs" />
+    <Compile Include="Orm\Configuration\MappingRuleCollection.cs" />
+    <Compile Include="Orm\Configuration\Internals\MappingRuleConstructionFlow.cs" />
+    <Compile Include="Orm\Configuration\Elements\DatabaseAliasElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\MappingRuleElement.cs" />
+    <Compile Include="Orm\Configuration\Interfaces\IMappingRuleConstructionFlow.cs" />
     <Compile Include="Orm\DbCommandEventArgs.cs" />
     <Compile Include="Orm\Interfaces\IQueryEndpointProvider.cs" />
     <Compile Include="Orm\Exceptions\StorageExceptionInfo.cs" />

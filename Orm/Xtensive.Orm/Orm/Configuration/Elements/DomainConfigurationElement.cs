@@ -32,8 +32,10 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
     private const string DefaultSchemaElementName = "defaultSchema";
-
+    private const string DefaultDatabaseElementName = "defaultDatabase";
     private const string SessionsElementName = "sessions";
+    private const string MappingRulesElementName = "mappingRules";
+    private const string DatabaseAliasesElementName = "databaseAliases";
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
@@ -191,10 +193,30 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
     public ConfigurationCollection<SessionConfigurationElement> Sessions
     {
       get { return (ConfigurationCollection<SessionConfigurationElement>) this[SessionsElementName]; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.MappingRules" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MappingRulesElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<MappingRuleElement>), AddItemName = "rule")]
+    public ConfigurationCollection<MappingRuleElement> MappingRules
+    {
+      get { return (ConfigurationCollection<MappingRuleElement>) this[MappingRulesElementName]; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.DatabaseAliases" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(DatabaseAliasesElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseAliasElement>), AddItemName = "alias")]
+    public ConfigurationCollection<DatabaseAliasElement> DatabaseAliases
+    {
+      get { return (ConfigurationCollection<DatabaseAliasElement>) this[DatabaseAliasesElementName]; }
     }
 
     /// <summary>
@@ -207,7 +229,6 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ServiceContainerTypeElementName] = value; }
     }
 
-
     /// <summary>
     /// <see cref="DomainConfiguration.DefaultSchema" copy="true"/>
     /// </summary>
@@ -216,6 +237,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (string) this[DefaultSchemaElementName]; }
       set { this[DefaultSchemaElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.DefaultDatabase" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(DefaultDatabaseElementName)]
+    public string DefaultDatabase
+    {
+      get { return (string) this[DefaultDatabaseElementName]; }
+      set { this[DefaultDatabaseElementName] = value; }
     }
 
     /// <summary>
@@ -248,6 +279,7 @@ namespace Xtensive.Orm.Configuration.Elements
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         AutoValidation = AutoValidation,
         DefaultSchema = DefaultSchema,
+        DefaultDatabase = DefaultDatabase,
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
@@ -255,10 +287,15 @@ namespace Xtensive.Orm.Configuration.Elements
         IncludeSqlInExceptions = IncludeSqlInExceptions,
       };
 
-      foreach (var entry in Types)
-        config.Types.Register(entry.ToNative());
-      foreach (var session in Sessions)
-        config.Sessions.Add(session.ToNative());
+      foreach (var element in Types)
+        config.Types.Register(element.ToNative());
+      foreach (var element in Sessions)
+        config.Sessions.Add(element.ToNative());
+      foreach (var element in MappingRules)
+        config.MappingRules.Add(element.ToNative());
+      foreach (var element in DatabaseAliases)
+        config.DatabaseAliases.Add(element.ToNative());
+
       return config;
     }
 

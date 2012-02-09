@@ -6,11 +6,11 @@
 
 using System;
 using System.Configuration;
+using System.Linq;
 using Xtensive.Configuration;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Configuration.Elements;
-using Xtensive.Orm.Configuration.Internals;
 using Xtensive.Orm.Resources;
 using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
@@ -70,6 +70,7 @@ namespace Xtensive.Orm.Configuration
     private string name = string.Empty;
     private ConnectionInfo connectionInfo;
     private string defaultSchema = string.Empty;
+    private string defaultDatabase = string.Empty;
     private DomainTypeRegistry types = new DomainTypeRegistry(new DomainTypeRegistrationHandler());
     private LinqExtensionRegistry linqExtensions = new LinqExtensionRegistry();
     private NamingConvention namingConvention = new NamingConvention();
@@ -84,6 +85,8 @@ namespace Xtensive.Orm.Configuration
     private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
+    private MappingRuleCollection mappingRules = new MappingRuleCollection();
+    private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -145,6 +148,19 @@ namespace Xtensive.Orm.Configuration
       set {
         this.EnsureNotLocked();
         defaultSchema = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default database.
+    /// If database aliases are configured, this should be an alias name.
+    /// </summary>
+    public string DefaultDatabase
+    {
+      get { return defaultDatabase; }
+      set {
+        this.EnsureNotLocked();
+        defaultDatabase = value;
       }
     }
 
@@ -293,7 +309,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets available session configurations.
+    /// Gets or sets available session configurations.
     /// </summary>
     public SessionConfigurationCollection Sessions
     {
@@ -303,6 +319,34 @@ namespace Xtensive.Orm.Configuration
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         this.EnsureNotLocked();
         sessions = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets registered mapping rules.
+    /// </summary>
+    public MappingRuleCollection MappingRules
+    {
+      get { return mappingRules; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        mappingRules = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets registered database aliases.
+    /// </summary>
+    public DatabaseAliasCollection DatabaseAliases
+    {
+      get { return databaseAliases; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        databaseAliases = value;
       }
     }
 
@@ -341,12 +385,30 @@ namespace Xtensive.Orm.Configuration
       types.Lock(true);
       sessions.Lock(true);
       linqExtensions.Lock(true);
+      databaseAliases.Lock(true);
+      mappingRules.Lock(true);
+
       base.Lock(recursive);
     }
 
     /// <inheritdoc/>
     public override void Validate()
     {
+      ValidateMappingConfiguration();
+    }
+
+    private void ValidateMappingConfiguration()
+    {
+      var hasSchemaRules = MappingRules.Any(rule => rule.Schema!=string.Empty);
+      var hasDatabaseRules = MappingRules.Any(rule => rule.Database!=string.Empty);
+
+      if (hasSchemaRules && string.IsNullOrEmpty(DefaultSchema))
+        throw new InvalidOperationException(
+          "DefaultSchema should be specified when mapping rules for schemas are defined");
+      
+      if ((hasSchemaRules || hasDatabaseRules) && string.IsNullOrEmpty(DefaultDatabase))
+        throw new InvalidOperationException(
+          "DefaultSchema and DefaultDatabase should be specified when mapping rules for databases are defined");
     }
 
     /// <inheritdoc/>
@@ -365,10 +427,13 @@ namespace Xtensive.Orm.Configuration
     protected override void CopyFrom(ConfigurationBase source)
     {
       base.CopyFrom(source);
+
       var configuration = (DomainConfiguration) source;
+
       name = configuration.Name;
       connectionInfo = configuration.ConnectionInfo;
-      defaultSchema = configuration.defaultSchema;
+      defaultSchema = configuration.DefaultSchema;
+      defaultDatabase = configuration.DefaultDatabase;
       types = (DomainTypeRegistry) configuration.Types.Clone();
       linqExtensions = (LinqExtensionRegistry) configuration.LinqExtensions.Clone();
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
@@ -377,12 +442,14 @@ namespace Xtensive.Orm.Configuration
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
-      upgradeMode = configuration.upgradeMode;
-      autoValidation = configuration.autoValidation;
-      validationMode = configuration.validationMode;
-      foreignKeyMode = configuration.foreignKeyMode;
-      serviceContainerType = configuration.serviceContainerType;
-      includeSqlInExceptions = configuration.includeSqlInExceptions;
+      upgradeMode = configuration.UpgradeMode;
+      autoValidation = configuration.AutoValidation;
+      validationMode = configuration.ValidationMode;
+      foreignKeyMode = configuration.ForeignKeyMode;
+      serviceContainerType = configuration.ServiceContainerType;
+      includeSqlInExceptions = configuration.IncludeSqlInExceptions;
+      databaseAliases = (DatabaseAliasCollection) configuration.DatabaseAliases.Clone();
+      mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
     }
 
     /// <summary>

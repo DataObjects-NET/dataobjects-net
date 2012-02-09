@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Collections;
 
-namespace Xtensive.Orm.Configuration.Internals
+namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// <see cref="ITypeRegistrationProcessor"/> for processing <see cref="SessionBound"/> 
