@@ -106,6 +106,11 @@ namespace Xtensive.Sql.Info
     UpdateDefaultValues = 0x10000,
 
     /// <summary>
+    /// Indicates whether RDBMS supports accessing multiple databases in single statement.
+    /// </summary>
+    MultidatabaseQueries = 0x20000,
+
+    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,

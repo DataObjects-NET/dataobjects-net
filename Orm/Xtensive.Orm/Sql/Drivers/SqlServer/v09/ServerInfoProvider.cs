@@ -195,6 +195,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
         QueryFeatures.RowNumber |
+        QueryFeatures.MultidatabaseQueries |
         QueryFeatures.ScalarSubquery;
       return queryInfo;
     }
