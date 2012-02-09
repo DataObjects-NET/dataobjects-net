@@ -134,9 +134,7 @@ namespace Xtensive.Sql.Compiler
 
     internal SqlCompilerContext(SqlCompilerConfiguration configuration)
     {
-      NamingOptions = SqlCompilerNamingOptions.TableQualifiedColumns;
-      if (configuration.ForcedAliasing)
-        NamingOptions |= SqlCompilerNamingOptions.TableAliasing;
+      NamingOptions = SqlCompilerNamingOptions.TableQualifiedColumns | SqlCompilerNamingOptions.TableAliasing;
 
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
