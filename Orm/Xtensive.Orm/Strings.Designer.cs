@@ -5234,6 +5234,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} implementors don&apos;t belong to any hierarchy..
+        /// </summary>
+        internal static string ExXImplementorsDontBelongToAnyHierarchy {
+            get {
+                return ResourceManager.GetString("ExXImplementorsDontBelongToAnyHierarchy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not supported.
         /// </summary>
         internal static string ExXIsNotSupported {

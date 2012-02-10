@@ -40,7 +40,6 @@ namespace Xtensive.Orm.Building
           var node = context.DependencyGraph.TryGetNode(typeDef);
           if (node == null || !node.IncomingEdges.Any(e => e.Kind == EdgeKind.Inheritance))
             context.ModelInspectionResult.Register(new MakeTypeNonAbstractAction(typeDef));
-//            throw new DomainBuilderException(string.Format("Abstract class {0} does not have registered implementors.", typeDef.Name));
         }
       }
     }
@@ -86,7 +85,8 @@ namespace Xtensive.Orm.Building
         if (implementorEdges.Count == 1) {
           hierarchyDef = context.ModelDef.FindHierarchy(implementorEdges[0].Tail.Value);
           if (hierarchyDef == null)
-            throw new DomainBuilderException(string.Format("{0} implementors don't belong to any hierarchy.", interfaceDef.Name));
+            throw new DomainBuilderException(string.Format(
+              Strings.ExXImplementorsDontBelongToAnyHierarchy, interfaceDef.Name));
           context.ModelInspectionResult.SingleHierarchyInterfaces.Add(interfaceDef);
         }
         else {
@@ -143,7 +143,8 @@ namespace Xtensive.Orm.Building
           // TODO: what if hierarchies.Count == 0?
           var count = hierarchies.Count;
           if (count == 0)
-            throw new DomainBuilderException(string.Format("{0} implementors don't belong to any hierarchy.", interfaceDef.Name));
+            throw new DomainBuilderException(string.Format(
+              Strings.ExXImplementorsDontBelongToAnyHierarchy, interfaceDef.Name));
           if (count == 1)
             context.ModelInspectionResult.SingleHierarchyInterfaces.Add(interfaceDef);
           else {
@@ -323,9 +324,11 @@ namespace Xtensive.Orm.Building
       if (!referencedTypeDef.IsInterface) {
         var hierarchyDef = context.ModelDef.FindHierarchy(referencedTypeDef);
         if (hierarchyDef==null)
-          throw new DomainBuilderException(string.Format(Strings.ExHierarchyIsNotFoundForTypeX, referencedType.GetShortName()));
+          throw new DomainBuilderException(string.Format(
+            Strings.ExHierarchyIsNotFoundForTypeX, referencedType.GetShortName()));
       }
-      context.DependencyGraph.AddEdge(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
+      context.DependencyGraph
+        .AddEdge(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
     }
 
 
@@ -339,16 +342,6 @@ namespace Xtensive.Orm.Building
       var result = context.ModelDef.Types.TryGetValue(type);
       if (result!=null)
         return result;
-      // Do not register requested type automatically
-//      if (type.IsGenericType) {
-//        var genericDef = type.GetGenericTypeDefinition();
-//        var alreadyRegisteredForGeneration = context.ModelInspectionResult.Actions
-//          .OfType<BuildGenericTypeInstancesAction>()
-//          .Any(action => action.Type.UnderlyingType == genericDef);
-//        if (alreadyRegisteredForGeneration)
-//          return ModelDefBuilder.ProcessType(type);
-//      }
-
       throw new DomainBuilderException(
         String.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.GetFullName()));
     }
