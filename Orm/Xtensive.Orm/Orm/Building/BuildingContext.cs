@@ -59,11 +59,6 @@ namespace Xtensive.Orm.Building
     #endregion
 
     /// <summary>
-    /// Gets the building stage.
-    /// </summary>
-    public BuildingStage Stage { get; internal set; }
-
-    /// <summary>
     /// Gets the configuration of the building <see cref="Orm.Domain"/>.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
