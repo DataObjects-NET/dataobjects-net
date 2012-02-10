@@ -123,8 +123,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private static Assembly GetProviderAssembly(string providerName)
     {
-      const string indexingAssembly = "Xtensive.Orm.Indexing";
-      const string sqlAssemblyFormat = "Xtensive.Orm.{0}";
+      const string assemblyFormat = "Xtensive.Orm.{0}";
 
       switch (providerName) {
       case WellKnown.Provider.SqlServer:
@@ -134,7 +133,7 @@ namespace Xtensive.Orm.Building.Builders
       case WellKnown.Provider.Oracle:
       case WellKnown.Provider.Firebird:
       case WellKnown.Provider.MySql:
-        return AssemblyHelper.LoadExtensionAssembly(string.Format(sqlAssemblyFormat, providerName));
+        return AssemblyHelper.LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
       default:
         throw new NotSupportedException(
           string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));

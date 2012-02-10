@@ -122,7 +122,6 @@ namespace Xtensive.Orm.Providers
           names[i] = BuildGenericTypeName(argument, null);
         }
       else {
-        var context = BuildingContext.Demand();
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
           if (argument.IsSubclassOf(typeof (Persistent))) {

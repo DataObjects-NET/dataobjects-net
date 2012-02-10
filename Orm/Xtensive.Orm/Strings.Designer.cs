@@ -3477,7 +3477,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Provider &quot;{0}&quot; is not supported. Use one of the following: &quot;{1}&quot;..
+        ///   Looks up a localized string similar to Provider &quot;{0}&quot; is not supported. Use one of the following: {1}..
         /// </summary>
         internal static string ExProviderXIsNotSupportedUseOneOfTheFollowingY {
             get {

@@ -962,7 +962,7 @@ Referenced Entity Key: {4}</value>
     <value>Column with name '{0}' is not found in table '{1}'.</value>
   </data>
   <data name="ExProviderXIsNotSupportedUseOneOfTheFollowingY" xml:space="preserve">
-    <value>Provider "{0}" is not supported. Use one of the following: "{1}".</value>
+    <value>Provider "{0}" is not supported. Use one of the following: {1}.</value>
   </data>
   <data name="ExTypeXDoesNotContainYField" xml:space="preserve">
     <value>Type '{0}' does not contain '{1}' field.</value>
