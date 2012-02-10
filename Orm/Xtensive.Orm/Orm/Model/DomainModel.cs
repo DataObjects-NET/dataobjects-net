@@ -17,8 +17,6 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class DomainModel: Node
   {
-    internal readonly object unlockKey = new object();
-
     /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
     /// </summary>
