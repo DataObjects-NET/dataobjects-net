@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Building
         var implementorEdges = interfaceNode.IncomingEdges.Where(e => e.Kind==EdgeKind.Implementation).ToList();
 
         // There is no implementors. If there are no references to the interface, it could be safely removed
-        if (implementorEdges.Count == 0 && interfaceNode.IncomingEdges.Where(e => e.Kind == EdgeKind.Reference).Count() == 0) {
+        if (implementorEdges.Count == 0 && !interfaceNode.IncomingEdges.Any(e => e.Kind == EdgeKind.Reference)) {
           context.ModelInspectionResult.Register(new RemoveTypeAction(interfaceDef));
           continue;
         }
