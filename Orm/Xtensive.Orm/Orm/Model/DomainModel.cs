@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class DomainModel: Node
   {
-    private bool isMultidatabase;
+    private DomainModelAttributes attributes;
 
     /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
@@ -46,15 +46,34 @@ namespace Xtensive.Orm.Model
     public AssociationInfoCollection Associations { get; private set; }
 
     /// <summary>
-    /// Gets value indicating whenever this model operates in multi-database mode.
+    /// Gets value indicating whenever this model defines mapping in multi-database mode.
     /// </summary>
     public bool IsMultidatabase
     {
-      get { return isMultidatabase; }
+      get { return (attributes & DomainModelAttributes.Multidatabase)==DomainModelAttributes.Multidatabase; }
       set
       {
-        isMultidatabase = value;
         this.EnsureNotLocked();
+        if (value)
+          attributes |= DomainModelAttributes.Multidatabase;
+        else
+          attributes &= ~DomainModelAttributes.Multidatabase;
+      }
+    }
+
+    /// <summary>
+    /// Gets value indicating whenever this model defines mapping in multi-schema mode.
+    /// </summary>
+    public bool IsMultischema
+    {
+      get { return (attributes & DomainModelAttributes.Multischema)==DomainModelAttributes.Multischema; }
+      set
+      {
+        this.EnsureNotLocked();
+        if (value)
+          attributes |= DomainModelAttributes.Multischema;
+        else
+          attributes &= ~DomainModelAttributes.Multischema;
       }
     }
 
