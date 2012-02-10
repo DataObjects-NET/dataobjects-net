@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Helpers;
 
 namespace Xtensive.Orm.Model
@@ -17,6 +18,8 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class DomainModel: Node
   {
+    private bool isMultidatabase;
+
     /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
     /// </summary>
@@ -40,8 +43,21 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the collection providing information about associations.
     /// </summary>
-    public AssociationInfoCollection Associations { get; private set;}
- 
+    public AssociationInfoCollection Associations { get; private set; }
+
+    /// <summary>
+    /// Gets value indicating whenever this model operates in multi-database mode.
+    /// </summary>
+    public bool IsMultidatabase
+    {
+      get { return isMultidatabase; }
+      set
+      {
+        isMultidatabase = value;
+        this.EnsureNotLocked();
+      }
+    }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
