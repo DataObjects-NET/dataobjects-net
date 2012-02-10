@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Provides information about sequence associated with <see cref="KeyInfo"/>.
   /// </summary>
-  public sealed class SequenceInfo : MappingNode
+  public sealed class SequenceInfo : SchemaMappedNode
   {
     private long seed = 1;
     private long increment = 1;

@@ -33,12 +33,11 @@ namespace Xtensive.Orm.Building.Builders
       var context = BuildingContext.Demand();
 
       // Model definition building
-      context.ModelDef = new DomainModelDef();
       ModelDefBuilder.Run();
-
+      // Invoke user-defined transformations
       ApplyCustomDefinitions();
+      // Clean-up
       RemoveTemporaryDefinitions();
-
       // Inspecting model definition
       ModelInspector.Run();
 

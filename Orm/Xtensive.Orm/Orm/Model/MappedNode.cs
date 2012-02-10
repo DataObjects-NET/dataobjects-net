@@ -12,15 +12,15 @@ using Xtensive.Internals.DocTemplates;
 namespace Xtensive.Orm.Model
 {
   /// <summary>
-  /// A <see cref="Node"/> that can be mapped to existing schema node.
+  /// A <see cref="Node"/> that can be mapped to existing named node.
   /// </summary>
   [Serializable]
-  public abstract class MappingNode : Node
+  public abstract class MappedNode : Node
   {
     private string mappingName;
 
     /// <summary>
-    /// Gets or sets mapping name of this instance.
+    /// Gets or sets name of the database object this node maps to.
     /// </summary>
     public string MappingName
     {
@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected MappingNode()
+    protected MappedNode()
     {
     }
 
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The name of this instance.</param>
-    protected MappingNode(string name) 
+    protected MappedNode(string name) 
       : base(name)
     {
     }

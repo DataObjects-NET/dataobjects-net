@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [DebuggerDisplay("{underlyingType}")]
   [Serializable]
-  public sealed class TypeInfo: MappingNode
+  public sealed class TypeInfo : SchemaMappedNode
   {
     /// <summary>
     /// "No <see cref="TypeId"/>" value (<see cref="TypeId"/> is unknown or undefined).

@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
   [Serializable]
-  public sealed class FieldInfo : MappingNode,
+  public sealed class FieldInfo : MappedNode,
     ICloneable
   {
     /// <summary>

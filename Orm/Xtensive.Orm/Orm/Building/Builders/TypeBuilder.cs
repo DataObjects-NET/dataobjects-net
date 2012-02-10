@@ -417,7 +417,7 @@ namespace Xtensive.Orm.Building.Builders
           Name = root.Name
         };
 
-      key.MappingName = context.NameBuilder.BuildSequenceName(key);
+      var mappingName = context.NameBuilder.BuildSequenceName(key);
 
       // The most complex part: now we're trying to find out if
       // this KeyInfo is actually quite similar to another one.
@@ -441,7 +441,7 @@ namespace Xtensive.Orm.Building.Builders
         var sequenceIncrement = keyGenerator.SequenceIncrement;
         if (sequenceIncrement.HasValue) {
           key.Sequence = new SequenceInfo(key.GeneratorName) {
-            MappingName = key.MappingName,
+            MappingName = mappingName,
             Seed = sequenceIncrement.Value,
             Increment = sequenceIncrement.Value
           };

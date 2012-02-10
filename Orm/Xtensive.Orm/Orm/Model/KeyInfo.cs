@@ -10,7 +10,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Model
 {
@@ -18,7 +17,7 @@ namespace Xtensive.Orm.Model
   /// Describes key for a particular <see cref="hierarchy"/>.
   /// </summary>
   [Serializable]
-  public sealed class KeyInfo : MappingNode
+  public sealed class KeyInfo : Node
   {
     private HierarchyInfo hierarchy;
     private SequenceInfo sequence;

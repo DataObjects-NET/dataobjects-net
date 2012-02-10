@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Providers.Sql
         generator,
         domainHandler.ProviderInfo, 
         domainHandler.Schema, 
-        generator.KeyInfo.MappingName);
+        generator.KeyInfo.Sequence.MappingName);
 
       var batch = sqlNext as SqlBatch;
       if (batch != null && !domainHandler.ProviderInfo.Supports(ProviderFeatures.Batches)) {

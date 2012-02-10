@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Building.Definitions
   /// </summary>
   [DebuggerDisplay("{underlyingType}")]
   [Serializable]
-  public sealed class TypeDef : MappingNode
+  public sealed class TypeDef : SchemaMappedNode
   {
     private readonly Type underlyingType;
     private TypeAttributes attributes;

@@ -5751,6 +5751,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Processing mapping rules.
+        /// </summary>
+        internal static string LogProcessingMappingRules {
+            get {
+                return ResourceManager.GetString("LogProcessingMappingRules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error during undoing the relation synchronization..
         /// </summary>
         internal static string LogRelationSyncUndoError {

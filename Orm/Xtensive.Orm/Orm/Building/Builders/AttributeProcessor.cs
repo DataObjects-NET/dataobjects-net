@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Building.Builders
         fieldDef.IsNotIndexed = true;
     }
 
-    private static void ProcessMappingName(MappingNode node, string mappingName, ValidationRule rule)
+    private static void ProcessMappingName(MappedNode node, string mappingName, ValidationRule rule)
     {
       if (mappingName.IsNullOrEmpty())
         return;

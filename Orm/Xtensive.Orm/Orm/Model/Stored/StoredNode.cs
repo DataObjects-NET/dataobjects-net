@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Model.Stored
     public string Name;
 
     /// <summary>
-    /// <see cref="MappingNode.MappingName"/>.
+    /// <see cref="MappedNode.MappingName"/>.
     /// </summary>
     public string MappingName;
   }

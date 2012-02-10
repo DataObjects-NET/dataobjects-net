@@ -30,6 +30,9 @@ namespace Xtensive.Orm.Building.Builders
 
         using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types))
           ProcessTypes();
+
+        using (Log.InfoRegion(Strings.LogProcessingMappingRules))
+          StorageMappingBuilder.Run();
       }
     }
 

@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Providers
 
 
     /// <summary>
-    /// Builds the <see cref="MappingNode.MappingName"/>.
+    /// Builds the <see cref="MappedNode.MappingName"/>.
     /// </summary>
     /// <param name="complexField">The complex field.</param>
     /// <param name="childField">The child field.</param>

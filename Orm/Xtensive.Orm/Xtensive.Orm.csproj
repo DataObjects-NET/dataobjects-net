@@ -102,6 +102,7 @@
     <Compile Include="Orm\Building\Builders\IndexBuilder.ClusteredIndexes.cs" />
     <Compile Include="Orm\Building\Builders\MemberCompilerProviderBuilder.cs" />
     <Compile Include="Orm\Building\Builders\PartialIndexFilterBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\StorageMappingBuilder.cs" />
     <Compile Include="Orm\Building\Builders\ValueTypeBuilder.cs" />
     <Compile Include="Orm\Building\Definitions\FullTextFieldDef.cs" />
     <Compile Include="Orm\Building\Definitions\FullTextIndexDef.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="Orm\Internals\Prefetch\PrefetchProcessor.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
+    <Compile Include="Orm\Model\SchemaMappedNode.cs" />
     <Compile Include="Orm\Providers\DomainHandler.cs" />
     <Compile Include="Orm\Providers\EnumerationContext.cs" />
     <Compile Include="Orm\Providers\EnumerationScope.cs" />
@@ -281,7 +283,7 @@
     <Compile Include="Orm\Model\KeyField.cs" />
     <Compile Include="Orm\Model\KeyInfo.cs" />
     <Compile Include="Orm\Model\Log.cs" />
-    <Compile Include="Orm\Model\MappingNode.cs" />
+    <Compile Include="Orm\Model\MappedNode.cs" />
     <Compile Include="Orm\Model\ModelVisitor.cs" />
     <Compile Include="Orm\Model\Multiplicity.cs" />
     <Compile Include="Orm\Model\Node.cs" />

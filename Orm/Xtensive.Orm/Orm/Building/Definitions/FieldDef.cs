@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building.Definitions
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
   [Serializable]
-  public class FieldDef : MappingNode
+  public class FieldDef : MappedNode
   {
     private readonly PropertyInfo           underlyingProperty;
     private FieldAttributes                 attributes;

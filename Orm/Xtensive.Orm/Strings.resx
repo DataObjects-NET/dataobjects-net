@@ -2350,4 +2350,7 @@ Error: {1}</value>
   <data name="ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAreDefined">
     <value xml:space="preserve">DefaultSchema and DefaultDatabase should be specified when mapping rules for databases are defined</value>
   </data>
+  <data name="LogProcessingMappingRules">
+    <value xml:space="preserve">Processing mapping rules</value>
+  </data>
 </root>

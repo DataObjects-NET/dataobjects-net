@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}.")]
   [Serializable]
-  public sealed class IndexInfo : MappingNode
+  public sealed class IndexInfo : MappedNode
   {
     private IndexAttributes attributes;
     private ColumnGroup columnGroup;
