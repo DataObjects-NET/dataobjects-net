@@ -1926,6 +1926,25 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn&apos;t: {1} &amp; {2}..
+        /// </summary>
+        internal static string ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ {
+            get {
+                return ResourceManager.GetString("ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDo" +
+                        "esntYZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Implementors of {0} interface belong to hierarchies with different key structure: {1} &amp; {2}..
+        /// </summary>
+        internal static string ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ {
+            get {
+                return ResourceManager.GetString("ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to IncludeFields does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExIncludeFieldsDoesNotSupportQueryProviderOfTypeX {

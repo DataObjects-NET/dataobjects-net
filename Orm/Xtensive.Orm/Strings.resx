@@ -2356,4 +2356,10 @@ Error: {1}</value>
   <data name="ExXImplementorsDontBelongToAnyHierarchy">
     <value xml:space="preserve">{0} implementors don't belong to any hierarchy.</value>
   </data>
+  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ">
+    <value xml:space="preserve">Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn't: {1} &amp; {2}.</value>
+  </data>
+  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ">
+    <value xml:space="preserve">Implementors of {0} interface belong to hierarchies with different key structure: {1} &amp; {2}.</value>
+  </data>
 </root>

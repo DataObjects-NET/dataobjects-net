@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Building
           throw new ArgumentOutOfRangeException();
       }
       if (!namingRule.IsMatch(name))
-        throw new DomainBuilderException(String.Format(Strings.ExXIsNotValidNameForX, name, rule));
+        throw new DomainBuilderException(string.Format(Strings.ExXIsNotValidNameForX, name, rule));
     }
 
     public static void ValidateHierarchyRoot(TypeDef typeDef)
@@ -71,14 +71,15 @@ namespace Xtensive.Orm.Building
       // Ensures that typeDef is not an ancestor of any other hierarchy root
       foreach (HierarchyDef hierarchy in context.ModelDef.Hierarchies)
         if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType))
-          throw new DomainBuilderException(
-            String.Format(Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
+          throw new DomainBuilderException(string.Format(
+            Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
     }
 
     public static void ValidateHierarchy(HierarchyDef hierarchyDef)
     {
       if (hierarchyDef.KeyFields.Count==0)
-        throw new DomainBuilderException(String.Format(Strings.ExHierarchyXDoesntContainAnyKeyFields, hierarchyDef.Root.Name));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExHierarchyXDoesntContainAnyKeyFields, hierarchyDef.Root.Name));
 
       var root = hierarchyDef.Root;
 
@@ -98,12 +99,13 @@ namespace Xtensive.Orm.Building
 
         FieldDef fieldDef = root.Fields[keyField.Name];
         if (fieldDef==null)
-          throw new DomainBuilderException(String.Format(Strings.ExKeyFieldXXIsNotFound, root.Name, keyField.Name));
+          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldXXIsNotFound, root.Name, keyField.Name));
 
         ValidateFieldType(root, fieldDef.ValueType, true);
 
         if (fieldDef.IsLazyLoad)
-          throw new DomainBuilderException(String.Format(Strings.ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey, fieldDef.Name));
+          throw new DomainBuilderException(string.Format(
+            Strings.ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey, fieldDef.Name));
       }
     }
 
@@ -180,9 +182,6 @@ namespace Xtensive.Orm.Building
 
     internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-//      if (typeDef.Fields.Any(field => field.IsVersion) && hierarchyDef.Root!=typeDef)
-//        throw new DomainBuilderException(string.Format(
-//          Strings.ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot, typeDef.Name));
     }
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
@@ -201,7 +200,8 @@ namespace Xtensive.Orm.Building
     public static void ValidateKeyGeneratorType(Type type)
     {
       if (!typeof(KeyGenerator).IsAssignableFrom(type))
-        throw new InvalidOperationException(String.Format(Strings.ExXMustBeInheritedFromX, type.GetShortName(), typeof(KeyGenerator).GetShortName()));
+        throw new InvalidOperationException(string.Format(
+          Strings.ExXMustBeInheritedFromX, type.GetShortName(), typeof(KeyGenerator).GetShortName()));
     }
 
     public static void EnsureTypeIsPersistent(Type type)
@@ -225,14 +225,16 @@ namespace Xtensive.Orm.Building
     {
       // Restriction for EntitySet properties only
       if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade || fieldDef.OnTargetRemove == OnRemoveAction.None)
-        throw new DomainBuilderException(String.Format(Strings.ExValueIsNotAcceptableForOnTargetRemoveProperty, typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExValueIsNotAcceptableForOnTargetRemoveProperty, typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
     }
 
     /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
     internal static void EnsureIsNullable(Type valueType)
     {
       if (!(typeof(IEntity).IsAssignableFrom(valueType) || valueType==typeof (string) || valueType==typeof (byte[])))
-        throw new DomainBuilderException(String.Format(Strings.ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT, valueType));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT, valueType));
     }
 
     // Type initializer
@@ -256,18 +258,24 @@ namespace Xtensive.Orm.Building
     {
       // TypeId mode must match
       if (first.IncludeTypeId != second.IncludeTypeId)
-        throw new DomainBuilderException(String.Format("Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn't: {1} & {2}.", @interface.Name, first.Root.Name, second.Root.Name));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ,
+          @interface.Name, first.Root.Name, second.Root.Name));
 
       // Number of key fields must match
       if (first.KeyFields.Count != second.KeyFields.Count)
-        throw new DomainBuilderException(String.Format("Implementors of {0} interface belong to hierarchies with different key structure: {1} & {2}.", @interface.Name, first.Root.Name, second.Root.Name));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
+          @interface.Name, first.Root.Name, second.Root.Name));
 
       // Type of each key field must match
       for (int i = 0; i < first.KeyFields.Count; i++) {
         var masterField = first.Root.Fields[first.KeyFields[i].Name];
         var candidateField = second.Root.Fields[second.KeyFields[i].Name];
         if (masterField.ValueType != candidateField.ValueType)
-          throw new DomainBuilderException(String.Format("Implementors of {0} interface belong to hierarchies with different key structure: {1} & {2}.", @interface.Name, first.Root.Name, second.Root.Name));
+          throw new DomainBuilderException(string.Format(
+            Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
+            @interface.Name, first.Root.Name, second.Root.Name));
       }
     }
   }
