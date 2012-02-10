@@ -962,7 +962,7 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlNextValue node)
     {
       context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
-      context.Output.AppendText(translator.Translate(node.Sequence));
+      context.Output.AppendText(translator.Translate(context, node.Sequence));
       context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
     }
 

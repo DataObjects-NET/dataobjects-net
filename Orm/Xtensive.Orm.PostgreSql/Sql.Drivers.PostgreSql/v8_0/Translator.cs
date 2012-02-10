@@ -191,7 +191,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    public override string Translate(SchemaNode node)
+    public override string Translate(SqlCompilerContext context, SchemaNode node)
     {
       TemporaryTable tmp = node as TemporaryTable;
       //temporary tables need no schema qualifier
@@ -233,7 +233,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           return string.Format("CREATE {0}INDEX {1} ON {2} ("
             , index.IsUnique ? "UNIQUE " : String.Empty
             , QuoteIdentifier(index.Name)
-            , Translate(index.DataTable));
+            , Translate(context, index.DataTable));
         case CreateIndexSection.StorageOptions:
           var builder = new StringBuilder();
           builder.Append(")");

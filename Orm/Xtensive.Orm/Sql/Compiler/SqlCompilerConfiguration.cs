@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.15
 
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Compiler
@@ -18,5 +17,21 @@ namespace Xtensive.Sql.Compiler
     /// Gets or sets the parameter prefix.
     /// </summary>
     public string ParameterNamePrefix { get; set; }
+
+    /// <summary>
+    /// Always use database-qualified objects in generated SQL.
+    /// This option could be enabled if and only if
+    /// server supports <see cref="QueryFeatures.MultidatabaseQueries"/>.
+    /// </summary>
+    public bool DatabaseQualifiedObjects { get; set; }
+
+    /// <summary>
+    /// Clones this instance.
+    /// </summary>
+    /// <returns>Clone of this instance.</returns>
+    public SqlCompilerConfiguration Clone()
+    {
+      return (SqlCompilerConfiguration) MemberwiseClone();
+    }
   }
 }

@@ -169,7 +169,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           else
             temporaryTable.DbName = "#" + temporaryTable.Name;
         }
-        builder.Append("TABLE " + Translate(node.Table));
+        builder.Append("TABLE " + Translate(context, node.Table));
         return builder.ToString();
       case CreateTableSection.Exit:
         string result = string.IsNullOrEmpty(node.Table.Filegroup)
@@ -198,7 +198,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       switch (section) {
       case CreateDomainSection.Entry:
-        return string.Format("CREATE TYPE {0} FROM {1}", Translate(node.Domain), Translate(node.Domain.DataType));
+        return string.Format("CREATE TYPE {0} FROM {1}", Translate(context, node.Domain), Translate(node.Domain.DataType));
       default:
         return string.Empty;
       }
@@ -206,7 +206,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override string Translate(SqlCompilerContext context, SqlDropDomain node)
     {
-      return string.Format("DROP TYPE {0}", Translate(node.Domain));
+      return string.Format("DROP TYPE {0}", Translate(context, node.Domain));
     }
 
     public override string Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
@@ -309,7 +309,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override string Translate(SqlCompilerContext context, SqlRenameTable node)
     {
-      return string.Format("EXEC sp_rename '{0}', '{1}'", Translate(node.Table), node.NewName);
+      return string.Format("EXEC sp_rename '{0}', '{1}'", Translate(context, node.Table), node.NewName);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
@@ -381,12 +381,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override string Translate(SqlCompilerContext context, SqlDropTable node)
     {
-      return "DROP TABLE " + Translate(node.Table);
+      return "DROP TABLE " + Translate(context, node.Table);
     }
 
     public override string Translate(SqlCompilerContext context, SqlDropView node)
     {
-      return "DROP VIEW " + Translate(node.View);
+      return "DROP VIEW " + Translate(context, node.View);
     }
 
     public override string Translate(SqlTrimType type)

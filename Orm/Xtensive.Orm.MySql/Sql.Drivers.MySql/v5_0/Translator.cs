@@ -302,7 +302,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    public override string Translate(SchemaNode node)
+    public override string Translate(SqlCompilerContext context, SchemaNode node)
     {
       return QuoteIdentifier(new[] {node.Name});
     }
@@ -316,10 +316,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           builder.Append("CREATE ");
           var temporaryTable = node.Table as TemporaryTable;
           if (temporaryTable != null) {
-            builder.Append("TEMPORARY TABLE " + Translate(temporaryTable));
+            builder.Append("TEMPORARY TABLE " + Translate(context, temporaryTable));
           }
           else {
-            builder.Append("TABLE " + Translate(node.Table));
+            builder.Append("TABLE " + Translate(context, node.Table));
           }
           return builder.ToString();
         case CreateTableSection.Exit:
@@ -349,7 +349,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           return string.Format("CREATE {0}INDEX {1} USING BTREE ON {2} "
                                , index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty)
                                , QuoteIdentifier(index.Name)
-                               , Translate(index.DataTable));
+                               , Translate(context, index.DataTable));
 
         case CreateIndexSection.Exit:
           return string.Empty;
@@ -399,10 +399,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           if (cascadableAction is SqlDropConstraint)
             return string.Empty;
           return cascadableAction.Cascade ? "CASCADE" : "RESTRICT";
-          break;
         default:
           return base.Translate(context, node, section);
-          break;
       }
     }
 

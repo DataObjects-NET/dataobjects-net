@@ -24,16 +24,18 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerNamingOptions NamingOptions { get; private set; }
 
-    public bool IsEmpty
-    {
-      get { return Output.IsEmpty; }
-    }
+    public bool IsEmpty { get { return Output.IsEmpty; } }
 
     public SqlNode[] GetTraversalPath()
     {
       if (traversalPath == null)
         traversalPath = traversalStack.ToArray();
       return traversalPath;
+    }
+
+    public bool HasOptions(SqlCompilerNamingOptions requiredOptions)
+    {
+      return (NamingOptions & requiredOptions)==requiredOptions;
     }
 
     public SqlCompilerNamingScope EnterScope(SqlCompilerNamingOptions options)
@@ -135,6 +137,8 @@ namespace Xtensive.Sql.Compiler
     internal SqlCompilerContext(SqlCompilerConfiguration configuration)
     {
       NamingOptions = SqlCompilerNamingOptions.TableQualifiedColumns | SqlCompilerNamingOptions.TableAliasing;
+      if (configuration.DatabaseQualifiedObjects)
+        NamingOptions |= SqlCompilerNamingOptions.DatabaseQualifiedObjects;
 
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);

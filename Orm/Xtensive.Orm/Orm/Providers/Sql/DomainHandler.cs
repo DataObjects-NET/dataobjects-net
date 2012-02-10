@@ -13,6 +13,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers.Sql.Expressions;
 using Xtensive.Orm.Providers.Sql.Mappings;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 using Xtensive.Threading;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -220,7 +221,8 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      var underlyingDriver = GetDriverFactory().CreateDriver(Handlers.Domain.Configuration.ConnectionInfo);
+      var underlyingDriver = GetDriverFactory().CreateDriver(
+        Handlers.Domain.Configuration.ConnectionInfo, new SqlCompilerConfiguration());
       Driver = new Driver(Handlers.Domain, underlyingDriver);
 
       base.Initialize();

@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using Xtensive.Core;
+using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Sql
 {
@@ -17,14 +18,15 @@ namespace Xtensive.Sql
     /// Creates driver from the specified <paramref name="connectionInfo"/>.
     /// </summary>
     /// <param name="connectionInfo">The connection info to create driver from.</param>
+    /// <param name="defaultCompilerConfiguration">Default compiler configuration</param>
     /// <returns>Created driver.</returns>
-    public SqlDriver CreateDriver(ConnectionInfo connectionInfo)
+    public SqlDriver CreateDriver(ConnectionInfo connectionInfo, SqlCompilerConfiguration defaultCompilerConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
       var connectionString = connectionInfo.ConnectionString
         ?? BuildConnectionString(connectionInfo.ConnectionUrl);
       var driver = CreateDriver(connectionString);
-      driver.Initialize(this);
+      driver.Initialize(this, defaultCompilerConfiguration);
       return driver;
     }
 

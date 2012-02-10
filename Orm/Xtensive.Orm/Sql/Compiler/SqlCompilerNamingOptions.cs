@@ -11,7 +11,9 @@ namespace Xtensive.Sql.Compiler
   [Flags]
   public enum SqlCompilerNamingOptions
   {
-    TableAliasing = 1,
-    TableQualifiedColumns = 2,
+    None = 0x0,
+    TableAliasing = 0x1,
+    TableQualifiedColumns = 0x2,
+    DatabaseQualifiedObjects = 0x4,
   }
 }

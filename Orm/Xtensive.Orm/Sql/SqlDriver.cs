@@ -16,6 +16,7 @@ namespace Xtensive.Sql
   public abstract class SqlDriver
   {
     private SqlDriverFactory factory;
+    private SqlCompilerConfiguration defaultCompilerConfiguration;
 
     /// <summary>
     /// Gets an instance that provides the most essential information about underlying RDBMS.
@@ -46,7 +47,7 @@ namespace Xtensive.Sql
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      return CreateCompiler().Compile(statement, new SqlCompilerConfiguration());
+      return CreateCompiler().Compile(statement, defaultCompilerConfiguration);
     }
 
     /// <summary>
@@ -59,6 +60,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "options");
+      ValidateCompilerConfiguration(configuration);
       return CreateCompiler().Compile(statement, configuration);
     }
 
@@ -182,9 +184,10 @@ namespace Xtensive.Sql
 
     #region Private / internal methods
 
-    internal void Initialize(SqlDriverFactory creator)
+    internal void Initialize(SqlDriverFactory creator, SqlCompilerConfiguration compilerConfiguration)
     {
       factory = creator;
+      defaultCompilerConfiguration = compilerConfiguration.Clone();
 
       var serverInfoProvider = CreateServerInfoProvider();
       ServerInfo = ServerInfo.Build(serverInfoProvider);
@@ -195,6 +198,8 @@ namespace Xtensive.Sql
 
       Translator = CreateTranslator();
       Translator.Initialize();
+
+      ValidateCompilerConfiguration(compilerConfiguration);
     }
 
     private Extractor BuildExtractor(SqlConnection connection)
@@ -205,6 +210,14 @@ namespace Xtensive.Sql
       var extractor = CreateExtractor();
       extractor.Initialize(connection);
       return extractor;
+    }
+
+    private void ValidateCompilerConfiguration(SqlCompilerConfiguration configuration)
+    {
+      var supported = ServerInfo.Query.Features.Supports(QueryFeatures.MultidatabaseQueries);
+      var requested = configuration.DatabaseQualifiedObjects;
+      if (requested && !supported)
+        throw SqlHelper.NotSupported(QueryFeatures.MultidatabaseQueries);
     }
 
     #endregion

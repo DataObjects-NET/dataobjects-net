@@ -761,10 +761,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           Sequence[] seqArray = new Sequence[sequences.Count];
           sequences.Values.CopyTo(seqArray, 0);
           Sequence seq = seqArray[0];
-          query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", 0, Driver.Translator.Translate(seq));
+          query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", 0,
+            Driver.Translator.Translate(null, seq)); // context is not used in PostrgreSQL translator
           for (int i = 1; i < sequences.Count; i++) {
             seq = seqArray[i];
-            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", i, Driver.Translator.Translate(seq));
+            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", i,
+              Driver.Translator.Translate(null, seq)); // context is not used in PostgreSQL translator
           }
           query.Append("\n) all_sequences\nORDER BY id");
         }

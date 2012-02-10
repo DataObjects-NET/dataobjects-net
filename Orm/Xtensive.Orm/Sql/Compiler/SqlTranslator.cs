@@ -105,7 +105,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case AlterDomainSection.Entry:
-        return "ALTER DOMAIN " + Translate(node.Domain);
+        return "ALTER DOMAIN " + Translate(context, node.Domain);
       case AlterDomainSection.AddConstraint:
         return "ADD";
       case AlterDomainSection.DropConstraint:
@@ -142,7 +142,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case AlterTableSection.Entry:
-        return "ALTER TABLE " + Translate(node.Table);
+        return "ALTER TABLE " + Translate(context, node.Table);
       case AlterTableSection.AddColumn:
         return "ADD COLUMN";
       case AlterTableSection.AlterColumn:
@@ -171,7 +171,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case NodeSection.Entry:
-        return "ALTER SEQUENCE " + Translate(node.Sequence);
+        return "ALTER SEQUENCE " + Translate(context, node.Sequence);
       default:
         return string.Empty;
       }
@@ -183,7 +183,7 @@ namespace Xtensive.Sql.Compiler
       case TableColumnSection.Entry:
         return QuoteIdentifier(column.DbName);
       case TableColumnSection.Type:
-        return column.Domain==null ? Translate(column.DataType) : Translate(column.Domain);
+        return column.Domain==null ? Translate(column.DataType) : Translate(context, column.Domain);
       case TableColumnSection.DefaultValue:
         return "DEFAULT";
       case TableColumnSection.DropDefault:
@@ -220,12 +220,12 @@ namespace Xtensive.Sql.Compiler
         case ConstraintSection.ForeignKey:
           return "FOREIGN KEY (";
         case ConstraintSection.ReferencedColumns: {
-          ForeignKey fk = constraint as ForeignKey;
-          return ") REFERENCES " + Translate(fk.ReferencedColumns[0].DataTable) + " (";
+          var fk = (ForeignKey) constraint;
+          return ") REFERENCES " + Translate(context, fk.ReferencedColumns[0].DataTable) + " (";
         }
         case ConstraintSection.Exit: {
-          ForeignKey fk = constraint as ForeignKey;
-          StringBuilder sb = new StringBuilder();
+          var fk = constraint as ForeignKey;
+          var sb = new StringBuilder();
           sb.Append(")");
           if (fk != null) {
             if (fk.MatchType != SqlMatchType.None)
@@ -401,7 +401,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case NodeSection.Entry:
-        return "CREATE ASSERTION " + Translate(node.Assertion) + " CHECK";
+        return "CREATE ASSERTION " + Translate(context, node.Assertion) + " CHECK";
       case NodeSection.Exit:
         StringBuilder sb = new StringBuilder();
         if (node.Assertion.IsDeferrable.HasValue) {
@@ -490,8 +490,8 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case CreateDomainSection.Entry:
-        StringBuilder sb = new StringBuilder();
-        sb.Append("CREATE DOMAIN " + Translate(node.Domain));
+        var sb = new StringBuilder();
+        sb.Append("CREATE DOMAIN " + Translate(context, node.Domain));
         sb.Append(" AS " + Translate(node.Domain.DataType));
         return sb.ToString();
       case CreateDomainSection.DomainDefaultValue:
@@ -509,7 +509,7 @@ namespace Xtensive.Sql.Compiler
         case CreateIndexSection.Entry:
           Index index = node.Index;
           if (index.IsFullText) {
-            return "CREATE FULLTEXT INDEX ON " + Translate(index.DataTable);
+            return "CREATE FULLTEXT INDEX ON " + Translate(context, index.DataTable);
           }
           var builder = new StringBuilder();
           builder.Append("CREATE ");
@@ -523,7 +523,7 @@ namespace Xtensive.Sql.Compiler
             if (index.IsClustered)
               builder.Append("CLUSTERED ");
           builder.Append("INDEX " + QuoteIdentifier(index.DbName));
-          builder.Append(" ON " + Translate(index.DataTable));
+          builder.Append(" ON " + Translate(context, index.DataTable));
           return builder.ToString();
         case CreateIndexSection.ColumnsEnter:
           return "(";
@@ -616,7 +616,7 @@ namespace Xtensive.Sql.Compiler
           if (node.Schema.Owner != null)
             sb.Append("AUTHORIZATION " + QuoteIdentifier(node.Schema.Owner));
           if (node.Schema.DefaultCharacterSet != null)
-            sb.Append("DEFAULT CHARACTER SET " + Translate(node.Schema.DefaultCharacterSet));
+            sb.Append("DEFAULT CHARACTER SET " + Translate(context, node.Schema.DefaultCharacterSet));
           return sb.ToString();
         default:
           return String.Empty;
@@ -628,7 +628,7 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
       case NodeSection.Entry:
         return
-          "CREATE SEQUENCE " + Translate(node.Sequence);
+          "CREATE SEQUENCE " + Translate(context, node.Sequence);
       default:
         return string.Empty;
       }
@@ -648,7 +648,7 @@ namespace Xtensive.Sql.Compiler
               sb.Append("LOCAL ");
             sb.Append("TEMPORARY ");
           }
-          sb.Append("TABLE " + Translate(node.Table));
+          sb.Append("TABLE " + Translate(context, node.Table));
           return sb.ToString();
         }
         case CreateTableSection.TableElementsEntry:
@@ -728,7 +728,7 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
         case NodeSection.Entry:
           var sb = new StringBuilder();
-          sb.Append("CREATE VIEW " + Translate(node.View));
+          sb.Append("CREATE VIEW " + Translate(context, node.View));
           if (node.View.ViewColumns.Count > 0) {
             sb.Append(" (");
             bool first = true;
@@ -810,30 +810,30 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlDropAssertion node)
     {
-      return "DROP ASSERTION " + Translate(node.Assertion);
+      return "DROP ASSERTION " + Translate(context, node.Assertion);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropCharacterSet node)
     {
-      return "DROP CHARACTER SET " + Translate(node.CharacterSet);
+      return "DROP CHARACTER SET " + Translate(context, node.CharacterSet);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropCollation node)
     {
-      return "DROP COLLATION " + Translate(node.Collation);
+      return "DROP COLLATION " + Translate(context, node.Collation);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropDomain node)
     {
-      return "DROP DOMAIN " + Translate(node.Domain) + (node.Cascade ? " CASCADE" : " RESTRICT");
+      return "DROP DOMAIN " + Translate(context, node.Domain) + (node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropIndex node)
     {
       if (!node.Index.IsFullText)
-        return "DROP INDEX " + QuoteIdentifier(node.Index.DbName) + " ON " + Translate(node.Index.DataTable);
+        return "DROP INDEX " + QuoteIdentifier(node.Index.DbName) + " ON " + Translate(context, node.Index.DataTable);
       else 
-        return "DROP FULLTEXT INDEX ON " + Translate(node.Index.DataTable);
+        return "DROP FULLTEXT INDEX ON " + Translate(context, node.Index.DataTable);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropPartitionFunction node)
@@ -853,22 +853,22 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlDropSequence node)
     {
-      return "DROP SEQUENCE " + Translate(node.Sequence) + (node.Cascade ? " CASCADE" : " RESTRICT");
+      return "DROP SEQUENCE " + Translate(context, node.Sequence) + (node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropTable node)
     {
-      return "DROP TABLE " + Translate(node.Table) + (node.Cascade ? " CASCADE" : " RESTRICT");
+      return "DROP TABLE " + Translate(context, node.Table) + (node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropTranslation node)
     {
-      return "DROP TRANSLATION " + Translate(node.Translation);
+      return "DROP TRANSLATION " + Translate(context, node.Translation);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropView node)
     {
-      return "DROP VIEW " + Translate(node.View) + (node.Cascade ? " CASCADE" : " RESTRICT");
+      return "DROP VIEW " + Translate(context, node.View) + (node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
@@ -1144,7 +1144,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlRenameTable node)
     {
-      return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(node.Table), QuoteIdentifier(node.NewName));
+      return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(context, node.Table), QuoteIdentifier(node.NewName));
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
@@ -1211,7 +1211,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case TableSection.Entry:
-        return Translate(node.DataTable);
+        return Translate(context, node.DataTable);
       case TableSection.AliasDeclaration:
           string alias = context.TableNameProvider.GetName(node);
         return (alias != node.DataTable.DbName) ? " " + QuoteIdentifier(alias) : string.Empty;
@@ -1527,11 +1527,15 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate(SchemaNode node)
+    public virtual string Translate(SqlCompilerContext context, SchemaNode node)
     {
-      return node.Schema != null
-        ? QuoteIdentifier(node.Schema.DbName, node.DbName)
-        : QuoteIdentifier(node.DbName);
+      if (node.Schema==null)
+        return QuoteIdentifier(node.DbName);
+      var dbQualified = node.Schema.Catalog!=null
+        && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
+      return dbQualified
+        ? QuoteIdentifier(node.Schema.Catalog.DbName, node.Schema.DbName, node.DbName)
+        : QuoteIdentifier(node.Schema.DbName, node.DbName);
     }
 
     public virtual string Translate(Collation collation)

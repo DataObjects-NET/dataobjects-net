@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlDropTable node)
     {
-      return "DROP TABLE " + Translate(node.Table);
+      return "DROP TABLE " + Translate(context, node.Table);
     }
 
     /// <inheritdoc/>
@@ -235,7 +235,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           //else if (!index.IsAscending)
           //    builder.Append("DESC ");
           builder.Append("INDEX " + QuoteIdentifier(index.DbName));
-          builder.Append(" ON " + Translate(index.DataTable));
+          builder.Append(" ON " + Translate(context, index.DataTable));
           return builder.ToString();
         case CreateIndexSection.ColumnsEnter:
           if (node.Index.Columns[0].Expression != null) {
@@ -273,7 +273,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case NodeSection.Entry:
-          return "SET GENERATOR " + Translate(node.Sequence);
+          return "SET GENERATOR " + Translate(context, node.Sequence);
         case NodeSection.Exit:
           return "TO " + (node.SequenceDescriptor.LastValue.HasValue ? node.SequenceDescriptor.LastValue : 0);
       }
@@ -286,12 +286,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       if (!node.Index.IsFullText)
         return "DROP INDEX " + QuoteIdentifier(node.Index.DbName);
       else 
-        return "DROP FULLTEXT INDEX ON " + Translate(node.Index.DataTable);
+        return "DROP FULLTEXT INDEX ON " + Translate(context, node.Index.DataTable);
     }
 
     public override string Translate(SqlCompilerContext context, SqlDropSequence node)
     {
-      return "DROP SEQUENCE " + Translate(node.Sequence);
+      return "DROP SEQUENCE " + Translate(context, node.Sequence);
     }
 
     public override string Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)

@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       case CreateIndexSection.Entry:
         return string.Format("CREATE INDEX {0} ON {1} USING gin ("
           , QuoteIdentifier(index.Name)
-          , Translate(index.DataTable));
+          , Translate(context, index.DataTable));
       case CreateIndexSection.ColumnsExit:
         // Add actual columns list
         return string.Concat(GetFulltextVector(context, (FullTextIndex) node.Index), base.Translate(context, node, section));
