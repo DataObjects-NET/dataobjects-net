@@ -325,9 +325,6 @@
   <data name="ExElementWithTypeIsContainedInThisInstanceAlready" xml:space="preserve">
     <value>Element with type '{0}' is already contained in this instance.</value>
   </data>
-  <data name="ExComparerForTypeIsNotAvailable" xml:space="preserve">
-    <value>Comparer for type '{0}' is not available.</value>
-  </data>
   <data name="ExTypeCantBeNull" xml:space="preserve">
     <value>Type cannot be null.</value>
   </data>
