@@ -139,13 +139,14 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
   {
     public static bool IsEnabled;
 
+    private BuildingContext context;
+
     public void OnBuilt(Domain domain)
     {
     }
 
-    private static void VerifyTypeCollection()
+    private void VerifyTypeCollection()
     {
-      var context = BuildingContext.Demand();
       var types = context.ModelDef.Types;
       Assert.IsNull(types.FindAncestor(types[typeof (Entity)]));
       Assert.IsNull(types.FindAncestor(types[typeof (IEntity)]));
@@ -158,9 +159,8 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
       Assert.AreEqual(types.FindAncestor(types[typeof (Author)]), types[typeof (Person)]);
     }
 
-    private static void RedefineTypes()
+    private void RedefineTypes()
     {
-      var context = BuildingContext.Demand();
       context.ModelDef.Types.Clear();
       context.ModelDef.DefineType(typeof (BookReview));
       context.ModelDef.DefineType(typeof (Book));
@@ -173,9 +173,9 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
       context.ModelDef.DefineType(typeof (IEntity));
     }
 
-    private static void RedefineFields()
+    private void RedefineFields()
     {
-      var types = BuildingContext.Demand().ModelDef.Types;
+      var types = context.ModelDef.Types;
       foreach (TypeDef type in types) {
         type.Fields.Clear();
         type.Indexes.Clear();
@@ -207,13 +207,12 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
       indexDef.KeyFields.Add("Title");
     }
 
-    private static void RedefineIndexes()
+    private void RedefineIndexes()
     {
     }
 
-    private static void VerifyDefinition()
+    private void VerifyDefinition()
     {
-      BuildingContext context = BuildingContext.Demand();
       Assert.IsNotNull(context.ModelDef.Types[typeof (Entity)]);
       Assert.IsNotNull(context.ModelDef.Types[typeof (IEntity)]);
 
@@ -343,24 +342,31 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
 
     #region IModule Members
 
-    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    public void OnDefinitionsBuilt(BuildingContext buildingContext, DomainModelDef model)
     {
       if (!IsEnabled)
         return;
 
-      Console.WriteLine("-- Verifying model --");
-      VerifyDefinition();
-      Console.WriteLine("-- Redefining types --");
-      RedefineTypes();
-      Console.WriteLine("-- Verifying model --");
-      VerifyDefinition();
-      Console.WriteLine("-- Redefining fields --");
-      RedefineFields();
-      Console.WriteLine("-- Redefining indexes --");
-      RedefineIndexes();
-      Console.WriteLine("-- Verifying model --");
-      VerifyDefinition();
-      VerifyTypeCollection();
+      context = buildingContext;
+
+      try {
+        Console.WriteLine("-- Verifying model --");
+        VerifyDefinition();
+        Console.WriteLine("-- Redefining types --");
+        RedefineTypes();
+        Console.WriteLine("-- Verifying model --");
+        VerifyDefinition();
+        Console.WriteLine("-- Redefining fields --");
+        RedefineFields();
+        Console.WriteLine("-- Redefining indexes --");
+        RedefineIndexes();
+        Console.WriteLine("-- Verifying model --");
+        VerifyDefinition();
+        VerifyTypeCollection();
+      }
+      finally {
+        context = null;
+      }
     }
 
     #endregion
