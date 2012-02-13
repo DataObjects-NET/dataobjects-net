@@ -15,9 +15,8 @@ namespace Xtensive.Orm.Building.Builders
 {
   partial class IndexBuilder
   {
-    private static void ChooseClusteredIndexes()
+    private void ChooseClusteredIndexes()
     {
-      var context = BuildingContext.Demand();
       foreach (var hierarchy in context.Model.Hierarchies) {
         var chooser = GetClusteredIndexChooser(hierarchy);
         var queue = new Queue<TypeInfo>();

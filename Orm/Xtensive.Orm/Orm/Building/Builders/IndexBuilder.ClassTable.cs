@@ -23,7 +23,6 @@ namespace Xtensive.Orm.Building.Builders
         return;
 
       var root = type.Hierarchy.Root;
-      var context = BuildingContext.Demand();
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var ancestors = type.GetAncestors().ToList();
       var interfaces = type.GetInterfaces();

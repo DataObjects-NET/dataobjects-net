@@ -58,9 +58,8 @@ namespace Xtensive.Orm.Building.Builders
         model.FullTextIndexes.Add(type, index);
     }
 
-    private static void BuildFullTextIndexesSingleTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    private void BuildFullTextIndexesSingleTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Demand();
       var model = context.Model;
       var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
       var name = context.NameBuilder.BuildFullTextIndexName(root);
@@ -80,9 +79,8 @@ namespace Xtensive.Orm.Building.Builders
         model.FullTextIndexes.Add(type, index);
     }
 
-    private static void BuildFullTextIndexesConcreteTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    private void BuildFullTextIndexesConcreteTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Demand();
       var model = context.Model;
       var indexDefs = GatherFullTextIndexDefinitons(root, hierarchyIndexes);
 
@@ -112,9 +110,8 @@ namespace Xtensive.Orm.Building.Builders
       };
     }
 
-    private static Dictionary<TypeInfo, List<FullTextIndexDef>> GatherFullTextIndexDefinitons(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    private Dictionary<TypeInfo, List<FullTextIndexDef>> GatherFullTextIndexDefinitons(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Demand();
       var model = context.Model;
       var processQueue = new Queue<TypeInfo>();
       foreach (var type in root.GetDescendants())
