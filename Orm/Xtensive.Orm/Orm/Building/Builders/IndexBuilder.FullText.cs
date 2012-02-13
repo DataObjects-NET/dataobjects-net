@@ -14,11 +14,10 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal static partial class IndexBuilder 
+  partial class IndexBuilder 
   {
-    public static void BuildFullTextIndexes()
+    private void BuildFullTextIndexes()
     {
-      var context = BuildingContext.Demand();
       var modelDef = context.ModelDef;
       var model = context.Model;
       var indexLookup = modelDef.FullTextIndexes.ToLookup(fi => model.Types[fi.Type.UnderlyingType].Hierarchy);
@@ -38,12 +37,11 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void BuildFullTextIndexesClassTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    private void BuildFullTextIndexesClassTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Demand();
       var model = context.Model;
       var indexesToDefine = hierarchyIndexes.ToList();
-      if (hierarchyIndexes.Any(fti => fti.Type.UnderlyingType != root.UnderlyingType) || indexesToDefine.Count > 1)
+      if (indexesToDefine.Any(fti => fti.Type.UnderlyingType != root.UnderlyingType) || indexesToDefine.Count > 1)
         throw new DomainBuilderException(string.Format(Strings.ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable, root.Name));
       var descendants = root.GetDescendants(true)
         .AddOne(root)

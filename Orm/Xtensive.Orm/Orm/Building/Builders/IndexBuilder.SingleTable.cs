@@ -12,9 +12,9 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal partial class IndexBuilder
+  partial class IndexBuilder
   {
-    private static void BuildSingleTableIndexes(TypeInfo type)
+    private void BuildSingleTableIndexes(TypeInfo type)
     {
       if (type.Indexes.Count > 0)
         return;

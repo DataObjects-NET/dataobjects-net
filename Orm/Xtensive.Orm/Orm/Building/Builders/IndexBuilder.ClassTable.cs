@@ -13,9 +13,9 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal partial class IndexBuilder
+  partial class IndexBuilder
   {
-    private static void BuildClassTableIndexes(TypeInfo type)
+    private void BuildClassTableIndexes(TypeInfo type)
     {
       if (type.Indexes.Count > 0)
         return;

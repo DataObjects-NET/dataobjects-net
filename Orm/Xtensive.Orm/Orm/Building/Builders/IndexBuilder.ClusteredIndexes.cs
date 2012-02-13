@@ -13,7 +13,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal partial class IndexBuilder
+  partial class IndexBuilder
   {
     private static void ChooseClusteredIndexes()
     {

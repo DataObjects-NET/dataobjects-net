@@ -12,18 +12,35 @@ using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
 
-
 namespace Xtensive.Orm.Building.Builders
 {
-  internal static partial class IndexBuilder
+  internal sealed partial class IndexBuilder
   {
-    public static void BuildIndexes()
+    private readonly BuildingContext context;
+
+    public static void BuildIndexes(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Indexes)) {
-        var context = BuildingContext.Demand();
-        CreateInterfaceIndexes();
-        foreach (var hierarchy in context.Model.Hierarchies) {
-          switch (hierarchy.InheritanceSchema) {
+        new IndexBuilder(context).BuildAll();
+      }
+    }
+
+    private void BuildAll()
+    {
+      CreateInterfaceIndexes();
+      BuildIndexesForHierarchies();
+      BuildInterfaceIndexes();
+      CleanupTypedIndexes();
+      BuildAffectedIndexes();
+      BuildFullTextIndexes();
+      BuildFiltersForPartialIndexes();
+      ChooseClusteredIndexes();
+    }
+
+    private void BuildIndexesForHierarchies()
+    {
+      foreach (var hierarchy in context.Model.Hierarchies) {
+        switch (hierarchy.InheritanceSchema) {
           case InheritanceSchema.Default:
             BuildClassTableIndexes(hierarchy.Root);
             break;
@@ -33,33 +50,24 @@ namespace Xtensive.Orm.Building.Builders
           case InheritanceSchema.ConcreteTable:
             BuildConcreteTableIndexes(hierarchy.Root);
             break;
-          }
         }
-        BuildInterfaceIndexes();
-        CleanupTypedIndexes();
-        BuildAffectedIndexes();
-        BuildFullTextIndexes();
-        BuildFiltersForPartialIndexes();
-        ChooseClusteredIndexes();
       }
     }
 
     #region Interface support methods
 
-    private static void CreateInterfaceIndexes()
+    private void CreateInterfaceIndexes()
     {
-      var context = BuildingContext.Demand();
       var processedInterfaces = new HashSet<TypeInfo>();
       foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface))
         CreateInterfaceIndexes(@interface, processedInterfaces);
     }
 
-    private static void CreateInterfaceIndexes(TypeInfo @interface, ICollection<TypeInfo> processedInterfaces)
+    private void CreateInterfaceIndexes(TypeInfo @interface, ICollection<TypeInfo> processedInterfaces)
     {
       if (processedInterfaces.Contains(@interface))
         return;
 
-      var context = BuildingContext.Demand();
       var interfaceDef = context.ModelDef.Types[@interface.UnderlyingType];
         
       // Build virtual declared interface index
@@ -68,13 +76,12 @@ namespace Xtensive.Orm.Building.Builders
 
         @interface.Indexes.Add(index);
         if (@interface.IsMaterialized)
-          BuildingContext.Demand().Model.RealIndexes.Add(index);
+          context.Model.RealIndexes.Add(index);
       }
 
       var interfaces = @interface.GetInterfaces();
       foreach (var typeInfo in interfaces)
         CreateInterfaceIndexes(typeInfo, processedInterfaces);
-
 
       // Build virtual inherited interface index
       foreach (var parent in interfaces)
@@ -84,14 +91,13 @@ namespace Xtensive.Orm.Building.Builders
             continue;
           @interface.Indexes.Add(index);
           if (@interface.IsMaterialized)
-            BuildingContext.Demand().Model.RealIndexes.Add(index);
+            context.Model.RealIndexes.Add(index);
         }
       processedInterfaces.Add(@interface);
     }
 
-    private static void BuildInterfaceIndexes()
+    private void BuildInterfaceIndexes()
     {
-      var context = BuildingContext.Demand();
       foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface)) {
         var implementors = @interface.GetImplementors(false).ToList();
 
@@ -203,7 +209,7 @@ namespace Xtensive.Orm.Building.Builders
 
           @interface.Indexes.Add(index);
           if (@interface.IsMaterialized)
-            BuildingContext.Demand().Model.RealIndexes.Add(index);
+            context.Model.RealIndexes.Add(index);
         }
 
         // Building secondary virtual indexes
@@ -280,9 +286,8 @@ namespace Xtensive.Orm.Building.Builders
     #region Build index methods
 
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private static IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef, bool buildAbstract)
+    private IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef, bool buildAbstract)
     {
-      var context = BuildingContext.Demand();
       Log.Info(Strings.LogBuildingIndexX, indexDef.Name);
       var attributes = !buildAbstract ? indexDef.Attributes : indexDef.Attributes | IndexAttributes.Abstract;
 
@@ -385,7 +390,7 @@ namespace Xtensive.Orm.Building.Builders
       return result;
     }
 
-    private static IndexInfo BuildInheritedIndex(TypeInfo reflectedType, IndexInfo ancestorIndex, bool buildAbstract)
+    private IndexInfo BuildInheritedIndex(TypeInfo reflectedType, IndexInfo ancestorIndex, bool buildAbstract)
     {
       Log.Info(Strings.LogBuildingIndexX, ancestorIndex.Name);
       var attributes = IndexAttributes.None;
@@ -470,7 +475,7 @@ namespace Xtensive.Orm.Building.Builders
         }
       }
 
-      var context = BuildingContext.Demand();
+      
       result.Name = context.NameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
       if (skipTypeId)
@@ -483,11 +488,11 @@ namespace Xtensive.Orm.Building.Builders
 
     #region Build virtual index methods
 
-    private static IndexInfo BuildTypedIndex(TypeInfo reflectedType, IndexInfo realIndex)
+    private IndexInfo BuildTypedIndex(TypeInfo reflectedType, IndexInfo realIndex)
     {
       if (realIndex.IsVirtual)
         throw new InvalidOperationException();
-      var nameBuilder = BuildingContext.Demand().NameBuilder;
+      var nameBuilder = context.NameBuilder;
       var attributes = realIndex.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Typed | IndexAttributes.Virtual;
@@ -520,9 +525,9 @@ namespace Xtensive.Orm.Building.Builders
       return result;
     }
 
-    private static IndexInfo BuildFilterIndex(TypeInfo reflectedType, IndexInfo indexToFilter, IEnumerable<TypeInfo> filterByTypes)
+    private IndexInfo BuildFilterIndex(TypeInfo reflectedType, IndexInfo indexToFilter, IEnumerable<TypeInfo> filterByTypes)
     {
-      var nameBuilder = BuildingContext.Demand().NameBuilder;
+      var nameBuilder = context.NameBuilder;
       var attributes = indexToFilter.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
@@ -549,9 +554,9 @@ namespace Xtensive.Orm.Building.Builders
       return result;
     }
 
-    private static IndexInfo BuildJoinIndex(TypeInfo reflectedType, IEnumerable<IndexInfo> indexesToJoin)
+    private IndexInfo BuildJoinIndex(TypeInfo reflectedType, IEnumerable<IndexInfo> indexesToJoin)
     {
-      var nameBuilder = BuildingContext.Demand().NameBuilder;
+      var nameBuilder = context.NameBuilder;
       var firstIndex = indexesToJoin.First();
       var otherIndexes = indexesToJoin.Skip(1).ToArray();
       var attributes = firstIndex.Attributes
@@ -635,9 +640,9 @@ namespace Xtensive.Orm.Building.Builders
       return result;
     }
 
-    private static IndexInfo BuildUnionIndex(TypeInfo reflectedType, IEnumerable<IndexInfo> indexesToUnion)
+    private IndexInfo BuildUnionIndex(TypeInfo reflectedType, IEnumerable<IndexInfo> indexesToUnion)
     {
-      var nameBuilder = BuildingContext.Demand().NameBuilder;
+      var nameBuilder = context.NameBuilder;
       var firstIndex = indexesToUnion.First();
       var otherIndexes = indexesToUnion.Skip(1).ToArray();
       var attributes = firstIndex.Attributes
@@ -670,9 +675,9 @@ namespace Xtensive.Orm.Building.Builders
       return result;
     }
 
-    private static IndexInfo BuildViewIndex(TypeInfo reflectedType, IndexInfo indexToApplyView)
+    private IndexInfo BuildViewIndex(TypeInfo reflectedType, IndexInfo indexToApplyView)
     {
-      var nameBuilder = BuildingContext.Demand().NameBuilder;
+      var nameBuilder = context.NameBuilder;
       var attributes = indexToApplyView.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.View | IndexAttributes.Virtual;
@@ -770,9 +775,9 @@ namespace Xtensive.Orm.Building.Builders
       return type.GetDescendants(true).Where(t => !t.IsAbstract).Except(hierarchyImplementors);
     }
 
-    private static IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
+    private IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
     {
-      var nameBuilder = BuildingContext.Demand().NameBuilder;
+      var nameBuilder = context.NameBuilder;
       var valueColumns = new ColumnInfoCollection(null, "ValueColumns");
       foreach (var column in columns)  {
         if (valueColumns.Contains(column.Name)) {
@@ -788,7 +793,7 @@ namespace Xtensive.Orm.Building.Builders
       return valueColumns;
     }
 
-    private static ColumnGroup BuildColumnGroup(IndexInfo index)
+    private ColumnGroup BuildColumnGroup(IndexInfo index)
     {
       var reflectedType = index.ReflectedType;
       var keyColumns = index.IsPrimary
@@ -804,9 +809,9 @@ namespace Xtensive.Orm.Building.Builders
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 
-    private static void CleanupTypedIndexes()
+    private void CleanupTypedIndexes()
     {
-      var context = BuildingContext.Demand();
+      
       foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity)) {
         var indexes = typeInfo.Indexes.Where(i => i.IsVirtual).ToList();
         var typedIndexes = indexes.Where(i => i.IsTyped);
@@ -823,9 +828,9 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void BuildAffectedIndexes()
+    private void BuildAffectedIndexes()
     {
-      var context = BuildingContext.Demand();
+      
       foreach (var typeInfo in context.Model.Types)
         if (typeInfo.IsEntity)
           BuildAffectedIndexesForEntity(typeInfo);
@@ -833,7 +838,7 @@ namespace Xtensive.Orm.Building.Builders
           BuildAffectedIndexesForMaterializedInterface(typeInfo);
     }
     
-    private static void BuildAffectedIndexesForEntity(TypeInfo typeInfo)
+    private void BuildAffectedIndexesForEntity(TypeInfo typeInfo)
     {
       var ancestors = new HashSet<TypeInfo>();
       ProcessAncestors(typeInfo, ancestor => ancestors.Add(ancestor));
@@ -850,7 +855,7 @@ namespace Xtensive.Orm.Building.Builders
         }
     }
     
-    private static void ExtractAffectedIndexes(
+    private void ExtractAffectedIndexes(
       TypeInfo typeInfo, IEnumerable<IndexInfo> sources, ICollection<TypeInfo> ancestors)
     {
       foreach (var indexInfo in sources) {
@@ -877,7 +882,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void BuildAffectedIndexesForMaterializedInterface(TypeInfo typeInfo)
+    private void BuildAffectedIndexesForMaterializedInterface(TypeInfo typeInfo)
     {
       var primaryIndex = typeInfo.Indexes.PrimaryIndex;
       foreach (var descendant in typeInfo.GetDescendants(true).Where(t => t.IsEntity).Distinct()) {
@@ -898,9 +903,9 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void ProcessAncestors(TypeInfo typeInfo, Action<TypeInfo> ancestorProcessor)
+    private void ProcessAncestors(TypeInfo typeInfo, Action<TypeInfo> ancestorProcessor)
     {
-      var context = BuildingContext.Demand();
+      
       var root = typeInfo.Hierarchy.Root;
       if (root==typeInfo)
         return;
@@ -915,13 +920,20 @@ namespace Xtensive.Orm.Building.Builders
       } while (ancestor!=null);
     }
 
-    private static void BuildFiltersForPartialIndexes()
+    private void BuildFiltersForPartialIndexes()
     {
-      var context = BuildingContext.Demand();
+      
       foreach (var index in context.Model.RealIndexes.Where(index => index.FilterExpression!=null))
         PartialIndexFilterBuilder.BuildFilter(index);
     }
 
     #endregion
+
+    // Constructors
+
+    private IndexBuilder(BuildingContext context)
+    {
+      this.context = context;
+    }
   }
 }

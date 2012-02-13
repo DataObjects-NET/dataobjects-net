@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Building.Builders
         context.Model = new DomainModel();
         BuildTypes(context, GetTypeBuildSequence(context));
         BuildAssociations(context);
-        BuildIndexes();
+        IndexBuilder.BuildIndexes(context);
         context.Model.UpdateState(true);
         ValidateMappingConfiguration(context);
         BuildPrefetchActions(context);
@@ -105,10 +105,8 @@ namespace Xtensive.Orm.Building.Builders
 
     private static void ValidateMappingConfiguration(BuildingContext context)
     {
-      var requiresValidation = context.Model.IsMultidatabase || context.Model.IsMultischema;
-      if (!requiresValidation)
-        return;
-      StorageMappingValidator.Run(context);
+      if (context.Model.IsMultidatabase || context.Model.IsMultischema)
+        StorageMappingValidator.Run(context);
     }
 
     private static void BuildPrefetchActions(BuildingContext context)
@@ -296,11 +294,6 @@ namespace Xtensive.Orm.Building.Builders
       var attribute = new IndexAttribute(association.OwnerField.Name);
       var indexDef = ModelDefBuilder.DefineIndex(context, typeDef, attribute);
       typeDef.Indexes.Add(indexDef);
-    }
-
-    private static void BuildIndexes()
-    {
-      IndexBuilder.BuildIndexes();
     }
 
     private static void BuildAuxiliaryTypes(BuildingContext context, IEnumerable<AssociationInfo> associations)

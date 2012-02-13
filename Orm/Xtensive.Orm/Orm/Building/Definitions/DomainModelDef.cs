@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Building.Definitions
   [Serializable]
   public sealed class DomainModelDef : Node
   {
-    private BuildingContext context;
+    private readonly BuildingContext context;
     private readonly HierarchyDefCollection hierarchies;
     private readonly TypeDefCollection types;
     private readonly FullTextIndexDefCollection fullTextIndexes;
