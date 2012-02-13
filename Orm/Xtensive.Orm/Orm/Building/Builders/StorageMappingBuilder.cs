@@ -43,7 +43,9 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Run(BuildingContext context)
     {
-      new StorageMappingBuilder(context).ProcessAll();
+      using (Log.InfoRegion(Strings.LogProcessingMappingRules)) {
+        new StorageMappingBuilder(context).ProcessAll();
+      }
     }
 
     private void ProcessAll()

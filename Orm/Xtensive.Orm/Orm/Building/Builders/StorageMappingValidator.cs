@@ -15,9 +15,11 @@ namespace Xtensive.Orm.Building.Builders
     private readonly DomainModel model;
     private readonly DomainConfiguration configuration;
 
-    public static void Run()
+    public static void Run(BuildingContext context)
     {
-      new StorageMappingValidator(BuildingContext.Demand()).ValidateAll();
+      using (Log.InfoRegion(Strings.LogValidatingMappingConfiguration)) {
+        new StorageMappingValidator(context).ValidateAll();
+      }
     }
 
     private void ValidateAll()

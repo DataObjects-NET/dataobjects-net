@@ -108,9 +108,7 @@ namespace Xtensive.Orm.Building.Builders
       var requiresValidation = context.Model.IsMultidatabase || context.Model.IsMultischema;
       if (!requiresValidation)
         return;
-      using (Log.InfoRegion(Strings.LogValidatingMappingConfiguration)) {
-        StorageMappingValidator.Run();
-      }
+      StorageMappingValidator.Run(context);
     }
 
     private static void BuildPrefetchActions(BuildingContext context)
