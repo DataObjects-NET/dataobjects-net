@@ -4251,6 +4251,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type discriminator field is not found for {0} type.
+        /// </summary>
+        internal static string ExTypeDiscriminatorFieldIsNotFoundForXType {
+            get {
+                return ResourceManager.GetString("ExTypeDiscriminatorFieldIsNotFoundForXType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type discriminator value is required unless {0} is marked as default type in hierarchy..
         /// </summary>
         internal static string ExTypeDiscriminatorValueIsRequiredUnlessXIsMarkedAsDefaultTypeInHierarchy {

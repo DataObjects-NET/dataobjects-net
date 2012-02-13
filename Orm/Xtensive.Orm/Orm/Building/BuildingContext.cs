@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Building
     public static BuildingContext Demand()
     {
       var currentContext = Current;
-      if (currentContext==null)        
+      if (currentContext==null)
         throw Exceptions.ContextRequired<BuildingContext,BuildingScope>();
       return currentContext;
     }

@@ -29,92 +29,86 @@ namespace Xtensive.Orm.Building.Builders
     /// Builds the <see cref="TypeInfo"/> instance, its key fields and <see cref="HierarchyInfo"/> for hierarchy root.
     /// </summary>
     /// <param name="typeDef"><see cref="TypeDef"/> instance.</param>
-    public static TypeInfo BuildType(TypeDef typeDef)
+    internal static TypeInfo BuildType(BuildingContext context, TypeDef typeDef)
     {
-      Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetShortName());
-      var context = BuildingContext.Demand();
+      using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetShortName())) {
 
-      var typeInfo = new TypeInfo(context.Model, typeDef.Attributes) {
-        UnderlyingType = typeDef.UnderlyingType,
-        Name = typeDef.Name,
-        MappingName = typeDef.MappingName,
-        MappingDatabase = typeDef.MappingDatabase,
-        MappingSchema = typeDef.MappingSchema,
-        HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type == typeof (IHasVersionRoots))
-      };
-      context.Model.Types.Add(typeInfo);
+        var typeInfo = new TypeInfo(context.Model, typeDef.Attributes) {
+          UnderlyingType = typeDef.UnderlyingType,
+          Name = typeDef.Name,
+          MappingName = typeDef.MappingName,
+          MappingDatabase = typeDef.MappingDatabase,
+          MappingSchema = typeDef.MappingSchema,
+          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type==typeof (IHasVersionRoots))
+        };
+        context.Model.Types.Add(typeInfo);
 
-      // Registering connections between type & its ancestors
-      var node = context.DependencyGraph.TryGetNode(typeDef);
-      if (node != null) {
-        foreach (var edge in node.OutgoingEdges.Where(e => e.Kind == EdgeKind.Implementation || e.Kind == EdgeKind.Inheritance)) {
-          var baseType = context.Model.Types[edge.Head.Value.UnderlyingType];
-          switch (edge.Kind) {
-            case EdgeKind.Inheritance:
-              context.Model.Types.RegisterInheritance(baseType, typeInfo);
-              break;
-            case EdgeKind.Implementation:
-              context.Model.Types.RegisterImplementation(baseType, typeInfo);
-              break;
+        // Registering connections between type & its ancestors
+        var node = context.DependencyGraph.TryGetNode(typeDef);
+        if (node!=null) {
+          foreach (var edge in node.OutgoingEdges.Where(e => e.Kind==EdgeKind.Implementation || e.Kind==EdgeKind.Inheritance)) {
+            var baseType = context.Model.Types[edge.Head.Value.UnderlyingType];
+            switch (edge.Kind) {
+              case EdgeKind.Inheritance:
+                context.Model.Types.RegisterInheritance(baseType, typeInfo);
+                break;
+              case EdgeKind.Implementation:
+                context.Model.Types.RegisterImplementation(baseType, typeInfo);
+                break;
+            }
           }
         }
-      }
 
-      if (typeDef.IsEntity) {
-        var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
+        if (typeDef.IsEntity) {
+          var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
 
-        // Is type a hierarchy root?
-        if (typeInfo.UnderlyingType==hierarchyDef.Root.UnderlyingType) {
+          // Is type a hierarchy root?
+          if (typeInfo.UnderlyingType==hierarchyDef.Root.UnderlyingType) {
+            foreach (var keyField in hierarchyDef.KeyFields) {
+              var fieldInfo = BuildDeclaredField(context, typeInfo, typeDef.Fields[keyField.Name]);
+              fieldInfo.IsPrimaryKey = true;
+            }
+            typeInfo.Hierarchy = BuildHierarchyInfo(context, typeInfo, hierarchyDef);
+          }
+          else {
+            var root = context.Model.Types[hierarchyDef.Root.UnderlyingType];
+            typeInfo.Hierarchy = root.Hierarchy;
+            foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent==null))
+              BuildInheritedField(context, typeInfo, fieldInfo);
+          }
+        }
+        else if (typeDef.IsInterface) {
+          var hierarchyDef = context.ModelDef.FindHierarchy(typeDef.Implementors[0]);
           foreach (var keyField in hierarchyDef.KeyFields) {
-            var fieldInfo = BuildDeclaredField(BuildingContext.Demand(), typeInfo, typeDef.Fields[keyField.Name]);
+            var fieldInfo = BuildDeclaredField(context, typeInfo, typeDef.Fields[keyField.Name]);
             fieldInfo.IsPrimaryKey = true;
           }
-          typeInfo.Hierarchy = BuildHierarchyInfo(context, typeInfo, hierarchyDef);
         }
-        else {
-          var root = context.Model.Types[hierarchyDef.Root.UnderlyingType];
-          typeInfo.Hierarchy = root.Hierarchy;
-          foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent == null))
-            BuildInheritedField(context, typeInfo, fieldInfo);
-        }
-      }
-      else if (typeDef.IsInterface) {
-        var hierarchyDef = context.ModelDef.FindHierarchy(typeDef.Implementors[0]);
-        foreach (var keyField in hierarchyDef.KeyFields) {
-          var fieldInfo = BuildDeclaredField(BuildingContext.Demand(), typeInfo, typeDef.Fields[keyField.Name]);
-          fieldInfo.IsPrimaryKey = true;
-        }
-      }
 
-      return typeInfo;
+        return typeInfo;
+      }
     }
 
-    public static void BuildTypeDiscriminatorMap(TypeDef typeDef, TypeInfo typeInfo)
+    public static void BuildTypeDiscriminatorMap(BuildingContext context, TypeDef typeDef, TypeInfo typeInfo)
     {
-        if (typeDef.TypeDiscriminatorValue != null) {
-          var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent == null);
-          if (targetField == null)
-            throw new DomainBuilderException(string.Format("Type discriminator field is not found for {0} type", typeInfo.Name));
-          if (targetField.IsEntity) {
-            targetField = targetField.Fields.First();
-            targetField.IsTypeDiscriminator = true;
-          }
-          typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
-          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeInfo.TypeDiscriminatorValue);
+      if (typeDef.TypeDiscriminatorValue!=null) {
+        var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent==null);
+        if (targetField==null)
+          throw new DomainBuilderException(string.Format(Strings.ExTypeDiscriminatorFieldIsNotFoundForXType, typeInfo.Name));
+        if (targetField.IsEntity) {
+          targetField = targetField.Fields.First();
+          targetField.IsTypeDiscriminator = true;
         }
-        if (typeDef.IsDefaultTypeInHierarchy)
-          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
+        typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(
+          targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
+        typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeInfo.TypeDiscriminatorValue);
+      }
+      if (typeDef.IsDefaultTypeInHierarchy)
+        typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
     }
 
-    /// <summary>
-    /// Builds the fields.
-    /// </summary>
-    /// <param name="typeDef">The <see cref="TypeDef"/> instance.</param>
-    /// <param name="typeInfo">The corresponding <see cref="TypeInfo"/> instance.</param>
-    public static void BuildFields(TypeDef typeDef, TypeInfo typeInfo)
+    public static void BuildFields(BuildingContext context, TypeDef typeDef, TypeInfo typeInfo)
     {
-      var context = BuildingContext.Demand();
-
       if (typeInfo.IsInterface) {
         var sourceFields = typeInfo.GetInterfaces()
           .SelectMany(i => i.Fields)
@@ -218,7 +212,7 @@ namespace Xtensive.Orm.Building.Builders
       type.Fields.Add(fieldInfo);
 
       if (fieldInfo.IsEntitySet) {
-        AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
+        AssociationBuilder.BuildAssociation(context, fieldDef, fieldInfo);
         return fieldInfo;
       }
 
@@ -231,7 +225,7 @@ namespace Xtensive.Orm.Building.Builders
         BuildNestedFields(context, null, fieldInfo, fields);
 
         if (!IsAuxiliaryType(type))
-          AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
+          AssociationBuilder.BuildAssociation(context, fieldDef, fieldInfo);
 
         // Adjusting type discriminator field for references
         if (fieldDef.IsTypeDiscriminator)
@@ -301,9 +295,11 @@ namespace Xtensive.Orm.Building.Builders
             clone.Column = BuildInheritedColumn(context, clone, field.Column);
         }
         if (clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
-          var origin = context.Model.Associations.Find(context.Model.Types[field.ValueType], true).Where(a => a.OwnerField==field).FirstOrDefault();
+          var origin = context.Model.Associations
+            .Find(context.Model.Types[field.ValueType], true)
+            .FirstOrDefault(a => a.OwnerField==field);
           if (origin!=null && !clone.IsInherited) {
-            AssociationBuilder.BuildAssociation(origin, clone);
+            AssociationBuilder.BuildAssociation(context, origin, clone);
             context.DiscardedAssociations.Add(origin);
           }
         }

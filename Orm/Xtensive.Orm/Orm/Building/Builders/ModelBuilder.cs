@@ -130,14 +130,14 @@ namespace Xtensive.Orm.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         // Building types, system fields and hierarchies
         foreach (var typeDef in typeDefs) {
-          TypeBuilder.BuildType(typeDef);
+          TypeBuilder.BuildType(context, typeDef);
         }
       }
       using (Log.InfoRegion(Strings.LogBuildingX, "Fields"))
         foreach (var typeDef in typeDefs) {
           var typeInfo = context.Model.Types[typeDef.UnderlyingType];
-          TypeBuilder.BuildFields(typeDef, typeInfo);
-          TypeBuilder.BuildTypeDiscriminatorMap(typeDef, typeInfo);
+          TypeBuilder.BuildFields(context, typeDef, typeInfo);
+          TypeBuilder.BuildTypeDiscriminatorMap(context, typeDef, typeInfo);
         }
     }
 
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Building.Builders
             List<Pair<AssociationInfo, string>> pairedToReverse;
             if (context.PairedAssociationsToReverse.TryGetValue(typeInfo, out pairedToReverse))
               foreach (var pair in pairedToReverse)
-                AssociationBuilder.BuildReversedAssociation(pair.First, pair.Second);
+                AssociationBuilder.BuildReversedAssociation(context, pair.First, pair.Second);
             var field = refField;
             var pairedAssociations = context.PairedAssociations
               .Where(pa => field.Associations.Contains(pa.First))
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Building.Builders
               foreach (var paired in pairedAssociations) {
                 paired.First.Ancestors.AddRange(interfaceAssociations);
                 if (paired.First.TargetType.IsInterface || context.TypesWithProcessedInheritedAssociations.Contains(paired.First.TargetType))
-                  AssociationBuilder.BuildReversedAssociation(paired.First, paired.Second);
+                  AssociationBuilder.BuildReversedAssociation(context, paired.First, paired.Second);
                 else {
                   List<Pair<AssociationInfo, string>> pairs;
                   if (!context.PairedAssociationsToReverse.TryGetValue(paired.First.TargetType, out pairs)) {
@@ -362,9 +362,9 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build auxiliary types
       foreach (var pair in list) {
-        var auxiliaryType = TypeBuilder.BuildType(pair.Second);
+        var auxiliaryType = TypeBuilder.BuildType(context, pair.Second);
         auxiliaryType.IsAuxiliary = true;
-        TypeBuilder.BuildFields(pair.Second, auxiliaryType);
+        TypeBuilder.BuildFields(context, pair.Second, auxiliaryType);
         pair.First.AuxiliaryType = auxiliaryType;
         if (pair.First.IsPaired)
           pair.First.Reversed.AuxiliaryType = auxiliaryType;

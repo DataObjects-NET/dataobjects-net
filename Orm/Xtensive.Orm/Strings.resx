@@ -2365,4 +2365,7 @@ Error: {1}</value>
   <data name="LogValidatingMappingConfiguration">
     <value xml:space="preserve">Validating mapping configuration</value>
   </data>
+  <data name="ExTypeDiscriminatorFieldIsNotFoundForXType">
+    <value xml:space="preserve">Type discriminator field is not found for {0} type</value>
+  </data>
 </root>
