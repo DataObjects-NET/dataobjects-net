@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Xtensive.Core;
+using Xtensive.Orm.Building;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Metadata;
@@ -40,9 +41,10 @@ namespace Xtensive.Orm.Upgrade
     {
       var context = UpgradeContext;
       var upgradeMode = context.OriginalConfiguration.UpgradeMode;
+      var buildingContext = BuildingContext.Demand();
       switch (context.Stage) {
       case UpgradeStage.Initializing:
-        TypeIdBuilder.BuildTypeIds(false);
+        TypeIdBuilder.BuildTypeIds(buildingContext, false);
         if (upgradeMode.IsUpgrading())
           // Perform or PerformSafely
           CheckMetadata();
@@ -50,26 +52,26 @@ namespace Xtensive.Orm.Upgrade
         break;
       case UpgradeStage.Upgrading:
         // Perform or PerformSafely
-        TypeIdBuilder.BuildTypeIds(false);
+        TypeIdBuilder.BuildTypeIds(buildingContext, false);
         UpdateMetadata();
         break;
       case UpgradeStage.Final:
         if (upgradeMode.IsUpgrading()) {
           // Recreate, Perform or PerformSafely
-          TypeIdBuilder.BuildTypeIds(false);
+          TypeIdBuilder.BuildTypeIds(buildingContext, false);
           UpdateMetadata();
         }
         else if (upgradeMode.IsLegacy()) {
           // LegacySkip and LegacyValidate
-          TypeIdBuilder.BuildTypeIds(false);
+          TypeIdBuilder.BuildTypeIds(buildingContext, false);
         }
         else {
           // Skip and Validate
           // We need only system types to extract other TypeIds
-          TypeIdBuilder.BuildTypeIds(true); 
+          TypeIdBuilder.BuildTypeIds(buildingContext, true); 
           ExtractDomainModel(true);
           // And only after that we can build all TypeIds
-          TypeIdBuilder.BuildTypeIds(false);
+          TypeIdBuilder.BuildTypeIds(buildingContext, false);
         }
         break;
       default:

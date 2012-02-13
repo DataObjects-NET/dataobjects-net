@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Building.Builders
                 // leaving this job for SystemUpgradeHandler
                 builderConfiguration.UpgradeHandler.Invoke();
               else
-                TypeIdBuilder.BuildTypeIds(false);
+                TypeIdBuilder.BuildTypeIds(context, false);
               upgradeContext.TransactionScope.Complete();
             }
             finally {

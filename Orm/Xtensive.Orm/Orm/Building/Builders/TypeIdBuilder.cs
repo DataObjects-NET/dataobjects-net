@@ -4,22 +4,19 @@
 // Created by: Alex Kofman
 // Created:    2009.04.14
 
-using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 
-
 namespace Xtensive.Orm.Building.Builders
 {  
   internal static class TypeIdBuilder
   {
-    public static void BuildTypeIds(bool systemTypesOnly)
+    public static void BuildTypeIds(BuildingContext context, bool systemTypesOnly)
     {
-      var context = BuildingContext.Demand();
       var domain = context.Domain;
-      
+
       BuildSystemTypeIds(context);
       if (!systemTypesOnly)
         BuildRegularTypeIds(context);
