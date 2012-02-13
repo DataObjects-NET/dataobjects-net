@@ -32,8 +32,10 @@ namespace Xtensive.Orm.Building.Builders
   /// <summary>
   /// Utility class for <see cref="Domain"/> building.
   /// </summary>
-  internal static class DomainBuilder
+  internal sealed class DomainBuilder
   {
+    private readonly BuildingContext context;
+
     /// <summary>
     /// Builds the domain.
     /// </summary>
@@ -52,19 +54,25 @@ namespace Xtensive.Orm.Building.Builders
       var context = new BuildingContext(configuration, builderConfiguration);
       using (Log.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
-          CreateDomain(context);
-          CreateHandlerFactory(context);
-          CreateHandlers(context);
-          CreateServices(context);
-          BuildModel(context);
-          CreateKeyGenerators(context);
-          PerformUpgradeActions(context);
+          new DomainBuilder(context).Run();
         }
       }
+
       return context.Domain;
     }
 
-    private static void PerformUpgradeActions(BuildingContext context)
+    private void Run()
+    {
+      CreateDomain();
+      CreateHandlerFactory();
+      CreateHandlers();
+      CreateServices();
+      BuildModel();
+      CreateKeyGenerators();
+      PerformUpgradeActions();
+    }
+
+    private void PerformUpgradeActions()
     {
       var upgradeContext = UpgradeContext.Demand();
       var builderConfiguration = context.BuilderConfiguration;
@@ -73,7 +81,7 @@ namespace Xtensive.Orm.Building.Builders
         context.SystemSessionHandler = session.Handler;
         try {
           upgradeContext.TransactionScope = session.OpenTransaction();
-          SynchronizeSchema(context, builderConfiguration.SchemaUpgradeMode);
+          SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
           context.Domain.Handler.BuildMapping();
           if (builderConfiguration.UpgradeHandler!=null)
             // We don't build TypeIds here 
@@ -89,21 +97,19 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void CreateDomain(BuildingContext context)
+    private void CreateDomain()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
         context.Domain = new Domain(context.Configuration);
       }
     }
 
-    /// <param name="context"> </param>
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private static void CreateHandlerFactory(BuildingContext context)
+    private void CreateHandlerFactory()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = context.Configuration.ConnectionInfo.Provider;
         var providerAssembly = GetProviderAssembly(protocol);
-        
+
         // Creating the provider
         var handlerProviderType = providerAssembly.GetTypes()
           .Where(type => type.IsPublicNonAbstractInheritorOf(typeof (HandlerFactory)))
@@ -127,21 +133,21 @@ namespace Xtensive.Orm.Building.Builders
       const string assemblyFormat = "Xtensive.Orm.{0}";
 
       switch (providerName) {
-      case WellKnown.Provider.SqlServer:
-        return typeof(DomainBuilder).Assembly;
-      case WellKnown.Provider.SqlServerCe:
-      case WellKnown.Provider.PostgreSql:
-      case WellKnown.Provider.Oracle:
-      case WellKnown.Provider.Firebird:
-      case WellKnown.Provider.MySql:
-        return AssemblyHelper.LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
-      default:
-        throw new NotSupportedException(
-          string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
+        case WellKnown.Provider.SqlServer:
+          return typeof (DomainBuilder).Assembly;
+        case WellKnown.Provider.SqlServerCe:
+        case WellKnown.Provider.PostgreSql:
+        case WellKnown.Provider.Oracle:
+        case WellKnown.Provider.Firebird:
+        case WellKnown.Provider.MySql:
+          return AssemblyHelper.LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
+        default:
+          throw new NotSupportedException(
+            string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
       }
     }
 
-    private static void CreateHandlers(BuildingContext context)
+    private void CreateHandlers()
     {
       var handlers = context.Domain.Handlers;
       var factory = handlers.HandlerFactory;
@@ -158,41 +164,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    internal static IEnumerable<ServiceRegistration> CreateServiceRegistrations(
-      DomainConfiguration configuration)
-    {
-      return from type in configuration.Types.DomainServices
-      from registration in ServiceRegistration.CreateAll(type)
-      select registration;
-    }
-
-    internal static IEnumerable<ServiceRegistration> CreateKeyGeneratorRegistrations(
-      DomainConfiguration configuration)
-    {
-      var keyGeneratorRegistrations = (
-        from type in configuration.Types.KeyGenerators
-        from registration in ServiceRegistration.CreateAll(type)
-        select registration
-        ).ToList();
-      var defaultKeyGeneratorRegistrations = (
-        from type in KeyGenerator.SupportedKeyFieldTypes
-        let registration = new ServiceRegistration(typeof (KeyGenerator), type.GetShortName(),
-          typeof(CachingKeyGenerator<>).MakeGenericType(type), true)
-        where !keyGeneratorRegistrations.Any(r => r.Type==registration.Type && r.Name==registration.Name)
-        select registration
-        ).ToList();
-      return keyGeneratorRegistrations.Concat(defaultKeyGeneratorRegistrations);
-    }
-
-    internal static IEnumerable<ServiceRegistration> CreateQueryPreprocessorRegistrations(
-      DomainConfiguration configuration)
-    {
-      return from type in configuration.Types.QueryPreprocessors
-      from registration in ServiceRegistration.CreateAll(type)
-      select registration;
-    }
-
-    private static void CreateServices(BuildingContext context)
+    private void CreateServices()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
         var domain = context.Domain;
@@ -201,13 +173,13 @@ namespace Xtensive.Orm.Building.Builders
         domain.Services =
           ServiceContainer.Create(typeof (ServiceContainer),
             CreateServiceRegistrations(configuration)
-            .Concat(CreateKeyGeneratorRegistrations(configuration))
-            .Concat(CreateQueryPreprocessorRegistrations(configuration)),
+              .Concat(CreateKeyGeneratorRegistrations(configuration))
+              .Concat(CreateQueryPreprocessorRegistrations(configuration)),
             ServiceContainer.Create(serviceContainerType, domain.Handler.CreateBaseServices()));
       }
     }
 
-    private static void BuildModel(BuildingContext context)
+    private void BuildModel()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
         var domain = context.Domain;
@@ -242,7 +214,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void CreateKeyGenerators(BuildingContext context)
+    private void CreateKeyGenerators()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
         var domain = context.Domain;
@@ -281,7 +253,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <exception cref="SchemaSynchronizationException">Extracted schema is incompatible 
     /// with the target schema in specified <paramref name="schemaUpgradeMode"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
-    private static void SynchronizeSchema(BuildingContext context, SchemaUpgradeMode schemaUpgradeMode)
+    private void SynchronizeSchema(SchemaUpgradeMode schemaUpgradeMode)
     {
       var domain = context.Domain;
       var upgradeHandler = domain.Handlers.SchemaUpgradeHandler;
@@ -319,7 +291,9 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, schemaUpgradeMode, context.Model);
-        if (!schemaUpgradeMode.In(SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate))
+        var shouldDumpSchema = !schemaUpgradeMode
+          .In(SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
+        if (shouldDumpSchema)
           Upgrade.Log.Info(result.ToString());
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogComparisonResultX, result);
@@ -328,30 +302,31 @@ namespace Xtensive.Orm.Building.Builders
             (NodeDifference) result.Difference, result.UpgradeActions);
 
         switch (schemaUpgradeMode) {
-        case SchemaUpgradeMode.ValidateExact:
-          if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges)
-            throw new SchemaSynchronizationException(result);
-          break;
-        case SchemaUpgradeMode.ValidateCompatible:
-          if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal && result.SchemaComparisonStatus!=SchemaComparisonStatus.TargetIsSubset)
-            throw new SchemaSynchronizationException(result);
-          break;
-        case SchemaUpgradeMode.PerformSafely:
-          if (result.HasUnsafeActions)
-            throw new SchemaSynchronizationException(result);
-          goto case SchemaUpgradeMode.Perform;
-        case SchemaUpgradeMode.Recreate:
-        case SchemaUpgradeMode.Perform:
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
-          if (result.UpgradeActions.Any())
-            upgradeHandler.ClearExtractedSchemaCache();
-          break;
-        case SchemaUpgradeMode.ValidateLegacy:
-          if (result.IsCompatibleInLegacyMode!=true)
-            throw new SchemaSynchronizationException(result);
-          break;
-        default:
-          throw new ArgumentOutOfRangeException("schemaUpgradeMode");
+          case SchemaUpgradeMode.ValidateExact:
+            if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges)
+              throw new SchemaSynchronizationException(result);
+            break;
+          case SchemaUpgradeMode.ValidateCompatible:
+            if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal
+              && result.SchemaComparisonStatus!=SchemaComparisonStatus.TargetIsSubset)
+              throw new SchemaSynchronizationException(result);
+            break;
+          case SchemaUpgradeMode.PerformSafely:
+            if (result.HasUnsafeActions)
+              throw new SchemaSynchronizationException(result);
+            goto case SchemaUpgradeMode.Perform;
+          case SchemaUpgradeMode.Recreate:
+          case SchemaUpgradeMode.Perform:
+            upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+            if (result.UpgradeActions.Any())
+              upgradeHandler.ClearExtractedSchemaCache();
+            break;
+          case SchemaUpgradeMode.ValidateLegacy:
+            if (result.IsCompatibleInLegacyMode!=true)
+              throw new SchemaSynchronizationException(result);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
       }
     }
@@ -361,7 +336,7 @@ namespace Xtensive.Orm.Building.Builders
       var extractedSchema = upgradeHandler.GetExtractedSchemaProvider().InvokeAsync();
       var targetSchema = upgradeHandler.GetTargetSchemaProvider().InvokeAsync();
 
-      Func<Func<StorageModel>, Pair<StorageModel,StorageModel>> cloner = schemaProvider => {
+      Func<Func<StorageModel>, Pair<StorageModel, StorageModel>> cloner = schemaProvider => {
         var origin = schemaProvider.Invoke();
         origin.Lock();
         var clone = (StorageModel) origin.Clone(null, StorageModel.DefaultName);
@@ -370,7 +345,7 @@ namespace Xtensive.Orm.Building.Builders
 
       var extractedSchemaCloner = cloner.InvokeAsync(extractedSchema);
       var targetSchemaCloner = cloner.InvokeAsync(targetSchema);
-      
+
       var extractedSchemas = extractedSchemaCloner.Invoke();
       var targetSchemas = targetSchemaCloner.Invoke();
 
@@ -388,6 +363,48 @@ namespace Xtensive.Orm.Building.Builders
 
       // Returning unlocked clones
       return new Pair<StorageModel, StorageModel>(extractedSchemas.Second, targetSchemas.Second);
+    }
+
+
+    public static IEnumerable<ServiceRegistration> CreateServiceRegistrations(
+      DomainConfiguration configuration)
+    {
+      return from type in configuration.Types.DomainServices
+        from registration in ServiceRegistration.CreateAll(type)
+        select registration;
+    }
+
+    public static IEnumerable<ServiceRegistration> CreateKeyGeneratorRegistrations(
+      DomainConfiguration configuration)
+    {
+      var keyGeneratorRegistrations = (
+        from type in configuration.Types.KeyGenerators
+        from registration in ServiceRegistration.CreateAll(type)
+        select registration
+        ).ToList();
+      var defaultKeyGeneratorRegistrations = (
+        from type in KeyGenerator.SupportedKeyFieldTypes
+        let registration = new ServiceRegistration(typeof (KeyGenerator), type.GetShortName(),
+          typeof (CachingKeyGenerator<>).MakeGenericType(type), true)
+        where !keyGeneratorRegistrations.Any(r => r.Type==registration.Type && r.Name==registration.Name)
+        select registration
+        ).ToList();
+      return keyGeneratorRegistrations.Concat(defaultKeyGeneratorRegistrations);
+    }
+
+    public static IEnumerable<ServiceRegistration> CreateQueryPreprocessorRegistrations(
+      DomainConfiguration configuration)
+    {
+      return from type in configuration.Types.QueryPreprocessors
+        from registration in ServiceRegistration.CreateAll(type)
+        select registration;
+    }
+
+    // Constructors
+
+    private DomainBuilder(BuildingContext context)
+    {
+      this.context = context;
     }
   }
 }
