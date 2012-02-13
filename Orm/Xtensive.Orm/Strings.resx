@@ -2362,4 +2362,7 @@ Error: {1}</value>
   <data name="ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ">
     <value xml:space="preserve">Implementors of {0} interface belong to hierarchies with different key structure: {1} &amp; {2}.</value>
   </data>
+  <data name="LogValidatingMappingConfiguration">
+    <value xml:space="preserve">Validating mapping configuration</value>
+  </data>
 </root>

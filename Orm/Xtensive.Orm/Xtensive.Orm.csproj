@@ -103,6 +103,7 @@
     <Compile Include="Orm\Building\Builders\MemberCompilerProviderBuilder.cs" />
     <Compile Include="Orm\Building\Builders\PartialIndexFilterBuilder.cs" />
     <Compile Include="Orm\Building\Builders\StorageMappingBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\StorageMappingValidator.cs" />
     <Compile Include="Orm\Building\Builders\ValueTypeBuilder.cs" />
     <Compile Include="Orm\Building\Definitions\FullTextFieldDef.cs" />
     <Compile Include="Orm\Building\Definitions\FullTextIndexDef.cs" />

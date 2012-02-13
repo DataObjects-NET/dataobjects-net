@@ -38,6 +38,8 @@ namespace Xtensive.Orm.Building.Builders
         UnderlyingType = typeDef.UnderlyingType,
         Name = typeDef.Name,
         MappingName = typeDef.MappingName,
+        MappingDatabase = typeDef.MappingDatabase,
+        MappingSchema = typeDef.MappingSchema,
         HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type == typeof (IHasVersionRoots))
       };
       context.Model.Types.Add(typeInfo);

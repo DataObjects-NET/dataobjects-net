@@ -6213,6 +6213,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Validating mapping configuration.
+        /// </summary>
+        internal static string LogValidatingMappingConfiguration {
+            get {
+                return ResourceManager.GetString("LogValidatingMappingConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to member access sequence contains non-persistent fields.
         /// </summary>
         internal static string MemberAccessSequenceContainsNonPersistentFields {

@@ -94,14 +94,24 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         var context = BuildingContext.Demand();
-
         context.Model = new DomainModel();
-        var typeSequence = GetTypeBuildSequence(context);
-        BuildTypes(typeSequence);
+        BuildTypes(GetTypeBuildSequence(context));
         BuildAssociations();
         BuildIndexes();
         context.Model.UpdateState(true);
+        ValidateMappingConfiguration();
         BuildPrefetchActions();
+      }
+    }
+
+    private static void ValidateMappingConfiguration()
+    {
+      var context = BuildingContext.Demand();
+      var requiresValidation = context.Model.IsMultidatabase || context.Model.IsMultischema;
+      if (!requiresValidation)
+        return;
+      using (Log.InfoRegion(Strings.LogValidatingMappingConfiguration)) {
+        StorageMappingValidator.Run();
       }
     }
 

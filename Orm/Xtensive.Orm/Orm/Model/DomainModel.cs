@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Helpers;
@@ -18,8 +19,6 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class DomainModel: Node
   {
-    private DomainModelAttributes attributes;
-
     /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
     /// </summary>
@@ -50,15 +49,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public bool IsMultidatabase
     {
-      get { return (attributes & DomainModelAttributes.Multidatabase)==DomainModelAttributes.Multidatabase; }
-      set
-      {
-        this.EnsureNotLocked();
-        if (value)
-          attributes |= DomainModelAttributes.Multidatabase;
-        else
-          attributes &= ~DomainModelAttributes.Multidatabase;
-      }
+      get { return (Attributes & DomainModelAttributes.Multidatabase)==DomainModelAttributes.Multidatabase; }
     }
 
     /// <summary>
@@ -66,16 +57,13 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public bool IsMultischema
     {
-      get { return (attributes & DomainModelAttributes.Multischema)==DomainModelAttributes.Multischema; }
-      set
-      {
-        this.EnsureNotLocked();
-        if (value)
-          attributes |= DomainModelAttributes.Multischema;
-        else
-          attributes &= ~DomainModelAttributes.Multischema;
-      }
+      get { return (Attributes & DomainModelAttributes.Multischema)==DomainModelAttributes.Multischema; }
     }
+
+    /// <summary>
+    /// Gets model attributes.
+    /// </summary>
+    public DomainModelAttributes Attributes { get; private set; }
 
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
@@ -87,8 +75,29 @@ namespace Xtensive.Orm.Model
       Types.UpdateState(true);
       RealIndexes.UpdateState(true);
       Associations.UpdateState(true);
+      UpdateAttributes();
     }
- 
+
+    private void UpdateAttributes()
+    {
+      var isMultischema = Types
+        .Select(t => t.MappingSchema)
+        .Where(schema => !string.IsNullOrEmpty(schema))
+        .Distinct()
+        .Count() > 1;
+
+      var isMultidatabase = Types
+        .Select(t => t.MappingDatabase)
+        .Any(db => !string.IsNullOrEmpty(db));
+
+      var attributes = DomainModelAttributes.None;
+      if (isMultischema)
+        attributes |= DomainModelAttributes.Multischema;
+      if (IsMultidatabase)
+        attributes |= DomainModelAttributes.Multidatabase;
+      Attributes = attributes;
+    }
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
