@@ -98,11 +98,11 @@ namespace Xtensive.Orm.Building.Builders
 
       if (model.IsMultidatabase && (!hasDefaultDatabase || !hasDefaultSchema))
         throw new InvalidOperationException(
-          Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAreDefined);
+          Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
 
       if (model.IsMultischema && !hasDefaultSchema)
         throw new InvalidOperationException(
-          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined);
+          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
     }
 
     private static string GetDatabaseMapping(TypeInfo type)

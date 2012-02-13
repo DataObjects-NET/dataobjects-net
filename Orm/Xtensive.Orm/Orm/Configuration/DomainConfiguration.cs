@@ -402,8 +402,8 @@ namespace Xtensive.Orm.Configuration
 
     private void ValidateMappingConfiguration()
     {
-      var hasSchemaRules = MappingRules.Any(rule => rule.Schema!=string.Empty);
-      var hasDatabaseRules = MappingRules.Any(rule => rule.Database!=string.Empty);
+      var hasSchemaRules = MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Schema));
+      var hasDatabaseRules = MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Database));
 
       if (hasSchemaRules && string.IsNullOrEmpty(DefaultSchema))
         throw new InvalidOperationException(

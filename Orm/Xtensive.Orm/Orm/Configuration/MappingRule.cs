@@ -58,9 +58,9 @@ namespace Xtensive.Orm.Configuration
     public MappingRule(Assembly assembly, string @namespace, string database, string schema)
     {
       Assembly = assembly;
-      Namespace = @namespace ?? string.Empty;
-      Database = database ?? string.Empty;
-      Schema = schema ?? string.Empty;
+      Namespace = @namespace;
+      Database = database;
+      Schema = schema;
     }
   }
 }
