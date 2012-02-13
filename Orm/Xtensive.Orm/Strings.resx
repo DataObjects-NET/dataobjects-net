@@ -2368,4 +2368,16 @@ Error: {1}</value>
   <data name="ExTypeDiscriminatorFieldIsNotFoundForXType">
     <value xml:space="preserve">Type discriminator field is not found for {0} type</value>
   </data>
+  <data name="ExSingleHierarchyIsMappedToMultipleDatabasesXY">
+    <value xml:space="preserve">Single hierarchy is mapped to multiple databases: {0}, {1}</value>
+  </data>
+  <data name="ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ">
+    <value xml:space="preserve">Interface '{0}' is implemented by types mapped to different databases: {1}, {2}</value>
+  </data>
+  <data name="ExMultischemaModeIsActiveButNoSchemaSpecifiedForX">
+    <value xml:space="preserve">Multi-schema mode is active, but no schema specified for '{0}'</value>
+  </data>
+  <data name="ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX">
+    <value xml:space="preserve">Multi-database mode is active, but no database specified for '{0}'</value>
+  </data>
 </root>

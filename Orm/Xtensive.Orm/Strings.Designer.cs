@@ -2134,6 +2134,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Interface &apos;{0}&apos; is implemented by types mapped to different databases: {1}, {2}.
+        /// </summary>
+        internal static string ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ {
+            get {
+                return ResourceManager.GetString("ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid action type..
         /// </summary>
         internal static string ExInvalidActionType {
@@ -2883,6 +2892,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Multi-database mode is active, but no database specified for &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX {
+            get {
+                return ResourceManager.GetString("ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Multiple languages not supported for fulltext column {0} of index {1}..
         /// </summary>
         internal static string ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY {
@@ -2897,6 +2915,15 @@ namespace Xtensive {
         internal static string ExMultipleResults {
             get {
                 return ResourceManager.GetString("ExMultipleResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Multi-schema mode is active, but no schema specified for &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExMultischemaModeIsActiveButNoSchemaSpecifiedForX {
+            get {
+                return ResourceManager.GetString("ExMultischemaModeIsActiveButNoSchemaSpecifiedForX", resourceCulture);
             }
         }
         
@@ -3761,6 +3788,15 @@ namespace Xtensive {
         internal static string ExSessionWithNameXAlreadyExists {
             get {
                 return ResourceManager.GetString("ExSessionWithNameXAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Single hierarchy is mapped to multiple databases: {0}, {1}.
+        /// </summary>
+        internal static string ExSingleHierarchyIsMappedToMultipleDatabasesXY {
+            get {
+                return ResourceManager.GetString("ExSingleHierarchyIsMappedToMultipleDatabasesXY", resourceCulture);
             }
         }
         
