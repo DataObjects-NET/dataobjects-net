@@ -40,8 +40,8 @@ namespace Xtensive.Orm.Building.Builders
     /// <param name="configuration">The domain configuration.</param>
     /// <param name="builderConfiguration">The builder configuration.</param>
     /// <returns>Built domain.</returns>
-    public static Domain BuildDomain(DomainConfiguration configuration, 
-      DomainBuilderConfiguration builderConfiguration)
+    public static Domain BuildDomain(
+      DomainConfiguration configuration, DomainBuilderConfiguration builderConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
@@ -49,57 +49,59 @@ namespace Xtensive.Orm.Building.Builders
       if (!configuration.IsLocked)
         configuration.Lock(true);
 
-      var context = new BuildingContext(configuration) {
-        BuilderConfiguration = builderConfiguration
-      };
-
-      var upgradeContext = UpgradeContext.Demand();
+      var context = new BuildingContext(configuration, builderConfiguration);
       using (Log.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
-          CreateDomain();
-          CreateHandlerFactory();
-          CreateHandlers();
-          CreateServices();
-          BuildModel();
-          CreateKeyGenerators();
-
-          using (var session = context.Domain.OpenSession(SessionType.System))
-          using (session.Activate()) {
-            context.SystemSessionHandler = session.Handler;
-            try {
-              upgradeContext.TransactionScope = session.OpenTransaction();
-              SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
-              context.Domain.Handler.BuildMapping();
-              if (builderConfiguration.UpgradeHandler!=null)
-                // We don't build TypeIds here 
-                // leaving this job for SystemUpgradeHandler
-                builderConfiguration.UpgradeHandler.Invoke();
-              else
-                TypeIdBuilder.BuildTypeIds(context, false);
-              upgradeContext.TransactionScope.Complete();
-            }
-            finally {
-              upgradeContext.TransactionScope.DisposeSafely();
-            }
-          }
+          CreateDomain(context);
+          CreateHandlerFactory(context);
+          CreateHandlers(context);
+          CreateServices(context);
+          BuildModel(context);
+          CreateKeyGenerators(context);
+          PerformUpgradeActions(context);
         }
       }
       return context.Domain;
     }
 
-    private static void CreateDomain()
+    private static void PerformUpgradeActions(BuildingContext context)
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
-        var domain = new Domain(BuildingContext.Demand().Configuration);
-        BuildingContext.Demand().Domain = domain;
+      var upgradeContext = UpgradeContext.Demand();
+      var builderConfiguration = context.BuilderConfiguration;
+      using (var session = context.Domain.OpenSession(SessionType.System))
+      using (session.Activate()) {
+        context.SystemSessionHandler = session.Handler;
+        try {
+          upgradeContext.TransactionScope = session.OpenTransaction();
+          SynchronizeSchema(context, builderConfiguration.SchemaUpgradeMode);
+          context.Domain.Handler.BuildMapping();
+          if (builderConfiguration.UpgradeHandler!=null)
+            // We don't build TypeIds here 
+            // leaving this job for SystemUpgradeHandler
+            builderConfiguration.UpgradeHandler.Invoke();
+          else
+            TypeIdBuilder.BuildTypeIds(context, false);
+          upgradeContext.TransactionScope.Complete();
+        }
+        finally {
+          upgradeContext.TransactionScope.DisposeSafely();
+        }
       }
     }
 
+    private static void CreateDomain(BuildingContext context)
+    {
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
+        context.Domain = new Domain(context.Configuration);
+      }
+    }
+
+    /// <param name="context"> </param>
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private static void CreateHandlerFactory()
+    private static void CreateHandlerFactory(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
-        string protocol = BuildingContext.Demand().Configuration.ConnectionInfo.Provider;
+        string protocol = context.Configuration.ConnectionInfo.Provider;
         var providerAssembly = GetProviderAssembly(protocol);
         
         // Creating the provider
@@ -114,10 +116,9 @@ namespace Xtensive.Orm.Building.Builders
             string.Format(Strings.ExStorageProviderNotFound, protocol));
 
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
-        handlerFactory.Domain = BuildingContext.Demand().Domain;
+        handlerFactory.Domain = context.Domain;
         handlerFactory.Initialize();
-        var handlerAccessor = BuildingContext.Demand().Domain.Handlers;
-        handlerAccessor.HandlerFactory = handlerFactory;
+        context.Domain.Handlers.HandlerFactory = handlerFactory;
       }
     }
 
@@ -140,9 +141,9 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void CreateHandlers()
+    private static void CreateHandlers(BuildingContext context)
     {
-      var handlers = BuildingContext.Demand().Domain.Handlers;
+      var handlers = context.Domain.Handlers;
       var factory = handlers.HandlerFactory;
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         // DomainHandler
@@ -191,10 +192,10 @@ namespace Xtensive.Orm.Building.Builders
       select registration;
     }
 
-    private static void CreateServices()
+    private static void CreateServices(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
-        var domain = BuildingContext.Demand().Domain;
+        var domain = context.Domain;
         var configuration = domain.Configuration;
         var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
         domain.Services =
@@ -206,10 +207,9 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void BuildModel()
+    private static void BuildModel(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
-        var context = BuildingContext.Demand();
         var domain = context.Domain;
         ModelBuilder.Run(context);
         var model = context.Model;
@@ -242,10 +242,9 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void CreateKeyGenerators()
+    private static void CreateKeyGenerators(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
-        var context = BuildingContext.Demand();
         var domain = context.Domain;
         var keyGenerators = domain.KeyGenerators;
         foreach (var keyInfo in domain.Model.Hierarchies.Select(h => h.Key)) {
@@ -282,9 +281,8 @@ namespace Xtensive.Orm.Building.Builders
     /// <exception cref="SchemaSynchronizationException">Extracted schema is incompatible 
     /// with the target schema in specified <paramref name="schemaUpgradeMode"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
-    private static void SynchronizeSchema(SchemaUpgradeMode schemaUpgradeMode)
+    private static void SynchronizeSchema(BuildingContext context, SchemaUpgradeMode schemaUpgradeMode)
     {
-      var context = BuildingContext.Demand();
       var domain = context.Domain;
       var upgradeHandler = domain.Handlers.SchemaUpgradeHandler;
 

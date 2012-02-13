@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Building
     /// <summary>
     /// Gets the building configuration.
     /// </summary>
-    public DomainBuilderConfiguration BuilderConfiguration { get; internal set; }
+    public DomainBuilderConfiguration BuilderConfiguration { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="Orm.Domain"/> object.
@@ -105,14 +105,14 @@ namespace Xtensive.Orm.Building
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="configuration">The configuration.</param>
-    internal BuildingContext(DomainConfiguration configuration)
+    internal BuildingContext(DomainConfiguration configuration, DomainBuilderConfiguration builderConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
+
       Configuration = configuration;
+      BuilderConfiguration = builderConfiguration;
+
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       PairedAssociationsToReverse = new Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>>();
       TypesWithProcessedInheritedAssociations = new HashSet<TypeInfo>();
