@@ -99,6 +99,7 @@
     <Compile Include="Orm\Attributes\VersionAttribute.cs" />
     <Compile Include="Orm\Attributes\VersionMode.cs" />
     <Compile Include="Orm\Building\Builders\AssociationBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\TypeGenerationMonitor.cs" />
     <Compile Include="Orm\Building\Builders\IndexBuilder.ClusteredIndexes.cs" />
     <Compile Include="Orm\Building\Builders\MemberCompilerProviderBuilder.cs" />
     <Compile Include="Orm\Building\Builders\PartialIndexFilterBuilder.cs" />

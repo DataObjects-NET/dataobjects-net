@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
         var context = BuildingContext.Demand();
         var domain = context.Domain;
-        ModelBuilder.Run();
+        ModelBuilder.Run(context);
         var model = context.Model;
         model.Lock(true);
         domain.Model = model;

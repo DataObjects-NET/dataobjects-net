@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Providers
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
           if (argument.IsSubclassOf(typeof (Persistent))) {
-            var argTypeDef = ModelDefBuilder.ProcessType(argument);
+            var argTypeDef = ModelDefBuilder.ProcessType(BuildingContext.Demand(), argument);
             names[i] = argTypeDef.Name;
           }
           else

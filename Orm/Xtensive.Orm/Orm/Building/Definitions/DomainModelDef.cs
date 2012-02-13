@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Building.Definitions
   [Serializable]
   public sealed class DomainModelDef : Node
   {
+    private BuildingContext context;
     private readonly HierarchyDefCollection hierarchies;
     private readonly TypeDefCollection types;
     private readonly FullTextIndexDefCollection fullTextIndexes;
@@ -63,7 +64,7 @@ namespace Xtensive.Orm.Building.Definitions
       if (types.Contains(type))
         throw new DomainBuilderException(string.Format(Strings.ExTypeXIsAlreadyDefined, type.GetFullName()));
 
-      return ModelDefBuilder.ProcessType(type);
+      return ModelDefBuilder.ProcessType(BuildingContext.Demand(), type);
     }
 
     /// <summary>
@@ -103,11 +104,12 @@ namespace Xtensive.Orm.Building.Definitions
         hierarchies.Remove(hd);
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DomainModelDef"/> class.
-    /// </summary>
-    internal DomainModelDef()
+    // Constructors
+
+    internal DomainModelDef(BuildingContext context)
     {
+      this.context = context;
+
       types = new TypeDefCollection(this, "Types");
       hierarchies = new HierarchyDefCollection();
       fullTextIndexes = new FullTextIndexDefCollection();

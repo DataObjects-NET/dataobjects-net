@@ -41,9 +41,9 @@ namespace Xtensive.Orm.Building.Builders
     private readonly Dictionary<MappingRequest, MappingResult> mappingCache
       = new Dictionary<MappingRequest,MappingResult>();
 
-    public static void Run()
+    public static void Run(BuildingContext context)
     {
-      new StorageMappingBuilder(BuildingContext.Demand()).ProcessAll();
+      new StorageMappingBuilder(context).ProcessAll();
     }
 
     private void ProcessAll()
@@ -85,6 +85,8 @@ namespace Xtensive.Orm.Building.Builders
 
       return new MappingResult(targetDatabase, targetSchema);
     }
+
+    // Constructors
 
     private StorageMappingBuilder(BuildingContext context)
     {

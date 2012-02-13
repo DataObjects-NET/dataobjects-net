@@ -39,6 +39,8 @@ namespace Xtensive.Orm.Building.Builders
           Strings.ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined);
     }
 
+    // Constructors
+
     private StorageMappingValidator(BuildingContext context)
     {
       model = context.Model;

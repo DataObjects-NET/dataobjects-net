@@ -28,16 +28,14 @@ namespace Xtensive.Orm.Building.Builders
     private static ThreadSafeDictionary<string, Type> generatedTypes
       = ThreadSafeDictionary<string, Type>.Create(new object());
 
-    public static void Run()
+    public static void Run(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
-
       // Model definition building
-      ModelDefBuilder.Run();
+      ModelDefBuilder.Run(context);
       // Invoke user-defined transformations
-      ApplyCustomDefinitions();
+      ApplyCustomDefinitions(context);
       // Clean-up
-      RemoveTemporaryDefinitions();
+      RemoveTemporaryDefinitions(context);
       // Inspecting model definition
       ModelInspector.Run();
 
@@ -45,18 +43,21 @@ namespace Xtensive.Orm.Building.Builders
       if (context.ModelInspectionResult.HasActions) {
         // Add handlers for hierarchies and types that could be created as a result of FixupProcessor work
         // This is done to inspect them right after construction with the help of ModelInspector
-        context.ModelDef.Hierarchies.Inserted += OnHierarchyAdded;
-        context.ModelDef.Types.Inserted += OnTypeAdded;
+        var monitor = new TypeGenerationMonitor(context);
+        monitor.Attach();
 
         // Applying fixup actions to the model definition.
         FixupActionProcessor.Run();
 
-        ModelDefBuilder.ProcessTypes();
+        ModelDefBuilder.ProcessTypes(context);
         InspectAndProcessGeneratedEntities(context);
+        BuildModel(context);
+        monitor.Detach();
       }
-      BuildModel();
-      context.ModelDef.Hierarchies.Inserted -= OnHierarchyAdded;
-      context.ModelDef.Types.Inserted -= OnTypeAdded;
+      else {
+        // Simply build model
+        BuildModel(context);
+      }
     }
 
     private static void InspectAndProcessGeneratedEntities(BuildingContext context)
@@ -73,40 +74,37 @@ namespace Xtensive.Orm.Building.Builders
         FixupActionProcessor.Run();
     }
 
-    private static void ApplyCustomDefinitions()
+    private static void ApplyCustomDefinitions(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
-        var context = BuildingContext.Demand();
         foreach (var module in context.BuilderConfiguration.Modules)
           module.OnDefinitionsBuilt(context, context.ModelDef);
       }
     }
 
-    private static void RemoveTemporaryDefinitions()
+    private static void RemoveTemporaryDefinitions(BuildingContext context)
     {
-      var modelDef = BuildingContext.Demand().ModelDef;
+      var modelDef = context.ModelDef;
       var ientityDef = modelDef.Types.TryGetValue(typeof (IEntity));
       if (ientityDef != null)
         modelDef.Types.Remove(ientityDef);
     }
 
-    public static void BuildModel()
+    public static void BuildModel(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
-        var context = BuildingContext.Demand();
         context.Model = new DomainModel();
-        BuildTypes(GetTypeBuildSequence(context));
-        BuildAssociations();
+        BuildTypes(BuildingContext.Demand(), GetTypeBuildSequence(context));
+        BuildAssociations(BuildingContext.Demand());
         BuildIndexes();
         context.Model.UpdateState(true);
-        ValidateMappingConfiguration();
-        BuildPrefetchActions();
+        ValidateMappingConfiguration(BuildingContext.Demand());
+        BuildPrefetchActions(BuildingContext.Demand());
       }
     }
 
-    private static void ValidateMappingConfiguration()
+    private static void ValidateMappingConfiguration(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
       var requiresValidation = context.Model.IsMultidatabase || context.Model.IsMultischema;
       if (!requiresValidation)
         return;
@@ -115,9 +113,8 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void BuildPrefetchActions()
+    private static void BuildPrefetchActions(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
       var model = context.Model;
       var domain = context.Domain;
       foreach (var type in context.Model.Types.Entities) {
@@ -132,10 +129,8 @@ namespace Xtensive.Orm.Building.Builders
       }
     } 
 
-    private static void BuildTypes(IEnumerable<TypeDef> typeDefs)
+    private static void BuildTypes(BuildingContext context, IEnumerable<TypeDef> typeDefs)
     {
-      var context = BuildingContext.Demand();
-
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         // Building types, system fields and hierarchies
         foreach (var typeDef in typeDefs) {
@@ -150,9 +145,8 @@ namespace Xtensive.Orm.Building.Builders
         }
     }
 
-    private static void PreprocessAssociations()
+    private static void PreprocessAssociations(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
       foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity && !t.IsAuxiliary)) {
         
         // pair integrity escalation and consistency check
@@ -250,11 +244,10 @@ namespace Xtensive.Orm.Building.Builders
     }
 
 
-    private static void BuildAssociations()
+    private static void BuildAssociations(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
-        PreprocessAssociations();
-        var context = BuildingContext.Demand();
+        PreprocessAssociations(context);
         foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
             continue;
@@ -280,7 +273,7 @@ namespace Xtensive.Orm.Building.Builders
             association.OnTargetRemove = OnRemoveAction.Deny;
         }
 
-        BuildAuxiliaryTypes(context.Model.Associations);
+        BuildAuxiliaryTypes(BuildingContext.Demand(), context.Model.Associations);
       }
     }
 
@@ -303,7 +296,7 @@ namespace Xtensive.Orm.Building.Builders
       if (typeDef.Indexes.Any(isIndexForField))
         return;
       var attribute = new IndexAttribute(association.OwnerField.Name);
-      var indexDef = ModelDefBuilder.DefineIndex(typeDef, attribute);
+      var indexDef = ModelDefBuilder.DefineIndex(context, typeDef, attribute);
       typeDef.Indexes.Add(indexDef);
     }
 
@@ -312,9 +305,8 @@ namespace Xtensive.Orm.Building.Builders
       IndexBuilder.BuildIndexes();
     }
 
-    private static void BuildAuxiliaryTypes(IEnumerable<AssociationInfo> associations)
+    private static void BuildAuxiliaryTypes(BuildingContext context, IEnumerable<AssociationInfo> associations)
     {
-      var context = BuildingContext.Demand();
       var list = new List<Pair<AssociationInfo, TypeDef>>();
       foreach (var association in associations) {
         if (!association.IsMaster)
@@ -339,7 +331,7 @@ namespace Xtensive.Orm.Building.Builders
           genericInstanceType);
 
         // Defining auxiliary type
-        var underlyingTypeDef = ModelDefBuilder.DefineType(underlyingType);
+        var underlyingTypeDef = ModelDefBuilder.DefineType(context, underlyingType);
         underlyingTypeDef.Name = association.Name;
         underlyingTypeDef.MappingName = 
           context.NameBuilder.BuildAuxiliaryTypeMappingName(association);
@@ -347,10 +339,10 @@ namespace Xtensive.Orm.Building.Builders
         // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
         var hra = genericInstanceType.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
         // Defining the hierarchy
-        var hierarchy = ModelDefBuilder.DefineHierarchy(underlyingTypeDef, hra);
+        var hierarchy = ModelDefBuilder.DefineHierarchy(context, underlyingTypeDef, hra);
 
         // Processing type properties
-        ModelDefBuilder.ProcessProperties(underlyingTypeDef, hierarchy);
+        ModelDefBuilder.ProcessProperties(context, underlyingTypeDef, hierarchy);
 
         // Getting fields
         var masterFieldDef = underlyingTypeDef.Fields[WellKnown.MasterFieldName];
@@ -390,17 +382,6 @@ namespace Xtensive.Orm.Building.Builders
 
     #region Event handlers
 
-    private static void OnHierarchyAdded(object sender, CollectionChangeNotifierEventArgs<HierarchyDef> e)
-    {
-      var context = BuildingContext.Demand();
-      context.ModelInspectionResult.GeneratedHierarchies.Add(e.Item);
-    }
-
-    private static void OnTypeAdded(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
-    {
-      var context = BuildingContext.Demand();
-      context.ModelInspectionResult.GeneratedTypes.Add(e.Item);
-    }
 
     #endregion
 

@@ -22,6 +22,8 @@ namespace Xtensive.Orm.Building.Definitions
   [Serializable]
   public sealed class TypeDef : SchemaMappedNode
   {
+    private readonly BuildingContext context;
+
     private readonly Type underlyingType;
     private TypeAttributes attributes;
     private readonly NodeCollection<FieldDef> fields;
@@ -174,7 +176,7 @@ namespace Xtensive.Orm.Building.Definitions
         throw new DomainBuilderException(
           string.Format(Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.GetFullName()));
             
-      FieldDef fieldDef = ModelDefBuilder.DefineField(property);
+      FieldDef fieldDef = ModelDefBuilder.DefineField(context, property);
       fields.Add(fieldDef);
       return fieldDef;
     }
@@ -190,7 +192,7 @@ namespace Xtensive.Orm.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(valueType, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
-      FieldDef field = ModelDefBuilder.DefineField(UnderlyingType, name, valueType);
+      FieldDef field = ModelDefBuilder.DefineField(context, UnderlyingType, name, valueType);
       fields.Add(field);
       return field;
     }
@@ -208,12 +210,9 @@ namespace Xtensive.Orm.Building.Definitions
 
     // Constructors
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TypeDef"/> class.
-    /// </summary>
-    /// <param name="type">The underlying type.</param>
-    internal TypeDef(Type type)
+    internal TypeDef(BuildingContext context, Type type)
     {
+      this.context = context;
       underlyingType = type;
       if (type.IsInterface)
         Attributes = TypeAttributes.Interface;

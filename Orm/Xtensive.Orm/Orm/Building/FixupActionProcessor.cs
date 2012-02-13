@@ -11,13 +11,10 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-
 
 namespace Xtensive.Orm.Building
 {
-  [Serializable]
   internal static class FixupActionProcessor
   {
     #region Nested type: GenericArgumentCombinator
@@ -165,7 +162,7 @@ namespace Xtensive.Orm.Building
         typeSubstitutions[i] = types.ToArray();
       }
       foreach (var instanceType in GenericArgumentCombinator.Generate(type.UnderlyingType, typeSubstitutions)) {
-        var typeDef = ModelDefBuilder.ProcessType(instanceType);
+        var typeDef = ModelDefBuilder.ProcessType(context, instanceType);
         typeDef.Attributes |= TypeAttributes.AutoGenericInstance;
       }
     }
@@ -194,7 +191,7 @@ namespace Xtensive.Orm.Building
         return;
 
       var attribute = new IndexAttribute(action.Field.Name);
-      var indexDef = ModelDefBuilder.DefineIndex(type, attribute);
+      var indexDef = ModelDefBuilder.DefineIndex(BuildingContext.Demand(), type, attribute);
       type.Indexes.Add(indexDef);
     }
 
@@ -247,7 +244,7 @@ namespace Xtensive.Orm.Building
 
     public static void Process(AddTypeIdFieldAction action)
     {
-      FieldDef fieldDef = ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
+      FieldDef fieldDef = ModelDefBuilder.DefineField(BuildingContext.Demand(), typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);
