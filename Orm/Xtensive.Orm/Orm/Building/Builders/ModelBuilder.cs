@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Building.Builders
       // Clean-up
       RemoveTemporaryDefinitions(context);
       // Inspecting model definition
-      ModelInspector.Run();
+      ModelInspector.Run(context);
 
       // Applying fixup actions
       if (context.ModelInspectionResult.HasActions) {
@@ -63,9 +63,9 @@ namespace Xtensive.Orm.Building.Builders
     private static void InspectAndProcessGeneratedEntities(BuildingContext context)
     {
       foreach (var hieararchy in context.ModelInspectionResult.GeneratedHierarchies)
-        ModelInspector.Inspect(hieararchy);
+        ModelInspector.Inspect(context, hieararchy);
       foreach (var type in context.ModelInspectionResult.GeneratedTypes)
-        ModelInspector.Inspect(type);
+        ModelInspector.Inspect(context, type);
       context.ModelInspectionResult.GeneratedHierarchies.Clear();
       context.ModelInspectionResult.GeneratedTypes.Clear();
 
@@ -94,12 +94,12 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         context.Model = new DomainModel();
-        BuildTypes(BuildingContext.Demand(), GetTypeBuildSequence(context));
-        BuildAssociations(BuildingContext.Demand());
+        BuildTypes(context, GetTypeBuildSequence(context));
+        BuildAssociations(context);
         BuildIndexes();
         context.Model.UpdateState(true);
-        ValidateMappingConfiguration(BuildingContext.Demand());
-        BuildPrefetchActions(BuildingContext.Demand());
+        ValidateMappingConfiguration(context);
+        BuildPrefetchActions(context);
       }
     }
 
@@ -273,7 +273,7 @@ namespace Xtensive.Orm.Building.Builders
             association.OnTargetRemove = OnRemoveAction.Deny;
         }
 
-        BuildAuxiliaryTypes(BuildingContext.Demand(), context.Model.Associations);
+        BuildAuxiliaryTypes(context, context.Model.Associations);
       }
     }
 

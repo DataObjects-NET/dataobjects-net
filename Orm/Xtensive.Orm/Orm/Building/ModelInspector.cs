@@ -17,23 +17,20 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building
 {
-  [Serializable]
   internal static class ModelInspector
   {
-    public static void Run()
+    public static void Run(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogInspectingModelDefinition)) {
-        InspectHierarchies();
-        InspectTypes();
-        InspectInterfaces();
-        InspectReferences();
-        InspectAbstractTypes();
+        InspectHierarchies(context);
+        InspectTypes(context);
+        InspectInterfaces(context);
+        InspectAbstractTypes(context);
       }
     }
 
-    private static void InspectAbstractTypes()
+    private static void InspectAbstractTypes(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
       foreach (var typeDef in context.ModelDef.Types.Where(td => td.IsAbstract)) {
         var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
         if (hierarchyDef != null) {
@@ -44,22 +41,20 @@ namespace Xtensive.Orm.Building
       }
     }
 
-    private static void InspectHierarchies()
+    private static void InspectHierarchies(BuildingContext context)
     {
-      foreach (var hierarchy in BuildingContext.Demand().ModelDef.Hierarchies)
-        Inspect(hierarchy);
+      foreach (var hierarchy in context.ModelDef.Hierarchies)
+        Inspect(context, hierarchy);
     }
 
-    private static void InspectTypes()
+    private static void InspectTypes(BuildingContext context)
     {
-      foreach (var typeDef in BuildingContext.Demand().ModelDef.Types)
-        Inspect(typeDef);
+      foreach (var typeDef in context.ModelDef.Types)
+        Inspect(context, typeDef);
     }
 
-    private static void InspectInterfaces()
+    private static void InspectInterfaces(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
-
       foreach (var interfaceDef in context.ModelDef.Types.Where(t => t.IsInterface)) {
 
         var interfaceNode = context.DependencyGraph.TryGetNode(interfaceDef);
@@ -168,14 +163,8 @@ namespace Xtensive.Orm.Building
       }
     }
 
-    private static void InspectReferences()
+    public static void Inspect(BuildingContext context, HierarchyDef hierarchyDef)
     {
-      
-    }
-
-    public static void Inspect(HierarchyDef hierarchyDef)
-    {
-      var context = BuildingContext.Demand();
       var root = hierarchyDef.Root;
       Log.Info(Strings.LogInspectingHierarchyX, root.Name);
       Validator.ValidateHierarchy(hierarchyDef);
@@ -198,15 +187,14 @@ namespace Xtensive.Orm.Building
 
       foreach (var keyField in hierarchyDef.KeyFields) {
         var field = root.Fields[keyField.Name];
-        InspectField(root, field, true);
+        InspectField(context, root, field, true);
       }
 
       context.ModelInspectionResult.Actions.Enqueue(new AddPrimaryIndexAction(root));
     }
 
-    public static void Inspect(TypeDef typeDef)
+    public static void Inspect(BuildingContext context, TypeDef typeDef)
     {
-      var context = BuildingContext.Demand();
       Log.Info(Strings.LogInspectingTypeX, typeDef.Name);
 
       if (typeDef.IsInterface) {
@@ -222,7 +210,7 @@ namespace Xtensive.Orm.Building
 
         // Fields
         foreach (var field in typeDef.Fields)
-          InspectField(typeDef, field, false);
+          InspectField(context, typeDef, field, false);
         return;
       }
 
@@ -240,7 +228,7 @@ namespace Xtensive.Orm.Building
 
         // Fields
         foreach (var field in typeDef.Fields)
-          InspectField(typeDef, field, false);
+          InspectField(context, typeDef, field, false);
         return;
       }
 
@@ -282,15 +270,14 @@ namespace Xtensive.Orm.Building
         Validator.ValidateType(typeDef, hierarchyDef);
         // We should skip key fields inspection as they have been already inspected
         foreach (var field in typeDef.Fields.Where(f => !hierarchyDef.KeyFields.Any(kf => kf.Name == f.Name)))
-          InspectField(typeDef, field, false);
+          InspectField(context, typeDef, field, false);
       }
     }
 
     #region Private members
 
-    private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
+    private static void InspectField(BuildingContext context, TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
-      var context = BuildingContext.Demand();
       if ((fieldDef.Attributes & (FieldAttributes.ManualVersion | FieldAttributes.AutoVersion)) > 0)
         Validator.ValidateVersionField(fieldDef, isKeyField);
 
@@ -307,7 +294,8 @@ namespace Xtensive.Orm.Building
 
       if (fieldDef.IsStructure) {
         Validator.ValidateStructureField(typeDef, fieldDef);
-        context.DependencyGraph.AddEdge(typeDef, GetTypeDef(fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
+        context.DependencyGraph.AddEdge(
+          typeDef, GetTypeDef(context, fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
         return;
       }
 
@@ -319,7 +307,7 @@ namespace Xtensive.Orm.Building
         Validator.ValidateEntitySetField(typeDef, fieldDef);
 
       var referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
-      var referencedTypeDef = GetTypeDef(referencedType);
+      var referencedTypeDef = GetTypeDef(context, referencedType);
 
       if (!referencedTypeDef.IsInterface) {
         var hierarchyDef = context.ModelDef.FindHierarchy(referencedTypeDef);
@@ -336,9 +324,8 @@ namespace Xtensive.Orm.Building
 
     #region Helper members
 
-    private static TypeDef GetTypeDef(Type type)
+    private static TypeDef GetTypeDef(BuildingContext context, Type type)
     {
-      var context = BuildingContext.Demand();
       var result = context.ModelDef.Types.TryGetValue(type);
       if (result!=null)
         return result;

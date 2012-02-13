@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Building.Definitions
       if (types.Contains(type))
         throw new DomainBuilderException(string.Format(Strings.ExTypeXIsAlreadyDefined, type.GetFullName()));
 
-      return ModelDefBuilder.ProcessType(BuildingContext.Demand(), type);
+      return ModelDefBuilder.ProcessType(context, type);
     }
 
     /// <summary>
