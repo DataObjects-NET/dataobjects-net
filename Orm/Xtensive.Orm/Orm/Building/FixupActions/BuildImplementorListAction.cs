@@ -4,17 +4,15 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.14
 
-using System;
 using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  [Serializable]
   internal class BuildImplementorListAction : TypeAction
   {
-    public override void Run()
+    public override void Run(FixupActionProcessor processor)
     {
-      FixupActionProcessor.Process(this);
+      processor.Process(this);
     }
 
     public override string ToString()

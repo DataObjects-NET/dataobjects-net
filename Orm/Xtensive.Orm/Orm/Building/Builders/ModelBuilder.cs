@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Building.Builders
         monitor.Attach();
 
         // Applying fixup actions to the model definition.
-        FixupActionProcessor.Run();
+        FixupActionProcessor.Run(context);
 
         ModelDefBuilder.ProcessTypes(context);
         InspectAndProcessGeneratedEntities(context);
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Building.Builders
 
       if (context.ModelInspectionResult.HasActions)
         // Applying fixup actions for generated entities.
-        FixupActionProcessor.Run();
+        FixupActionProcessor.Run(context);
     }
 
     private static void ApplyCustomDefinitions(BuildingContext context)

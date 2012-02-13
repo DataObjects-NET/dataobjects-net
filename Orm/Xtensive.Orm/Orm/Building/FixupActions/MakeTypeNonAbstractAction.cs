@@ -5,17 +5,15 @@
 // Created:    2010.09.08
 
 using System;
-using System.Diagnostics;
 using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  [Serializable]
   internal class MakeTypeNonAbstractAction : TypeAction
   {
-    public override void Run()
+    public override void Run(FixupActionProcessor processor)
     {
-      FixupActionProcessor.Process(this);
+      processor.Process(this);
     }
 
     public override string ToString()
