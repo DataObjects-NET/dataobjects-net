@@ -2386,4 +2386,7 @@ Error: {1}</value>
   <data name="ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX">
     <value xml:space="preserve">Multi-database mode is active, but no database specified for '{0}'</value>
   </data>
+  <data name="ExCycleBetweenDatabaseReferencesFoundXButY">
+    <value xml:space="preserve">Cycle between database references found: {0}, but {1}</value>
+  </data>
 </root>

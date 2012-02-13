@@ -5,6 +5,7 @@
 // Created:    2012.02.13
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -14,6 +15,53 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal sealed class StorageMappingValidator
   {
+    private struct DatabaseReference
+    {
+      public readonly string ReferencingDatabase;
+      public readonly string ReferencedDatabase;
+
+      public DatabaseReference Reverse()
+      {
+        return new DatabaseReference(ReferencedDatabase, ReferencingDatabase);
+      }
+
+      public DatabaseReference(string referencingDatabase, string referencedDatabase)
+      {
+        ReferencingDatabase = referencingDatabase;
+        ReferencedDatabase = referencedDatabase;
+      }
+    }
+
+    private struct TypeReference
+    {
+      public readonly FieldInfo ReferencingField;
+      public readonly TypeInfo ReferencedType;
+
+      public DatabaseReference DatabaseReference
+      {
+        get
+        {
+          return new DatabaseReference(
+            ReferencingField.DeclaringType.MappingDatabase, ReferencedType.MappingDatabase);
+        }
+      }
+
+      public override string ToString()
+      {
+        var referencingType = ReferencingField.DeclaringType;
+        return string.Format("[{0}] {1}.{2} -> [{3}] {4}",
+          referencingType.MappingDatabase, referencingType.UnderlyingType.GetShortName(),
+          ReferencingField.Name,
+          ReferencedType.MappingDatabase, referencingType.UnderlyingType.GetShortName());
+      }
+
+      public TypeReference(FieldInfo referencingField, TypeInfo referencedEntry)
+      {
+        ReferencingField = referencingField;
+        ReferencedType = referencedEntry;
+      }
+    }
+
     private readonly DomainModel model;
     private readonly DomainConfiguration configuration;
 
@@ -59,6 +107,21 @@ namespace Xtensive.Orm.Building.Builders
 
     private void EnsureNoCyclicReferencesBetweenDatabases()
     {
+      var referenceRegistry = new Dictionary<DatabaseReference, TypeReference>();
+      var outgoingReferences = model.Types.SelectMany(GetReferencesToExternalDatabases);
+      foreach (var reference in outgoingReferences) {
+        var dbReference = reference.DatabaseReference;
+        if (!referenceRegistry.ContainsKey(dbReference)) {
+          referenceRegistry.Add(dbReference, reference);
+        }
+        else {
+          TypeReference conflictingReference;
+          if (referenceRegistry.TryGetValue(dbReference.Reverse(), out conflictingReference)) {
+            throw new DomainBuilderException(string.Format(
+              Strings.ExCycleBetweenDatabaseReferencesFoundXButY, reference, conflictingReference));
+          }
+        }
+      }
     }
 
     private void EnsureIntefacesAreImplementedWithinSingleDatabase()
@@ -103,6 +166,14 @@ namespace Xtensive.Orm.Building.Builders
       if (model.IsMultischema && !hasDefaultSchema)
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
+    }
+
+    private IEnumerable<TypeReference> GetReferencesToExternalDatabases(TypeInfo source)
+    {
+      return source.Fields
+        .Where(field => field.IsEntity && field.IsDeclared)
+        .Select(field => new TypeReference(field, model.Types[field.ValueType]))
+        .Where(reference => reference.ReferencedType.MappingDatabase!=source.MappingDatabase);
     }
 
     private static string GetDatabaseMapping(TypeInfo type)
