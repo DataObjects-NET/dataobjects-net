@@ -197,6 +197,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         QueryFeatures.DmlBatches |
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
+        QueryFeatures.MultischemaQueries |
         QueryFeatures.RowNumber;
       return queryInfo;
     }

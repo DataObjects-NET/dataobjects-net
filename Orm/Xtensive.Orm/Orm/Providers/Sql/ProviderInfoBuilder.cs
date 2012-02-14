@@ -14,12 +14,12 @@ namespace Xtensive.Orm.Providers.Sql
   {
     public static ProviderInfo Build(SqlDriver driver)
     {
-      var csi = driver.CoreServerInfo;
-      var si = driver.ServerInfo;
-      var queryFeatures = si.Query.Features;
-      var serverFeatures = si.ServerFeatures;
-      var indexFeatures = si.Index.Features;
-      var foreignKeyFeatures = si.ForeignKey.Features;
+      var coreServerInfo = driver.CoreServerInfo;
+      var serverInfo = driver.ServerInfo;
+      var queryFeatures = serverInfo.Query.Features;
+      var serverFeatures = serverInfo.ServerFeatures;
+      var indexFeatures = serverInfo.Index.Features;
+      var foreignKeyFeatures = serverInfo.ForeignKey.Features;
 
       var f = ProviderFeatures.None;
       if (queryFeatures.Supports(QueryFeatures.DdlBatches))
@@ -30,9 +30,9 @@ namespace Xtensive.Orm.Providers.Sql
         f |= ProviderFeatures.ClusteredIndexes;
       if (indexFeatures.Supports(IndexFeatures.Filtered))
         f |= ProviderFeatures.PartialIndexes;
-      if (si.Collation!=null)
+      if (serverInfo.Collation!=null)
         f |= ProviderFeatures.Collations;
-      if (si.ForeignKey!=null) {
+      if (serverInfo.ForeignKey!=null) {
         f |= ProviderFeatures.ForeignKeyConstraints;
         if (foreignKeyFeatures.Supports(ForeignKeyConstraintFeatures.Deferrable))
           f |= ProviderFeatures.DeferrableConstraints;
@@ -41,10 +41,10 @@ namespace Xtensive.Orm.Providers.Sql
         f |= ProviderFeatures.IncludedColumns;
       if (indexFeatures.Supports(IndexFeatures.SortOrder))
         f |= ProviderFeatures.KeyColumnSortOrder;
-      if (si.Sequence!=null)
+      if (serverInfo.Sequence!=null)
         f |= ProviderFeatures.Sequences;
       else {
-        if (si.Identity != null && si.Identity.Features.Supports(IdentityFeatures.Increment))
+        if (serverInfo.Identity != null && serverInfo.Identity.Features.Supports(IdentityFeatures.Increment))
           f |= ProviderFeatures.ArbitraryIdentityIncrement;
       }
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers.Sql
         f |= ProviderFeatures.RowNumber | ProviderFeatures.Paging;
       if (serverFeatures.Supports(ServerFeatures.MultipleResultsViaCursorParameters))
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
-      if (csi.MultipleActiveResultSets)
+      if (coreServerInfo.MultipleActiveResultSets)
         f |= ProviderFeatures.MultipleActiveResultSets;
       if (queryFeatures.Supports(QueryFeatures.InsertDefaultValues))
         f |= ProviderFeatures.InsertDefaultValues;
@@ -77,26 +77,30 @@ namespace Xtensive.Orm.Providers.Sql
         f |= ProviderFeatures.UpdateDefaultValues;
       if (queryFeatures.Supports(QueryFeatures.ScalarSubquery))
         f |= ProviderFeatures.ScalarSubqueries;
+      if (queryFeatures.Supports(QueryFeatures.MultischemaQueries))
+        f |= ProviderFeatures.Multischema;
+      if (queryFeatures.Supports(QueryFeatures.MultidatabaseQueries))
+        f |= ProviderFeatures.Multidatabase;
 
-      var tt = si.TemporaryTable;
-      if (tt != null)
+      var temporaryTable = serverInfo.TemporaryTable;
+      if (temporaryTable != null)
         f |= ProviderFeatures.TemporaryTables;
-      if (si.FullTextSearch != null) {
-        if (si.FullTextSearch.Features==FullTextSearchFeatures.Full)
+      if (serverInfo.FullTextSearch != null) {
+        if (serverInfo.FullTextSearch.Features==FullTextSearchFeatures.Full)
           f |= ProviderFeatures.FullFeaturedFullText;
-        if (si.FullTextSearch.Features==FullTextSearchFeatures.SingleKeyRankTable)
+        if (serverInfo.FullTextSearch.Features==FullTextSearchFeatures.SingleKeyRankTable)
           f |= ProviderFeatures.SingleKeyRankTableFullText | ProviderFeatures.FullTextDdlIsNotTransactional;
       }
 
-      var c = si.Column;
-      if ((c.AllowedDdlStatements & DdlStatements.Alter) == DdlStatements.Alter)
+      var column = serverInfo.Column;
+      if ((column.AllowedDdlStatements & DdlStatements.Alter) == DdlStatements.Alter)
         f |= ProviderFeatures.ColumnRename;
 
-      var t = si.Table;
-      if ((t.AllowedDdlStatements & DdlStatements.Rename) == DdlStatements.Rename)
+      var table = serverInfo.Table;
+      if ((table.AllowedDdlStatements & DdlStatements.Rename) == DdlStatements.Rename)
         f |= ProviderFeatures.TableRename;
 
-      var dataTypes = si.DataTypes;
+      var dataTypes = serverInfo.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
       if (binaryTypeInfo!=null && binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
         f |= ProviderFeatures.TreatEmptyBlobAsNull;
@@ -104,20 +108,21 @@ namespace Xtensive.Orm.Providers.Sql
       if (stringTypeInfo!=null && stringTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
         f |= ProviderFeatures.TreatEmptyStringAsNull;
 
-      var storageVersion = csi.ServerVersion;
+      var storageVersion = coreServerInfo.ServerVersion;
       var maxIdentifierLength = new EntityInfo[] {
-          si.Column,
-          si.ForeignKey,
-          si.Index,
-          si.PrimaryKey,
-          si.Sequence,
-          si.Table,
-          si.TemporaryTable,
-          si.UniqueConstraint
-        }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
+        serverInfo.Column,
+        serverInfo.ForeignKey,
+        serverInfo.Index,
+        serverInfo.PrimaryKey,
+        serverInfo.Sequence,
+        serverInfo.Table,
+        serverInfo.TemporaryTable,
+        serverInfo.UniqueConstraint
+      }
+        .Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength)
+        .Min();
 
-      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? 
-        TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength, si.PrimaryKey.ConstantName);
+      return new ProviderInfo(storageVersion, f, serverInfo.TemporaryTable==null ? TemporaryTableFeatures.None : serverInfo.TemporaryTable.Features, maxIdentifierLength, serverInfo.PrimaryKey.ConstantName);
     }
   }
 }

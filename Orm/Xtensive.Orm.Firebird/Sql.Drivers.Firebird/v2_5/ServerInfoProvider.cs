@@ -185,6 +185,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
               QueryFeatures.ScalarSubquery |
               QueryFeatures.Paging |
               QueryFeatures.Limit |
+              QueryFeatures.MultischemaQueries |
               QueryFeatures.Offset;
             return queryInfo;
         }
