@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
@@ -109,16 +110,38 @@ namespace Xtensive.Orm.Building.Builders
     {
       var referenceRegistry = new Dictionary<DatabaseReference, TypeReference>();
       var outgoingReferences = model.Types.SelectMany(GetReferencesToExternalDatabases);
+
+      // Calculate cross-database reference information (i.e. build a graph).
       foreach (var reference in outgoingReferences) {
         var dbReference = reference.DatabaseReference;
-        if (!referenceRegistry.ContainsKey(dbReference)) {
+        if (!referenceRegistry.ContainsKey(dbReference))
           referenceRegistry.Add(dbReference, reference);
-        }
-        else {
-          TypeReference conflictingReference;
-          if (referenceRegistry.TryGetValue(dbReference.Reverse(), out conflictingReference)) {
-            throw new DomainBuilderException(string.Format(
-              Strings.ExCycleBetweenDatabaseReferencesFoundXButY, reference, conflictingReference));
+      }
+
+      // Use DFS to find cycles.
+      // Since number of databases is small, use very inefficient algorithm.
+      var databases = new LinkedList<string>(model.Types.Select(t => t.MappingDatabase));
+      while (databases.Count > 0) {
+        var db = databases.First.Value;
+        databases.RemoveFirst();
+        var visited = new HashSet<string> {db};
+        var visitStack = new Stack<DatabaseReference>();
+        var firstRun = true;
+        while (visitStack.Count > 0 || firstRun) {
+          var current = firstRun ? db : visitStack.Pop().ReferencedDatabase;
+          firstRun = false;
+          var referencesToProcess = referenceRegistry
+            .Select(item => item.Key)
+            .Where(r => r.ReferencingDatabase==current);
+          foreach (var reference in referencesToProcess) {
+            var next = reference.ReferencedDatabase;
+            if (visited.Contains(next))
+              throw new DomainBuilderException(string.Format(
+                Strings.ExCycleBetweenDatabaseReferencesFoundX,
+                visitStack.Select(i => referenceRegistry[i]).ToCommaDelimitedString()));
+            visited.Add(next);
+            visitStack.Push(reference);
+            databases.Remove(next);
           }
         }
       }

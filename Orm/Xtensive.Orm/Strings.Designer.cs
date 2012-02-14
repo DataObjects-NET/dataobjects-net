@@ -1266,11 +1266,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cycle between database references found: {0}, but {1}.
+        ///   Looks up a localized string similar to Cycle between database references found: {0}.
         /// </summary>
-        internal static string ExCycleBetweenDatabaseReferencesFoundXButY {
+        internal static string ExCycleBetweenDatabaseReferencesFoundX {
             get {
-                return ResourceManager.GetString("ExCycleBetweenDatabaseReferencesFoundXButY", resourceCulture);
+                return ResourceManager.GetString("ExCycleBetweenDatabaseReferencesFoundX", resourceCulture);
             }
         }
         
