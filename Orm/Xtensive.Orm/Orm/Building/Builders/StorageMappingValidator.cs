@@ -18,53 +18,118 @@ namespace Xtensive.Orm.Building.Builders
   {
     private struct DatabaseReference
     {
-      public readonly string ReferencingDatabase;
-      public readonly string ReferencedDatabase;
+      public readonly string OwnerDatabase;
+      public readonly string TargetDatabase;
 
-      public DatabaseReference Reverse()
+      public DatabaseReference(string ownerDatabase, string targetDatabase)
       {
-        return new DatabaseReference(ReferencedDatabase, ReferencingDatabase);
-      }
-
-      public DatabaseReference(string referencingDatabase, string referencedDatabase)
-      {
-        ReferencingDatabase = referencingDatabase;
-        ReferencedDatabase = referencedDatabase;
+        OwnerDatabase = ownerDatabase;
+        TargetDatabase = targetDatabase;
       }
     }
 
     private struct TypeReference
     {
-      public readonly FieldInfo ReferencingField;
-      public readonly TypeInfo ReferencedType;
+      public readonly FieldInfo OwnerField;
+      public readonly TypeInfo TargetType;
 
       public DatabaseReference DatabaseReference
       {
         get
         {
           return new DatabaseReference(
-            ReferencingField.DeclaringType.MappingDatabase, ReferencedType.MappingDatabase);
+            OwnerField.DeclaringType.MappingDatabase, TargetType.MappingDatabase);
         }
       }
 
       public override string ToString()
       {
-        var referencingType = ReferencingField.DeclaringType;
+        var ownerType = OwnerField.DeclaringType;
         return string.Format("[{0}] {1}.{2} -> [{3}] {4}",
-          referencingType.MappingDatabase, referencingType.UnderlyingType.GetShortName(),
-          ReferencingField.Name,
-          ReferencedType.MappingDatabase, referencingType.UnderlyingType.GetShortName());
+          ownerType.MappingDatabase, ownerType.UnderlyingType.GetShortName(), OwnerField.Name,
+          TargetType.MappingDatabase, TargetType.UnderlyingType.GetShortName());
       }
 
-      public TypeReference(FieldInfo referencingField, TypeInfo referencedEntry)
+      public TypeReference(FieldInfo ownerField, TypeInfo targetEntry)
       {
-        ReferencingField = referencingField;
-        ReferencedType = referencedEntry;
+        OwnerField = ownerField;
+        TargetType = targetEntry;
+      }
+    }
+
+    private sealed class CycleDetector
+    {
+      private readonly DomainModel model;
+      private readonly List<TypeInfo> typesToProcess;
+      private readonly HashSet<string> visited = new HashSet<string>();
+      private readonly Stack<DatabaseReference> visitSequence = new Stack<DatabaseReference>();
+      private readonly Dictionary<DatabaseReference, TypeReference> referenceRegistry
+        = new Dictionary<DatabaseReference, TypeReference>();
+
+      public static void Run(DomainModel model, List<TypeInfo> typesToProcess)
+      {
+        new CycleDetector(model, typesToProcess).Run();
+      }
+
+      private void Run()
+      {
+        var outgoingReferences = typesToProcess.SelectMany(GetReferencesToExternalDatabases);
+
+        // Calculate cross-database reference information (i.e. build a graph).
+        foreach (var reference in outgoingReferences) {
+          var dbReference = reference.DatabaseReference;
+          if (!referenceRegistry.ContainsKey(dbReference))
+            referenceRegistry.Add(dbReference, reference);
+        }
+
+        // Use DFS to find cycles.
+        // Since number of databases is small, use very inefficient algorithm.
+        var databases = typesToProcess.Select(t => t.MappingDatabase).Distinct();
+        foreach (var database in databases) {
+          if (!visited.Contains(database))
+            Visit(database);
+        }
+      }
+
+      private void Visit(string database)
+      {
+        var references = referenceRegistry.Keys
+          .Where(r => r.OwnerDatabase==database);
+        foreach (var reference in references) {
+          visitSequence.Push(reference);
+          var next = reference.TargetDatabase;
+          if (visited.Contains(next)) {
+            var cycle = visitSequence
+              .Select(i => referenceRegistry[i])
+              .ToCommaDelimitedString();
+            throw new DomainBuilderException(string.Format(
+              Strings.ExCycleBetweenDatabaseReferencesFoundX, cycle));
+          }
+          visited.Add(next);
+          Visit(next);
+          visitSequence.Pop();
+        }
+      }
+
+      private IEnumerable<TypeReference> GetReferencesToExternalDatabases(TypeInfo source)
+      {
+        var result = source.Fields
+          .Where(field => field.IsEntity && field.IsDeclared)
+          .Select(field => new TypeReference(field, model.Types[field.ValueType]))
+          .Where(reference => reference.TargetType.MappingDatabase!=source.MappingDatabase);
+        return result;
+      }
+
+      private CycleDetector(DomainModel model, List<TypeInfo> typesToProcess)
+      {
+        this.model = model;
+        this.typesToProcess = typesToProcess;
       }
     }
 
     private readonly DomainModel model;
     private readonly DomainConfiguration configuration;
+
 
     public static void Run(BuildingContext context)
     {
@@ -90,7 +155,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void EnsureMappingSchemaIsSpecified()
     {
-      foreach (var type in model.Types.Where(t => t.IsEntity))
+      foreach (var type in GetMappedTypes())
         if (string.IsNullOrEmpty(type.MappingSchema))
           throw new DomainBuilderException(string.Format(
             Strings.ExMultischemaModeIsActiveButNoSchemaSpecifiedForX,
@@ -99,7 +164,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void EnsureMappingDatabaseIsSpecified()
     {
-      foreach (var type in model.Types.Where(t => t.IsEntity))
+      foreach (var type in GetMappedTypes())
         if (string.IsNullOrEmpty(type.MappingDatabase))
           throw new DomainBuilderException(string.Format(
             Strings.ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX,
@@ -108,43 +173,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void EnsureNoCyclicReferencesBetweenDatabases()
     {
-      var referenceRegistry = new Dictionary<DatabaseReference, TypeReference>();
-      var outgoingReferences = model.Types.SelectMany(GetReferencesToExternalDatabases);
-
-      // Calculate cross-database reference information (i.e. build a graph).
-      foreach (var reference in outgoingReferences) {
-        var dbReference = reference.DatabaseReference;
-        if (!referenceRegistry.ContainsKey(dbReference))
-          referenceRegistry.Add(dbReference, reference);
-      }
-
-      // Use DFS to find cycles.
-      // Since number of databases is small, use very inefficient algorithm.
-      var databases = new LinkedList<string>(model.Types.Select(t => t.MappingDatabase));
-      while (databases.Count > 0) {
-        var db = databases.First.Value;
-        databases.RemoveFirst();
-        var visited = new HashSet<string> {db};
-        var visitStack = new Stack<DatabaseReference>();
-        var firstRun = true;
-        while (visitStack.Count > 0 || firstRun) {
-          var current = firstRun ? db : visitStack.Pop().ReferencedDatabase;
-          firstRun = false;
-          var referencesToProcess = referenceRegistry
-            .Select(item => item.Key)
-            .Where(r => r.ReferencingDatabase==current);
-          foreach (var reference in referencesToProcess) {
-            var next = reference.ReferencedDatabase;
-            if (visited.Contains(next))
-              throw new DomainBuilderException(string.Format(
-                Strings.ExCycleBetweenDatabaseReferencesFoundX,
-                visitStack.Select(i => referenceRegistry[i]).ToCommaDelimitedString()));
-            visited.Add(next);
-            visitStack.Push(reference);
-            databases.Remove(next);
-          }
-        }
-      }
+      CycleDetector.Run(model, GetMappedTypes().ToList());
     }
 
     private void EnsureIntefacesAreImplementedWithinSingleDatabase()
@@ -191,12 +220,9 @@ namespace Xtensive.Orm.Building.Builders
           Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
     }
 
-    private IEnumerable<TypeReference> GetReferencesToExternalDatabases(TypeInfo source)
+    private IEnumerable<TypeInfo> GetMappedTypes()
     {
-      return source.Fields
-        .Where(field => field.IsEntity && field.IsDeclared)
-        .Select(field => new TypeReference(field, model.Types[field.ValueType]))
-        .Where(reference => reference.ReferencedType.MappingDatabase!=source.MappingDatabase);
+      return model.Types.Where(t => t.IsEntity);
     }
 
     private static string GetDatabaseMapping(TypeInfo type)
