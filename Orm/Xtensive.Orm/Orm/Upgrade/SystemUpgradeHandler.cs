@@ -165,9 +165,8 @@ namespace Xtensive.Orm.Upgrade
       if (modelHolder == null)
         modelHolder = new Extension(WellKnown.DomainModelExtensionName);
       using (var writer = new StringWriter()) {
-        var serializer = new XmlSerializer(typeof (StoredDomainModel));
-        serializer.Serialize(writer, domainModel.ToStoredModel());
-        modelHolder.Text = writer.GetStringBuilder().ToString();
+        domainModel.ToStoredModel().Serialize(writer);
+        modelHolder.Text = writer.ToString();
       }
     }
 
@@ -205,11 +204,11 @@ namespace Xtensive.Orm.Upgrade
         Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
         return;
       }
+
       StoredDomainModel model = null;
-      var serializer = new XmlSerializer(typeof (StoredDomainModel));
       using (var reader = new StringReader(modelHolder.Text))
         try {
-          model = (StoredDomainModel) serializer.Deserialize(reader);
+          model = StoredDomainModel.Deserialize(reader);
           model.UpdateReferences();
         }
         catch (Exception e) {
