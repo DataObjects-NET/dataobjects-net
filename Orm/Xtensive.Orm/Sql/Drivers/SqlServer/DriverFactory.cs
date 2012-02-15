@@ -54,7 +54,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    public override string BuildConnectionString(UrlInfo url)
+    protected override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
 

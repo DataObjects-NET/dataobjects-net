@@ -114,9 +114,7 @@ namespace Xtensive.Sql
     /// <returns></returns>
     public SqlConnection CreateConnection(ConnectionInfo connectionInfo)
     {
-      var connectionString = connectionInfo.ConnectionString
-        ?? factory.BuildConnectionString(connectionInfo.ConnectionUrl);
-      return CreateConnection(connectionString);
+      return CreateConnection(factory.GetConnectionString(connectionInfo));
     }
 
     /// <summary>

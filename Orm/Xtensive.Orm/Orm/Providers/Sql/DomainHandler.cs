@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      var underlyingDriver = GetDriverFactory().CreateDriver(Handlers.Domain.Configuration.ConnectionInfo);
+      var underlyingDriver = GetDriverFactory().GetDriver(Handlers.Domain.Configuration.ConnectionInfo);
       Driver = new Driver(Handlers.Domain, underlyingDriver);
 
       base.Initialize();

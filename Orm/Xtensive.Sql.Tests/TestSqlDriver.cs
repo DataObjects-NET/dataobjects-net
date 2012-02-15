@@ -52,7 +52,7 @@ namespace Xtensive.Sql.Tests
     {
       var factoryType = FactoryRegistry[connectionInfo.Provider.ToLower()];
       var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
-      return factory.CreateDriver(connectionInfo);
+      return factory.GetDriver(connectionInfo);
     }
   }
 }

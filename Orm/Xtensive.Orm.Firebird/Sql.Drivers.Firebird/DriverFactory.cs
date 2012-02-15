@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Drivers.Firebird
         }
 
         /// <inheritdoc/>
-        public override string BuildConnectionString(UrlInfo connectionUrl)
+        protected override string BuildConnectionString(UrlInfo connectionUrl)
         {
             SqlHelper.ValidateConnectionUrl(connectionUrl);
             ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl.Resource, "connectionUrl.Resource");

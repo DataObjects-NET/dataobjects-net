@@ -5,7 +5,7 @@
 // Created:    2009.06.23
 
 using Xtensive.Core;
-using Xtensive.Sql.Compiler;
+using Xtensive.Threading;
 
 namespace Xtensive.Sql
 {
@@ -14,19 +14,38 @@ namespace Xtensive.Sql
   /// </summary>
   public abstract class SqlDriverFactory
   {
+    private static ThreadSafeDictionary<ConnectionInfo, SqlDriver> DriverCache
+      = ThreadSafeDictionary<ConnectionInfo, SqlDriver>.Create(new object());
+
     /// <summary>
-    /// Creates driver from the specified <paramref name="connectionInfo"/>.
+    /// Gets driver for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
-    /// <param name="connectionInfo">The connection info to create driver from.</param>
-    /// <returns>Created driver.</returns>
-    public SqlDriver CreateDriver(ConnectionInfo connectionInfo)
+    /// <param name="connectionInfo">Connection information to use.</param>
+    /// <returns>Driver for <paramref name="connectionInfo"/>.</returns>
+    public SqlDriver GetDriver(ConnectionInfo connectionInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
-      var connectionString = connectionInfo.ConnectionString
+      return DriverCache.GetValue(connectionInfo, CreateAndInitializeDriver);
+    }
+
+    /// <summary>
+    /// Removes all drivers from cache.
+    /// </summary>
+    public static void ResetDriverCache()
+    {
+      DriverCache.Clear();
+    }
+
+    /// <summary>
+    /// Gets connection string for the specified <see cref="ConnectionInfo"/>.
+    /// </summary>
+    /// <param name="connectionInfo">Connection information to process.</param>
+    /// <returns>Connection string for <paramref name="connectionInfo"/>.</returns>
+    public string GetConnectionString(ConnectionInfo connectionInfo)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
+      return connectionInfo.ConnectionString
         ?? BuildConnectionString(connectionInfo.ConnectionUrl);
-      var driver = CreateDriver(connectionString);
-      driver.Initialize(this);
-      return driver;
     }
 
     /// <summary>
@@ -41,6 +60,13 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="connectionUrl">The connection URL.</param>
     /// <returns>Built connection string</returns>
-    public abstract string BuildConnectionString(UrlInfo connectionUrl);
+    protected abstract string BuildConnectionString(UrlInfo connectionUrl);
+
+    private SqlDriver CreateAndInitializeDriver(ConnectionInfo connectionInfo)
+    {
+      var driver = CreateDriver(GetConnectionString(connectionInfo));
+      driver.Initialize(this);
+      return driver;
+    }
   }
 }
