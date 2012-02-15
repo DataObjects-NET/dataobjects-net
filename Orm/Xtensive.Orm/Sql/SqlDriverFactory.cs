@@ -18,15 +18,14 @@ namespace Xtensive.Sql
     /// Creates driver from the specified <paramref name="connectionInfo"/>.
     /// </summary>
     /// <param name="connectionInfo">The connection info to create driver from.</param>
-    /// <param name="defaultCompilerConfiguration">Default compiler configuration</param>
     /// <returns>Created driver.</returns>
-    public SqlDriver CreateDriver(ConnectionInfo connectionInfo, SqlCompilerConfiguration defaultCompilerConfiguration)
+    public SqlDriver CreateDriver(ConnectionInfo connectionInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
       var connectionString = connectionInfo.ConnectionString
         ?? BuildConnectionString(connectionInfo.ConnectionUrl);
       var driver = CreateDriver(connectionString);
-      driver.Initialize(this, defaultCompilerConfiguration);
+      driver.Initialize(this);
       return driver;
     }
 

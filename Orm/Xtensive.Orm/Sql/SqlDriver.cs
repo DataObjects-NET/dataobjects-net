@@ -16,7 +16,6 @@ namespace Xtensive.Sql
   public abstract class SqlDriver
   {
     private SqlDriverFactory factory;
-    private SqlCompilerConfiguration defaultCompilerConfiguration;
 
     /// <summary>
     /// Gets an instance that provides the most essential information about underlying RDBMS.
@@ -47,7 +46,7 @@ namespace Xtensive.Sql
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      return CreateCompiler().Compile(statement, defaultCompilerConfiguration);
+      return CreateCompiler().Compile(statement, new SqlCompilerConfiguration());
     }
 
     /// <summary>
@@ -184,10 +183,9 @@ namespace Xtensive.Sql
 
     #region Private / internal methods
 
-    internal void Initialize(SqlDriverFactory creator, SqlCompilerConfiguration compilerConfiguration)
+    internal void Initialize(SqlDriverFactory creator)
     {
       factory = creator;
-      defaultCompilerConfiguration = compilerConfiguration.Clone();
 
       var serverInfoProvider = CreateServerInfoProvider();
       ServerInfo = ServerInfo.Build(serverInfoProvider);
@@ -198,8 +196,6 @@ namespace Xtensive.Sql
 
       Translator = CreateTranslator();
       Translator.Initialize();
-
-      ValidateCompilerConfiguration(compilerConfiguration);
     }
 
     private Extractor BuildExtractor(SqlConnection connection)
