@@ -79,6 +79,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Applying default mapping to &apos;{0}&apos;.
+        /// </summary>
+        internal static string ApplyingDefaultMappingToX {
+            get {
+                return ResourceManager.GetString("ApplyingDefaultMappingToX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Applying rule &apos;{0}&apos; to &apos;{1}&apos;.
+        /// </summary>
+        internal static string ApplyingRuleXToY {
+            get {
+                return ResourceManager.GetString("ApplyingRuleXToY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Applying [{0}] to property &apos;{1}&apos; failed. {2}.
         /// </summary>
         internal static string AspectExApplyingXToPropertyYFailedZ {
@@ -5860,11 +5878,29 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Processing &apos;{0}&apos;.
+        /// </summary>
+        internal static string LogProcessingX {
+            get {
+                return ResourceManager.GetString("LogProcessingX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error during undoing the relation synchronization..
         /// </summary>
         internal static string LogRelationSyncUndoError {
             get {
                 return ResourceManager.GetString("LogRelationSyncUndoError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reusing cached mapping information for &apos;{0}&apos;.
+        /// </summary>
+        internal static string LogReusingCachedMappingInformationForX {
+            get {
+                return ResourceManager.GetString("LogReusingCachedMappingInformationForX", resourceCulture);
             }
         }
         

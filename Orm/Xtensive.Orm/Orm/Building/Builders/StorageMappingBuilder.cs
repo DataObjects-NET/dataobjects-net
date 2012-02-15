@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Diagnostics;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -41,6 +43,8 @@ namespace Xtensive.Orm.Building.Builders
     private readonly Dictionary<MappingRequest, MappingResult> mappingCache
       = new Dictionary<MappingRequest,MappingResult>();
 
+    private readonly bool verbose;
+
     public static void Run(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogProcessingMappingRules)) {
@@ -54,11 +58,17 @@ namespace Xtensive.Orm.Building.Builders
         .Where(t => t.IsEntity);
       foreach (var type in typesToProcess) {
         var underlyingType = type.UnderlyingType;
+        if (verbose)
+          Log.Info(Strings.LogProcessingX, underlyingType.GetShortName());
         var request = new MappingRequest(underlyingType.Assembly, underlyingType.Namespace);
         MappingResult result;
         if (!mappingCache.TryGetValue(request, out result)) {
           result = Process(underlyingType);
           mappingCache.Add(request, result);
+        }
+        else {
+          if (verbose)
+            Log.Info(Strings.LogReusingCachedMappingInformationForX, underlyingType.GetShortName());
         }
         type.MappingDatabase = result.MappingDatabase;
         type.MappingSchema = result.MappingSchema;
@@ -67,6 +77,9 @@ namespace Xtensive.Orm.Building.Builders
 
     private MappingResult Process(Type type)
     {
+      if (verbose)
+        Log.Info(Strings.ApplyingDefaultMappingToX, type.GetShortName());
+
       var configuration = context.Configuration;
       var targetDatabase = configuration.DefaultDatabase;
       var targetSchema = configuration.DefaultSchema;
@@ -78,6 +91,8 @@ namespace Xtensive.Orm.Building.Builders
           || type.FullName.StartsWith(rule.Namespace + ".");
 
         if (assemblyMatch && namespaceMatch) {
+          if (verbose)
+            Log.Info(Strings.ApplyingRuleXToY, rule, type.GetShortName());
           if (!string.IsNullOrEmpty(rule.Database))
             targetDatabase = rule.Database;
           if (!string.IsNullOrEmpty(rule.Schema))
@@ -93,6 +108,7 @@ namespace Xtensive.Orm.Building.Builders
     private StorageMappingBuilder(BuildingContext context)
     {
       this.context = context;
+      verbose = Log.IsLogged(LogEventTypes.Info);
     }
   }
 }
