@@ -85,27 +85,27 @@ namespace Xtensive.Orm.Building.Builders
         // Use DFS to find cycles.
         // Since number of databases is small, use very inefficient algorithm.
         var databases = typesToProcess.Select(t => t.MappingDatabase).Distinct();
-        foreach (var database in databases) {
-          if (!visited.Contains(database))
-            Visit(database);
-        }
+        foreach (var database in databases)
+          Visit(database);
       }
 
       private void Visit(string database)
       {
+        if (visited.Contains(database))
+          return;
+        visited.Add(database);
         var references = referenceRegistry.Keys
           .Where(r => r.OwnerDatabase==database);
         foreach (var reference in references) {
           visitSequence.Push(reference);
           var next = reference.TargetDatabase;
-          if (visited.Contains(next)) {
+          if (visitSequence.Any(r => r.OwnerDatabase==next)) {
             var cycle = visitSequence
               .Select(i => referenceRegistry[i])
               .ToCommaDelimitedString();
             throw new DomainBuilderException(string.Format(
-              Strings.ExCycleBetweenDatabaseReferencesFoundX, cycle));
+              Strings.ExCyclicDependencyBetweenDatabasesFoundX, cycle));
           }
-          visited.Add(next);
           Visit(next);
           visitSequence.Pop();
         }

@@ -154,11 +154,5 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
     {
       AssertEx.Throws<DomainBuilderException>(() => BuildDomain(1, 1, 2, 2));
     }
-
-    [Test]
-    public void Cycle2Test()
-    {
-      AssertEx.Throws<DomainBuilderException>(() => BuildDomain(1, 1, 2, 2));
-    }
   }
 }
