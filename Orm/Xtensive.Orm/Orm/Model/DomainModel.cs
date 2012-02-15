@@ -80,20 +80,20 @@ namespace Xtensive.Orm.Model
 
     private void UpdateAttributes()
     {
-      var isMultischema = Types
+      var multischema = Types
         .Select(t => t.MappingSchema)
         .Where(schema => !string.IsNullOrEmpty(schema))
         .Distinct()
         .Count() > 1;
 
-      var isMultidatabase = Types
+      var multidatabase = Types
         .Select(t => t.MappingDatabase)
         .Any(db => !string.IsNullOrEmpty(db));
 
       var attributes = DomainModelAttributes.None;
-      if (isMultischema)
+      if (multischema)
         attributes |= DomainModelAttributes.Multischema;
-      if (IsMultidatabase)
+      if (multidatabase)
         attributes |= DomainModelAttributes.Multidatabase;
       Attributes = attributes;
     }
