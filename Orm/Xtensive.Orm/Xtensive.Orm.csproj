@@ -142,6 +142,9 @@
     <Compile Include="Orm\Internals\Prefetch\PrefetchProcessor.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
+    <Compile Include="Orm\Metadata\AssemblyMetadata.cs" />
+    <Compile Include="Orm\Metadata\ExtensionMetadata.cs" />
+    <Compile Include="Orm\Metadata\TypeMetadata.cs" />
     <Compile Include="Orm\Model\DomainModelAttributes.cs" />
     <Compile Include="Orm\Model\SchemaMappedNode.cs" />
     <Compile Include="Orm\Providers\DomainHandler.cs" />
@@ -154,6 +157,7 @@
     <Compile Include="Orm\Providers\Interfaces\ICachingKeyGeneratorService.cs" />
     <Compile Include="Orm\Providers\Interfaces\IDirectSqlService.cs" />
     <Compile Include="Orm\Providers\IsolationLevelConverter.cs" />
+    <Compile Include="Orm\Providers\MetadataAccessor.cs" />
     <Compile Include="Orm\Providers\NameBuilder.cs" />
     <Compile Include="Orm\Providers\ProviderAttribute.cs" />
     <Compile Include="Orm\Providers\ProviderFeatures.cs" />
@@ -213,6 +217,7 @@
     <Compile Include="Orm\Providers\Sql\Mappings\ModelMapping.cs" />
     <Compile Include="Orm\Providers\Sql\Mappings\PrimaryIndexMapping.cs" />
     <Compile Include="Orm\Providers\Sql\Mappings\SecondaryIndexMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\MetadataAccessor.cs" />
     <Compile Include="Orm\Providers\Sql\NonTransactionalStage.cs" />
     <Compile Include="Orm\Providers\Sql\ParameterBinding.cs" />
     <Compile Include="Orm\Providers\Sql\PartialIndexFilterNormalizer.cs" />
