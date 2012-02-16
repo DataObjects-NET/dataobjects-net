@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.ConnectionInfo" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(ProviderElementName, DefaultValue = null)]
+    [ConfigurationProperty(ProviderElementName, DefaultValue = WellKnown.Provider.SqlServer)]
     public string Provider
     {
       get { return (string) this[ProviderElementName]; }
@@ -266,22 +266,27 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       bool connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
       bool connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(Provider);
+
       if (connectionUrlSpecified && connectionStringSpecified)
         throw new InvalidOperationException(
           Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements);
+
       if (connectionUrlSpecified)
         return new ConnectionInfo(ConnectionUrl);
-      // By default
-      string realConnectionString = ConnectionString;
+
+      string actualConnectionString = ConnectionString;
       if (connectionStringSpecified) {
         if (ConnectionString.StartsWith("#")) {
           string connectionStringName = ConnectionString.Substring(1);
-          realConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
-          if (string.IsNullOrEmpty(realConnectionString))
-            throw new ArgumentNullException();
+          actualConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
+          if (string.IsNullOrEmpty(actualConnectionString))
+            throw new InvalidOperationException();
         }
-        return new ConnectionInfo(Provider, realConnectionString);
+        return new ConnectionInfo(Provider, actualConnectionString);
       }
+
+      // Neither connection string, nor connection url specified.
+      // Leave connection information undefined.
       return null;
     }
   }
