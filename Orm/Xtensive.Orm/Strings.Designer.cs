@@ -1320,30 +1320,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DefaultSchema and DefaultDatabase should be specified when mapping rules for databases are defined.
-        /// </summary>
-        internal static string ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAreDefined {
-            get {
-                return ResourceManager.GetString("ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAre" +
-                        "Defined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DefaultSchema and DefaultDatabase should be specified when multi-database mode is active.
         /// </summary>
         internal static string ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive {
             get {
                 return ResourceManager.GetString("ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DefaultSchema should be specified when mapping rules for schemas are defined.
-        /// </summary>
-        internal static string ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined {
-            get {
-                return ResourceManager.GetString("ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined", resourceCulture);
             }
         }
         

@@ -377,6 +377,31 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets a value indicating whether this configuration is multi-database.
+    /// </summary>
+    public bool IsMultidatabase
+    {
+      get
+      {
+        return !string.IsNullOrEmpty(DefaultDatabase)
+          || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Database));
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this configuration is multi-schema.
+    /// </summary>
+    public bool IsMultischema
+    {
+      get
+      {
+        return !string.IsNullOrEmpty(DefaultSchema)
+          || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Schema))
+          || IsMultidatabase;
+      }
+    }
+
+    /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
@@ -402,16 +427,13 @@ namespace Xtensive.Orm.Configuration
 
     private void ValidateMappingConfiguration()
     {
-      var hasSchemaRules = MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Schema));
-      var hasDatabaseRules = MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Database));
-
-      if (hasSchemaRules && string.IsNullOrEmpty(DefaultSchema))
+      if (IsMultischema && string.IsNullOrEmpty(DefaultSchema))
         throw new InvalidOperationException(
-          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMappingRulesForSchemasAreDefined);
+          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
       
-      if (hasDatabaseRules && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
+      if (IsMultidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
         throw new InvalidOperationException(
-          Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMappingRulesForDatabasesAreDefined);
+          Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
     }
 
     /// <inheritdoc/>

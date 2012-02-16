@@ -82,9 +82,7 @@ namespace Xtensive.Orm.Model
     {
       var multischema = Types
         .Select(t => t.MappingSchema)
-        .Where(schema => !string.IsNullOrEmpty(schema))
-        .Distinct()
-        .Count() > 1;
+        .Any(schema => !string.IsNullOrEmpty(schema));
 
       var multidatabase = Types
         .Select(t => t.MappingDatabase)
