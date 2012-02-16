@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.SqlServerCe
   /// <summary>
   /// Storage provider for Microsoft SQL Server CE.
   /// </summary>
-  [Provider(WellKnown.Provider.SqlServerCe, "Storage provider for Microsoft SQL Server CE.")]
+  [Provider(WellKnown.Provider.SqlServerCe)]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

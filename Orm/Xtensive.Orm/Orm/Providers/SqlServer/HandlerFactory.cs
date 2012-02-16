@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.SqlServer
   /// <summary>
   /// Storage provider for Microsoft SQL Server.
   /// </summary>
-  [Provider(WellKnown.Provider.SqlServer, "Storage provider for Microsoft SQL Server.")]
+  [Provider(WellKnown.Provider.SqlServer)]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

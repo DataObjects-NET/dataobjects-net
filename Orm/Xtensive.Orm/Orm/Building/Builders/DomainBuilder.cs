@@ -107,21 +107,20 @@ namespace Xtensive.Orm.Building.Builders
     private void CreateHandlerFactory()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
-        string protocol = context.Configuration.ConnectionInfo.Provider;
-        var providerAssembly = GetProviderAssembly(protocol);
+        string providerName = context.Configuration.ConnectionInfo.Provider;
+        var providerAssembly = GetProviderAssembly(providerName);
 
         // Creating the provider
-        var handlerProviderType = providerAssembly.GetTypes()
+        var providerType = providerAssembly.GetTypes()
           .Where(type => type.IsPublicNonAbstractInheritorOf(typeof (HandlerFactory)))
           .Where(type => type.IsDefined(typeof (ProviderAttribute), false))
-          .Where(type => type.GetAttributes<ProviderAttribute>()
-            .Any(attribute => attribute.Protocol==protocol))
-          .FirstOrDefault();
-        if (handlerProviderType==null)
-          throw new DomainBuilderException(
-            string.Format(Strings.ExStorageProviderNotFound, protocol));
+          .FirstOrDefault(type => type.GetAttribute<ProviderAttribute>().Name==providerName);
 
-        var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
+        if (providerType==null)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExStorageProviderNotFound, providerName));
+
+        var handlerFactory = (HandlerFactory) Activator.CreateInstance(providerType);
         handlerFactory.Domain = context.Domain;
         handlerFactory.Initialize();
         context.Domain.Handlers.HandlerFactory = handlerFactory;
@@ -133,17 +132,17 @@ namespace Xtensive.Orm.Building.Builders
       const string assemblyFormat = "Xtensive.Orm.{0}";
 
       switch (providerName) {
-        case WellKnown.Provider.SqlServer:
-          return typeof (DomainBuilder).Assembly;
-        case WellKnown.Provider.SqlServerCe:
-        case WellKnown.Provider.PostgreSql:
-        case WellKnown.Provider.Oracle:
-        case WellKnown.Provider.Firebird:
-        case WellKnown.Provider.MySql:
-          return AssemblyHelper.LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
-        default:
-          throw new NotSupportedException(
-            string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
+      case WellKnown.Provider.SqlServer:
+        return typeof (DomainBuilder).Assembly;
+      case WellKnown.Provider.SqlServerCe:
+      case WellKnown.Provider.PostgreSql:
+      case WellKnown.Provider.Oracle:
+      case WellKnown.Provider.Firebird:
+      case WellKnown.Provider.MySql:
+        return AssemblyHelper.LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
+      default:
+        throw new NotSupportedException(
+          string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
       }
     }
 
