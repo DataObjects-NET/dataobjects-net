@@ -135,13 +135,12 @@ namespace Xtensive.Aspects.Weaver
           var companyLicenseData = licenseInfo.EvaluationMode
             ? null
             : LicenseValidator.GetCompanyLicenseData();
-          var hardwareId = LicenseValidator.TrialLicense.HardwareId;
           var request = new InternetCheckRequest(
             companyLicenseData, licenseInfo.ExpireOn,
-            LicenseValidator.GetProductVersion(), hardwareId);
+            LicenseValidator.ProductVersion, LicenseValidator.HardwareId);
           var result = InternetActivator.Check(request);
           if (result.IsValid==false) {
-            LicenseValidator.InvalidateLicense(licenseInfo.HardwareId);
+            LicenseValidator.InvalidateHardwareLicense();
             licenseInfo.HardwareKeyIsValid = false;
           }
         }
