@@ -8,9 +8,9 @@ using NUnit.Framework;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests;
-using Xtensive.Storage.Tests.Issues.IssueJira0197_ExtendedErrorInformationModel;
+using Xtensive.Orm.Tests.Issues.IssueJira0197_ExtendedErrorInformationModel;
 
-namespace Xtensive.Storage.Tests.Issues.IssueJira0197_ExtendedErrorInformationModel
+namespace Xtensive.Orm.Tests.Issues.IssueJira0197_ExtendedErrorInformationModel
 {
   [HierarchyRoot, KeyGenerator(KeyGeneratorKind.None), Index("Unique", Unique = true)]
   public class ErrorProvider : Entity
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Issues.IssueJira0197_ExtendedErrorInformationMo
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0197_ExtendedErrorInformation : AutoBuildTest
   {

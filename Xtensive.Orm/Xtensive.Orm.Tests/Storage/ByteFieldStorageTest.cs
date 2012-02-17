@@ -9,9 +9,9 @@ using NUnit.Framework;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests;
-using Xtensive.Storage.Tests.Storage.ByteFieldStorageTestModel;
+using Xtensive.Orm.Tests.Storage.ByteFieldStorageTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.ByteFieldStorageTestModel
+namespace Xtensive.Orm.Tests.Storage.ByteFieldStorageTestModel
 {
   [HierarchyRoot]
   public class BlobEntity : Entity
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Storage.ByteFieldStorageTestModel
   }
 }
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   public class ByteFieldStorageTest : AutoBuildTest
   {

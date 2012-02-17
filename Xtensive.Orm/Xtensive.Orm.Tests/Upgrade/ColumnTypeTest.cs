@@ -18,7 +18,7 @@ using Xtensive.Orm.Upgrade;
 using Xtensive.Testing;
 using Mode = Xtensive.Orm.DomainUpgradeMode;
 
-namespace Xtensive.Storage.Orm.Upgrade
+namespace Xtensive.Orm.Tests.Upgrade
 {
   [TestFixture, Category("Upgrade")]
   public class ColumnTypeTest

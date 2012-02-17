@@ -11,11 +11,11 @@ using Xtensive.Orm;
 using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
-using Xtensive.Storage.Tests.Storage.FieldDefaultValueModel;
+using Xtensive.Orm.Tests.Storage.FieldDefaultValueModel;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Orm.Configuration;
 
-namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
+namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 {
   public static class CodeRegistry
   {
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Tests.Storage.FieldDefaultValueModel
   }
 }
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
   public class FieldDefaultValueTest : AutoBuildTest
