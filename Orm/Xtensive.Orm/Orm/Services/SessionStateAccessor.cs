@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.18
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -71,6 +72,8 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public void Invalidate()
     {
+      if (Session.EntityChangeRegistry.GetItems(PersistenceState.New).Any())
+        throw new InvalidOperationException(Strings.UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession);
       Session.Invalidate();
     }
 

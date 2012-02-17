@@ -29,9 +29,24 @@ namespace Xtensive.Orm
     {
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXInvalidate, this);
+
       ClearChangeRegistry();
-      foreach (var invalidable in EntityStateCache.Cast<IInvalidatable>())
-        invalidable.Invalidate();
+      InvalidateCachedEntities();
+    }
+
+    private void InvalidateCachedEntities()
+    {
+      foreach (var state in EntityStateCache) {
+        var entity = state.TryGetEntity();
+        // Invalidate any entity sets
+        if (entity!=null && state.IsActual) // Don't bother invalidating non-actual entities
+          foreach (var field in entity.TypeInfo.Fields.Where(f => f.IsEntitySet)) {
+            var entitySet = (EntitySetBase) entity.GetFieldAccessor(field).GetUntypedValue(entity);
+            ((IInvalidatable) entitySet.State).Invalidate();
+          }
+        // Invalidate entity itself
+        ((IInvalidatable) state).Invalidate();
+      }
     }
 
     internal void RemapEntityKeys(KeyMapping keyMapping)

@@ -2341,4 +2341,7 @@ Error: {1}</value>
   <data name="ConstraintX" xml:space="preserve">
     <value> Constraint: {0};</value>
   </data>
+  <data name="UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession">
+    <value xml:space="preserve">Unable to invalidate session state: newly created entities are attached to session.</value>
+  </data>
 </root>
