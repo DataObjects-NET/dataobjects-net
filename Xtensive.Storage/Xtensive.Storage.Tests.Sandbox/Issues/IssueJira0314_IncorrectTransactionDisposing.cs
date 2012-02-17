@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿#if NET40
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -79,3 +80,4 @@ namespace Xtensive.Storage.Tests.Issues
     }
   }
 }
+#endif
