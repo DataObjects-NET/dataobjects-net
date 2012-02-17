@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Diagnostics;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Internals
     public static Key Generate(Session session, TypeInfo typeInfo)
     {
       if (!typeInfo.IsEntity)
-        throw new InvalidOperationException(string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
+        throw new InvalidOperationException(String.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
       var domain = session.Domain;
       var keyGenerator = domain.KeyGenerators[typeInfo.Key];
       if (keyGenerator==null)
@@ -118,6 +119,27 @@ namespace Xtensive.Orm.Internals
           Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
 
       return Materialize(domain, type, tuple, accuracy, false, null);
+    }
+
+
+    public static bool IsValidKeyTuple(Tuple tuple)
+    {
+      var limit = tuple.Descriptor.Count;
+      for (int i = 0; i < limit; i++)
+        if (tuple.GetFieldState(i).IsNull())
+          return false;
+      return true;
+    }
+
+    public static bool IsValidKeyTuple(Tuple tuple, int[] keyIndexes)
+    {
+      if (keyIndexes==null)
+        return IsValidKeyTuple(tuple);
+      var limit = keyIndexes.Length;
+      for (int i = 0; i < limit; i++)
+        if (tuple.GetFieldState(keyIndexes[i]).IsNull())
+          return false;
+      return true;
     }
 
     private static Key CreateGenericKey(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple tuple, int[] keyIndexes)
