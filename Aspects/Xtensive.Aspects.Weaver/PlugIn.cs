@@ -134,7 +134,7 @@ namespace Xtensive.Aspects.Weaver
         if (licenseInfo.IsValid && LicenseValidator.WeaverLicenseCheckIsRequired()) {
           var companyLicenseData = licenseInfo.EvaluationMode
             ? null
-            : LicenseValidator.GetCompanyLicenseData(LicenseValidator.GetLicensesPath());
+            : LicenseValidator.GetCompanyLicenseData();
           var hardwareId = LicenseValidator.TrialLicense.HardwareId;
           var request = new InternetCheckRequest(
             companyLicenseData, licenseInfo.ExpireOn,
