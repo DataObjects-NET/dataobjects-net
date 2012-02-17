@@ -11,10 +11,10 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Sandbox.Issues.CustomCompilerFeatureTest_HierarchyModel;
-using Xtensive.Orm.Tests.Sandbox.Issues.CustomCompilerFeatureTest_InterfaceModel;
+using Xtensive.Orm.Tests.Issues.CustomCompilerFeatureTest_HierarchyModel;
+using Xtensive.Orm.Tests.Issues.CustomCompilerFeatureTest_InterfaceModel;
 
-namespace Xtensive.Orm.Tests.Sandbox.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace CustomCompilerFeatureTest_InterfaceModel
   {

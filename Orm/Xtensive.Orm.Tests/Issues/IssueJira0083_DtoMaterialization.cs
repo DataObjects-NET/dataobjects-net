@@ -10,43 +10,43 @@ using NUnit.Framework;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests;
+using Xtensive.Orm.Tests.Issues.IssueJira0083_Model;
 using Xtensive.Storage;
-using Xtensive.Storage.Tests.Issues.IssueJira0083_Model;
 
-namespace Xtensive.Storage.Tests.Issues.IssueJira0083_Model
+namespace Xtensive.Orm.Tests.Issues
 {
-  [HierarchyRoot]
-  public class Class1 : Entity
+  namespace IssueJira0083_Model
   {
-    [Field, Key]
-    public int Id { get; private set; }
-
-    [Field]
-    public string Text { get; set; }
-  }
-
-  public class Class1DTO
-  {
-    public int Id { get; set; }
-
-    public Class1DTO(Class1 entity)
+    [HierarchyRoot]
+    public class Class1 : Entity
     {
-      Id = entity.Id;
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Text { get; set; }
+    }
+
+    public class Class1DTO
+    {
+      public int Id { get; set; }
+
+      public Class1DTO(Class1 entity)
+      {
+        Id = entity.Id;
+      }
+    }
+
+    public class Class2DTO
+    {
+      public int Id { get; set; }
+
+      public string Text { get; set; }
+
+      public object Class1DTO { get; set; }
     }
   }
 
-  public class Class2DTO
-  {
-    public int Id { get; set; }
-
-    public string Text { get; set; }
-
-    public object Class1DTO { get; set; }
-  }
-}
-
-namespace Xtensive.Storage.Tests.Issues
-{
   public class IssueJira0083_DtoMaterialization : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

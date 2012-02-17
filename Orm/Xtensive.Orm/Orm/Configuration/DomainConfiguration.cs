@@ -60,6 +60,10 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultAutoValidation = true;
 
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.IncludeSqlInExceptions"/> value: 
+    /// <see langword="true" />.
+    /// </summary>
     public const bool DefaultIncludeSqlInExceptions = true;
 
     #endregion

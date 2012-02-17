@@ -9,9 +9,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Sandbox.Issues.IssueJIRA0036_AutoTransactionsOpenModeDoesNotWork_Model;
+using Xtensive.Orm.Tests.Issues.IssueJIRA0036_AutoTransactionsOpenModeDoesNotWork_Model;
 
-namespace Xtensive.Orm.Tests.Sandbox.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueJIRA0036_AutoTransactionsOpenModeDoesNotWork_Model
   {
