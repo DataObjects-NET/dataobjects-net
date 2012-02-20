@@ -31,7 +31,8 @@ namespace Xtensive.Storage.Providers.Sql
       var command = CreateCommand();
       var part = factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
       command.AddPart(part);
-      return RunTupleReader(command.ExecuteReader(), lastRequest.TupleDescriptor, command.Dispose);
+      command.ExecuteReader();
+      return RunTupleReader(command, lastRequest.TupleDescriptor);
     }
 
     /// <inheritdoc/>
@@ -40,7 +41,8 @@ namespace Xtensive.Storage.Providers.Sql
       using (var command = CreateCommand()) {
         var part = factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
         command.AddPart(part);
-        var enumerator = RunTupleReader(command.ExecuteReader(), task.Request.TupleDescriptor, null);
+        command.ExecuteReader();
+        var enumerator = RunTupleReader(command, task.Request.TupleDescriptor);
         using (enumerator) {
           while (enumerator.MoveNext())
             task.Output.Add(enumerator.Current);

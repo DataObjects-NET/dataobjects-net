@@ -64,14 +64,11 @@ namespace Xtensive.Storage.Providers.Sql
       while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      return RunTupleReader(ExecuteBatch(tasks.Count, request), request.TupleDescriptor, DisposeCommand);
+      return RunTupleReader(ExecuteBatch(tasks.Count, request), request.TupleDescriptor);
     }
 
     #region Private / internal methods
 
-    /// <summary>
-    /// Allocates the active command.
-    /// </summary>
     private void AllocateCommand()
     {
       if (activeCommand != null)
@@ -80,12 +77,8 @@ namespace Xtensive.Storage.Providers.Sql
         activeCommand = CreateCommand();
     }
 
-    /// <summary>
-    /// Disposes the active command.
-    /// </summary>
-    private void DisposeCommand()
+    private void ReleaseCommand()
     {
-      activeCommand.DisposeSafely();
       if (reenterCount > 0) {
         reenterCount--;
         activeCommand = CreateCommand();
@@ -94,28 +87,33 @@ namespace Xtensive.Storage.Providers.Sql
         activeCommand = null;
     }
 
-    private DbDataReader ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
+    private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
-      if (numberOfTasks==0 && lastRequest==null)
+      var shouldReturnReader = lastRequest!=null;
+
+      if (numberOfTasks==0 && !shouldReturnReader)
         return null;
+
       AllocateCommand();
-      DbDataReader reader = null;
+
       try {
         while (numberOfTasks > 0 && tasks.Count > 0) {
           numberOfTasks--;
           var task = tasks.Dequeue();
           task.ProcessWith(this);
         }
-        if (lastRequest!=null) {
+        if (shouldReturnReader) {
           var part = factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
           activeCommand.AddPart(part);
         }
-        if (activeCommand.QueryTasks.Count==0 && lastRequest==null) {
+        var hasQueryTasks = activeCommand.QueryTasks.Count > 0;
+        if (!hasQueryTasks && !shouldReturnReader) {
           activeCommand.ExecuteNonQuery();
           return null;
         }
-        reader = activeCommand.ExecuteReader();
-        if (activeCommand.QueryTasks.Count > 0) {
+        activeCommand.ExecuteReader();
+        var reader = activeCommand.Reader;
+        if (hasQueryTasks) {
           int currentQueryTask = 0;
           while (currentQueryTask < activeCommand.QueryTasks.Count) {
             var queryTask = activeCommand.QueryTasks[currentQueryTask];
@@ -131,12 +129,12 @@ namespace Xtensive.Storage.Providers.Sql
             currentQueryTask++;
           }
         }
-        return lastRequest!=null ? reader : null;
+        return shouldReturnReader ? activeCommand : null;
       }
       finally {
-        if (reader != null && lastRequest == null)
-          reader.Dispose();
-        DisposeCommand();
+        if (!shouldReturnReader)
+          activeCommand.Dispose();
+        ReleaseCommand();
       }
     }
 
@@ -145,10 +143,6 @@ namespace Xtensive.Storage.Providers.Sql
       return string.Format("p{0}_", activeCommand.Statements.Count + 1);
     }
 
-    public override void Dispose()
-    {
-      DisposeCommand();
-    }
 
     #endregion
 
