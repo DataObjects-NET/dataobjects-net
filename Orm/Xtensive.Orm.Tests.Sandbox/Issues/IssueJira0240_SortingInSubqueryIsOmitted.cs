@@ -82,8 +82,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void RegressionTest()
     {
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var container = Query.All<Container>().Single();
         var now = DateTime.Now;
         var lastStoredContainer = Query.All<StoredContainer>()

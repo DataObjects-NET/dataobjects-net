@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// A command processor.
   /// </summary>
-  public abstract class CommandProcessor : IDisposable
+  public abstract class CommandProcessor
   {
     /// <summary>
     /// Default parameter name prefix.
@@ -118,24 +118,18 @@ namespace Xtensive.Orm.Providers.Sql
     /// Wrapps the specified <see cref="DbDataReader"/>
     /// into a <see cref="IEnumerator{Tuple}"/> according to a specified <see cref="TupleDescriptor"/>.
     /// </summary>
-    /// <param name="reader">The reader to wrap.</param>
+    /// <param name="command">The command to use.</param>
     /// <param name="descriptor">The descriptor of a result.</param>
     /// <returns>Created <see cref="IEnumerator{Tuple}"/>.</returns>
-    protected IEnumerator<Tuple> RunTupleReader(DbDataReader reader, TupleDescriptor descriptor, Action dispose)
+    protected IEnumerator<Tuple> RunTupleReader(Command command, TupleDescriptor descriptor)
     {
       var accessor = domainHandler.GetDataReaderAccessor(descriptor);
-      try {
-        using (reader)
-          while (driver.ReadRow(reader)) {
-            var tuple = Tuple.Create(descriptor);
-            accessor.Read(reader, tuple);
-            yield return tuple;
-          }
-      }
-      finally {
-        if (dispose!=null)
-          dispose();
-      }
+      using (command)
+        while (driver.ReadRow(command.Reader)) {
+          var tuple = Tuple.Create(descriptor);
+          accessor.Read(command.Reader, tuple);
+          yield return tuple;
+        }
     }
 
     public Command CreateCommand()
@@ -145,10 +139,6 @@ namespace Xtensive.Orm.Providers.Sql
         dbCommand.CommandTimeout = session.CommandTimeout.Value;
       return new Command(driver, session, dbCommand);
     }
-
-    /// <inheritdoc/>
-    public virtual void Dispose()
-    {}
 
 
     // Constructors
