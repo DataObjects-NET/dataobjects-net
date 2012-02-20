@@ -1,22 +1,16 @@
-﻿using Xtensive.Sql;
+﻿using Xtensive.Core;
+using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Providers;
 using System.Collections.Generic;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal class EmptySelectCorrector : IPostCompiler, ISqlVisitor
+  internal class SqlSelectProcessor : ISqlVisitor
   {
-    private HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
-
-    public ExecutableProvider Process(ExecutableProvider rootProvider)
-    {
-      this.Visit(((SqlProvider) rootProvider).Request.SelectStatement);
-      return rootProvider;
-    }
+    private readonly SqlSelect rootSelect;
+    private readonly HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
 
     public void Visit(SqlAggregate node)
     {
@@ -553,6 +547,17 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void Visit(SqlHint sqlExpression)
     {
+    }
+
+    public static void Process(SqlSelect select)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(select, "select");
+      new SqlSelectProcessor(select).Visit(select);
+    }
+
+    private SqlSelectProcessor(SqlSelect rootSelect)
+    {
+      this.rootSelect = rootSelect;
     }
   }
 }
