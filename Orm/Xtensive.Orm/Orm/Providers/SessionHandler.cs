@@ -31,25 +31,9 @@ namespace Xtensive.Orm.Providers
     private static readonly object CachingRegion = new object();
     
     /// <summary>
-    /// The <see cref="object"/> to synchronize access to a connection.
-    /// </summary>
-    protected readonly object ConnectionSyncRoot = new object();
-
-    /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
     public Session Session { get; internal set; }
-
-    /// <summary>
-    /// Acquires the connection lock.
-    /// </summary>
-    /// <returns>An implementation of <see cref="IDisposable"/> which should be disposed 
-    /// to release the connection lock.</returns>
-    public IDisposable AcquireConnectionLock()
-    {
-      Monitor.Enter(ConnectionSyncRoot);
-      return new Disposable<object>(ConnectionSyncRoot, (disposing, syncRoot) => Monitor.Exit(syncRoot));
-    }
 
     /// <summary>
     /// Gets the real session handler (the final handler in chain of all <see cref="ChainingSessionHandler"/>s).

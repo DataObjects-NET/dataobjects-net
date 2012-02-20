@@ -42,41 +42,35 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     public SqlConnection Connection {
       get {
-        lock (ConnectionSyncRoot) {
-          EnsureConnectionIsOpen();
-        }
+        EnsureConnectionIsOpen();
         return connection;
       }
     }
 
     public override void SetCommandTimeout(int? commandTimeout)
     {
-      lock (ConnectionSyncRoot) {
-        if (connection!=null)
-          connection.CommandTimeout = commandTimeout;
-      }
+      if (connection!=null)
+        connection.CommandTimeout = commandTimeout;
     }
 
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        var nonBatchedTasks = new List<QueryTask>();
-        foreach (var task in queryTasks) {
-          var sqlProvider = task.DataSource as SqlProvider;
-          if (sqlProvider!=null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
-            RegisterQueryTask(task, sqlProvider.Request);
-          else
-            nonBatchedTasks.Add(task);
-        }
-        if (nonBatchedTasks.Count > 0) {
-          commandProcessor.ExecuteRequests();
-          base.ExecuteQueryTasks(nonBatchedTasks, allowPartialExecution);
-        }
+      EnsureConnectionIsOpen();
+      var nonBatchedTasks = new List<QueryTask>();
+      foreach (var task in queryTasks) {
+        var sqlProvider = task.DataSource as SqlProvider;
+        if (sqlProvider!=null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
+          RegisterQueryTask(task, sqlProvider.Request);
         else
-          commandProcessor.ExecuteRequests(allowPartialExecution);
+          nonBatchedTasks.Add(task);
       }
+      if (nonBatchedTasks.Count > 0) {
+        commandProcessor.ExecuteRequests();
+        base.ExecuteQueryTasks(nonBatchedTasks, allowPartialExecution);
+      }
+      else
+        commandProcessor.ExecuteRequests(allowPartialExecution);
     }
 
     private void RegisterQueryTask(QueryTask task, QueryRequest request)
@@ -90,58 +84,46 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void BeginTransaction(Transaction transaction)
     {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        driver.BeginTransaction(
-          Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
-      }
+      EnsureConnectionIsOpen();
+      driver.BeginTransaction(
+        Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
     }
 
     /// <inheritdoc/>
     public override void CreateSavepoint(Transaction transaction)
     {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        driver.MakeSavepoint(Session, connection, transaction.SavepointName);
-      }
+      EnsureConnectionIsOpen();
+      driver.MakeSavepoint(Session, connection, transaction.SavepointName);
     }
 
     /// <inheritdoc/>
     public override void RollbackToSavepoint(Transaction transaction)
     {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        driver.RollbackToSavepoint(Session, connection, transaction.SavepointName);
-      }
+      EnsureConnectionIsOpen();
+      driver.RollbackToSavepoint(Session, connection, transaction.SavepointName);
     }
 
     /// <inheritdoc/>
     public override void ReleaseSavepoint(Transaction transaction)
     {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
-      }
+      EnsureConnectionIsOpen();
+      driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
-      lock (ConnectionSyncRoot) {
-        if (Connection.ActiveTransaction!=null)
-          driver.CommitTransaction(Session, connection);
-        EndNativeTransaction();
-      }
+      if (Connection.ActiveTransaction!=null)
+        driver.CommitTransaction(Session, connection);
+      EndNativeTransaction();
     }
 
     /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
-      lock (ConnectionSyncRoot) {
-        if (Connection.ActiveTransaction!=null)
-          driver.RollbackTransaction(Session, Connection);
-        EndNativeTransaction();
-      }
+      if (Connection.ActiveTransaction!=null)
+        driver.RollbackTransaction(Session, Connection);
+      EndNativeTransaction();
     }
 
     #endregion
