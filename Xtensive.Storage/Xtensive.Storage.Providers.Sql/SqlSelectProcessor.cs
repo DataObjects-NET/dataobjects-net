@@ -449,6 +449,13 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (node.Columns.Count==0)
         node.Columns.Add(SqlDml.Null, "NULL");
+
+      var keepOrderBy = ReferenceEquals(node, rootSelect)
+        || !node.Offset.IsNullReference()
+        || !node.Limit.IsNullReference();
+
+      if (!keepOrderBy)
+        node.OrderBy.Clear();
     }
 
     public void Visit(SqlSubQuery node)
