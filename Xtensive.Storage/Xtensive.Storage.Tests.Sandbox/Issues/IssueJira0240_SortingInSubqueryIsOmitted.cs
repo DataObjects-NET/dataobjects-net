@@ -88,10 +88,12 @@ namespace Xtensive.Storage.Tests.Issues
         var now = DateTime.Now;
         var lastStoredContainer = Query.All<StoredContainer>()
           .Where(s => s.Container==container && s.CreationTime <= now)
-          .OrderByDescending(s => s.CreationTime)
+          .GroupBy(s => s.CreationTime)
+          .OrderByDescending(s => s.Key)
           .FirstOrDefault();
+
         Assert.That(lastStoredContainer, Is.Not.Null);
-        Assert.That(lastStoredContainer.Address, Is.EqualTo("3"));
+        Assert.That(lastStoredContainer.Key.Day, Is.EqualTo(3));
       }
     }
   }
