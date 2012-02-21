@@ -2343,6 +2343,7 @@ Error: {1}</value>
   </data>
   <data name="UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession">
     <value xml:space="preserve">Unable to invalidate session state: newly created entities are attached to session.</value>
+  </data>
   <data name="ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive">
     <value xml:space="preserve">DefaultSchema should be specified when multi-schema mode is active</value>
   </data>
