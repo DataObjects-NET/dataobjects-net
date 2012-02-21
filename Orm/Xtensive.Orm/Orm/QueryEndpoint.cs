@@ -9,7 +9,6 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Activator = System.Activator;
@@ -25,6 +24,11 @@ namespace Xtensive.Orm
   public class QueryEndpoint
   {
     protected Session Session { get; private set; }
+
+    /// <summary>
+    /// Gets <see cref="IQueryProvider"/> implementation
+    /// for this session.
+    /// </summary>
     public QueryProvider Provider { get; private set; }
 
     /// <summary>

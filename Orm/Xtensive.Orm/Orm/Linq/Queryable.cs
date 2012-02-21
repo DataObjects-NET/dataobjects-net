@@ -78,9 +78,6 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     public override string ToString()
     {
-      // TODO: Make the output readable?
-//      if (expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==this)
-//        return string.Format("Query.All<{0}>()", typeof (T).GetShortName());
       return expression.ToString();
     }
 

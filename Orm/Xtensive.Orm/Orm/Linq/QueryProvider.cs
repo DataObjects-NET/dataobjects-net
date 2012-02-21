@@ -24,10 +24,10 @@ namespace Xtensive.Orm.Linq
   {
     private readonly Session session;
 
-    public Session Session
-    {
-      get { return session; }
-    }
+    /// <summary>
+    /// Gets <see cref="Session"/> this provider is attached to.
+    /// </summary>
+    public Session Session { get { return session; } }
     
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
@@ -51,14 +51,12 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      expression = session.Events.NotifyQueryExecuting(expression);
       var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
         ? typeof (IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
         : expression.Type;
       try {
         var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
           var result = executeMethod.Invoke(this, new[] {expression});
-          session.Events.NotifyQueryExecuted(expression);
           return result;
       }
       catch(TargetInvocationException te) {
@@ -74,7 +72,7 @@ namespace Xtensive.Orm.Linq
       var cachingScope = QueryCachingScope.Current;
       TResult result;
       if (cachingScope != null && !cachingScope.Execute)
-        result= default(TResult);
+        result = default(TResult);
       else
         result = translationResult.Query.Execute(session, new ParameterContext());
       session.Events.NotifyQueryExecuted(expression);
