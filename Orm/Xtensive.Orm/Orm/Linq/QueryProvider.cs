@@ -56,8 +56,8 @@ namespace Xtensive.Orm.Linq
         : expression.Type;
       try {
         var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
-          var result = executeMethod.Invoke(this, new[] {expression});
-          return result;
+        var result = executeMethod.Invoke(this, new[] {expression});
+        return result;
       }
       catch(TargetInvocationException te) {
         throw te.InnerException;
@@ -86,7 +86,8 @@ namespace Xtensive.Orm.Linq
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
-        throw new QueryTranslationException(String.Format(Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
+        throw new QueryTranslationException(String.Format(
+          Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
 
