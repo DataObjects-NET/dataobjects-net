@@ -20,14 +20,12 @@ using Xtensive.Orm.Configuration;
 using System;
 
 using Xtensive.Orm;
-using Xtensive.Orm.Tests.Sandbox.Issues.IssueJIRA0020_CustomLINQCompilerContainerInterface_Model;
+using Xtensive.Orm.Tests.Issues.IssueJIRA0020_CustomLINQCompilerContainerInterface_Model;
 
-namespace Xtensive.Orm.Tests.Sandbox.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueJIRA0020_CustomLINQCompilerContainerInterface_Model
   {
-    
-
     [Serializable]
     [HierarchyRoot]
     public class Person : Entity, ITest

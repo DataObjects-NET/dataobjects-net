@@ -17,7 +17,8 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   [Infrastructure]
   public sealed class EntitySetState : TransactionalStateContainer<KeyCache>,
-    IEnumerable<Key>
+    IEnumerable<Key>,
+    IInvalidatable
   {
     private bool isLoaded;
     private long? totalItemCount;
@@ -128,6 +129,11 @@ namespace Xtensive.Orm.Internals
       TotalItemCount = null;
       IsLoaded = false;
       base.Invalidate();
+    }
+
+    void IInvalidatable.Invalidate()
+    {
+      Invalidate();
     }
 
     /// <inheritdoc/>

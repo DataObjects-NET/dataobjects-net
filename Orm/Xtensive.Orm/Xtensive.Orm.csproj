@@ -191,7 +191,6 @@
     <Compile Include="Orm\Providers\Sql\Driver.cs" />
     <Compile Include="Orm\Providers\Sql\Driver.Operations.cs" />
     <Compile Include="Orm\Providers\Sql\Driver.ValueTypeMapping.cs" />
-    <Compile Include="Orm\Providers\Sql\EmptySelectCorrector.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\BooleanExpressionConverter.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.Helpers.cs" />
@@ -251,6 +250,8 @@
     <Compile Include="Orm\Providers\Sql\SqlModelConverter.cs" />
     <Compile Include="Orm\Providers\Sql\SqlProviderPreparer.cs" />
     <Compile Include="Orm\Providers\Sql\SqlProvider.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlSelectCorrector.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlSelectProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\SqlStoreProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlTemporaryDataProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlUpgradeStage.cs" />

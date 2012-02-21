@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq.SerializableExpressions;
-using Xtensive.Serialization.Binary;
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public struct UnifiedCustomerID
   {

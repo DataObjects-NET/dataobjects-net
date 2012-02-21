@@ -8,9 +8,9 @@ using NUnit.Framework;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests;
-using Xtensive.Storage.Tests.Issues.IssueJira0165_Model;
+using Xtensive.Orm.Tests.Issues.IssueJira0165_Model;
 
-namespace Xtensive.Storage.Tests.Issues.IssueJira0165_Model
+namespace Xtensive.Orm.Tests.Issues.IssueJira0165_Model
 {
   [HierarchyRoot]
   public class Class1 : Entity
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Issues.IssueJira0165_Model
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0165_CaseSensitiveFieldNames : AutoBuildTest
   {

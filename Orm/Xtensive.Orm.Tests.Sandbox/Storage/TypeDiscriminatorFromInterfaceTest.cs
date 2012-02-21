@@ -9,9 +9,9 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Sandbox.Storage.AdvancedDefaultAndTypeDiscriminatorTestModel;
+using Xtensive.Orm.Tests.Storage.AdvancedDefaultAndTypeDiscriminatorTestModel;
 
-namespace Xtensive.Orm.Tests.Sandbox.Storage.AdvancedDefaultAndTypeDiscriminatorTestModel
+namespace Xtensive.Orm.Tests.Storage.AdvancedDefaultAndTypeDiscriminatorTestModel
 {
   public static class CodeRegistry
   {
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Sandbox.Storage.AdvancedDefaultAndTypeDiscriminator
   }
 }
 
-namespace Xtensive.Orm.Tests.Sandbox.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   public class TypeDiscriminatorFromInterfaceTest : AutoBuildTest
   {

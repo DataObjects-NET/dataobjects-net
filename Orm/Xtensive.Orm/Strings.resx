@@ -325,9 +325,6 @@
   <data name="ExElementWithTypeIsContainedInThisInstanceAlready" xml:space="preserve">
     <value>Element with type '{0}' is already contained in this instance.</value>
   </data>
-  <data name="ExComparerForTypeIsNotAvailable" xml:space="preserve">
-    <value>Comparer for type '{0}' is not available.</value>
-  </data>
   <data name="ExTypeCantBeNull" xml:space="preserve">
     <value>Type cannot be null.</value>
   </data>
@@ -2344,6 +2341,8 @@ Error: {1}</value>
   <data name="ConstraintX" xml:space="preserve">
     <value> Constraint: {0};</value>
   </data>
+  <data name="UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession">
+    <value xml:space="preserve">Unable to invalidate session state: newly created entities are attached to session.</value>
   <data name="ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive">
     <value xml:space="preserve">DefaultSchema should be specified when multi-schema mode is active</value>
   </data>

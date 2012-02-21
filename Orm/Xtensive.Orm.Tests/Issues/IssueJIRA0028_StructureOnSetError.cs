@@ -6,9 +6,9 @@
 
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Sandbox.Issues.IssueJIRA0028_StructureOnSetError_Model;
+using Xtensive.Orm.Tests.Issues.IssueJIRA0028_StructureOnSetError_Model;
 
-namespace Xtensive.Orm.Tests.Sandbox.Issues.IssueJIRA0028_StructureOnSetError_Model
+namespace Xtensive.Orm.Tests.Issues.IssueJIRA0028_StructureOnSetError_Model
 {
   [HierarchyRoot]
   public class Interval : Entity

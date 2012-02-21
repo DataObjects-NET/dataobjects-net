@@ -1,22 +1,16 @@
-﻿using Xtensive.Sql;
+﻿using Xtensive.Core;
+using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.Providers;
 using System.Collections.Generic;
 
 namespace Xtensive.Orm.Providers.Sql
 {
-  internal class EmptySelectCorrector : IPostCompiler, ISqlVisitor
+  internal class SqlSelectProcessor : ISqlVisitor
   {
-    private HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
-
-    public ExecutableProvider Process(ExecutableProvider rootProvider)
-    {
-      this.Visit(((SqlProvider) rootProvider).Request.Statement);
-      return rootProvider;
-    }
+    private readonly SqlSelect rootSelect;
+    private readonly HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
 
     public void Visit(SqlAggregate node)
     {
@@ -50,7 +44,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     public void Visit(SqlAssignment node)
     {
-      if (!((SqlExpression)node.Left).IsNullReference())
+      if (node.Left!=null)
         Visit(node.Left);
       if (!node.Right.IsNullReference())
         Visit(node.Right);
@@ -66,7 +60,7 @@ namespace Xtensive.Orm.Providers.Sql
         Visit(node.Left);
       if (!node.Right.IsNullReference())
         Visit(node.Right);
-      if (!node.Expression.IsNullReference())
+      if (!node.Expression)
         Visit(node.Expression);
     }
 
@@ -455,6 +449,13 @@ namespace Xtensive.Orm.Providers.Sql
 
       if (node.Columns.Count==0)
         node.Columns.Add(SqlDml.Null, "NULL");
+
+      var keepOrderBy = ReferenceEquals(node, rootSelect)
+        || !node.Offset.IsNullReference()
+        || !node.Limit.IsNullReference();
+
+      if (!keepOrderBy)
+        node.OrderBy.Clear();
     }
 
     public void Visit(SqlSubQuery node)
@@ -485,7 +486,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     public void Visit(SqlUserColumn node)
     {
-      if (!node.Expression.IsNullReference() && node.Expression.NodeType != SqlNodeType.RowNumber)
+      if (!node.Expression.IsNullReference())
         Visit(node.Expression);
     }
 
@@ -553,6 +554,17 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void Visit(SqlHint sqlExpression)
     {
+    }
+
+    public static void Process(SqlSelect select)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(select, "select");
+      new SqlSelectProcessor(select).Visit(select);
+    }
+
+    private SqlSelectProcessor(SqlSelect rootSelect)
+    {
+      this.rootSelect = rootSelect;
     }
   }
 }

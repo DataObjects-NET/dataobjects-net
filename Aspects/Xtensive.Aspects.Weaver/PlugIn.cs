@@ -134,14 +134,13 @@ namespace Xtensive.Aspects.Weaver
         if (licenseInfo.IsValid && LicenseValidator.WeaverLicenseCheckIsRequired()) {
           var companyLicenseData = licenseInfo.EvaluationMode
             ? null
-            : LicenseValidator.GetCompanyLicenseData(LicenseValidator.GetLicensesPath());
-          var hardwareId = LicenseValidator.TrialLicense.HardwareId;
+            : LicenseValidator.GetCompanyLicenseData();
           var request = new InternetCheckRequest(
             companyLicenseData, licenseInfo.ExpireOn,
-            LicenseValidator.GetProductVersion(), hardwareId);
+            LicenseValidator.ProductVersion, LicenseValidator.HardwareId);
           var result = InternetActivator.Check(request);
           if (result.IsValid==false) {
-            LicenseValidator.InvalidateLicense(licenseInfo.HardwareId);
+            LicenseValidator.InvalidateHardwareLicense();
             licenseInfo.HardwareKeyIsValid = false;
           }
         }

@@ -37,6 +37,11 @@ namespace Xtensive.Orm.Providers.Sql
     public List<SqlQueryTask> QueryTasks { get { return queryTasks; } }
 
     /// <summary>
+    /// Gets the <see cref="DbDataReader"/> that was executed in this command.
+    /// </summary>
+    public DbDataReader Reader { get; private set; }
+
+    /// <summary>
     /// Adds the part to this command.
     /// </summary>
     /// <param name="part">The part to add.</param>
@@ -76,17 +81,18 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Executes this command. This method is equivalent of <seealso cref="DbCommand.ExecuteReader()"/>.
     /// </summary>
-    public DbDataReader ExecuteReader()
+    public void ExecuteReader()
     {
       PrepareCommand();
-      return driver.ExecuteReader(session, underlyingCommand);
+      Reader = driver.ExecuteReader(session, underlyingCommand);
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
-      underlyingCommand.DisposeSafely();
+      Reader.DisposeSafely();
       disposables.DisposeSafely();
+      underlyingCommand.DisposeSafely();
     }
 
     #region Private / internal methods

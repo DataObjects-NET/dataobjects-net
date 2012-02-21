@@ -8,10 +8,10 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Sandbox.Issues.IssueJIRA0003_OrderByStructureFieldLost_Model;
+using Xtensive.Orm.Tests.Issues.IssueJIRA0003_OrderByStructureFieldLost_Model;
 using System.Linq;
 
-namespace Xtensive.Orm.Tests.Sandbox.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueJIRA0003_OrderByStructureFieldLost_Model
   {

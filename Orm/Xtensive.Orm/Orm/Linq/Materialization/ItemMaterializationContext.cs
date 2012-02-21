@@ -46,8 +46,11 @@ namespace Xtensive.Orm.Linq.Materialization
       bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
       var materializationInfo = MaterializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
       Key key;
-      if (materializationInfo.KeyIndexes.Length <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Materialize(Session.Domain, materializationInfo.Type, tuple, accuracy, canCache, materializationInfo.KeyIndexes);
+      var keyIndexes = materializationInfo.KeyIndexes;
+      if (!KeyFactory.IsValidKeyTuple(tuple, keyIndexes))
+        return null;
+      if (keyIndexes.Length <= WellKnown.MaxGenericKeyLength)
+        key = KeyFactory.Materialize(Session.Domain, materializationInfo.Type, tuple, accuracy, canCache, keyIndexes);
       else {
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
         key = KeyFactory.Materialize(Session.Domain, materializationInfo.Type, keyTuple, accuracy, canCache, null);
@@ -63,7 +66,8 @@ namespace Xtensive.Orm.Linq.Materialization
       entities[entityIndex] = result;
       return result;
     }
-// ReSharper restore UnusedMember.Global
+
+    // ReSharper restore UnusedMember.Global
 
 
     // Constructors

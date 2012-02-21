@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.ProjectCustomCompilerException.Model;
-using Xtensive.Orm.Tests.Sandbox.Issues.IssueJIRA0003_OrderByStructureFieldLost_Model;
 using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues

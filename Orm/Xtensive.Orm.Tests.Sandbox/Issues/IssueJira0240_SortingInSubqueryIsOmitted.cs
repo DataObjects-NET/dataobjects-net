@@ -78,5 +78,23 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(r.LastLocation, Is.EqualTo("3"));
       }
     }
+
+    [Test]
+    public void RegressionTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var container = Query.All<Container>().Single();
+        var now = DateTime.Now;
+        var lastStoredContainer = Query.All<StoredContainer>()
+          .Where(s => s.Container==container && s.CreationTime <= now)
+          .GroupBy(s => s.CreationTime)
+          .OrderByDescending(s => s.Key)
+          .FirstOrDefault();
+
+        Assert.That(lastStoredContainer, Is.Not.Null);
+        Assert.That(lastStoredContainer.Key.Day, Is.EqualTo(3));
+      }
+    }
   }
 }

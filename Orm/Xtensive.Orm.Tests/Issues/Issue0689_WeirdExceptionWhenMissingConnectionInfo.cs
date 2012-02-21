@@ -27,8 +27,9 @@ namespace Xtensive.Orm.Tests.Issues
     public void MissingConnectionInfoInAppConfigTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      AssertEx.Throws<ArgumentNullException>(
-        () => Domain.Build(DomainConfiguration.Load("AppConfigTest", "DomainWithWrongConnectionInfo")));
+      // Default behavior was changed
+      var config = DomainConfiguration.Load("AppConfigTest", "DomainWithWrongConnectionInfo");
+      Assert.That(config.ConnectionInfo.Provider, Is.EqualTo(WellKnown.Provider.SqlServer));
     }
   }
 }

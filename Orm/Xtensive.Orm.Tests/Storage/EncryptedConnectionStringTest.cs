@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
   public class EncryptedConnectionStringTest
