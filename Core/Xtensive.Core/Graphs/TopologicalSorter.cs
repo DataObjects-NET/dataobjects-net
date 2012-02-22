@@ -82,50 +82,67 @@ namespace Xtensive.Graphs
             where TNode: Node
             where TEdge: Edge
         {
-            bool breakEdges = edgeBreaker != null;
-            var tmpEdges = new List<TEdge>();
             var result = new TopologicalSortResult<TNode, TEdge>();
 
-            var unsortedNodes = new OrderedSet<TNode>(graph.Nodes);
-            var breakableEdges = new OrderedSet<TEdge>(breakEdges ? graph.Edges : EnumerableUtils<TEdge>.Empty);
-            
-            var nodesWithoutIncomingEdges = new Queue<TNode>(unsortedNodes.Where(n => !n.HasIncomingEdges));
+            HashSet<TNode> sortedNodes;
+            OrderedSet<TNode> unsortedNodes;
+            Queue<TEdge> breakableEdges;
+
+            if (edgeBreaker!=null) {
+                sortedNodes = null;
+                unsortedNodes = new OrderedSet<TNode>(graph.Nodes);
+                breakableEdges = new Queue<TEdge>(graph.Edges);
+            }
+            else {
+                sortedNodes = new HashSet<TNode>();
+                unsortedNodes = null;
+                breakableEdges = null;
+            }
+            var nodesWithoutIncomingEdges = new Queue<TNode>(graph.Nodes.Where(n => !n.HasIncomingEdges));
+
 
         restart:
             // Sorting
             while (nodesWithoutIncomingEdges.Count!=0) {
                 var node = nodesWithoutIncomingEdges.Dequeue();
-                unsortedNodes.Remove(node);
+                if (unsortedNodes!=null) // Break edges
+                    unsortedNodes.Remove(node);
+                else
+                    sortedNodes.Add(node);
                 result.SortedNodes.Add(node);
                 if (!node.HasOutgoingEdges)
                     continue;
-                tmpEdges.AddRange(node.OutgoingEdges.Cast<TEdge>());
-                foreach (var edge in tmpEdges) {
-                    edge.Detach();
-                    if (breakEdges)
-                        breakableEdges.Remove(edge);
+                foreach (var edge in node.OutgoingEdges) {
+                    edge.Target.IncomingEdges.Remove(edge);
+                    edge.IsAttached = false; // actually, Detach(), because we perform node.OutgoingEdges.Clear() further
                     var target = (TNode) edge.Target;
                     if (!target.HasIncomingEdges)
                         nodesWithoutIncomingEdges.Enqueue(target);
                 }
-                tmpEdges.Clear();
+                node.OutgoingEdges.Clear();
             }
 
-            if (unsortedNodes.Count != 0) {
-                // Trying to break edges (collection is always empty when breakEdges==false)
-                TEdge edge;
-                while ((edge = breakableEdges.Pop())!=null) {
-                    if (!edgeBreaker(edge))
-                        continue;
-                    result.BrokenEdges.Add(edge);
-                    edge.Detach();
-                    var target = (TNode) edge.Target;
-                    if (!target.HasIncomingEdges) {
-                        nodesWithoutIncomingEdges.Enqueue(target);
-                        goto restart;
+            if (unsortedNodes!=null) { // Break edges
+                if (unsortedNodes.Count != 0) {
+                    // Trying to break edges (collection is always empty when breakEdges==false)
+                    while (breakableEdges.Count != 0) {
+                        var edge = breakableEdges.Dequeue();
+                        if (!edge.IsAttached || !edgeBreaker(edge))
+                            continue;
+                        result.BrokenEdges.Add(edge);
+                        edge.Detach();
+                        var target = (TNode) edge.Target;
+                        if (!target.HasIncomingEdges) {
+                            nodesWithoutIncomingEdges.Enqueue(target);
+                            goto restart;
+                        }
                     }
+                    result.LoopNodes.AddRange(unsortedNodes);
                 }
-                result.LoopNodes.AddRange(unsortedNodes);
+            }
+            else {
+                if (sortedNodes.Count != graph.Nodes.Count)
+                    result.LoopNodes.AddRange(graph.Nodes.Where(node => !sortedNodes.Contains(node)));
             }
 
             return result;

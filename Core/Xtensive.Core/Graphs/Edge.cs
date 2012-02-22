@@ -37,13 +37,7 @@ namespace Xtensive.Graphs
         /// <summary>
         /// Indicates whether this edge is attached to its source and target nodes.
         /// </summary>
-        public bool IsAttached
-        {
-            get
-            {
-                return Source!=null && Source.OutgoingEdges.Contains(this);
-            }
-        }
+        public bool IsAttached { get; internal set; }
 
         /// <summary>
         /// Attaches the edge to source and target nodes.
@@ -52,6 +46,7 @@ namespace Xtensive.Graphs
         {
             Source.OutgoingEdges.Add(this);
             Target.IncomingEdges.Add(this);
+            IsAttached = true;
         }
 
         /// <summary>
@@ -61,6 +56,7 @@ namespace Xtensive.Graphs
         {
             Source.OutgoingEdges.Remove(this);
             Target.IncomingEdges.Remove(this);
+            IsAttached = false;
         }
 
         /// <inheritdoc />

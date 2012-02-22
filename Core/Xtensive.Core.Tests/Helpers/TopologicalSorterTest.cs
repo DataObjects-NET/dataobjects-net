@@ -23,11 +23,21 @@ namespace Xtensive.Tests.Helpers
         [Test, Explicit]
         public void PerformanceTest()
         {
-            InternalPerformanceTest(100, 10, false);
-            InternalPerformanceTest(1000, 10, false);
-            InternalPerformanceTest(10000, 10, false);
-            InternalPerformanceTest(100000, 10, false);
-            InternalPerformanceTest(200000, 10, false);
+            using (Log.InfoRegion("No loops")) {
+                InternalPerformanceTest(10000, 10, false);
+                InternalPerformanceTest(100, 10, false);
+                InternalPerformanceTest(1000, 10, false);
+                InternalPerformanceTest(10000, 10, false);
+                InternalPerformanceTest(100000, 10, false);
+            }
+            Log.Info("");
+            using (Log.InfoRegion("With loop removal")) {
+                InternalPerformanceTest(10000, 10, true);
+                InternalPerformanceTest(100, 10, true);
+                InternalPerformanceTest(1000, 10, true);
+                InternalPerformanceTest(10000, 10, true);
+                InternalPerformanceTest(100000, 10, true);
+            }
         }
 
         private static void InternalPerformanceTest(int nodeCount, int averageConnectionCount, bool allowLoops)
@@ -56,6 +66,7 @@ namespace Xtensive.Tests.Helpers
                 if (!allowLoops)
                     Assert.AreEqual(nodeCount, result.Count);
             }
+            GC.GetTotalMemory(true);
         }
 
         [Test]

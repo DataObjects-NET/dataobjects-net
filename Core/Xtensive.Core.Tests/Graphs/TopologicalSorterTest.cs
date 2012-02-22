@@ -24,6 +24,7 @@ namespace Xtensive.Tests.Graphs
         public void PerformanceTest()
         {
             using (Log.InfoRegion("No loops")) {
+                InternalPerformanceTest(10000, 10, false);
                 InternalPerformanceTest(100, 10, false);
                 InternalPerformanceTest(1000, 10, false);
                 InternalPerformanceTest(10000, 10, false);
@@ -31,6 +32,7 @@ namespace Xtensive.Tests.Graphs
             }
             Log.Info("");
             using (Log.InfoRegion("With loop removal")) {
+                InternalPerformanceTest(10000, 10, true);
                 InternalPerformanceTest(100, 10, true);
                 InternalPerformanceTest(1000, 10, true);
                 InternalPerformanceTest(10000, 10, true);
@@ -62,6 +64,7 @@ namespace Xtensive.Tests.Graphs
                 var result = TopologicalSorter.Sort(graph, e => true);
                 Assert.IsFalse(result.HasLoops);
             }
+            GC.GetTotalMemory(true);
         }
 
         [Test]
