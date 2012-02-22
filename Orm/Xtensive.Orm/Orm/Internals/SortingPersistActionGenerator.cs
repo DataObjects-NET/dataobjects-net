@@ -15,7 +15,8 @@ namespace Xtensive.Orm.Internals
   internal class SortingPersistActionGenerator : PersistActionGenerator
   {
     private List<Node<EntityState>> sortedNodes;
-    private List<EntityState> unreferencedStates;
+    private List<EntityState> nonOwningStates;
+    private List<EntityState> nonTargetedStates;
     private List<Triplet<EntityState, FieldInfo, Entity>> referencesToRestore;
 
     protected override IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
@@ -23,11 +24,16 @@ namespace Xtensive.Orm.Internals
       // Topological sorting
       SortAndRemoveLoopEdges(entityStates, false);
 
-      // Insert
+      // Insert entities that do not reference anything
+      foreach (var state in nonOwningStates)
+        yield return new PersistAction(state, PersistActionKind.Insert);
+
+      // Insert sorted states in reverse order
       for (int i = sortedNodes.Count - 1; i >= 0; i--)
         yield return new PersistAction(sortedNodes[i].Value, PersistActionKind.Insert);
 
-      foreach (var state in unreferencedStates)
+      // Insert entities that are not referenced by anything
+      foreach (var state in nonTargetedStates)
         yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Restore loop links
@@ -60,11 +66,17 @@ namespace Xtensive.Orm.Internals
         yield return new PersistAction(triplet.First, PersistActionKind.Update);
       }
 
-      foreach (var state in unreferencedStates)
+      // Remove entities that are not referenced by anything
+      foreach (var state in nonTargetedStates)
         yield return new PersistAction(state, PersistActionKind.Remove);
 
+      // Remove sorted states in direct order
       foreach (var node in sortedNodes)
         yield return new PersistAction(node.Value, PersistActionKind.Remove);
+
+      // Remove entities that do not reference anything
+      foreach (var state in nonOwningStates)
+         yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
     private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort)
@@ -72,13 +84,16 @@ namespace Xtensive.Orm.Internals
       var nodeIndex = new Dictionary<Key, Node<EntityState>>();
       var graph = new Graph<Node<EntityState>, Edge<AssociationInfo>>();
 
-      unreferencedStates = new List<EntityState>();
+      nonOwningStates = new List<EntityState>();
+      nonTargetedStates = new List<EntityState>();
 
       foreach (var state in entityStates) {
         if (rollbackDifferenceBeforeSort)
           state.RollbackDifference();
-        if (state.Type.GetTargetAssociations().Count==0 && state.Type.GetOwnerAssociations().Count==0)
-          unreferencedStates.Add(state);
+        if (state.Type.GetTargetAssociations().Count==0  || state.Type.IsAuxiliary)
+          nonTargetedStates.Add(state);
+        else if (state.Type.GetOwnerAssociations().Count==0)
+          nonOwningStates.Add(state);
         else {
           var node = new Node<EntityState>(state);
           graph.Nodes.Add(node);
