@@ -20,7 +20,7 @@ namespace Xtensive.Sorting
     /// <summary>
     /// Gets or sets the sorting result.
     /// </summary>
-    public List<TNodeItem> Result{ get; private set;}
+    public List<TNodeItem> Result { get; private set;}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
