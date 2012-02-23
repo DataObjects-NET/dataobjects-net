@@ -48,8 +48,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       public override IQueryable Apply(IQueryable root)
       {
-        var typedRoot = (IQueryable<T>)root;
-        return typedRoot.Where(t => t.IsHidden);
+        var typedRoot = (IQueryable<T>) root;
+        return typedRoot.Where(t => !t.IsHidden);
       }
     }
 
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (NormalEntity));
+      config.Types.Register(typeof (NormalEntity).Assembly, typeof (NormalEntity).Namespace);
       return config;
     }
 
