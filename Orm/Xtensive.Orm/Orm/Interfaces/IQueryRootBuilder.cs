@@ -4,12 +4,13 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.23
 
+using System;
 using System.Linq.Expressions;
 
 namespace Xtensive.Orm
 {
   public interface IQueryRootBuilder
   {
-    Expression GetRootExpression<T>() where T : class, IEntity;
+    Expression GetRootExpression(Type elementType);
   }
 }

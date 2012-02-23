@@ -54,10 +54,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      var expression = RootBuilder!=null
-        ? RootBuilder.GetRootExpression<T>()
-        : GetDefaultRootExpression(typeof (T));
-      return Provider.CreateQuery<T>(expression);
+      return Provider.CreateQuery<T>(GetRootExpression(typeof (T)));
     }
 
     /// <summary>
@@ -73,10 +70,7 @@ namespace Xtensive.Orm
     public IQueryable All(Type elementType)
     {
       var provider = (IQueryProvider) Provider;
-      var expression = RootBuilder!=null
-        ? GetCustomRootExpression(elementType)
-        : GetDefaultRootExpression(elementType);
-      return provider.CreateQuery(expression);
+      return provider.CreateQuery(GetRootExpression(elementType));
     }
 
     /// <summary>
@@ -409,24 +403,12 @@ namespace Xtensive.Orm
       return Key.Create(session.Domain, typeof(T), keyValues);
     }
 
-    private static Expression GetDefaultRootExpression(Type elementType)
+    private Expression GetRootExpression(Type elementType)
     {
-      return Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
+      return RootBuilder!=null
+        ? RootBuilder.GetRootExpression(elementType)
+        : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
     }
-
-    private Expression GetCustomRootExpression(Type elementType)
-    {
-      var method = invokeRootBuilderMethod.MakeGenericMethod(elementType);
-      return (Expression) method.Invoke(this, new object[0]);
-    }
-
-    // ReSharper disable UnusedMember.Local
-    private Expression InvokeRootBuilder<T>()
-      where T : class, IEntity
-    {
-      return RootBuilder.GetRootExpression<T>();
-    }
-    // ReSharper restore UnusedMember.Local
 
     #endregion
 
@@ -446,13 +428,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(queryRootBuilder, "queryRootBuilder");
       Provider = outerEndpoint.Provider;
       session = outerEndpoint.session;
-      this.RootBuilder = queryRootBuilder;
-    }
-
-    static QueryEndpoint()
-    {
-      invokeRootBuilderMethod = typeof (QueryEndpoint)
-        .GetMethod("InvokeRootBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
+      RootBuilder = queryRootBuilder;
     }
   }
 }
