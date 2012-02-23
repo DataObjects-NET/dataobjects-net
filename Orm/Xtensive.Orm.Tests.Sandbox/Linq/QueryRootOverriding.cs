@@ -53,23 +53,23 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
-    public class FilteringRootBuiler : IQueryRootBuilder
+    public class FilteringRootBuilder : IQueryRootBuilder
     {
       private readonly QueryEndpoint query;
 
-      public Expression GetRootExpression(Type elementType)
+      public Expression BuildRootExpression(Type entityType)
       {
-        if (!typeof (IHidden).IsAssignableFrom(elementType))
-          return query.All(elementType).Expression;
-        return CreateFilter(elementType).Apply(query.All(elementType)).Expression;
+        if (!typeof (IHidden).IsAssignableFrom(entityType))
+          return query.All(entityType).Expression;
+        return CreateFilter(entityType).Apply(query.All(entityType)).Expression;
       }
 
-      private static QueryFilter CreateFilter(Type elementType)
+      private static QueryFilter CreateFilter(Type entityType)
       {
-        return (QueryFilter) Activator.CreateInstance(typeof (HiddenEntityFilter<>).MakeGenericType(elementType));
+        return (QueryFilter) Activator.CreateInstance(typeof (HiddenEntityFilter<>).MakeGenericType(entityType));
       }
 
-      public FilteringRootBuiler(QueryEndpoint query)
+      public FilteringRootBuilder(QueryEndpoint query)
       {
         this.query = query;
       }
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction())
-      using (session.OverrideQueryRoot(new FilteringRootBuiler(session.Query))) {
+      using (session.OverrideQueryRoot(new FilteringRootBuilder(session.Query))) {
         var count = session.SystemQuery.All<HiddenEntity>().Count();
         Assert.That(count, Is.EqualTo(2));
         tx.Complete();
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction())
-      using (session.OverrideQueryRoot(new FilteringRootBuiler(session.Query))) {
+      using (session.OverrideQueryRoot(new FilteringRootBuilder(session.Query))) {
         var count = session.Query.All<HiddenEntity>().Count();
         Assert.That(count, Is.EqualTo(1));
         tx.Complete();

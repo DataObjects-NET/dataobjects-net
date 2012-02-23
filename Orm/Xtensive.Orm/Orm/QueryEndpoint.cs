@@ -23,8 +23,6 @@ namespace Xtensive.Orm
   /// </summary>
   public sealed class QueryEndpoint
   {
-    private static readonly MethodInfo invokeRootBuilderMethod;
-
     private readonly Session session;
 
     /// <summary>
@@ -39,6 +37,11 @@ namespace Xtensive.Orm
     /// </summary>
     public QueryProvider Provider { get; private set; }
 
+    /// <summary>
+    /// Gets <see cref="IQueryRootBuilder"/> associated with this instance.
+    /// If <see cref="IQueryRootBuilder"/> is not set for this instance
+    /// returns <see langword="null"/>.
+    /// </summary>
     public IQueryRootBuilder RootBuilder { get; private set; }
 
     /// <summary>
@@ -54,7 +57,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      return Provider.CreateQuery<T>(GetRootExpression(typeof (T)));
+      return Provider.CreateQuery<T>(BuildRootExpression(typeof (T)));
     }
 
     /// <summary>
@@ -70,7 +73,7 @@ namespace Xtensive.Orm
     public IQueryable All(Type elementType)
     {
       var provider = (IQueryProvider) Provider;
-      return provider.CreateQuery(GetRootExpression(elementType));
+      return provider.CreateQuery(BuildRootExpression(elementType));
     }
 
     /// <summary>
@@ -403,10 +406,10 @@ namespace Xtensive.Orm
       return Key.Create(session.Domain, typeof(T), keyValues);
     }
 
-    private Expression GetRootExpression(Type elementType)
+    private Expression BuildRootExpression(Type elementType)
     {
       return RootBuilder!=null
-        ? RootBuilder.GetRootExpression(elementType)
+        ? RootBuilder.BuildRootExpression(elementType)
         : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
     }
 

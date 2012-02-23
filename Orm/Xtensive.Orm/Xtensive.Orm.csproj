@@ -300,6 +300,7 @@
     <Compile Include="Orm\Model\TypeInfoRef.cs" />
     <Compile Include="Orm\EntitySetActionCompletedEventArgs.cs" />
     <Compile Include="Orm\QueryEndpoint.cs" />
+    <Compile Include="Orm\QueryRootBuilder.cs" />
     <Compile Include="Orm\Rse\Compilation\CompositePostCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\VoidProvider.cs" />
     <Compile Include="Orm\Services\QueryFormatter.cs" />
