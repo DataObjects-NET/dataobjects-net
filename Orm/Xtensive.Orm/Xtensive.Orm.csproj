@@ -117,6 +117,7 @@
     <Compile Include="Orm\Exceptions\StorageExceptionInfo.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistration.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistry.cs" />
+    <Compile Include="Orm\Interfaces\IQueryRootBuilder.cs" />
     <Compile Include="Orm\Internals\CompiledQueryRunner.cs" />
     <Compile Include="Orm\Internals\PersistActionGenerator.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\IHasNestedNodes.cs" />

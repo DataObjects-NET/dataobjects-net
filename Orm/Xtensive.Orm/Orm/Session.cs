@@ -408,7 +408,7 @@ namespace Xtensive.Orm
         disposableSet.Add(new SessionScope(this));
 
       // Query endpoint
-      Query = new QueryEndpoint(new QueryProvider(this));
+      SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
 
     // IDisposable implementation

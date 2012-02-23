@@ -23,13 +23,23 @@ namespace Xtensive.Orm
   /// </summary>
   public sealed class QueryEndpoint
   {
+    private static readonly MethodInfo invokeRootBuilderMethod;
+
     private readonly Session session;
+
+    /// <summary>
+    /// Gets outer <see cref="QueryEndpoint"/>.
+    /// For root <see cref="QueryEndpoint"/> returns <see langword="null"/>.
+    /// </summary>
+    public QueryEndpoint Outer { get; private set; }
 
     /// <summary>
     /// Gets <see cref="IQueryProvider"/> implementation
     /// for this session.
     /// </summary>
     public QueryProvider Provider { get; private set; }
+
+    public IQueryRootBuilder RootBuilder { get; private set; }
 
     /// <summary>
     /// The "starting point" for any LINQ query -
@@ -44,7 +54,10 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      return Provider.CreateQuery<T>(CreateQueryAllExpression(typeof (T)));
+      var expression = RootBuilder!=null
+        ? RootBuilder.GetRootExpression<T>()
+        : GetDefaultRootExpression(typeof (T));
+      return Provider.CreateQuery<T>(expression);
     }
 
     /// <summary>
@@ -60,7 +73,10 @@ namespace Xtensive.Orm
     public IQueryable All(Type elementType)
     {
       var provider = (IQueryProvider) Provider;
-      return provider.CreateQuery(CreateQueryAllExpression(elementType));
+      var expression = RootBuilder!=null
+        ? GetCustomRootExpression(elementType)
+        : GetDefaultRootExpression(elementType);
+      return provider.CreateQuery(expression);
     }
 
     /// <summary>
@@ -393,12 +409,24 @@ namespace Xtensive.Orm
       return Key.Create(session.Domain, typeof(T), keyValues);
     }
 
-    private static MethodCallExpression CreateQueryAllExpression(Type elementType)
+    private static Expression GetDefaultRootExpression(Type elementType)
     {
-      var allMethod = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
-      var expression = Expression.Call(null, allMethod);
-      return expression;
+      return Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
     }
+
+    private Expression GetCustomRootExpression(Type elementType)
+    {
+      var method = invokeRootBuilderMethod.MakeGenericMethod(elementType);
+      return (Expression) method.Invoke(this, new object[0]);
+    }
+
+    // ReSharper disable UnusedMember.Local
+    private Expression InvokeRootBuilder<T>()
+      where T : class, IEntity
+    {
+      return RootBuilder.GetRootExpression<T>();
+    }
+    // ReSharper restore UnusedMember.Local
 
     #endregion
 
@@ -410,6 +438,21 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       Provider = provider;
       session = provider.Session;
+    }
+
+    internal QueryEndpoint(QueryEndpoint outerEndpoint, IQueryRootBuilder queryRootBuilder)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(outerEndpoint, "outerEndpoint");
+      ArgumentValidator.EnsureArgumentNotNull(queryRootBuilder, "queryRootBuilder");
+      Provider = outerEndpoint.Provider;
+      session = outerEndpoint.session;
+      this.RootBuilder = queryRootBuilder;
+    }
+
+    static QueryEndpoint()
+    {
+      invokeRootBuilderMethod = typeof (QueryEndpoint)
+        .GetMethod("InvokeRootBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
     }
   }
 }
