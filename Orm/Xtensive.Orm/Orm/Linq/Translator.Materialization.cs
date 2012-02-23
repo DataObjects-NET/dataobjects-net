@@ -28,13 +28,13 @@ namespace Xtensive.Orm.Linq
     public static readonly MethodInfo TranslateMethodInfo;
     public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
-    public TranslationResult<TResult> Translate<TResult>()
+    public TranslatedQuery<TResult> Translate<TResult>()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 
-    private TranslationResult<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
+    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
       var result = new ProjectionExpression(
@@ -64,9 +64,10 @@ namespace Xtensive.Orm.Linq
           translatedQuery,
           cachingScope.QueryParameter);
         cachingScope.ParameterizedQuery = parameterizedQuery;
-        return new TranslationResult<TResult>(parameterizedQuery, dataSource);
+        return parameterizedQuery;
       }
-      return new TranslationResult<TResult>(translatedQuery, dataSource);
+
+      return translatedQuery;
     }
 
     private static ProjectionExpression Optimize(ProjectionExpression origin)
@@ -147,24 +148,6 @@ namespace Xtensive.Orm.Linq
       return projectorExpression.CachingCompile();
     }
 
-
-    // Constructors
-
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    internal Translator(TranslatorContext context)
-    {
-      this.context = context;
-      state = new TranslatorState(this);
-    }
-
-    static Translator()
-    {
-      TranslateMethodInfo = typeof (Translator)
-        .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"}, new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
-      VisitLocalCollectionSequenceMethodInfo = typeof (Translator)
-        .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"}, new[] {typeof (Expression)});
-    }
-
     private List<Expression> VisitNewExpressionArguments(NewExpression n)
     {
       var arguments = new List<Expression>();
@@ -219,6 +202,23 @@ namespace Xtensive.Orm.Linq
       var equility = Expression.Equal(keyAccessor, argument);
       var lambda = FastExpression.Lambda(equility, parameter);
       return VisitFirstSingle(source, lambda, mc.Method, false);
+    }
+
+    // Constructors
+
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    internal Translator(TranslatorContext context)
+    {
+      this.context = context;
+      state = new TranslatorState(this);
+    }
+
+    static Translator()
+    {
+      TranslateMethodInfo = typeof(Translator)
+        .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] { "TResult" }, new[] { typeof(ProjectionExpression), typeof(IEnumerable<Parameter<Tuple>>) });
+      VisitLocalCollectionSequenceMethodInfo = typeof(Translator)
+        .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] { "TItem" }, new[] { typeof(Expression) });
     }
   }
 }

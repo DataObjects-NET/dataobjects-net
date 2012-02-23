@@ -9,11 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Providers;
-using Xtensive.Reflection;
-using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
 {
@@ -27,36 +23,13 @@ namespace Xtensive.Orm.Linq
     private readonly Expression expression;
 
     /// <inheritdoc/>
-    public Expression Expression
-    {
-      get { return expression; }
-    }
+    public Expression Expression { get { return expression; } }
 
     /// <inheritdoc/>
-    public Type ElementType
-    {
-      get { return typeof (T); }
-    }
+    public Type ElementType { get { return typeof (T); } }
 
     /// <inheritdoc/>
-    IQueryProvider IQueryable.Provider
-    {
-      get { return provider; }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="CompilableProvider"/> this query is compiled to.
-    /// </summary>
-    public CompilableProvider Translated
-    {
-      get
-      {
-        var translatedRecordQuery = provider
-          .Translate<IEnumerable<T>>(expression)
-          .QueryProvider;
-        return translatedRecordQuery;
-      }
-    }
+    IQueryProvider IQueryable.Provider { get { return provider; } }
 
     #region IEnumerable<...> members
 

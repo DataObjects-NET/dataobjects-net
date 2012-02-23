@@ -114,7 +114,6 @@
     <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
     <Compile Include="Orm\DbCommandEventArgs.cs" />
-    <Compile Include="Orm\Interfaces\IQueryEndpointProvider.cs" />
     <Compile Include="Orm\Exceptions\StorageExceptionInfo.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistration.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistry.cs" />
@@ -331,7 +330,6 @@
     </Compile>
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
     <Compile Include="Orm\Linq\Rewriters\CoalesceRewriter.cs" />
-    <Compile Include="Orm\Linq\TranslationResult.cs" />
     <Compile Include="Orm\Operations\EntityInitializeOperation.cs" />
     <Compile Include="Orm\Operations\Internals\BlockingOperationRegistrationScope.cs" />
     <Compile Include="Orm\Operations\KeySetOperation.cs" />

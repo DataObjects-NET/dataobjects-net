@@ -184,26 +184,17 @@ namespace Xtensive.Orm.Building.Builders
       return keyGeneratorRegistrations.Concat(defaultKeyGeneratorRegistrations);
     }
 
-    internal static IEnumerable<ServiceRegistration> CreateQueryPreprocessorRegistrations(
-      DomainConfiguration configuration)
-    {
-      return from type in configuration.Types.QueryPreprocessors
-      from registration in ServiceRegistration.CreateAll(type)
-      select registration;
-    }
-
     private static void CreateServices()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
         var domain = BuildingContext.Demand().Domain;
         var configuration = domain.Configuration;
         var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
-        domain.Services =
-          ServiceContainer.Create(typeof (ServiceContainer),
-            CreateServiceRegistrations(configuration)
-            .Concat(CreateKeyGeneratorRegistrations(configuration))
-            .Concat(CreateQueryPreprocessorRegistrations(configuration)),
-            ServiceContainer.Create(serviceContainerType, domain.Handler.CreateBaseServices()));
+        var registrations = CreateServiceRegistrations(configuration)
+          .Concat(CreateKeyGeneratorRegistrations(configuration));
+        var baseServiceContainer = domain.Handler.CreateBaseServices();
+        domain.Services = ServiceContainer.Create(
+          typeof (ServiceContainer), registrations, ServiceContainer.Create(serviceContainerType, baseServiceContainer));
       }
     }
 

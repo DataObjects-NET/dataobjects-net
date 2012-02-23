@@ -68,18 +68,18 @@ namespace Xtensive.Orm.Linq
     public TResult Execute<TResult>(Expression expression)
     {
       expression = session.Events.NotifyQueryExecuting(expression);
-      var translationResult = Translate<TResult>(expression);
+      var query = Translate<TResult>(expression);
       var cachingScope = QueryCachingScope.Current;
       TResult result;
       if (cachingScope != null && !cachingScope.Execute)
         result = default(TResult);
       else
-        result = translationResult.Query.Execute(session, new ParameterContext());
+        result = query.Execute(session, new ParameterContext());
       session.Events.NotifyQueryExecuted(expression);
       return result;
     }
 
-    public TranslationResult<TResult> Translate<TResult>(Expression expression)
+    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
       try {
         var context = new TranslatorContext(expression, session.Domain);

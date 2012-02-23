@@ -19,6 +19,7 @@ using Xtensive.IoC;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Linq;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.Providers;
@@ -407,11 +408,7 @@ namespace Xtensive.Orm
         disposableSet.Add(new SessionScope(this));
 
       // Query endpoint
-      var qep = Services.Get<IQueryEndpointProvider>();
-      if (qep != null)
-        Query = qep.GetQueryEndpoint(this);
-      else
-        Query = new QueryEndpoint(this);
+      Query = new QueryEndpoint(new QueryProvider(this));
     }
 
     // IDisposable implementation
