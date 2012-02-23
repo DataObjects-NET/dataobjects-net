@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = session.OpenAutoTransaction()) {
+      using (var tx = session.OpenTransaction()) {
         new NormalEntity();
         new HiddenEntity();
         new HiddenEntity {IsHidden = true};
