@@ -1196,6 +1196,7 @@
     <EmbeddedResource Include="Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
     <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />

@@ -5053,7 +5053,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value is already assigned.
+        ///   Looks up a localized string similar to Value is already assigned..
         /// </summary>
         internal static string ExValueIsAlreadyAssigned {
             get {

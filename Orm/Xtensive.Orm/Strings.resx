@@ -122,9 +122,6 @@
   <data name="ExItemWithNameXAlreadyExistsInY" xml:space="preserve">
     <value>Item with name '{0}' already exists in '{1}'.</value>
   </data>
-  <data name="ExNodeTypeIsUnknown" xml:space="preserve">
-    <value>Node type is unknown.</value>
-  </data>
   <data name="ExTypeIdIsNotAssignedForTypeX" xml:space="preserve">
     <value>TypeId is not assigned for type '{0}'.</value>
   </data>
@@ -1363,9 +1360,6 @@ Referenced Entity Key: {4}</value>
   <data name="LogInspectingModelDefinition" xml:space="preserve">
     <value>Inspecting model definition</value>
   </data>
-  <data name="Null" xml:space="preserve">
-    <value>null</value>
-  </data>
   <data name="ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer" xml:space="preserve">
     <value>Member '{0}' of type '{1}' is not initialized. Check if constructor argument is correct or field initialized through initializer.</value>
   </data>
@@ -1882,9 +1876,6 @@ Error: {1}</value>
   <data name="ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved" xml:space="preserve">
     <value>Columns used by the CalculatedColumn's expression containing the ApplyParameter are removed.</value>
   </data>
-  <data name="ExValueIsAlreadyAssigned" xml:space="preserve">
-    <value>Value is already assigned</value>
-  </data>
   <data name="ExOrderKeyNotFoundInMapping" xml:space="preserve">
     <value>Order key not found in mapping.</value>
   </data>
@@ -2137,9 +2128,6 @@ Error: {1}</value>
   <data name="ExSqlServerSupportsTrimmingOfSpaceCharactersOnly" xml:space="preserve">
     <value>SQL Server supports trimming of space characters only.</value>
   </data>
-  <data name="ExOperationXIsNotSupported" xml:space="preserve">
-    <value>Operation '{0}' is not supported</value>
-  </data>
   <data name="ExInvalidBooleanStringX" xml:space="preserve">
     <value>Invalid boolean string '{0}'.</value>
   </data>
@@ -2214,9 +2202,6 @@ Error: {1}</value>
   </data>
   <data name="ExSpecifiedConnectionDoesNotBelongToThisDriver" xml:space="preserve">
     <value>Specified connection does not belong to this driver.</value>
-  </data>
-  <data name="ExTypeXIsNotSupported" xml:space="preserve">
-    <value>Type '{0}' is not supported.</value>
   </data>
   <data name="ExTranslationOfLiteralOfTypeXIsNotSupported" xml:space="preserve">
     <value>Translation of literal of type '{0}' is not supported.</value>
