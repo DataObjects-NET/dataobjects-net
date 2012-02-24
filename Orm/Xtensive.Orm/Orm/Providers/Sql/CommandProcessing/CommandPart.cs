@@ -29,5 +29,11 @@ namespace Xtensive.Orm.Providers.Sql
     /// Objects that should be disposed uppon this command part completion.
     /// </summary>
     public readonly List<IDisposable> Resources = new List<IDisposable>();
+
+    // Constructors
+
+    internal CommandPart()
+    {
+    }
   }
 }

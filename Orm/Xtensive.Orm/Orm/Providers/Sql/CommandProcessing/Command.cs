@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public Command(SqlStorageDriver driver, Session session, DbCommand underlyingCommand)
+    internal Command(SqlStorageDriver driver, Session session, DbCommand underlyingCommand)
     {
       this.driver = driver;
       this.session = session;
