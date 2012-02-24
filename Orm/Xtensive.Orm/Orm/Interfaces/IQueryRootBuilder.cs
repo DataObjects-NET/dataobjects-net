@@ -20,10 +20,10 @@ namespace Xtensive.Orm
   public interface IQueryRootBuilder
   {
     /// <summary>
-    /// Provides root expression for specified <paramref name="entityType"/>.
+    /// Builds root expression for querying specified entity of the specified type.
     /// </summary>
     /// <param name="entityType">Type of entity to query.</param>
-    /// <returns>Expression containing query for <paramref name="entityType"/>.</returns>
+    /// <returns>Expression containing query for entity of the specified type.</returns>
     Expression BuildRootExpression(Type entityType);
   }
 }
