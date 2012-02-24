@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// to return multiple query results from single batch.
   /// Currently this is very Oracle specific.
   /// </summary>
-  public class CursorCommandPartFactory : CommandPartFactory
+  public class CursorCommandFactory : CommandFactory
   {
     private const string CursorParameterNameFormat = "{0}c";
     private const string StatementFormat = "OPEN :{0} FOR {1}";
@@ -32,8 +32,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CursorCommandPartFactory(SqlStorageDriver driver, SqlConnection connection)
-      : base(driver, connection)
+    public CursorCommandFactory(SqlStorageDriver driver, Session session, SqlConnection connection)
+      : base(driver, session, connection)
     {
     }
   }

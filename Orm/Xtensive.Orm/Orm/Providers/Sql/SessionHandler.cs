@@ -48,9 +48,9 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <summary>
-    /// Gets <see cref="CommandPartFactory"/> associated with current instance.
+    /// Gets <see cref="CommandFactory"/> associated with current instance.
     /// </summary>
-    public CommandPartFactory CommandPartFactory
+    public CommandFactory CommandFactory
     {
       get
       {

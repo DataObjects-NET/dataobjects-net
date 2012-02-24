@@ -28,6 +28,6 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Objects that should be disposed uppon this command part completion.
     /// </summary>
-    public readonly List<IDisposable> Disposables = new List<IDisposable>();
+    public readonly List<IDisposable> Resources = new List<IDisposable>();
   }
 }

@@ -162,10 +162,10 @@
     <Compile Include="Orm\Providers\Sql\CommandProcessing\BatchingCommandProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\Command.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandPart.cs" />
-    <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandPartFactory.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandFactory.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandProcessorFactory.cs" />
-    <Compile Include="Orm\Providers\Sql\CommandProcessing\CursorCommandPartFactory.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\CursorCommandFactory.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\Interfaces\ISqlTaskProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SimpleCommandProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlPersistTask.cs" />

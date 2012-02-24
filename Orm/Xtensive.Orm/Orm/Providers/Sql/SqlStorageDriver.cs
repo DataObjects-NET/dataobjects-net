@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private DbDataReaderAccessor CreateDataReaderAccessor(TupleDescriptor descriptor)
     {
-      return new DbDataReaderAccessor(descriptor.Select(GetTypeMapping));
+      return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
     }
 
     // Constructors

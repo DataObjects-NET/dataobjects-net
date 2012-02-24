@@ -17,13 +17,18 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// A factory of <see cref="CommandPart"/>s.
   /// </summary>
-  public class CommandPartFactory
+  public class CommandFactory
   {
     private const string ParameterNameFormat = "{0}{1}";
     private const string RowFilterParameterNameFormat = "{0}_{1}_{2}";
     private const int LobBlockSize = ushort.MaxValue;
 
     private readonly bool emptyStringIsNull;
+
+    /// <summary>
+    /// Gets <see cref="Session"/> this instance is bound to.
+    /// </summary>
+    public Session Session { get; private set; }
 
     /// <summary>
     /// Gets SQL driver this instance is bound to.
@@ -34,6 +39,18 @@ namespace Xtensive.Orm.Providers.Sql
     /// Connection this instance is bound to,
     /// </summary>
     public SqlConnection Connection { get; private set; }
+
+    /// <summary>
+    /// Creates command associated with <see cref="Connection"/>.
+    /// </summary>
+    /// <returns>Create command.</returns>
+    public Command CreateCommand()
+    {
+      var dbCommand = Connection.CreateCommand();
+      if (Session.CommandTimeout!=null)
+        dbCommand.CommandTimeout = Session.CommandTimeout.Value;
+      return new Command(Driver, Session, dbCommand);
+    }
 
     /// <summary>
     /// Creates the persist command part.
@@ -146,7 +163,7 @@ namespace Xtensive.Orm.Providers.Sql
     private void AddCharacterLobParameter(CommandPart commandPart, string name, string value)
     {
       var lob = Connection.CreateCharacterLargeObject();
-      commandPart.Disposables.Add(lob);
+      commandPart.Resources.Add(lob);
       if (value!=null) {
         if (value.Length > 0) {
           int offset = 0;
@@ -172,7 +189,7 @@ namespace Xtensive.Orm.Providers.Sql
     private void AddBinaryLobParameter(CommandPart commandPart, string name, byte[] value)
     {
       var lob = Connection.CreateBinaryLargeObject();
-      commandPart.Disposables.Add(lob);
+      commandPart.Resources.Add(lob);
       if (value!=null) {
         if (value.Length > 0)
           lob.Write(value, 0, value.Length);
@@ -213,12 +230,14 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CommandPartFactory(SqlStorageDriver driver, SqlConnection connection)
+    public CommandFactory(SqlStorageDriver driver, Session session, SqlConnection connection)
     {
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
       ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
 
       Driver = driver;
+      Session = session;
       Connection = connection;
 
       emptyStringIsNull = driver.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);

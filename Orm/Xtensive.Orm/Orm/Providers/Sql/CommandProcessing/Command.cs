@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Disposing;
 using Xtensive.Core;
-using Xtensive.Orm;
+using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -24,7 +25,8 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly List<string> statements = new List<string>();
     private readonly List<SqlQueryTask> queryTasks = new List<SqlQueryTask>();
 
-    private DisposableSet disposables;
+    private bool prepared;
+    private DisposableSet resources;
 
     /// <summary>
     /// Gets the statements this command is consist of.
@@ -47,15 +49,16 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="part">The part to add.</param>
     public void AddPart(CommandPart part)
     {
+      prepared = false;
       statements.Add(part.Query);
       foreach (var parameter in part.Parameters)
         underlyingCommand.Parameters.Add(parameter);
-      if (part.Disposables.Count==0)
+      if (part.Resources.Count==0)
         return;
-      if (disposables==null)
-        disposables = new DisposableSet();
-      foreach (var disposable in part.Disposables)
-        disposables.Add(disposable);
+      if (resources==null)
+        resources = new DisposableSet();
+      foreach (var resource in part.Resources)
+        resources.Add(resource);
     }
 
     /// <summary>
@@ -74,7 +77,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     public void ExecuteNonQuery()
     {
-      PrepareCommand();
+      Prepare();
       driver.ExecuteNonQuery(session, underlyingCommand);
     }
 
@@ -83,29 +86,47 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     public void ExecuteReader()
     {
-      PrepareCommand();
+      Prepare();
       Reader = driver.ExecuteReader(session, underlyingCommand);
+    }
+
+    /// <summary>
+    /// Converts current command
+    /// into a <see cref="IEnumerator{Tuple}"/> according to a specified <see cref="Tuples.TupleDescriptor"/>.
+    /// </summary>
+    /// <param name="descriptor">The descriptor of a result.</param>
+    /// <returns>Created <see cref="IEnumerator{Tuple}"/>.</returns>
+    public IEnumerator<Tuples.Tuple> AsReaderOf(TupleDescriptor descriptor)
+    {
+      var accessor = driver.GetDataReaderAccessor(descriptor);
+      using (this)
+        while (driver.ReadRow(Reader))
+          yield return accessor.Read(Reader);
+    }
+
+    /// <summary>
+    /// Prepares this command for execution.
+    /// <returns><see cref="DbCommand"/> ready for execution.</returns>
+    /// </summary>
+    public DbCommand Prepare()
+    {
+      if (statements.Count==0)
+        throw new InvalidOperationException("Unable to prepare command: no statements registered");
+
+      if (prepared)
+        return underlyingCommand;
+      prepared = true;
+      underlyingCommand.CommandText = driver.BuildBatch(statements.ToArray());
+      return underlyingCommand;
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
       Reader.DisposeSafely();
-      disposables.DisposeSafely();
+      resources.DisposeSafely();
       underlyingCommand.DisposeSafely();
     }
-
-    #region Private / internal methods
-
-    private void PrepareCommand()
-    {
-      if (statements.Count==0)
-        throw new InvalidOperationException();
-      underlyingCommand.CommandText = driver.BuildBatch(statements.ToArray());
-    }
-
-    #endregion
-
 
     // Constructors
 

@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Providers.Sql
       while (Tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      return RunTupleReader(ExecuteBatch(Tasks.Count, request), request.TupleDescriptor);
+      return ExecuteBatch(Tasks.Count, request).AsReaderOf(request.TupleDescriptor);
     }
 
     #region Private / internal methods
@@ -54,14 +54,14 @@ namespace Xtensive.Orm.Providers.Sql
       if (activeCommand != null)
         reenterCount++;
       else
-        activeCommand = CreateCommand();
+        activeCommand = Factory.CreateCommand();
     }
 
     private void ReleaseCommand()
     {
       if (reenterCount > 0) {
         reenterCount--;
-        activeCommand = CreateCommand();
+        activeCommand = Factory.CreateCommand();
       }
       else
         activeCommand = null;
@@ -98,13 +98,11 @@ namespace Xtensive.Orm.Providers.Sql
           while (currentQueryTask < activeCommand.QueryTasks.Count) {
             var queryTask = activeCommand.QueryTasks[currentQueryTask];
             var descriptor = queryTask.Request.TupleDescriptor;
-            var accessor = Factory.Driver.GetDataReaderAccessor(descriptor);
+            var driver = Factory.Driver;
+            var accessor = driver.GetDataReaderAccessor(descriptor);
             var result = queryTask.Output;
-            while (Factory.Driver.ReadRow(reader)) {
-              var tuple = Tuple.Create(descriptor);
-              accessor.Read(reader, tuple);
-              result.Add(tuple);
-            }
+            while (driver.ReadRow(reader))
+              result.Add(accessor.Read(reader));
             reader.NextResult();
             currentQueryTask++;
           }
@@ -127,8 +125,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public BatchingCommandProcessor(Session session, CommandPartFactory factory, int batchSize)
-      : base(session, factory)
+    public BatchingCommandProcessor(CommandFactory factory, int batchSize)
+      : base(factory)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;

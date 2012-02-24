@@ -15,8 +15,10 @@ using Xtensive.Orm.Providers.Sql;
 namespace Xtensive.Orm.Services
 {
   [Service(typeof (QueryFormatter), Singleton = true), Infrastructure]
-  public class QueryFormatter : SessionBound, ISessionService
+  public sealed class QueryFormatter : SessionBound, ISessionService
   {
+    private readonly SessionHandler sessionHandler;
+
     /// <summary>
     /// Formats the specified <paramref name="query"/> in SQL.
     /// </summary>
@@ -26,10 +28,9 @@ namespace Xtensive.Orm.Services
     public string ToSqlString<T>(IQueryable<T> query)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
-      var part = ToCommandPart(query);
-      if (part==null)
-        return string.Empty;
-      return part.Query;
+
+      var part = GetCommandPart(query);
+      return part!=null ? part.Query : string.Empty;
     }
 
     /// <summary>
@@ -41,6 +42,7 @@ namespace Xtensive.Orm.Services
     public string ToString<T>(IQueryable<T> query)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
+
       return query.Expression.ToString(true);
     }
 
@@ -53,35 +55,29 @@ namespace Xtensive.Orm.Services
     public DbCommand ToDbCommand<T>(IQueryable<T> query)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
-      var part = ToCommandPart(query);
+
+      var part = GetCommandPart(query);
       if (part==null)
         return null;
-      var domainHandler = (DomainHandler) Session.Handler.Handlers.DomainHandler;
-      var sessionHandler = (SessionHandler) Session.Handler;
-      var dbCommand = sessionHandler.Connection.CreateCommand();
-      var command = new Command(domainHandler.Driver, Session, dbCommand);
+
+      var command = sessionHandler.CommandFactory.CreateCommand();
       command.AddPart(part);
-      dbCommand.CommandText = domainHandler.Driver.BuildBatch(new[] {part.Query});
-      return dbCommand;
+      return command.Prepare();
     }
 
-    private CommandPart ToCommandPart<T>(IQueryable<T> query)
+    private CommandPart GetCommandPart<T>(IQueryable<T> query)
     {
+      if (sessionHandler==null)
+        return null;
+
       var translatedQuery = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression);
       var sqlProvider = translatedQuery.DataSource as SqlProvider;
 
       if (sqlProvider==null)
         return null;
 
-      var sessionHandler = Session.Handler as SessionHandler;
-      if (sessionHandler == null)
-        return null;
-
-      var factory = sessionHandler.CommandPartFactory;
-      var part = factory.CreateQueryCommandPart(
-        new SqlQueryTask(sqlProvider.Request),
-        CommandProcessor.DefaultParameterNamePrefix);
-      return part;
+      return sessionHandler.CommandFactory.CreateQueryCommandPart(
+        new SqlQueryTask(sqlProvider.Request), CommandProcessor.DefaultParameterNamePrefix);
     }
 
 
@@ -91,6 +87,7 @@ namespace Xtensive.Orm.Services
     public QueryFormatter(Session session)
       : base(session)
     {
+      sessionHandler = session.Handler as SessionHandler;
     }
   }
 }

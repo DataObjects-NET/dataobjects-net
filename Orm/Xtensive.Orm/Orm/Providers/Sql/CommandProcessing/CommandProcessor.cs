@@ -5,10 +5,8 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
-using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -26,7 +24,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Factory of command parts.
     /// </summary>
-    public CommandPartFactory Factory { get; private set; }
+    public CommandFactory Factory { get; private set; }
 
     /// <summary>
     /// Session this command processor is bound to.
@@ -65,48 +63,16 @@ namespace Xtensive.Orm.Providers.Sql
       ExecuteTasks(false);
     }
 
-    /// <summary>
-    /// Wrapps the specified <see cref="DbDataReader"/>
-    /// into a <see cref="IEnumerator{Tuple}"/> according to a specified <see cref="TupleDescriptor"/>.
-    /// </summary>
-    /// <param name="command">The command to use.</param>
-    /// <param name="descriptor">The descriptor of a result.</param>
-    /// <returns>Created <see cref="IEnumerator{Tuple}"/>.</returns>
-    protected IEnumerator<Tuple> RunTupleReader(Command command, TupleDescriptor descriptor)
-    {
-      var accessor = Factory.Driver.GetDataReaderAccessor(descriptor);
-      using (command)
-        while (Factory.Driver.ReadRow(command.Reader)) {
-          var tuple = Tuple.Create(descriptor);
-          accessor.Read(command.Reader, tuple);
-          yield return tuple;
-        }
-    }
-
-    protected Command CreateCommand()
-    {
-      var dbCommand = Factory.Connection.CreateCommand();
-      if (Session.CommandTimeout!=null)
-        dbCommand.CommandTimeout = Session.CommandTimeout.Value;
-      return new Command(Factory.Driver, Session, dbCommand);
-    }
-
-
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="factory">The factory.</param>
-    /// <param name="session">The session.</param>
-    protected CommandProcessor(Session session, CommandPartFactory factory)
+    protected CommandProcessor(CommandFactory factory)
     {
       ArgumentValidator.EnsureArgumentNotNull(factory, "factory");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-
       Factory = factory;
-      Session = session;
-
       Tasks = new Queue<SqlTask>();
     }
   }

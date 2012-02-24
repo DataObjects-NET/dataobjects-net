@@ -19,20 +19,20 @@ namespace Xtensive.Orm.Providers.Sql
     public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest lastRequest)
     {
       ExecuteAllTasks();
-      var command = CreateCommand();
+      var command = Factory.CreateCommand();
       var part = Factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
       command.AddPart(part);
       command.ExecuteReader();
-      return RunTupleReader(command, lastRequest.TupleDescriptor);
+      return command.AsReaderOf(lastRequest.TupleDescriptor);
     }
 
     void ISqlTaskProcessor.ProcessTask(SqlQueryTask task)
     {
-      using (var command = CreateCommand()) {
+      using (var command = Factory.CreateCommand()) {
         var part = Factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
         command.AddPart(part);
         command.ExecuteReader();
-        var enumerator = RunTupleReader(command, task.Request.TupleDescriptor);
+        var enumerator = command.AsReaderOf(task.Request.TupleDescriptor);
         using (enumerator) {
           while (enumerator.MoveNext())
             task.Output.Add(enumerator.Current);
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var sequence = Factory.CreatePersistCommandPart(task, DefaultParameterNamePrefix);
       foreach (var part in sequence) {
-        using (var command = CreateCommand()) {
+        using (var command = Factory.CreateCommand()) {
           command.AddPart(part);
           command.ExecuteNonQuery();
         }
@@ -71,8 +71,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public SimpleCommandProcessor(Session session, CommandPartFactory factory)
-      : base(session, factory)
+    public SimpleCommandProcessor(CommandFactory factory)
+      : base(factory)
     {
     }
   }
