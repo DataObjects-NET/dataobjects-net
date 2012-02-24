@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    protected Driver Driver { get { return DomainHandler.Driver; } }
+    protected SqlStorageDriver Driver { get { return DomainHandler.Driver; } }
 
     /// <summary>
     /// Gets the provider info.

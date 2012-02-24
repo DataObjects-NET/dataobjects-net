@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers.Sql
       var parameterName = string.Format(CursorParameterNameFormat, parameterNamePrefix);
       var part = base.CreateQueryCommandPart(task, parameterNamePrefix);
       part.Query = string.Format(StatementFormat, parameterName, part.Query);
-      var parameter = connection.CreateCursorParameter();
+      var parameter = Connection.CreateCursorParameter();
       parameter.ParameterName = parameterName;
       part.Parameters.Add(parameter);
       return part;
@@ -32,8 +32,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CursorCommandPartFactory(DomainHandler domainHandler, SqlConnection connection)
-      : base(domainHandler, connection)
+    public CursorCommandPartFactory(SqlStorageDriver driver, SqlConnection connection)
+      : base(driver, connection)
     {
     }
   }

@@ -31,12 +31,12 @@ namespace Xtensive.Orm.Providers.Sql
         domainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
 
       var factory = useCursorParameters
-        ? new CursorCommandPartFactory(domainHandler, connection)
-        : new CommandPartFactory(domainHandler, connection);
+        ? new CursorCommandPartFactory(domainHandler.Driver, connection)
+        : new CommandPartFactory(domainHandler.Driver, connection);
 
       var processor = useBatches
-        ? new BatchingCommandProcessor(domainHandler, session, connection, factory, batchSize)
-        : (CommandProcessor) new SimpleCommandProcessor(domainHandler, session, connection, factory);
+        ? new BatchingCommandProcessor(session, factory, batchSize)
+        : (CommandProcessor) new SimpleCommandProcessor(session, factory);
       return processor;
       
     }

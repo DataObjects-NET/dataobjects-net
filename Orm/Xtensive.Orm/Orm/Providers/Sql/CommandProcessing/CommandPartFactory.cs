@@ -6,13 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -23,16 +21,19 @@ namespace Xtensive.Orm.Providers.Sql
   {
     private const string ParameterNameFormat = "{0}{1}";
     private const string RowFilterParameterNameFormat = "{0}_{1}_{2}";
-
     private const int LobBlockSize = ushort.MaxValue;
-    private readonly DomainHandler domainHandler;
-    private readonly Driver driver;
+
     private readonly bool emptyStringIsNull;
 
     /// <summary>
-    /// Connection this command part factory is bound to,
+    /// Gets SQL driver this instance is bound to.
     /// </summary>
-    protected readonly SqlConnection connection;
+    public SqlStorageDriver Driver { get; private set; }
+
+    /// <summary>
+    /// Connection this instance is bound to,
+    /// </summary>
+    public SqlConnection Connection { get; private set; }
 
     /// <summary>
     /// Creates the persist command part.
@@ -53,7 +54,7 @@ namespace Xtensive.Orm.Providers.Sql
         foreach (var binding in request.ParameterBindings) {
           var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
           string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
+          configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
           AddPersistParameter(part, parameterName, parameterValue, binding);
         }
 
@@ -114,7 +115,7 @@ namespace Xtensive.Orm.Providers.Sql
               for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
                 var name = string.Format(RowFilterParameterNameFormat, commonPrefix, tupleIndex, fieldIndex);
                 var value = tuple.GetValueOrDefault(fieldIndex);
-                parameterReferences[fieldIndex] = driver.BuildParameterReference(name);
+                parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
                 AddRegularParameter(result, name, value, rowTypeMapping[fieldIndex]);
               }
               filterValues.Add(parameterReferences);
@@ -126,7 +127,7 @@ namespace Xtensive.Orm.Providers.Sql
           }
           // regular case -> just adding the parameter
           string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
+          configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
           AddRegularParameter(result, parameterName, parameterValue, binding.TypeMapping);
         }
       }
@@ -136,7 +137,7 @@ namespace Xtensive.Orm.Providers.Sql
     
     private void AddRegularParameter(CommandPart commandPart, string name, object value, TypeMapping mapping)
     {
-      var parameter = connection.CreateParameter();
+      var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
       mapping.SetParameterValue(parameter, value);
       commandPart.Parameters.Add(parameter);
@@ -144,7 +145,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void AddCharacterLobParameter(CommandPart commandPart, string name, string value)
     {
-      var lob = connection.CreateCharacterLargeObject();
+      var lob = Connection.CreateCharacterLargeObject();
       commandPart.Disposables.Add(lob);
       if (value!=null) {
         if (value.Length > 0) {
@@ -162,7 +163,7 @@ namespace Xtensive.Orm.Providers.Sql
           lob.Erase();
         }
       }
-      var parameter = connection.CreateParameter();
+      var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
       lob.BindTo(parameter);
       commandPart.Parameters.Add(parameter);
@@ -170,7 +171,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void AddBinaryLobParameter(CommandPart commandPart, string name, byte[] value)
     {
-      var lob = connection.CreateBinaryLargeObject();
+      var lob = Connection.CreateBinaryLargeObject();
       commandPart.Disposables.Add(lob);
       if (value!=null) {
         if (value.Length > 0)
@@ -178,7 +179,7 @@ namespace Xtensive.Orm.Providers.Sql
         else
           lob.Erase();
       }
-      var parameter = connection.CreateParameter();
+      var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
       lob.BindTo(parameter);
       commandPart.Parameters.Add(parameter);
@@ -212,12 +213,15 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CommandPartFactory(DomainHandler domainHandler, SqlConnection connection)
+    public CommandPartFactory(SqlStorageDriver driver, SqlConnection connection)
     {
-      this.domainHandler = domainHandler;
-      this.connection = connection;
-      driver = domainHandler.Driver;
-      emptyStringIsNull = domainHandler.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+
+      Driver = driver;
+      Connection = connection;
+
+      emptyStringIsNull = driver.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
     }
   }
 }

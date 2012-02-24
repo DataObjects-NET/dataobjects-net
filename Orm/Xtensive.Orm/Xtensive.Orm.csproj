@@ -166,6 +166,7 @@
     <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\CommandProcessorFactory.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\CursorCommandPartFactory.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandProcessing\Interfaces\ISqlTaskProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SimpleCommandProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlPersistTask.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlQueryTask.cs" />
@@ -173,9 +174,9 @@
     <Compile Include="Orm\Providers\Sql\DbCommandExtensions.cs" />
     <Compile Include="Orm\Providers\Sql\DbDataReaderAccessor.cs" />
     <Compile Include="Orm\Providers\Sql\DomainHandler.cs" />
-    <Compile Include="Orm\Providers\Sql\Driver.cs" />
-    <Compile Include="Orm\Providers\Sql\Driver.Operations.cs" />
-    <Compile Include="Orm\Providers\Sql\Driver.ValueTypeMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlStorageDriver.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlStorageDriver.Operations.cs" />
+    <Compile Include="Orm\Providers\Sql\SqlStorageDriver.ValueTypeMapping.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\BooleanExpressionConverter.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.Helpers.cs" />

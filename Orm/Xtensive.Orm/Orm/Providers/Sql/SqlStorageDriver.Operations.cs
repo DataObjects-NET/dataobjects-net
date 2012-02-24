@@ -16,7 +16,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Providers.Sql
 {
-  partial class Driver
+  partial class SqlStorageDriver
   {
     public SqlConnection CreateConnection(Session session)
     {

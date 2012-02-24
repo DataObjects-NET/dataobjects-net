@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
     private static readonly SqlExpression SqlFalse = SqlDml.Literal(false);
     private static readonly SqlExpression SqlTrue = SqlDml.Literal(true);
 
-    private readonly Driver driver;
+    private readonly SqlStorageDriver driver;
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly List<SqlExpression>[] sourceColumns;

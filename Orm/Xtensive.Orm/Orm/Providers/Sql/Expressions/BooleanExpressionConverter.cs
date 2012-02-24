@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
       return SqlDml.Cast(result, booleanType);
     }
 
-    public BooleanExpressionConverter(Driver driver)
+    public BooleanExpressionConverter(SqlStorageDriver driver)
     {
       booleanType = driver.BuildValueType(typeof (bool));
     }

@@ -10,7 +10,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Providers.Sql
 {
-  partial class Driver
+  partial class SqlStorageDriver
   {
     public TypeMapping GetTypeMapping(ColumnInfo column)
     {

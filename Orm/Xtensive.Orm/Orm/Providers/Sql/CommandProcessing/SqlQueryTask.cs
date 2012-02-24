@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers.Sql
   public sealed class SqlQueryTask : SqlTask
   {
     /// <summary>
-    /// A request.
+    /// A request to execute.
     /// </summary>
     public readonly QueryRequest Request;
 
@@ -33,12 +33,12 @@ namespace Xtensive.Orm.Providers.Sql
     public readonly List<Tuple> Output;
 
     /// <inheritdoc/>
-    public override void ProcessWith(CommandProcessor processor)
+    public override void ProcessWith(ISqlTaskProcessor processor)
     {
       processor.ProcessTask(this);
     }
 
- 
+
     // Constructors
 
     /// <summary>

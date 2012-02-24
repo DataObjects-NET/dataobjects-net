@@ -73,11 +73,14 @@ namespace Xtensive.Orm.Services
       if (sqlProvider==null)
         return null;
 
-      var domainHandler = (DomainHandler) Session.Handler.Handlers.DomainHandler;
-      var sessionHandler = (SessionHandler) Session.Handler;
+      var sessionHandler = Session.Handler as SessionHandler;
+      if (sessionHandler == null)
+        return null;
 
-      var factory = new CommandPartFactory(domainHandler, sessionHandler.Connection);
-      var part = factory.CreateQueryCommandPart(new SqlQueryTask(sqlProvider.Request), "p");
+      var factory = sessionHandler.CommandPartFactory;
+      var part = factory.CreateQueryCommandPart(
+        new SqlQueryTask(sqlProvider.Request),
+        CommandProcessor.DefaultParameterNamePrefix);
       return part;
     }
 

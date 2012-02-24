@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers.Sql
     IEnumerator<Tuple> IQueryExecutor.ExecuteTupleReader(QueryRequest request)
     {
       EnsureConnectionIsOpen();
-      var enumerator = commandProcessor.ExecuteRequestsWithReader(request);
+      var enumerator = commandProcessor.ExecuteTasksWithReader(request);
       using (enumerator) {
         while (enumerator.MoveNext())
           yield return enumerator.Current;
@@ -63,16 +63,16 @@ namespace Xtensive.Orm.Providers.Sql
     {
       EnsureConnectionIsOpen();
       foreach (var tuple in tuples)
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      commandProcessor.ExecuteRequests();
+        commandProcessor.Tasks.Enqueue(new SqlPersistTask(descriptor.StoreRequest, tuple));
+      commandProcessor.ExecuteTasks();
     }
 
     /// <inheritdoc/>
     void IQueryExecutor.Clear(TemporaryTableDescriptor descriptor)
     {
       EnsureConnectionIsOpen();
-      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-      commandProcessor.ExecuteRequests();
+      commandProcessor.Tasks.Enqueue(new SqlPersistTask(descriptor.ClearRequest, null));
+      commandProcessor.ExecuteTasks();
     }
   }
 }
