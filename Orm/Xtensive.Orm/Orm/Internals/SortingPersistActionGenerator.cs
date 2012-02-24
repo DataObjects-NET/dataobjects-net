@@ -90,9 +90,10 @@ namespace Xtensive.Orm.Internals
       foreach (var state in entityStates) {
         if (rollbackDifferenceBeforeSort)
           state.RollbackDifference();
-        if (state.Type.GetTargetAssociations().Count==0  || state.Type.IsAuxiliary)
+        var type = state.Type;
+        if (IsNonTargetedType(type))
           nonTargetedStates.Add(state);
-        else if (state.Type.GetOwnerAssociations().Count==0)
+        else if (IsNonOwningType(type))
           nonOwningStates.Add(state);
         else {
           var node = new Node<EntityState>(state);
@@ -153,6 +154,20 @@ namespace Xtensive.Orm.Internals
           .GetFieldAccessor(associationInfo.OwnerField)
           .SetUntypedValue(entity, null);
       }
+    }
+
+    private static bool IsNonOwningType(TypeInfo type)
+    {
+      // Temporary disabled:
+      // return type.GetOwnerAssociations().Count==0;
+      return false;
+    }
+
+    private static bool IsNonTargetedType(TypeInfo type)
+    {
+      // Temporary disabled:
+      // return type.GetTargetAssociations().Count==0 || type.IsAuxiliary;
+      return type.IsAuxiliary;
     }
   }
 }
