@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Collections.ObjectModel;
 using Xtensive.Core;
 
@@ -15,46 +13,42 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal class KeyExtractorNode<T> : Node, IHasNestedNodes
   {
-    private Func<T, IEnumerable<Key>> extractKeys;
-    private Expression<Func<T, IEnumerable<Key>>> extractKeysExpression;
-    
-    public Func<T, IEnumerable<Key>> ExtractKeys
-    {
-      get { return extractKeys ?? (extractKeys = extractKeysExpression.CachingCompile()); }
-    }
+    public Func<T, IEnumerable<Key>> KeyExtractor { get; private set; }
+
+    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; private set; }
 
     IEnumerable<Key> IHasNestedNodes.ExtractKeys(object target)
     {
       return ExtractKeys((T) target);
     }
 
-    public ReadOnlyCollection<FieldNode> NestedNodes { get; private set; }
-
-    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
+    public IEnumerable<Key> ExtractKeys(T target)
     {
-      return new KeyExtractorNode<T>(Path, extractKeysExpression, nestedNodes);
+      return KeyExtractor.Invoke(target);
     }
 
-    protected internal override Node Accept(NodeVisitor visitor)
+    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes)
+    {
+      return new KeyExtractorNode<T>(KeyExtractor, nestedNodes);
+    }
+
+    public override Node Accept(NodeVisitor visitor)
     {
       return visitor.VisitKeyExtractorNode(this);
     }
 
-    public KeyExtractorNode(string path, Func<T, IEnumerable<Key>> extractor, ReadOnlyCollection<FieldNode> nestedNodes)
-      : base(path)
+    protected override string GetDescription()
     {
-      ArgumentValidator.EnsureArgumentNotNull(path, "path");
+      return string.Format(string.Format("KeyExtraction<{0}>", typeof (T).Name));
+    }
+
+    public KeyExtractorNode(Func<T, IEnumerable<Key>> extractor, ReadOnlyCollection<BaseFieldNode> nestedNodes)
+      : base("*")
+    {
       ArgumentValidator.EnsureArgumentNotNull(extractor, "extractor");
       ArgumentValidator.EnsureArgumentNotNull(nestedNodes, "nestedNodes");
 
-      extractKeys = extractor;
-      NestedNodes = nestedNodes;
-    }
-
-    public KeyExtractorNode(string path, Expression<Func<T, IEnumerable<Key>>> extractor, ReadOnlyCollection<FieldNode> nestedNodes)
-      : base(path)
-    {
-      extractKeysExpression = extractor;
+      KeyExtractor = extractor;
       NestedNodes = nestedNodes;
     }
   }

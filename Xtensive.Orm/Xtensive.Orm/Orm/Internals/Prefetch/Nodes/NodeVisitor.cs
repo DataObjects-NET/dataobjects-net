@@ -4,83 +4,75 @@
 // Created by: Alexis Kochetov
 // Created:    2011.01.14
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Linq;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal class NodeVisitor
+  internal abstract class NodeVisitor
   {
     public virtual Node Visit(Node node)
     {
-      if (node == null)
+      if (node==null)
         return null;
       return node.Accept(this);
     }
 
-    public virtual ReadOnlyCollection<FieldNode> Visit(ReadOnlyCollection<FieldNode> nodes)
+    public virtual ReadOnlyCollection<BaseFieldNode> VisitNodeList(ReadOnlyCollection<BaseFieldNode> nodes)
     {
-      FieldNode[] list = null;
+      BaseFieldNode[] list = null;
       var index = 0;
       var count = nodes.Count;
       while (index < count) {
         var node = nodes[index];
-        var visited = (FieldNode) Visit(node);
-        if (list != null)
+        var visited = (BaseFieldNode) Visit(node);
+        if (list!=null)
           list[index] = visited;
         else if (!ReferenceEquals(visited, node)) {
-          list = new FieldNode[count];
+          list = new BaseFieldNode[count];
           for (var i = 0; i < index; i++)
             list[i] = nodes[i];
           list[index] = visited;
         }
         index++;
       }
-      return list == null 
-        ? nodes 
-        : new ReadOnlyCollection<FieldNode>(list);
+      return list==null
+        ? nodes
+        : new ReadOnlyCollection<BaseFieldNode>(list);
     }
 
-    protected internal virtual Node VisitKeyExtractorNode<T>(KeyExtractorNode<T> keyExtractorNode)
+    public virtual Node VisitKeyExtractorNode<T>(KeyExtractorNode<T> keyExtractorNode)
     {
-      var nestedNodes = Visit(keyExtractorNode.NestedNodes);
+      var nestedNodes = VisitNodeList(keyExtractorNode.NestedNodes);
       if (ReferenceEquals(keyExtractorNode.NestedNodes, nestedNodes))
         return keyExtractorNode;
-      return new KeyExtractorNode<T>(keyExtractorNode.Path, keyExtractorNode.ExtractKeys, nestedNodes);
+      return new KeyExtractorNode<T>(keyExtractorNode.KeyExtractor, nestedNodes);
     }
 
-    protected internal virtual Node VisitFieldNode(FieldNode fieldNode)
+    public virtual Node VisitFieldNode(FieldNode fieldNode)
     {
       return fieldNode;
     }
 
-    protected internal virtual Node VisitReferenceNode(ReferenceNode referenceNode)
+    public virtual Node VisitReferenceNode(ReferenceNode referenceNode)
     {
-      var nestedNodes = Visit(referenceNode.NestedNodes);
+      var nestedNodes = VisitNodeList(referenceNode.NestedNodes);
       if (ReferenceEquals(referenceNode.NestedNodes, nestedNodes))
         return referenceNode;
       return new ReferenceNode(
         referenceNode.Path, 
-        referenceNode.ElementType, 
         referenceNode.Field, 
-        nestedNodes);
+        referenceNode.ReferenceType, nestedNodes);
     }
 
-    protected internal virtual Node VisitSetNode(SetNode setNode)
+    public virtual Node VisitSetNode(SetNode setNode)
     {
-      var nestedNodes = Visit(setNode.NestedNodes);
+      var nestedNodes = VisitNodeList(setNode.NestedNodes);
       if (ReferenceEquals(setNode.NestedNodes, nestedNodes))
         return setNode;
       return new SetNode(
         setNode.Path,
-        setNode.ElementType,
         setNode.Field,
-        setNode.Top,
-        nestedNodes);
+        setNode.ElementType, nestedNodes);
     }
   }
 }

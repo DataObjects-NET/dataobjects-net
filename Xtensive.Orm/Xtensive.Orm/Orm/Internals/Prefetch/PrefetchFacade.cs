@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
-      var node = NodeParser.Parse(session.Domain.Model, expression);
-      if (node != null)
+      var node = NodeBuilder.Build(session.Domain.Model, expression);
+      if (node!=null)
         return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
       return this;
     }
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       TypeInfo modelType = null;
       var refNode = fieldContainer as ReferenceNode;
       if (refNode != null)
-        modelType = refNode.ElementType;
+        modelType = refNode.ReferenceType;
       foreach (var key in keys) {
         var type = key.HasExactType || modelType == null
             ? key.TypeReference.Type
@@ -149,7 +149,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public PrefetchFacade(Session session, IEnumerable<T> source)
       : this(session, source, Collections.LinkedList<KeyExtractorNode<T>>.Empty)
-    {}
+    {
+    }
 
     private PrefetchFacade(Session session, IEnumerable<T> source, Collections.LinkedList<KeyExtractorNode<T>> nodes)
     {
