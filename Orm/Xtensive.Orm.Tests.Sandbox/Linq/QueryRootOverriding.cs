@@ -22,6 +22,16 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [HierarchyRoot]
+    public class RefEntity : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public HiddenEntity Ref { get; set; }
+    }
+
+    [HierarchyRoot]
     public class NormalEntity : Entity
     {
       [Field, Key]
@@ -90,8 +100,8 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         new NormalEntity();
-        new HiddenEntity();
-        new HiddenEntity {IsHidden = true};
+        new RefEntity {Ref = new HiddenEntity()};
+        new RefEntity {Ref = new HiddenEntity {IsHidden = true}};
         tx.Complete();
       }
     }
@@ -137,6 +147,21 @@ namespace Xtensive.Orm.Tests.Linq
       using (var tx = session.OpenTransaction())
       using (session.OverrideQueryRoot(new FilteringRootBuilder(session.Query))) {
         var count = session.Query.All<HiddenEntity>().Count();
+        Assert.That(count, Is.EqualTo(1));
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void JoinWithHiddenEntity()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction())
+      using (session.OverrideQueryRoot(new FilteringRootBuilder(session.Query))) {
+        var count = session.Query
+          .All<RefEntity>()
+          .Join(session.Query.All<HiddenEntity>(), r => r.Ref.Id, h => h.Id, (r, h) => h)
+          .Count();
         Assert.That(count, Is.EqualTo(1));
         tx.Complete();
       }
