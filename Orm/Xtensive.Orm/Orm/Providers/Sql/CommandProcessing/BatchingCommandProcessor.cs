@@ -17,11 +17,13 @@ namespace Xtensive.Orm.Providers.Sql
 
     private int reenterCount;
     private Command activeCommand;
+    private List<SqlQueryTask> activeTasks;
 
     void ISqlTaskProcessor.ProcessTask(SqlQueryTask task)
     {
       var part = Factory.CreateQueryPart(task, GetParameterPrefix());
-      activeCommand.AddPart(part, task);
+      activeCommand.AddPart(part);
+      activeTasks.Add(task);
     }
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
@@ -54,18 +56,23 @@ namespace Xtensive.Orm.Providers.Sql
     {
       if (activeCommand != null)
         reenterCount++;
-      else
+      else {
+        activeTasks = new List<SqlQueryTask>();
         activeCommand = Factory.CreateCommand();
+      }
     }
 
     private void ReleaseCommand()
     {
       if (reenterCount > 0) {
         reenterCount--;
+        activeTasks = new List<SqlQueryTask>();
         activeCommand = Factory.CreateCommand();
       }
-      else
+      else {
         activeCommand = null;
+        activeTasks = null;
+      }
     }
 
     private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
@@ -87,7 +94,7 @@ namespace Xtensive.Orm.Providers.Sql
           var part = Factory.CreateQueryPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
           activeCommand.AddPart(part);
         }
-        var hasQueryTasks = activeCommand.QueryTasks.Count > 0;
+        var hasQueryTasks = activeTasks.Count > 0;
         if (!hasQueryTasks && !shouldReturnReader) {
           activeCommand.ExecuteNonQuery();
           return null;
@@ -95,8 +102,8 @@ namespace Xtensive.Orm.Providers.Sql
         activeCommand.ExecuteReader();
         if (hasQueryTasks) {
           int currentQueryTask = 0;
-          while (currentQueryTask < activeCommand.QueryTasks.Count) {
-            var queryTask = activeCommand.QueryTasks[currentQueryTask];
+          while (currentQueryTask < activeTasks.Count) {
+            var queryTask = activeTasks[currentQueryTask];
             var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
             while (activeCommand.NextRow())
@@ -116,7 +123,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private string GetParameterPrefix()
     {
-      return string.Format("p{0}_", activeCommand.Statements.Count + 1);
+      return string.Format("p{0}_", activeCommand.Count + 1);
     }
 
     #endregion

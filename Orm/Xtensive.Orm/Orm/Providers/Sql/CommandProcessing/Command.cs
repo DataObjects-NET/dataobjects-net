@@ -7,9 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Xtensive.Disposing;
 using Xtensive.Core;
-using Xtensive.Tuples;
+using Xtensive.Disposing;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -21,39 +20,37 @@ namespace Xtensive.Orm.Providers.Sql
   {
     private readonly CommandFactory origin;
     private readonly DbCommand underlyingCommand;
+    private readonly List<string> statements = new List<string>();
 
     private bool prepared;
     private DisposableSet resources;
     private DbDataReader reader;
 
-    public List<string> Statements { get; private set; }
-
-    public List<SqlQueryTask> QueryTasks { get; private set; }
+    public int Count { get { return statements.Count; } }
 
     public void AddPart(CommandPart part)
     {
-      prepared = false;
-      Statements.Add(part.Statement);
+      if (prepared)
+        throw new InvalidOperationException("Unable to change command: it is already prepared");
+
+      statements.Add(part.Statement);
+
       foreach (var parameter in part.Parameters)
         underlyingCommand.Parameters.Add(parameter);
+
       if (part.Resources.Count==0)
         return;
+
       if (resources==null)
         resources = new DisposableSet();
       foreach (var resource in part.Resources)
         resources.Add(resource);
     }
 
-    public void AddPart(CommandPart part, SqlQueryTask task)
-    {
-      AddPart(part);
-      QueryTasks.Add(task);
-    }
-
-    public void ExecuteNonQuery()
+    public int ExecuteNonQuery()
     {
       Prepare();
-      origin.Driver.ExecuteNonQuery(origin.Session, underlyingCommand);
+      return origin.Driver.ExecuteNonQuery(origin.Session, underlyingCommand);
     }
 
     public void ExecuteReader()
@@ -97,13 +94,12 @@ namespace Xtensive.Orm.Providers.Sql
 
     public DbCommand Prepare()
     {
-      if (Statements.Count==0)
-        throw new InvalidOperationException("Unable to prepare command: no statements registered");
-
+      if (statements.Count==0)
+        throw new InvalidOperationException("Unable to prepare command: no parts registered");
       if (prepared)
         return underlyingCommand;
       prepared = true;
-      underlyingCommand.CommandText = origin.Driver.BuildBatch(Statements.ToArray());
+      underlyingCommand.CommandText = origin.Driver.BuildBatch(statements.ToArray());
       return underlyingCommand;
     }
 
@@ -124,8 +120,6 @@ namespace Xtensive.Orm.Providers.Sql
 
     internal Command(CommandFactory origin, DbCommand underlyingCommand)
     {
-      QueryTasks = new List<SqlQueryTask>();
-      Statements = new List<string>();
       this.origin = origin;
       this.underlyingCommand = underlyingCommand;
     }
