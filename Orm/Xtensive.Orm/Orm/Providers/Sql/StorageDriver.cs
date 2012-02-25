@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Threading;
 using Xtensive.Tuples;
@@ -25,6 +26,7 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
     private readonly bool isLoggingEnabled;
+    private readonly bool hasSavepoints;
 
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
 
@@ -73,14 +75,15 @@ namespace Xtensive.Orm.Providers.Sql
       this.underlyingDriver = underlyingDriver;
 
       ProviderInfo = ProviderInfoBuilder.Build(underlyingDriver);
+      ExceptionBuilder = new StorageExceptionBuilder(domain, underlyingDriver);
+
+      accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
 
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
 
+      hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
-      ExceptionBuilder = new StorageExceptionBuilder(domain, underlyingDriver);
-
-      accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
     }
   }
 }

@@ -17,11 +17,12 @@ namespace Xtensive.Orm.Providers.Sql
   {
     public SqlConnection CreateConnection(Session session)
     {
+      var connectionInfo = GetConnectionInfo(session);
+
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXCreatingConnectionY, session.ToStringSafely(), connectionInfo);
+
       try {
-        var connectionInfo = GetConnectionInfo(session);
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXCreatingConnectionY,
-            session.ToStringSafely(), connectionInfo);
         var connection = underlyingDriver.CreateConnection(connectionInfo);
         connection.CommandTimeout = session.CommandTimeout;
         return connection;
@@ -33,10 +34,10 @@ namespace Xtensive.Orm.Providers.Sql
 
     public void OpenConnection(Session session, SqlConnection connection)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXOpeningConnectionY,
-            session.ToStringSafely(), GetConnectionInfo(session));
         connection.Open();
       }
       catch (Exception exception) {
@@ -46,37 +47,38 @@ namespace Xtensive.Orm.Providers.Sql
 
     public void CloseConnection(Session session, SqlConnection connection)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXClosingConnectionY, 
-            session.ToStringSafely(), GetConnectionInfo(session));
         if (connection.State==ConnectionState.Open)
           connection.Close();
         connection.Dispose();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(null, exception);
-      }      
+      }
     }
 
     public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(), isolationLevel);
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
-            session.ToStringSafely(), isolationLevel);
         connection.BeginTransaction(isolationLevel);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(null, exception);
-      }      
+      }
     }
 
     public void CommitTransaction(Session session, SqlConnection connection)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
         connection.Commit();
       }
       catch (Exception exception) {
@@ -86,9 +88,10 @@ namespace Xtensive.Orm.Providers.Sql
 
     public void RollbackTransaction(Session session, SqlConnection connection)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
         connection.Rollback();
       }
       catch (Exception exception) {
@@ -98,11 +101,13 @@ namespace Xtensive.Orm.Providers.Sql
 
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
+
+      if (!hasSavepoints)
+        return; // Driver does not support savepoints, so let's fail later (on rollback)
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
-        if ((connection.Driver.ServerInfo.ServerFeatures & ServerFeatures.Savepoints)!=ServerFeatures.Savepoints)
-          return; // Driver does not support savepoints, so let's fail later (on rollback)
         connection.MakeSavepoint(name);
       }
       catch (Exception exception) {
@@ -112,11 +117,13 @@ namespace Xtensive.Orm.Providers.Sql
 
     public void RollbackToSavepoint(Session session, SqlConnection connection, string name)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
+
+      if (!hasSavepoints)
+        throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
-        if ((connection.Driver.ServerInfo.ServerFeatures & ServerFeatures.Savepoints)!=ServerFeatures.Savepoints)
-          throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
         connection.RollbackToSavepoint(name);
       }
       catch (Exception exception) {
@@ -126,9 +133,10 @@ namespace Xtensive.Orm.Providers.Sql
  
     public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
     {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
+
       try {
-        if (isLoggingEnabled)
-          Log.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
         connection.ReleaseSavepoint(name);
       }
       catch (Exception exception) {
@@ -138,53 +146,17 @@ namespace Xtensive.Orm.Providers.Sql
 
     public int ExecuteNonQuery(Session session, DbCommand command)
     {
-      try {
-        if (isLoggingEnabled)
-          LogCommand(session, command);
-        if (session != null)
-            session.Events.NotifyDbCommandExecuting(command);
-        var result = command.ExecuteNonQuery();
-        if (session != null)
-            session.Events.NotifyDbCommandExecuted(command);
-        return result;
-      }
-      catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
-      }
+      return ExecuteCommand(session, command, c => c.ExecuteNonQuery());
     }
 
     public object ExecuteScalar(Session session, DbCommand command)
     {
-      try {
-        if (isLoggingEnabled)
-          LogCommand(session, command);
-        if(session!=null)
-          session.Events.NotifyDbCommandExecuting(command);
-        var result = command.ExecuteScalar();
-        if (session != null)
-            session.Events.NotifyDbCommandExecuted(command);
-        return result;
-      }
-      catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
-      }
+      return ExecuteCommand(session, command, c => c.ExecuteScalar());
     }
 
     public DbDataReader ExecuteReader(Session session, DbCommand command)
     {
-      try {
-        if (isLoggingEnabled)
-          LogCommand(session, command);
-        if (session != null)
-            session.Events.NotifyDbCommandExecuting(command);
-        var result = command.ExecuteReader();
-        if (session != null)
-            session.Events.NotifyDbCommandExecuted(command);
-        return result;
-      }
-      catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
-      }
+      return ExecuteCommand(session, command, c => c.ExecuteReader());
     }
 
     public bool ReadRow(DbDataReader reader)
@@ -197,15 +169,32 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
+    private TResult ExecuteCommand<TResult>(Session session, DbCommand command, Func<DbCommand, TResult> action)
+    {
+      if (isLoggingEnabled)
+        Log.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+
+      if (session!=null)
+        session.Events.NotifyDbCommandExecuting(command);
+
+      TResult result;
+      try {
+        result = action.Invoke(command);
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
+      }
+
+      if (session!=null)
+        session.Events.NotifyDbCommandExecuted(command);
+
+      return result;
+    }
+
     private ConnectionInfo GetConnectionInfo(Session session)
     {
       return session.Configuration.ConnectionInfo
         ?? session.Domain.Configuration.ConnectionInfo;
-    }
-
-    private void LogCommand(Session session, DbCommand command)
-    {
-      Log.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
     }
   }
 }
