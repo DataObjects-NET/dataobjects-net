@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets SQL driver this instance is bound to.
     /// </summary>
-    public SqlStorageDriver Driver { get; private set; }
+    public StorageDriver Driver { get; private set; }
 
     /// <summary>
     /// Connection this instance is bound to,
@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CommandFactory(SqlStorageDriver driver, Session session, SqlConnection connection)
+    public CommandFactory(StorageDriver driver, Session session, SqlConnection connection)
     {
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");

@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    public SqlStorageDriver Driver { get; private set; }
+    public StorageDriver Driver { get; private set; }
 
     /// <inheritdoc/>
     protected override IEnumerable<Type> GetProviderCompilerContainers()
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Providers.Sql
     public override void Initialize()
     {
       var underlyingDriver = GetDriverFactory().CreateDriver(Handlers.Domain.Configuration.ConnectionInfo);
-      Driver = new SqlStorageDriver(Handlers.Domain, underlyingDriver);
+      Driver = new StorageDriver(Handlers.Domain, underlyingDriver);
 
       base.Initialize();
 

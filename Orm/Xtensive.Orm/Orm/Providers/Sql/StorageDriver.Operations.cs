@@ -7,16 +7,13 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
 using Xtensive.Core;
-using Xtensive.Orm;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Providers.Sql
 {
-  partial class SqlStorageDriver
+  partial class StorageDriver
   {
     public SqlConnection CreateConnection(Session session)
     {

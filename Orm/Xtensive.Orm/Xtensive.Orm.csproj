@@ -174,9 +174,9 @@
     <Compile Include="Orm\Providers\Sql\DbCommandExtensions.cs" />
     <Compile Include="Orm\Providers\Sql\DbDataReaderAccessor.cs" />
     <Compile Include="Orm\Providers\Sql\DomainHandler.cs" />
-    <Compile Include="Orm\Providers\Sql\SqlStorageDriver.cs" />
-    <Compile Include="Orm\Providers\Sql\SqlStorageDriver.Operations.cs" />
-    <Compile Include="Orm\Providers\Sql\SqlStorageDriver.ValueTypeMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\StorageDriver.cs" />
+    <Compile Include="Orm\Providers\Sql\StorageDriver.Operations.cs" />
+    <Compile Include="Orm\Providers\Sql\StorageDriver.ValueTypeMapping.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\BooleanExpressionConverter.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.Helpers.cs" />

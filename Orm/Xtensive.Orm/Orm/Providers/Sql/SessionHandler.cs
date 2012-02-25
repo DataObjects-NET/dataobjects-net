@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers.Sql
     private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations =
       EnumerableUtils<ServiceRegistration>.Empty;
 
-    private SqlStorageDriver driver;
+    private StorageDriver driver;
     private DomainHandler domainHandler;
     private SqlConnection connection;
     private CommandProcessor commandProcessor;

@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// SQL storage driver.
   /// </summary>
-  public sealed partial class SqlStorageDriver
+  public sealed partial class StorageDriver
   {
     private readonly Domain domain;
     private readonly SqlDriver underlyingDriver;
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public SqlStorageDriver(Domain domain, SqlDriver underlyingDriver)
+    public StorageDriver(Domain domain, SqlDriver underlyingDriver)
     {
       this.domain = domain;
       this.underlyingDriver = underlyingDriver;

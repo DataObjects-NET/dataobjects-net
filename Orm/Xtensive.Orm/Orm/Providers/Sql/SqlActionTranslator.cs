@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly Schema schema;
     private readonly StorageModel sourceModel;
     private readonly StorageModel targetModel;
-    private readonly SqlStorageDriver driver;
+    private readonly StorageDriver driver;
     
     private UpgradeActionSequence translationResult;
     
@@ -1209,7 +1209,7 @@ namespace Xtensive.Orm.Providers.Sql
       StorageModel sourceModel, 
       StorageModel targetModel, 
       ProviderInfo providerInfo, 
-      SqlStorageDriver driver, 
+      StorageDriver driver, 
       string typeIdColumnName, 
       List<string> enforceChangedColumns, 
       Func<ISqlCompileUnit, object> scalarExecutor, 

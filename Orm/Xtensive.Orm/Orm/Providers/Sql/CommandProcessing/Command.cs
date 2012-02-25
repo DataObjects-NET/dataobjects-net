@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public sealed class Command : IDisposable
   {
-    private readonly SqlStorageDriver driver;
+    private readonly StorageDriver driver;
     private readonly Session session;
     private readonly DbCommand underlyingCommand;
     private readonly List<string> statements = new List<string>();
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    internal Command(SqlStorageDriver driver, Session session, DbCommand underlyingCommand)
+    internal Command(StorageDriver driver, Session session, DbCommand underlyingCommand)
     {
       this.driver = driver;
       this.session = session;

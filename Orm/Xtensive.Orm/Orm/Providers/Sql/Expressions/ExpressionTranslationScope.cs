@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
       get { return Scope<ExpressionTranslationContext>.CurrentContext; }
     }
 
-    public ExpressionTranslationScope(ProviderInfo providerInfo, SqlStorageDriver driver, BooleanExpressionConverter booleanExpressionConverter)
+    public ExpressionTranslationScope(ProviderInfo providerInfo, StorageDriver driver, BooleanExpressionConverter booleanExpressionConverter)
       : base(new ExpressionTranslationContext(providerInfo, driver, booleanExpressionConverter))
     {
     }

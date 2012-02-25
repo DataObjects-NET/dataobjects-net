@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CursorCommandFactory(SqlStorageDriver driver, Session session, SqlConnection connection)
+    public CursorCommandFactory(StorageDriver driver, Session session, SqlConnection connection)
       : base(driver, session, connection)
     {
     }
