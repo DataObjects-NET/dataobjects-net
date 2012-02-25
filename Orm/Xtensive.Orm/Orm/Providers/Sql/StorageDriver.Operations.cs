@@ -159,16 +159,6 @@ namespace Xtensive.Orm.Providers.Sql
       return ExecuteCommand(session, command, c => c.ExecuteReader());
     }
 
-    public bool ReadRow(DbDataReader reader)
-    {
-      try {
-        return reader.Read();
-      }
-      catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(exception);
-      }
-    }
-
     private TResult ExecuteCommand<TResult>(Session session, DbCommand command, Func<DbCommand, TResult> action)
     {
       if (isLoggingEnabled)

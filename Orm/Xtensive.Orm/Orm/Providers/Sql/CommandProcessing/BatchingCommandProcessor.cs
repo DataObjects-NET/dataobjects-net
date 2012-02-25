@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -92,18 +93,15 @@ namespace Xtensive.Orm.Providers.Sql
           return null;
         }
         activeCommand.ExecuteReader();
-        var reader = activeCommand.Reader;
         if (hasQueryTasks) {
           int currentQueryTask = 0;
           while (currentQueryTask < activeCommand.QueryTasks.Count) {
             var queryTask = activeCommand.QueryTasks[currentQueryTask];
-            var descriptor = queryTask.Request.TupleDescriptor;
-            var driver = Factory.Driver;
-            var accessor = driver.GetDataReaderAccessor(descriptor);
+            var accessor = Factory.Driver.GetDataReaderAccessor(queryTask.Request.TupleDescriptor);
             var result = queryTask.Output;
-            while (driver.ReadRow(reader))
-              result.Add(accessor.Read(reader));
-            reader.NextResult();
+            while (activeCommand.NextRow())
+              result.Add(activeCommand.ReadTupleWith(accessor));
+            activeCommand.NextResult();
             currentQueryTask++;
           }
         }
