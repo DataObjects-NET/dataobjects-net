@@ -15,25 +15,18 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public sealed class CommandPart
   {
-    /// <summary>
-    /// Query text.
-    /// </summary>
-    public string Query;
+    public string Statement { get; set; }
 
-    /// <summary>
-    /// Parameters bound to this command part.
-    /// </summary>
-    public readonly List<DbParameter> Parameters = new List<DbParameter>();
+    public List<DbParameter> Parameters { get; private set; }
 
-    /// <summary>
-    /// Objects that should be disposed uppon this command part completion.
-    /// </summary>
-    public readonly List<IDisposable> Resources = new List<IDisposable>();
+    public List<IDisposable> Resources { get; private set; }
 
     // Constructors
 
     internal CommandPart()
     {
+      Parameters = new List<DbParameter>();
+      Resources = new List<IDisposable>();
     }
   }
 }

@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Providers.Sql
           AddPersistParameter(part, parameterName, parameterValue, binding);
         }
 
-        part.Query = compilationResult.GetCommandText(configuration);
+        part.Statement = compilationResult.GetCommandText(configuration);
         result.Add(part);
       }
       return result;
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Providers.Sql
           AddRegularParameter(result, parameterName, parameterValue, binding.TypeMapping);
         }
       }
-      result.Query = compilationResult.GetCommandText(configuration);
+      result.Statement = compilationResult.GetCommandText(configuration);
       return result;
     }
     

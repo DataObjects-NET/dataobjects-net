@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void AddPart(CommandPart part)
     {
       prepared = false;
-      Statements.Add(part.Query);
+      Statements.Add(part.Statement);
       foreach (var parameter in part.Parameters)
         underlyingCommand.Parameters.Add(parameter);
       if (part.Resources.Count==0)

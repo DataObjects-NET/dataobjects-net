@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Services
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
 
       var part = GetCommandPart(query);
-      return part!=null ? part.Query : string.Empty;
+      return part!=null ? part.Statement : string.Empty;
     }
 
     /// <summary>
