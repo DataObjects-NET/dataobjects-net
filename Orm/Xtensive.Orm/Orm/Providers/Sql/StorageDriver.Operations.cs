@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers.Sql
         return connection;
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Open();
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Dispose();
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.BeginTransaction(isolationLevel);
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Commit();
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Rollback();
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }      
     }
 
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.MakeSavepoint(name);
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.RollbackToSavepoint(name);
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
  
@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.ReleaseSavepoint(name);
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Providers.Sql
         return reader.Read();
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(null, exception);
+        throw ExceptionBuilder.BuildException(exception);
       }
     }
 
@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Providers.Sql
         result = action.Invoke(command);
       }
       catch (Exception exception) {
-        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
+        throw ExceptionBuilder.BuildException(exception, command.ToHumanReadableString());
       }
 
       if (session!=null)

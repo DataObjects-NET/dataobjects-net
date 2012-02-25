@@ -19,7 +19,12 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly SqlDriver driver;
     private readonly bool includeSqlInExceptions;
 
-    public StorageException BuildException(string queryText, Exception origin)
+    public StorageException BuildException(Exception origin)
+    {
+      return BuildException(origin, null);
+    }
+
+    public StorageException BuildException(Exception origin, string queryText)
     {
       var sqlExceptionInfo = driver.GetExceptionInfo(origin);
       var storageExceptionInfo = GetStorageExceptionInfo(sqlExceptionInfo);
