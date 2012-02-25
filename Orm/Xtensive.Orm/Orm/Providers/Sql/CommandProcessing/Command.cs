@@ -19,9 +19,9 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public sealed class Command : IDisposable
   {
-    private readonly StorageDriver driver;
-    private readonly Session session;
+    private readonly CommandFactory origin;
     private readonly DbCommand underlyingCommand;
+
     private readonly List<string> statements = new List<string>();
     private readonly List<SqlQueryTask> queryTasks = new List<SqlQueryTask>();
 
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void ExecuteNonQuery()
     {
       Prepare();
-      driver.ExecuteNonQuery(session, underlyingCommand);
+      origin.Driver.ExecuteNonQuery(origin.Session, underlyingCommand);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void ExecuteReader()
     {
       Prepare();
-      Reader = driver.ExecuteReader(session, underlyingCommand);
+      Reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand);
     }
 
     /// <summary>
@@ -96,11 +96,11 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="descriptor">The descriptor of a result.</param>
     /// <returns>Created <see cref="IEnumerator{Tuple}"/>.</returns>
-    public IEnumerator<Tuples.Tuple> AsReaderOf(TupleDescriptor descriptor)
+    public IEnumerator<Tuple> AsReaderOf(TupleDescriptor descriptor)
     {
-      var accessor = driver.GetDataReaderAccessor(descriptor);
+      var accessor = origin.Driver.GetDataReaderAccessor(descriptor);
       using (this)
-        while (driver.ReadRow(Reader))
+        while (origin.Driver.ReadRow(Reader))
           yield return accessor.Read(Reader);
     }
 
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Providers.Sql
       if (prepared)
         return underlyingCommand;
       prepared = true;
-      underlyingCommand.CommandText = driver.BuildBatch(statements.ToArray());
+      underlyingCommand.CommandText = origin.Driver.BuildBatch(statements.ToArray());
       return underlyingCommand;
     }
 
@@ -130,10 +130,9 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    internal Command(StorageDriver driver, Session session, DbCommand underlyingCommand)
+    internal Command(CommandFactory origin, DbCommand underlyingCommand)
     {
-      this.driver = driver;
-      this.session = session;
+      this.origin = origin;
       this.underlyingCommand = underlyingCommand;
     }
   }

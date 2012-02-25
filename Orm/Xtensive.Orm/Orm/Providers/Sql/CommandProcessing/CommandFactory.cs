@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <returns>Create command.</returns>
     public Command CreateCommand()
     {
-      return new Command(Driver, Session, Connection.CreateCommand());
+      return new Command(this, Connection.CreateCommand());
     }
 
     /// <summary>
