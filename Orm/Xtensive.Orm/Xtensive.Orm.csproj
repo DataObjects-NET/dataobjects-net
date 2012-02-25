@@ -240,6 +240,7 @@
     <Compile Include="Orm\Providers\Sql\SqlStoreProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlTemporaryDataProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlUpgradeStage.cs" />
+    <Compile Include="Orm\Providers\Sql\StorageExceptionBuilder.cs" />
     <Compile Include="Orm\Providers\Sql\StorageModelBuilder.cs" />
     <Compile Include="Orm\Providers\Sql\TemporaryTables\TemporaryTableDescriptor.cs" />
     <Compile Include="Orm\Providers\Sql\TemporaryTables\TemporaryTableManager.cs" />

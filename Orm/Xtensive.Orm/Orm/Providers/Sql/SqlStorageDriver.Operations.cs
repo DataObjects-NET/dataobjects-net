@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers.Sql
         return connection;
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }
     }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Open();
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }
     }
 
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Dispose();
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }      
     }
 
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.BeginTransaction(isolationLevel);
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }      
     }
 
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Commit();
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }
     }
 
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.Rollback();
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }      
     }
 
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.MakeSavepoint(name);
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }
     }
 
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.RollbackToSavepoint(name);
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }
     }
  
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Providers.Sql
         connection.ReleaseSavepoint(name);
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
+        throw ExceptionBuilder.BuildException(null, exception);
       }
     }
 
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Providers.Sql
         return result;
       }
       catch (Exception exception) {
-        throw TranslateException(command.ToHumanReadableString(), exception);
+        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
       }
     }
 
@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Providers.Sql
         return result;
       }
       catch (Exception exception) {
-        throw TranslateException(command.ToHumanReadableString(), exception);
+        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
       }
     }
 
@@ -186,84 +186,17 @@ namespace Xtensive.Orm.Providers.Sql
         return result;
       }
       catch (Exception exception) {
-        throw TranslateException(command.ToHumanReadableString(), exception);
+        throw ExceptionBuilder.BuildException(command.ToHumanReadableString(), exception);
       }
     }
-    
+
     public bool ReadRow(DbDataReader reader)
     {
       try {
         return reader.Read();
       }
       catch (Exception exception) {
-        throw TranslateException(null, exception);
-      }
-    }
-
-    private StorageException TranslateException(string queryText, Exception exception)
-    {
-      var sqlExceptionInfo = underlyingDriver.GetExceptionInfo(exception);
-      var storageExceptionInfo = GetStorageExceptionInfo(sqlExceptionInfo);
-      var builder = new StringBuilder(Strings.SqlErrorOccured);
-
-      var storageErrorDetails = storageExceptionInfo.ToString();
-      if (!string.IsNullOrEmpty(storageErrorDetails)) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.StorageErrorDetailsX, storageErrorDetails);
-      }
-      var sqlErrorDetails = sqlExceptionInfo.ToString();
-      if (!string.IsNullOrEmpty(sqlErrorDetails)) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.SqlErrorDetailsX, sqlErrorDetails);
-      }
-      if (!string.IsNullOrEmpty(queryText) && includeSqlInExceptions) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.QueryX, queryText);
-      }
-      var sqlMessage = exception.Message;
-      if (!string.IsNullOrEmpty(sqlMessage)) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.OriginalMessageX, sqlMessage);
-      }
-
-      var storageException = CreateStorageException(sqlExceptionInfo.Type, builder.ToString(), exception);
-      storageException.Info = storageExceptionInfo;
-      return storageException;
-    }
-
-    private StorageExceptionInfo GetStorageExceptionInfo(SqlExceptionInfo info)
-    {
-      var type = !string.IsNullOrEmpty(info.Table)
-        ? domain.Model.Types.FirstOrDefault(t => t.MappingName==info.Table)
-        : null;
-      Orm.Model.ColumnInfo column = null;
-      if (type!=null && !string.IsNullOrEmpty(info.Column))
-        type.Columns.TryGetValue(info.Column, out column);
-      var field = column!=null ? column.Field : null;
-      return new StorageExceptionInfo(type, field, info.Value, info.Constraint);
-    }
-
-    private static StorageException CreateStorageException(SqlExceptionType type, string message, Exception innerException)
-    {
-      switch (type) {
-      case SqlExceptionType.ConnectionError:
-        return new ConnectionErrorException(message, innerException);
-      case SqlExceptionType.SyntaxError:
-        return new Orm.SyntaxErrorException(message, innerException);
-      case SqlExceptionType.CheckConstraintViolation:
-        return new CheckConstraintViolationException(message, innerException);
-      case SqlExceptionType.UniqueConstraintViolation:
-        return new UniqueConstraintViolationException(message, innerException);
-      case SqlExceptionType.ReferentialConstraintViolation:
-        return new ReferentialConstraintViolationException(message, innerException);
-      case SqlExceptionType.Deadlock:
-        return new DeadlockException(message, innerException);
-      case SqlExceptionType.SerializationFailure:
-        return new TransactionSerializationFailureException(message, innerException);
-      case SqlExceptionType.OperationTimeout:
-        return new OperationTimeoutException(message, innerException);
-      default:
-        return new StorageException(message, innerException);
+        throw ExceptionBuilder.BuildException(null, exception);
       }
     }
 

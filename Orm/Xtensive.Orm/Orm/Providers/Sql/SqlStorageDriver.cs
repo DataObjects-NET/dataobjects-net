@@ -24,13 +24,12 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
+    private readonly bool isLoggingEnabled;
 
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
 
-    private readonly bool includeSqlInExceptions;
-    private readonly bool isLoggingEnabled;
-
     public ProviderInfo ProviderInfo { get; private set; }
+    public StorageExceptionBuilder ExceptionBuilder { get; private set; }
 
     public string BuildBatch(string[] statements)
     {
@@ -56,13 +55,6 @@ namespace Xtensive.Orm.Providers.Sql
       return underlyingDriver.Compile(statement);
     }
 
-    /// <summary>
-    /// Creates (or retrieves from cache) <see cref="DbDataReaderAccessor"/> 
-    /// for the specified <see cref="TupleDescriptor"/>.
-    /// </summary>
-    /// <param name="descriptor">The descriptor.</param>
-    /// <returns>A <see cref="DbDataReaderAccessor"/> 
-    /// for the specified <see cref="TupleDescriptor"/></returns>
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
     {
       return accessorCache.GetValue(descriptor, CreateDataReaderAccessor);
@@ -86,7 +78,7 @@ namespace Xtensive.Orm.Providers.Sql
       translator = underlyingDriver.Translator;
 
       isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
-      includeSqlInExceptions = domain.Configuration.IncludeSqlInExceptions;
+      ExceptionBuilder = new StorageExceptionBuilder(domain, underlyingDriver);
 
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
     }
