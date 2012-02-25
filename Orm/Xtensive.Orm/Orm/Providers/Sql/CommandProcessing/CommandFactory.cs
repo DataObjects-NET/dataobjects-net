@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Parameters;
 using Xtensive.Sql;
@@ -46,10 +47,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <returns>Create command.</returns>
     public Command CreateCommand()
     {
-      var dbCommand = Connection.CreateCommand();
-      if (Session.CommandTimeout!=null)
-        dbCommand.CommandTimeout = Session.CommandTimeout.Value;
-      return new Command(Driver, Session, dbCommand);
+      return new Command(Driver, Session, Connection.CreateCommand());
     }
 
     /// <summary>
