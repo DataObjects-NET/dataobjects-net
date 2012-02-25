@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Providers.Sql
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.Head(statement.Columns.Count);
       
-      var request = new QueryRequest(statement, tupleDescriptor, options, parameterBindings);
+      var request = new QueryRequest(Driver, statement, parameterBindings, tupleDescriptor, options);
 
       return new SqlProvider(Handlers, request, origin, sources);
     }

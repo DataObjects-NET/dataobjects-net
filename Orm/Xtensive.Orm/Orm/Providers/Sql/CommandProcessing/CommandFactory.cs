@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="task">The task.</param>
     /// <param name="parameterNamePrefix">The parameter name prefix.</param>
     /// <returns>Created command part.</returns>
-    public virtual IEnumerable<CommandPart> CreatePersistCommandPart(SqlPersistTask task, string parameterNamePrefix)
+    public virtual IEnumerable<CommandPart> CreatePersistPart(SqlPersistTask task, string parameterNamePrefix)
     {
       var result = new List<CommandPart>();
       int parameterIndex = 0;
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="task">The task.</param>
     /// <param name="parameterNamePrefix">The parameter name prefix.</param>
     /// <returns>Created command part.</returns>
-    public virtual CommandPart CreateQueryCommandPart(SqlQueryTask task, string parameterNamePrefix)
+    public virtual CommandPart CreateQueryPart(SqlQueryTask task, string parameterNamePrefix)
     {
       var request = task.Request;
       int parameterIndex = 0;

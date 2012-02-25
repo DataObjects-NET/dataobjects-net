@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers.Sql
         return rootProvider;
       var request = sqlProvider.Request;
       // Nessesary part - prepare request for execution.
-      request.Prepare(domainHandler);
+      request.Prepare();
       // Optional part - remove all underlying providers to save memory.
       return request.CheckOptions(QueryRequestOptions.AllowOptimization)
         ? new SqlProvider(handlers, request, sqlProvider.Origin.MakeVoid(), new ExecutableProvider[0])

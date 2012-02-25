@@ -6,32 +6,44 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Sql.Compiler;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
   /// Query (SELECT) request.
   /// </summary>
-  public sealed class QueryRequest
+  public sealed class QueryRequest : IStorageRequest
   {
+    private readonly StorageDriver driver;
+
+    private DbDataReaderAccessor accessor;
     private SqlCompilationResult compiledStatement;
 
-    /// <summary>
-    /// Gets SELECT statement.
-    /// </summary>
     public SqlSelect Statement { get; private set; }
+    public IEnumerable<QueryParameterBinding> ParameterBindings { get; private set; }
 
-    /// <summary>
-    /// Gets compiled SELECT statement.
-    /// </summary>
+    public TupleDescriptor TupleDescriptor { get; private set; }
+    public QueryRequestOptions Options { get; private set; }
+
+    public bool CheckOptions(QueryRequestOptions requiredOptions)
+    {
+      return (Options & requiredOptions)==requiredOptions;
+    }
+
+    public void Prepare()
+    {
+      if (compiledStatement!=null && accessor!=null)
+        return;
+      compiledStatement = driver.Compile(Statement);
+      accessor = driver.GetDataReaderAccessor(TupleDescriptor);
+      Statement = null;
+    }
+
     public SqlCompilationResult GetCompiledStatement()
     {
       if (compiledStatement==null)
@@ -39,62 +51,30 @@ namespace Xtensive.Orm.Providers.Sql
       return compiledStatement;
     }
 
-    /// <summary>
-    /// Gets the parameter bindings.
-    /// </summary>
-    public IEnumerable<QueryParameterBinding> ParameterBindings { get; private set; }
-
-    /// <summary>
-    /// Gets the record set header.
-    /// </summary>
-    public TupleDescriptor TupleDescriptor { get; private set; }
-
-    /// <summary>
-    /// Gets the options of this request.
-    /// </summary>
-    public QueryRequestOptions Options { get; private set; }
-
-    /// <summary>
-    /// Checks that specified options are enabled for this request.
-    /// </summary>
-    /// <param name="requiredOptions">The required options.</param>
-    /// <returns><see langword="true"/> is specified options is suppored;
-    /// otherwise, <see langword="false"/>.</returns>
-    public bool CheckOptions(QueryRequestOptions requiredOptions)
+    public DbDataReaderAccessor GetAccessor()
     {
-      return (Options & requiredOptions)==requiredOptions;
-    }
-
-    /// <summary>
-    /// Prepares this statement for execution.
-    /// </summary>
-    /// <param name="domainHandler">Domain handler to use.</param>
-    public void Prepare(DomainHandler domainHandler)
-    {
-      if (compiledStatement!=null)
-        return;
-      compiledStatement = domainHandler.Driver.Compile(Statement);
-      Statement = null;
+      if (accessor==null)
+        throw new InvalidOperationException(Strings.ExRequestIsNotPrepared);
+      return accessor;
     }
 
     // Constructors
 
-    /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <param name="tupleDescriptor">The tuple descriptor.</param>
-    /// <param name="options">The options.</param>
-    /// <param name="parameterBindings">The parameter bindings.</param>
-    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, QueryRequestOptions options,
-      IEnumerable<QueryParameterBinding> parameterBindings)
+    internal QueryRequest(
+      StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
+      TupleDescriptor tupleDescriptor, QueryRequestOptions options)
     {
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
+      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
+
+      this.driver = driver;
       Statement = statement;
-      TupleDescriptor = tupleDescriptor;
-      Options = options;
       ParameterBindings = parameterBindings!=null
         ? parameterBindings.ToHashSet()
-        : new HashSet<QueryParameterBinding>();
+        : Enumerable.Empty<QueryParameterBinding>();
+      TupleDescriptor = tupleDescriptor;
+      Options = options;
     }
   }
 }

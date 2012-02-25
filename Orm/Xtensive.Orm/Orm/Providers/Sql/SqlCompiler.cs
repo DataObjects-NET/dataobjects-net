@@ -336,7 +336,7 @@ namespace Xtensive.Orm.Providers.Sql
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(provider.Name, provider.Header.TupleDescriptor, columnNames);
-      var request = new QueryRequest(descriptor.QueryStatement, descriptor.TupleDescriptor, QueryRequestOptions.Empty, null);
+      var request = new QueryRequest(Driver, descriptor.QueryStatement, null, descriptor.TupleDescriptor, QueryRequestOptions.Empty);
       return new SqlStoreProvider(Handlers, request, descriptor, provider, source);
     }
     

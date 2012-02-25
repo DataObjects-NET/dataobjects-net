@@ -20,13 +20,13 @@ namespace Xtensive.Orm.Providers.Sql
 
     void ISqlTaskProcessor.ProcessTask(SqlQueryTask task)
     {
-      var part = Factory.CreateQueryCommandPart(task, GetParameterPrefix());
+      var part = Factory.CreateQueryPart(task, GetParameterPrefix());
       activeCommand.AddPart(part, task);
     }
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      var sequence = Factory.CreatePersistCommandPart(task, GetParameterPrefix());
+      var sequence = Factory.CreatePersistPart(task, GetParameterPrefix());
       foreach (var part in sequence)
         activeCommand.AddPart(part);
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Providers.Sql
       while (Tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      return ExecuteBatch(Tasks.Count, request).AsReaderOf(request.TupleDescriptor);
+      return ExecuteBatch(Tasks.Count, request).AsReaderOf(request);
     }
 
     #region Private / internal methods
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Providers.Sql
           task.ProcessWith(this);
         }
         if (shouldReturnReader) {
-          var part = Factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
+          var part = Factory.CreateQueryPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
           activeCommand.AddPart(part);
         }
         var hasQueryTasks = activeCommand.QueryTasks.Count > 0;
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Providers.Sql
           int currentQueryTask = 0;
           while (currentQueryTask < activeCommand.QueryTasks.Count) {
             var queryTask = activeCommand.QueryTasks[currentQueryTask];
-            var accessor = Factory.Driver.GetDataReaderAccessor(queryTask.Request.TupleDescriptor);
+            var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
             while (activeCommand.NextRow())
               result.Add(activeCommand.ReadTupleWith(accessor));

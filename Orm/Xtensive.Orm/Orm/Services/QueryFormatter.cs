@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Services
       if (sqlProvider==null)
         return null;
 
-      return sessionHandler.CommandFactory.CreateQueryCommandPart(
+      return sessionHandler.CommandFactory.CreateQueryPart(
         new SqlQueryTask(sqlProvider.Request), CommandProcessor.DefaultParameterNamePrefix);
     }
 

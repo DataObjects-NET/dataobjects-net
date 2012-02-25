@@ -18,10 +18,10 @@ namespace Xtensive.Orm.Providers.Sql
     private const string CursorParameterNameFormat = "{0}c";
     private const string StatementFormat = "OPEN :{0} FOR {1}";
 
-    public override CommandPart CreateQueryCommandPart(SqlQueryTask task, string parameterNamePrefix)
+    public override CommandPart CreateQueryPart(SqlQueryTask task, string parameterNamePrefix)
     {
       var parameterName = string.Format(CursorParameterNameFormat, parameterNamePrefix);
-      var part = base.CreateQueryCommandPart(task, parameterNamePrefix);
+      var part = base.CreateQueryPart(task, parameterNamePrefix);
       part.Query = string.Format(StatementFormat, parameterName, part.Query);
       var parameter = Connection.CreateCursorParameter();
       parameter.ParameterName = parameterName;

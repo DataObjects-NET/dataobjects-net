@@ -55,13 +55,13 @@ namespace Xtensive.Orm.Providers.Sql
           batch.Add(request.Statement);
           bindings.UnionWith(request.ParameterBindings);
         }
-        var batchRequest = new PersistRequest(batch, bindings);
-        batchRequest.Prepare(DomainHandler);
+        var batchRequest = new PersistRequest(DomainHandler.Driver, batch, bindings);
+        batchRequest.Prepare();
         return EnumerableUtils.One(batchRequest);
       }
 
       foreach (var item in result)
-        item.Prepare(DomainHandler);
+        item.Prepare();
 
       return result;
     }
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Providers.Sql
             bindings.Add(binding);
           }
         }
-        result.Add(new PersistRequest(query, bindings));
+        result.Add(new PersistRequest(DomainHandler.Driver, query, bindings));
       }
       return result;
     }
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Providers.Sql
           bindings.Add(binding);
         }
         query.Where &= expression;
-        result.Add(new PersistRequest(query, bindings));
+        result.Add(new PersistRequest(DomainHandler.Driver, query, bindings));
       }
       return result;
     }
@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Providers.Sql
           bindings.Add(binding);
         }
         query.Where &= expression;
-        result.Add(new PersistRequest(query, bindings));
+        result.Add(new PersistRequest(DomainHandler.Driver, query, bindings));
       }
       return result;
     }

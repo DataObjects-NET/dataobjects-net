@@ -87,9 +87,9 @@ namespace Xtensive.Orm.Providers.Sql
       return accessor.Read(reader);
     }
 
-    public IEnumerator<Tuple> AsReaderOf(TupleDescriptor descriptor)
+    public IEnumerator<Tuple> AsReaderOf(QueryRequest request)
     {
-      var accessor = origin.Driver.GetDataReaderAccessor(descriptor);
+      var accessor = request.GetAccessor();
       using (this)
         while (NextRow())
           yield return ReadTupleWith(accessor);
