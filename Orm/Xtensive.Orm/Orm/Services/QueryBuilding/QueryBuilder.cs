@@ -6,11 +6,14 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Services
@@ -20,13 +23,25 @@ namespace Xtensive.Orm.Services
   {
     private readonly StorageDriver driver;
     private readonly CommandFactory commandFactory;
+    private readonly QueryProvider queryProvider;
 
-    public void TranslateQuery(Expression query, QueryRootBuilder output)
+    public void TranslateQuery<TResult>(IQueryable<TResult> query, QueryRequestBuilder output)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
       ArgumentValidator.EnsureArgumentNotNull(output, "output");
 
-      throw new NotImplementedException();
+      var configuration = new CompilerConfiguration {PrepareRequest = false};
+      var translated = queryProvider.Translate<TResult>(query.Expression, configuration);
+
+      var sqlProvider = translated.DataSource as SqlProvider;
+      if (sqlProvider==null)
+        throw new InvalidOperationException("Query was not translated to SqlProvider");
+
+      var request = sqlProvider.Request;
+      output.Query = request.Statement;
+      output.ParameterBindings.Clear();
+      foreach (var binding in request.ParameterBindings)
+        output.ParameterBindings.Add(new QueryParameterBinding(binding));
     }
 
     public QueryRequestBuilder CreateRequestBuilder()
@@ -58,6 +73,7 @@ namespace Xtensive.Orm.Services
 
       driver = sqlDomainHandler.Driver;
       commandFactory = sqlSessionHandler.CommandFactory;
+      queryProvider = session.Query.Provider;
     }
   }
 }
