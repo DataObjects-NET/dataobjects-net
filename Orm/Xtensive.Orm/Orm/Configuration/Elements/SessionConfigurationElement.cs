@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(ConnectionStringElementName, DefaultValue = null)]
     public string ConnectionString {
       get { return (string) this[ConnectionStringElementName]; }
-      set { this[ConnectionUrlElementName] = value; }
+      set { this[ConnectionStringElementName] = value; }
     }
 
     [ConfigurationProperty(ConnectionUrlElementName, DefaultValue = null)]

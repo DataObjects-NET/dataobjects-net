@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Configuration.Elements
     public string ConnectionString
     {
       get { return (string) this[ConnectionStringElementName]; }
-      set { this[ConnectionUrlElementName] = value; }
+      set { this[ConnectionStringElementName] = value; }
     }
 
     /// <summary>
