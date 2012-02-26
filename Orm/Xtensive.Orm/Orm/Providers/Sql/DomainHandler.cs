@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    protected override ProviderInfo CreateProviderInfo()
+    protected override ProviderInfo GetProviderInfo()
     {
       return Driver.ProviderInfo;
     }

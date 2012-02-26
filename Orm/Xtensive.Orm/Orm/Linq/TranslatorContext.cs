@@ -115,8 +115,7 @@ namespace Xtensive.Orm.Linq
     public TranslatorContext(Expression query, Domain domain)
     {
       // Applying query preprocessors
-      var preprocessors = domain.Handler.GetQueryPreprocessors();
-      foreach (var preprocessor in preprocessors)
+      foreach (var preprocessor in domain.Handler.QueryPreprocessors)
         query = preprocessor.Apply(query);
 
       // Built-in preprocessors
