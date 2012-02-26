@@ -1,8 +1,8 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Denis Krjuchkov
-// Created:    2012.01.29
+// Created by: Alexis Kochetov
+// Created:    2009.03.30
 
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,11 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Compilation
 {
-  public class CompositePostCompiler : IPostCompiler
+  public sealed class CompositePreCompiler : IPreCompiler
   {
-    public List<IPostCompiler> Items { get; private set; }
+    public List<IPreCompiler> Items { get; private set; }
 
-    public ExecutableProvider Process(ExecutableProvider rootProvider)
+    public CompilableProvider Process(CompilableProvider rootProvider)
     {
       var provider = rootProvider;
       foreach (var item in Items)
@@ -25,9 +25,9 @@ namespace Xtensive.Orm.Rse.Compilation
 
     // Constructors
 
-    public CompositePostCompiler(params IPostCompiler[] postCompilers)
+    public CompositePreCompiler(params IPreCompiler[] preCompilers)
     {
-      Items = postCompilers.ToList();
+      Items = preCompilers.ToList();
     }
   }
 }

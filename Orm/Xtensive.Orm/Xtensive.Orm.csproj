@@ -305,6 +305,7 @@
     <Compile Include="Orm\EntitySetActionCompletedEventArgs.cs" />
     <Compile Include="Orm\QueryEndpoint.cs" />
     <Compile Include="Orm\QueryRootBuilder.cs" />
+    <Compile Include="Orm\Rse\Compilation\CompilerConfiguration.cs" />
     <Compile Include="Orm\Rse\Compilation\CompositePostCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\VoidProvider.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryBuilder.cs" />
@@ -1125,7 +1126,7 @@
     <Compile Include="Orm\Rse\LockMode.cs" />
     <Compile Include="Orm\Rse\Log.cs" />
     <Compile Include="Orm\Rse\MappedColumn.cs" />
-    <Compile Include="Orm\Rse\PreCompilation\CompositePreCompiler.cs" />
+    <Compile Include="Orm\Rse\Compilation\CompositePreCompiler.cs" />
     <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\ApplyProviderCorrector.cs" />
     <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\ApplyFilterRewriter.cs" />
     <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\Internals\ApplyParameterSearcher.cs" />

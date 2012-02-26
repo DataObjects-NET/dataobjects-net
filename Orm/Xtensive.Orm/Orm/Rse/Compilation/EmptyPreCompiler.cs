@@ -8,12 +8,8 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Compilation
 {
-  /// <summary>
-  /// Empty <see cref="IPreCompiler"/> implementation.
-  /// </summary>
   public sealed class EmptyPreCompiler : IPreCompiler
   {
-    /// <inheritdoc/>
     public CompilableProvider Process(CompilableProvider rootProvider)
     {
       return rootProvider;

@@ -83,15 +83,18 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ICompiler CreateCompiler()
+    protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);
     }
 
     /// <inheritdoc/>
-    protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
+    protected override IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler)
     {
-      return new CompositePostCompiler(new SqlSelectCorrector(), new SqlProviderPreparer(Handlers));
+      var result = new CompositePostCompiler(new SqlSelectCorrector());
+      if (configuration.PrepareRequest)
+        result.Items.Add(new SqlProviderPreparer(Handlers));
+      return result;
     }
 
     /// <summary>
@@ -177,7 +180,7 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override IPreCompiler CreatePreCompiler()
+    protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
       var applyCorrector = new ApplyProviderCorrector(
         !ProviderInfo.Supports(ProviderFeatures.Apply));

@@ -69,21 +69,24 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Creates the compiler.
     /// </summary>
+    /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new compiler.</returns>
-    protected abstract ICompiler CreateCompiler();
+    protected abstract ICompiler CreateCompiler(CompilerConfiguration configuration);
 
     /// <summary>
     /// Creates the <see cref="IPreCompiler"/>.
     /// </summary>
+    /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new pre-compiler.</returns>
-    protected abstract IPreCompiler CreatePreCompiler();
+    protected abstract IPreCompiler CreatePreCompiler(CompilerConfiguration configuration);
 
     /// <summary>
     /// Creates the <see cref="IPostCompiler"/>.
     /// </summary>
+    /// <param name="configuration">Compiler configuration to use.</param>
     /// <param name="compiler">Currently used compiler instance.</param>
     /// <returns>A new post-compiler.</returns>
-    protected abstract IPostCompiler CreatePostCompiler(ICompiler compiler);
+    protected abstract IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler);
 
     /// <summary>
     /// Gets compiler containers specific to current storage provider.

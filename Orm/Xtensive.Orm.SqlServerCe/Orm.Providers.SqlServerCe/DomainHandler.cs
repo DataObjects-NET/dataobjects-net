@@ -19,8 +19,7 @@ namespace Xtensive.Orm.Providers.SqlServerCe
       return new DriverFactory();
     }
 
-    /// <inheritdoc/>
-    protected override ICompiler CreateCompiler()
+    protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);
     }
