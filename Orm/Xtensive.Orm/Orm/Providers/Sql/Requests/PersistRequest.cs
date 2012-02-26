@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
@@ -16,7 +15,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// Modification (INSERT, UPDATE, DELETE) request.
   /// </summary>
-  public class PersistRequest : IStorageRequest
+  public sealed class PersistRequest
   {
     private readonly StorageDriver driver;
     private SqlCompilationResult compiledStatement;
@@ -45,7 +44,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    internal PersistRequest(
+    public PersistRequest(
       StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings)
     {
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
@@ -58,9 +57,7 @@ namespace Xtensive.Orm.Providers.Sql
       this.driver = driver;
       Statement = statement;
       CompileUnit = compileUnit;
-      ParameterBindings = parameterBindings!=null
-        ? parameterBindings.ToHashSet()
-        : Enumerable.Empty<PersistParameterBinding>();
+      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
     }
   }
 }

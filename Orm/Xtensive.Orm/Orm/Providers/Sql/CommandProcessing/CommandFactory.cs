@@ -16,48 +16,38 @@ using Tuple = Xtensive.Tuples.Tuple;
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
-  /// A factory of <see cref="CommandPart"/>s.
+  /// A factory of <see cref="Command"/>s and <see cref="CommandPart"/>s.
   /// </summary>
   public class CommandFactory
   {
     private const string ParameterNameFormat = "{0}{1}";
     private const string RowFilterParameterNameFormat = "{0}_{1}_{2}";
+    private const string DefaultParameterNamePrefix = "p0_";
     private const int LobBlockSize = ushort.MaxValue;
 
     private readonly bool emptyStringIsNull;
 
-    /// <summary>
-    /// Gets <see cref="Session"/> this instance is bound to.
-    /// </summary>
-    public Session Session { get; private set; }
-
-    /// <summary>
-    /// Gets SQL driver this instance is bound to.
-    /// </summary>
     public StorageDriver Driver { get; private set; }
 
-    /// <summary>
-    /// Connection this instance is bound to,
-    /// </summary>
+    public Session Session { get; private set; }
+
     public SqlConnection Connection { get; private set; }
 
-    /// <summary>
-    /// Creates command associated with <see cref="Connection"/>.
-    /// </summary>
-    /// <returns>Create command.</returns>
     public Command CreateCommand()
     {
       return new Command(this, Connection.CreateCommand());
     }
 
-    /// <summary>
-    /// Creates the persist command part.
-    /// </summary>
-    /// <param name="task">The task.</param>
-    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
-    /// <returns>Created command part.</returns>
-    public virtual IEnumerable<CommandPart> CreatePersistPart(SqlPersistTask task, string parameterNamePrefix)
+    public IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task)
     {
+      return CreatePersistParts(task, DefaultParameterNamePrefix);
+    }
+
+    public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, string parameterNamePrefix)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(task, "task");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
+
       var result = new List<CommandPart>();
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
@@ -79,21 +69,37 @@ namespace Xtensive.Orm.Providers.Sql
       return result;
     }
 
-    /// <summary>
-    /// Creates the query command part.
-    /// </summary>
-    /// <param name="task">The task.</param>
-    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
-    /// <returns>Created command part.</returns>
-    public virtual CommandPart CreateQueryPart(SqlQueryTask task, string parameterNamePrefix)
+    public CommandPart CreateQueryPart(SqlLoadTask task)
     {
-      var request = task.Request;
+      return CreateQueryPart(task.Request, DefaultParameterNamePrefix, task.ParameterContext);
+    }
+
+    public CommandPart CreateQueryPart(SqlLoadTask task, string parameterNamePrefix)
+    {
+      return CreateQueryPart(task.Request, parameterNamePrefix, task.ParameterContext);
+    }
+
+    public CommandPart CreateQueryPart(IQueryRequest request)
+    {
+      return CreateQueryPart(request, DefaultParameterNamePrefix, null);
+    }
+
+    public CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix)
+    {
+      return CreateQueryPart(request, parameterNamePrefix, null);
+    }
+
+    public virtual CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
+
       int parameterIndex = 0;
       var compilationResult = request.GetCompiledStatement();
       var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
 
-      using (task.ParameterContext.ActivateSafely()) {
+      using (parameterContext.ActivateSafely()) {
         foreach (var binding in request.ParameterBindings) {
           object parameterValue = binding.ValueAccessor.Invoke();
           switch (binding.BindingType) {

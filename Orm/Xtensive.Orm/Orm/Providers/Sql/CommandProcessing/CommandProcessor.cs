@@ -17,11 +17,6 @@ namespace Xtensive.Orm.Providers.Sql
   public abstract class CommandProcessor
   {
     /// <summary>
-    /// Default parameter name prefix.
-    /// </summary>
-    public const string DefaultParameterNamePrefix = "p0_";
-
-    /// <summary>
     /// Factory of command parts.
     /// </summary>
     public CommandFactory Factory { get; private set; }

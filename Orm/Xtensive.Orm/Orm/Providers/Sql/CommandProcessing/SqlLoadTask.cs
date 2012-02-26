@@ -5,9 +5,9 @@
 // Created:    2009.08.21
 
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Parameters;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// A query task (i.e. SELECT) for <see cref="CommandProcessor"/>.
   /// </summary>
-  public sealed class SqlQueryTask : SqlTask
+  public sealed class SqlLoadTask : SqlTask
   {
     /// <summary>
     /// A request to execute.
@@ -45,21 +45,13 @@ namespace Xtensive.Orm.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="request">A value for <see cref="Request"/>.</param>
-    public SqlQueryTask(QueryRequest request)
-    {
-      Request = request;
-      ParameterContext = null;
-      Output = null;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="request">A value for <see cref="Request"/>.</param>
-    /// <param name="parameterContext">A value for <see cref="ParameterContext"/>.</param>
     /// <param name="output">A value for <see cref="Output"/>.</param>
-    public SqlQueryTask(QueryRequest request, ParameterContext parameterContext, List<Tuple> output)
+    /// <param name="parameterContext">A value for <see cref="ParameterContext"/>.</param>
+    public SqlLoadTask(QueryRequest request, List<Tuple> output, ParameterContext parameterContext)
     {
+      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+      ArgumentValidator.EnsureArgumentNotNull(output, "output");
+
       Request = request;
       ParameterContext = parameterContext;
       Output = output;

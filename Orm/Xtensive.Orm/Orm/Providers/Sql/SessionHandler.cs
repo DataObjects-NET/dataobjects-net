@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Providers.Sql
     private void RegisterQueryTask(QueryTask task, QueryRequest request)
     {
       task.Result = new List<Tuple>();
-      commandProcessor.Tasks.Enqueue(new SqlQueryTask(request, task.ParameterContext, task.Result));
+      commandProcessor.Tasks.Enqueue(new SqlLoadTask(request, task.Result, task.ParameterContext));
     }
 
     #region Transaction control methods

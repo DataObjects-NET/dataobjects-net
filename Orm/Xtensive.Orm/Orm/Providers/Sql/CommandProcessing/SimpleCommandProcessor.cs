@@ -20,16 +20,16 @@ namespace Xtensive.Orm.Providers.Sql
     {
       ExecuteAllTasks();
       var command = Factory.CreateCommand();
-      var part = Factory.CreateQueryPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
+      var part = Factory.CreateQueryPart(lastRequest);
       command.AddPart(part);
       command.ExecuteReader();
       return command.AsReaderOf(lastRequest);
     }
 
-    void ISqlTaskProcessor.ProcessTask(SqlQueryTask task)
+    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
       using (var command = Factory.CreateCommand()) {
-        var part = Factory.CreateQueryPart(task, DefaultParameterNamePrefix);
+        var part = Factory.CreateQueryPart(task);
         command.AddPart(part);
         command.ExecuteReader();
         var enumerator = command.AsReaderOf(task.Request);
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void ExecutePersist(SqlPersistTask task)
     {
-      var sequence = Factory.CreatePersistPart(task, DefaultParameterNamePrefix);
+      var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
           command.AddPart(part);

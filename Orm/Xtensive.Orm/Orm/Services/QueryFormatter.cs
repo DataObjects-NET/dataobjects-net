@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Services
   [Service(typeof (QueryFormatter), Singleton = true), Infrastructure]
   public sealed class QueryFormatter : SessionBound, ISessionService
   {
-    private readonly SessionHandler sessionHandler;
+    private readonly CommandFactory commandFactory;
 
     /// <summary>
     /// Formats the specified <paramref name="query"/> in SQL.
@@ -60,24 +60,20 @@ namespace Xtensive.Orm.Services
       if (part==null)
         return null;
 
-      var command = sessionHandler.CommandFactory.CreateCommand();
+      var command = commandFactory.CreateCommand();
       command.AddPart(part);
       return command.Prepare();
     }
 
     private CommandPart GetCommandPart<T>(IQueryable<T> query)
     {
-      if (sessionHandler==null)
-        return null;
-
       var translatedQuery = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression);
       var sqlProvider = translatedQuery.DataSource as SqlProvider;
 
       if (sqlProvider==null)
         return null;
 
-      return sessionHandler.CommandFactory.CreateQueryPart(
-        new SqlQueryTask(sqlProvider.Request), CommandProcessor.DefaultParameterNamePrefix);
+      return commandFactory.CreateQueryPart(sqlProvider.Request);
     }
 
 
@@ -87,7 +83,8 @@ namespace Xtensive.Orm.Services
     public QueryFormatter(Session session)
       : base(session)
     {
-      sessionHandler = session.Handler as SessionHandler;
+      var sqlSessionHandler = (SessionHandler) session.Handler.GetRealHandler();
+      commandFactory = sqlSessionHandler.CommandFactory;
     }
   }
 }

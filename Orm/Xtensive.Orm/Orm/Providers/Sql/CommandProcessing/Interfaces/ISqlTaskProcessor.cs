@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// Processes the specified task.
     /// </summary>
     /// <param name="task">The task to process.</param>
-    void ProcessTask(SqlQueryTask task);
+    void ProcessTask(SqlLoadTask task);
 
     /// <summary>
     /// Processes the specified task.

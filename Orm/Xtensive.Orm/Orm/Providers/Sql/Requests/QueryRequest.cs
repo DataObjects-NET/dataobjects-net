@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// Query (SELECT) request.
   /// </summary>
-  public sealed class QueryRequest : IStorageRequest
+  public sealed class QueryRequest : IQueryRequest
   {
     private readonly StorageDriver driver;
 
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    internal QueryRequest(
+    public QueryRequest(
       StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options)
     {
@@ -70,9 +70,7 @@ namespace Xtensive.Orm.Providers.Sql
 
       this.driver = driver;
       Statement = statement;
-      ParameterBindings = parameterBindings!=null
-        ? parameterBindings.ToHashSet()
-        : Enumerable.Empty<QueryParameterBinding>();
+      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
       TupleDescriptor = tupleDescriptor;
       Options = options;
     }

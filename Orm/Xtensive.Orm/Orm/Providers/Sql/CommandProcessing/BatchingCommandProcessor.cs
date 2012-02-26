@@ -17,9 +17,9 @@ namespace Xtensive.Orm.Providers.Sql
 
     private int reenterCount;
     private Command activeCommand;
-    private List<SqlQueryTask> activeTasks;
+    private List<SqlLoadTask> activeTasks;
 
-    void ISqlTaskProcessor.ProcessTask(SqlQueryTask task)
+    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
       var part = Factory.CreateQueryPart(task, GetParameterPrefix());
       activeCommand.AddPart(part);
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      var sequence = Factory.CreatePersistPart(task, GetParameterPrefix());
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
       foreach (var part in sequence)
         activeCommand.AddPart(part);
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Providers.Sql
       if (activeCommand != null)
         reenterCount++;
       else {
-        activeTasks = new List<SqlQueryTask>();
+        activeTasks = new List<SqlLoadTask>();
         activeCommand = Factory.CreateCommand();
       }
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       if (reenterCount > 0) {
         reenterCount--;
-        activeTasks = new List<SqlQueryTask>();
+        activeTasks = new List<SqlLoadTask>();
         activeCommand = Factory.CreateCommand();
       }
       else {
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Providers.Sql
           task.ProcessWith(this);
         }
         if (shouldReturnReader) {
-          var part = Factory.CreateQueryPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
+          var part = Factory.CreateQueryPart(lastRequest);
           activeCommand.AddPart(part);
         }
         var hasQueryTasks = activeTasks.Count > 0;
