@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Linq.Materialization
       // 3. Make translation 
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
       var resultType = SequenceHelper.GetSequenceType(elementType);
-      var translateMethod = Translator.TranslateMethodInfo.MakeGenericMethod(new[] {resultType});
+      var translateMethod = Translator.TranslateMethod.MakeGenericMethod(new[] {resultType});
       return ((TranslatedQuery) translateMethod.Invoke(context.Translator, new object[] {projection, tupleParameters.AddOne(parameterOfTuple)}));
     }
 

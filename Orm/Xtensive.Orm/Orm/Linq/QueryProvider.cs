@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Xtensive.Linq;
@@ -79,10 +80,17 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
+    #region Private / internal methods
+
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
+      return Translate<TResult>(expression, new CompilerConfiguration());
+    }
+
+    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, CompilerConfiguration compilerConfiguration)
+    {
       try {
-        var context = new TranslatorContext(expression, session.Domain);
+        var context = new TranslatorContext(session.Domain, compilerConfiguration, expression);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
@@ -90,6 +98,8 @@ namespace Xtensive.Orm.Linq
           Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
+
+    #endregion
 
 
     // Constructors

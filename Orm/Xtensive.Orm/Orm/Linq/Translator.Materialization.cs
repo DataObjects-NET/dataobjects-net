@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -25,8 +26,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    public static readonly MethodInfo TranslateMethodInfo;
-    public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
+    public static readonly MethodInfo TranslateMethod;
+    public static readonly MethodInfo VisitLocalCollectionSequenceMethod;
 
     public TranslatedQuery<TResult> Translate<TResult>()
     {
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Linq
 
       // Compilation
       var dataSource = prepared.ItemProjector.DataSource;
-      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource);
+      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource, context.RseCompilerConfiguration);
 
       // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
@@ -102,7 +103,8 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(
+      ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof(IEnumerable<Tuple>), "rs");
       var session = Expression.Parameter(typeof(Session), "session");
@@ -215,10 +217,15 @@ namespace Xtensive.Orm.Linq
 
     static Translator()
     {
-      TranslateMethodInfo = typeof(Translator)
-        .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] { "TResult" }, new[] { typeof(ProjectionExpression), typeof(IEnumerable<Parameter<Tuple>>) });
-      VisitLocalCollectionSequenceMethodInfo = typeof(Translator)
-        .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] { "TItem" }, new[] { typeof(Expression) });
+      TranslateMethod = typeof (Translator)
+        .GetMethod(
+          "Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"},
+          new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
+
+      VisitLocalCollectionSequenceMethod = typeof (Translator)
+        .GetMethod(
+          "VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"},
+          new[] {typeof (Expression)});
     }
   }
 }
