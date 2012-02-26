@@ -380,9 +380,9 @@
     <Compile Include="Orm\ProviderExtensions.cs" />
     <Compile Include="Orm\Services\DirectEntityAccessor.cs" />
     <Compile Include="Orm\Services\DirectSqlAccessor.cs" />
-    <Compile Include="Orm\Services\DirectStateAccessor.cs" />
+    <Compile Include="Orm\Services\Old\DirectStateAccessor.cs" />
     <Compile Include="Orm\Configuration\ReaderPreloadingPolicy.cs" />
-    <Compile Include="Orm\Services\EntitySetStateAccessor.cs" />
+    <Compile Include="Orm\Services\Old\EntitySetStateAccessor.cs" />
     <Compile Include="Orm\Linq\Expressions\FullTextExpression.cs" />
     <Compile Include="Orm\Linq\Rewriters\PersistentIndexerRewriter.cs" />
     <Compile Include="Orm\Linq\TranslatorState.cs" />
@@ -391,9 +391,9 @@
     <Compile Include="Orm\Interfaces\ISessionService.cs" />
     <Compile Include="Orm\ObjectMapping\GraphComparisonResult.cs" />
     <Compile Include="Orm\ObjectMapping\Interfaces\IHasBinaryVersion.cs" />
-    <Compile Include="Orm\Services\PersistentStateAccessor.cs" />
+    <Compile Include="Orm\Services\Old\PersistentStateAccessor.cs" />
     <Compile Include="Orm\PersistentFieldState.cs" />
-    <Compile Include="Orm\Services\SessionStateAccessor.cs" />
+    <Compile Include="Orm\Services\Old\SessionStateAccessor.cs" />
     <Compile Include="Orm\Session.Events.cs" />
     <Compile Include="Orm\Session.Query.cs" />
     <Compile Include="Orm\SessionEventAccessor.cs" />
