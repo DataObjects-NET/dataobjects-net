@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Linq
   /// </summary>
   /// <typeparam name="TResult">The type of the result.</typeparam>
   [Serializable]
-  public class TranslatedQuery<TResult> : TranslatedQuery
+  internal class TranslatedQuery<TResult> : TranslatedQuery
   {
     /// <summary>
     /// Materializer.
