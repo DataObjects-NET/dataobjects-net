@@ -62,6 +62,7 @@ namespace Xtensive.Orm.Building.Builders
           CreateServices();
           BuildModel();
           CreateKeyGenerators();
+          ConfigureServices();
 
           using (var session = context.Domain.OpenSession(SessionType.System))
           using (session.Activate()) {
@@ -269,6 +270,11 @@ namespace Xtensive.Orm.Building.Builders
         };
         backgroundCacher.InvokeAsync();
       }
+    }
+
+    private static void ConfigureServices()
+    {
+      BuildingContext.Demand().Domain.Handler.ConfigureServices();
     }
 
     /// <exception cref="SchemaSynchronizationException">Extracted schema is incompatible 

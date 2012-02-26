@@ -169,6 +169,10 @@ namespace Xtensive.Orm.Providers
       memberCompilerProviders = MemberCompilerProviderBuilder.Build(
         Domain.Configuration, GetProviderCompilerContainers());
       BuildCompilationService();
+    }
+
+    public void ConfigureServices()
+    {
       BuildQueryPreprocessors();
     }
   }
