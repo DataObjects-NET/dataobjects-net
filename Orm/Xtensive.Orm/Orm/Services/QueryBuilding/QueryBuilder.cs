@@ -5,6 +5,7 @@
 // Created:    2012.02.26
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Aspects;
 using Xtensive.Core;
@@ -13,6 +14,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Orm.Services
 {
@@ -27,16 +29,14 @@ namespace Xtensive.Orm.Services
     private readonly QueryProvider queryProvider;
 
     /// <summary>
-    /// Translates the specified LINQ query and writes result
-    /// to the specified <see cref="QueryRequestBuilder"/>.
+    /// Translates the specified LINQ query into SQL DOM query.
     /// </summary>
     /// <typeparam name="TResult">Type of result element.</typeparam>
     /// <param name="query">Query to translate.</param>
-    /// <param name="output"><see cref="QueryRequestBuilder"/> to put result to.</param>
-    public void TranslateQuery<TResult>(IQueryable<TResult> query, QueryRequestBuilder output)
+    /// <returns>Translated query.</returns>
+    public QueryTranslationResult TranslateQuery<TResult>(IQueryable<TResult> query)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
-      ArgumentValidator.EnsureArgumentNotNull(output, "output");
 
       var configuration = new CompilerConfiguration {PrepareRequest = false};
       var translated = queryProvider.Translate<TResult>(query.Expression, configuration);
@@ -46,29 +46,52 @@ namespace Xtensive.Orm.Services
         throw new InvalidOperationException("Query was not translated to SqlProvider");
 
       var request = sqlProvider.Request;
-      output.Query = request.Statement;
-      output.ParameterBindings.Clear();
-      foreach (var binding in request.ParameterBindings)
-        output.ParameterBindings.Add(new QueryParameterBinding(binding));
+
+      return new QueryTranslationResult(
+        request.Statement,
+        request.ParameterBindings.Select(b => new QueryParameterBinding(b)));
     }
 
     /// <summary>
-    /// Creates <see cref="QueryRequestBuilder"/>.
+    /// Compiles the specified SQL DOM query.
     /// </summary>
-    /// <returns>Created instance.</returns>
-    public QueryRequestBuilder CreateRequestBuilder()
+    /// <param name="query">Query to compile.</param>
+    /// <returns>Compiled query.</returns>
+    public SqlCompilationResult CompileQuery(ISqlCompileUnit query)
     {
-      return new QueryRequestBuilder(driver);
+      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      return driver.Compile(query);
     }
 
     /// <summary>
-    /// Creates <see cref="QueryRequestBuilder"/> with specified <paramref name="query "/>.
+    /// Creates new <see cref="QueryParameterBinding"/> with specified
+    /// <paramref name="valueType"/> and <paramref name="valueAccessor"/>.
     /// </summary>
-    /// <param name="query">Query to use.</param>
-    /// <returns>Created instance.</returns>
-    public QueryRequestBuilder CreateRequestBuilder(ISqlCompileUnit query)
+    /// <param name="valueType">Value type to use.</param>
+    /// <param name="valueAccessor">Value accessor to use.</param>
+    /// <returns>Created binding.</returns>
+    public QueryParameterBinding CreateParameterBinding(Type valueType, Func<object> valueAccessor)
     {
-      return new QueryRequestBuilder(driver) {Query = query};
+      ArgumentValidator.EnsureArgumentNotNull(valueType, "valueType");
+      ArgumentValidator.EnsureArgumentNotNull(valueAccessor, "valueAccessor");
+
+      var mapping = driver.GetTypeMapping(valueType);
+      return new QueryParameterBinding(
+        new Providers.Sql.QueryParameterBinding(valueAccessor, mapping));
+    }
+
+    /// <summary>
+    /// Builds request using specified <paramref name="compiledQuery"/> and <paramref name="bindings"/>.
+    /// </summary>
+    /// <returns>Built request.</returns>
+    public QueryRequest CreateRequest(SqlCompilationResult compiledQuery, IEnumerable<QueryParameterBinding> bindings)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(compiledQuery, "compiledQuery");
+      ArgumentValidator.EnsureArgumentNotNull(bindings, "bindings");
+
+      return new QueryRequest(new UserQueryRequest(
+        compiledQuery,
+        bindings.Select(b => b.RealBinding)));
     }
 
     /// <summary>

@@ -315,8 +315,8 @@
     <Compile Include="Orm\Services\QueryBuilding\QueryCommand.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryRequest.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryParameterBinding.cs" />
+    <Compile Include="Orm\Services\QueryBuilding\QueryTranslationResult.cs" />
     <Compile Include="Orm\Services\QueryFormatter.cs" />
-    <Compile Include="Orm\Services\QueryBuilding\QueryRequestBuilder.cs" />
     <Compile Include="Orm\Services\TransactionMonitor.cs" />
     <Compile Include="Orm\TransactionState.cs" />
     <Compile Include="Orm\TransactionStateExtensions.cs" />
