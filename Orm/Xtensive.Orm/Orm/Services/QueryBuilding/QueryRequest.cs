@@ -11,13 +11,25 @@ using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Orm.Services
 {
+  /// <summary>
+  /// Thread-safe immutable session-independent representation of a query.
+  /// Note that <see cref="QueryParameterBinding.ValueAccessor"/>
+  /// might contain reference to a session thus turning corresponding request
+  /// to a session-dependent object.
+  /// </summary>
   public sealed class QueryRequest
   {
+    /// <summary>
+    /// Gets compiled statement.
+    /// </summary>
     public SqlCompilationResult CompiledQuery
     {
       get { return RealRequest.GetCompiledStatement(); }
     }
 
+    /// <summary>
+    /// Gets all <see cref="QueryParameterBinding"/> associated with this request.
+    /// </summary>
     public IEnumerable<QueryParameterBinding> ParameterBindings
     {
       get { return RealRequest.ParameterBindings.Select(b => new QueryParameterBinding(b)); }
@@ -29,7 +41,7 @@ namespace Xtensive.Orm.Services
 
     internal QueryRequest(UserQueryRequest realRequest)
     {
-      this.RealRequest = realRequest;
+      RealRequest = realRequest;
     }
   }
 }

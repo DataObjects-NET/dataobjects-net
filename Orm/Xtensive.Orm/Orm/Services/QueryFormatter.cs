@@ -14,6 +14,9 @@ using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Services
 {
+  /// <summary>
+  /// Transforms LINQ queries into various representations.
+  /// </summary>
   [Service(typeof (QueryFormatter), Singleton = true), Infrastructure]
   public sealed class QueryFormatter : SessionBound, ISessionService
   {
@@ -79,6 +82,7 @@ namespace Xtensive.Orm.Services
 
     // Constructors
 
+    /// <inheritdoc/>
     [ServiceConstructor]
     public QueryFormatter(Session session)
       : base(session)

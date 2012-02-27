@@ -312,6 +312,7 @@
     <Compile Include="Orm\Rse\Compilation\CompositePostCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\VoidProvider.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryBuilder.cs" />
+    <Compile Include="Orm\Services\QueryBuilding\QueryCommand.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryRequest.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryParameterBinding.cs" />
     <Compile Include="Orm\Services\QueryFormatter.cs" />
