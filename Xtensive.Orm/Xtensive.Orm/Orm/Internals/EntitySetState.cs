@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Internals
     private bool isLoaded;
     private long? totalItemCount;
 
-    private KeyCache FetchedKeys {
+    public KeyCache FetchedKeys {
       get { return State; }
       set { State = value; }
     }
