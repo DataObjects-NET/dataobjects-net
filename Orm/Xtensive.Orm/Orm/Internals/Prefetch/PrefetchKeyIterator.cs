@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         exists = se.MoveNext();
         if (exists) {
           var key = se.Current;
-          var type = key.HasExactType || modelType == null
+          var type = key.HasExactType || modelType==null
             ? key.TypeReference.Type
             : modelType;
           if (!key.HasExactType && !type.IsLeaf)
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           var defaultDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type);
           container.JoinIfPossible(session.Handler.Prefetch(key, type, defaultDescriptors));
         }
-        if (exists && taskCount == session.Handler.PrefetchTaskExecutionCount)
+        if (exists && taskCount==session.Handler.PrefetchTaskExecutionCount)
           continue;
 
         if (!exists)

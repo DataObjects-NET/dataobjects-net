@@ -5,7 +5,9 @@
 // Created:    2011.01.13
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -13,9 +15,9 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     public string Path { get; private set; }
 
-    protected internal abstract Node Accept(NodeVisitor visitor);
+    public abstract Node Accept(NodeVisitor visitor);
 
-    public virtual bool Equals(Node other)
+    public bool Equals(Node other)
     {
       if (ReferenceEquals(null, other)) 
         return false;
@@ -37,6 +39,31 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       return Path.GetHashCode();
     }
+
+    public override string ToString()
+    {
+      var builder = new StringBuilder();
+      AppendDescription(builder, 0);
+      return builder.ToString();
+    }
+
+    private void AppendDescription(StringBuilder output, int indent)
+    {
+      output.AppendIndented(indent, GetDescription());
+      output.AppendLine();
+      var hasNestedNodes = this as IHasNestedNodes;
+      if (hasNestedNodes!=null)
+        foreach (var node in hasNestedNodes.NestedNodes)
+          node.AppendDescription(output, indent + 2);
+    }
+
+    protected virtual string GetDescription()
+    {
+      var nodeName = GetType().Name.TryCutSuffix(typeof (Node).Name);
+      return string.Format("{0}({1})", nodeName, Path);
+    }
+
+    // Constructors
 
     protected Node(string path)
     {

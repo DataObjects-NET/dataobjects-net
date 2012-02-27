@@ -11,6 +11,12 @@ namespace Xtensive.Orm.Tests
 {
   public static class StorageTestHelper
   {
+    public static bool IsFetched(Session session, Key key)
+    {
+      EntityState dummy;
+      return session.EntityStateCache.TryGetItem(key, false, out dummy);
+    }
+
     public static object GetNativeTransaction()
     {
       var handler = Session.Demand().Handler;
