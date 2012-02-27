@@ -112,6 +112,7 @@ namespace Xtensive.Orm.Services
     // Constructors
 
     /// <inheritdoc/>
+    [ServiceConstructor]
     public QueryBuilder(Session session)
       : base(session)
     {
