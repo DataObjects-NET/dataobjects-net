@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Providers
   {
     private PrefetchManager prefetchManager;
 
-    internal virtual int ExecutedPrefetchTasksCount { get { return prefetchManager.ExecutedTasksCount; } }
+    internal virtual int PrefetchTaskExecutionCount { get { return prefetchManager.TaskExecutionCount; } }
 
     /// <summary>
     /// Register the task prefetching fields' values of the <see cref="Entity"/> with the specified key.

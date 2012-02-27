@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       TypeInfo modelType;
       session.Domain.Model.Types.TryGetValue(typeof (T), out modelType);
-      var taskCount = session.Handler.ExecutedPrefetchTasksCount;
+      var taskCount = session.Handler.PrefetchTaskExecutionCount;
       var container = new StrongReferenceContainer(null);
       var fieldDescriptors = new List<PrefetchFieldDescriptor>();
       var resultQueue = new Queue<Key>();
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           var defaultDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type);
           container.JoinIfPossible(session.Handler.Prefetch(key, type, defaultDescriptors));
         }
-        if (exists && taskCount==session.Handler.ExecutedPrefetchTasksCount)
+        if (exists && taskCount==session.Handler.PrefetchTaskExecutionCount)
           continue;
 
         if (!exists)
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
         while (resultQueue.Count > 0)
           yield return (T) (IEntity) session.EntityStateCache[resultQueue.Dequeue(), true].Entity;
-        taskCount = session.Handler.ExecutedPrefetchTasksCount;
+        taskCount = session.Handler.PrefetchTaskExecutionCount;
       } while (exists);
     }
 

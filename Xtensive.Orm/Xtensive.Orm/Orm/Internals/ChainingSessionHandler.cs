@@ -27,8 +27,8 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     protected internal readonly SessionHandler ChainedHandler;
 
-    internal override int ExecutedPrefetchTasksCount {
-      get { return ChainedHandler.ExecutedPrefetchTasksCount; }
+    internal override int PrefetchTaskExecutionCount {
+      get { return ChainedHandler.PrefetchTaskExecutionCount; }
     }
 
     /// <inheritdoc/>

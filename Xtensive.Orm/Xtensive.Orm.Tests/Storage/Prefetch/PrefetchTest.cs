@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           foreach (var employeeKey in entitySetState)
             GetFullyLoadedEntitySet(session, employeeKey, ordersField);
         }
-        Assert.AreEqual(2, session.Handler.ExecutedPrefetchTasksCount);
+        Assert.AreEqual(2, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             PrefetchTestHelper.AssertReferencedEntityIsLoaded(detailKey, session, productField);
           }
         }
-        Assert.AreEqual(11, session.Handler.ExecutedPrefetchTasksCount);
+        Assert.AreEqual(11, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
               PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(ordersField));
         }
         Assert.AreEqual(keys.Count, count);
-        Assert.AreEqual(15, session.Handler.ExecutedPrefetchTasksCount);
+        Assert.AreEqual(15, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 

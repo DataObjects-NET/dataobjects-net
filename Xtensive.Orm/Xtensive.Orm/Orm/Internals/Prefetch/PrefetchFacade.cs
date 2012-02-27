@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       Initialize();
 
-      var currentTaskCount = taskCount = sessionHandler.ExecutedPrefetchTasksCount;
+      var currentTaskCount = taskCount = sessionHandler.PrefetchTaskExecutionCount;
       var aggregatedNodes = NodeAggregator<T>.Aggregate(nodes);
       var resultQueue = new Queue<T>();
       var container = new StrongReferenceContainer(null);
@@ -47,13 +47,13 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (item!=null)
           foreach (var extractorNode in aggregatedNodes)
             container.JoinIfPossible(RegisterPrefetch(extractorNode.ExtractKeys(item), extractorNode));
-        if (currentTaskCount==sessionHandler.ExecutedPrefetchTasksCount)
+        if (currentTaskCount==sessionHandler.PrefetchTaskExecutionCount)
           continue;
         while (container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks()))
           container.JoinIfPossible(ProcessFetchedElements());
         while (resultQueue.Count > 0)
           yield return resultQueue.Dequeue();
-        currentTaskCount = sessionHandler.ExecutedPrefetchTasksCount;
+        currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       }
       while (container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks()))
         container.JoinIfPossible(ProcessFetchedElements());
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           fieldDescriptorCache.Add(cacheKey, fieldDescriptors);
         }
         container.JoinIfPossible(sessionHandler.Prefetch(key, type, fieldDescriptors));
-        if (taskCount != sessionHandler.ExecutedPrefetchTasksCount)
+        if (taskCount != sessionHandler.PrefetchTaskExecutionCount)
           container.JoinIfPossible(ProcessFetchedElements());
       }
       var nestedContainers = fieldContainer.NestedNodes.OfType<IHasNestedNodes>();
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private StrongReferenceContainer ProcessFetchedElements()
     {
       var container = new StrongReferenceContainer(null);
-      taskCount = sessionHandler.ExecutedPrefetchTasksCount;
+      taskCount = sessionHandler.PrefetchTaskExecutionCount;
       while (unknownTypeQueue.Count > 0) {
         var unknownKey = unknownTypeQueue.Dequeue();
         var unknownType = session.EntityStateCache[unknownKey, false].Type;
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           var entityState = session.EntityStateCache[parentKey, false];
           if (entityState == null) {
             container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks(true));
-            taskCount = sessionHandler.ExecutedPrefetchTasksCount;
+            taskCount = sessionHandler.PrefetchTaskExecutionCount;
             entityState = session.EntityStateCache[parentKey, false];
             if (entityState == null)
               throw new InvalidOperationException(string.Format(Strings.ExCannotResolveEntityWithKeyX, parentKey));

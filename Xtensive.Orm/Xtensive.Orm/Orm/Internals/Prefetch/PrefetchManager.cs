@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public SessionHandler Owner { get { return session.Handler; } }
 
-    public int ExecutedTasksCount { get; private set; }
+    public int TaskExecutionCount { get; private set; }
 
     public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
       try {
         var batchExecuted = fetcher.ExecuteTasks(graphContainers, skipPersist);
-        ExecutedTasksCount += batchExecuted;
+        TaskExecutionCount += batchExecuted;
         foreach (var graphContainer in graphContainers)
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         return referenceContainer;

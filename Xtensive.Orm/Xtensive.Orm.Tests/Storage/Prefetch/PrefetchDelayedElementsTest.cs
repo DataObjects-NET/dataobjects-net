@@ -151,14 +151,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var prefetchCount = session.Handler.ExecutedPrefetchTasksCount;
+        var prefetchCount = session.Handler.PrefetchTaskExecutionCount;
         session.Query.Many<AdvancedPerson>(keys).Run();
         foreach (var key in keys) {
           var cachedKey = GetCachedKey(key, session);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
-        Assert.AreEqual(prefetchCount + 2, session.Handler.ExecutedPrefetchTasksCount);
+        Assert.AreEqual(prefetchCount + 2, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(15, count);
-        var prefetchCount = session.Handler.ExecutedPrefetchTasksCount;
+        var prefetchCount = session.Handler.PrefetchTaskExecutionCount;
         session.Query.Many<AdvancedPerson>(keys).Run();
         count = 0;
         foreach (var key in keys) {
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(keys.Count, count);
-        Assert.AreEqual(prefetchCount + 4, session.Handler.ExecutedPrefetchTasksCount);
+        Assert.AreEqual(prefetchCount + 4, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
