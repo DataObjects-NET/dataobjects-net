@@ -4,14 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Orm;
-using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Resources;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers

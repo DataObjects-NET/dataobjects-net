@@ -12,7 +12,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  [Serializable]
   internal sealed class Fetcher
   {
     private readonly SetSlim<EntityGroupTask> tasks = new SetSlim<EntityGroupTask>();

@@ -84,14 +84,12 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
     private readonly LruCache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
-    private StrongReferenceContainer referenceContainer;
     private readonly Fetcher fetcher;
     private readonly Session session;
 
-    public SessionHandler Owner
-    {
-      get { return session.Handler; }
-    }
+    private StrongReferenceContainer referenceContainer;
+
+    public SessionHandler Owner { get { return session.Handler; } }
 
     public int TaskExecutionCount { get; private set; }
 
@@ -99,7 +97,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
-      if (descriptors.Count == 0)
+      if (descriptors.Count==0)
         return null;
 
       try {
@@ -109,10 +107,11 @@ namespace Xtensive.Orm.Internals.Prefetch
         var currentKey = key;
         if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out ownerState))
           return null;
-        IEnumerable<PrefetchFieldDescriptor> selectedFields = descriptors;
+        var selectedFields = descriptors;
         var currentType = type;
         StrongReferenceContainer hierarchyRootContainer = null;
-        var isKeyTypeExact = currentKey.HasExactType || currentKey.TypeReference.Type.IsLeaf
+        var isKeyTypeExact = currentKey.HasExactType
+          || currentKey.TypeReference.Type.IsLeaf
           || currentKey.TypeReference.Type==type;
         if (isKeyTypeExact) {
           currentType = currentKey.TypeReference.Type;
@@ -125,7 +124,9 @@ namespace Xtensive.Orm.Internals.Prefetch
             PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeReference.Type),
             true, ownerState, true);
           var hierarchyRoot = currentKey.TypeReference.Type;
-          selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
+          selectedFields = descriptors
+            .Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot)
+            .ToList();
         }
         SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState, ReferenceEquals(descriptors, selectedFields));
 
@@ -151,7 +152,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public StrongReferenceContainer ExecuteTasks(bool skipPersist)
     {
-      if (graphContainers.Count == 0) {
+      if (graphContainers.Count==0) {
         referenceContainer = null;
         return null;
       }
@@ -189,7 +190,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public GraphContainer SetUpContainers(Key key, TypeInfo type,
-      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state, bool canUseCache)
+      IList<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state, bool canUseCache)
     {
       var result = GetGraphContainer(key, type, exactType);
       var areAnyColumns = false;
@@ -213,7 +214,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void SaveStrongReference(EntityState reference)
     {
-      if (referenceContainer == null)
+      if (referenceContainer==null)
         referenceContainer = new StrongReferenceContainer(null);
       referenceContainer.Join(new StrongReferenceContainer(reference));
     }
@@ -251,7 +252,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       columnsToBeLoaded = cacheEntry.ColumnsToBeLoaded;
     }
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
     private static void EnsureKeyTypeCorrespondsToSpecifiedType(Key key, TypeInfo type)
     {
@@ -302,8 +303,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    private bool TrySetCachedColumnIndexes(GraphContainer container,
-      IEnumerable<PrefetchFieldDescriptor> descriptors, EntityState state)
+    private bool TrySetCachedColumnIndexes(
+      GraphContainer container, IEnumerable<PrefetchFieldDescriptor> descriptors, EntityState state)
     {
       var result = false;
       if (container.RootEntityContainer == null) {
@@ -324,10 +325,12 @@ namespace Xtensive.Orm.Internals.Prefetch
     public PrefetchManager(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
+
       this.session = session;
       fetcher = new Fetcher(this);
-      columnsCache = new LruCache<RootContainerCacheKey, RootContainerCacheEntry>(ColumnIndexesCacheSize,
-        cacheEntry => cacheEntry.Key);
+
+      columnsCache = new LruCache<RootContainerCacheKey, RootContainerCacheEntry>(
+        ColumnIndexesCacheSize, cacheEntry => cacheEntry.Key);
     }
   }
 }

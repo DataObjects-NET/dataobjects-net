@@ -144,12 +144,12 @@ namespace Xtensive.Orm.Linq
       static Enumerable()
       {
         // Enumerable
-        Select = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="Select").First();
+        Select = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name=="Select");
         First = typeof (System.Linq.Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name==Xtensive.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
         OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Xtensive.Tuples.Tuple));
-        DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
+        DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name=="DefaultIfEmpty");
         Contains = GetMethod(typeof(System.Linq.Enumerable), "Contains", 1, 2);
         Cast = GetMethod(typeof (System.Linq.Enumerable), "Cast", 1, 1);
       }
@@ -182,6 +182,7 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Where;
       public static readonly MethodInfo Contains;
       public static readonly MethodInfo Cast;
+      public static readonly MethodInfo Select;
 
       // Querable extensions
       public static readonly MethodInfo ExtensionCount;
@@ -195,22 +196,38 @@ namespace Xtensive.Orm.Linq
       static Queryable()
       {
         // Queryable
-        AsQueryable = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
-        DefaultIfEmpty = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
-        Count = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Count, 1, 1);
-        CountWithPredicate = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Count, 1, 2);
-        Take = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Take, 1, 2);
-        Contains = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Contains, 1, 2);
-        LongCount = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.LongCount, 1, 1);
-        Cast = GetQueryableMethod(Xtensive.Reflection.WellKnown.Queryable.Cast, 1, 1);
-        Where = typeof (System.Linq.Queryable).GetMethods().Where(methodInfo => {
-          ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-          return methodInfo.Name==Xtensive.Reflection.WellKnown.Queryable.Where
-            && methodInfo.IsGenericMethod
-              && parameterInfos.Length==2
-                && parameterInfos[1].ParameterType.IsGenericType
-                  && parameterInfos[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
-        }).First();
+        AsQueryable = GetQueryableMethod(Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
+        DefaultIfEmpty = GetQueryableMethod(Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
+        Count = GetQueryableMethod(Reflection.WellKnown.Queryable.Count, 1, 1);
+        CountWithPredicate = GetQueryableMethod(Reflection.WellKnown.Queryable.Count, 1, 2);
+        Take = GetQueryableMethod(Reflection.WellKnown.Queryable.Take, 1, 2);
+        Contains = GetQueryableMethod(Reflection.WellKnown.Queryable.Contains, 1, 2);
+        LongCount = GetQueryableMethod(Reflection.WellKnown.Queryable.LongCount, 1, 1);
+        Cast = GetQueryableMethod(Reflection.WellKnown.Queryable.Cast, 1, 1);
+        Where = typeof (System.Linq.Queryable)
+          .GetMethods()
+          .Where(m => {
+            var parameters = m.GetParameters();
+            return m.Name==Reflection.WellKnown.Queryable.Where
+              && m.IsGenericMethod
+              && parameters.Length==2
+              && parameters[1].ParameterType.IsGenericType
+              && parameters[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
+          })
+          .First();
+
+        Select = typeof (System.Linq.Queryable)
+          .GetMethods()
+          .Where(m => {
+            var parameters = m.GetParameters();
+            return m.Name==Reflection.WellKnown.Queryable.Select
+              && m.IsGenericMethod
+              && parameters.Length==2
+              && parameters[1].ParameterType.IsGenericType
+              && parameters[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
+          })
+          .Single();
+
 
         // Querable extensions
         ExtensionCount = GetQueryableExtensionsMethod("Count", 0, 1);
@@ -248,7 +265,6 @@ namespace Xtensive.Orm.Linq
     // EntitySet
     public static readonly MethodInfo CreateEntitySet;
 
-    /// <exception cref="InvalidOperationException">Method not found.</exception>
     private static MethodInfo GetMethod(Type type, string name, int numberOfGenericArgument, int numberOfArguments)
     {
       var method = type.GetMethod(name,
@@ -280,27 +296,32 @@ namespace Xtensive.Orm.Linq
       ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");
 
       // Parameter<Tuple>
-      ParameterOfTupleValue = typeof (Parameter<Xtensive.Tuples.Tuple>).GetProperty("Value", typeof (Xtensive.Tuples.Tuple));
+      ParameterOfTupleValue = typeof (Parameter<Tuples.Tuple>).GetProperty("Value", typeof (Tuples.Tuple));
 
       // Parameter
       ParameterValue = typeof (Parameter).GetProperty("Value");
 
       // Record
-      RecordKey = typeof (Record).GetMethods().Where(methodInfo => methodInfo.Name=="GetKey" && methodInfo.GetParameters().Length==1)
-        .Single();
+      RecordKey = typeof (Record).GetMethods()
+        .Single(methodInfo => methodInfo.Name=="GetKey" && methodInfo.GetParameters().Length==1);
 
       // RecordSet
       RecordSetParse = typeof (RecordSetExtensions).GetMethod("Parse");
 
       // Structure
-      CreateStructure = typeof (Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-        .Where(methodInfo => methodInfo.Name=="CreateStructure" && methodInfo.GetParameters().Length==3 && methodInfo.GetParameters()[0].ParameterType == typeof(Session))
-        .Single();
+      CreateStructure = typeof (Internals.Activator)
+        .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        .Single(methodInfo =>
+          methodInfo.Name=="CreateStructure"
+          && methodInfo.GetParameters().Length==3
+          && methodInfo.GetParameters()[0].ParameterType == typeof(Session));
 
       // EntitySet
-      CreateEntitySet = typeof (Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-        .Where(methodInfo => methodInfo.Name=="CreateEntitySet" && methodInfo.GetParameters().Length==2)
-        .Single();
+      CreateEntitySet = typeof (Internals.Activator)
+        .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        .Single(methodInfo =>
+          methodInfo.Name=="CreateEntitySet"
+          && methodInfo.GetParameters().Length==2);
     }
   }
 }

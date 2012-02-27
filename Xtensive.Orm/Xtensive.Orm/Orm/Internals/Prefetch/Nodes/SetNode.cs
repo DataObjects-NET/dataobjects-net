@@ -4,57 +4,47 @@
 // Created by: Alexis Kochetov
 // Created:    2010.11.19
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  [Serializable]
-  internal class SetNode : ReferenceNode
+  internal class SetNode : BaseFieldNode, IHasNestedNodes
   {
-    /// <summary>
-    /// Gets count of elements to be prefetched 0 means it should prefetch only Count. 
-    /// <see langword="null" /> means it should prefetch all elements.
-    /// </summary>
-    /// <value>The top.</value>
-    public int? Top { get; private set; }
+    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; private set; }
 
-    public override IEnumerable<Key> ExtractKeys(object target)
+    public TypeInfo ElementType { get; private set; }
+
+    public IEnumerable<Key> ExtractKeys(object target)
     {
-      if (target == null)
+      if (target==null)
         return Enumerable.Empty<Key>();
-      var entity = (Entity)target;
+      var entity = (Entity) target;
       var entitySet = (EntitySetBase) entity.GetFieldValue(Field);
-      return entitySet == null
-        ? Enumerable.Empty<Key>()
-        : entitySet.Entities.Select(e => e.Key).ToList();
-
+      return entitySet.State.FetchedKeys.ToList();
     }
 
-    public override IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
+    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes)
     {
-      return new SetNode(this, nestedNodes);
+      return new SetNode(Path, Field, ElementType, NestedNodes);
     }
 
-    protected internal override Node Accept(NodeVisitor visitor)
+    public override Node Accept(NodeVisitor visitor)
     {
       return visitor.VisitSetNode(this);
     }
 
-    public SetNode(SetNode source, ReadOnlyCollection<FieldNode> nestedNodes)
-      : base(source, nestedNodes)
-    {
-      Top = source.Top;
-    }
+    // Constructors
 
-    public SetNode(string path, TypeInfo elementType, FieldInfo field, int? top, ReadOnlyCollection<FieldNode> nestedNodes)
-      : base(path, elementType, field, nestedNodes)
+
+    public SetNode(string path, FieldInfo field, TypeInfo elementType, ReadOnlyCollection<BaseFieldNode> nestedNodes)
+      : base(path, field)
     {
-      Top = top;
+      ElementType = elementType;
+      NestedNodes = nestedNodes;
     }
   }
 }

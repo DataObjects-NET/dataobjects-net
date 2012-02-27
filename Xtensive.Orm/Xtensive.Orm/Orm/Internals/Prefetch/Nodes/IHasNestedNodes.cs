@@ -11,8 +11,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal interface IHasNestedNodes
   {
-    ReadOnlyCollection<FieldNode> NestedNodes { get; }
+    ReadOnlyCollection<BaseFieldNode> NestedNodes { get; }
+
     IEnumerable<Key> ExtractKeys(object target);
-    IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes);
+
+    IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes);
   }
 }
