@@ -120,7 +120,7 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public TransactionScope OpenAutoTransaction()
+    internal TransactionScope OpenAutoTransaction()
     {
       return OpenAutoTransaction(TransactionalBehavior.Auto, IsolationLevel.Unspecified);
     }
@@ -135,7 +135,7 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public TransactionScope OpenAutoTransaction(TransactionalBehavior behavior)
+    internal TransactionScope OpenAutoTransaction(TransactionalBehavior behavior)
     {
       return OpenAutoTransaction(behavior, IsolationLevel.Unspecified);
     }
@@ -150,7 +150,7 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public TransactionScope OpenAutoTransaction(IsolationLevel isolationLevel)
+    internal TransactionScope OpenAutoTransaction(IsolationLevel isolationLevel)
     {
       return OpenAutoTransaction(TransactionalBehavior.Auto, isolationLevel);
     }
@@ -165,7 +165,7 @@ namespace Xtensive.Orm
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
     /// </returns>
-    public TransactionScope OpenAutoTransaction(TransactionalBehavior behavior, IsolationLevel isolationLevel)
+    internal TransactionScope OpenAutoTransaction(TransactionalBehavior behavior, IsolationLevel isolationLevel)
     {
       switch (behavior) {
         case TransactionalBehavior.Auto:

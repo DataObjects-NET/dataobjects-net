@@ -15,13 +15,13 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
     public static ExpressionTranslationContext Current { get { return ExpressionTranslationScope.CurrentContext; } }
 
     public ProviderInfo ProviderInfo { get; private set; }
-    public Driver Driver { get; private set; }
+    public StorageDriver Driver { get; private set; }
     public BooleanExpressionConverter BooleanExpressionConverter { get; private set; }
 
 
     // Constructors
 
-    public ExpressionTranslationContext(ProviderInfo providerInfo, Driver driver, BooleanExpressionConverter booleanExpressionConverter)
+    public ExpressionTranslationContext(ProviderInfo providerInfo, StorageDriver driver, BooleanExpressionConverter booleanExpressionConverter)
     {
       ProviderInfo = providerInfo;
       Driver = driver;

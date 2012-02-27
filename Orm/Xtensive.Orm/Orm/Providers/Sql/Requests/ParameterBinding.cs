@@ -4,7 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.26
 
-using Xtensive.Internals.DocTemplates;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -15,22 +16,20 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public abstract class ParameterBinding
   {
-    /// <summary>
-    /// Gets the type mapping.
-    /// </summary>
     public TypeMapping TypeMapping { get; private set; }
 
-    /// <summary>
-    /// Gets the parameter reference.
-    /// </summary>
-    public SqlPlaceholder ParameterReference { get; private set; }
+    public SqlExpression ParameterReference { get; private set; }
+
+
+    public static IEnumerable<T> NormalizeBindings<T>(IEnumerable<T> bindings)
+      where T : ParameterBinding
+    {
+      return bindings!=null ? new HashSet<T>(bindings) : Enumerable.Empty<T>();
+    }
 
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
     protected ParameterBinding(TypeMapping typeMapping)
     {
       TypeMapping = typeMapping;

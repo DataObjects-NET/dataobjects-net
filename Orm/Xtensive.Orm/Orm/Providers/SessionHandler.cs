@@ -151,10 +151,14 @@ namespace Xtensive.Orm.Providers
     public override void Initialize()
     {
       prefetchManager = new PrefetchManager(Session);
+
+      var providerInfo = Handlers.DomainHandler.ProviderInfo;
+      var configuration = Handlers.Domain.Configuration;
+
       persistRequiresTopologicalSort =
-        (Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
-          Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints) &&
-            !Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.DeferrableConstraints);
+        (configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0
+        && providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints)
+        && !providerInfo.Supports(ProviderFeatures.DeferrableConstraints);
     }
 
     // Disposing

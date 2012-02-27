@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.18
 
+using Xtensive.Parameters;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -13,17 +14,17 @@ namespace Xtensive.Orm.Providers.Sql
   /// to return multiple query results from single batch.
   /// Currently this is very Oracle specific.
   /// </summary>
-  public class CursorCommandPartFactory : CommandPartFactory
+  public class CursorCommandFactory : CommandFactory
   {
     private const string CursorParameterNameFormat = "{0}c";
     private const string StatementFormat = "OPEN :{0} FOR {1}";
 
-    public override CommandPart CreateQueryCommandPart(SqlQueryTask task, string parameterNamePrefix)
+    public override CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
     {
+      var part = base.CreateQueryPart(request, parameterNamePrefix, parameterContext);
       var parameterName = string.Format(CursorParameterNameFormat, parameterNamePrefix);
-      var part = base.CreateQueryCommandPart(task, parameterNamePrefix);
-      part.Query = string.Format(StatementFormat, parameterName, part.Query);
-      var parameter = connection.CreateCursorParameter();
+      part.Statement = string.Format(StatementFormat, parameterName, part.Statement);
+      var parameter = Connection.CreateCursorParameter();
       parameter.ParameterName = parameterName;
       part.Parameters.Add(parameter);
       return part;
@@ -32,8 +33,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CursorCommandPartFactory(DomainHandler domainHandler, SqlConnection connection)
-      : base(domainHandler, connection)
+    public CursorCommandFactory(StorageDriver driver, Session session, SqlConnection connection)
+      : base(driver, session, connection)
     {
     }
   }

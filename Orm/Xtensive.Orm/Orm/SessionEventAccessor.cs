@@ -32,11 +32,25 @@ namespace Xtensive.Orm
 
     #region Events
 
-      public event EventHandler<DbCommandEventArgs> DbCommandExecuting;
-      public event EventHandler<DbCommandEventArgs> DbCommandExecuted;
-      public event EventHandler<QueryEventArgs> QueryExecuting;
-      public event EventHandler<QueryEventArgs> QueryExecuted;
+    /// <summary>
+    /// Occurs when <see cref="DbCommand"/> is about to execute.
+    /// </summary>
+    public event EventHandler<DbCommandEventArgs> DbCommandExecuting;
 
+    /// <summary>
+    /// Occurs when <see cref="DbCommand"/> is executed.
+    /// </summary>
+    public event EventHandler<DbCommandEventArgs> DbCommandExecuted;
+
+    /// <summary>
+    /// Occurs when LINQ query is about to execute.
+    /// </summary>
+    public event EventHandler<QueryEventArgs> QueryExecuting;
+
+    /// <summary>
+    /// Occures when LINQ query is executed, but before enumeration of result.
+    /// </summary>
+    public event EventHandler<QueryEventArgs> QueryExecuted;
 
     /// <summary>
     /// Occurs when <see cref="Session"/> is about to be disposed.
@@ -226,27 +240,29 @@ namespace Xtensive.Orm
 
     internal void NotifyDbCommandExecuting(DbCommand command)
     {
-        if (DbCommandExecuting != null)
-            DbCommandExecuting(this, new DbCommandEventArgs(command));
+      if (DbCommandExecuting!=null)
+        DbCommandExecuting(this, new DbCommandEventArgs(command));
     }
+
     internal void NotifyDbCommandExecuted(DbCommand command)
     {
-        if (DbCommandExecuted != null)
-            DbCommandExecuted(this, new DbCommandEventArgs(command));
+      if (DbCommandExecuted!=null)
+        DbCommandExecuted(this, new DbCommandEventArgs(command));
     }
+
     internal Expression NotifyQueryExecuting(Expression expression)
     {
-        var args = new QueryEventArgs(expression);
-        if (QueryExecuting != null)
-        {
-            QueryExecuting(this, args);
-        }
-        return args.Expression;
+      var args = new QueryEventArgs(expression);
+      if (QueryExecuting!=null) {
+        QueryExecuting(this, args);
+      }
+      return args.Expression;
     }
+
     internal void NotifyQueryExecuted(Expression expression)
     {
-        if (QueryExecuted != null)
-            QueryExecuted(this, new QueryEventArgs(expression));
+      if (QueryExecuted!=null)
+        QueryExecuted(this, new QueryEventArgs(expression));
     }
 
     internal void NotifyDisposing()
@@ -471,7 +487,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    public SessionEventAccessor(Session session, bool systemEvents)
+    internal SessionEventAccessor(Session session, bool systemEvents)
     {
       Session = session;
       SystemEvents = systemEvents;

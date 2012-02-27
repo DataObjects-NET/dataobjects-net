@@ -30,7 +30,6 @@ namespace Xtensive.Orm.Configuration
     internal readonly static Type iModuleType = typeof (IModule);
     internal readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
     internal readonly static Type iKeyGeneratorType = typeof (KeyGenerator);
-    internal readonly static Type iQueryPreprocessor = typeof (IQueryPreprocessor);
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -87,15 +86,6 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets all the registered <see cref="IQueryPreprocessor"/> implementations.
-    /// </summary>
-    public IEnumerable<Type> QueryPreprocessors { 
-      get {
-        return this.Where(IsQueryPreprocessor);
-      }
-    }
-
-    /// <summary>
     /// Gets all the registered compiler containers.
     /// </summary>
     public IEnumerable<Type> CompilerContainers { 
@@ -117,13 +107,12 @@ namespace Xtensive.Orm.Configuration
     {
       return 
         IsPersistentType(type) ||
-          IsDomainService(type) ||
-            IsSessionService(type) ||
-              IsModule(type) ||
-                IsUpgradeHandler(type) ||
-                  IsKeyGenerator(type) ||
-                    IsQueryPreprocessor(type) ||
-                      IsCompilerContainer(type);
+        IsDomainService(type) ||
+        IsSessionService(type) ||
+        IsModule(type) ||
+        IsUpgradeHandler(type) ||
+        IsKeyGenerator(type) ||
+        IsCompilerContainer(type);
     }
 
     /// <summary>
@@ -212,21 +201,6 @@ namespace Xtensive.Orm.Configuration
       if (type.IsAbstract)
         return false;
       if (iKeyGeneratorType.IsAssignableFrom(type))
-        return true;
-      return false;
-    }
-
-    /// <summary>
-    /// Determines whether a <paramref name="type"/>
-    /// is query preprocessor.
-    /// </summary>
-    /// <param name="type">The type to check.</param>
-    /// <returns>Check result.</returns>
-    public static bool IsQueryPreprocessor(Type type)
-    {
-      if (type.IsAbstract)
-        return false;
-      if (iQueryPreprocessor.IsAssignableFrom(type) && iQueryPreprocessor!=type)
         return true;
       return false;
     }

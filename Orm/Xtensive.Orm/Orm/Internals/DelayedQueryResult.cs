@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="session"></param>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    protected DelayedQueryResult(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
+    internal DelayedQueryResult(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
     {
       transaction = session.Transaction;
       if (transaction == null)

@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Tests.Storage
         var domainHandler = Domain.Handlers.DomainHandler as DomainHandler;
         var minValue = new DateTime();
         if (domainHandler != null) {
-          var field = typeof (Driver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
+          var field = typeof (StorageDriver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
           var sqlDriver = (SqlDriver) field.GetValue(domainHandler.Driver);
           var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
           minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;

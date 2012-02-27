@@ -1333,7 +1333,7 @@ namespace Xtensive.Orm.Linq
           : sequence.Type;
 
         var itemType = QueryHelper.GetSequenceElementType(sequenceType);
-        return (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo
+        return (ProjectionExpression) VisitLocalCollectionSequenceMethod
           .MakeGenericMethod(itemType)
           .Invoke(this, new object[] {sequence});
       }

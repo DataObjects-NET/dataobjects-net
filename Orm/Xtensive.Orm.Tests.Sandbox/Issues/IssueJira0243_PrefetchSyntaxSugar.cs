@@ -84,8 +84,8 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(x => new {x.Target1, x.Target2})
           .ToList();
         // Check that Target1 and Target2 are loaded into session.
-        Assert.IsTrue(IsFetched(target1Key));
-        Assert.IsTrue(IsFetched(target2Key));
+        Assert.IsTrue(StorageTestHelper.IsFetched(session, target1Key));
+        Assert.IsTrue(StorageTestHelper.IsFetched(session, target2Key));
       }
     }
 
@@ -115,8 +115,8 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(x => x.Items1.Prefetch(y => new {y.RelatedTarget}))
           .ToList();
         // Check that Target1 and Target2 are loaded into session.
-        Assert.IsTrue(IsFetched(target1Key));
-        Assert.IsTrue(IsFetched(target2Key));
+        Assert.IsTrue(StorageTestHelper.IsFetched(session, target1Key));
+        Assert.IsTrue(StorageTestHelper.IsFetched(session, target2Key));
       }
     }
 
@@ -146,8 +146,8 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(x => new {v = x.Items1.Prefetch(y => y.RelatedTarget)})
           .ToList();
         // Check that Target1 and Target2 are loaded into session.
-        Assert.IsTrue(IsFetched(target1Key));
-        Assert.IsTrue(IsFetched(target2Key));
+        Assert.IsTrue(StorageTestHelper.IsFetched(session, target1Key));
+        Assert.IsTrue(StorageTestHelper.IsFetched(session, target2Key));
       }
     }
 
@@ -156,12 +156,6 @@ namespace Xtensive.Orm.Tests.Issues
       Query.All<Item>().Remove();
       Query.All<Owner>().Remove();
       Query.All<Target>().Remove();
-    }
-
-    private bool IsFetched(Key key)
-    {
-      EntityState dummy;
-      return Session.Demand().EntityStateCache.TryGetItem(key, false, out dummy);
     }
   }
 }

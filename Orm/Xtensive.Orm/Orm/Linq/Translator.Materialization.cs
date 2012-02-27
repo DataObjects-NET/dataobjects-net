@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -25,16 +26,16 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    public static readonly MethodInfo TranslateMethodInfo;
-    public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
+    public static readonly MethodInfo TranslateMethod;
+    public static readonly MethodInfo VisitLocalCollectionSequenceMethod;
 
-    public TranslationResult<TResult> Translate<TResult>()
+    public TranslatedQuery<TResult> Translate<TResult>()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 
-    private TranslationResult<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
+    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
       var result = new ProjectionExpression(
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Linq
 
       // Compilation
       var dataSource = prepared.ItemProjector.DataSource;
-      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource);
+      var compiled = context.Domain.Handler.CompilationService.Compile(dataSource, context.RseCompilerConfiguration);
 
       // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
@@ -64,9 +65,10 @@ namespace Xtensive.Orm.Linq
           translatedQuery,
           cachingScope.QueryParameter);
         cachingScope.ParameterizedQuery = parameterizedQuery;
-        return new TranslationResult<TResult>(parameterizedQuery, dataSource);
+        return parameterizedQuery;
       }
-      return new TranslationResult<TResult>(translatedQuery, dataSource);
+
+      return translatedQuery;
     }
 
     private static ProjectionExpression Optimize(ProjectionExpression origin)
@@ -101,7 +103,8 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(
+      ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof(IEnumerable<Tuple>), "rs");
       var session = Expression.Parameter(typeof(Session), "session");
@@ -145,24 +148,6 @@ namespace Xtensive.Orm.Linq
 
       var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, session, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
-    }
-
-
-    // Constructors
-
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    internal Translator(TranslatorContext context)
-    {
-      this.context = context;
-      state = new TranslatorState(this);
-    }
-
-    static Translator()
-    {
-      TranslateMethodInfo = typeof (Translator)
-        .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"}, new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
-      VisitLocalCollectionSequenceMethodInfo = typeof (Translator)
-        .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"}, new[] {typeof (Expression)});
     }
 
     private List<Expression> VisitNewExpressionArguments(NewExpression n)
@@ -219,6 +204,28 @@ namespace Xtensive.Orm.Linq
       var equility = Expression.Equal(keyAccessor, argument);
       var lambda = FastExpression.Lambda(equility, parameter);
       return VisitFirstSingle(source, lambda, mc.Method, false);
+    }
+
+    // Constructors
+
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    internal Translator(TranslatorContext context)
+    {
+      this.context = context;
+      state = new TranslatorState(this);
+    }
+
+    static Translator()
+    {
+      TranslateMethod = typeof (Translator)
+        .GetMethod(
+          "Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"},
+          new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
+
+      VisitLocalCollectionSequenceMethod = typeof (Translator)
+        .GetMethod(
+          "VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"},
+          new[] {typeof (Expression)});
     }
   }
 }

@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Linq
   /// <summary>
   /// Abstract base class describing LINQ query translation result.
   /// </summary>
-  public abstract class TranslatedQuery
+  internal abstract class TranslatedQuery
   {
     /// <summary>
     /// The <see cref="ExecutableProvider"/> acting as source for further materialization.

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Services
   public sealed class DirectSqlAccessor : SessionBound,
     ISessionService
   {
-    private IDirectSqlService service;
+    private readonly IDirectSqlService service;
 
     /// <summary>
     /// Gets a value indicating whether direct SQL capabilities are available.

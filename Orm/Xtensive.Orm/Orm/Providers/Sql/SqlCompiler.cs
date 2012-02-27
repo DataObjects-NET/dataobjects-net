@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    protected Driver Driver { get { return DomainHandler.Driver; } }
+    protected StorageDriver Driver { get { return DomainHandler.Driver; } }
 
     /// <summary>
     /// Gets the provider info.
@@ -336,7 +336,7 @@ namespace Xtensive.Orm.Providers.Sql
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(provider.Name, provider.Header.TupleDescriptor, columnNames);
-      var request = new QueryRequest(descriptor.QueryStatement, descriptor.TupleDescriptor, QueryRequestOptions.Empty, null);
+      var request = new QueryRequest(Driver, descriptor.QueryStatement, null, descriptor.TupleDescriptor, QueryRequestOptions.Empty);
       return new SqlStoreProvider(Handlers, request, descriptor, provider, source);
     }
     

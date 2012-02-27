@@ -99,13 +99,13 @@ namespace Xtensive.Orm.Providers.Sql
         TupleDescriptor = source,
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
-        StoreRequest = new PersistRequest(insertStatement, storeRequestBindings),
-        ClearRequest = new PersistRequest(SqlDml.Delete(tableRef), null),
+        StoreRequest = new PersistRequest(DomainHandler.Driver, insertStatement, storeRequestBindings),
+        ClearRequest = new PersistRequest(DomainHandler.Driver, SqlDml.Delete(tableRef), null),
         QueryStatement = queryStatement
       };
 
-      result.StoreRequest.Prepare(DomainHandler);
-      result.ClearRequest.Prepare(DomainHandler);
+      result.StoreRequest.Prepare();
+      result.ClearRequest.Prepare();
 
       return result;
     }

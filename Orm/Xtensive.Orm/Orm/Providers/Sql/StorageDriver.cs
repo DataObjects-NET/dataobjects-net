@@ -4,36 +4,34 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.14
 
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
+using Xtensive.Threading;
+using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
-  /// SQL provider driver.
+  /// SQL storage driver.
   /// </summary>
-  public sealed partial class Driver
+  public sealed partial class StorageDriver
   {
-    private readonly Orm.Domain domain;
+    private readonly Domain domain;
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
-
-    private readonly bool includeSqlInExceptions;
     private readonly bool isLoggingEnabled;
+    private readonly bool hasSavepoints;
 
-    public string BatchBegin { get { return translator.BatchBegin; } }
-    public string BatchEnd { get { return translator.BatchEnd; } }
+    private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
 
-    public ProviderInfo BuildProviderInfo()
-    {
-      // We extracted this method to a separate class for tests.
-      // It's very desirable to have a way of getting ProviderInfo without building a domain.
-      return ProviderInfoBuilder.Build(underlyingDriver);
-    }
+    public ProviderInfo ProviderInfo { get; private set; }
+    public StorageExceptionBuilder ExceptionBuilder { get; private set; }
 
     public string BuildBatch(string[] statements)
     {
@@ -59,19 +57,33 @@ namespace Xtensive.Orm.Providers.Sql
       return underlyingDriver.Compile(statement);
     }
 
+    public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
+    {
+      return accessorCache.GetValue(descriptor, CreateDataReaderAccessor);
+    }
+
+    private DbDataReaderAccessor CreateDataReaderAccessor(TupleDescriptor descriptor)
+    {
+      return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
+    }
 
     // Constructors
 
-    public Driver(Orm.Domain domain, SqlDriver underlyingDriver)
+    public StorageDriver(Domain domain, SqlDriver underlyingDriver)
     {
       this.domain = domain;
       this.underlyingDriver = underlyingDriver;
 
+      ProviderInfo = ProviderInfoBuilder.Build(underlyingDriver);
+      ExceptionBuilder = new StorageExceptionBuilder(domain, underlyingDriver);
+
+      accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
+
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
 
+      hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
-      includeSqlInExceptions = domain.Configuration.IncludeSqlInExceptions;
     }
   }
 }

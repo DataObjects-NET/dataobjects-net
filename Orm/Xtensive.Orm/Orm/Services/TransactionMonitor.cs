@@ -20,14 +20,14 @@ namespace Xtensive.Orm.Services
   public sealed class TransactionMonitor : SessionBound,
     ISessionService
   {
-    private readonly Dictionary<Transaction, SetSlim<IDisposable>> regestry = new Dictionary<Transaction,SetSlim<IDisposable>>();
+    private readonly Dictionary<Transaction, SetSlim<IDisposable>> registry = new Dictionary<Transaction,SetSlim<IDisposable>>();
 
     public void SetValue(Disposable disposable)
     {
       SetSlim<IDisposable> set;
-      if (!regestry.TryGetValue(Session.Transaction, out set)) {
+      if (!registry.TryGetValue(Session.Transaction, out set)) {
         set = new SetSlim<IDisposable>();
-        regestry.Add(Session.Transaction, set);
+        registry.Add(Session.Transaction, set);
       }
       set.Add(disposable);
     }
@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Services
     private void EndTransaction(object sender, TransactionEventArgs e)
     {
       SetSlim<IDisposable> set;
-      if (regestry.TryGetValue(Session.Transaction, out set)) {
-        regestry.Remove(Session.Transaction);
+      if (registry.TryGetValue(Session.Transaction, out set)) {
+        registry.Remove(Session.Transaction);
         foreach (var disposable in set)
           disposable.DisposeSafely();
       }

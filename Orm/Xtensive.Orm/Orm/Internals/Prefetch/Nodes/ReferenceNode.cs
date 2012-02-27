@@ -4,53 +4,46 @@
 // Created by: Alexis Kochetov
 // Created:    2010.11.19
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  [Serializable]
-  internal class ReferenceNode : FieldNode, IHasNestedNodes
+  internal sealed class ReferenceNode : BaseFieldNode, IHasNestedNodes
   {
-    public TypeInfo ElementType { get; private set; }
-    public ReadOnlyCollection<FieldNode> NestedNodes { get; private set; }
+    public TypeInfo ReferenceType { get; private set; }
 
-    public virtual IEnumerable<Key> ExtractKeys(object target)
+    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; private set; }
+
+    public IEnumerable<Key> ExtractKeys(object target)
     {
-      if (target == null)
+      if (target==null)
         return Enumerable.Empty<Key>();
-      var entity = (Entity)target;
+      var entity = (Entity) target;
       var referenceKey = entity.GetReferenceKey(Field);
-      return referenceKey == null 
-        ? Enumerable.Empty<Key>() 
+      return referenceKey==null
+        ? Enumerable.Empty<Key>()
         : Enumerable.Repeat(referenceKey, 1);
     }
 
-    public virtual IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<FieldNode> nestedNodes)
+    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes)
     {
-      return new ReferenceNode(this, nestedNodes);
+      return new ReferenceNode(Path, Field, ReferenceType, NestedNodes);
     }
 
-    protected internal override Node Accept(NodeVisitor visitor)
+    public override Node Accept(NodeVisitor visitor)
     {
       return visitor.VisitReferenceNode(this);
     }
 
-    public ReferenceNode(ReferenceNode source, ReadOnlyCollection<FieldNode> nestedNodes)
-      : base(source.Path, source.Field)
-    {
-      ElementType = source.ElementType;
-      NestedNodes = nestedNodes;
-    }
+    // Constructors
 
-    public ReferenceNode(string path, TypeInfo elementType, FieldInfo field, ReadOnlyCollection<FieldNode> nestedNodes)
+    public ReferenceNode(string path, FieldInfo field, TypeInfo referenceType, ReadOnlyCollection<BaseFieldNode> nestedNodes)
       : base(path, field)
     {
-      ElementType = elementType;
+      ReferenceType = referenceType;
       NestedNodes = nestedNodes;
     }
   }

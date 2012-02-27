@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Xtensive.Disposing;
 using Xtensive.Core;
-using Xtensive.Orm;
+using Xtensive.Disposing;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -18,101 +18,109 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public sealed class Command : IDisposable
   {
-    private readonly Driver driver;
-    private readonly Session session;
+    private readonly CommandFactory origin;
     private readonly DbCommand underlyingCommand;
     private readonly List<string> statements = new List<string>();
-    private readonly List<SqlQueryTask> queryTasks = new List<SqlQueryTask>();
 
-    private DisposableSet disposables;
+    private bool prepared;
+    private DisposableSet resources;
+    private DbDataReader reader;
 
-    /// <summary>
-    /// Gets the statements this command is consist of.
-    /// </summary>
-    public List<string> Statements { get { return statements; } }
+    public int Count { get { return statements.Count; } }
 
-    /// <summary>
-    /// Gets the query tasks registered in this command.
-    /// </summary>
-    public List<SqlQueryTask> QueryTasks { get { return queryTasks; } }
-
-    /// <summary>
-    /// Gets the <see cref="DbDataReader"/> that was executed in this command.
-    /// </summary>
-    public DbDataReader Reader { get; private set; }
-
-    /// <summary>
-    /// Adds the part to this command.
-    /// </summary>
-    /// <param name="part">The part to add.</param>
     public void AddPart(CommandPart part)
     {
-      statements.Add(part.Query);
+      if (prepared)
+        throw new InvalidOperationException("Unable to change command: it is already prepared");
+
+      statements.Add(part.Statement);
+
       foreach (var parameter in part.Parameters)
         underlyingCommand.Parameters.Add(parameter);
-      if (part.Disposables.Count==0)
+
+      if (part.Resources.Count==0)
         return;
-      if (disposables==null)
-        disposables = new DisposableSet();
-      foreach (var disposable in part.Disposables)
-        disposables.Add(disposable);
+
+      if (resources==null)
+        resources = new DisposableSet();
+      foreach (var resource in part.Resources)
+        resources.Add(resource);
     }
 
-    /// <summary>
-    /// Adds the part to this command.
-    /// </summary>
-    /// <param name="part">The part to add.</param>
-    /// <param name="task">The task.</param>
-    public void AddPart(CommandPart part, SqlQueryTask task)
+    public int ExecuteNonQuery()
     {
-      AddPart(part);
-      QueryTasks.Add(task);
+      Prepare();
+      return origin.Driver.ExecuteNonQuery(origin.Session, underlyingCommand);
     }
 
-    /// <summary>
-    /// Executes this command. This method is equivalent of <seealso cref="DbCommand.ExecuteNonQuery"/>.
-    /// </summary>
-    public void ExecuteNonQuery()
-    {
-      PrepareCommand();
-      driver.ExecuteNonQuery(session, underlyingCommand);
-    }
-
-    /// <summary>
-    /// Executes this command. This method is equivalent of <seealso cref="DbCommand.ExecuteReader()"/>.
-    /// </summary>
     public void ExecuteReader()
     {
-      PrepareCommand();
-      Reader = driver.ExecuteReader(session, underlyingCommand);
+      Prepare();
+      reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand);
     }
 
-    /// <inheritdoc/>
+    public bool NextResult()
+    {
+      try {
+        return reader.NextResult();
+      }
+      catch(Exception exception) {
+        throw TranslateException(exception);
+      }
+    }
+
+    public bool NextRow()
+    {
+      try {
+        return reader.Read();
+      }
+      catch (Exception exception) {
+        throw TranslateException(exception);
+      }
+    }
+
+    public Tuple ReadTupleWith(DbDataReaderAccessor accessor)
+    {
+      return accessor.Read(reader);
+    }
+
+    public IEnumerator<Tuple> AsReaderOf(QueryRequest request)
+    {
+      var accessor = request.GetAccessor();
+      using (this)
+        while (NextRow())
+          yield return ReadTupleWith(accessor);
+    }
+
+    public DbCommand Prepare()
+    {
+      if (statements.Count==0)
+        throw new InvalidOperationException("Unable to prepare command: no parts registered");
+      if (prepared)
+        return underlyingCommand;
+      prepared = true;
+      underlyingCommand.CommandText = origin.Driver.BuildBatch(statements.ToArray());
+      return underlyingCommand;
+    }
+
+    private StorageException TranslateException(Exception exception)
+    {
+      return origin.Driver.ExceptionBuilder
+        .BuildException(exception, underlyingCommand.ToHumanReadableString());
+    }
+
     public void Dispose()
     {
-      Reader.DisposeSafely();
-      disposables.DisposeSafely();
+      reader.DisposeSafely();
+      resources.DisposeSafely();
       underlyingCommand.DisposeSafely();
     }
 
-    #region Private / internal methods
-
-    private void PrepareCommand()
-    {
-      if (statements.Count==0)
-        throw new InvalidOperationException();
-      underlyingCommand.CommandText = driver.BuildBatch(statements.ToArray());
-    }
-
-    #endregion
-
-
     // Constructors
 
-    public Command(Driver driver, Session session, DbCommand underlyingCommand)
+    internal Command(CommandFactory origin, DbCommand underlyingCommand)
     {
-      this.driver = driver;
-      this.session = session;
+      this.origin = origin;
       this.underlyingCommand = underlyingCommand;
     }
   }

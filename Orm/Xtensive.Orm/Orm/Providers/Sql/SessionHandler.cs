@@ -8,12 +8,10 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.IoC;
-using Xtensive.Orm;
+using Xtensive.Orm.Internals;
+using Xtensive.Sql;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Sql;
-using Xtensive.Orm.Internals;
-using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -27,7 +25,7 @@ namespace Xtensive.Orm.Providers.Sql
     private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations =
       EnumerableUtils<ServiceRegistration>.Empty;
 
-    private Driver driver;
+    private StorageDriver driver;
     private DomainHandler domainHandler;
     private SqlConnection connection;
     private CommandProcessor commandProcessor;
@@ -38,15 +36,30 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <summary>
-    /// Gets the connection.
+    /// Gets <see cref="SqlConnection"/> associated with current instance.
     /// </summary>
-    public SqlConnection Connection {
-      get {
+    public SqlConnection Connection
+    {
+      get
+      {
         EnsureConnectionIsOpen();
         return connection;
       }
     }
 
+    /// <summary>
+    /// Gets <see cref="CommandFactory"/> associated with current instance.
+    /// </summary>
+    public CommandFactory CommandFactory
+    {
+      get
+      {
+        EnsureConnectionIsOpen();
+        return commandProcessor.Factory;
+      }
+    }
+
+    /// <inheritdoc/>
     public override void SetCommandTimeout(int? commandTimeout)
     {
       if (connection!=null)
@@ -66,17 +79,17 @@ namespace Xtensive.Orm.Providers.Sql
           nonBatchedTasks.Add(task);
       }
       if (nonBatchedTasks.Count > 0) {
-        commandProcessor.ExecuteRequests();
+        commandProcessor.ExecuteTasks();
         base.ExecuteQueryTasks(nonBatchedTasks, allowPartialExecution);
       }
       else
-        commandProcessor.ExecuteRequests(allowPartialExecution);
+        commandProcessor.ExecuteTasks(allowPartialExecution);
     }
 
     private void RegisterQueryTask(QueryTask task, QueryRequest request)
     {
       task.Result = new List<Tuple>();
-      commandProcessor.RegisterTask(new SqlQueryTask(request, task.ParameterContext, task.Result));
+      commandProcessor.Tasks.Enqueue(new SqlLoadTask(request, task.Result, task.ParameterContext));
     }
 
     #region Transaction control methods
@@ -134,8 +147,8 @@ namespace Xtensive.Orm.Providers.Sql
     public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
       foreach (var action in persistActions)
-        commandProcessor.RegisterTask(CreatePersistTask(action));
-      commandProcessor.ExecuteRequests(allowPartialExecution);
+        commandProcessor.Tasks.Enqueue(CreatePersistTask(action));
+      commandProcessor.ExecuteTasks(allowPartialExecution);
     }
 
     private SqlPersistTask CreatePersistTask(PersistAction action)
@@ -195,7 +208,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void EndNativeTransaction()
     {
-      commandProcessor.ClearTasks();
+      commandProcessor.Tasks.Clear();
     }
 
     #endregion

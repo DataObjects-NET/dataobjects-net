@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     protected DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
     protected SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
-    protected Driver Driver { get { return DomainHandler.Driver; } }
+    protected StorageDriver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceSchema, StorageModel targetSchema)

@@ -9,7 +9,6 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Activator = System.Activator;
@@ -22,10 +21,28 @@ namespace Xtensive.Orm
   /// create future (delayed) and compiled queries,
   /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
   /// </summary>
-  public class QueryEndpoint
+  public sealed class QueryEndpoint
   {
-    protected Session Session { get; private set; }
+    private readonly Session session;
+
+    /// <summary>
+    /// Gets outer <see cref="QueryEndpoint"/>.
+    /// For root <see cref="QueryEndpoint"/> returns <see langword="null"/>.
+    /// </summary>
+    public QueryEndpoint Outer { get; private set; }
+
+    /// <summary>
+    /// Gets <see cref="IQueryProvider"/> implementation
+    /// for this session.
+    /// </summary>
     public QueryProvider Provider { get; private set; }
+
+    /// <summary>
+    /// Gets <see cref="IQueryRootBuilder"/> associated with this instance.
+    /// If <see cref="IQueryRootBuilder"/> is not set for this instance
+    /// returns <see langword="null"/>.
+    /// </summary>
+    public IQueryRootBuilder RootBuilder { get; private set; }
 
     /// <summary>
     /// The "starting point" for any LINQ query -
@@ -37,12 +54,10 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> enumerating all the instances
     /// of type <typeparamref name="T"/>.
     /// </returns>
-    public virtual IQueryable<T> All<T>()
+    public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      var allMethod = WellKnownMembers.Query.All.MakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, allMethod);
-      return Provider.CreateQuery<T>(expression);
+      return Provider.CreateQuery<T>(BuildRootExpression(typeof (T)));
     }
 
     /// <summary>
@@ -55,12 +70,10 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable"/> enumerating all the instances
     /// of type <paramref name="elementType"/>.
     /// </returns>
-    public virtual IQueryable All(Type elementType)
+    public IQueryable All(Type elementType)
     {
-      var allMethod = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
-      var expression = Expression.Call(null, allMethod);
       var provider = (IQueryProvider) Provider;
-      return provider.CreateQuery(expression);
+      return provider.CreateQuery(BuildRootExpression(elementType));
     }
 
     /// <summary>
@@ -72,7 +85,7 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
     /// </returns>
-    public virtual IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria)
+    public IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria)
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
@@ -90,7 +103,7 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
     /// </returns>
-    public virtual IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria)
+    public IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria)
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
@@ -102,14 +115,14 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="Session"/>.
+    /// in the current <see cref="session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
     /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
-    public virtual Entity Single(Key key)
+    public Entity Single(Key key)
     {
       if (key == null)
         return null;
@@ -122,27 +135,27 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="Session"/>.
+    /// in the current <see cref="session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public virtual Entity SingleOrDefault(Key key)
+    public Entity SingleOrDefault(Key key)
     {
       if (key == null)
         return null;
       Entity result;
-      using (var tx = Session.OpenAutoTransaction()) {
-        var cache = Session.EntityStateCache;
+      using (var tx = session.OpenAutoTransaction()) {
+        var cache = session.EntityStateCache;
         var state = cache[key, true];
 
         if (state == null) {
-          if (Session.IsDebugEventLoggingEnabled)
-            LogTemplate<Log>.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, Session, key,
+          if (session.IsDebugEventLoggingEnabled)
+            LogTemplate<Log>.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key,
                                    key.HasExactType ? Strings.Known : Strings.Unknown);
-          state = Session.Handler.FetchEntityState(key);
+          state = session.Handler.FetchEntityState(key);
         }
 
         if (state == null || state.IsNotAvailableOrMarkedAsRemoved || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType))
@@ -158,7 +171,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="Session"/>.
+    /// in the current <see cref="session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
@@ -166,7 +179,7 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public virtual T Single<T>(Key key)
+    public T Single<T>(Key key)
       where T : class, IEntity
     {
       return (T)(object)Single(key);
@@ -174,7 +187,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="Session"/>.
+    /// in the current <see cref="session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
@@ -182,7 +195,7 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public virtual T Single<T>(params object[] keyValues)
+    public T Single<T>(params object[] keyValues)
       where T : class, IEntity
     {
       return (T)(object)Single(GetKeyByValues<T>(keyValues));
@@ -190,14 +203,14 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="Session"/>.
+    /// in the current <see cref="session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
-    public virtual T SingleOrDefault<T>(Key key)
+    public T SingleOrDefault<T>(Key key)
       where T : class, IEntity
     {
       return (T)(object)SingleOrDefault(key);
@@ -205,14 +218,14 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="Session"/>.
+    /// in the current <see cref="session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// </returns>
-    public virtual T SingleOrDefault<T>(params object[] keyValues)
+    public T SingleOrDefault<T>(params object[] keyValues)
       where T : class, IEntity
     {
       return (T)(object)SingleOrDefault(GetKeyByValues<T>(keyValues));
@@ -223,10 +236,10 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="keys">The source sequence.</param>
     /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
-    public virtual IEnumerable<T> Many<T>(IEnumerable<Key> keys)
+    public IEnumerable<T> Many<T>(IEnumerable<Key> keys)
       where T : class, IEntity
     {
-      return new PrefetchFacade<T>(Session, keys);
+      return new PrefetchFacade<T>(session, keys);
     }
 
     /// <summary>
@@ -234,19 +247,19 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="keys">The source sequence.</param>
     /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
-    public virtual IEnumerable<T> Many<T,TElement>(IEnumerable<TElement> keys)
+    public IEnumerable<T> Many<T,TElement>(IEnumerable<TElement> keys)
       where T : class, IEntity
     {
       var elementType = typeof (TElement);
       Func<TElement, Key> selector;
       if (elementType == typeof(object[]))
-        selector = e => Key.Create<T>(Session.Domain, (object[]) (object) e);
+        selector = e => Key.Create<T>(session.Domain, (object[]) (object) e);
       else if (typeof (Tuple).IsAssignableFrom(elementType))
-        selector = e => Key.Create<T>(Session.Domain, (Tuple) (object) e);
+        selector = e => Key.Create<T>(session.Domain, (Tuple) (object) e);
       else
-        selector = e => Key.Create<T>(Session.Domain, new object[] {e} );
+        selector = e => Key.Create<T>(session.Domain, new object[] {e} );
 
-      return new PrefetchFacade<T>(Session, keys.Select(selector));
+      return new PrefetchFacade<T>(session, keys.Select(selector));
     }
 
     /// <summary>
@@ -259,7 +272,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    public virtual IEnumerable<TElement> Execute<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    public IEnumerable<TElement> Execute<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query);
     }
@@ -274,7 +287,7 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    public virtual IEnumerable<TElement> Execute<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    public IEnumerable<TElement> Execute<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
@@ -289,7 +302,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    public virtual TResult Execute<TResult>(Func<QueryEndpoint,TResult> query)
+    public TResult Execute<TResult>(Func<QueryEndpoint,TResult> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query);
     }
@@ -304,7 +317,7 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    public virtual TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query)
+    public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
@@ -319,7 +332,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public virtual Delayed<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
+    public Delayed<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
     }
@@ -333,7 +346,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public virtual Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
+    public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
@@ -348,7 +361,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public virtual IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query)
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
     }
@@ -362,12 +375,12 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public virtual IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint,IQueryable<TElement>> query)
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint,IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
 
-    public virtual IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
+    public IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
       var method = WellKnownMembers.Queryable.AsQueryable.MakeGenericMethod(typeof(TElement));
       var expression = Expression.Call(method, Expression.Constant(source));
@@ -390,7 +403,14 @@ namespace Xtensive.Orm
         if (keyValue is Entity)
           return (keyValue as Entity).Key;
       }
-      return Key.Create(Session.Domain, typeof(T), keyValues);
+      return Key.Create(session.Domain, typeof(T), keyValues);
+    }
+
+    private Expression BuildRootExpression(Type elementType)
+    {
+      return RootBuilder!=null
+        ? RootBuilder.BuildRootExpression(elementType)
+        : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
     }
 
     #endregion
@@ -398,10 +418,20 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    public QueryEndpoint(Session session)
+    internal QueryEndpoint(QueryProvider provider)
     {
-      Session = session;
-      Provider = new QueryProvider(session);
+      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      Provider = provider;
+      session = provider.Session;
+    }
+
+    internal QueryEndpoint(QueryEndpoint outerEndpoint, IQueryRootBuilder queryRootBuilder)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(outerEndpoint, "outerEndpoint");
+      ArgumentValidator.EnsureArgumentNotNull(queryRootBuilder, "queryRootBuilder");
+      Provider = outerEndpoint.Provider;
+      session = outerEndpoint.session;
+      RootBuilder = queryRootBuilder;
     }
   }
 }

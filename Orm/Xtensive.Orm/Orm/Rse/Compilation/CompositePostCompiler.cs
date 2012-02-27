@@ -4,19 +4,21 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.01.29
 
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Compilation
 {
   public class CompositePostCompiler : IPostCompiler
   {
-    private readonly IPostCompiler[] postCompilers;
+    public List<IPostCompiler> Items { get; private set; }
 
     public ExecutableProvider Process(ExecutableProvider rootProvider)
     {
       var provider = rootProvider;
-      foreach (var optimizer in postCompilers)
-        provider = optimizer.Process(provider);
+      foreach (var item in Items)
+        provider = item.Process(provider);
       return provider;
     }
 
@@ -25,7 +27,7 @@ namespace Xtensive.Orm.Rse.Compilation
 
     public CompositePostCompiler(params IPostCompiler[] postCompilers)
     {
-      this.postCompilers = postCompilers;
+      Items = postCompilers.ToList();
     }
   }
 }

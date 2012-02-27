@@ -17,17 +17,17 @@ namespace Xtensive.Orm.Providers.Sql
   public sealed class SqlPersistTask : SqlTask
   {
     /// <summary>
-    /// A request.
+    /// Requests to execute.
     /// </summary>
     public readonly IEnumerable<PersistRequest> RequestSequence;
 
     /// <summary>
-    /// A tuple containing parameter for request.
+    /// A tuple containing parameter for requests.
     /// </summary>
     public readonly Tuple Tuple;
 
     /// <inheritdoc/>
-    public override void ProcessWith(CommandProcessor processor)
+    public override void ProcessWith(ISqlTaskProcessor processor)
     {
       processor.ProcessTask(this);
     }

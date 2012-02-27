@@ -12,13 +12,15 @@ namespace Xtensive.Orm.Internals.Prefetch
   /// <summary>
   /// Saves a strong reference to an object.
   /// </summary>
-  [Serializable]
-  public class StrongReferenceContainer
+  public sealed class StrongReferenceContainer
   {
-    private StrongReferenceContainer root;
     private readonly object reference;
+
+    private StrongReferenceContainer root;
     private StrongReferenceContainer nextJoinedContainer;
     private StrongReferenceContainer lastJoinedContainer;
+
+    public bool IsRoot { get { return root==null; } }
 
     /// <summary>
     /// Joins this instance with <paramref name="other"/>, 
@@ -27,12 +29,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <param name="other">The other container.</param>
     public bool JoinIfPossible(StrongReferenceContainer other)
     {
-      if (other != null) {
-        if (other.IsRoot)
-          Join(other);
-        return true;
-      }
-      return false;
+      if (other==null)
+        return false;
+      if (other.IsRoot)
+        Join(other);
+      return true;
     }
 
     /// <summary>
@@ -41,7 +42,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <param name="other">The other container.</param>
     public bool Join(StrongReferenceContainer other)
     {
-      if (other == null)
+      if (other==null)
         return false;
       if (!IsRoot) {
         root.Join(other);
@@ -50,18 +51,15 @@ namespace Xtensive.Orm.Internals.Prefetch
       if (!other.IsRoot)
         throw new InvalidOperationException();
       other.root = this;
-      if (lastJoinedContainer == null)
+      if (lastJoinedContainer==null)
         nextJoinedContainer = other;
-      else if (lastJoinedContainer.nextJoinedContainer != null)
+      else if (lastJoinedContainer.nextJoinedContainer!=null)
         throw new InvalidOperationException();
       else
         lastJoinedContainer.nextJoinedContainer = other;
       lastJoinedContainer = other.lastJoinedContainer ?? other;
       return true;
     }
-
-    private bool IsRoot { get { return root==null; } }
-
 
     // Constructors
 

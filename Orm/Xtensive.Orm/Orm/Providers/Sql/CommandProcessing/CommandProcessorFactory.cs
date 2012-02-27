@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.18
 
-using Xtensive.Orm;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -31,12 +30,12 @@ namespace Xtensive.Orm.Providers.Sql
         domainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
 
       var factory = useCursorParameters
-        ? new CursorCommandPartFactory(domainHandler, connection)
-        : new CommandPartFactory(domainHandler, connection);
+        ? new CursorCommandFactory(domainHandler.Driver, session, connection)
+        : new CommandFactory(domainHandler.Driver, session, connection);
 
       var processor = useBatches
-        ? new BatchingCommandProcessor(domainHandler, session, connection, factory, batchSize)
-        : (CommandProcessor) new SimpleCommandProcessor(domainHandler, session, connection, factory);
+        ? new BatchingCommandProcessor(factory, batchSize)
+        : (CommandProcessor) new SimpleCommandProcessor(factory);
       return processor;
       
     }

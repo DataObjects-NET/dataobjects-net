@@ -7,8 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Parameters;
 using Xtensive.Orm.Providers;
 using Xtensive.Tuples;
@@ -29,6 +31,8 @@ namespace Xtensive.Orm.Linq
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
+
+    public CompilerConfiguration RseCompilerConfiguration { get; private set; }
 
     public ProviderInfo ProviderInfo { get; private set; }
 
@@ -112,11 +116,17 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    public TranslatorContext(Expression query, Domain domain)
+    public TranslatorContext(Domain domain, CompilerConfiguration rseCompilerConfiguration, Expression query)
     {
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, "rseCompilerConfiguration");
+      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+
+      Domain = domain;
+      RseCompilerConfiguration = rseCompilerConfiguration;
+
       // Applying query preprocessors
-      var preprocessors = domain.Handler.GetQueryPreprocessors();
-      foreach (var preprocessor in preprocessors)
+      foreach (var preprocessor in domain.Handler.QueryPreprocessors)
         query = preprocessor.Apply(query);
 
       // Built-in preprocessors
@@ -126,7 +136,6 @@ namespace Xtensive.Orm.Linq
       Evaluator = new ExpressionEvaluator(query);
       query = PersistentIndexerRewriter.Rewrite(query, this);
       Query = query;
-      Domain = domain;
 
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});

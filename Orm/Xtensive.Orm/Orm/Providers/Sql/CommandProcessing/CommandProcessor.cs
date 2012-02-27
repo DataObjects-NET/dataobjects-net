@@ -4,17 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
-using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using Xtensive.Core;
-using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Sql;
-using Action = System.Action;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -24,51 +17,19 @@ namespace Xtensive.Orm.Providers.Sql
   public abstract class CommandProcessor
   {
     /// <summary>
-    /// Default parameter name prefix.
-    /// </summary>
-    protected const string DefaultParameterNamePrefix = "p0_";
-
-    /// <summary>
     /// Factory of command parts.
     /// </summary>
-    protected readonly CommandPartFactory factory;
-
-    /// <summary>
-    /// Currently registered tasks.
-    /// </summary>
-    protected readonly Queue<SqlTask> tasks = new Queue<SqlTask>();
-
-    /// <summary>
-    /// A SQL handler of current domain.
-    /// </summary>
-    protected readonly DomainHandler domainHandler;
-
-    /// <summary>
-    /// A SQL driver.
-    /// </summary>
-    protected readonly Driver driver;
+    public CommandFactory Factory { get; private set; }
 
     /// <summary>
     /// Session this command processor is bound to.
     /// </summary>
-    protected readonly Session session;
+    public Session Session { get; private set; }
 
     /// <summary>
-    /// Connection this command processor is bound to.
+    /// <see cref="SqlTask"/> queue associated with current instance.
     /// </summary>
-    protected readonly SqlConnection connection;
-
-    /// <summary>
-    /// Processes the specified task.
-    /// </summary>
-    /// <param name="task">The task to process.</param>
-    public abstract void ProcessTask(SqlQueryTask task);
-
-    /// <summary>
-    /// Processes the specified task.
-    /// </summary>
-    /// <param name="task">The task to process.</param>
-    public abstract void ProcessTask(SqlPersistTask task);
+    public Queue<SqlTask> Tasks { get; set; }
 
     /// <summary>
     /// Executes all registred requests plus the specified one query,
@@ -76,7 +37,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="request">The request to execute.</param>
     /// <returns>A <see cref="IEnumerator{Tuple}"/> for the specified request.</returns>
-    public abstract IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest request);
+    public abstract IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request);
 
     /// <summary>
     /// Executes all registred requests,
@@ -86,85 +47,28 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="allowPartialExecution">
     /// if set to <see langword="true"/> command processor is allowed to skip last request,
     /// if it decides to.</param>
-    public abstract void ExecuteRequests(bool allowPartialExecution);
+    public abstract void ExecuteTasks(bool allowPartialExecution);
 
     /// <summary>
     /// Executes the all registered requests.
-    /// Calling this method is equivalent to calling <see cref="ExecuteRequests(bool)"/> with <see langword="false"/>.
+    /// Calling this method is equivalent to calling <see cref="ExecuteTasks(bool)"/> with <see langword="false"/>.
     /// </summary>
-    public void ExecuteRequests()
+    public void ExecuteTasks()
     {
-      ExecuteRequests(false);
+      ExecuteTasks(false);
     }
-
-    /// <summary>
-    /// Registers the specified task for execution.
-    /// </summary>
-    /// <param name="task">The task to register.</param>
-    public void RegisterTask(SqlTask task)
-    {
-      tasks.Enqueue(task);
-    }
-
-    /// <summary>
-    /// Clears all registered tasks.
-    /// </summary>
-    public void ClearTasks()
-    {
-      tasks.Clear();
-    }
-
-    /// <summary>
-    /// Wrapps the specified <see cref="DbDataReader"/>
-    /// into a <see cref="IEnumerator{Tuple}"/> according to a specified <see cref="TupleDescriptor"/>.
-    /// </summary>
-    /// <param name="command">The command to use.</param>
-    /// <param name="descriptor">The descriptor of a result.</param>
-    /// <returns>Created <see cref="IEnumerator{Tuple}"/>.</returns>
-    protected IEnumerator<Tuple> RunTupleReader(Command command, TupleDescriptor descriptor)
-    {
-      var accessor = domainHandler.GetDataReaderAccessor(descriptor);
-      using (command)
-        while (driver.ReadRow(command.Reader)) {
-          var tuple = Tuple.Create(descriptor);
-          accessor.Read(command.Reader, tuple);
-          yield return tuple;
-        }
-    }
-
-    public Command CreateCommand()
-    {
-      var dbCommand = connection.CreateCommand();
-      if (session.CommandTimeout!=null)
-        dbCommand.CommandTimeout = session.CommandTimeout.Value;
-      return new Command(driver, session, dbCommand);
-    }
-
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="domainHandler">The domain handler.</param>
-    /// <param name="session">The session.</param>
-    /// <param name="connection">The connection.</param>
     /// <param name="factory">The factory.</param>
-    protected CommandProcessor(
-      DomainHandler domainHandler, Session session,
-      SqlConnection connection, CommandPartFactory factory)
+    protected CommandProcessor(CommandFactory factory)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domainHandler, "domainHandler");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
       ArgumentValidator.EnsureArgumentNotNull(factory, "factory");
-
-      this.domainHandler = domainHandler;
-      this.session = session;
-      this.connection = connection;
-      this.factory = factory;
-
-      driver = domainHandler.Driver;
+      Factory = factory;
+      Tasks = new Queue<SqlTask>();
     }
   }
 }

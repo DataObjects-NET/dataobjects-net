@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -20,20 +20,25 @@ namespace Xtensive.Orm.Providers.Sql
   {
     private readonly TypeMapping[] mappings;
 
-    public void Read(DbDataReader source, Tuple target)
+    public TupleDescriptor Descriptor { get; private set; }
+
+    public Tuple Read(DbDataReader source)
     {
+      var target = Tuple.Create(Descriptor);
       for (int i = 0; i < mappings.Length; i++) {
         var value = !source.IsDBNull(i)
           ? mappings[i].ReadValue(source, i)
           : null;
         target.SetValue(i, value);
       }
+      return target;
     }
 
     // Constructors
 
-    internal DbDataReaderAccessor(IEnumerable<TypeMapping> mappings)
+    internal DbDataReaderAccessor(TupleDescriptor descriptor, IEnumerable<TypeMapping> mappings)
     {
+      Descriptor = descriptor;
       this.mappings = mappings.ToArray();
     }
   }

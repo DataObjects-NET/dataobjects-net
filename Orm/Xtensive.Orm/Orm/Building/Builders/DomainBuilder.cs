@@ -69,6 +69,7 @@ namespace Xtensive.Orm.Building.Builders
       CreateServices();
       BuildModel();
       CreateKeyGenerators();
+      ConfigureServices();
       PerformUpgradeActions();
     }
 
@@ -169,12 +170,11 @@ namespace Xtensive.Orm.Building.Builders
         var domain = context.Domain;
         var configuration = domain.Configuration;
         var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
-        domain.Services =
-          ServiceContainer.Create(typeof (ServiceContainer),
-            CreateServiceRegistrations(configuration)
-              .Concat(CreateKeyGeneratorRegistrations(configuration))
-              .Concat(CreateQueryPreprocessorRegistrations(configuration)),
-            ServiceContainer.Create(serviceContainerType, domain.Handler.CreateBaseServices()));
+        var registrations = CreateServiceRegistrations(configuration)
+          .Concat(CreateKeyGeneratorRegistrations(configuration));
+        var baseServiceContainer = domain.Handler.CreateBaseServices();
+        domain.Services = ServiceContainer.Create(
+          typeof (ServiceContainer), registrations, ServiceContainer.Create(serviceContainerType, baseServiceContainer));
       }
     }
 
@@ -247,6 +247,11 @@ namespace Xtensive.Orm.Building.Builders
         };
         backgroundCacher.InvokeAsync();
       }
+    }
+
+    private void ConfigureServices()
+    {
+      context.Domain.Handler.ConfigureServices();
     }
 
     /// <exception cref="SchemaSynchronizationException">Extracted schema is incompatible 
@@ -389,14 +394,6 @@ namespace Xtensive.Orm.Building.Builders
         select registration
         ).ToList();
       return keyGeneratorRegistrations.Concat(defaultKeyGeneratorRegistrations);
-    }
-
-    public static IEnumerable<ServiceRegistration> CreateQueryPreprocessorRegistrations(
-      DomainConfiguration configuration)
-    {
-      return from type in configuration.Types.QueryPreprocessors
-        from registration in ServiceRegistration.CreateAll(type)
-        select registration;
     }
 
     // Constructors

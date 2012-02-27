@@ -32,6 +32,7 @@ namespace Xtensive.Orm.Internals
 
     public DelayedSequence(Session session, TranslatedQuery<IEnumerable<T>> translatedQuery, ParameterContext parameterContext) 
       : base(session, translatedQuery, parameterContext)
-    {}
+    {
+    }
   }
 }

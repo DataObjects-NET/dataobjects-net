@@ -34,7 +34,6 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
     private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache;
 
     /// <summary>
@@ -65,7 +64,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    public Driver Driver { get; private set; }
+    public StorageDriver Driver { get; private set; }
 
     /// <inheritdoc/>
     protected override IEnumerable<Type> GetProviderCompilerContainers()
@@ -85,30 +84,18 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ICompiler CreateCompiler()
+    protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);
     }
 
     /// <inheritdoc/>
-    protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
+    protected override IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler)
     {
-      return new CompositePostCompiler(new SqlSelectCorrector(), new SqlProviderPreparer(Handlers));
-    }
-
-    /// <summary>
-    /// Creates (or retrieves from cache) <see cref="DbDataReaderAccessor"/> 
-    /// for the specified <see cref="TupleDescriptor"/>.
-    /// </summary>
-    /// <param name="descriptor">The descriptor.</param>
-    /// <returns>A <see cref="DbDataReaderAccessor"/> 
-    /// for the specified <see cref="TupleDescriptor"/></returns>
-    public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
-    {
-      return accessorCache.GetValue(descriptor,
-        (_descriptor, _driver) =>
-          new DbDataReaderAccessor(_descriptor.Select(type => _driver.GetTypeMapping(type))),
-        Driver);
+      var result = new CompositePostCompiler(new SqlSelectCorrector());
+      if (configuration.PrepareRequest)
+        result.Items.Add(new SqlProviderPreparer(Handlers));
+      return result;
     }
 
     /// <summary>
@@ -188,13 +175,13 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    protected override ProviderInfo CreateProviderInfo()
+    protected override ProviderInfo GetProviderInfo()
     {
-      return Driver.BuildProviderInfo();
+      return Driver.ProviderInfo;
     }
 
     /// <inheritdoc/>
-    protected override IPreCompiler CreatePreCompiler()
+    protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
       var applyCorrector = new ApplyProviderCorrector(
         !ProviderInfo.Supports(ProviderFeatures.Apply));
@@ -222,11 +209,10 @@ namespace Xtensive.Orm.Providers.Sql
     public override void Initialize()
     {
       var underlyingDriver = GetDriverFactory().GetDriver(Handlers.Domain.Configuration.ConnectionInfo);
-      Driver = new Driver(Handlers.Domain, underlyingDriver);
+      Driver = new StorageDriver(Handlers.Domain, underlyingDriver);
 
       base.Initialize();
 
-      accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
       Mapping = new ModelMapping();
 

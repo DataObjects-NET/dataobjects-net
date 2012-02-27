@@ -11,7 +11,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// LINQ query preprocessor contract.
   /// </summary>
-  public interface IQueryPreprocessor
+  public interface IQueryPreprocessor : IDomainService
   {
     /// <summary>
     /// Applies the preprocessor to the specified query.

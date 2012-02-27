@@ -90,8 +90,8 @@ namespace Xtensive.Orm.Internals
       AllocateParameterAndReplacer();
       using (new QueryCachingScope(queryParameter, queryParameterReplacer)) {
         var result = query.Invoke(endpoint);
-        var translationResult = endpoint.Provider.Translate<IEnumerable<TElement>>(result.Expression);
-        parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translationResult.Query;
+        var translatedQuery = endpoint.Provider.Translate<IEnumerable<TElement>>(result.Expression);
+        parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
         PutCachedQuery(parameterizedQuery);
       }
       return parameterizedQuery;

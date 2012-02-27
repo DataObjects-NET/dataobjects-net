@@ -8,16 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Linq;
-using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
-
-using Xtensive.Sorting;
 using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Sorting;
 
 namespace Xtensive.Orm.Providers
 {
@@ -27,8 +24,8 @@ namespace Xtensive.Orm.Providers
   public abstract class DomainHandler : InitializableHandlerBase
   {
     private readonly object syncRoot = new object();
-    private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders = new Dictionary<Type, IMemberCompilerProvider>();
-    private IQueryPreprocessor[] queryPreprocessors;
+
+    private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
 
     /// <summary>
     /// Gets the domain this handler is bound to.
@@ -49,21 +46,10 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the ordered sequence of query preprocessors to apply to any LINQ query.
     /// </summary>
-    /// <returns>The ordered sequence of query preprocessors to apply to any LINQ query.</returns>
+    /// <value> The ordered sequence of query preprocessors to apply to any LINQ query. </value>
     /// <exception cref="InvalidOperationException">Cyclic dependency in query preprocessor graph
     /// is detected.</exception>
-    public virtual IQueryPreprocessor[] GetQueryPreprocessors()
-    {
-      if (queryPreprocessors==null) lock (syncRoot) if (queryPreprocessors==null) {
-        var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
-        var ordered = TopologicalSorter.Sort(unordered, 
-          (first, second) => second.IsDependentOn(first));
-        if (ordered==null)
-          throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
-        queryPreprocessors = ordered.ToArray();
-      }
-      return queryPreprocessors;
-    }
+    public IEnumerable<IQueryPreprocessor> QueryPreprocessors { get; private set; }
 
     /// <summary>
     /// Gets the member compiler provider by its type parameter.
@@ -83,21 +69,24 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Creates the compiler.
     /// </summary>
+    /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new compiler.</returns>
-    protected abstract ICompiler CreateCompiler();
+    protected abstract ICompiler CreateCompiler(CompilerConfiguration configuration);
 
     /// <summary>
     /// Creates the <see cref="IPreCompiler"/>.
     /// </summary>
+    /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new pre-compiler.</returns>
-    protected abstract IPreCompiler CreatePreCompiler();
+    protected abstract IPreCompiler CreatePreCompiler(CompilerConfiguration configuration);
 
     /// <summary>
     /// Creates the <see cref="IPostCompiler"/>.
     /// </summary>
+    /// <param name="configuration">Compiler configuration to use.</param>
     /// <param name="compiler">Currently used compiler instance.</param>
     /// <returns>A new post-compiler.</returns>
-    protected abstract IPostCompiler CreatePostCompiler(ICompiler compiler);
+    protected abstract IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler);
 
     /// <summary>
     /// Gets compiler containers specific to current storage provider.
@@ -117,7 +106,7 @@ namespace Xtensive.Orm.Providers
     /// Creates <see cref="ProviderInfo"/>.
     /// </summary>
     /// <returns></returns>
-    protected abstract ProviderInfo CreateProviderInfo();
+    protected abstract ProviderInfo GetProviderInfo();
 
     #region IoC support (Domain.Services)
 
@@ -147,16 +136,24 @@ namespace Xtensive.Orm.Providers
     /// <param name="registrations">The list of service registrations.</param>
     protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
-      return;
     }
 
     #endregion
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
-    private void BuildCompilationContext()
+    private void BuildCompilationService()
     {
       CompilationService = new CompilationService(CreateCompiler, CreatePreCompiler, CreatePostCompiler);
+    }
+
+    private void BuildQueryPreprocessors()
+    {
+      var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
+      var ordered = TopologicalSorter.Sort(unordered, (first, second) => second.IsDependentOn(first));
+      if (ordered==null)
+        throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
+      QueryPreprocessors = ordered;
     }
 
     #endregion
@@ -168,10 +165,15 @@ namespace Xtensive.Orm.Providers
     public override void Initialize()
     {
       Domain = BuildingContext.Demand().Domain;
-      ProviderInfo = CreateProviderInfo();
+      ProviderInfo = GetProviderInfo();
       memberCompilerProviders = MemberCompilerProviderBuilder.Build(
         Domain.Configuration, GetProviderCompilerContainers());
-      BuildCompilationContext();
+      BuildCompilationService();
+    }
+
+    public void ConfigureServices()
+    {
+      BuildQueryPreprocessors();
     }
   }
 }

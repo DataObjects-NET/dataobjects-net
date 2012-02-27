@@ -4,15 +4,10 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.05.12
 
-using System;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Compilation
 {
-  /// <summary>
-  /// Empty <see cref="IPostCompiler"/> implementation.
-  /// </summary>
-  [Serializable]
   public sealed class EmptyPostCompiler : IPostCompiler
   {
     public ExecutableProvider Process(ExecutableProvider rootProvider)

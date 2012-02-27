@@ -39,8 +39,9 @@ namespace Xtensive.Orm
     /// <param name="session">The session.</param>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    public Delayed(Session session, TranslatedQuery<T> translatedQuery, ParameterContext parameterContext) :
+    internal Delayed(Session session, TranslatedQuery<T> translatedQuery, ParameterContext parameterContext) :
       base(session, translatedQuery, parameterContext)
-    {}
+    {
+    }
   }
 }

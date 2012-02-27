@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Xtensive.Linq;
@@ -24,10 +25,10 @@ namespace Xtensive.Orm.Linq
   {
     private readonly Session session;
 
-    public Session Session
-    {
-      get { return session; }
-    }
+    /// <summary>
+    /// Gets <see cref="Session"/> this provider is attached to.
+    /// </summary>
+    public Session Session { get { return session; } }
     
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
@@ -51,15 +52,13 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      expression = session.Events.NotifyQueryExecuting(expression);
       var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
         ? typeof (IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
         : expression.Type;
       try {
         var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
-          var result = executeMethod.Invoke(this, new[] {expression});
-          session.Events.NotifyQueryExecuted(expression);
-          return result;
+        var result = executeMethod.Invoke(this, new[] {expression});
+        return result;
       }
       catch(TargetInvocationException te) {
         throw te.InnerException;
@@ -70,27 +69,37 @@ namespace Xtensive.Orm.Linq
     public TResult Execute<TResult>(Expression expression)
     {
       expression = session.Events.NotifyQueryExecuting(expression);
-      var translationResult = Translate<TResult>(expression);
+      var query = Translate<TResult>(expression);
       var cachingScope = QueryCachingScope.Current;
       TResult result;
       if (cachingScope != null && !cachingScope.Execute)
-        result= default(TResult);
+        result = default(TResult);
       else
-        result = translationResult.Query.Execute(session, new ParameterContext());
+        result = query.Execute(session, new ParameterContext());
       session.Events.NotifyQueryExecuted(expression);
       return result;
     }
 
-    public TranslationResult<TResult> Translate<TResult>(Expression expression)
+    #region Private / internal methods
+
+    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
+    {
+      return Translate<TResult>(expression, new CompilerConfiguration());
+    }
+
+    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, CompilerConfiguration compilerConfiguration)
     {
       try {
-        var context = new TranslatorContext(expression, session.Domain);
+        var context = new TranslatorContext(session.Domain, compilerConfiguration, expression);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
-        throw new QueryTranslationException(String.Format(Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
+        throw new QueryTranslationException(String.Format(
+          Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
+
+    #endregion
 
 
     // Constructors

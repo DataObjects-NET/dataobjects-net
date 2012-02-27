@@ -6,42 +6,48 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
+using System.Data.Common;
+using Xtensive.Core;
 using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
-  /// A factory of <see cref="CommandPart"/>s.
+  /// A factory of <see cref="Command"/>s and <see cref="CommandPart"/>s.
   /// </summary>
-  public class CommandPartFactory
+  public class CommandFactory
   {
     private const string ParameterNameFormat = "{0}{1}";
     private const string RowFilterParameterNameFormat = "{0}_{1}_{2}";
-
+    private const string DefaultParameterNamePrefix = "p0_";
     private const int LobBlockSize = ushort.MaxValue;
-    private readonly DomainHandler domainHandler;
-    private readonly Driver driver;
+
     private readonly bool emptyStringIsNull;
 
-    /// <summary>
-    /// Connection this command part factory is bound to,
-    /// </summary>
-    protected readonly SqlConnection connection;
+    public StorageDriver Driver { get; private set; }
 
-    /// <summary>
-    /// Creates the persist command part.
-    /// </summary>
-    /// <param name="task">The task.</param>
-    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
-    /// <returns>Created command part.</returns>
-    public virtual IEnumerable<CommandPart> CreatePersistCommandPart(SqlPersistTask task, string parameterNamePrefix)
+    public Session Session { get; private set; }
+
+    public SqlConnection Connection { get; private set; }
+
+    public Command CreateCommand()
     {
+      return new Command(this, Connection.CreateCommand());
+    }
+
+    public IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task)
+    {
+      return CreatePersistParts(task, DefaultParameterNamePrefix);
+    }
+
+    public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, string parameterNamePrefix)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(task, "task");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
+
       var result = new List<CommandPart>();
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
@@ -53,31 +59,47 @@ namespace Xtensive.Orm.Providers.Sql
         foreach (var binding in request.ParameterBindings) {
           var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
           string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
+          configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
           AddPersistParameter(part, parameterName, parameterValue, binding);
         }
 
-        part.Query = compilationResult.GetCommandText(configuration);
+        part.Statement = compilationResult.GetCommandText(configuration);
         result.Add(part);
       }
       return result;
     }
 
-    /// <summary>
-    /// Creates the query command part.
-    /// </summary>
-    /// <param name="task">The task.</param>
-    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
-    /// <returns>Created command part.</returns>
-    public virtual CommandPart CreateQueryCommandPart(SqlQueryTask task, string parameterNamePrefix)
+    public CommandPart CreateQueryPart(SqlLoadTask task)
     {
-      var request = task.Request;
+      return CreateQueryPart(task.Request, DefaultParameterNamePrefix, task.ParameterContext);
+    }
+
+    public CommandPart CreateQueryPart(SqlLoadTask task, string parameterNamePrefix)
+    {
+      return CreateQueryPart(task.Request, parameterNamePrefix, task.ParameterContext);
+    }
+
+    public CommandPart CreateQueryPart(IQueryRequest request)
+    {
+      return CreateQueryPart(request, DefaultParameterNamePrefix, null);
+    }
+
+    public CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix)
+    {
+      return CreateQueryPart(request, parameterNamePrefix, null);
+    }
+
+    public virtual CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
+
       int parameterIndex = 0;
       var compilationResult = request.GetCompiledStatement();
       var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
 
-      using (task.ParameterContext.ActivateSafely()) {
+      using (parameterContext.ActivateSafely()) {
         foreach (var binding in request.ParameterBindings) {
           object parameterValue = binding.ValueAccessor.Invoke();
           switch (binding.BindingType) {
@@ -114,7 +136,7 @@ namespace Xtensive.Orm.Providers.Sql
               for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
                 var name = string.Format(RowFilterParameterNameFormat, commonPrefix, tupleIndex, fieldIndex);
                 var value = tuple.GetValueOrDefault(fieldIndex);
-                parameterReferences[fieldIndex] = driver.BuildParameterReference(name);
+                parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
                 AddRegularParameter(result, name, value, rowTypeMapping[fieldIndex]);
               }
               filterValues.Add(parameterReferences);
@@ -126,17 +148,17 @@ namespace Xtensive.Orm.Providers.Sql
           }
           // regular case -> just adding the parameter
           string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
+          configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
           AddRegularParameter(result, parameterName, parameterValue, binding.TypeMapping);
         }
       }
-      result.Query = compilationResult.GetCommandText(configuration);
+      result.Statement = compilationResult.GetCommandText(configuration);
       return result;
     }
     
     private void AddRegularParameter(CommandPart commandPart, string name, object value, TypeMapping mapping)
     {
-      var parameter = connection.CreateParameter();
+      var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
       mapping.SetParameterValue(parameter, value);
       commandPart.Parameters.Add(parameter);
@@ -144,8 +166,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void AddCharacterLobParameter(CommandPart commandPart, string name, string value)
     {
-      var lob = connection.CreateCharacterLargeObject();
-      commandPart.Disposables.Add(lob);
+      var lob = Connection.CreateCharacterLargeObject();
+      commandPart.Resources.Add(lob);
       if (value!=null) {
         if (value.Length > 0) {
           int offset = 0;
@@ -162,7 +184,7 @@ namespace Xtensive.Orm.Providers.Sql
           lob.Erase();
         }
       }
-      var parameter = connection.CreateParameter();
+      var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
       lob.BindTo(parameter);
       commandPart.Parameters.Add(parameter);
@@ -170,15 +192,15 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void AddBinaryLobParameter(CommandPart commandPart, string name, byte[] value)
     {
-      var lob = connection.CreateBinaryLargeObject();
-      commandPart.Disposables.Add(lob);
+      var lob = Connection.CreateBinaryLargeObject();
+      commandPart.Resources.Add(lob);
       if (value!=null) {
         if (value.Length > 0)
           lob.Write(value, 0, value.Length);
         else
           lob.Erase();
       }
-      var parameter = connection.CreateParameter();
+      var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
       lob.BindTo(parameter);
       commandPart.Parameters.Add(parameter);
@@ -212,12 +234,17 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public CommandPartFactory(DomainHandler domainHandler, SqlConnection connection)
+    public CommandFactory(StorageDriver driver, Session session, SqlConnection connection)
     {
-      this.domainHandler = domainHandler;
-      this.connection = connection;
-      driver = domainHandler.Driver;
-      emptyStringIsNull = domainHandler.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+
+      Driver = driver;
+      Session = session;
+      Connection = connection;
+
+      emptyStringIsNull = driver.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
     }
   }
 }
