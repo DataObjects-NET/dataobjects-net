@@ -4,17 +4,14 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.09.17
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  [Serializable]
   internal sealed class GraphContainer
   {
     private Dictionary<FieldInfo, ReferencedEntityContainer> referencedEntityContainers;
@@ -23,11 +20,9 @@ namespace Xtensive.Orm.Internals.Prefetch
     private int? cachedHashCode;
     private bool isReferenceContainerCreated;
 
-    internal readonly PrefetchManager manager;
-
     public readonly Key Key;
-    
     public readonly TypeInfo Type;
+    public readonly PrefetchManager Manager;
 
     public RootEntityContainer RootEntityContainer { get; private set; }
 
@@ -35,7 +30,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       get {
         return RootEntityContainer!=null
           || (referencedEntityContainers!=null && referencedEntityContainers.Count > 0)
-            || (entitySetTasks!=null && entitySetTasks.Count > 0);
+          || (entitySetTasks!=null && entitySetTasks.Count > 0);
       }
     }
 
@@ -51,20 +46,20 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void AddEntityColumns(IEnumerable<ColumnInfo> columns)
     {
-      if (RootEntityContainer == null)
-        RootEntityContainer = new RootEntityContainer(Key, Type, exactType, manager);
+      if (RootEntityContainer==null)
+        RootEntityContainer = new RootEntityContainer(Key, Type, exactType, Manager);
       RootEntityContainer.AddColumns(columns);
     }
 
-    public void CreateRootEntityContainer(SortedDictionary<int, ColumnInfo> forcedColumns,
-      List<int> forcedColumnsToBeLoaded)
+    public void CreateRootEntityContainer(
+      SortedDictionary<int, ColumnInfo> forcedColumns, List<int> forcedColumnsToBeLoaded)
     {
-      RootEntityContainer = new RootEntityContainer(Key, Type, exactType, manager);
+      RootEntityContainer = new RootEntityContainer(Key, Type, exactType, Manager);
       RootEntityContainer.SetColumnCollections(forcedColumns, forcedColumnsToBeLoaded);
     }
     
-    public void RegisterReferencedEntityContainer(EntityState ownerState,
-      PrefetchFieldDescriptor referencingFieldDescriptor)
+    public void RegisterReferencedEntityContainer(
+      EntityState ownerState, PrefetchFieldDescriptor referencingFieldDescriptor)
     {
       if (referencedEntityContainers != null
         && referencedEntityContainers.ContainsKey(referencingFieldDescriptor.Field))
@@ -85,25 +80,25 @@ namespace Xtensive.Orm.Internals.Prefetch
       EntitySetTask task;
       if (!entitySetTasks.TryGetValue(referencingFieldDescriptor.Field, out task))
         entitySetTasks.Add(referencingFieldDescriptor.Field,
-          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, manager));
-      else if (task.ItemCountLimit == null)
+          new EntitySetTask(Key, referencingFieldDescriptor, ownerState!=null, Manager));
+      else if (task.ItemCountLimit==null)
         return;
-      else if (referencingFieldDescriptor.EntitySetItemCountLimit == null
+      else if (referencingFieldDescriptor.EntitySetItemCountLimit==null
         || task.ItemCountLimit < referencingFieldDescriptor.EntitySetItemCountLimit)
         entitySetTasks[referencingFieldDescriptor.Field] =
-          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, manager);
+          new EntitySetTask(Key, referencingFieldDescriptor, ownerState!=null, Manager);
     }
-    
+
     public void NotifyAboutExtractionOfKeysWithUnknownType()
     {
-      if (RootEntityContainer != null)
+      if (RootEntityContainer!=null)
         RootEntityContainer.NotifyOwnerAboutKeyWithUnknownType();
-      if (referencedEntityContainers == null)
+      if (referencedEntityContainers==null)
         return;
       foreach (var pair in referencedEntityContainers)
         pair.Value.NotifyOwnerAboutKeyWithUnknownType();
     }
-    
+
     public bool Equals(GraphContainer other)
     {
       if (ReferenceEquals(null, other))
@@ -136,11 +131,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       return cachedHashCode.Value;
     }
 
-    #region Private \ internal methods
+    #region Private . internal methods
 
     private static bool AreAllForeignKeyColumnsLoaded(EntityState state, FieldInfo field)
     {
-      if (state == null || !state.IsTupleLoaded)
+      if (state==null || !state.IsTupleLoaded)
         return false;
       var tuple = state.Tuple;
       var fieldStateMap = tuple.GetFieldStateMap(TupleFieldState.Available);
@@ -160,13 +155,13 @@ namespace Xtensive.Orm.Internals.Prefetch
       for (var i = 0; i < referencedKeyTupleState.Length; i++)
         if (referencedKeyTupleState[i])
           return;
-      var referencedKey = Key.Create(manager.Owner.Session.Domain,
+      var referencedKey = Key.Create(Manager.Owner.Session.Domain,
         association.TargetType, TypeReferenceAccuracy.BaseType,
         referencedKeyTuple);
       var targetType = association.TargetType;
       var areToNotifyOwner = true;
       TypeInfo exactReferencedType;
-      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(referencedKey, manager,
+      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(referencedKey, Manager,
         out exactReferencedType);
       if (hasExactTypeBeenGotten!=null) {
         if (hasExactTypeBeenGotten.Value) {
@@ -177,8 +172,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       else
         return;
       var fieldsToBeLoaded = PrefetchHelper
-        .GetCachedDescriptorsForFieldsLoadedByDefault(manager.Owner.Session.Domain, targetType);
-      var graphContainer = manager.SetUpContainers(referencedKey, targetType,
+        .GetCachedDescriptorsForFieldsLoadedByDefault(Manager.Owner.Session.Domain, targetType);
+      var graphContainer = Manager.SetUpContainers(referencedKey, targetType,
         fieldsToBeLoaded, true, null, true);
       if (areToNotifyOwner)
         graphContainer.RootEntityContainer.SetParametersOfReference(referencingFieldDescriptor, referencedKey);
@@ -186,10 +181,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private void RegisterFetchByUnknownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (referencedEntityContainers == null)
+      if (referencedEntityContainers==null)
         referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
       referencedEntityContainers.Add(referencingFieldDescriptor.Field, new ReferencedEntityContainer(Key,
-        referencingFieldDescriptor, exactType, manager));
+        referencingFieldDescriptor, exactType, Manager));
     }
 
     #endregion
@@ -202,9 +197,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
+
       Key = key;
       Type = type;
-      this.manager = manager;
+
+      Manager = manager;
       this.exactType = exactType;
     }
   }

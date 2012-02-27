@@ -59,10 +59,10 @@ namespace Xtensive.Orm.Internals.Prefetch
       EntityState state;
       if (!Manager.TryGetTupleOfNonRemovedEntity(ref key, out state))
         return false;
-      var tuple = state == null ? null : state.Tuple;
-      if (tuple == null && ColumnIndexesToBeLoaded != null)
+      var tuple = state==null ? null : state.Tuple;
+      if (tuple==null && ColumnIndexesToBeLoaded!=null)
         return true;
-      if (ColumnIndexesToBeLoaded != null)
+      if (ColumnIndexesToBeLoaded!=null)
         ColumnIndexesToBeLoaded = null;
       var needToFetchSystemColumns = false;
       foreach (var pair in columns)
@@ -70,13 +70,13 @@ namespace Xtensive.Orm.Internals.Prefetch
           if (pair.Value.IsPrimaryKey || pair.Value.IsSystem)
             needToFetchSystemColumns = ExactType && tuple==null;
           else {
-            if (ColumnIndexesToBeLoaded == null)
+            if (ColumnIndexesToBeLoaded==null)
               ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
             ColumnIndexesToBeLoaded.Add(pair.Key);
           }
-      if (needToFetchSystemColumns && ColumnIndexesToBeLoaded == null)
+      if (needToFetchSystemColumns && ColumnIndexesToBeLoaded==null)
         ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
-      return ColumnIndexesToBeLoaded != null;
+      return ColumnIndexesToBeLoaded!=null;
     }
 
     private List<int> CreateColumnIndexCollection()
