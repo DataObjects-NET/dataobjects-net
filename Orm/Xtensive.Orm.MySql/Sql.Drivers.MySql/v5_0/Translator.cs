@@ -399,10 +399,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           if (cascadableAction is SqlDropConstraint)
             return string.Empty;
           return cascadableAction.Cascade ? "CASCADE" : "RESTRICT";
-          break;
         default:
           return base.Translate(context, node, section);
-          break;
       }
     }
 
