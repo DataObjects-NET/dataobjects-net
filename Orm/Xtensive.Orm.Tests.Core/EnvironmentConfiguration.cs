@@ -5,11 +5,16 @@
 // Created:    2010.02.11
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Xtensive.Orm.Tests
 {
   public static class EnvironmentConfiguration
   {
+    private const string ConfigurationKey = "X_CONFIGURATION";
+
     private const string StorageKey = "X_STORAGE";
     private const string NorthwindConnectionStringKey = "X_NORTHWIND";
 
@@ -22,11 +27,12 @@ namespace Xtensive.Orm.Tests
       "Data Source=localhost; Initial Catalog = Northwind; Integrated Security=SSPI;";
 
     private static bool isInitialized;
-    private static string northwindConnectionString;
+    private static Dictionary<string, string> configuration;
 
     private static string storage;
-    private static string connectionString;
+    private static string northwindConnectionString;
     private static string connectionUrl;
+    private static string connectionString;
     private static string provider;
 
     public static string Storage {
@@ -64,13 +70,15 @@ namespace Xtensive.Orm.Tests
       }
     }
 
-    private static string GetEnvironmentVariable(string key)
+    private static string GetVariable(string key)
     {
       string result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
       if (!string.IsNullOrEmpty(result))
         return result;
       result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User);
       if (!string.IsNullOrEmpty(result))
+        return result;
+      if (configuration!=null && configuration.TryGetValue(key, out result) && !string.IsNullOrEmpty(result))
         return result;
       return null;
     }
@@ -81,14 +89,31 @@ namespace Xtensive.Orm.Tests
         return;
       isInitialized = true;
 
-      storage = GetEnvironmentVariable(StorageKey) ?? DefaultStorage;
+      var configurationFile = GetVariable(ConfigurationKey);
+      if (configurationFile!=null && File.Exists(configurationFile))
+        LoadConfigurationFile(configurationFile);
+
+      storage = GetVariable(StorageKey) ?? DefaultStorage;
       northwindConnectionString =
-        GetEnvironmentVariable(NorthwindConnectionStringKey) ?? DefaultNorthwindConnectionString;
+        GetVariable(NorthwindConnectionStringKey) ?? DefaultNorthwindConnectionString;
 
       var name = storage.ToUpper();
-      connectionUrl = GetEnvironmentVariable(string.Format(ConnectionUrlKeyFormat, name));
-      connectionString = GetEnvironmentVariable(string.Format(ConnectionStringKeyFormat, name));
-      provider = GetEnvironmentVariable(string.Format(ProviderKeyFormat, name));
+      connectionUrl = GetVariable(string.Format(ConnectionUrlKeyFormat, name));
+      connectionString = GetVariable(string.Format(ConnectionStringKeyFormat, name));
+      provider = GetVariable(string.Format(ProviderKeyFormat, name));
+    }
+
+    private static void LoadConfigurationFile(string file)
+    {
+      var entries =
+        from line in File.ReadAllLines(file)
+        let items = line.Trim().Split(new[] {'='}, 2)
+        where items.Length==2
+        let key = items[0].Trim()
+        let value = items[1].Trim()
+        where key!=string.Empty && value!=string.Empty
+        select new {key, value};
+      configuration = entries.ToDictionary(i => i.key, i => i.value);
     }
   }
 }
