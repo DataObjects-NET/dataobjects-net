@@ -74,48 +74,6 @@ namespace Xtensive.Orm.Tests
         IgnoreMe("This test requires storage that does not support at least one of the '{0}' features", disallowedFeatures);
     }
 
-    public static void InheritanceSchemaIs(InheritanceSchema requiredInheritanceSchema)
-    {
-      EnsureIsInitialized();
-      if (EnvironmentConfiguration.InheritanceSchema!=requiredInheritanceSchema)
-        IgnoreMe("This test requires '{0}' inheritance schema", requiredInheritanceSchema);
-    }
-
-    public static void InheritanceSchemaIsNot(InheritanceSchema disallowedSchema)
-    {
-      EnsureIsInitialized();
-      if (EnvironmentConfiguration.InheritanceSchema==disallowedSchema)
-        IgnoreMe("This test requires any inheritance schema except '{0}'", disallowedSchema);
-    }
-
-    public static void ForeignKeyModeIs(ForeignKeyMode requiredForeignKeyMode)
-    {
-      EnsureIsInitialized();
-      if (EnvironmentConfiguration.ForeignKeyMode!=requiredForeignKeyMode)
-        IgnoreMe("This test requires '{0}' foreign key mode", requiredForeignKeyMode);
-    }
-
-    public static void ForeignKeyModeIsNot(ForeignKeyMode disallowedForeignKeyMode)
-    {
-      EnsureIsInitialized();
-      if (EnvironmentConfiguration.ForeignKeyMode==disallowedForeignKeyMode)
-        IgnoreMe("This test requires any foreign key mode except '{0}'", disallowedForeignKeyMode);
-    }
-
-    public static void TypeIdBehaviorIs(TypeIdBehavior requiredTypeIdBehavior)
-    {
-      EnsureIsInitialized();
-      if (EnvironmentConfiguration.TypeIdBehavior!=requiredTypeIdBehavior)
-        IgnoreMe("This test requires '{0}' type id behavior", requiredTypeIdBehavior);
-    }
-
-    public static void TypeIdBehaviorIsNot(TypeIdBehavior disallowedTypeIdBehavior)
-    {
-      EnsureIsInitialized();
-      if (EnvironmentConfiguration.TypeIdBehavior==disallowedTypeIdBehavior)
-        IgnoreMe("This test requires any type id behavior except '{0}'", disallowedTypeIdBehavior);
-    }
-
     private static void IgnoreMe(string message, object argument)
     {
       throw new IgnoreException(string.Format(message, argument));
