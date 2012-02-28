@@ -36,9 +36,9 @@ Help\*.chm
 Manual\Temp\*
 Release.Files\*
 
-Lib/DotNetReactor/Reactor.license
-Lib/DotNetReactor/Reactor.v3lic
-Lib/DotNetReactor/Reactor.nrcfg
+Lib/DotNetReactor/*.license
+Lib/DotNetReactor/*.v3lic
+Lib/DotNetReactor/*.nrcfg
 
 _Build
 _Work
