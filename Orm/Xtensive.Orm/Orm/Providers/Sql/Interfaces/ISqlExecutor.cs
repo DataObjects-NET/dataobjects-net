@@ -1,28 +1,32 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+﻿// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2009.10.30
+// Created:    2012.02.29
 
-using System.Collections.Generic;
 using System.Data.Common;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers.Sql
 {
   /// <summary>
-  /// A service, that provides SQL query execution functionality.
+  /// Provides simple execution API for SQL queries.
   /// </summary>
-  public interface IQueryExecutor
+  public interface ISqlExecutor
   {
     /// <summary>
-    /// Executes the specified request.
+    /// Executes the specified query statement. This method is similar to <see cref="DbCommand.ExecuteReader()"/>.
     /// </summary>
-    /// <param name="request">The request to execute.</param>
-    /// <returns><see cref="IEnumerator{Tuple}"/> that contains result of execution.</returns>
-    IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request);
+    /// <param name="statement">The statement to execute.</param>
+    /// <returns>Result of execution.</returns>
+    DbDataReader ExecuteReader(ISqlCompileUnit statement);
+
+    /// <summary>
+    /// Executes the specified query statement. This method is similar to <see cref="DbCommand.ExecuteReader()"/>.
+    /// </summary>
+    /// <param name="commandText">The statement to execute.</param>
+    /// <returns>Result of execution.</returns>
+    DbDataReader ExecuteReader(string commandText);
 
     /// <summary>
     /// Executes the specified scalar statement. This method is similar to <see cref="DbCommand.ExecuteScalar"/>.
@@ -51,18 +55,5 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="commandText">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
     int ExecuteNonQuery(string commandText);
-    
-    /// <summary>
-    /// Stores the specified tuples in specified temporary table.
-    /// </summary>
-    /// <param name="descriptor">The descriptor of temporary table.</param>
-    /// <param name="tuples">The tuples to store.</param>
-    void Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples);
-
-    /// <summary>
-    /// Clears the specified temporary table.
-    /// </summary>
-    /// <param name="descriptor">The descriptor of temporary table.</param>
-    void Clear(TemporaryTableDescriptor descriptor);
   }
 }

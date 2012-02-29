@@ -151,12 +151,6 @@ namespace Xtensive.Orm.Internals
     }
 
     /// <inheritdoc/>
-    public override T GetService<T>()
-    {
-      return ChainedHandler.GetService<T>();
-    }
-
-    /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       return ChainedHandler.CreateEnumerationContext();

@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var sessionContext = (EnumerationContext) context;
       var sessionHandler = sessionContext.SessionHandler;
-      var executor = sessionHandler.GetService<IQueryExecutor>(true);
+      var executor = sessionHandler.GetService<IProviderExecutor>();
       var enumerator = executor.ExecuteTupleReader(Request);
       using (enumerator) {
         while (enumerator.MoveNext()) {

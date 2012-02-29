@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     protected void ExecuteNonQuery(EnumerationContext context, string statement)
     {
-      context.SessionHandler.GetService<IQueryExecutor>(true).ExecuteNonQuery(statement);
+      context.SessionHandler.GetService<ISqlExecutor>().ExecuteNonQuery(statement);
     }
 
     private static TemporaryTableStateRegistry GetRegistry(Session session)

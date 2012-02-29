@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceSchema, StorageModel targetSchema)
     {
-      var queryExecutor = SessionHandler.GetService<IQueryExecutor>(true);
+      var sqlExecutor = SessionHandler.GetService<ISqlExecutor>();
 
       var cachingKeyGeneratorService = (CachingKeyGeneratorService)DomainHandler.Domain.Services.Get<ICachingKeyGeneratorService>();
       var enforceChangedColumns = UpgradeContext.Demand().Hints
@@ -52,8 +52,7 @@ namespace Xtensive.Orm.Providers.Sql
         sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
         Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
-        queryExecutor.ExecuteScalar,
-        queryExecutor.ExecuteNonQuery,
+        sqlExecutor,
         cachingKeyGeneratorService.GetCurrentValueImplementation,
         !skipConstraints);
 

@@ -18,6 +18,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Providers
 {
@@ -25,11 +26,10 @@ namespace Xtensive.Orm.Providers
   /// Base <see cref="Session"/> handler class.
   /// </summary>
   public abstract partial class SessionHandler : InitializableHandlerBase,
-    IHasServices,
     IDisposable
   {
     private static readonly object CachingRegion = new object();
-    
+
     /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
@@ -136,11 +136,16 @@ namespace Xtensive.Orm.Providers
     #region IHasServices members
 
     /// <inheritdoc/>
-    public virtual T GetService<T>()
+    public T GetService<T>()
       where T : class
     {
-      var result = this as T;
-      return result;
+      var service = GetRealHandler() as T;
+      if (service!=null)
+        return service;
+      throw new NotSupportedException(string.Format(
+        "Service '{0}' is not supported by '{1}'",
+        typeof (T).GetShortName(),
+        typeof(SessionHandler)));
     }
 
     #endregion

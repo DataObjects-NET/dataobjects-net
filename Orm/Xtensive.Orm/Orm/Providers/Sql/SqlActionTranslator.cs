@@ -45,8 +45,7 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
     private readonly List<string> enforceChangedColumns = new List<string>();
-    private readonly Func<ISqlCompileUnit, object> scalarExecutor;
-    private readonly Func<ISqlCompileUnit, int> nonQueryExecutor;
+    private readonly ISqlExecutor sqlExecutor;
     private readonly Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler;
     private readonly bool allowCreateConstraints;
 
@@ -1152,15 +1151,15 @@ namespace Xtensive.Orm.Providers.Sql
       var script = getNextImplementationHandler.Invoke(providerInfo, schema, sequenceInfoName);
       
       if (providerInfo.Supports(ProviderFeatures.Sequences))
-        return Convert.ToInt64(scalarExecutor.Invoke(script));
+        return Convert.ToInt64(sqlExecutor.ExecuteScalar(script));
 
       var batch = script as SqlBatch;
       if (batch == null || providerInfo.Supports(ProviderFeatures.DdlBatches))
-        return Convert.ToInt64(scalarExecutor.Invoke(script));
+        return Convert.ToInt64(sqlExecutor.ExecuteScalar(script));
 
       ArgumentValidator.EnsureArgumentIsInRange(batch.Count, 2, 2, "batch.Count");
-      nonQueryExecutor.Invoke((ISqlCompileUnit) batch[0]);
-      return Convert.ToInt64(scalarExecutor.Invoke((ISqlCompileUnit) batch[1]));
+      sqlExecutor.ExecuteNonQuery((ISqlCompileUnit) batch[0]);
+      return Convert.ToInt64(sqlExecutor.ExecuteScalar((ISqlCompileUnit) batch[1]));
     }
 
     private static SqlUpgradeStage GetSqlUpgradeStage(UpgradeStage stage)
@@ -1212,8 +1211,7 @@ namespace Xtensive.Orm.Providers.Sql
       StorageDriver driver, 
       string typeIdColumnName, 
       List<string> enforceChangedColumns, 
-      Func<ISqlCompileUnit, object> scalarExecutor, 
-      Func<ISqlCompileUnit, int> nonQueryExecutor,
+      ISqlExecutor sqlExecutor,
       Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler,
       bool allowCreateConstraints)
     {
@@ -1223,8 +1221,7 @@ namespace Xtensive.Orm.Providers.Sql
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeIdColumnName, "typeIdColumnName");
-      ArgumentValidator.EnsureArgumentNotNull(scalarExecutor, "scalarExecutor");
-      ArgumentValidator.EnsureArgumentNotNull(nonQueryExecutor, "nonQueryExecutor");
+      ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
       ArgumentValidator.EnsureArgumentNotNull(getNextImplementationHandler, "getNextImplementationHandler");
       
       this.typeIdColumnName = typeIdColumnName;
@@ -1235,8 +1232,7 @@ namespace Xtensive.Orm.Providers.Sql
       this.sourceModel = sourceModel;
       this.targetModel = targetModel;
       this.enforceChangedColumns = enforceChangedColumns;
-      this.scalarExecutor = scalarExecutor;
-      this.nonQueryExecutor = nonQueryExecutor;
+      this.sqlExecutor = sqlExecutor;
       this.getNextImplementationHandler = getNextImplementationHandler;
       this.allowCreateConstraints = allowCreateConstraints;
     }

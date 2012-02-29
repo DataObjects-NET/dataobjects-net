@@ -162,7 +162,6 @@
     <Compile Include="Orm\Providers\Interfaces\ICachingKeyGeneratorService.cs" />
     <Compile Include="Orm\Providers\Interfaces\IDirectSqlService.cs" />
     <Compile Include="Orm\Providers\IsolationLevelConverter.cs" />
-    <Compile Include="Orm\Providers\MetadataAccessor.cs" />
     <Compile Include="Orm\Providers\NameBuilder.cs" />
     <Compile Include="Orm\Providers\ProviderAttribute.cs" />
     <Compile Include="Orm\Providers\ProviderFeatures.cs" />
@@ -191,10 +190,12 @@
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlPersistTask.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlLoadTask.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlTask.cs" />
+    <Compile Include="Orm\Providers\Sql\SessionHandler.ISqlExecutor.cs" />
     <Compile Include="Orm\Providers\Sql\DbCommandExtensions.cs" />
     <Compile Include="Orm\Providers\Sql\DbDataReaderAccessor.cs" />
     <Compile Include="Orm\Providers\Sql\DomainHandler.cs" />
     <Compile Include="Orm\Providers\Sql\Interfaces\IQueryRequest.cs" />
+    <Compile Include="Orm\Providers\Sql\Interfaces\ISqlExecutor.cs" />
     <Compile Include="Orm\Providers\Sql\StorageDriver.cs" />
     <Compile Include="Orm\Providers\Sql\StorageDriver.Operations.cs" />
     <Compile Include="Orm\Providers\Sql\StorageDriver.ValueTypeMapping.cs" />
@@ -216,7 +217,7 @@
     <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\VbDateAndTimeCompilers.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\MemberCompilers\VBStringsCompilers.cs" />
     <Compile Include="Orm\Providers\Sql\HandlerFactory.cs" />
-    <Compile Include="Orm\Providers\Sql\Interfaces\IQueryExecutor.cs" />
+    <Compile Include="Orm\Providers\Sql\Interfaces\IProviderExecutor.cs" />
     <Compile Include="Orm\Providers\Sql\Log.cs" />
     <Compile Include="Orm\Providers\Sql\ManualPagingSqlCompiler.cs" />
     <Compile Include="Orm\Providers\Sql\Mappings\ColumnMapping.cs" />
@@ -243,7 +244,7 @@
     <Compile Include="Orm\Providers\Sql\SchemaUpgradeHandler.cs" />
     <Compile Include="Orm\Providers\Sql\SessionHandler.cs" />
     <Compile Include="Orm\Providers\Sql\SessionHandler.IDirectSqlService.cs" />
-    <Compile Include="Orm\Providers\Sql\SessionHandler.IQueryExecutor.cs" />
+    <Compile Include="Orm\Providers\Sql\SessionHandler.IProviderExecutor.cs" />
     <Compile Include="Orm\Providers\Sql\SqlActionTranslator.cs" />
     <Compile Include="Orm\Providers\Sql\SqlCompiler.Aggregate.cs" />
     <Compile Include="Orm\Providers\Sql\SqlCompiler.Apply.cs" />

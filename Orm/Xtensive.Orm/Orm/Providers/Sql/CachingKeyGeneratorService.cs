@@ -47,10 +47,10 @@ namespace Xtensive.Orm.Providers.Sql
       using (var session = isUpgradeRunning ? null : handlers.Domain.OpenSession(SessionType.KeyGenerator))
       using (var t = session == null ? null : session.OpenTransaction()) {
         var handler = (session ?? Session.Current).Handler;
-        var queryExecutor = handler.GetService<IQueryExecutor>(true);
+        var executor = handler.GetService<ISqlExecutor>();
         if (!info.InsertRequest.IsNullOrEmpty())
-          queryExecutor.ExecuteNonQuery(info.InsertRequest);
-        object value = queryExecutor.ExecuteScalar(info.SelectRequest);
+          executor.ExecuteNonQuery(info.InsertRequest);
+        object value = executor.ExecuteScalar(info.SelectRequest);
         hiValue = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
         // Intentionally rolling back the transaction!
       }

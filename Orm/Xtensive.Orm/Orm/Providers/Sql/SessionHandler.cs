@@ -19,7 +19,8 @@ namespace Xtensive.Orm.Providers.Sql
   /// <see cref="Session"/>-level handler for SQL storages.
   /// </summary>
   public partial class SessionHandler : Providers.SessionHandler,
-    IQueryExecutor,
+    IProviderExecutor,
+    ISqlExecutor,
     IDirectSqlService
   {
     private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations =

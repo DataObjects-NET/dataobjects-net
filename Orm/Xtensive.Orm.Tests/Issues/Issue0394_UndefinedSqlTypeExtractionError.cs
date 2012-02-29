@@ -43,8 +43,8 @@ namespace Xtensive.Orm.Tests.Issues
           else
             createTableCommandText = "CREATE TABLE [TestTable] ([TestColumn] [money])";
           var sessionHandler = (SessionHandler) session.Handler;
-          var queryExecutor = sessionHandler.GetService<IQueryExecutor>(true);
-          queryExecutor.ExecuteNonQuery(createTableCommandText);
+          var executor = sessionHandler.GetService<ISqlExecutor>();
+          executor.ExecuteNonQuery(createTableCommandText);
           transactionScope.Complete();
         }
       }
