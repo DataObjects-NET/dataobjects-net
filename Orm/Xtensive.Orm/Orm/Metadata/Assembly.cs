@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Metadata
     /// Gets the name of the assembly.
     /// </summary>
     [Key]
-    [Field(Length = 256)]
+    [Field(Length = 255)]
     public string Name { get; private set; }
 
     /// <summary>
