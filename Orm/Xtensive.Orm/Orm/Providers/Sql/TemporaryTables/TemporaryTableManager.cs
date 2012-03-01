@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers.Sql
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
-    private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
+    private Providers.DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
 
     /// <summary>
     /// Builds the descriptor of a temporary table.

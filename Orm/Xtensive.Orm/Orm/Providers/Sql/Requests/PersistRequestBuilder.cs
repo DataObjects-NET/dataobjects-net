@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Providers.Sql
   {
     private bool useLargeObjects;
 
-    private DomainHandler domainHandler;
+    private Providers.DomainHandler domainHandler;
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      domainHandler = (DomainHandler) Handlers.DomainHandler;
+      domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;
       providerInfo = Handlers.ProviderInfo;
       useLargeObjects = Handlers.ProviderInfo.Supports(ProviderFeatures.LargeObjects);

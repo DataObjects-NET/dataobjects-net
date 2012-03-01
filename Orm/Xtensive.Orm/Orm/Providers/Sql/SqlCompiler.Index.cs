@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private SqlSelect BuildTableQuery(IndexInfo index)
     {
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      var domainHandler = Handlers.DomainHandler;
       var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
       var atRootPolicy = false;
       if (table==null) {

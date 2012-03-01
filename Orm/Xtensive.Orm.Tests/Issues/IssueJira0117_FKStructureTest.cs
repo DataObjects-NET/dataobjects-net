@@ -6,13 +6,11 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql.Model;
-using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 
 namespace Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel
 {
@@ -105,7 +103,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ForeignKeysCountTest()
     {
-      var domainHandler = (DomainHandler) Domain.Handler;
+      var domainHandler = Domain.Handler;
       var schema = domainHandler.Schema;
 
       var count = GetForeignKeysCount(schema, typeof(Owner1));

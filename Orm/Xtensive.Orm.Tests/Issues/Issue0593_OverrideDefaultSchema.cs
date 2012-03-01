@@ -10,7 +10,6 @@ using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql.Tests;
-using SqlDomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -41,7 +40,7 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = Domain.Configuration;
       Assert.AreEqual(SchemaName, configuration.DefaultSchema);
       Assert.AreEqual(SchemaName, configuration.Clone().DefaultSchema);
-      var handler = (SqlDomainHandler) Domain.Handler;
+      var handler = Domain.Handler;
       Assert.AreEqual(handler.Schema.Name, SchemaName);
     }
 

@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers.SqlServer
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      var domainHandler = Handlers.DomainHandler;
       var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
       var binding = new QueryParameterBinding(
         provider.SearchCriteria.Invoke,

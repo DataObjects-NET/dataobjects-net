@@ -7,14 +7,11 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Orm;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Orm.Tests.Storage.FieldDefaultValueModel;
 using Xtensive.Orm.Configuration;
-using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 
 namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 {
@@ -273,14 +270,12 @@ namespace Xtensive.Orm.Tests.Storage
           key = new X().Key;
           t.Complete();
         }
-        var domainHandler = Domain.Handlers.DomainHandler as DomainHandler;
-        var minValue = new DateTime();
-        if (domainHandler != null) {
-          var field = typeof (StorageDriver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
-          var sqlDriver = (SqlDriver) field.GetValue(Domain.Handlers.StorageDriver);
-          var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
-          minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
-        }
+
+        var field = typeof (StorageDriver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
+        var sqlDriver = (SqlDriver) field.GetValue(Domain.Handlers.StorageDriver);
+        var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
+        var minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
+
         using (var t = Session.Current.OpenTransaction()) {
           X x = Query.SingleOrDefault<X>(key);
           Assert.AreEqual(true, x.FBool);

@@ -6,25 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.IoC;
-using Xtensive.Orm;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers.Sql.Expressions;
-using Xtensive.Sql;
-using Xtensive.Sql.Compiler;
-using Xtensive.Threading;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Sql.Model;
-using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.PreCompilation;
 using Xtensive.Orm.Rse.PreCompilation.Correction;
 using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Orm.Rse.PreCompilation.Optimization;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -33,35 +21,6 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache;
-
-    private ProviderInfo providerInfo;
-
-    /// <summary>
-    /// Gets the storage schema.
-    /// </summary>
-    public Schema Schema { get; private set; }
-
-    /// <summary>
-    /// Gets the model mapping.
-    /// </summary>
-    public ModelMapping Mapping { get; private set; }
-
-    /// <summary>
-    /// Gets the SQL request builder.
-    /// </summary>
-    public PersistRequestBuilder PersistRequestBuilder { get; private set; }
-
-    /// <summary>
-    /// Gets the temporary table manager.
-    /// </summary>
-    public TemporaryTableManager TemporaryTableManager { get; private set; }
-
-    /// <summary>
-    /// Gets the command processor factory.
-    /// </summary>
-    public CommandProcessorFactory CommandProcessorFactory { get; private set; }
-
     /// <inheritdoc/>
     protected override IEnumerable<Type> GetProviderCompilerContainers()
     {
@@ -94,16 +53,6 @@ namespace Xtensive.Orm.Providers.Sql
       return result;
     }
 
-    /// <summary>
-    /// Gets the persist request for the specified <paramref name="task"/>.
-    /// </summary>
-    /// <param name="task">The task to get request from.</param>
-    /// <returns>A <see cref="PersistRequest"/> that represents <paramref name="task"/>.</returns>
-    public IEnumerable<PersistRequest> GetPersistRequest(PersistRequestBuilderTask task)
-    {
-      return requestCache.GetValue(task, PersistRequestBuilder.Build);
-    }
-
     private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
       bool isOrderSensitive = provider.Type==ProviderType.Skip 
@@ -126,37 +75,12 @@ namespace Xtensive.Orm.Providers.Sql
       bool isSorter = provider.Type==ProviderType.Sort || provider.Type == ProviderType.Index;
       return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
-    
-    /// <inheritdoc/>
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    public override void BuildMapping()
-    {
-      var context = UpgradeContext.Demand();
-      var domainModel = Handlers.Domain.Model;
-      Schema = (Schema) Handlers.SchemaUpgradeHandler.GetNativeExtractedSchema(); 
-
-      foreach (var type in domainModel.Types) {
-        var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (primaryIndex == null || Mapping[primaryIndex] != null)
-          continue;
-        if (primaryIndex.IsAbstract)
-          continue;
-        if (context.Configuration.UpgradeMode.IsLegacy() && type.IsSystem)
-          continue;
-        
-        var storageTableName = primaryIndex.ReflectedType.MappingName;
-        var storageTable = Schema.Tables[storageTableName];
-        if (storageTable==null)
-          throw new DomainBuilderException(string.Format(Strings.ExTableXIsNotFound, storageTableName));
-        Mapping.Register(primaryIndex, storageTable);
-      }
-
-      Mapping.Lock();
-    }
 
     /// <inheritdoc/>
     protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
+      var providerInfo = Handlers.ProviderInfo;
+
       var applyCorrector = new ApplyProviderCorrector(
         !providerInfo.Supports(ProviderFeatures.Apply));
       var skipTakeCorrector = new SkipTakeCorrector(
@@ -173,27 +97,6 @@ namespace Xtensive.Orm.Providers.Sql
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
       registrations.Add(new ServiceRegistration(typeof (ICachingKeyGeneratorService), new CachingKeyGeneratorService(Handlers)));
-    }
-
-    // Initialization
-
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-      base.Initialize();
-
-      providerInfo = Handlers.ProviderInfo;
-      requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
-
-      Mapping = new ModelMapping();
-
-      PersistRequestBuilder = Handlers.Factory.CreateHandler<PersistRequestBuilder>();
-      TemporaryTableManager = Handlers.Factory.CreateHandler<TemporaryTableManager>();
-      CommandProcessorFactory = Handlers.Factory.CreateHandler<CommandProcessorFactory>();
-
-      TemporaryTableManager.Initialize();
-      PersistRequestBuilder.Initialize();
-      CommandProcessorFactory.Initialize();
     }
   }
 }

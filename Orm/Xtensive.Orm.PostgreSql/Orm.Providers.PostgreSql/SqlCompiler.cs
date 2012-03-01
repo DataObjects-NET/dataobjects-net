@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      var domainHandler = Handlers.DomainHandler;
       var rankColumnName = provider.Header.Columns.Last().Name;
 
       var stringTypeMapping = Driver.GetTypeMapping(typeof (string));

@@ -11,8 +11,13 @@ using Xtensive.IoC;
 using Xtensive.Linq;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Sorting;
+using Xtensive.Sql.Model;
+using Xtensive.Threading;
 
 namespace Xtensive.Orm.Providers
 {
@@ -21,9 +26,9 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {
-    private readonly object syncRoot = new object();
-
     private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
+    private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache
+      = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
 
     /// <summary>
     /// Gets the domain this handler is bound to.
@@ -45,6 +50,62 @@ namespace Xtensive.Orm.Providers
     public IEnumerable<IQueryPreprocessor> QueryPreprocessors { get; private set; }
 
     /// <summary>
+    /// Gets the storage schema.
+    /// </summary>
+    public Schema Schema { get; private set; }
+
+    /// <summary>
+    /// Gets the model mapping.
+    /// </summary>
+    public ModelMapping Mapping { get; private set; }
+
+    /// <summary>
+    /// Gets the SQL request builder.
+    /// </summary>
+    public PersistRequestBuilder PersistRequestBuilder { get; private set; }
+
+    /// <summary>
+    /// Gets the temporary table manager.
+    /// </summary>
+    public TemporaryTableManager TemporaryTableManager { get; private set; }
+
+    /// <summary>
+    /// Gets the command processor factory.
+    /// </summary>
+    public CommandProcessorFactory CommandProcessorFactory { get; private set; }
+
+    /// <summary>
+    /// Builds the mapping schema.
+    /// </summary>
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
+    public void BuildMapping()
+    {
+      var context = UpgradeContext.Demand();
+      var domainModel = Handlers.Domain.Model;
+
+      Mapping = new ModelMapping();
+      Schema = (Schema) Handlers.SchemaUpgradeHandler.GetNativeExtractedSchema();
+
+      foreach (var type in domainModel.Types) {
+        var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+        if (primaryIndex==null || Mapping[primaryIndex]!=null)
+          continue;
+        if (primaryIndex.IsAbstract)
+          continue;
+        if (context.Configuration.UpgradeMode.IsLegacy() && type.IsSystem)
+          continue;
+
+        var storageTableName = primaryIndex.ReflectedType.MappingName;
+        var storageTable = Schema.Tables[storageTableName];
+        if (storageTable==null)
+          throw new DomainBuilderException(string.Format(Strings.ExTableXIsNotFound, storageTableName));
+        Mapping.Register(primaryIndex, storageTable);
+      }
+
+      Mapping.Lock();
+    }
+
+    /// <summary>
     /// Gets the member compiler provider by its type parameter.
     /// </summary>
     /// <typeparam name="T">The type of member compiler provider type parameter.</typeparam>
@@ -57,7 +118,17 @@ namespace Xtensive.Orm.Providers
       return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof (T)];
     }
 
-    // Abstract methods
+    /// <summary>
+    /// Gets the persist request for the specified <paramref name="task"/>.
+    /// </summary>
+    /// <param name="task">The task to get request from.</param>
+    /// <returns>A <see cref="PersistRequest"/> that represents <paramref name="task"/>.</returns>
+    public IEnumerable<PersistRequest> GetPersistRequest(PersistRequestBuilderTask task)
+    {
+      return requestCache.GetValue(task, PersistRequestBuilder.Build);
+    }
+
+    #region Customization members
 
     /// <summary>
     /// Creates the compiler.
@@ -90,10 +161,7 @@ namespace Xtensive.Orm.Providers
       return EnumerableUtils<Type>.Empty;
     }
 
-    /// <summary>
-    /// Builds the mapping schema.
-    /// </summary>
-    public abstract void BuildMapping();
+    #endregion
 
     #region IoC support (Domain.Services)
 
@@ -160,6 +228,16 @@ namespace Xtensive.Orm.Providers
     {
       BuildMemberCompilerProviders();
       BuildCompilationService();
+
+      PersistRequestBuilder = Handlers.Factory.CreateHandler<PersistRequestBuilder>();
+      PersistRequestBuilder.Initialize();
+
+      TemporaryTableManager = Handlers.Factory.CreateHandler<TemporaryTableManager>();
+      TemporaryTableManager.Initialize();
+
+      CommandProcessorFactory = Handlers.Factory.CreateHandler<CommandProcessorFactory>();
+      CommandProcessorFactory.Initialize();
+
     }
 
     public void ConfigureServices()

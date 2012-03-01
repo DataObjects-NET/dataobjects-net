@@ -41,8 +41,9 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
 
     private bool fixBooleanExpressions;
     private bool emptyStringIsNull;
-    private bool executed;
     private ProviderInfo providerInfo;
+
+    private bool executed;
 
     public HashSet<QueryParameterBinding> Bindings { get { return bindings; } }
     
@@ -397,22 +398,23 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
 
     // Constructors
 
-    public ExpressionProcessor(LambdaExpression lambda, DomainHandler domainHandler, SqlCompiler compiler, params List<SqlExpression>[] sourceColumns)
+    public ExpressionProcessor(
+      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, params List<SqlExpression>[] sourceColumns)
     {
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
-      ArgumentValidator.EnsureArgumentNotNull(domainHandler, "domainHandler");
+      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
 
       this.compiler = compiler; // This might be null, check before use!
       this.lambda = lambda;
       this.sourceColumns = sourceColumns;
 
-      var handlers = domainHandler.Handlers;
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
+
       fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
-      memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();
+      memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
 
       bindings = new HashSet<QueryParameterBinding>();
       activeParameters = new List<ParameterExpression>();

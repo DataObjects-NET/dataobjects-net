@@ -9,7 +9,6 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0102_NoForeignKeyOnInterfaceField_Model;
 using Xtensive.Orm.Providers;
-using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0102_NoForeignKeyOnInterfaceField_Model
@@ -55,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      var dh = Domain.Handler as DomainHandler;
+      var dh = Domain.Handler;
       var ti = Domain.Model.Types[typeof (MyEntity)];
       string tableName = Domain.Services.Get<NameBuilder>().ApplyNamingRules(ti.MappingName);
       Assert.IsTrue(dh.Schema.Tables[tableName].TableConstraints.OfType<ForeignKey>().Any());

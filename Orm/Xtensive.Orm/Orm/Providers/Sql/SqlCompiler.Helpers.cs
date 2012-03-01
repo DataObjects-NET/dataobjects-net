@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers.Sql
     
     protected Pair<SqlExpression, HashSet<QueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlExpression>[] sourceColumns)
     {
-      var processor = new ExpressionProcessor(le, DomainHandler, this, sourceColumns);
+      var processor = new ExpressionProcessor(le, Handlers, this, sourceColumns);
       var result = new Pair<SqlExpression, HashSet<QueryParameterBinding>>(processor.Translate(), processor.Bindings);
       return result;
     }

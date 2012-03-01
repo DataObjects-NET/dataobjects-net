@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the SQL domain handler.
     /// </summary>
-    protected DomainHandler DomainHandler { get { return ((DomainHandler) Handlers.DomainHandler); } }
+    protected Providers.DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
 
     /// <summary>
     /// Gets the SQL driver.

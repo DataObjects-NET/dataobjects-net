@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Tests.Storage
       var declaringType = domain.Model.Types[type];
       if (declaringType.Hierarchy.InheritanceSchema==InheritanceSchema.SingleTable)
         declaringType = declaringType.Hierarchy.Root;
-      return ((Providers.Sql.DomainHandler) domain.Handler).Schema.Tables[declaringType.MappingName];
+      return domain.Handler.Schema.Tables[declaringType.MappingName];
     }
 
     private void CheckType(Type type, bool primaryKeyIsClustered, string clusteredSecondaryIndexColumn)

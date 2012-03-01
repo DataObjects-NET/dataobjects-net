@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Providers.Sql
 {
   public class SqlProviderPreparer : IPostCompiler
   {
-    private readonly DomainHandler domainHandler;
     private readonly HandlerAccessor handlers;
 
     public ExecutableProvider Process(ExecutableProvider rootProvider)
@@ -34,7 +33,6 @@ namespace Xtensive.Orm.Providers.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       this.handlers = handlers;
-      domainHandler = (DomainHandler) handlers.DomainHandler;
     }
   }
 }

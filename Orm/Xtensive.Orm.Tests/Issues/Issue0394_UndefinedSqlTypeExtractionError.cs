@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var domainHandler = (DomainHandler) Domain.Handler;
+          var domainHandler = Domain.Handler;
           string createTableCommandText;
           if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.SqlServer)
             createTableCommandText = "CREATE TABLE " + 
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
       var domain = BuildDomain(BuildConfiguration());
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var schema = ((DomainHandler) Domain.Handler).Schema;
+          var schema = Domain.Handler.Schema;
           Assert.IsNull(schema.Tables.SingleOrDefault(table => table.Name=="TestTable"));
           transactionScope.Complete();
         }

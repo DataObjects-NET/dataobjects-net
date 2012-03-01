@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the domain handler this provider is bound to.
     /// </summary>
-    protected DomainHandler DomainHandler { get { return (DomainHandler) handlers.DomainHandler; } }
+    protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
 
     /// <inheritdoc/>
     public override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)

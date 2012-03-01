@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers.Sql
       EnumerableUtils<ServiceRegistration>.Empty;
 
     private StorageDriver driver;
-    private DomainHandler domainHandler;
+    private Providers.DomainHandler domainHandler;
     private SqlConnection connection;
     private CommandProcessor commandProcessor;
 
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Providers.Sql
     public override void Initialize()
     {
       base.Initialize();
-      domainHandler = (DomainHandler) Handlers.DomainHandler;
+      domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;
     }
 

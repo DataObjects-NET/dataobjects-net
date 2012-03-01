@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Providers.Sql
     private CachingKeyGeneratorInfo GetKeyGeneratorInfo<TFieldType>(CachingKeyGenerator<TFieldType> generator)
     {
       var providerInfo = handlers.ProviderInfo;
-      var domainHandler = (DomainHandler)handlers.DomainHandler;
+      var domainHandler = handlers.DomainHandler;
       var sqlNext = GetNextImplementation(
         generator,
         providerInfo, 

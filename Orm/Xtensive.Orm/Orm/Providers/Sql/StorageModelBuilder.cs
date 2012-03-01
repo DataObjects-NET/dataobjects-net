@@ -22,9 +22,10 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public class StorageModelBuilder : Orm.Upgrade.StorageModelBuilder
   {
-    private readonly DomainHandler domainHandler;
+    private readonly Providers.DomainHandler domainHandler;
     private readonly ProviderInfo providerInfo;
     private readonly StorageDriver driver;
+    private readonly HandlerAccessor handlers;
     private readonly PartialIndexFilterNormalizer indexFilterNormalizer;
 
     public override StorageTypeInfo CreateType(Type type, int? length, int? precision, int? scale)
@@ -60,7 +61,7 @@ namespace Xtensive.Orm.Providers.Sql
         .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
         .Cast<SqlExpression>()
         .ToList();
-      var processor = new ExpressionProcessor(index.Filter.Expression, domainHandler, null, columns);
+      var processor = new ExpressionProcessor(index.Filter.Expression, handlers, null, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
       var expression = driver.Compile(fragment).GetCommandText();
       return new PartialIndexFilterInfo(expression, indexFilterNormalizer.Normalize(expression));
@@ -84,10 +85,12 @@ namespace Xtensive.Orm.Providers.Sql
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(indexFilterNormalizer, "indexFilterNormalizer");
 
-      providerInfo = handlers.ProviderInfo;
-      domainHandler = (DomainHandler) handlers.DomainHandler;
-      driver = handlers.StorageDriver;
+      this.handlers = handlers;
       this.indexFilterNormalizer = indexFilterNormalizer;
+
+      providerInfo = handlers.ProviderInfo;
+      domainHandler = handlers.DomainHandler;
+      driver = handlers.StorageDriver;
     }
   }
 }

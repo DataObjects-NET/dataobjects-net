@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers.Sql
   {
     private PartialIndexFilterNormalizer indexFilterNormalizer;
 
-    protected DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
+    protected Providers.DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
     protected SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
     protected StorageDriver Driver { get { return Handlers.StorageDriver; } }
 
