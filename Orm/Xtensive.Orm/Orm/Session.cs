@@ -367,7 +367,7 @@ namespace Xtensive.Orm
 
       // Handlers
       Handlers = domain.Handlers;
-      Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
+      Handler = Handlers.Factory.CreateHandler<SessionHandler>();
       Handler.Session = this;
       Handler.Initialize();
 

@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers
           & ForeignKeyMode.Hierarchy) > 0;
 
       var domainModelConverter = new DomainModelConverter(
-        domainHandler.ProviderInfo, GetStorageModelBuilder(), buildingContext.NameBuilder,
+        Handlers.StorageDriver.ProviderInfo, GetStorageModelBuilder(), buildingContext.NameBuilder,
         buildForeignKeys, buildHierarchyForeignKeys);
 
       var upgradeContext = UpgradeContext.Current;

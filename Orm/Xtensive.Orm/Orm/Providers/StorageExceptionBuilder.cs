@@ -7,12 +7,11 @@
 using System;
 using System.Linq;
 using System.Text;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
 
-namespace Xtensive.Orm.Providers.Sql
+namespace Xtensive.Orm.Providers
 {
   public sealed class StorageExceptionBuilder
   {

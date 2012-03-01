@@ -7,20 +7,20 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Orm;
 using Xtensive.Reflection;
-
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// An abstract base class for any storage factories.
   /// </summary>
-  public abstract class HandlerFactory : DomainBound
+  public abstract class HandlerFactory
   {
-    private readonly Dictionary<Type, Func<object>> constructors = new Dictionary<Type, Func<object>>();
     private static readonly Type HandlerBaseType = typeof(HandlerBase);
     private static readonly Type InitializableHandlerBaseType = typeof (InitializableHandlerBase);
+
+    private readonly Dictionary<Type, Func<object>> constructors = new Dictionary<Type, Func<object>>();
+    private HandlerAccessor handlers;
 
     /// <summary>
     /// Creates the handler of type <typeparamref name="T"/>.
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Providers
         return null;
 
       var result = (HandlerBase) constructor.Invoke();
-      result.Handlers = Domain.Handlers;
+      result.Handlers = handlers;
 
       return result;
     }
@@ -100,8 +100,10 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    internal void Initialize()
+    internal void Initialize(HandlerAccessor accessor)
     {
+      handlers = accessor;
+
       Type type = GetType();
       while (type!=typeof (HandlerFactory)) {
         RegisterHandlersFrom(type.Assembly, type.Namespace);

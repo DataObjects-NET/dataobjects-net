@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.25
 
-using Xtensive.Sql.Drivers.MySql;
 using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.MySql
@@ -14,11 +13,6 @@ namespace Xtensive.Orm.Providers.MySql
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
-    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
-    {
-      return new DriverFactory();
-    }
-
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);

@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.Oracle
   /// <summary>
   /// Storage provider for Oracle.
   /// </summary>
-  [Provider(WellKnown.Provider.Oracle)]
+  [Provider(WellKnown.Provider.Oracle, typeof (Xtensive.Sql.Drivers.Oracle.DriverFactory))]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

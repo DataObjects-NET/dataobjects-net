@@ -6,11 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.IoC;
 using Xtensive.Linq;
-using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse.Compilation;
@@ -30,12 +28,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the domain this handler is bound to.
     /// </summary>
-    public Domain Domain { get; private set; }
-
-    /// <summary>
-    /// Gets the information about provider's capabilities.
-    /// </summary>
-    public ProviderInfo ProviderInfo { get; private set; }
+    public Domain Domain { get { return Handlers.Domain; } }
 
     /// <summary>
     /// Gets the <see cref="Xtensive.Orm.Rse.Compilation.CompilationService"/>
@@ -102,12 +95,6 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public abstract void BuildMapping();
 
-    /// <summary>
-    /// Creates <see cref="ProviderInfo"/>.
-    /// </summary>
-    /// <returns></returns>
-    protected abstract ProviderInfo GetProviderInfo();
-
     #region IoC support (Domain.Services)
 
     /// <summary>
@@ -147,6 +134,13 @@ namespace Xtensive.Orm.Providers
       CompilationService = new CompilationService(CreateCompiler, CreatePreCompiler, CreatePostCompiler);
     }
 
+    private void BuildMemberCompilerProviders()
+    {
+      memberCompilerProviders = MemberCompilerProviderBuilder.Build(
+        Domain.Configuration,
+        GetProviderCompilerContainers());
+    }
+
     private void BuildQueryPreprocessors()
     {
       var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
@@ -164,10 +158,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void Initialize()
     {
-      Domain = BuildingContext.Demand().Domain;
-      ProviderInfo = GetProviderInfo();
-      memberCompilerProviders = MemberCompilerProviderBuilder.Build(
-        Domain.Configuration, GetProviderCompilerContainers());
+      BuildMemberCompilerProviders();
       BuildCompilationService();
     }
 

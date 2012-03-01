@@ -8,7 +8,7 @@ using System;
 using Xtensive.Sql;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Providers.Sql
+namespace Xtensive.Orm.Providers
 {
   partial class StorageDriver
   {

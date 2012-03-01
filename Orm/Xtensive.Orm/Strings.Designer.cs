@@ -3998,11 +3998,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Handler provider is not found for &quot;{0}&quot; connection type..
+        ///   Looks up a localized string similar to Storage provider &apos;{0}&apos; is not found..
         /// </summary>
-        internal static string ExStorageProviderNotFound {
+        internal static string ExStorageProviderXIsNotFound {
             get {
-                return ResourceManager.GetString("ExStorageProviderNotFound", resourceCulture);
+                return ResourceManager.GetString("ExStorageProviderXIsNotFound", resourceCulture);
             }
         }
         

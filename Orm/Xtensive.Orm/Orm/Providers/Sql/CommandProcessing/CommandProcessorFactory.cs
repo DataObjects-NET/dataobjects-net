@@ -13,7 +13,8 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public class CommandProcessorFactory : InitializableHandlerBase
   {
-    private DomainHandler domainHandler;
+    private StorageDriver driver;
+    private ProviderInfo providerInfo;
 
     /// <summary>
     /// Creates the command processor.
@@ -25,13 +26,13 @@ namespace Xtensive.Orm.Providers.Sql
     {
       int batchSize = session.Configuration.BatchSize;
       bool useBatches = batchSize > 1
-        && domainHandler.ProviderInfo.Supports(ProviderFeatures.DmlBatches);
+        && providerInfo.Supports(ProviderFeatures.DmlBatches);
       bool useCursorParameters =
-        domainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
+        providerInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
 
       var factory = useCursorParameters
-        ? new CursorCommandFactory(domainHandler.Driver, session, connection)
-        : new CommandFactory(domainHandler.Driver, session, connection);
+        ? new CursorCommandFactory(driver, session, connection)
+        : new CommandFactory(driver, session, connection);
 
       var processor = useBatches
         ? new BatchingCommandProcessor(factory, batchSize)
@@ -43,7 +44,8 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      domainHandler = (DomainHandler) Handlers.DomainHandler;
+      driver = Handlers.StorageDriver;
+      providerInfo = Handlers.ProviderInfo;
     }
   }
 }

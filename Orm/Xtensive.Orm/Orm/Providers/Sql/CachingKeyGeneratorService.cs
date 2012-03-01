@@ -56,12 +56,12 @@ namespace Xtensive.Orm.Providers.Sql
       }
 
       var increment = generator.SequenceIncrement.Value;
-      var domainHandler = (DomainHandler)handlers.DomainHandler;
+      var providerInfo = handlers.ProviderInfo;
 
       TFieldType current;
       var arithmetic = generator.Arithmetic;
 
-      if (domainHandler.ProviderInfo.Supports(ProviderFeatures.Sequences) || domainHandler.ProviderInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement)) {
+      if (providerInfo.Supports(ProviderFeatures.Sequences) || providerInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement)) {
         // 256 - 1 * 128
         current = arithmetic.Subtract(hiValue, arithmetic.Multiply(arithmetic.One, increment));
       }
@@ -77,25 +77,26 @@ namespace Xtensive.Orm.Providers.Sql
 
     private CachingKeyGeneratorInfo GetKeyGeneratorInfo<TFieldType>(CachingKeyGenerator<TFieldType> generator)
     {
+      var providerInfo = handlers.ProviderInfo;
       var domainHandler = (DomainHandler)handlers.DomainHandler;
       var sqlNext = GetNextImplementation(
         generator,
-        domainHandler.ProviderInfo, 
+        providerInfo, 
         domainHandler.Schema, 
         generator.KeyInfo.Sequence.MappingName);
 
       var batch = sqlNext as SqlBatch;
-      if (batch != null && !domainHandler.ProviderInfo.Supports(ProviderFeatures.Batches)) {
+      if (batch != null && !providerInfo.Supports(ProviderFeatures.Batches)) {
         // No batches, so we must execute this manually
         return new CachingKeyGeneratorInfo {
-          InsertRequest = domainHandler.Driver.Compile((ISqlCompileUnit) batch[0]).GetCommandText(),
-          SelectRequest = domainHandler.Driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText(),
+          InsertRequest = handlers.StorageDriver.Compile((ISqlCompileUnit) batch[0]).GetCommandText(),
+          SelectRequest = handlers.StorageDriver.Compile((ISqlCompileUnit) batch[1]).GetCommandText(),
         };
       }
       else
         // There are batches, so we can run this as a single request
         return new CachingKeyGeneratorInfo {
-          SelectRequest = domainHandler.Driver.Compile(sqlNext).GetCommandText()
+          SelectRequest = handlers.StorageDriver.Compile(sqlNext).GetCommandText()
         };
     }
 

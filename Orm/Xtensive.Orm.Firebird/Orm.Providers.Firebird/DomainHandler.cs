@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.01.27
 
-using System;
-using Xtensive.Sql.Drivers.Firebird;
 using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.Firebird
@@ -15,11 +13,6 @@ namespace Xtensive.Orm.Providers.Firebird
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
-    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
-    {
-      return new DriverFactory();
-    }
-
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);

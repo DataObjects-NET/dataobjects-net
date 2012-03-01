@@ -352,8 +352,8 @@
   <data name="ExResultTypeIncorrect" xml:space="preserve">
     <value>Value of '{0}' type cannot be assigned to property of '{1}' type.</value>
   </data>
-  <data name="ExStorageProviderNotFound" xml:space="preserve">
-    <value>Handler provider is not found for "{0}" connection type.</value>
+  <data name="ExStorageProviderXIsNotFound" xml:space="preserve">
+    <value>Storage provider '{0}' is not found.</value>
   </data>
   <data name="ExInvalidKeyParams" xml:space="preserve">
     <value>Unable to create Key. Key params do not correspond to its structure.</value>

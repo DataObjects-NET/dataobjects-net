@@ -5,6 +5,7 @@
 // Created:    2008.01.21
 
 using System;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
@@ -20,12 +21,18 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public string Name { get; private set; }
 
+    /// <summary>
+    /// Gets <see cref="SqlDriverFactory"/> implementation.
+    /// </summary>
+    public Type DriverFactory { get; private set; }
+
 
     // Constructors
 
-    public ProviderAttribute(string name)
+    public ProviderAttribute(string name, Type driverFactory)
     {
       Name = name;
+      DriverFactory = driverFactory;
     }
   }
 }

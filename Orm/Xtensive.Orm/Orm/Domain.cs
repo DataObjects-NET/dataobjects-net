@@ -111,7 +111,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the information about provider's capabilities.
     /// </summary>
-    public ProviderInfo StorageProviderInfo { get { return Handler.ProviderInfo; } }
+    public ProviderInfo StorageProviderInfo { get { return Handlers.ProviderInfo; } }
 
     /// <summary>
     /// Gets the domain-level service container.

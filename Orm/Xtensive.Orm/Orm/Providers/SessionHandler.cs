@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Providers
       var options = (EnumerationContextOptions) 0;
       switch (Session.Configuration.ReaderPreloading) {
       case ReaderPreloadingPolicy.Auto:
-        bool marsSupported = Handlers.DomainHandler.ProviderInfo
+        bool marsSupported = Handlers.ProviderInfo
           .Supports(ProviderFeatures.MultipleActiveResultSets);
         if (!marsSupported)
           options |= EnumerationContextOptions.GreedyEnumerator;
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Providers
     {
       prefetchManager = new PrefetchManager(Session);
 
-      var providerInfo = Handlers.DomainHandler.ProviderInfo;
+      var providerInfo = Handlers.ProviderInfo;
       var configuration = Handlers.Domain.Configuration;
 
       persistRequiresTopologicalSort =

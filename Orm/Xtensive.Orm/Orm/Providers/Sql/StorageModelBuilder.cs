@@ -23,11 +23,13 @@ namespace Xtensive.Orm.Providers.Sql
   public class StorageModelBuilder : Orm.Upgrade.StorageModelBuilder
   {
     private readonly DomainHandler domainHandler;
+    private readonly ProviderInfo providerInfo;
+    private readonly StorageDriver driver;
     private readonly PartialIndexFilterNormalizer indexFilterNormalizer;
 
     public override StorageTypeInfo CreateType(Type type, int? length, int? precision, int? scale)
     {
-      var sqlValueType = domainHandler.Driver.BuildValueType(type, length, precision, scale);
+      var sqlValueType = driver.BuildValueType(type, length, precision, scale);
       return new StorageTypeInfo(
         sqlValueType.Type.ToClrType(),
         sqlValueType.Length,
@@ -40,7 +42,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var index = base.CreateSecondaryIndex(owningTable, indexName, originalModelIndex);
       if (originalModelIndex.Filter != null) {
-        if (domainHandler.ProviderInfo.Supports(ProviderFeatures.PartialIndexes))
+        if (providerInfo.Supports(ProviderFeatures.PartialIndexes))
           index.Filter = TranslateFilterExpression(originalModelIndex);
         else
           Log.Warning(Strings.LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY,
@@ -60,7 +62,7 @@ namespace Xtensive.Orm.Providers.Sql
         .ToList();
       var processor = new ExpressionProcessor(index.Filter.Expression, domainHandler, null, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
-      var expression = domainHandler.Driver.Compile(fragment).GetCommandText();
+      var expression = driver.Compile(fragment).GetCommandText();
       return new PartialIndexFilterInfo(expression, indexFilterNormalizer.Normalize(expression));
     }
 
@@ -77,11 +79,14 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    public StorageModelBuilder(DomainHandler domainHandler, PartialIndexFilterNormalizer indexFilterNormalizer)
+    public StorageModelBuilder(HandlerAccessor handlers, PartialIndexFilterNormalizer indexFilterNormalizer)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domainHandler, "domainHandler");
+      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(indexFilterNormalizer, "indexFilterNormalizer");
-      this.domainHandler = domainHandler;
+
+      providerInfo = handlers.ProviderInfo;
+      domainHandler = (DomainHandler) handlers.DomainHandler;
+      driver = handlers.StorageDriver;
       this.indexFilterNormalizer = indexFilterNormalizer;
     }
   }

@@ -22,7 +22,9 @@ namespace Xtensive.Orm.Providers.Sql
   {
     private bool useLargeObjects;
 
-    private DomainHandler DomainHandler { get; set; }
+    private DomainHandler domainHandler;
+    private ProviderInfo providerInfo;
+    private StorageDriver driver;
 
     /// <summary>
     /// Builds the request.
@@ -48,14 +50,14 @@ namespace Xtensive.Orm.Providers.Sql
       }
 
       // Merging requests for servers which support batching
-      if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && result.Count > 1) {
+      if (providerInfo.Supports(ProviderFeatures.Batches) && result.Count > 1) {
         var batch = SqlDml.Batch();
         var bindings = new HashSet<PersistParameterBinding>();
         foreach (var request in result) {
           batch.Add(request.Statement);
           bindings.UnionWith(request.ParameterBindings);
         }
-        var batchRequest = new PersistRequest(DomainHandler.Driver, batch, bindings);
+        var batchRequest = new PersistRequest(driver, batch, bindings);
         batchRequest.Prepare();
         return EnumerableUtils.One(batchRequest);
       }
@@ -70,7 +72,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var result = new List<PersistRequest>();
       foreach (Orm.Model.IndexInfo index in context.AffectedIndexes) {
-        var table = DomainHandler.Mapping[index].Table;
+        var table = domainHandler.Mapping[index].Table;
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Insert(tableRef);
         var bindings = new List<PersistParameterBinding>();
@@ -81,7 +83,7 @@ namespace Xtensive.Orm.Providers.Sql
           if (fieldIndex >= 0) {
             PersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              var typeMapping = DomainHandler.Driver.GetTypeMapping(column);
+              var typeMapping = driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
               binding = new PersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
@@ -90,7 +92,7 @@ namespace Xtensive.Orm.Providers.Sql
             bindings.Add(binding);
           }
         }
-        result.Add(new PersistRequest(DomainHandler.Driver, query, bindings));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -99,7 +101,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var result = new List<PersistRequest>();
       foreach (IndexInfo index in context.AffectedIndexes) {
-        var table = DomainHandler.Mapping[index].Table;
+        var table = domainHandler.Mapping[index].Table;
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Update(tableRef);
         var bindings = new List<PersistParameterBinding>();
@@ -111,7 +113,7 @@ namespace Xtensive.Orm.Providers.Sql
           fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              var typeMapping = DomainHandler.Driver.GetTypeMapping(column);
+              var typeMapping = driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
               binding = new PersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
@@ -129,7 +131,7 @@ namespace Xtensive.Orm.Providers.Sql
         foreach (ColumnInfo column1 in context.PrimaryIndex.KeyColumns.Keys) {
           fieldIndex = GetFieldIndex(context.Task.Type, column1);
           if (!context.ParameterBindings.TryGetValue(column1, out binding)) {
-            TypeMapping typeMapping1 = DomainHandler.Driver.GetTypeMapping(column1);
+            TypeMapping typeMapping1 = driver.GetTypeMapping(column1);
             binding = new PersistParameterBinding(fieldIndex, typeMapping1);
             context.ParameterBindings.Add(column1, binding);
           }
@@ -137,7 +139,7 @@ namespace Xtensive.Orm.Providers.Sql
           bindings.Add(binding);
         }
         query.Where &= expression;
-        result.Add(new PersistRequest(DomainHandler.Driver, query, bindings));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -147,7 +149,7 @@ namespace Xtensive.Orm.Providers.Sql
       var result = new List<PersistRequest>();
       for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
         var index = context.AffectedIndexes[i];
-        var tableRef = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
+        var tableRef = SqlDml.TableRef(domainHandler.Mapping[index].Table);
         var query = SqlDml.Delete(tableRef);
         var bindings = new List<PersistParameterBinding>();
 
@@ -156,7 +158,7 @@ namespace Xtensive.Orm.Providers.Sql
           int fieldIndex = GetFieldIndex(context.Task.Type, column);
           PersistParameterBinding binding;
           if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-            TypeMapping typeMapping = DomainHandler.Driver.GetTypeMapping(column);
+            TypeMapping typeMapping = driver.GetTypeMapping(column);
             binding = new PersistParameterBinding(fieldIndex, typeMapping);
             context.ParameterBindings.Add(column, binding);
           }
@@ -164,7 +166,7 @@ namespace Xtensive.Orm.Providers.Sql
           bindings.Add(binding);
         }
         query.Where &= expression;
-        result.Add(new PersistRequest(DomainHandler.Driver, query, bindings));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -194,8 +196,10 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      DomainHandler = (DomainHandler) Handlers.DomainHandler;
-      useLargeObjects = DomainHandler.ProviderInfo.Supports(ProviderFeatures.LargeObjects);
+      domainHandler = (DomainHandler) Handlers.DomainHandler;
+      driver = Handlers.StorageDriver;
+      providerInfo = Handlers.ProviderInfo;
+      useLargeObjects = Handlers.ProviderInfo.Supports(ProviderFeatures.LargeObjects);
     }
     
     // Constructors

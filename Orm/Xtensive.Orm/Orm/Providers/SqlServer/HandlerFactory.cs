@@ -4,14 +4,12 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using Xtensive.Orm;
-
 namespace Xtensive.Orm.Providers.SqlServer
 {
   /// <summary>
   /// Storage provider for Microsoft SQL Server.
   /// </summary>
-  [Provider(WellKnown.Provider.SqlServer)]
+  [Provider(WellKnown.Provider.SqlServer, typeof (Xtensive.Sql.Drivers.SqlServer.DriverFactory))]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

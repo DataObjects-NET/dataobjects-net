@@ -37,12 +37,12 @@ namespace Xtensive.Orm.Providers.Sql
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    protected StorageDriver Driver { get { return DomainHandler.Driver; } }
+    protected StorageDriver Driver { get { return Handlers.StorageDriver; } }
 
     /// <summary>
     /// Gets the provider info.
     /// </summary>
-    protected ProviderInfo ProviderInfo { get { return Handlers.DomainHandler.ProviderInfo; } }
+    protected ProviderInfo ProviderInfo { get { return Handlers.ProviderInfo; } }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
@@ -487,7 +487,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       Handlers = handlers;
 
-      if (!handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
+      if (!handlers.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();

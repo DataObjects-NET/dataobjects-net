@@ -8,12 +8,13 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Orm.Tests.Storage.FieldDefaultValueModel;
-using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Configuration;
+using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
 
 namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 {
@@ -276,7 +277,7 @@ namespace Xtensive.Orm.Tests.Storage
         var minValue = new DateTime();
         if (domainHandler != null) {
           var field = typeof (StorageDriver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
-          var sqlDriver = (SqlDriver) field.GetValue(domainHandler.Driver);
+          var sqlDriver = (SqlDriver) field.GetValue(Domain.Handlers.StorageDriver);
           var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
           minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
         }

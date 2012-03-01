@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       base.Initialize();
       domainHandler = (DomainHandler) Handlers.DomainHandler;
-      driver = domainHandler.Driver;
+      driver = Handlers.StorageDriver;
     }
 
     /// <inheritdoc/>

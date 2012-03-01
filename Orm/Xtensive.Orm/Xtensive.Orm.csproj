@@ -99,6 +99,7 @@
     <Compile Include="Orm\Attributes\VersionAttribute.cs" />
     <Compile Include="Orm\Attributes\VersionMode.cs" />
     <Compile Include="Orm\Building\Builders\AssociationBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\ProviderFactory.cs" />
     <Compile Include="Orm\Building\Builders\TypeGenerationMonitor.cs" />
     <Compile Include="Orm\Building\Builders\IndexBuilder.ClusteredIndexes.cs" />
     <Compile Include="Orm\Building\Builders\MemberCompilerProviderBuilder.cs" />
@@ -197,9 +198,9 @@
     <Compile Include="Orm\Providers\Sql\DomainHandler.cs" />
     <Compile Include="Orm\Providers\Sql\Interfaces\IQueryRequest.cs" />
     <Compile Include="Orm\Providers\Sql\Interfaces\ISqlExecutor.cs" />
-    <Compile Include="Orm\Providers\Sql\StorageDriver.cs" />
-    <Compile Include="Orm\Providers\Sql\StorageDriver.Operations.cs" />
-    <Compile Include="Orm\Providers\Sql\StorageDriver.ValueTypeMapping.cs" />
+    <Compile Include="Orm\Providers\StorageDriver.cs" />
+    <Compile Include="Orm\Providers\StorageDriver.Operations.cs" />
+    <Compile Include="Orm\Providers\StorageDriver.ValueTypeMapping.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\BooleanExpressionConverter.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.cs" />
     <Compile Include="Orm\Providers\Sql\Expressions\ExpressionProcessor.Helpers.cs" />
@@ -264,7 +265,7 @@
     <Compile Include="Orm\Providers\Sql\SqlStoreProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlTemporaryDataProvider.cs" />
     <Compile Include="Orm\Providers\Sql\SqlUpgradeStage.cs" />
-    <Compile Include="Orm\Providers\Sql\StorageExceptionBuilder.cs" />
+    <Compile Include="Orm\Providers\StorageExceptionBuilder.cs" />
     <Compile Include="Orm\Providers\Sql\StorageModelBuilder.cs" />
     <Compile Include="Orm\Providers\Sql\TemporaryTables\TemporaryTableDescriptor.cs" />
     <Compile Include="Orm\Providers\Sql\TemporaryTables\TemporaryTableManager.cs" />

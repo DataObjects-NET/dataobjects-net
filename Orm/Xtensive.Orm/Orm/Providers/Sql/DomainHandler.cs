@@ -36,6 +36,8 @@ namespace Xtensive.Orm.Providers.Sql
   {
     private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache;
 
+    private ProviderInfo providerInfo;
+
     /// <summary>
     /// Gets the storage schema.
     /// </summary>
@@ -60,11 +62,6 @@ namespace Xtensive.Orm.Providers.Sql
     /// Gets the command processor factory.
     /// </summary>
     public CommandProcessorFactory CommandProcessorFactory { get; private set; }
-    
-    /// <summary>
-    /// Gets the SQL driver.
-    /// </summary>
-    public StorageDriver Driver { get; private set; }
 
     /// <inheritdoc/>
     protected override IEnumerable<Type> GetProviderCompilerContainers()
@@ -170,24 +167,19 @@ namespace Xtensive.Orm.Providers.Sql
           mapping.RegisterMapping(
             column,
             storageColumn,
-            Driver.GetTypeMapping(column));
+            Handlers.StorageDriver.GetTypeMapping(column));
         }
       }
-    }
-
-    protected override ProviderInfo GetProviderInfo()
-    {
-      return Driver.ProviderInfo;
     }
 
     /// <inheritdoc/>
     protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
       var applyCorrector = new ApplyProviderCorrector(
-        !ProviderInfo.Supports(ProviderFeatures.Apply));
+        !providerInfo.Supports(ProviderFeatures.Apply));
       var skipTakeCorrector = new SkipTakeCorrector(
-        ProviderInfo.Supports(ProviderFeatures.NativeTake),
-        ProviderInfo.Supports(ProviderFeatures.NativeSkip));
+        providerInfo.Supports(ProviderFeatures.NativeTake),
+        providerInfo.Supports(ProviderFeatures.NativeSkip));
       return new CompositePreCompiler(
         applyCorrector,
         skipTakeCorrector,
@@ -201,24 +193,21 @@ namespace Xtensive.Orm.Providers.Sql
       registrations.Add(new ServiceRegistration(typeof (ICachingKeyGeneratorService), new CachingKeyGeneratorService(Handlers)));
     }
 
-    protected abstract SqlDriverFactory GetDriverFactory();
-
     // Initialization
 
     /// <inheritdoc/>
     public override void Initialize()
     {
-      var underlyingDriver = GetDriverFactory().GetDriver(Handlers.Domain.Configuration.ConnectionInfo);
-      Driver = new StorageDriver(underlyingDriver, Handlers.Domain.Configuration, () => Handlers.Domain.Model);
-
       base.Initialize();
+
+      providerInfo = Handlers.ProviderInfo;
 
       requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
       Mapping = new ModelMapping();
 
-      PersistRequestBuilder = Handlers.HandlerFactory.CreateHandler<PersistRequestBuilder>();
-      TemporaryTableManager = Handlers.HandlerFactory.CreateHandler<TemporaryTableManager>();
-      CommandProcessorFactory = Handlers.HandlerFactory.CreateHandler<CommandProcessorFactory>();
+      PersistRequestBuilder = Handlers.Factory.CreateHandler<PersistRequestBuilder>();
+      TemporaryTableManager = Handlers.Factory.CreateHandler<TemporaryTableManager>();
+      CommandProcessorFactory = Handlers.Factory.CreateHandler<CommandProcessorFactory>();
 
       TemporaryTableManager.Initialize();
       PersistRequestBuilder.Initialize();

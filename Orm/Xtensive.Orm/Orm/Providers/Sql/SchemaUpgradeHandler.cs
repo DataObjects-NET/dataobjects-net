@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     protected DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
     protected SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
-    protected StorageDriver Driver { get { return DomainHandler.Driver; } }
+    protected StorageDriver Driver { get { return Handlers.StorageDriver; } }
 
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceSchema, StorageModel targetSchema)
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Providers.Sql
       var translator = new SqlActionTranslator(
         upgradeActions,
         (Schema) GetNativeExtractedSchema(),
-        sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
+        sourceSchema, targetSchema, Handlers.ProviderInfo, Driver,
         Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
         sqlExecutor,
@@ -71,14 +71,14 @@ namespace Xtensive.Orm.Providers.Sql
     protected override StorageModel ExtractSchema()
     {
       var schema = (Schema) GetNativeExtractedSchema(); // Must rely on this method to avoid multiple extractions
-      var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo, indexFilterNormalizer);
+      var converter = new SqlModelConverter(schema, Handlers.ProviderInfo, indexFilterNormalizer);
       return converter.GetConversionResult();
     }
 
     /// <inheritdoc/>
     protected override object ExtractNativeSchema()
     {
-      var schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
+      var schema = Handlers.StorageDriver.ExtractSchema(SessionHandler.Connection);
       bool isSqlServerFamily = DomainHandler.Domain.Configuration.ConnectionInfo.Provider
         .In(WellKnown.Provider.SqlServer, WellKnown.Provider.SqlServerCe);
       if (isSqlServerFamily) {
@@ -94,14 +94,14 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override Orm.Upgrade.StorageModelBuilder GetStorageModelBuilder()
     {
-      return new StorageModelBuilder(DomainHandler, indexFilterNormalizer);
+      return new StorageModelBuilder(Handlers, indexFilterNormalizer);
     }
 
     /// <inheritdoc/>
     public override void Initialize()
     {
       base.Initialize();
-      indexFilterNormalizer = Handlers.HandlerFactory.CreateHandler<PartialIndexFilterNormalizer>();
+      indexFilterNormalizer = Handlers.Factory.CreateHandler<PartialIndexFilterNormalizer>();
     }
 
     private void ExecuteNonTransactionally(IEnumerable<string> batch)
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     protected virtual void Execute(IEnumerable<string> batch)
     {
-      if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
+      if (Handlers.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
         IEnumerable<IEnumerable<string>> subbatches = SplitToSubbatches(batch);
         foreach (var subbatch in subbatches) {
           var commandText = Driver.BuildBatch(subbatch.ToArray());

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
       var rankColumnName = provider.Header.Columns.Last().Name;
 
-      var stringTypeMapping = domainHandler.Driver.GetTypeMapping(typeof (string));
+      var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
       var binding = new QueryParameterBinding(
         provider.SearchCriteria.Invoke,
         stringTypeMapping,

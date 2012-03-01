@@ -407,11 +407,12 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
       this.lambda = lambda;
       this.sourceColumns = sourceColumns;
 
-      providerInfo = domainHandler.ProviderInfo;
+      var handlers = domainHandler.Handlers;
+      providerInfo = handlers.ProviderInfo;
+      driver = handlers.StorageDriver;
       fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();
-      driver = domainHandler.Driver;
 
       bindings = new HashSet<QueryParameterBinding>();
       activeParameters = new List<ParameterExpression>();

@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
-using Xtensive.Orm;
+using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Providers
 {
@@ -25,7 +25,17 @@ namespace Xtensive.Orm.Providers
     /// Gets the handler provider 
     /// creating handlers in the <see cref="Domain"/>.
     /// </summary>
-    public HandlerFactory HandlerFactory { get; internal set; }
+    public HandlerFactory Factory { get; internal set; }
+
+    /// <summary>
+    /// Gets the storage driver.
+    /// </summary>
+    public StorageDriver StorageDriver { get; internal set; }
+
+    /// <summary>
+    /// Gets storage provider info.
+    /// </summary>
+    public ProviderInfo ProviderInfo { get { return StorageDriver.ProviderInfo; } }
 
     /// <summary>
     /// Gets the name builder.
@@ -42,11 +52,6 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public SchemaUpgradeHandler SchemaUpgradeHandler { get; internal set; }
 
-    /// <summary>
-    /// Gets the handler of the current <see cref="Session"/>.
-    /// </summary>
-//    public SessionHandler SessionHandler { get { return Session.Demand().Handler; } }
-//    
 
     // Constructors
 

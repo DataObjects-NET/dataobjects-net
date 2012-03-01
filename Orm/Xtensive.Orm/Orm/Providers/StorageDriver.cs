@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -17,7 +18,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Threading;
 using Xtensive.Tuples;
 
-namespace Xtensive.Orm.Providers.Sql
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// SQL storage driver.
@@ -34,6 +35,7 @@ namespace Xtensive.Orm.Providers.Sql
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
 
     public ProviderInfo ProviderInfo { get; private set; }
+
     public StorageExceptionBuilder ExceptionBuilder { get; private set; }
 
     public string BuildBatch(string[] statements)
@@ -75,25 +77,34 @@ namespace Xtensive.Orm.Providers.Sql
       return null;
     }
 
+    private static Func<DomainModel> GetDomainModelProvider(Domain domain)
+    {
+      return () => domain.Model;
+    }
 
     // Constructors
 
-    public StorageDriver(SqlDriver driver, DomainConfiguration configuration)
-      : this(driver, configuration, GetNullModel)
+    internal StorageDriver(SqlDriverFactory driverFactory, Domain domain)
+      : this(driverFactory, domain.Configuration, GetDomainModelProvider(domain))
     {
     }
 
-    public StorageDriver(SqlDriver driver, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    internal StorageDriver(SqlDriverFactory driverFactory, DomainConfiguration configuration)
+      : this(driverFactory, configuration, GetNullModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+    }
+
+    private StorageDriver(SqlDriverFactory driverFactory, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNull(modelProvider, "modelProvider");
 
-      underlyingDriver = driver;
       this.configuration = configuration;
+      underlyingDriver = driverFactory.GetDriver(configuration.ConnectionInfo);
 
       ProviderInfo = ProviderInfoBuilder.Build(underlyingDriver);
-      ExceptionBuilder = new StorageExceptionBuilder(driver, configuration, modelProvider);
+      ExceptionBuilder = new StorageExceptionBuilder(underlyingDriver, configuration, modelProvider);
 
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
 
@@ -101,7 +112,7 @@ namespace Xtensive.Orm.Providers.Sql
       translator = underlyingDriver.Translator;
 
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
-      isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
+      isLoggingEnabled = Sql.Log.IsLogged(LogEventTypes.Info); // Just to cache this value
     }
   }
 }

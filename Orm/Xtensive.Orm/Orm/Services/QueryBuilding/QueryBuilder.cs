@@ -11,10 +11,13 @@ using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
+using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
+using SessionHandler = Xtensive.Orm.Providers.Sql.SessionHandler;
 
 namespace Xtensive.Orm.Services
 {
@@ -116,10 +119,9 @@ namespace Xtensive.Orm.Services
     public QueryBuilder(Session session)
       : base(session)
     {
-      var sqlDomainHandler = (DomainHandler) session.Domain.Handler;
       var sqlSessionHandler = (SessionHandler) session.Handler.GetRealHandler();
 
-      driver = sqlDomainHandler.Driver;
+      driver = session.Domain.Handlers.StorageDriver;
       commandFactory = sqlSessionHandler.CommandFactory;
       queryProvider = session.Query.Provider;
     }

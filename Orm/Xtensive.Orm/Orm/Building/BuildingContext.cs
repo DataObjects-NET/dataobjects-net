@@ -74,13 +74,6 @@ namespace Xtensive.Orm.Building
     public Domain Domain { get; internal set; }
 
     /// <summary>
-    /// Gets the handler factory.
-    /// </summary>
-    public HandlerFactory HandlerFactory {
-      get { return Domain.Handlers.HandlerFactory; }
-    }
-
-    /// <summary>
     /// Gets the name builder.
     /// </summary>
     public NameBuilder NameBuilder { 

@@ -27,7 +27,6 @@ namespace Xtensive.Orm.Providers.Sql
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
-//    private SqlDriver Driver { get { return DomainHandler.Driver; } }
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
 
     /// <summary>
@@ -51,7 +50,7 @@ namespace Xtensive.Orm.Providers.Sql
     public TemporaryTableDescriptor BuildDescriptor(string name, TupleDescriptor source, string[] fieldNames)
     {
       // TODO: split this method to a set of various simple virtual methods
-      var driver = DomainHandler.Driver;
+      var driver = Handlers.StorageDriver;
       var catalog = new Catalog(DomainHandler.Schema.Catalog.Name);
       var schema = catalog.CreateSchema(DomainHandler.Schema.Name);
 
@@ -99,8 +98,8 @@ namespace Xtensive.Orm.Providers.Sql
         TupleDescriptor = source,
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
-        StoreRequest = new PersistRequest(DomainHandler.Driver, insertStatement, storeRequestBindings),
-        ClearRequest = new PersistRequest(DomainHandler.Driver, SqlDml.Delete(tableRef), null),
+        StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings),
+        ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null),
         QueryStatement = queryStatement
       };
 
@@ -149,7 +148,7 @@ namespace Xtensive.Orm.Providers.Sql
     protected virtual Table CreateTemporaryTable(Schema schema, string tableName)
     {
       var table = schema.CreateTemporaryTable(tableName);
-      if (!DomainHandler.ProviderInfo.Supports(TemporaryTableFeatures.Local))
+      if (!Handlers.ProviderInfo.Supports(TemporaryTableFeatures.Local))
         table.IsGlobal = true;
       return table;
     }

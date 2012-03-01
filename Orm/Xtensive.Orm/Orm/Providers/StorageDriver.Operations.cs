@@ -8,10 +8,10 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Core;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql;
-using Xtensive.Sql.Info;
 
-namespace Xtensive.Orm.Providers.Sql
+namespace Xtensive.Orm.Providers
 {
   partial class StorageDriver
   {
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers.Sql
       var connectionInfo = GetConnectionInfo(session);
 
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXCreatingConnectionY, session.ToStringSafely(), connectionInfo);
+        Sql.Log.Info(Strings.LogSessionXCreatingConnectionY, session.ToStringSafely(), connectionInfo);
 
       try {
         var connection = underlyingDriver.CreateConnection(connectionInfo);
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void OpenConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+        Sql.Log.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
 
       try {
         connection.Open();
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void CloseConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+        Sql.Log.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
 
       try {
         if (connection.State==ConnectionState.Open)
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(), isolationLevel);
+        Sql.Log.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(), isolationLevel);
 
       try {
         connection.BeginTransaction(isolationLevel);
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void CommitTransaction(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
+        Sql.Log.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
 
       try {
         connection.Commit();
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void RollbackTransaction(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
+        Sql.Log.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
 
       try {
         connection.Rollback();
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
+        Sql.Log.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
 
       if (!hasSavepoints)
         return; // Driver does not support savepoints, so let's fail later (on rollback)
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void RollbackToSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
+        Sql.Log.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
 
       if (!hasSavepoints)
         throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Providers.Sql
     public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
+        Sql.Log.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
 
       try {
         connection.ReleaseSavepoint(name);
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Providers.Sql
     private TResult ExecuteCommand<TResult>(Session session, DbCommand command, Func<DbCommand, TResult> action)
     {
       if (isLoggingEnabled)
-        Log.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+        Sql.Log.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
 
       if (session!=null)
         session.Events.NotifyDbCommandExecuting(command);
