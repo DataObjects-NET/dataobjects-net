@@ -153,14 +153,16 @@ namespace Xtensive.Orm.Building.Builders
       var factory = handlers.HandlerFactory;
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         // DomainHandler
-        handlers.DomainHandler = factory.CreateHandler<DomainHandler>();
-        handlers.DomainHandler.Initialize();
+        var domainHandler = factory.CreateHandler<DomainHandler>();
+        handlers.DomainHandler = domainHandler;
+        domainHandler.Initialize();
         // NameBuilder
-        handlers.NameBuilder = factory.CreateHandler<NameBuilder>();
-        handlers.NameBuilder.Initialize(handlers.Domain.Configuration.NamingConvention);
+        handlers.NameBuilder = new NameBuilder(
+          context.Domain.Configuration, domainHandler.ProviderInfo);
         // SchemaUpgradeHandler
-        handlers.SchemaUpgradeHandler = factory.CreateHandler<SchemaUpgradeHandler>();
-        handlers.SchemaUpgradeHandler.Initialize();
+        var schemaUpgradeHandler = factory.CreateHandler<SchemaUpgradeHandler>();
+        handlers.SchemaUpgradeHandler = schemaUpgradeHandler;
+        schemaUpgradeHandler.Initialize();
       }
     }
 
