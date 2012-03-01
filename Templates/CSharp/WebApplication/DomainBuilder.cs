@@ -4,34 +4,27 @@ using $safeprojectname$.Model;
 
 namespace $safeprojectname$
 {
-	internal static class DomainBuilder
-	{
-		private static Domain domain;
+  /// <summary>
+  /// Builds <see cref="Domain"/> based on application configuration file
+  /// </summary>
+  public static class DomainBuilder
+  {
+    /// <summary>
+    /// Builds the default <see cref="Domain"/>.
+    /// </summary>
+    public static Domain Build()
+    {
+      return Build("Default");
+    }
 
-		public static Domain Build()
-		{
-			var config = DomainConfiguration.Load("Default");
-			domain = Domain.Build(config);
-			using (var session = domain.OpenSession())
-				PopulateData(session, true);
-			return domain;
-		}
-
-		public static void PopulateData(Session session, bool checkIfPopulated)
-		{
-			using (var transactionScope = session.OpenTransaction()) {
-				using (session.DisableValidation()) {
-					if (checkIfPopulated)
-					{
-						// See ASP.NET samples for examples 
-						// of implementing such a logic.
-					}
-					new MyEntity(session) {
-						Text = "Hello World!"
-					};
-				}
-				transactionScope.Complete();
-			}
-		}
-	}
+    /// <summary>
+    /// Builds the <see cref="Domain"/> with the specified name.
+    /// </summary>
+    public static Domain Build(string name)
+    {
+      var config = DomainConfiguration.Load(name);
+      var domain = Domain.Build(config);
+      return domain;
+    }
+  }
 }

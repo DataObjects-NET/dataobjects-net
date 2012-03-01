@@ -13,8 +13,14 @@ namespace $safeprojectname$
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-			var session = Xtensive.Orm.Session.Demand();
-			var myEntity = session.Query.All<MyEntity>().Single();
+			var session = Xtensive.Orm.Session.Current;
+
+			var myEntity = session.Query.All<MyEntity>().SingleOrDefault();
+			if (myEntity == null) {
+				myEntity = new MyEntity(session) {
+					Text = "Hello World!"
+					};
+			}
 			Label1.Text = myEntity.Text;
 		}
 	}
