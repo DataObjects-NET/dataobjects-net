@@ -102,6 +102,25 @@ namespace Xtensive.Orm.Providers
     /// <param name="commandTimeout">The command timeout.</param>
     public abstract void SetCommandTimeout(int? commandTimeout);
 
+    /// <summary>
+    /// Provides service by the specified <typeparam name="TContract">contract</typeparam>.
+    /// </summary>
+    /// <typeparam name="TContract">Service contract</typeparam>
+    /// <returns>Service registered for the contract</returns>
+    /// <exception cref="NotSupportedException">Specified contract is not supported
+    /// by <see cref="SessionHandler"/>.</exception>
+    public TContract GetService<TContract>()
+      where TContract : class
+    {
+      var service = GetRealHandler() as TContract;
+      if (service!=null)
+        return service;
+      throw new NotSupportedException(string.Format(
+        "Service '{0}' is not supported by '{1}'",
+        typeof (TContract).GetShortName(),
+        typeof (SessionHandler).GetShortName()));
+    }
+
     #region IoC support (Domain.Services)
 
     /// <summary>
@@ -129,23 +148,6 @@ namespace Xtensive.Orm.Providers
     protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
       return;
-    }
-
-    #endregion
-
-    #region IHasServices members
-
-    /// <inheritdoc/>
-    public T GetService<T>()
-      where T : class
-    {
-      var service = GetRealHandler() as T;
-      if (service!=null)
-        return service;
-      throw new NotSupportedException(string.Format(
-        "Service '{0}' is not supported by '{1}'",
-        typeof (T).GetShortName(),
-        typeof(SessionHandler)));
     }
 
     #endregion

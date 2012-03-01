@@ -190,6 +190,7 @@
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlPersistTask.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlLoadTask.cs" />
     <Compile Include="Orm\Providers\Sql\CommandProcessing\SqlTask.cs" />
+    <Compile Include="Orm\Providers\Sql\CommandWithDataReader.cs" />
     <Compile Include="Orm\Providers\Sql\SessionHandler.ISqlExecutor.cs" />
     <Compile Include="Orm\Providers\Sql\DbCommandExtensions.cs" />
     <Compile Include="Orm\Providers\Sql\DbDataReaderAccessor.cs" />

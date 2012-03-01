@@ -14,11 +14,10 @@ namespace Xtensive.Orm.Providers.Sql
     // Implementation of ISqlExecutor
 
     /// <inheritdoc/>
-    DbDataReader ISqlExecutor.ExecuteReader(ISqlCompileUnit statement)
+    CommandWithDataReader ISqlExecutor.ExecuteReader(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = connection.CreateCommand(statement))
-        return driver.ExecuteReader(Session, command);
+      return ExecuteReader(connection.CreateCommand(statement));
     }
 
     /// <inheritdoc/>
@@ -38,11 +37,10 @@ namespace Xtensive.Orm.Providers.Sql
     }
 
     /// <inheritdoc/>
-    DbDataReader ISqlExecutor.ExecuteReader(string commandText)
+    CommandWithDataReader ISqlExecutor.ExecuteReader(string commandText)
     {
       EnsureConnectionIsOpen();
-      using (var command = connection.CreateCommand(commandText))
-        return driver.ExecuteReader(Session, command);
+      return ExecuteReader(connection.CreateCommand(commandText));
     }
 
     /// <inheritdoc/>
@@ -59,6 +57,19 @@ namespace Xtensive.Orm.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = connection.CreateCommand(commandText))
         return driver.ExecuteScalar(Session, command);
+    }
+
+    private CommandWithDataReader ExecuteReader(DbCommand command)
+    {
+      DbDataReader reader;
+      try {
+        reader = driver.ExecuteReader(Session, command);
+      }
+      catch {
+        command.Dispose();
+        throw;
+      }
+      return new CommandWithDataReader(command, reader);
     }
   }
 }

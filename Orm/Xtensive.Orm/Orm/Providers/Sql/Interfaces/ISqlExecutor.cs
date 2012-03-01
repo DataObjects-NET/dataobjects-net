@@ -19,14 +19,14 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
-    DbDataReader ExecuteReader(ISqlCompileUnit statement);
+    CommandWithDataReader ExecuteReader(ISqlCompileUnit statement);
 
     /// <summary>
     /// Executes the specified query statement. This method is similar to <see cref="DbCommand.ExecuteReader()"/>.
     /// </summary>
     /// <param name="commandText">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
-    DbDataReader ExecuteReader(string commandText);
+    CommandWithDataReader ExecuteReader(string commandText);
 
     /// <summary>
     /// Executes the specified scalar statement. This method is similar to <see cref="DbCommand.ExecuteScalar"/>.

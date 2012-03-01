@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -23,8 +24,7 @@ namespace Xtensive.Orm.Providers.Sql
   public sealed class MetadataAccessor
   {
     private readonly NameBuilder nameBuilder;
-    private readonly StorageDriver driver;
-    private IProviderExecutor providerExecutor;
+    private readonly ISqlExecutor executor;
 
     private readonly string metadataAssembly;
     private readonly string metadataAssemblyName;
@@ -48,9 +48,7 @@ namespace Xtensive.Orm.Providers.Sql
         databaseName, schemaName, metadataAssembly,
         metadataAssemblyName, metadataAssemblyVersion);
 
-      var compiled = driver.Compile(query).GetCommandText();
-
-      throw new NotImplementedException();
+      return ExecuteQuery(query, ParseAssembly);
     }
 
     /// <summary>
@@ -59,24 +57,60 @@ namespace Xtensive.Orm.Providers.Sql
     /// <returns>Stored <see cref="TypeMetadata"/> instances.</returns>
     public IEnumerable<TypeMetadata> GetTypes(string databaseName, string schemaName)
     {
-//      var table = CreateQuery(databaseName, schemaName, metadataType);
-//      var idColumn = table.CreateColumn(metadataTypeId);
-//      var nameColumn = table.CreateColumn(metadataTypeName);
-      throw new NotImplementedException();
+      var query = CreateQuery(
+        databaseName, schemaName, metadataType,
+        metadataTypeId, metadataTypeName);
+
+      return ExecuteQuery(query, ParseType);
     }
 
     /// <summary>
-    /// Gets <see cref="ExtensionMetadata"/>
-    /// with the specified <paramref name="extensionName"/> from the storage.
+    /// Gets all <see cref="ExtensionMetadata"/> found int storage.
     /// </summary>
-    /// <returns>Stored <see cref="ExtensionMetadata"/> instance
-    /// with the specified <paramref name="extensionName"/>.</returns>
-    public IEnumerable<ExtensionMetadata> GetExtension(string databaseName, string schemaName, string extensionName)
+    /// <returns>Stored <see cref="ExtensionMetadata"/> instances.</returns>
+    public IEnumerable<ExtensionMetadata> GetExtension(string databaseName, string schemaName)
     {
-//      var table = CreateQuery(databaseName, schemaName, metadataExtension);
-//      var nameColumn = table.CreateColumn(metadataExtensionName);
-//      var textColumn = table.CreateColumn(metadataExtensionText);
-      throw new NotImplementedException();
+      var query = CreateQuery(
+        databaseName, schemaName, metadataExtension,
+        metadataExtensionName, metadataExtensionText);
+
+      return ExecuteQuery(query, ParseExtension);
+    }
+
+    #region Private / internal methods
+
+    private static ExtensionMetadata ParseExtension(DbDataReader reader)
+    {
+      var name = reader.GetString(0);
+      var text = reader.IsDBNull(1) ? null : reader.GetString(1);
+      return new ExtensionMetadata(name, text);
+    }
+
+    private static AssemblyMetadata ParseAssembly(DbDataReader reader)
+    {
+      var name = reader.GetString(0);
+      var version = reader.IsDBNull(1) ? null : reader.GetString(1);
+      return new AssemblyMetadata(name, version);
+    }
+
+    private static TypeMetadata ParseType(DbDataReader reader)
+    {
+      var id = reader.GetInt32(0);
+      var name = reader.GetString(1);
+      return new TypeMetadata(id, name);
+    }
+
+    private List<T> ExecuteQuery<T>(ISqlCompileUnit query, Func<DbDataReader, T> parser)
+    {
+      var result = new List<T>();
+
+      using (var command = executor.ExecuteReader(query)) {
+        var reader = command.Reader;
+        while (reader.Read())
+          result.Add(parser.Invoke(reader));
+      }
+
+      return result;
     }
  
     private SqlSelect CreateQuery(string databaseName, string schemaName, string tableName, params string[] columnNames)
@@ -111,15 +145,17 @@ namespace Xtensive.Orm.Providers.Sql
       return nameBuilder.ApplyNamingRules(name);
     }
 
-    public MetadataAccessor(NameBuilder nameBuilder, StorageDriver driver, IProviderExecutor providerExecutor)
+    #endregion
+
+    // Constructors
+
+    public MetadataAccessor(NameBuilder nameBuilder, ISqlExecutor executor)
     {
       ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(providerExecutor, "queryExecutor");
+      ArgumentValidator.EnsureArgumentNotNull(executor, "executor");
 
       this.nameBuilder = nameBuilder;
-      this.driver = driver;
-      this.providerExecutor = providerExecutor;
+      this.executor = executor;
 
       metadataAssembly = TableOf(typeof (Assembly));
       metadataAssemblyName = ColumnOf((Assembly x) => x.Name);
