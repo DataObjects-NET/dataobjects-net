@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Providers
     public abstract void SetCommandTimeout(int? commandTimeout);
 
     /// <summary>
-    /// Provides service by the specified <typeparam name="TContract">contract</typeparam>.
+    /// Provides service for the specified <typeparamref name="TContract"/>.
     /// </summary>
     /// <typeparam name="TContract">Service contract</typeparam>
     /// <returns>Service registered for the contract</returns>

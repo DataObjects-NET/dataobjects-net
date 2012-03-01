@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
 
@@ -15,8 +16,8 @@ namespace Xtensive.Orm.Providers.Sql
 {
   public sealed class StorageExceptionBuilder
   {
-    private readonly Domain domain;
     private readonly SqlDriver driver;
+    private readonly Func<DomainModel> modelProvider;
     private readonly bool includeSqlInExceptions;
 
     public StorageException BuildException(Exception origin)
@@ -57,7 +58,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private StorageExceptionInfo GetStorageExceptionInfo(SqlExceptionInfo info)
     {
-      var model = domain.Model;
+      var model = modelProvider.Invoke();
       if (model==null)
         return null;
       var type = !string.IsNullOrEmpty(info.Table)
@@ -97,15 +98,12 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    internal StorageExceptionBuilder(Domain domain, SqlDriver driver)
+    internal StorageExceptionBuilder(SqlDriver driver, DomainConfiguration configuration, Func<DomainModel> modelProvider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-
-      this.domain = domain;
       this.driver = driver;
+      this.modelProvider = modelProvider;
 
-      includeSqlInExceptions = domain.Configuration.IncludeSqlInExceptions;
+      includeSqlInExceptions = configuration.IncludeSqlInExceptions;
     }
   }
 }

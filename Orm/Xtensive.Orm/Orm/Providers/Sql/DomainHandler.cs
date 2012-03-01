@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Providers.Sql
     public override void Initialize()
     {
       var underlyingDriver = GetDriverFactory().GetDriver(Handlers.Domain.Configuration.ConnectionInfo);
-      Driver = new StorageDriver(Handlers.Domain, underlyingDriver);
+      Driver = new StorageDriver(underlyingDriver, Handlers.Domain.Configuration, () => Handlers.Domain.Model);
 
       base.Initialize();
 

@@ -4,9 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.14
 
+using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -21,7 +24,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// </summary>
   public sealed partial class StorageDriver
   {
-    private readonly Domain domain;
+    private readonly DomainConfiguration configuration;
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
@@ -45,9 +48,9 @@ namespace Xtensive.Orm.Providers.Sql
 
     public Schema ExtractSchema(SqlConnection connection)
     {
-      string schemaName = domain.Configuration.DefaultSchema.IsNullOrEmpty()
+      string schemaName = configuration.DefaultSchema.IsNullOrEmpty()
         ? underlyingDriver.CoreServerInfo.DefaultSchemaName
-        : domain.Configuration.DefaultSchema;
+        : configuration.DefaultSchema;
       var schema = underlyingDriver.ExtractSchema(connection, schemaName);
       return schema;
     }
@@ -67,15 +70,30 @@ namespace Xtensive.Orm.Providers.Sql
       return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
     }
 
+    private static DomainModel GetNullModel()
+    {
+      return null;
+    }
+
+
     // Constructors
 
-    public StorageDriver(Domain domain, SqlDriver underlyingDriver)
+    public StorageDriver(SqlDriver driver, DomainConfiguration configuration)
+      : this(driver, configuration, GetNullModel)
     {
-      this.domain = domain;
-      this.underlyingDriver = underlyingDriver;
+    }
+
+    public StorageDriver(SqlDriver driver, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(modelProvider, "modelProvider");
+
+      underlyingDriver = driver;
+      this.configuration = configuration;
 
       ProviderInfo = ProviderInfoBuilder.Build(underlyingDriver);
-      ExceptionBuilder = new StorageExceptionBuilder(domain, underlyingDriver);
+      ExceptionBuilder = new StorageExceptionBuilder(driver, configuration, modelProvider);
 
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
 
