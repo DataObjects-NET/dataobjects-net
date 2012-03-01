@@ -17,14 +17,14 @@ namespace Xtensive.Orm.Providers.Sql
     CommandWithDataReader ISqlExecutor.ExecuteReader(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      return ExecuteReader(connection.CreateCommand(statement));
+      return ExecuteReader(connection.CreateCommand(Compile(statement)));
     }
 
     /// <inheritdoc/>
     int ISqlExecutor.ExecuteNonQuery(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = connection.CreateCommand(statement))
+      using (var command = connection.CreateCommand(Compile(statement)))
         return driver.ExecuteNonQuery(Session, command);
     }
 
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers.Sql
     object ISqlExecutor.ExecuteScalar(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = connection.CreateCommand(statement))
+      using (var command = connection.CreateCommand(Compile(statement)))
         return driver.ExecuteScalar(Session, command);
     }
 
@@ -57,6 +57,11 @@ namespace Xtensive.Orm.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = connection.CreateCommand(commandText))
         return driver.ExecuteScalar(Session, command);
+    }
+
+    private string Compile(ISqlCompileUnit statement)
+    {
+      return driver.Compile(statement).GetCommandText();
     }
 
     private CommandWithDataReader ExecuteReader(DbCommand command)
