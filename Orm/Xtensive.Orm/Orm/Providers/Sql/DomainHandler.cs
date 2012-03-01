@@ -11,7 +11,6 @@ using Xtensive.IoC;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers.Sql.Expressions;
-using Xtensive.Orm.Providers.Sql.Mappings;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Threading;
@@ -105,14 +104,7 @@ namespace Xtensive.Orm.Providers.Sql
       return requestCache.GetValue(task, PersistRequestBuilder.Build);
     }
 
-    /// <summary>
-    /// Creates <see cref="ProviderOrderingDescriptor"/> for specified 
-    /// <see cref="CompilableProvider"/>.
-    /// </summary>
-    /// <param name="provider">The provider for which <see cref="ProviderOrderingDescriptor"/> 
-    /// should be created.</param>
-    /// <returns>A newly created <see cref="ProviderOrderingDescriptor"/>.</returns>
-    protected static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
+    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
       bool isOrderSensitive = provider.Type==ProviderType.Skip 
         || provider.Type == ProviderType.Take
@@ -140,8 +132,8 @@ namespace Xtensive.Orm.Providers.Sql
     public override void BuildMapping()
     {
       var context = UpgradeContext.Demand();
-      Schema = (Schema) Handlers.SchemaUpgradeHandler.GetNativeExtractedSchema(); 
       var domainModel = Handlers.Domain.Model;
+      Schema = (Schema) Handlers.SchemaUpgradeHandler.GetNativeExtractedSchema(); 
 
       foreach (var type in domainModel.Types) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
@@ -156,20 +148,10 @@ namespace Xtensive.Orm.Providers.Sql
         var storageTable = Schema.Tables[storageTableName];
         if (storageTable==null)
           throw new DomainBuilderException(string.Format(Strings.ExTableXIsNotFound, storageTableName));
-        var mapping = Mapping.RegisterMapping(primaryIndex, storageTable);
-        foreach (var column in primaryIndex.Columns) {
-          var storageColumnName = Domain.Handlers.NameBuilder.BuildTableColumnName(column);
-          var storageColumn = storageTable.TableColumns
-            .FirstOrDefault(dataTableColumn => dataTableColumn.Name==storageColumnName);
-          if (storageColumn==null)
-            throw new DomainBuilderException(
-              string.Format(Strings.ExColumnXIsNotFoundInTableY, storageColumnName, storageTableName));
-          mapping.RegisterMapping(
-            column,
-            storageColumn,
-            Handlers.StorageDriver.GetTypeMapping(column));
-        }
+        Mapping.Register(primaryIndex, storageTable);
       }
+
+      Mapping.Lock();
     }
 
     /// <inheritdoc/>
@@ -201,8 +183,8 @@ namespace Xtensive.Orm.Providers.Sql
       base.Initialize();
 
       providerInfo = Handlers.ProviderInfo;
-
       requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
+
       Mapping = new ModelMapping();
 
       PersistRequestBuilder = Handlers.Factory.CreateHandler<PersistRequestBuilder>();

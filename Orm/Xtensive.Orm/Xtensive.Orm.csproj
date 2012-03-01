@@ -222,10 +222,7 @@
     <Compile Include="Orm\Providers\Sql\Interfaces\IProviderExecutor.cs" />
     <Compile Include="Orm\Providers\Sql\Log.cs" />
     <Compile Include="Orm\Providers\Sql\ManualPagingSqlCompiler.cs" />
-    <Compile Include="Orm\Providers\Sql\Mappings\ColumnMapping.cs" />
-    <Compile Include="Orm\Providers\Sql\Mappings\ModelMapping.cs" />
-    <Compile Include="Orm\Providers\Sql\Mappings\PrimaryIndexMapping.cs" />
-    <Compile Include="Orm\Providers\Sql\Mappings\SecondaryIndexMapping.cs" />
+    <Compile Include="Orm\Providers\Sql\ModelMapping.cs" />
     <Compile Include="Orm\Providers\Sql\MetadataAccessor.cs" />
     <Compile Include="Orm\Providers\Sql\NonTransactionalStage.cs" />
     <Compile Include="Orm\Providers\Sql\Requests\ParameterBinding.cs" />
