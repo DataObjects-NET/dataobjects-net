@@ -3,7 +3,6 @@ using Xtensive.Orm;
 
 namespace $safeprojectname$.Model
 {
-	[Serializable]
 	[HierarchyRoot]
 	public class MyEntity : Entity
 	{

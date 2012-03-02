@@ -1,5 +1,4 @@
 using System;
-using Xtensive.Practices.Web;
 
 namespace $safeprojectname$
 {

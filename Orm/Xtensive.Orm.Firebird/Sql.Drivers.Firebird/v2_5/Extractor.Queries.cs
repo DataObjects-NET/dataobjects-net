@@ -33,7 +33,10 @@ select   schema
         ,column_name
         ,case
             when field_type = 7 then 'smallint'
-            when field_type = 8 and column_subtype = 0 then 'integer'
+            when field_type = 7 and column_subtype = 1 then 'numeric'
+            when field_type = 7 and column_subtype = 2 then 'decimal'
+            when field_type = 8 then 'integer'
+            when field_type = 8 and column_subtype = 1 then 'numeric'
             when field_type = 8 and column_subtype = 2 then 'decimal'
             when field_type = 10 then 'float'
             when field_type = 12 then 'date'
@@ -41,6 +44,7 @@ select   schema
             when field_type = 14 then 'char'
             when field_type = 16 and column_subtype = 0 then 'bigint'
             when field_type = 16 and column_subtype = 1 then 'numeric'
+            when field_type = 16 and column_subtype = 2 then 'decimal'
             when field_type = 27 then 'double precision'
             when field_type = 35 then 'timestamp'
             when field_type = 37 then 'varchar'

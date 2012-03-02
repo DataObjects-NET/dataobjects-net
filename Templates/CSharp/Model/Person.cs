@@ -3,7 +3,6 @@ using Xtensive.Orm;
 
 namespace $safeprojectname$
 {
-	[Serializable]
 	[HierarchyRoot]
 	public class Person : Entity
 	{
