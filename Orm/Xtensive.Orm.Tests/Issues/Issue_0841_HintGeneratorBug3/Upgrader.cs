@@ -67,8 +67,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
         return;
       var session = Session.Demand();
       var directSql = session.Services.Demand<DirectSqlAccessor>();
-      if (!directSql.IsAvailable)
-        return; // IMDB, so there is nothing to uprade
       if (UpgradeContext.Stage==UpgradeStage.Initializing) {
         // Relying on Metadata.Type, because
         // only system types are registered in model @ this stage.

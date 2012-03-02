@@ -31,16 +31,16 @@ namespace Xtensive.Orm.Services
     /// Returns <see langword="true" />, if underlying storage provider 
     /// supports SQL.
     /// </summary>
+    [Obsolete("This property always has \"true\" value")]
     public bool IsAvailable {
       get {
-        return service!=null;
+        return true;
       }
     }
 
     /// <see cref="IDirectSqlService.Connection" copy="true" />
     public DbConnection Connection {
       get {
-        EnsureIsAvailable();
         return service.Connection;
       }
     }
@@ -48,7 +48,6 @@ namespace Xtensive.Orm.Services
     /// <see cref="IDirectSqlService.Transaction" copy="true" />
     public DbTransaction Transaction {
       get {
-        EnsureIsAvailable();
         TryStartTransaction();
         return service.Transaction;
       }
@@ -57,7 +56,6 @@ namespace Xtensive.Orm.Services
     /// <see cref="IDirectSqlService.CreateCommand" copy="true" />
     public DbCommand CreateCommand()
     {
-      EnsureIsAvailable();
       TryStartTransaction();
       return service.CreateCommand();
     }
@@ -66,14 +64,6 @@ namespace Xtensive.Orm.Services
     {
       if (Session.Transaction!=null)
         Session.EnsureTransactionIsStarted();
-    }
-
-    /// <exception cref="NotSupportedException">Underlying storage provider 
-    /// does not support SQL.</exception>
-    private void EnsureIsAvailable()
-    {
-      if (service==null)
-        throw new NotSupportedException(Strings.ExUnderlyingStorageProviderDoesNotSupportSQL);
     }
 
 
@@ -87,7 +77,7 @@ namespace Xtensive.Orm.Services
     public DirectSqlAccessor(Session session)
       : base(session)
     {
-      service = session.Services.Demand<SessionHandler>().GetService<IDirectSqlService>();
+      service = session.Handler.GetService<IDirectSqlService>();
     }
   }
 }
