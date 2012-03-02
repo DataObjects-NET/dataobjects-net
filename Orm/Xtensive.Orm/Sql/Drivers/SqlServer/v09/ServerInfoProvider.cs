@@ -203,7 +203,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.Savepoints;
+      return ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl;
     }
 
     public override IdentityInfo GetIdentityInfo()

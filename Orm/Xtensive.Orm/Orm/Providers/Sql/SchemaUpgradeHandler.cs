@@ -64,7 +64,12 @@ namespace Xtensive.Orm.Providers.Sql
         foreach (var pair in upgradeContext.UpgradeHandlers)
           pair.Value.OnBeforeExecuteActions(result);
 
-      result.ProcessWith(Execute, ExecuteNonTransactionally);
+      var regularProcessor =
+        Handlers.ProviderInfo.Supports(ProviderFeatures.TransactionalDdl)
+          ? (Action<IEnumerable<string>>) ExecuteTransactionally
+          : ExecuteNonTransactionally;
+
+      result.ProcessWith(regularProcessor, ExecuteNonTransactionally);
     }
 
     /// <inheritdoc/>
@@ -107,54 +112,18 @@ namespace Xtensive.Orm.Providers.Sql
     private void ExecuteNonTransactionally(IEnumerable<string> batch)
     {
       var context = UpgradeContext.Demand();
+
       context.TransactionScope.Complete();
       context.TransactionScope.Dispose();
-      Execute(batch);
+
+      SessionHandler.GetService<ISqlExecutor>().ExecuteDdl(batch);
+
       context.TransactionScope = SessionHandler.Session.OpenTransaction();
     }
 
-    protected virtual void Execute(IEnumerable<string> batch)
+    protected virtual void ExecuteTransactionally(IEnumerable<string> batch)
     {
-      if (Handlers.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
-        IEnumerable<IEnumerable<string>> subbatches = SplitToSubbatches(batch);
-        foreach (var subbatch in subbatches) {
-          var commandText = Driver.BuildBatch(subbatch.ToArray());
-          if (string.IsNullOrEmpty(commandText))
-            return;
-          var command = SessionHandler.Connection.CreateCommand(commandText);
-          using (command) {
-            Driver.ExecuteNonQuery(null, command);
-          }
-        }
-      }
-      else {
-        foreach (var commandText in batch) {
-          if (string.IsNullOrEmpty(commandText))
-            continue;
-          var command = SessionHandler.Connection.CreateCommand(commandText);
-          using (command) {
-            Driver.ExecuteNonQuery(null, command);
-          }
-        }
-      }
-    }
-
-    private static IEnumerable<IEnumerable<string>> SplitToSubbatches(IEnumerable<string> batch)
-    {
-      var subbatch = new List<string>();
-      foreach (string item in batch) {
-        if (item.IsNullOrEmpty()) {
-          if (subbatch.Count==0)
-            continue;
-          yield return subbatch;
-          subbatch = new List<string>();
-        }
-        else {
-          subbatch.Add(item);
-        }
-      }
-      if (subbatch.Count!=0)
-        yield return subbatch;
+      SessionHandler.GetService<ISqlExecutor>().ExecuteDdl(batch);
     }
 
     private void LogTranslatedStatements(UpgradeActionSequence sequence)

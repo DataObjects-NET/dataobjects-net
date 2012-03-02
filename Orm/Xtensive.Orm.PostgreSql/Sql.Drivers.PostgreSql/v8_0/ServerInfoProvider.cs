@@ -269,7 +269,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.Savepoints;
+      return ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl | ServerFeatures.TransactionalFullTextDdl;
     }
 
     public override IdentityInfo GetIdentityInfo()

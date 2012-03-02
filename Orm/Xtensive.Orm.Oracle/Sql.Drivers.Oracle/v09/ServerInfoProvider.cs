@@ -177,10 +177,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override FullTextSearchInfo GetFullTextInfo()
     {
       return null;
-//      var info = new FullTextSearchInfo();
-//      info.Features = FullTextSearchFeatures.Full;
-//      return info;
-
     }
 
     public override QueryInfo GetQueryInfo()

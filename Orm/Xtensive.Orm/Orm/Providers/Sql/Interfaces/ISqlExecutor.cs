@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.29
 
+using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Sql;
 
@@ -55,5 +56,17 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="commandText">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
     int ExecuteNonQuery(string commandText);
+
+    /// <summary>
+    /// Executes group of DML statements via <see cref="ExecuteNonQuery(System.String)"/>.
+    /// </summary>
+    /// <param name="statements">Statements to execute</param>
+    void ExecuteDml(IEnumerable<string> statements);
+
+    /// <summary>
+    /// Executes group of DDL statements via <see cref="ExecuteNonQuery(System.String)"/>.
+    /// </summary>
+    /// <param name="statements">Statements to execute</param>
+    void ExecuteDdl(IEnumerable<string> statements);
   }
 }

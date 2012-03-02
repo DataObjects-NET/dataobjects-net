@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// Gets all <see cref="ExtensionMetadata"/> found int storage.
     /// </summary>
     /// <returns>Stored <see cref="ExtensionMetadata"/> instances.</returns>
-    public IEnumerable<ExtensionMetadata> GetExtension(string databaseName, string schemaName)
+    public IEnumerable<ExtensionMetadata> GetExtensions(string databaseName, string schemaName)
     {
       var query = CreateQuery(
         databaseName, schemaName, metadataExtension,

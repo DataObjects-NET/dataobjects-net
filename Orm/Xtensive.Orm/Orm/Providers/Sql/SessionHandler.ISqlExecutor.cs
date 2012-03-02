@@ -4,7 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.29
 
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers.Sql
@@ -57,6 +59,65 @@ namespace Xtensive.Orm.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = connection.CreateCommand(commandText))
         return driver.ExecuteScalar(Session, command);
+    }
+
+    void ISqlExecutor.ExecuteDdl(IEnumerable<string> statements)
+    {
+      ExecuteMany(statements, ProviderFeatures.DdlBatches);
+    }
+
+    void ISqlExecutor.ExecuteDml(IEnumerable<string> statements)
+    {
+      ExecuteMany(statements, ProviderFeatures.DmlBatches);
+    }
+
+    private void ExecuteMany(IEnumerable<string> statements, ProviderFeatures batchFeatures)
+    {
+      EnsureConnectionIsOpen();
+
+      if (Handlers.ProviderInfo.Supports(batchFeatures))
+        ExecuteManyBatched(statements);
+      else
+        ExecuteManyByOne(statements);
+    }
+
+    private void ExecuteManyByOne(IEnumerable<string> statements)
+    {
+      foreach (var statement in statements) {
+        if (string.IsNullOrEmpty(statement))
+          continue;
+        using (var command = Connection.CreateCommand(statement))
+          driver.ExecuteNonQuery(Session, command);
+      }
+    }
+
+    private void ExecuteManyBatched(IEnumerable<string> statements)
+    {
+      var groups = SplitOnEmptyEntries(statements);
+      foreach (var group in groups) {
+        var batch = driver.BuildBatch(group.ToArray());
+        if (string.IsNullOrEmpty(batch))
+          return;
+        using (var command = Connection.CreateCommand(batch))
+          driver.ExecuteNonQuery(Session, command);
+      }
+    }
+
+    private IEnumerable<IEnumerable<string>> SplitOnEmptyEntries(IEnumerable<string> items)
+    {
+      var group = new List<string>();
+      foreach (var item in items) {
+        if (string.IsNullOrEmpty(item)) {
+          if (group.Count==0)
+            continue;
+          yield return group;
+          group = new List<string>();
+        }
+        else
+          group.Add(item);
+      }
+      if (group.Count!=0)
+        yield return group;
     }
 
     private string Compile(ISqlCompileUnit statement)

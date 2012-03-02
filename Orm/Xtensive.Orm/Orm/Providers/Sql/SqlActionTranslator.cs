@@ -622,7 +622,7 @@ namespace Xtensive.Orm.Providers.Sql
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
         ftColumn.Languages.Add(new Language(column.Configuration));
       }
-      var stage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
+      var stage = !providerInfo.Supports(ProviderFeatures.TransactionalFullTextDdl)
         ? SqlUpgradeStage.NonTransactionalEpilog
         : GetSqlUpgradeStage(currentUpgradeStage);
       RegisterCommand(SqlDdl.Create(ftIndex), stage);
@@ -636,7 +636,7 @@ namespace Xtensive.Orm.Providers.Sql
         return;
       var table = FindTable(fullTextIndexInfo.Parent.Name);
       var ftIndex = table.Indexes[fullTextIndexInfo.Name] ?? table.Indexes.OfType<FullTextIndex>().Single();
-      var stage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
+      var stage = !providerInfo.Supports(ProviderFeatures.TransactionalFullTextDdl)
         ? SqlUpgradeStage.NonTransactionalProlog
         : GetSqlUpgradeStage(currentUpgradeStage);
       RegisterCommand(SqlDdl.Drop(ftIndex), stage);

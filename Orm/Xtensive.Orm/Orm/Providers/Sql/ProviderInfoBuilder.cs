@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Providers.Sql
       if (serverInfo.Sequence!=null)
         f |= ProviderFeatures.Sequences;
       else {
-        if (serverInfo.Identity != null && serverInfo.Identity.Features.Supports(IdentityFeatures.Increment))
+        if (serverInfo.Identity!=null && serverInfo.Identity.Features.Supports(IdentityFeatures.Increment))
           f |= ProviderFeatures.ArbitraryIdentityIncrement;
       }
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
@@ -81,23 +81,28 @@ namespace Xtensive.Orm.Providers.Sql
         f |= ProviderFeatures.Multischema;
       if (queryFeatures.Supports(QueryFeatures.MultidatabaseQueries))
         f |= ProviderFeatures.Multidatabase;
+      if (serverFeatures.Supports(ServerFeatures.TransactionalDdl))
+        f |= ProviderFeatures.TransactionalDdl;
+      if (serverFeatures.Supports(ServerFeatures.TransactionalFullTextDdl))
+        f |= ProviderFeatures.TransactionalFullTextDdl;
 
       var temporaryTable = serverInfo.TemporaryTable;
-      if (temporaryTable != null)
+      if (temporaryTable!=null)
         f |= ProviderFeatures.TemporaryTables;
-      if (serverInfo.FullTextSearch != null) {
+      if (serverInfo.FullTextSearch!=null) {
+        f |= ProviderFeatures.FullText;
         if (serverInfo.FullTextSearch.Features==FullTextSearchFeatures.Full)
           f |= ProviderFeatures.FullFeaturedFullText;
         if (serverInfo.FullTextSearch.Features==FullTextSearchFeatures.SingleKeyRankTable)
-          f |= ProviderFeatures.SingleKeyRankTableFullText | ProviderFeatures.FullTextDdlIsNotTransactional;
+          f |= ProviderFeatures.SingleKeyRankTableFullText;
       }
 
       var column = serverInfo.Column;
-      if ((column.AllowedDdlStatements & DdlStatements.Alter) == DdlStatements.Alter)
+      if ((column.AllowedDdlStatements & DdlStatements.Alter)==DdlStatements.Alter)
         f |= ProviderFeatures.ColumnRename;
 
       var table = serverInfo.Table;
-      if ((table.AllowedDdlStatements & DdlStatements.Rename) == DdlStatements.Rename)
+      if ((table.AllowedDdlStatements & DdlStatements.Rename)==DdlStatements.Rename)
         f |= ProviderFeatures.TableRename;
 
       var dataTypes = serverInfo.DataTypes;
