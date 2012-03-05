@@ -14,6 +14,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       if (schema!=null)
         query += " and schema_id = " + schemaId;
       query += " order by t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
+      query = AddCatalog(query);
       return query;
     }
 

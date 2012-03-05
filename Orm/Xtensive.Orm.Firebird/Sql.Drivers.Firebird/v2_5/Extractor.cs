@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return theCatalog;
     }
 
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       targetSchema = schemaName.ToUpperInvariant();
       theCatalog.CreateSchema(targetSchema);

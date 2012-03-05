@@ -25,17 +25,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected override void Initialize()
     {
-      catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
     public override Catalog ExtractCatalog(string catalogName)
     {
+      catalog = new Catalog(catalogName);
       ExtractCatalogContents();
       return catalog;
     }
 
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      catalog = new Catalog(catalogName);
       schema = catalog.CreateSchema(schemaName);
       ExtractCatalogContents();
       return schema;
@@ -55,7 +56,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     // All schemas
     private void ExtractSchemas()
     {
-      const string query = "select s.schema_id, s.name, dp.name from sys.schemas as s inner join sys.database_principals as dp on s.principal_id = dp.principal_id where s.schema_id < 16384";
+      string query = "select s.schema_id, s.name, dp.name from sys.schemas as s inner join sys.database_principals as dp on s.principal_id = dp.principal_id where s.schema_id < 16384";
+      query = AddCatalog(query);
 
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
@@ -77,7 +79,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     // Types & domains must be extracted for all schemas
     private void ExtractTypes()
     {
-      const string query = "select schema_id, user_type_id, system_type_id, name, precision, scale, max_length, is_user_defined from sys.types order by is_user_defined, user_type_id";
+      string query = "select schema_id, user_type_id, system_type_id, name, precision, scale, max_length, is_user_defined from sys.types order by is_user_defined, user_type_id";
+      query = AddCatalog(query);
 
       int currentSchemaId = schemaId;
       Schema currentSchema = schema;
@@ -112,6 +115,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (this.schema!=null)
         query += " where t.schema_id = " + schemaId;
       query += " order by t.schema_id, t.object_id";
+      query = AddCatalog(query);
 
       int currentSchemaId = schemaId;
       Schema schema = this.schema;
@@ -136,6 +140,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (this.schema!=null)
         query += " where t.schema_id = " + schemaId;
       query += " order by t.schema_id, c.object_id, c.column_id";
+      query = AddCatalog(query);
 
       int currentTableId = 0;
       ColumnResolver columnResolver = null;
@@ -197,6 +202,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (schema!=null)
         query += " and t.schema_id = " + schemaId;
       query += " order by t.schema_id, ic.object_id";
+      query = AddCatalog(query);
 
       using (var cmd = Connection.CreateCommand(query))
         using (var reader = cmd.ExecuteReader())
@@ -226,6 +232,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (schema!=null)
         query += " and schema_id = " + schemaId;
       query += " order by t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
+      query = AddCatalog(query);
       return query;
     }
 
@@ -312,6 +319,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (schema!=null)
         query += " where fk.schema_id = " + schemaId;
       query += " order by fk.schema_id, fkc.parent_object_id, fk.object_id, fkc.constraint_column_id";
+      query = AddCatalog(query);
 
       int tableId = 0, constraintId = 0;
       ColumnResolver referencingTable = null;
@@ -342,6 +350,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (schema!=null)
         query += " where t.schema_id = " + schemaId;
       query += " order by t.schema_id, fic.object_id, fic.column_id";
+      query = AddCatalog(query);
 
       int currentTableId = 0;
       ColumnResolver table = null;
@@ -361,6 +370,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(5)));
           column.Languages.Add(new Language(reader.GetString(7)));
         }
+    }
+
+    protected string AddCatalog(string query)
+    {
+      var catalogRef = Driver.Translator.QuoteIdentifier(catalog.Name);
+      return query.Replace(" sys.", string.Format(" {0}.sys.", catalogRef));
     }
 
     private static ReferentialAction GetReferentialAction(int actionCode)

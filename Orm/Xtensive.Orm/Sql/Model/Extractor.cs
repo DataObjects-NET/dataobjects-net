@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Model
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <returns>Extracted <see cref="Schema"/> instance.</returns>
-    public abstract Schema ExtractSchema(string name);
+    public abstract Schema ExtractSchema(string catalogName, string schemaName);
 
     /// <summary>
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.

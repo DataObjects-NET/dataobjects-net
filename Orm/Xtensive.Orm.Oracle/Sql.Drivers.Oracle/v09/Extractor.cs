@@ -39,7 +39,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return theCatalog;
     }
 
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       targetSchema = schemaName.ToUpperInvariant();
       theCatalog.CreateSchema(targetSchema);

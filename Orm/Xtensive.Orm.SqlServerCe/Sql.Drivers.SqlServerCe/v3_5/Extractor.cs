@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       return catalog;
     }
 
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       schema = catalog.CreateSchema(schemaName);
       ExtractCatalogContents();

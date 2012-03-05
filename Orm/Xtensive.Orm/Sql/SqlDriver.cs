@@ -86,20 +86,21 @@ namespace Xtensive.Sql
       var result = new List<Catalog>();
 
       foreach (var taskGroup in taskGroups) {
+        var catalogName = taskGroup.Key;
         var tasksForCatalog = taskGroup.Value;
         var extractSingle = tasksForCatalog.Count==1 && !tasksForCatalog[0].AllSchemas;
 
         if (extractSingle) {
           // Extracting only specified schema
           var schemaName = tasksForCatalog[0].Schema;
-          var schema = BuildExtractor(connection).ExtractSchema(schemaName);
+          var schema = BuildExtractor(connection).ExtractSchema(catalogName, schemaName);
           var catalog = schema.Catalog;
           CleanSchemas(catalog, new[]{schemaName}); // Remove the rest, if any
           result.Add(catalog);
         }
         else {
           // Extracting all schemas
-          var catalog = BuildExtractor(connection).ExtractCatalog(taskGroup.Key);
+          var catalog = BuildExtractor(connection).ExtractCatalog(catalogName);
           var needClean = tasksForCatalog.All(t => !t.AllSchemas);
           if (needClean)
             CleanSchemas(catalog, tasksForCatalog.Select(t => t.Schema));
