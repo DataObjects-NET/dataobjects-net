@@ -505,6 +505,8 @@ namespace Xtensive.Orm.Providers
     {
       string result = name;
       result = result.Replace('+', '.');
+      result = result.Replace('[', '(');
+      result = result.Replace(']', ')');
 
       if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Uppercase)
         result = result.ToUpperInvariant();
