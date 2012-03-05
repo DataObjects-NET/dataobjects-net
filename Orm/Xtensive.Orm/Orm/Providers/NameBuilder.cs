@@ -475,7 +475,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Sequence name.</returns>
     public string BuildSequenceName(KeyInfo keyInfo)
     {
-      return keyInfo.GeneratorName == null
+      return keyInfo.GeneratorLocalName==null
         ? null
         : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorLocalName));
     }
