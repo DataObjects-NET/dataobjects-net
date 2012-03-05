@@ -350,30 +350,61 @@ namespace Xtensive.Orm.Building.Builders
       return new Pair<StorageModel, StorageModel>(extractedSchemas.Second, targetSchemas.Second);
     }
 
-    public static IEnumerable<ServiceRegistration> CreateServiceRegistrations(
-      DomainConfiguration configuration)
+    private static IEnumerable<ServiceRegistration> CreateServiceRegistrations(DomainConfiguration configuration)
     {
-      return from type in configuration.Types.DomainServices
-        from registration in ServiceRegistration.CreateAll(type)
-        select registration;
+      return configuration.Types.DomainServices.SelectMany(ServiceRegistration.CreateAll);
     }
 
     public static IEnumerable<ServiceRegistration> CreateKeyGeneratorRegistrations(
       DomainConfiguration configuration)
     {
-      var keyGeneratorRegistrations = (
-        from type in configuration.Types.KeyGenerators
-        from registration in ServiceRegistration.CreateAll(type)
-        select registration
-        ).ToList();
-      var defaultKeyGeneratorRegistrations = (
-        from type in KeyGenerator.SupportedKeyFieldTypes
-        let registration = new ServiceRegistration(typeof (KeyGenerator), type.GetShortName(),
-          typeof (CachingKeyGenerator<>).MakeGenericType(type), true)
-        where !keyGeneratorRegistrations.Any(r => r.Type==registration.Type && r.Name==registration.Name)
-        select registration
-        ).ToList();
-      return keyGeneratorRegistrations.Concat(defaultKeyGeneratorRegistrations);
+      var userRegistrations = configuration.Types.KeyGenerators
+        .SelectMany(ServiceRegistration.CreateAll)
+        .ToList();
+
+      var standardRegistrations =
+        KeyGenerator.SupportedKeyFieldTypes
+          .Select(type => new {type, reg = GetStandardKeyGenerator(type)})
+          .Where(item => !userRegistrations.Any(r => r.Type==item.reg.Type && r.Name==item.reg.Name))
+          .Select(item => item.reg)
+          .ToList();
+
+      var allRegistrations = userRegistrations.Concat(standardRegistrations);
+
+      if (!configuration.IsMultidatabase)
+        return allRegistrations;
+
+      // If we are in multidatabase mode key generators will have database specific suffixes
+      // We need to handle it by building a cross product between all key generators and all databases.
+      // TODO: handle user's per-database registrations
+      // They should have more priority than user's database-agnostic key generators
+      // and standard key generators (which are always database-agnostic).
+
+      var databases = configuration.MappingRules
+        .Select(rule => rule.Database)
+        .Where(db => !string.IsNullOrEmpty(db))
+        .Concat(Enumerable.Repeat(configuration.DefaultDatabase, 1))
+        .ToHashSet();
+
+      return allRegistrations.SelectMany(_ => databases, AddKeyGeneratorLocation);
+    }
+
+    private static ServiceRegistration AddKeyGeneratorLocation(ServiceRegistration originalRegistration, string database)
+    {
+      return new ServiceRegistration(
+        originalRegistration.Type,
+        NameBuilder.BuildKeyGeneratorName(originalRegistration.Name, database),
+        originalRegistration.MappedType,
+        originalRegistration.Singleton);
+    }
+
+    private static ServiceRegistration GetStandardKeyGenerator(Type keyType)
+    {
+      return new ServiceRegistration(
+        typeof (KeyGenerator),
+        keyType.GetShortName(),
+        typeof (CachingKeyGenerator<>).MakeGenericType(keyType),
+        true);
     }
 
     // Constructors

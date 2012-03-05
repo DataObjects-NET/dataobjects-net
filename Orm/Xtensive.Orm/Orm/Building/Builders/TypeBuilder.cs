@@ -10,16 +10,15 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-
+using Xtensive.Orm.Providers;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
-using FieldInfo=Xtensive.Orm.Model.FieldInfo;
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -356,7 +355,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private static HierarchyInfo BuildHierarchyInfo(BuildingContext context, TypeInfo root, HierarchyDef hierarchyDef)
     {
-      var key = BuildKeyInfo(root, hierarchyDef, context);
+      var key = BuildKeyInfo(context, root, hierarchyDef);
       var schema = hierarchyDef.Schema;
 
       // Optimization. It there is the only class in hierarchy then ConcreteTable schema is applied
@@ -378,7 +377,7 @@ namespace Xtensive.Orm.Building.Builders
       return hierarchy;
     }
 
-    private static KeyInfo BuildKeyInfo(TypeInfo root, HierarchyDef hierarchyDef, BuildingContext context)
+    private static KeyInfo BuildKeyInfo(BuildingContext context, TypeInfo root, HierarchyDef hierarchyDef)
     {
       var keyFields = new ReadOnlyList<FieldInfo>((
         from field in root.Fields
@@ -401,21 +400,30 @@ namespace Xtensive.Orm.Building.Builders
           if (keyColumns[i].Field.IsTypeId)
             typeIdColumnIndex = i;
 
+      Type generatorType = null;
+      string generatorLocalName = null;
+      string generatorName = null;
+
       var requiresGenerator =
-        hierarchyDef.KeyGeneratorType!=null &&
-        !keyFields.Any(f => f.Parent!=null); // = does not contain foreign key(s)
+        hierarchyDef.KeyGeneratorType!=null
+        && keyFields.All(f => f.Parent==null); // = does not contain foreign key(s)
+
+      if (requiresGenerator) {
+        var nameBuilder = context.NameBuilder;
+        generatorType = hierarchyDef.KeyGeneratorType;
+        generatorLocalName = nameBuilder.BuildKeyGeneratorLocalName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex);
+        generatorName = NameBuilder.BuildKeyGeneratorName(generatorLocalName, hierarchyDef.Root.MappingDatabase);
+      }
 
       var key = new KeyInfo(
+        root.Name,
         keyFields,
         keyColumns,
-        requiresGenerator ? hierarchyDef.KeyGeneratorType : null, 
-        requiresGenerator ? BuildKeyGeneratorName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex) : null, 
+        generatorType,
+        generatorLocalName,
+        generatorName,
         keyTupleDescriptor,
-        typeIdColumnIndex) {
-          Name = root.Name
-        };
-
-      var mappingName = context.NameBuilder.BuildSequenceName(key);
+        typeIdColumnIndex);
 
       // The most complex part: now we're trying to find out if
       // this KeyInfo is actually quite similar to another one.
@@ -424,6 +432,7 @@ namespace Xtensive.Orm.Building.Builders
       KeyInfo existingKey = null;
       if (keyGenerator!=null)
         context.KeyGenerators.TryGetValue(keyGenerator, out existingKey);
+
       if (existingKey!=null) {
         // There is an existing key like this, with the same key generator
         key.IsFirstAmongSimilarKeys = false;
@@ -431,41 +440,33 @@ namespace Xtensive.Orm.Building.Builders
         key.Sequence = existingKey.Sequence;
         return key;
       }
+
       // No existing key like this was found
       key.IsFirstAmongSimilarKeys = true;
       key.EqualityIdentifier = new object();
+
       if (keyGenerator!=null) {
         context.KeyGenerators.Add(keyGenerator, key);
         var sequenceIncrement = keyGenerator.SequenceIncrement;
-        if (sequenceIncrement.HasValue) {
+        var mappingName = context.NameBuilder.BuildSequenceName(key);
+        if (sequenceIncrement.HasValue)
           key.Sequence = new SequenceInfo(key.GeneratorName) {
+            MappingDatabase = hierarchyDef.Root.MappingDatabase,
+            MappingSchema = context.Configuration.DefaultSchema,
             MappingName = mappingName,
             Seed = sequenceIncrement.Value,
             Increment = sequenceIncrement.Value
           };
-        }
       }
+
       return key;
     }
 
     private static KeyGenerator GetKeyGenerator(BuildingContext context, Type generatorType, string generatorName)
     {
       return generatorName==null 
-        ? null 
+        ? null
         : (KeyGenerator) context.BuilderConfiguration.Services.Get(generatorType, generatorName);
-    }
-
-    private static string BuildKeyGeneratorName(HierarchyDef hierarchyDef, TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
-    {
-      if (!hierarchyDef.KeyGeneratorName.IsNullOrEmpty())
-        return hierarchyDef.KeyGeneratorName;
-      if (hierarchyDef.KeyGeneratorType==null || hierarchyDef.KeyGeneratorType==typeof (KeyGenerator))
-        return keyTupleDescriptor
-          .Where((type, index) => index!=typeIdColumnIndex)
-          .Select(type => type.GetShortName())
-          .ToDelimitedString("-");
-      throw new DomainBuilderException(
-        String.Format(Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet, hierarchyDef.Root.UnderlyingType.GetShortName()));
     }
 
     #endregion

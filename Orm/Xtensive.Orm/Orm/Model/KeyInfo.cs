@@ -53,8 +53,16 @@ namespace Xtensive.Orm.Model
 
     /// <summary>
     /// Gets the key generator name.
+    /// This name is used as service name in IoC.
     /// </summary>
     public string GeneratorName { get; private set; }
+
+    /// <summary>
+    /// Gets generator local name.
+    /// This name don't include database prefix
+    /// and is used to build physical table/sequence name.
+    /// </summary>
+    public string GeneratorLocalName { get; private set; }
 
     /// <summary>
     /// Gets the tuple descriptor of the key.
@@ -148,20 +156,20 @@ namespace Xtensive.Orm.Model
     /// <param name="fields">The key fields.</param>
     /// <param name="columns">The key columns.</param>
     /// <param name="generatorType">Type of the key generator.</param>
+    /// <param name="generatorLocalName">Local name of the key generator.</param>
     /// <param name="generatorName">Name of the key generator (<see langword="null"/> means unnamed).</param>
     /// <param name="tupleDescriptor">Key tuple descriptor.</param>
     /// <param name="typeIdColumnIndex">Index of the type id column.</param>
     public KeyInfo(
-      ReadOnlyList<FieldInfo> fields, 
-      ReadOnlyList<ColumnInfo> columns, 
-      Type generatorType, 
-      string generatorName,  
-      TupleDescriptor tupleDescriptor, 
-      int typeIdColumnIndex)
+      string name, ReadOnlyList<FieldInfo> fields, ReadOnlyList<ColumnInfo> columns, 
+      Type generatorType, string generatorLocalName, string generatorName,
+      TupleDescriptor tupleDescriptor, int typeIdColumnIndex)
+      : base(name)
     {
       Fields = fields;
       Columns = columns;
       GeneratorType = generatorType;
+      GeneratorLocalName = generatorLocalName;
       GeneratorName = generatorName;
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;

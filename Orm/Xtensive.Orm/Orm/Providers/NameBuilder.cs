@@ -18,6 +18,7 @@ using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
+using Xtensive.Tuples;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Providers
@@ -476,7 +477,47 @@ namespace Xtensive.Orm.Providers
     {
       return keyInfo.GeneratorName == null
         ? null
-        : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorName));
+        : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorLocalName));
+    }
+
+    /// <summary>
+    /// Builds global (unique) name for key generator.
+    /// </summary>
+    /// <param name="localName">Local key generator name</param>
+    /// <param name="mappingDatabase">Mapping database.</param>
+    /// <returns>Global name.</returns>
+    public static string BuildKeyGeneratorName(string localName, string mappingDatabase)
+    {
+      return !string.IsNullOrEmpty(mappingDatabase)
+        ? string.Format("{0}@{1}", localName, mappingDatabase)
+        : localName;
+    }
+
+    /// <summary>
+    /// Builds local (per-database) name for key generator.
+    /// </summary>
+    /// <param name="hierarchyDef">Hierarchy that uses key generator.</param>
+    /// <param name="keyTupleDescriptor">Key tuple descriptor.</param>
+    /// <param name="typeIdColumnIndex">Index of TypeId column.</param>
+    /// <returns>Local name.</returns>
+    public string BuildKeyGeneratorLocalName(
+      HierarchyDef hierarchyDef, TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
+    {
+      if (!hierarchyDef.KeyGeneratorName.IsNullOrEmpty())
+        return hierarchyDef.KeyGeneratorName;
+
+      var generatorTypeSpecified =
+        hierarchyDef.KeyGeneratorType==null
+        || hierarchyDef.KeyGeneratorType==typeof (KeyGenerator);
+
+      if (!generatorTypeSpecified)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet, hierarchyDef.Root.UnderlyingType.GetShortName()));
+
+      return keyTupleDescriptor
+        .Where((type, index) => index!=typeIdColumnIndex)
+        .Select(type => type.GetShortName())
+        .ToDelimitedString("-");
     }
 
     /// <summary>
