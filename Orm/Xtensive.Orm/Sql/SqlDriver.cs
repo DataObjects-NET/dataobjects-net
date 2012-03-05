@@ -145,9 +145,6 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
-      if (connection.Driver!=this)
-        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
-
       var task = new SqlExtractionTask(CoreServerInfo.DatabaseName, schemaName);
       return Extract(connection, new[] {task}).SelectMany(catalog => catalog.Schemas).FirstOrDefault();
     }
