@@ -149,6 +149,7 @@
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
     <Compile Include="Orm\Internals\SortingPersistActionGenerator.cs" />
     <Compile Include="Orm\Metadata\AssemblyMetadata.cs" />
+    <Compile Include="Orm\Metadata\ConfigurationModule.cs" />
     <Compile Include="Orm\Metadata\ExtensionMetadata.cs" />
     <Compile Include="Orm\Metadata\TypeMetadata.cs" />
     <Compile Include="Orm\Model\DomainModelAttributes.cs" />
