@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Metadata
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Metadata.Type")]
+  [Index("Name", Unique = true)]
   public class Type : MetadataBase
   {
     /// <summary>
