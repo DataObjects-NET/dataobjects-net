@@ -69,7 +69,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         }
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       ExtractUsers();
       ExtractSchemas(catalog);

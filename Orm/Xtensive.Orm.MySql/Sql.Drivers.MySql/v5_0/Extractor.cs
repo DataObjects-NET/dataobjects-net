@@ -30,8 +30,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
+    /// <param name="catalogName"> </param>
     /// <inheritdoc/>
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       targetSchema = null;
 

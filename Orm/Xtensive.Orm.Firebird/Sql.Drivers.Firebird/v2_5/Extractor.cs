@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       targetSchema = null;
       ExtractSchemas();

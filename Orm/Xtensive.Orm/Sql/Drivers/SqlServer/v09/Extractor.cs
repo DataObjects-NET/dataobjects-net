@@ -6,20 +6,20 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Sql.Model;
-using DataTable=Xtensive.Sql.Model.DataTable;
 using Xtensive.Sql.Info;
+using Xtensive.Sql.Model;
+using DataTable = Xtensive.Sql.Model.DataTable;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class Extractor : Model.Extractor
   {
-    protected int schemaId;
     private readonly Dictionary<int, Schema> schemaIndex = new Dictionary<int, Schema>();
     private readonly Dictionary<int, Domain> domainIndex = new Dictionary<int, Domain>();
     private readonly Dictionary<int, string> typeNameIndex = new Dictionary<int, string>();
     private readonly Dictionary<int, ColumnResolver> columnResolverIndex = new Dictionary<int, ColumnResolver>();
 
+    protected int schemaId;
     protected Catalog catalog;
     protected Schema schema;
 
@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       ExtractCatalogContents();
       return catalog;

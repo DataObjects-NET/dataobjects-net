@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       targetSchema = null;
 

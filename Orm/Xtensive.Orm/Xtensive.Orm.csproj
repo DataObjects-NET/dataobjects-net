@@ -1071,6 +1071,7 @@
     <Compile Include="Sql\SqlExceptionInfo.cs" />
     <Compile Include="Sql\SqlExceptionType.cs" />
     <Compile Include="Sql\SqlExtensions.cs" />
+    <Compile Include="Sql\SqlExtractionTask.cs" />
     <Compile Include="Sql\SqlHelper.cs" />
     <Compile Include="Sql\SqlNode.cs" />
     <Compile Include="Sql\SqlNodeType.cs" />

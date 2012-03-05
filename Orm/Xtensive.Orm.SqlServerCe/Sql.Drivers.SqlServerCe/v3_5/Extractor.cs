@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       ExtractCatalogContents();
       return catalog;

@@ -27,8 +27,9 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Extracts all schemes from the database.
     /// </summary>
+    /// <param name="catalogName">Catalog to extract.</param>
     /// <returns><see cref="Catalog"/> that holds all schemes in the database.</returns>
-    public abstract Catalog ExtractCatalog();
+    public abstract Catalog ExtractCatalog(string catalogName);
 
     /// <summary>
     /// Extracts the specified schema from the database.
