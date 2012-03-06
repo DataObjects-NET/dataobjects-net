@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Drivers.Oracle
 
     private static Version ParseVersion(string version)
     {
-      var items = version.Split('.').Take(4).Select(item => int.Parse(item)).ToArray();
+      var items = version.Split('.').Take(4).Select(int.Parse).ToArray();
       return new Version(items[0], items[1], items[2], items[3]);
     }
 
@@ -61,11 +61,11 @@ namespace Xtensive.Sql.Drivers.Oracle
     }
     
     /// <inheritdoc/>
-    protected override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
     {
       using (var connection = new OracleConnection(connectionString)) {
         connection.Open();
-        var version = ParseVersion(connection.ServerVersion);
+        var version = forcedVersion!=null ? new Version(forcedVersion) : ParseVersion(connection.ServerVersion);
         var dataSource = new OracleConnectionStringBuilder(connectionString).DataSource;
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,

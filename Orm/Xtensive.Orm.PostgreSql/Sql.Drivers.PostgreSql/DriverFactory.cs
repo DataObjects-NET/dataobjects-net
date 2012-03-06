@@ -56,11 +56,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 #if NET40
     [SecuritySafeCritical]
 #endif
-    protected override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
     {
       using (var connection = new NpgsqlConnection(connectionString)) {
         connection.Open();
-        var version = connection.PostgreSqlVersion;
+        var version = forcedVersion!=null ? new Version(forcedVersion) : connection.PostgreSqlVersion;
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.Host, builder.Port, builder.Database);
         var coreServerInfo = new CoreServerInfo {

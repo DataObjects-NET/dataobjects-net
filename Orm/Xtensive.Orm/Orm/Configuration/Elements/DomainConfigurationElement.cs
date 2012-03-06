@@ -39,6 +39,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ValidationModeElementName = "validationMode";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
+    private const string ForcedServerVersionElementName = "forcedServerVersion";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -230,6 +231,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.ForcedServerVersion" copy="true" />
+    /// </summary>
+    [ConfigurationProperty(ForcedServerVersionElementName)]
+    public string ForcedServerVersion
+    {
+      get { return (string) this[ForcedServerVersionElementName]; }
+      set { this[ForcedServerVersion] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -253,6 +264,7 @@ namespace Xtensive.Orm.Configuration.Elements
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
+        ForcedServerVersion = ForcedServerVersion,
       };
 
       foreach (var entry in Types)

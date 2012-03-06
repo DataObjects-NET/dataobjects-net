@@ -207,7 +207,9 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      var underlyingDriver = GetDriverFactory().CreateDriver(Handlers.Domain.Configuration.ConnectionInfo);
+      var configuration = Handlers.Domain.Configuration;
+      var underlyingDriver = GetDriverFactory()
+        .CreateDriver(configuration.ConnectionInfo, configuration.ForcedServerVersion);
       Driver = new StorageDriver(Handlers.Domain, underlyingDriver);
 
       base.Initialize();

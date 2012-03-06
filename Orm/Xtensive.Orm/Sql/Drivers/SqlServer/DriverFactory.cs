@@ -85,11 +85,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    protected override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
     {
       using (var connection = new SqlServerConnection(connectionString)) {
         connection.Open();
-        var version = new Version(connection.ServerVersion);
+        var version = new Version(forcedVersion ?? connection.ServerVersion);
         var builder = new SqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.DataSource, builder.InitialCatalog);
         var coreServerInfo = new CoreServerInfo {

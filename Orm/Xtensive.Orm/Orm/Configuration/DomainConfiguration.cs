@@ -88,6 +88,7 @@ namespace Xtensive.Orm.Configuration
     private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
+    private string forcedServerVersion;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -337,6 +338,22 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets forced server version,
+    /// if this property set to non-empty value,
+    /// DataObjects.Net acts as it connected to server having
+    /// specified version, ignoring actual version of the server.
+    /// </summary>
+    public string ForcedServerVersion
+    {
+      get { return forcedServerVersion; }
+      set
+      {
+        this.EnsureNotLocked();
+        forcedServerVersion = value;
+      }
+    }
+
+    /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
@@ -387,6 +404,7 @@ namespace Xtensive.Orm.Configuration
       foreignKeyMode = configuration.foreignKeyMode;
       serviceContainerType = configuration.serviceContainerType;
       includeSqlInExceptions = configuration.includeSqlInExceptions;
+      forcedServerVersion = configuration.forcedServerVersion;
     }
 
     /// <summary>
