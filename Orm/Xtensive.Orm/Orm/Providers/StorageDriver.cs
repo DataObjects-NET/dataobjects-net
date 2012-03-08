@@ -5,6 +5,7 @@
 // Created:    2009.08.14
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
@@ -48,18 +49,17 @@ namespace Xtensive.Orm.Providers
       return translator.ParameterPrefix + parameterName;
     }
 
-    public Schema ExtractSchema(SqlConnection connection)
+    public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
     {
-      string schemaName = configuration.DefaultSchema.IsNullOrEmpty()
-        ? underlyingDriver.CoreServerInfo.DefaultSchemaName
-        : configuration.DefaultSchema;
-      var schema = underlyingDriver.ExtractSchema(connection, schemaName);
-      return schema;
+      return underlyingDriver.Extract(connection, tasks);
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
-      return underlyingDriver.Compile(statement);
+      var options = new SqlCompilerConfiguration {
+        DatabaseQualifiedObjects = configuration.IsMultidatabase
+      };
+      return underlyingDriver.Compile(statement, options);
     }
 
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Providers
       this.configuration = configuration;
       underlyingDriver = driverFactory.GetDriver(configuration.ConnectionInfo);
 
-      ProviderInfo = ProviderInfoBuilder.Build(underlyingDriver);
+      ProviderInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, underlyingDriver);
       ExceptionBuilder = new StorageExceptionBuilder(underlyingDriver, configuration, modelProvider);
 
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());

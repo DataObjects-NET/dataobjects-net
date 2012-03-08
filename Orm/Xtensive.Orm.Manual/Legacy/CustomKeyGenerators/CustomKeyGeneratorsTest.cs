@@ -7,24 +7,11 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 {
   #region Model
-
-  [Service(typeof(KeyGenerator), Name="Author")]
-  [Service(typeof(KeyGenerator), Name="Book")]
-  public class CustomInt32KeyGenerator : CachingKeyGenerator<int>
-  {
-    [ServiceConstructor]
-    public CustomInt32KeyGenerator(DomainConfiguration configuration)
-      : base(configuration)
-    {
-      CacheSize = 8;
-    }
-  }
 
   [Serializable]
   [HierarchyRoot]
@@ -48,12 +35,14 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
     // Constructors
 
     public Author(Session session)
-      : base (session)
-    {}
+      : base(session)
+    {
+    }
 
     public Author(Session session, int id)
       : base(session, id)
-    {}
+    {
+    }
   }
 
   [Serializable]
@@ -81,11 +70,13 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 
     public Book(Session session)
       : base (session)
-    {}
+    {
+    }
 
     public Book(Session session, int id)
       : base(session, id)
-    {}
+    {
+    }
   }
 
   #endregion

@@ -4,6 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
+using System.Linq;
 using NUnit.Framework;
 using System;
 using System.Reflection;
@@ -18,7 +19,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture, Category("Upgrade")]
   public class ConvertDomainModelTest
   {
-    protected StorageModel Schema { get; set; }
+    protected SchemaInfo Schema { get; set; }
 
     protected Domain Domain { get; set; }
     
@@ -38,7 +39,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [SetUp]
     public virtual void SetUp()
     {
-      Schema = BuildDomain().Schema;
+      Schema = BuildDomain().BuiltStorageModel.Schemas.Single();
     }
 
     [Test]

@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Providers.Sql
 {
   internal static class ProviderInfoBuilder
   {
-    public static ProviderInfo Build(SqlDriver driver)
+    public static ProviderInfo Build(string providerName, SqlDriver driver)
     {
       var coreServerInfo = driver.CoreServerInfo;
       var serverInfo = driver.ServerInfo;
@@ -127,7 +127,12 @@ namespace Xtensive.Orm.Providers.Sql
         .Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength)
         .Min();
 
-      return new ProviderInfo(storageVersion, f, serverInfo.TemporaryTable==null ? TemporaryTableFeatures.None : serverInfo.TemporaryTable.Features, maxIdentifierLength, serverInfo.PrimaryKey.ConstantName);
+      return new ProviderInfo(
+        providerName, storageVersion, f,
+        serverInfo.TemporaryTable==null ? TemporaryTableFeatures.None : serverInfo.TemporaryTable.Features,
+        maxIdentifierLength,
+        serverInfo.PrimaryKey.ConstantName,
+        coreServerInfo.DatabaseName, coreServerInfo.DefaultSchemaName);
     }
   }
 }

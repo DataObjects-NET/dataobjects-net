@@ -8,10 +8,20 @@ namespace Xtensive.Sql
   /// </summary>
   public sealed class SqlExtractionTask
   {
+    /// <summary>
+    /// Gets catalog to extact.
+    /// </summary>
     public string Catalog { get; private set; }
 
+    /// <summary>
+    /// Gets schema to extract.
+    /// </summary>
     public string Schema { get; private set; }
 
+    /// <summary>
+    /// Gets value indicating if all schemas in the specified catalog
+    /// should be extracted.
+    /// </summary>
     public bool AllSchemas { get { return Schema==null; } }
 
     // Constructors

@@ -7,15 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Disposing;
-using Xtensive.Core;
-using Xtensive.Orm;
-using Xtensive.Sql.Info;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
+using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -27,7 +23,7 @@ namespace Xtensive.Orm.Providers.Sql
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
-    private Providers.DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
+    private Providers.DomainHandler domainHandler;
 
     /// <summary>
     /// Builds the descriptor of a temporary table.
@@ -51,8 +47,13 @@ namespace Xtensive.Orm.Providers.Sql
     {
       // TODO: split this method to a set of various simple virtual methods
       var driver = Handlers.StorageDriver;
-      var catalog = new Catalog(DomainHandler.Schema.Catalog.Name);
-      var schema = catalog.CreateSchema(DomainHandler.Schema.Name);
+      var modelMapping = domainHandler.Mapping;
+
+      var catalog = new Catalog(modelMapping.TemporaryTableDatabase);
+      var schema = catalog.CreateSchema(modelMapping.TemporaryTableSchema);
+      var collation = modelMapping.TemporaryTableCollation!=null
+        ? new Collation(schema, modelMapping.TemporaryTableCollation)
+        : null;
 
       if (fieldNames==null) {
         fieldNames = Enumerable.Range(0, source.Count)
@@ -72,7 +73,7 @@ namespace Xtensive.Orm.Providers.Sql
         column.IsNullable = true;
         // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
         if (mapping.Type==typeof (string))
-           column.Collation = DomainHandler.Schema.Collations.FirstOrDefault();
+           column.Collation = collation;
         fieldIndex++;
       }
       
@@ -196,6 +197,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
+      domainHandler = Handlers.DomainHandler;
     }
   }
 }

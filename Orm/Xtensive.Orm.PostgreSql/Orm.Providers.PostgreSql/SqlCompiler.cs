@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var domainHandler = Handlers.DomainHandler;
+      var domainHandler = DomainHandler;
       var rankColumnName = provider.Header.Columns.Last().Name;
 
       var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var realPrimaryIndex = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var index = realPrimaryIndex.ReflectedType.Indexes.PrimaryIndex;
       var query = BuildProviderQuery(index);
-      var table = domainHandler.Schema.Tables[realPrimaryIndex.ReflectedType.MappingName];
+      var table = domainHandler.Mapping[realPrimaryIndex.ReflectedType];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, table.Columns.Select(column => column.Name).AddOne(rankColumnName).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
       foreach (var column in query.Columns)

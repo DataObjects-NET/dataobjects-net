@@ -54,10 +54,10 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      var dh = Domain.Handler;
       var ti = Domain.Model.Types[typeof (MyEntity)];
       string tableName = Domain.Services.Get<NameBuilder>().ApplyNamingRules(ti.MappingName);
-      Assert.IsTrue(dh.Schema.Tables[tableName].TableConstraints.OfType<ForeignKey>().Any());
+      var schema = StorageTestHelper.GetDefaultSchema(Domain);
+      Assert.IsTrue(schema.Tables[tableName].TableConstraints.OfType<ForeignKey>().Any());
     }
   }
 }

@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -51,6 +52,16 @@ namespace Xtensive.Orm.Providers
     /// Gets the <see cref="SchemaUpgradeHandler"/> instance.
     /// </summary>
     public SchemaUpgradeHandler SchemaUpgradeHandler { get; internal set; }
+
+    /// <summary>
+    /// Gets the <see cref="SchemaResolver"/> instance.
+    /// </summary>
+    internal SchemaResolver SchemaResolver { get; set; }
+
+    /// <summary>
+    /// Gets the <see cref="SequenceQueryBuilder"/> instance.
+    /// </summary>
+    internal SequenceQueryBuilder SequenceQueryBuilder { get; set; }
 
 
     // Constructors

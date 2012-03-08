@@ -121,7 +121,7 @@ namespace Xtensive.Orm
     public bool IsTemporary(Domain domain)
     {
       var keyInfo = TypeReference.Type.Key;
-      var keyGenerator = domain.KeyGenerators[keyInfo];
+      var keyGenerator = domain.KeyGenerators.GetTemporary(keyInfo);
       return keyGenerator!=null && keyGenerator.IsTemporaryKey(Value);
     }
 

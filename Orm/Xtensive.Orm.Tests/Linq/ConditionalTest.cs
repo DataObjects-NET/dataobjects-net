@@ -14,7 +14,7 @@ using System.Linq;
 namespace Xtensive.Orm.Tests.Linq.ConditionalTestModel
 {
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
+  [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class Root1 : Entity
   {

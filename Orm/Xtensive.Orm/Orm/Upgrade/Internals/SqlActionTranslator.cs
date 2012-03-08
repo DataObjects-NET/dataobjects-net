@@ -7,11 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Reflection;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Upgrade;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
 using Xtensive.Modelling;
@@ -23,13 +21,9 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
-using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
-using SqlRefAction = Xtensive.Sql.ReferentialAction;
-using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
-using UpgradeStage = Xtensive.Modelling.Comparison.UpgradeStage;
-using WellKnown = Xtensive.Orm.WellKnown;
+using ReferentialAction = Xtensive.Sql.ReferentialAction;
 
-namespace Xtensive.Orm.Providers.Sql
+namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// Translates upgrade <see cref="NodeAction"/>s to SQL.
@@ -42,32 +36,30 @@ namespace Xtensive.Orm.Providers.Sql
     private const string ColumnTypePropertyName = "Type";
     private const string ColumnDefaultPropertyName = "Default";
 
+    private static readonly StringComparer StringComparer = StringComparer.OrdinalIgnoreCase;
+
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
     private readonly List<string> enforceChangedColumns = new List<string>();
     private readonly ISqlExecutor sqlExecutor;
-    private readonly Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler;
     private readonly bool allowCreateConstraints;
 
     private readonly ActionSequence actions;
-    private readonly Schema schema;
+    private readonly SqlExtractionResult sqlModel;
     private readonly StorageModel sourceModel;
     private readonly StorageModel targetModel;
     private readonly StorageDriver driver;
-    
-    private UpgradeActionSequence translationResult;
-    
-    private bool translated;
+    private readonly SequenceQueryBuilder sequenceQueryBuilder;
+    private readonly SchemaResolver schemaResolver;
+
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
-    private UpgradeStage currentUpgradeStage;
-    private static StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
-    private bool IsSequencesAllowed
-    {
-      get { return providerInfo.Supports(ProviderFeatures.Sequences); }
-    }
+    private UpgradeActionSequence translationResult;
+    
+    private Modelling.Comparison.UpgradeStage currentUpgradeStage;
+    private bool translated;
 
     /// <summary>
     /// Translates all registered actions.
@@ -76,8 +68,8 @@ namespace Xtensive.Orm.Providers.Sql
     {
       if (translated)
         throw new InvalidOperationException(Strings.ExCommandsAreAlreadyTranslated);
-      translated = true;
 
+      translated = true;
       translationResult = new UpgradeActionSequence();
 
       // Turn off deferred contraints
@@ -85,53 +77,53 @@ namespace Xtensive.Orm.Providers.Sql
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate), SqlUpgradeStage.PreCleanupData);
 
       // Data cleanup
-      currentUpgradeStage = UpgradeStage.CleanupData;
+      currentUpgradeStage = Modelling.Comparison.UpgradeStage.CleanupData;
       var cleanupData = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.CleanupData.ToString());
+        .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.CleanupData.ToString());
       if (cleanupData!=null)
         VisitAction(cleanupData);
       ProcessClearDataActions(false);
 
       // Prepairing (aka запаривание :-)
-      currentUpgradeStage = UpgradeStage.Prepare;
+      currentUpgradeStage = Modelling.Comparison.UpgradeStage.Prepare;
       var prepareActions = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
+        .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.Prepare.ToString());
       if (prepareActions!=null)
         VisitAction(prepareActions);
 
       // Mutual renaming
-      currentUpgradeStage = UpgradeStage.TemporaryRename;
+      currentUpgradeStage = Modelling.Comparison.UpgradeStage.TemporaryRename;
       var renameActions = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.TemporaryRename.ToString());
+        .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.TemporaryRename.ToString());
       if (renameActions!=null)
         VisitAction(renameActions);
 
       // Upgrading
-      currentUpgradeStage = UpgradeStage.Upgrade;
+      currentUpgradeStage = Modelling.Comparison.UpgradeStage.Upgrade;
       var upgradeActions = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.Upgrade.ToString());
+        .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.Upgrade.ToString());
       if (upgradeActions!=null)
         VisitAction(upgradeActions);
 
       // Copying data
-      currentUpgradeStage = UpgradeStage.CopyData;
+      currentUpgradeStage = Modelling.Comparison.UpgradeStage.CopyData;
       var copyDataActions = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.CopyData.ToString());
+        .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.CopyData.ToString());
       if (copyDataActions!=null)
         VisitAction(copyDataActions);
 
       // Post copying data
-      currentUpgradeStage = UpgradeStage.PostCopyData;
+      currentUpgradeStage = Modelling.Comparison.UpgradeStage.PostCopyData;
       var postCopyDataActions = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.PostCopyData.ToString());
+        .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.PostCopyData.ToString());
       if (postCopyDataActions!=null)
         VisitAction(postCopyDataActions);
       ProcessClearDataActions(true);
 
       // Cleanup
-      currentUpgradeStage = UpgradeStage.Cleanup;
+      currentUpgradeStage = Modelling.Comparison.UpgradeStage.Cleanup;
       var cleanupActions = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.Cleanup.ToString());
+        .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.Cleanup.ToString());
       if (cleanupActions!=null)
         VisitAction(cleanupActions);
 
@@ -248,7 +240,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// with specific hint parameters.</exception>
     private void VisitCopyDataAction(DataAction action)
     {
-      var hint = action.DataHint as CopyDataHint;
+      var hint = (CopyDataHint) action.DataHint;
       var copiedColumns = hint.CopiedColumns
         .Select(pair => new Pair<StorageColumnInfo>(
           sourceModel.Resolve(pair.First, true) as StorageColumnInfo,
@@ -260,8 +252,8 @@ namespace Xtensive.Orm.Providers.Sql
       if (copiedColumns.Length == 0 || identityColumns.Length == 0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
-      var fromTable = FindTable(copiedColumns[0].First.Parent.Name);
-      var toTable = FindTable(copiedColumns[0].Second.Parent.Name);
+      var fromTable = FindTable(copiedColumns[0].First.Parent);
+      var toTable = FindTable(copiedColumns[0].Second.Parent);
       var toTableRef = SqlDml.TableRef(toTable);
       var update = SqlDml.Update(toTableRef);
 
@@ -314,16 +306,16 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveTableAction(RemoveNodeAction action)
     {
-      var tableInfo = action.Difference.Source as TableInfo;
-      var table = FindTable(tableInfo.Name);
+      var tableInfo = (TableInfo) action.Difference.Source;
+      var table = FindTable(tableInfo);
       RegisterCommand(SqlDdl.Drop(table));
-      schema.Tables.Remove(table);
+      table.Schema.Tables.Remove(table);
     }
 
     private void VisitAlterTableAction(MoveNodeAction action)
     {
       var oldTableInfo = sourceModel.Resolve(action.Path, true) as TableInfo;
-      var table = FindTable(oldTableInfo.Name);
+      var table = FindTable(oldTableInfo);
       if (providerInfo.Supports(ProviderFeatures.TableRename))
         RegisterCommand(SqlDdl.Rename(table, action.Name));
       else {
@@ -358,8 +350,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)
     {
-      var columnInfo = createColumnAction.Difference.Target as StorageColumnInfo;
-      var table = FindTable(columnInfo.Parent.Name);
+      var columnInfo = (StorageColumnInfo) createColumnAction.Difference.Target;
+      var table = FindTable(columnInfo.Parent);
       
       // Ensure table is not newly created
       if (createdTables.Contains(table))
@@ -373,8 +365,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
     {
-      var columnInfo = removeColumnAction.Difference.Source as StorageColumnInfo;
-      var table = FindTable(columnInfo.Parent.Name);
+      var columnInfo = (StorageColumnInfo) removeColumnAction.Difference.Source;
+      var table = FindTable(columnInfo.Parent);
 
       // Ensure table is not removed
       if (table==null)
@@ -413,8 +405,8 @@ namespace Xtensive.Orm.Providers.Sql
       var movementInfo = ((NodeDifference) action.Difference).MovementInfo;
       if ((movementInfo & MovementInfo.NameChanged)!=0) {
         // Process name changing
-        var oldColumnInfo = sourceModel.Resolve(action.Path, true) as StorageColumnInfo;
-        var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
+        var oldColumnInfo = (StorageColumnInfo) sourceModel.Resolve(action.Path, true);
+        var column = FindColumn(oldColumnInfo.Parent, oldColumnInfo.Name);
         RenameColumn(column, action.Name);
         oldColumnInfo.Name = action.Name;
       }
@@ -460,8 +452,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitCreatePrimaryKeyAction(CreateNodeAction action)
     {
-      var primaryIndex = action.Difference.Target as PrimaryIndexInfo;
-      var table = FindTable(primaryIndex.Parent.Name);
+      var primaryIndex = (PrimaryIndexInfo) action.Difference.Target;
+      var table = FindTable(primaryIndex.Parent);
 
       // Ensure table is not newly created
       if (createdTables.Contains(table))
@@ -473,8 +465,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemovePrimaryKeyAction(RemoveNodeAction action)
     {
-      var primaryIndexInfo = action.Difference.Source as PrimaryIndexInfo;
-      var table = FindTable(primaryIndexInfo.Parent.Name);
+      var primaryIndexInfo = (PrimaryIndexInfo) action.Difference.Source;
+      var table = FindTable(primaryIndexInfo.Parent);
 
       // Ensure table is not removed
       if (table==null)
@@ -493,8 +485,8 @@ namespace Xtensive.Orm.Providers.Sql
     
     private void VisitCreateSecondaryIndexAction(CreateNodeAction action)
     {
-      var secondaryIndexInfo = action.Difference.Target as SecondaryIndexInfo;
-      var table = FindTable(secondaryIndexInfo.Parent.Name);
+      var secondaryIndexInfo = (SecondaryIndexInfo) action.Difference.Target;
+      var table = FindTable(secondaryIndexInfo.Parent);
       var index = CreateSecondaryIndex(table, secondaryIndexInfo);
       if (index.IsUnique && !allowCreateConstraints)
         return;
@@ -503,8 +495,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveSecondaryIndexAction(RemoveNodeAction action)
     {
-      var secondaryIndexInfo = action.Difference.Source as SecondaryIndexInfo;
-      var table = FindTable(secondaryIndexInfo.Parent.Name);
+      var secondaryIndexInfo = (SecondaryIndexInfo) action.Difference.Source;
+      var table = FindTable(secondaryIndexInfo.Parent);
       
       // Ensure table is not removed
       if (table==null)
@@ -525,8 +517,8 @@ namespace Xtensive.Orm.Providers.Sql
       if (!allowCreateConstraints)
         return;
 
-      var foreignKeyInfo = action.Difference.Target as ForeignKeyInfo;
-      var table = FindTable(foreignKeyInfo.Parent.Name);
+      var foreignKeyInfo = (ForeignKeyInfo) action.Difference.Target;
+      var table = FindTable(foreignKeyInfo.Parent);
       var foreignKey = CreateForeignKey(foreignKeyInfo);
 
       RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(foreignKey)));
@@ -534,8 +526,8 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveForeignKeyAction(RemoveNodeAction action)
     {
-      var foreignKeyInfo = action.Difference.Source as ForeignKeyInfo;
-      var table = FindTable(foreignKeyInfo.Parent.Name);
+      var foreignKeyInfo = (ForeignKeyInfo) action.Difference.Source;
+      var table = FindTable(foreignKeyInfo.Parent);
 
       // Ensure table is not removed
       if (table==null)
@@ -553,12 +545,15 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitCreateSequenceAction(CreateNodeAction action)
     {
-      var sequenceInfo = action.Difference.Target as StorageSequenceInfo;
-      if (IsSequencesAllowed) {
+      var sequenceInfo = (StorageSequenceInfo) action.Difference.Target;
+      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
+
+      if (providerInfo.Supports(ProviderFeatures.Sequences)) {
         var sequence = schema.CreateSequence(sequenceInfo.Name);
-        sequence.SequenceDescriptor = new SequenceDescriptor(sequence,
-          sequenceInfo.Seed, sequenceInfo.Increment);
-        sequence.SequenceDescriptor.MinValue = sequenceInfo.Seed;
+        var descriptor = new SequenceDescriptor(sequence, sequenceInfo.Seed, sequenceInfo.Increment) {
+          MinValue = sequenceInfo.Seed
+        };
+        sequence.SequenceDescriptor = descriptor;
         sequence.DataType = (SqlValueType) sequenceInfo.Type.NativeType;
         RegisterCommand(SqlDdl.Create(sequence));
         createdSequences.Add(sequence);
@@ -570,8 +565,9 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveSequenceAction(RemoveNodeAction action)
     {
-      var sequenceInfo = action.Difference.Source as StorageSequenceInfo;
-      if (IsSequencesAllowed) {
+      var sequenceInfo = (StorageSequenceInfo) action.Difference.Source;
+      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
+      if (providerInfo.Supports(ProviderFeatures.Sequences)) {
         var sequence = schema.Sequences[sequenceInfo.Name];
         RegisterCommand(SqlDdl.Drop(sequence));
         schema.Sequences.Remove(sequence);
@@ -583,17 +579,16 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitAlterSequenceAction(PropertyChangeAction action)
     {
-      var sequenceInfo = targetModel.Resolve(action.Path, true) as StorageSequenceInfo;
+      var sequenceInfo = (StorageSequenceInfo) targetModel.Resolve(action.Path, true);
+      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
 
       // Check if sequence is not newly created
-      if ((IsSequencesAllowed 
-        && createdSequences.Any(sequence => sequence.Name==sequenceInfo.Name))
-        || createdTables.Any(table => table.Name==sequenceInfo.Name))
+      if (IsNewlyCreatedSequence(schema, sequenceInfo))
         return;
 
-      var currentValue = GetCurrentSequenceValue(sequenceInfo.Name);
+      var currentValue = GetCurrentSequenceValue(sequenceInfo);
       var newStartValue = currentValue + sequenceInfo.Increment;
-      if (IsSequencesAllowed) {
+      if (providerInfo.Supports(ProviderFeatures.Sequences)) {
         var exisitingSequence = schema.Sequences[sequenceInfo.Name];
         var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
         newSequenceDescriptor.LastValue = currentValue;
@@ -607,13 +602,22 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
+    private bool IsNewlyCreatedSequence(Schema schema, StorageSequenceInfo sequenceInfo)
+    {
+      
+      if (providerInfo.Supports(ProviderFeatures.Sequences))
+        return createdSequences.Any(s => s.Name==sequenceInfo.Name && s.Schema==schema);
+      else
+        return createdTables.Any(t => t.Name==sequenceInfo.Name && t.Schema==schema);
+    }
+
     private void VisitCreateFullTextIndexAction(CreateNodeAction action)
     {
       var fullTextIndexInfo = (StorageFullTextIndexInfo) action.Difference.Target;
       var fullTextSupported = providerInfo.Supports(ProviderFeatures.FullText);
       if (!fullTextSupported)
         return;
-      var table = FindTable(fullTextIndexInfo.Parent.Name);
+      var table = FindTable(fullTextIndexInfo.Parent);
       var ftIndex = table.CreateFullTextIndex(fullTextIndexInfo.Name);
       ftIndex.UnderlyingUniqueIndex = fullTextIndexInfo.Parent.PrimaryIndex.EscapedName;
       ftIndex.FullTextCatalog = "Default";
@@ -630,11 +634,11 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void VisitRemoveFullTextIndexAction(RemoveNodeAction action)
     {
-      var fullTextIndexInfo = (StorageFullTextIndexInfo)action.Difference.Source;
+      var fullTextIndexInfo = (StorageFullTextIndexInfo) action.Difference.Source;
       var fullTextSupported = providerInfo.Supports(ProviderFeatures.FullText);
       if (!fullTextSupported)
         return;
-      var table = FindTable(fullTextIndexInfo.Parent.Name);
+      var table = FindTable(fullTextIndexInfo.Parent);
       var ftIndex = table.Indexes[fullTextIndexInfo.Name] ?? table.Indexes.OfType<FullTextIndex>().Single();
       var stage = !providerInfo.Supports(ProviderFeatures.TransactionalFullTextDdl)
         ? SqlUpgradeStage.NonTransactionalProlog
@@ -680,9 +684,9 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void ProcessDeleteDataAction(DataAction action, bool postCopy)
     {
-      var hint = action.DataHint as DeleteDataHint;
-      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath, true) as TableInfo;
-      var table = SqlDml.TableRef(FindTable(soureTableInfo.Name));
+      var hint = (DeleteDataHint) action.DataHint;
+      var soureTableInfo = (TableInfo) sourceModel.Resolve(hint.SourceTablePath, true);
+      var table = SqlDml.TableRef(FindTable(soureTableInfo));
       var delete = SqlDml.Delete(table);
       
       delete.Where = CreateConditionalExpression(hint, table);
@@ -694,9 +698,9 @@ namespace Xtensive.Orm.Providers.Sql
     /// with specific hint parameters.</exception>
     private void ProcessUpdateDataAction(DataAction action, bool postCopy)
     {
-      var hint = action.DataHint as  UpdateDataHint;
-      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath, true) as TableInfo;
-      var table = SqlDml.TableRef(FindTable(soureTableInfo.Name));
+      var hint = (UpdateDataHint) action.DataHint;
+      var soureTableInfo = (TableInfo) sourceModel.Resolve(hint.SourceTablePath, true);
+      var table = SqlDml.TableRef(FindTable(soureTableInfo));
       var update = SqlDml.Update(table);
 
       var updatedColumns = hint.UpdateParameter
@@ -779,7 +783,9 @@ namespace Xtensive.Orm.Providers.Sql
 
       // Sort actions topologicaly according with foreign keys
       var nodes = new List<Xtensive.Sorting.Node<TableInfo, ForeignKeyInfo>>();
-      var foreignKeys = sourceModel.Tables.SelectMany(table => table.ForeignKeys).ToList();
+      var foreignKeys = sourceModel.Schemas
+        .SelectMany(s => s.Tables.SelectMany(table => table.ForeignKeys))
+        .ToList();
       foreach (var pair in deleteActions)
         nodes.Add(new Xtensive.Sorting.Node<TableInfo, ForeignKeyInfo>(pair.Key));
       foreach (var foreignKey in foreignKeys) {
@@ -796,7 +802,7 @@ namespace Xtensive.Orm.Providers.Sql
       
       // Build DML commands
       foreach (var table in sortedTables) {
-        var tableRef = SqlDml.TableRef(FindTable(table.Name));
+        var tableRef = SqlDml.TableRef(FindTable(table));
         var delete = SqlDml.Delete(tableRef);
         var typeIds = deleteActions[table];
         foreach (var typeId in typeIds)
@@ -807,9 +813,9 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
     {
-      var targetColumn = targetModel.Resolve(action.Path, true) as StorageColumnInfo;
-      var sourceColumn = sourceModel.Resolve(action.Path, true) as StorageColumnInfo;
-      var column = FindColumn(targetColumn.Parent.Name, targetColumn.Name);
+      var targetColumn = (StorageColumnInfo) targetModel.Resolve(action.Path, true);
+      var sourceColumn = (StorageColumnInfo) sourceModel.Resolve(action.Path, true);
+      var column = FindColumn(targetColumn.Parent, targetColumn.Name);
       var table = column.Table;
       var originalName = column.Name;
       
@@ -867,6 +873,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private Table CreateTable(TableInfo tableInfo)
     {
+      var schema = schemaResolver.ResolveSchema(sqlModel, tableInfo.Parent.Name);
       var table = schema.CreateTable(tableInfo.Name);
       foreach (var columnInfo in tableInfo.Columns)
         CreateColumn(columnInfo, table);
@@ -895,7 +902,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private ForeignKey CreateForeignKey(ForeignKeyInfo foreignKeyInfo)
     {
-      var referencingTable = FindTable(foreignKeyInfo.Parent.Name);
+      var referencingTable = FindTable(foreignKeyInfo.Parent);
       var foreignKey = referencingTable.CreateForeignKey(foreignKeyInfo.Name);
       foreignKey.OnUpdate = ConvertReferentialAction(foreignKeyInfo.OnUpdateAction);
       foreignKey.OnDelete = ConvertReferentialAction(foreignKeyInfo.OnRemoveAction);
@@ -904,7 +911,7 @@ namespace Xtensive.Orm.Providers.Sql
       var referencingColumns = foreignKeyInfo.ForeignKeyColumns
         .Select(cr => FindColumn(referencingTable, cr.Value.Name));
       foreignKey.Columns.AddRange(referencingColumns);
-      var referencedTable = FindTable(foreignKeyInfo.PrimaryKey.Parent.Name);
+      var referencedTable = FindTable(foreignKeyInfo.PrimaryKey.Parent);
       var referencedColumns = foreignKeyInfo.PrimaryKey.KeyColumns
         .Select(cr => FindColumn(referencedTable, cr.Value.Name));
       foreignKey.ReferencedTable = referencedTable;
@@ -951,6 +958,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void CreateGeneratorTable(StorageSequenceInfo sequenceInfo)
     {
+      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
       var sequenceTable = schema.CreateTable(sequenceInfo.Name);
       createdTables.Add(sequenceTable);
       var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName,
@@ -970,13 +978,16 @@ namespace Xtensive.Orm.Providers.Sql
 
     private void DropGeneratorTable(StorageSequenceInfo sequenceInfo)
     {
-      var sequenceTable = FindTable(sequenceInfo.Name);
+      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
+      var sequenceTable = schema.Tables[sequenceInfo.Name];
       RegisterCommand(SqlDdl.Drop(sequenceTable));
       schema.Tables.Remove(sequenceTable);
     }
 
     private void RenameSchemaTable(Table table, string newName)
     {
+      var schema = table.Schema;
+
       // Renamed table must be removed and added with new name
       // for reregistring in dictionary
       schema.Tables.Remove(table);
@@ -998,42 +1009,43 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
-      while (column.Table.Columns.Any(tableColumn => stringComparer.Compare(tableColumn.Name, tempName) == 0))
+      while (column.Table.Columns.Any(tableColumn => StringComparer.Compare(tableColumn.Name, tempName) == 0))
         tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
 
       return tempName;
     }
 
-    private Table FindTable(string name)
+    private Table FindTable(TableInfo tableInfo)
     {
-      return schema.Tables.FirstOrDefault(t => stringComparer.Compare(t.Name, name) == 0);
+      var name = tableInfo.Name;
+      var schema = schemaResolver.ResolveSchema(sqlModel, tableInfo.Parent.Name);
+      return schema.Tables[name];
     }
 
     private TableColumn FindColumn(Table table, string name)
     {
       return table.TableColumns.
-        FirstOrDefault(c => stringComparer.Compare(c.Name, name) == 0);
+        FirstOrDefault(c => StringComparer.Compare(c.Name, name) == 0);
     }
 
-    private TableColumn FindColumn(string tableName, string columnName)
+    private TableColumn FindColumn(TableInfo tableInfo, string columnName)
     {
-      return FindTable(tableName).TableColumns.
-        FirstOrDefault(c => stringComparer.Compare(c.Name, columnName) == 0);
+      return FindTable(tableInfo).TableColumns[columnName];
     }
 
-    private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)
+    private static ReferentialAction ConvertReferentialAction(Model.ReferentialAction toConvert)
     {
       switch (toConvert) {
-      case ReferentialAction.None:
-        return SqlRefAction.NoAction;
-      case ReferentialAction.Restrict:
-        return SqlRefAction.Restrict;
-      case ReferentialAction.Cascade:
-        return SqlRefAction.Cascade;
-      case ReferentialAction.Clear:
-        return SqlRefAction.SetNull;
+      case Model.ReferentialAction.None:
+        return ReferentialAction.NoAction;
+      case Model.ReferentialAction.Restrict:
+        return ReferentialAction.Restrict;
+      case Model.ReferentialAction.Cascade:
+        return ReferentialAction.Cascade;
+      case Model.ReferentialAction.Clear:
+        return ReferentialAction.SetNull;
       default:
-        return SqlRefAction.Restrict;
+        return ReferentialAction.Restrict;
       }
     }
 
@@ -1057,7 +1069,7 @@ namespace Xtensive.Orm.Providers.Sql
         if (selectColumns.Count() == 0)
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
-        var identifiedTable = FindTable(selectColumns[0].Parent.Name);
+        var identifiedTable = FindTable(selectColumns[0].Parent);
         var identifiedTableRef = SqlDml.TableRef(identifiedTable, 
           string.Format(SubqueryTableAliasNameFormat, identifiedTable.Name));
         var select = SqlDml.Select(identifiedTableRef);
@@ -1137,46 +1149,33 @@ namespace Xtensive.Orm.Providers.Sql
       var result = columnInfo.DefaultValue==null
         ? (SqlExpression) SqlDml.Null
         : SqlDml.Literal(columnInfo.DefaultValue);
-      var type = columnInfo.Type.Type;
-      if (type.IsNullable())
-        type = type.GetGenericArguments()[0];
-//      var mapping = driver.GetTypeMapping(type);
-//      if (mapping.ParameterCastRequired)
-//        result = SqlDml.Cast(result, mapping.BuildSqlType(columnInfo.Type.Length, null, null));
       return result;
     }
 
-    private long? GetCurrentSequenceValue(string sequenceInfoName)
+    private long? GetCurrentSequenceValue(StorageSequenceInfo sequenceInfo)
     {
-      var script = getNextImplementationHandler.Invoke(providerInfo, schema, sequenceInfoName);
-      
-      if (providerInfo.Supports(ProviderFeatures.Sequences))
-        return Convert.ToInt64(sqlExecutor.ExecuteScalar(script));
-
-      var batch = script as SqlBatch;
-      if (batch == null || providerInfo.Supports(ProviderFeatures.DdlBatches))
-        return Convert.ToInt64(sqlExecutor.ExecuteScalar(script));
-
-      ArgumentValidator.EnsureArgumentIsInRange(batch.Count, 2, 2, "batch.Count");
-      sqlExecutor.ExecuteNonQuery((ISqlCompileUnit) batch[0]);
-      return Convert.ToInt64(sqlExecutor.ExecuteScalar((ISqlCompileUnit) batch[1]));
+      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
+      var generatorNode = providerInfo.Supports(ProviderFeatures.Sequences)
+        ? schema.Sequences[sequenceInfo.Name]
+        : (SchemaNode) schema.Tables[sequenceInfo.Name];
+      return sequenceQueryBuilder.Build(generatorNode, 0).ExecuteWith(sqlExecutor);
     }
 
-    private static SqlUpgradeStage GetSqlUpgradeStage(UpgradeStage stage)
+    private static SqlUpgradeStage GetSqlUpgradeStage(Modelling.Comparison.UpgradeStage stage)
     {
       switch (stage) {
-        case UpgradeStage.CleanupData:
+        case Modelling.Comparison.UpgradeStage.CleanupData:
           return SqlUpgradeStage.CleanupData;
-        case UpgradeStage.Prepare:
-        case UpgradeStage.TemporaryRename:
+        case Modelling.Comparison.UpgradeStage.Prepare:
+        case Modelling.Comparison.UpgradeStage.TemporaryRename:
           return SqlUpgradeStage.PreUpgrade;
-        case UpgradeStage.Upgrade:
+        case Modelling.Comparison.UpgradeStage.Upgrade:
           return SqlUpgradeStage.Upgrade;
-        case UpgradeStage.CopyData:
+        case Modelling.Comparison.UpgradeStage.CopyData:
           return SqlUpgradeStage.CopyData;
-        case UpgradeStage.PostCopyData:
+        case Modelling.Comparison.UpgradeStage.PostCopyData:
           return SqlUpgradeStage.PostCopyData;
-        case UpgradeStage.Cleanup:
+        case Modelling.Comparison.UpgradeStage.Cleanup:
           return SqlUpgradeStage.Cleanup;
         default:
           throw new ArgumentOutOfRangeException("stage");
@@ -1188,52 +1187,32 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="actions">The actions to translate.</param>
-    /// <param name="schema">The schema.</param>
-    /// <param name="sourceModel">The source model.</param>
-    /// <param name="targetModel">The target model.</param>
-    /// <param name="providerInfo">The provider info.</param>
-    /// <param name="driver">The driver.</param>
-    /// <param name="typeIdColumnName">Name of the type id column.</param>
-    /// <param name="enforceChangedColumns">Columns thats types must be changed 
-    /// enforced (without type conversion verification).</param>
-    /// <param name="allowCreateConstraints">If set to true creation of unique and reference constraints
-    /// is allowed, otherwise such constraints will not be created.</param>
     public SqlActionTranslator(
-      ActionSequence actions, 
-      Schema schema, 
-      StorageModel sourceModel, 
-      StorageModel targetModel, 
-      ProviderInfo providerInfo, 
-      StorageDriver driver, 
-      string typeIdColumnName, 
-      List<string> enforceChangedColumns, 
-      ISqlExecutor sqlExecutor,
-      Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler,
-      bool allowCreateConstraints)
+      HandlerAccessor handlers, ISqlExecutor sqlExecutor,
+      ActionSequence actions, SqlExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
+      List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
-      ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeIdColumnName, "typeIdColumnName");
+      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
-      ArgumentValidator.EnsureArgumentNotNull(getNextImplementationHandler, "getNextImplementationHandler");
-      
-      this.typeIdColumnName = typeIdColumnName;
-      this.providerInfo = providerInfo;
-      this.schema = schema;
-      this.driver = driver;
+      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
+      ArgumentValidator.EnsureArgumentNotNull(sqlModel, "sqlModel");
+      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
+      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
+      ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
+
+      driver = handlers.StorageDriver;
+      schemaResolver = handlers.SchemaResolver;
+      providerInfo = handlers.ProviderInfo;
+      sequenceQueryBuilder = handlers.SequenceQueryBuilder;
+      providerInfo = driver.ProviderInfo;
+      typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
+
+      this.sqlModel = sqlModel;
       this.actions = actions;
       this.sourceModel = sourceModel;
       this.targetModel = targetModel;
       this.enforceChangedColumns = enforceChangedColumns;
       this.sqlExecutor = sqlExecutor;
-      this.getNextImplementationHandler = getNextImplementationHandler;
       this.allowCreateConstraints = allowCreateConstraints;
     }
   }

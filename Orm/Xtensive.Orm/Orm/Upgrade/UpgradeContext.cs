@@ -21,6 +21,7 @@ using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model.Stored;
 
 using Xtensive.Reflection;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -126,8 +127,9 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public TransactionScope TransactionScope { get; set; }
 
-    internal object      NativeExtractedSchemaCache { get; set; }
     internal StorageModel ExtractedSchemaCache { get; set; }
+
+    internal SqlExtractionResult NativeExtractedSchemaCache { get; set; }
 
     #region IContext<...> methods
 
@@ -157,7 +159,7 @@ namespace Xtensive.Orm.Upgrade
         from type in OriginalConfiguration.Types.Modules
         select new ServiceRegistration(typeof (IModule), type, false)
         ).ToList();
-      var keyGeneratorRegistrations = DomainBuilder.CreateKeyGeneratorRegistrations(OriginalConfiguration);
+      var keyGeneratorRegistrations = KeyGeneratorFactory.CreateRegistrations(OriginalConfiguration);
 
       var allRegistrations = 
         handlerRegistrations

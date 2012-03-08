@@ -133,9 +133,9 @@ namespace Xtensive.Orm.Upgrade
       var oldModel = context.ExtractedDomainModel;
       if (oldModel==null)
         return;
-      var newModel = Domain.Demand().Model;
-      var hintGenerator = new HintGenerator(oldModel, newModel, extractedSchema);
-      var hints = hintGenerator.GenerateHints(context.Hints);
+      var handlers = Domain.Demand().Handlers;
+      var hintGenerator = new HintGenerator(handlers, oldModel, extractedSchema, context.Hints);
+      var hints = hintGenerator.Run();
       context.Hints.Clear();
       foreach (var modelHint in hints.ModelHints)
         context.Hints.Add(modelHint);

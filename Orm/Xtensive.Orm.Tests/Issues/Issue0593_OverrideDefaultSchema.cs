@@ -40,8 +40,7 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = Domain.Configuration;
       Assert.AreEqual(SchemaName, configuration.DefaultSchema);
       Assert.AreEqual(SchemaName, configuration.Clone().DefaultSchema);
-      var handler = Domain.Handler;
-      Assert.AreEqual(handler.Schema.Name, SchemaName);
+      Assert.AreEqual(StorageTestHelper.GetDefaultSchema(Domain).Name, SchemaName);
     }
 
     private static void EnsureSchemaExists(ConnectionInfo connectionInfo)

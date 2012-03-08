@@ -130,7 +130,6 @@ namespace Xtensive.Orm.Building.Builders
     private readonly DomainModel model;
     private readonly DomainConfiguration configuration;
 
-
     public static void Run(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogValidatingMappingConfiguration)) {

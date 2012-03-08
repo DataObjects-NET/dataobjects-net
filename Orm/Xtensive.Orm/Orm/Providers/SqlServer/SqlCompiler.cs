@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers.SqlServer
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var domainHandler = Handlers.DomainHandler;
+      var domainHandler = DomainHandler;
       var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
       var binding = new QueryParameterBinding(
         provider.SearchCriteria.Invoke,
@@ -28,8 +28,9 @@ namespace Xtensive.Orm.Providers.SqlServer
 
       SqlSelect select = SqlDml.Select();
       var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
-      var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
-      var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, provider.Header.Columns.Select(column=>column.Name).ToList());
+      var table = domainHandler.Mapping[index.ReflectedType];
+      var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference,
+        provider.Header.Columns.Select(column=>column.Name).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
       select.Columns.Add(fromTableRef.Columns[0]);
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[1], SqlType.Double), "RANK");
@@ -47,7 +48,8 @@ namespace Xtensive.Orm.Providers.SqlServer
       return CreateProvider(query, binding, provider, compiledSource);
     }
 
-    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
+    protected override SqlExpression ProcessAggregate(
+      SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var aggregateType = aggregateColumn.Type;
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);

@@ -66,12 +66,12 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Extracts catalog/schemas according to the specified <paramref name="tasks"/>.
+    /// Extracts catalogs/schemas according to the specified <paramref name="tasks"/>.
     /// </summary>
     /// <param name="connection">Extraction tasks.</param>
     /// <param name="tasks">Connection to use.</param>
     /// <returns>Extracted catalogs.</returns>
-    public IEnumerable<Catalog> Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
+    public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
       ArgumentValidator.EnsureArgumentNotNull(tasks, "tasks");
@@ -83,7 +83,7 @@ namespace Xtensive.Sql
         .GroupBy(t => t.Catalog)
         .ToDictionary(g => g.Key, g => g.ToList());
 
-      var result = new List<Catalog>();
+      var result = new SqlExtractionResult();
 
       foreach (var taskGroup in taskGroups) {
         var catalogName = taskGroup.Key;
@@ -96,7 +96,7 @@ namespace Xtensive.Sql
           var schema = BuildExtractor(connection).ExtractSchema(catalogName, schemaName);
           var catalog = schema.Catalog;
           CleanSchemas(catalog, new[]{schemaName}); // Remove the rest, if any
-          result.Add(catalog);
+          result.Catalogs.Add(catalog);
         }
         else {
           // Extracting all schemas
@@ -104,7 +104,7 @@ namespace Xtensive.Sql
           var needClean = tasksForCatalog.All(t => !t.AllSchemas);
           if (needClean)
             CleanSchemas(catalog, tasksForCatalog.Select(t => t.Schema));
-          result.Add(catalog);
+          result.Catalogs.Add(catalog);
         }
       }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Sql
     public Catalog ExtractCatalog(SqlConnection connection)
     {
       var task = new SqlExtractionTask(CoreServerInfo.DatabaseName);
-      return Extract(connection, new[] {task}).FirstOrDefault();
+      return Extract(connection, new[] {task}).Catalogs.Single();
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ namespace Xtensive.Sql
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
       var task = new SqlExtractionTask(CoreServerInfo.DatabaseName, schemaName);
-      return Extract(connection, new[] {task}).SelectMany(catalog => catalog.Schemas).FirstOrDefault();
+      return Extract(connection, new[] {task}).Catalogs.SelectMany(catalog => catalog.Schemas).Single();
     }
 
     /// <summary>

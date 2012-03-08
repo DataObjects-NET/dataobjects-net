@@ -176,7 +176,6 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
-        QueryFeatures.MultischemaQueries |
         QueryFeatures.Limit;
       return queryInfo;
     }

@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
-      registrations.Add(new ServiceRegistration(typeof (ICachingKeyGeneratorService), new CachingKeyGeneratorService(Handlers)));
+      registrations.Add(new ServiceRegistration(typeof (IStorageSequenceAccessor), new StorageSequenceAccessor(Handlers)));
     }
   }
 }

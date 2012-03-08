@@ -35,27 +35,14 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    /// <summary>
-    /// Gets tables.
-    /// </summary>
-    [Property(Priority = 0)]
-    public TableInfoCollection Tables { get; private set; }
-
-    /// <summary>
-    /// Gets sequences.
-    /// </summary>
     [Property]
-    public SequenceInfoCollection Sequences { get; private set; }
+    public SchemaInfoCollection Schemas { get; private set; }
 
-    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
-
-      if (Tables == null)
-        Tables = new TableInfoCollection(this);
-      if (Sequences==null)
-        Sequences=new SequenceInfoCollection(this);
+      if (Schemas==null)
+        Schemas = new SchemaInfoCollection(this);
     }
 
     /// <inheritdoc/>
@@ -63,7 +50,6 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       return new Nesting<StorageModel, StorageModel, StorageModel>(this);
     }
-
 
     // Constructors
     

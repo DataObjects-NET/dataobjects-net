@@ -123,11 +123,15 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
     }
   }
 
-  public class IsbnKeyGenerator : KeyGenerator<string>
+  public class IsbnKeyGenerator : IKeyGenerator
   {
     private int counter;
 
-    public override Tuple TryGenerateKey(bool temporaryKey)
+    public void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
+    {
+    }
+
+    public Tuple GenerateKey(KeyInfo keyInfo, Session session)
     {
       var result = Tuple.Create(counter.ToString());
       counter++;

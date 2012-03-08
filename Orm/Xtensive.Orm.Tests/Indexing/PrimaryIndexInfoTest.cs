@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Testing;
@@ -25,7 +26,8 @@ namespace Xtensive.Orm.Tests.Indexing
     public void CreateStorage()
     {
       storage = new StorageModel("s1");
-      table = new TableInfo(storage, "table");
+      var schema = new SchemaInfo(storage, "schema");
+      table = new TableInfo(schema, "table");
       index = new PrimaryIndexInfo(table, "i");
     }
 
@@ -128,7 +130,7 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void ValidateRefToColumnFromAnotherIndex()
     {
-      var anoterTable = new TableInfo(storage, "t2");
+      var anoterTable = new TableInfo(storage.Schemas.First(), "t2");
       var key = new StorageColumnInfo(anoterTable, "key");
       var value = new StorageColumnInfo(anoterTable, "value");
       

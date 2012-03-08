@@ -35,8 +35,9 @@ namespace Xtensive.Orm.Tests.Indexing
     public void CreateModel()
     {
       storage = new StorageModel("storage") { Actions = new ActionSequence() };
+      var schema = new SchemaInfo(storage, "schema");
       // Table 1
-      table1 = new TableInfo(storage, "table1");
+      table1 = new TableInfo(schema, "table1");
       pi1 = new PrimaryIndexInfo(table1, "pk1");
       column1 = new StorageColumnInfo(table1, "col1", new StorageTypeInfo(typeof(string), false, null));
       column2 = new StorageColumnInfo(table1, "col2", new StorageTypeInfo(typeof(string), null));
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Tests.Indexing
       si1.PopulatePrimaryKeyColumns();
 
       // Table 2
-      table2 = new TableInfo(storage, "table2");
+      table2 = new TableInfo(schema, "table2");
       pi2 = new PrimaryIndexInfo(table2, "pk2");
       column4 = new StorageColumnInfo(table2, "col4", new StorageTypeInfo(typeof(int), null));
       column5 = new StorageColumnInfo(table2, "col5", new StorageTypeInfo(typeof(string), null));

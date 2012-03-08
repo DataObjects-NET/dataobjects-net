@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Table.
   /// </summary>
   [Serializable]
-  public sealed class TableInfo : NodeBase<StorageModel>
+  public sealed class TableInfo : NodeBase<SchemaInfo>
   {
     private PrimaryIndexInfo primaryIndex;
 
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<TableInfo, StorageModel, TableInfoCollection>(this, "Tables");
+      return new Nesting<TableInfo, SchemaInfo, TableInfoCollection>(this, "Tables");
     }
 
     /// <inheritdoc/>
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
 
     /// <inheritdoc/>
-    public TableInfo(StorageModel parent, string name)
+    public TableInfo(SchemaInfo parent, string name)
       : base(parent, name)
     {
     }

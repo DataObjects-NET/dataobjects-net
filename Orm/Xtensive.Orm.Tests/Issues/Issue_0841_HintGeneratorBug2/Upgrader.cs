@@ -64,10 +64,10 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2
     {
       if (runningVersion!="2")
         return;
-      string baseTableNodePath = "Tables/Base";
-      string baseTableColumnPath = "Tables/Base/Columns/";
-      string derivedTableNodePath = "Tables/Derived";
-      string derivedTableColumnPath = "Tables/Derived/Columns/";
+      string baseTableNodePath = "Schemas/default/Tables/Base";
+      string baseTableColumnPath = "Schemas/default/Tables/Base/Columns/";
+      string derivedTableNodePath = "Schemas/default/Tables/Derived";
+      string derivedTableColumnPath = "Schemas/default/Tables/Derived/Columns/";
       if (UpgradeContext.Stage==UpgradeStage.Upgrading) {
         // Replacing Dervided type's TypeId in Base table
         // to Base type's TypeId; if there are many ancestors,

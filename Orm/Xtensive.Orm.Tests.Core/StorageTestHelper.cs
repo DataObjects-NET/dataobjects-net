@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Orm.Providers.Sql;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests
 {
@@ -24,6 +25,11 @@ namespace Xtensive.Orm.Tests
       if (sqlHandler!=null)
         return sqlHandler.Connection.ActiveTransaction;
       throw new NotSupportedException();
+    }
+
+    public static Schema GetDefaultSchema(Domain domain)
+    {
+      return domain.Handler.Mapping[domain.Model.Types[typeof (Metadata.Assembly)]].Schema;
     }
   }
 }

@@ -17,22 +17,20 @@ namespace Xtensive.Orm.Building.Definitions
   [Serializable]
   public sealed class HierarchyDef : Node
   {
-    private Type keyGeneratorType;
-
     /// <summary>
     /// Gets the root of the hierarchy.
     /// </summary>
-    public TypeDef Root { get; internal set; }
-
-    /// <summary>
-    /// Gets the <see cref="InheritanceSchema"/> for this hierarchy.
-    /// </summary>
-    public InheritanceSchema Schema { get; set; }
+    public TypeDef Root { get; private set; }
 
     /// <summary>
     /// Gets the fields that are included in the key for this hierarchy.
     /// </summary>
     public List<KeyField> KeyFields { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="InheritanceSchema"/> for this hierarchy.
+    /// </summary>
+    public InheritanceSchema Schema { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether key includes TypeId field.
@@ -47,18 +45,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets or sets the key generator type to use in this hierarchy.
     /// </summary>
-    public Type KeyGeneratorType
-    {
-      get { return keyGeneratorType; }
-      set {
-        if (value != null)
-          Validator.ValidateKeyGeneratorType(value);
-
-        keyGeneratorType = value;
-        if (keyGeneratorType == null)
-          KeyGeneratorName = null;
-      }
-    }
+    public KeyGeneratorKind KeyGeneratorKind { get; set; }
 
     /// <summary>
     /// Gets or sets the key generator name to use in this hierarchy.
@@ -72,8 +59,8 @@ namespace Xtensive.Orm.Building.Definitions
     {
       Root = root;
       KeyFields = new List<KeyField>(WellKnown.MaxKeyFieldNumber);
-      keyGeneratorType = typeof (KeyGenerator);
       IsClustered = true;
+      KeyGeneratorKind = KeyGeneratorKind.Default;
     }
   }
 }

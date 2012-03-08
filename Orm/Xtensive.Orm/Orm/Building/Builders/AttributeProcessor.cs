@@ -76,8 +76,9 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Process(HierarchyDef hierarchy, KeyGeneratorAttribute attribute)
     {
-      hierarchy.KeyGeneratorType = attribute.Type;
-      if (!attribute.Name.IsNullOrEmpty())
+      hierarchy.KeyGeneratorKind = attribute.Kind;
+         
+      if (!string.IsNullOrEmpty(attribute.Name))
         hierarchy.KeyGeneratorName = attribute.Name;
     }
 

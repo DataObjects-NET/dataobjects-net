@@ -28,7 +28,8 @@ namespace Xtensive.Orm.Tests.Indexing
     public void CreateModel()
     {
       storage = new StorageModel("STORAGE") { Actions = new ActionSequence() };
-      table = new TableInfo(storage, "TABLE");
+      var schema = new SchemaInfo(storage, "SCHEMA");
+      table = new TableInfo(schema, "TABLE");
       primary = new PrimaryIndexInfo(table, "PK");
       secondary = new SecondaryIndexInfo(table, "IX");
       primaryKey = new StorageColumnInfo(table, "ID", new StorageTypeInfo(typeof(int), null));

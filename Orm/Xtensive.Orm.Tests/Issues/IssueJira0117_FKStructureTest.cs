@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void ForeignKeysCountTest()
     {
       var domainHandler = Domain.Handler;
-      var schema = domainHandler.Schema;
+      var schema = domainHandler.Mapping[Domain.Model.Types[typeof (Metadata.Type)]].Schema;
 
       var count = GetForeignKeysCount(schema, typeof(Owner1));
       Assert.AreEqual(count, GetForeignKeysCount(schema, typeof(Owner2)));

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -31,8 +30,10 @@ namespace Xtensive.Orm.Building
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
     internal HashSet<IndexInfo> UntypedIndexes { get; private set; }
-    internal Dictionary<KeyGenerator, KeyInfo> KeyGenerators { get; private set; }
     internal Queue<Type> Types { get; private set; }
+
+    internal Dictionary<string, object> KeyEqualityIdentifiers { get; private set; }
+    internal Dictionary<string, SequenceInfo> Sequences { get; private set; }
 
     #region Current property & Demand() method
 
@@ -115,8 +116,9 @@ namespace Xtensive.Orm.Building
       DependencyGraph = new Graph<TypeDef>();
       Interfaces = new HashSet<TypeDef>();
       UntypedIndexes = new HashSet<IndexInfo>();
-      KeyGenerators = new Dictionary<KeyGenerator, KeyInfo>();
       Types = new Queue<Type>(configuration.Types);
+      KeyEqualityIdentifiers = new Dictionary<string, object>();
+      Sequences = new Dictionary<string, SequenceInfo>();
     }
   }
 }

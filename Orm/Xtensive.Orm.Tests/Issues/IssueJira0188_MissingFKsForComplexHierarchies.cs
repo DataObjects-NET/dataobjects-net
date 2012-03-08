@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      schema = domain.Handler.Schema;
+      schema = StorageTestHelper.GetDefaultSchema(domain);
       return domain;
     }
 

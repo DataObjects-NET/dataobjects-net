@@ -85,17 +85,19 @@ namespace Xtensive.Orm.Tests.Upgrade
       if (ConcreteTableSchemaModifier.IsEnabled 
         || SingleTableSchemaModifier.IsEnabled)
         return;
-      var targetSchema = context.SchemaHints.TargetModel as StorageModel;
-      var tableA = targetSchema.Tables["A"];
-      var tableB = targetSchema.Tables["B"];
-      var tableC = targetSchema.Tables["C"];
-      var tableD = targetSchema.Tables["D"];
-      var tableE = targetSchema.Tables["E"];
-      var tableF = targetSchema.Tables["F"];
-      var tableG = targetSchema.Tables["G"];
-      var tableH = targetSchema.Tables["H"];
-      var tableAE = targetSchema.Tables["A-ZeroToMany-E"];
-      var tableAG = targetSchema.Tables["A-ManyToManyMaster-G"];
+      var targetModel = (StorageModel) context.SchemaHints.TargetModel;
+      var schema = targetModel.Schemas.Single();
+      
+      var tableA = schema.Tables["A"];
+      var tableB = schema.Tables["B"];
+      var tableC = schema.Tables["C"];
+      var tableD = schema.Tables["D"];
+      var tableE = schema.Tables["E"];
+      var tableF = schema.Tables["F"];
+      var tableG = schema.Tables["G"];
+      var tableH = schema.Tables["H"];
+      var tableAE = schema.Tables["A-ZeroToMany-E"];
+      var tableAG = schema.Tables["A-ManyToManyMaster-G"];
 
       // ZeroToOne (A -> B)
       Assert.AreEqual(0, tableB.ForeignKeys.Count);

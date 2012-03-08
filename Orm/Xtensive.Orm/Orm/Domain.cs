@@ -121,27 +121,19 @@ namespace Xtensive.Orm
     #region Private / internal members
 
     /// <summary>
-    /// Gets the storage schema.
+    /// Gets the storage model that was build from <see cref="Model"/>.
     /// </summary>
-    internal StorageModel Schema { get; set; }
+    internal StorageModel BuiltStorageModel { get; set; }
 
     /// <summary>
-    /// Gets the extracted storage schema.
+    /// Gets the storage model that was extracted from RDBMS.
     /// </summary>
-    internal StorageModel ExtractedSchema { get; set; }
+    internal StorageModel ExtractedStorageModel { get; set; }
 
     /// <summary>
     /// Gets the domain-level temporary data.
     /// </summary>
     internal GlobalTemporaryData TemporaryData { get; private set; }
-
-    /// <summary>
-    /// Indicates whether debug event logging is enabled.
-    /// </summary>
-    /// <remarks>
-    /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
-    /// </remarks>
-    internal bool IsDebugEventLoggingEnabled { get; private set; }
 
     internal DomainHandler Handler {
       [DebuggerStepThrough]
@@ -152,12 +144,12 @@ namespace Xtensive.Orm
 
     internal ThreadSafeIntDictionary<GenericKeyTypeInfo> GenericKeyTypes { get; private set; }
 
-    internal Dictionary<KeyInfo, KeyGenerator> KeyGenerators { get; private set; }
+    internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
     internal ThreadSafeDictionary<object, object> Cache { get; private set; }
-    internal ICache<Key, Key> KeyCache { get; private set; }
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
-    
+    internal ICache<Key, Key> KeyCache { get; private set; }
+
     private void NotifySessionOpen(Session session)
     {
       if (SessionOpen!=null)
@@ -245,8 +237,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
 
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogOpeningSessionX, configuration);
+      Log.Debug(Strings.LogOpeningSessionX, configuration);
 
       var session = new Session(this, configuration, activate);
       NotifySessionOpen(session);
@@ -283,21 +274,17 @@ namespace Xtensive.Orm
 
     internal Domain(DomainConfiguration configuration)
     {
-      IsDebugEventLoggingEnabled = 
-        Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
-      
       Configuration = configuration;
       TypeLevelCaches = new IntDictionary<TypeLevelCache>();
       Handlers = new HandlerAccessor(this);
       GenericKeyTypes = ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);
-      KeyGenerators = new Dictionary<KeyInfo, KeyGenerator>();
+      KeyGenerators = new KeyGeneratorRegistry();
       Cache = ThreadSafeDictionary<object, object>.Create(new object());
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(
-        Configuration.QueryCacheSize, k => k.First);
+      QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
-      PrefetchActionMap = new Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
+      PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
     }
 
     /// <inheritdoc/>
@@ -306,8 +293,7 @@ namespace Xtensive.Orm
       if (disposingState==DisposingState.None) lock (_lock) if (disposingState==DisposingState.None) {
         disposingState = DisposingState.Disposing;
         try {
-          if (IsDebugEventLoggingEnabled)
-            Log.Debug(Strings.LogDomainIsDisposing);
+          Log.Debug(Strings.LogDomainIsDisposing);
           NotifyDisposing();
           Services.DisposeSafely();
         }

@@ -19,6 +19,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;
+using Xtensive.Tuples;
 using DomainHandler = Xtensive.Orm.Providers.DomainHandler;
 using HandlerFactory = Xtensive.Orm.Providers.HandlerFactory;
 using SchemaUpgradeHandler = Xtensive.Orm.Providers.SchemaUpgradeHandler;
@@ -33,6 +34,8 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class DomainBuilder
   {
     private readonly BuildingContext context;
+    private readonly HashSet<IKeyGenerator> initializedKeyGenerators = new HashSet<IKeyGenerator>();
+
     private ProviderFactory providerFactory;
 
     /// <summary>
@@ -138,6 +141,10 @@ namespace Xtensive.Orm.Building.Builders
         domainHandler.Initialize();
         // NameBuilder
         handlers.NameBuilder = new NameBuilder(configuration, storageDriver.ProviderInfo);
+        // SchemaResolver
+        handlers.SchemaResolver = SchemaResolver.Get(configuration);
+        // GeneratorQueryBuilder
+        handlers.SequenceQueryBuilder = new SequenceQueryBuilder(storageDriver);
         // SchemaUpgradeHandler
         var schemaUpgradeHandler = factory.CreateHandler<SchemaUpgradeHandler>();
         handlers.SchemaUpgradeHandler = schemaUpgradeHandler;
@@ -152,7 +159,7 @@ namespace Xtensive.Orm.Building.Builders
         var configuration = domain.Configuration;
         var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
         var registrations = CreateServiceRegistrations(configuration)
-          .Concat(CreateKeyGeneratorRegistrations(configuration));
+          .Concat(KeyGeneratorFactory.CreateRegistrations(configuration));
         var baseServiceContainer = domain.Handler.CreateBaseServices();
         domain.Services = ServiceContainer.Create(
           typeof (ServiceContainer), registrations, ServiceContainer.Create(serviceContainerType, baseServiceContainer));
@@ -198,36 +205,30 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
         var domain = context.Domain;
-        var keyGenerators = domain.KeyGenerators;
-        foreach (var keyInfo in domain.Model.Hierarchies.Select(h => h.Key)) {
-          KeyGenerator generator = null;
-          if (keyInfo.GeneratorType!=null) {
-            generator = (KeyGenerator) domain.Services.Demand(
-              keyInfo.GeneratorType, keyInfo.GeneratorName);
-            if (!generator.IsInitialized) {
-              generator.Initialize(domain.Handlers, keyInfo);
-            }
-          }
-          // So non-exisitng (==null) generators are added as well!
-          keyGenerators.Add(keyInfo, generator);
-        }
+        var generators = domain.KeyGenerators;
+        var initialized = new HashSet<IKeyGenerator>();
+        var keysToProcess = domain.Model.Hierarchies.Select(h => h.Key).Where(k => k.HasGenerator);
+        foreach (var keyInfo in keysToProcess) {
+          var generator = domain.Services.Demand<IKeyGenerator>(keyInfo.GeneratorName);
+          InitializeKeyGenerator(generator, keyInfo.TupleDescriptor);
+          generators.Register(keyInfo, generator);
 
-        // Starting background process invoking KeyGenerator.Prepare methods
-        Func<bool> backgroundCacher = () => {
-          foreach (var pair in keyGenerators) {
-            try {
-              var keyGenerator = pair.Value;
-              if (keyGenerator!=null)
-                keyGenerator.Prepare();
-            }
-            catch {
-              // We supress everything here.
-            }
-          }
-          return true;
-        };
-        backgroundCacher.InvokeAsync();
+          var localGenerator = domain.Services.Get<ITemporaryKeyGenerator>(keyInfo.GeneratorName);
+          if (localGenerator==null)
+            continue; // Local key generators are optional
+          InitializeKeyGenerator(localGenerator, keyInfo.TupleDescriptor);
+          generators.RegisterTemporary(keyInfo, localGenerator);
+        }
+        generators.Lock();
       }
+    }
+
+    private void InitializeKeyGenerator(IKeyGenerator keyGenerator, TupleDescriptor keyTupleDescriptor)
+    {
+      if (initializedKeyGenerators.Contains(keyGenerator))
+        return;
+      keyGenerator.Initialize(context.Domain, keyTupleDescriptor);
+      initializedKeyGenerators.Add(keyGenerator);
     }
 
     private void ConfigureServices()
@@ -263,7 +264,7 @@ namespace Xtensive.Orm.Building.Builders
         SchemaComparisonResult result;
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
-          var emptySchema = new StorageModel();
+          var emptySchema = upgradeHandler.CreateEmptyStorageModel();
           result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model);
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
@@ -334,15 +335,15 @@ namespace Xtensive.Orm.Building.Builders
       var extractedSchemas = extractedSchemaCloner.Invoke();
       var targetSchemas = targetSchemaCloner.Invoke();
 
-      domain.ExtractedSchema = extractedSchemas.First; // Assigning locked schema
+      domain.ExtractedStorageModel = extractedSchemas.First; // Assigning locked schema
       if (Log.IsLogged(LogEventTypes.Info)) {
         Log.Info(Strings.LogExtractedSchema);
-        domain.ExtractedSchema.Dump();
+        domain.ExtractedStorageModel.Dump();
       }
-      domain.Schema = targetSchemas.First; // Assigning locked schema
+      domain.BuiltStorageModel = targetSchemas.First; // Assigning locked schema
       if (Log.IsLogged(LogEventTypes.Info)) {
         Log.Info(Strings.LogTargetSchema);
-        domain.Schema.Dump();
+        domain.BuiltStorageModel.Dump();
       }
       Thread.MemoryBarrier();
 
@@ -353,58 +354,6 @@ namespace Xtensive.Orm.Building.Builders
     private static IEnumerable<ServiceRegistration> CreateServiceRegistrations(DomainConfiguration configuration)
     {
       return configuration.Types.DomainServices.SelectMany(ServiceRegistration.CreateAll);
-    }
-
-    public static IEnumerable<ServiceRegistration> CreateKeyGeneratorRegistrations(
-      DomainConfiguration configuration)
-    {
-      var userRegistrations = configuration.Types.KeyGenerators
-        .SelectMany(ServiceRegistration.CreateAll)
-        .ToList();
-
-      var standardRegistrations =
-        KeyGenerator.SupportedKeyFieldTypes
-          .Select(type => new {type, reg = GetStandardKeyGenerator(type)})
-          .Where(item => !userRegistrations.Any(r => r.Type==item.reg.Type && r.Name==item.reg.Name))
-          .Select(item => item.reg)
-          .ToList();
-
-      var allRegistrations = userRegistrations.Concat(standardRegistrations);
-
-      if (!configuration.IsMultidatabase)
-        return allRegistrations;
-
-      // If we are in multidatabase mode key generators will have database specific suffixes
-      // We need to handle it by building a cross product between all key generators and all databases.
-      // TODO: handle user's per-database registrations
-      // They should have more priority than user's database-agnostic key generators
-      // and standard key generators (which are always database-agnostic).
-
-      var databases = configuration.MappingRules
-        .Select(rule => rule.Database)
-        .Where(db => !string.IsNullOrEmpty(db))
-        .Concat(Enumerable.Repeat(configuration.DefaultDatabase, 1))
-        .ToHashSet();
-
-      return allRegistrations.SelectMany(_ => databases, AddKeyGeneratorLocation);
-    }
-
-    private static ServiceRegistration AddKeyGeneratorLocation(ServiceRegistration originalRegistration, string database)
-    {
-      return new ServiceRegistration(
-        originalRegistration.Type,
-        NameBuilder.BuildKeyGeneratorName(originalRegistration.Name, database),
-        originalRegistration.MappedType,
-        originalRegistration.Singleton);
-    }
-
-    private static ServiceRegistration GetStandardKeyGenerator(Type keyType)
-    {
-      return new ServiceRegistration(
-        typeof (KeyGenerator),
-        keyType.GetShortName(),
-        typeof (CachingKeyGenerator<>).MakeGenericType(keyType),
-        true);
     }
 
     // Constructors

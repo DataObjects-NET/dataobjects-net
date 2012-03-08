@@ -14,7 +14,7 @@ using Xtensive.Orm.Model;
 namespace Xtensive.Orm.Tests.Storage.ForeignKeys
 {
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
+  [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
   }
 
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
+  [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class Company : Entity
   {
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
   }
 
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
+  [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class Project : Entity
   {
@@ -81,14 +81,18 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
     public string Country { get; set; }
   }
 
-  [Service(typeof(DualIntKeyGenerator), "DualInt")]
-  public class DualIntKeyGenerator : KeyGenerator<int>
+  [Service(typeof (IKeyGenerator), "DualInt")]
+  public class DualIntKeyGenerator : IKeyGenerator
   {
     private int seed = 1;
 
-    public override Tuple TryGenerateKey(bool temporaryKey)
+    public void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
     {
-      return Tuple.Create(KeyInfo.TupleDescriptor, seed++, seed++);
+    }
+
+    public Tuple GenerateKey(KeyInfo keyInfo, Session session)
+    {
+      return Tuple.Create(seed++, seed++);
     }
   }
 

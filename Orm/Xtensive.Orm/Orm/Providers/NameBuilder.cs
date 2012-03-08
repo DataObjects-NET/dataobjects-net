@@ -475,9 +475,9 @@ namespace Xtensive.Orm.Providers
     /// <returns>Sequence name.</returns>
     public string BuildSequenceName(KeyInfo keyInfo)
     {
-      return keyInfo.GeneratorLocalName==null
+      return keyInfo.GeneratorBaseName==null
         ? null
-        : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorLocalName));
+        : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorBaseName));
     }
 
     /// <summary>
@@ -500,19 +500,16 @@ namespace Xtensive.Orm.Providers
     /// <param name="keyTupleDescriptor">Key tuple descriptor.</param>
     /// <param name="typeIdColumnIndex">Index of TypeId column.</param>
     /// <returns>Local name.</returns>
-    public string BuildKeyGeneratorLocalName(
+    public string BuildKeyGeneratorBaseName(
       HierarchyDef hierarchyDef, TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
     {
-      if (!hierarchyDef.KeyGeneratorName.IsNullOrEmpty())
+      if (!string.IsNullOrEmpty(hierarchyDef.KeyGeneratorName))
         return hierarchyDef.KeyGeneratorName;
 
-      var generatorTypeSpecified =
-        hierarchyDef.KeyGeneratorType==null
-        || hierarchyDef.KeyGeneratorType==typeof (KeyGenerator);
-
-      if (!generatorTypeSpecified)
-        throw new DomainBuilderException(string.Format(
-          Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet, hierarchyDef.Root.UnderlyingType.GetShortName()));
+      if (hierarchyDef.KeyGeneratorKind==KeyGeneratorKind.Custom)
+        throw new InvalidOperationException(string.Format(
+          "Type '{0}': custom key generator is used, but no name provided",
+          hierarchyDef.Root.UnderlyingType.GetShortName()));
 
       return keyTupleDescriptor
         .Where((type, index) => index!=typeIdColumnIndex)

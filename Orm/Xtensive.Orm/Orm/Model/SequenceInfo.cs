@@ -7,7 +7,6 @@
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using System;
 
 namespace Xtensive.Orm.Model
 {
@@ -44,7 +43,6 @@ namespace Xtensive.Orm.Model
         increment = value;
       }
     }
-
 
     // Constructors
 

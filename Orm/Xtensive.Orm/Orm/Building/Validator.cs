@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Definitions;
 
@@ -77,24 +78,27 @@ namespace Xtensive.Orm.Building
 
     public static void ValidateHierarchy(HierarchyDef hierarchyDef)
     {
-      if (hierarchyDef.KeyFields.Count==0)
+      var keyFields = hierarchyDef.KeyFields;
+
+      if (keyFields.Count==0)
         throw new DomainBuilderException(string.Format(
           Strings.ExHierarchyXDoesntContainAnyKeyFields, hierarchyDef.Root.Name));
 
       var root = hierarchyDef.Root;
 
-      if (hierarchyDef.KeyGeneratorType == typeof(KeyGenerator)) {
+      if (hierarchyDef.KeyGeneratorKind==KeyGeneratorKind.Default) {
         // Default key generator can't produce values with 2 or more fields
-        if (hierarchyDef.KeyFields.Count > 2)
+        if (keyFields.Count > 2)
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
         // if one of key fields is TypeId field and number of fields == 2 then it is OK
-        if (hierarchyDef.KeyFields.Count==2 && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdFieldName) == null)
+        if (keyFields.Count==2 && keyFields.Find(f => f.Name==WellKnown.TypeIdFieldName)!=null)
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
+        var field = keyFields.FirstOrDefault(f => f.Name!=WellKnown.TypeIdFieldName);
       }
 
-      foreach (var keyField in hierarchyDef.KeyFields) {
+      foreach (var keyField in keyFields) {
 
-        if (keyField == null)
+        if (keyField==null)
           throw new DomainBuilderException(String.Format(Strings.ExKeyStructureForXContainsNULLValue, root.Name));
 
         FieldDef fieldDef = root.Fields[keyField.Name];
@@ -195,13 +199,6 @@ namespace Xtensive.Orm.Building
       throw new DomainBuilderException(String.Format(
         Strings.ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp,
         typeName, assemblyName));
-    }
-
-    public static void ValidateKeyGeneratorType(Type type)
-    {
-      if (!typeof(KeyGenerator).IsAssignableFrom(type))
-        throw new InvalidOperationException(string.Format(
-          Strings.ExXMustBeInheritedFromX, type.GetShortName(), typeof(KeyGenerator).GetShortName()));
     }
 
     public static void EnsureTypeIsPersistent(Type type)

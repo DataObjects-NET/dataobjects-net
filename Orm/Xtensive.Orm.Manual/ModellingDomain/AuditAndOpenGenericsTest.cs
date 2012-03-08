@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.IoC;
-using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
@@ -19,16 +17,6 @@ using Xtensive.Reflection;
 namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 {
   #region Model
-
-  [Service(typeof(KeyGenerator), Name="Transaction")]
-  public class TransactionKeyGenerator : CachingKeyGenerator<long>
-  {
-    [ServiceConstructor]
-    public TransactionKeyGenerator(DomainConfiguration configuration)
-      : base(configuration)
-    {
-    }
-  }
 
   [Serializable]
   [HierarchyRoot]

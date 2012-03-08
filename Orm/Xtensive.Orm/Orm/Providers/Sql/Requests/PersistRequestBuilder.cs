@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var result = new List<PersistRequest>();
       foreach (Orm.Model.IndexInfo index in context.AffectedIndexes) {
-        var table = domainHandler.Mapping[index];
+        var table = domainHandler.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Insert(tableRef);
         var bindings = new List<PersistParameterBinding>();
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var result = new List<PersistRequest>();
       foreach (IndexInfo index in context.AffectedIndexes) {
-        var table = domainHandler.Mapping[index];
+        var table = domainHandler.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Update(tableRef);
         var bindings = new List<PersistParameterBinding>();
@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Providers.Sql
       var result = new List<PersistRequest>();
       for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
         var index = context.AffectedIndexes[i];
-        var tableRef = SqlDml.TableRef(domainHandler.Mapping[index]);
+        var tableRef = SqlDml.TableRef(domainHandler.Mapping[index.ReflectedType]);
         var query = SqlDml.Delete(tableRef);
         var bindings = new List<PersistParameterBinding>();
 

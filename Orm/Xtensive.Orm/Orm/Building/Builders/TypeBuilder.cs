@@ -401,72 +401,74 @@ namespace Xtensive.Orm.Building.Builders
             typeIdColumnIndex = i;
 
       Type generatorType = null;
-      string generatorLocalName = null;
+      string generatorBaseName = null;
       string generatorName = null;
 
-      var requiresGenerator =
-        hierarchyDef.KeyGeneratorType!=null
+      var hasGenerator =
+        hierarchyDef.KeyGeneratorKind!=KeyGeneratorKind.None
         && keyFields.All(f => f.Parent==null); // = does not contain foreign key(s)
 
-      if (requiresGenerator) {
+      if (hasGenerator) {
         var nameBuilder = context.NameBuilder;
-        generatorType = hierarchyDef.KeyGeneratorType;
-        generatorLocalName = nameBuilder.BuildKeyGeneratorLocalName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex);
-        generatorName = NameBuilder.BuildKeyGeneratorName(generatorLocalName, hierarchyDef.Root.MappingDatabase);
+        generatorBaseName = nameBuilder.BuildKeyGeneratorBaseName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex);
+        generatorName = NameBuilder.BuildKeyGeneratorName(generatorBaseName, hierarchyDef.Root.MappingDatabase);
       }
 
       var key = new KeyInfo(
-        root.Name,
-        keyFields,
-        keyColumns,
-        generatorType,
-        generatorLocalName,
-        generatorName,
-        keyTupleDescriptor,
-        typeIdColumnIndex);
+        root.Name, keyFields, keyColumns,
+        generatorBaseName, generatorName, keyTupleDescriptor, typeIdColumnIndex);
 
-      // The most complex part: now we're trying to find out if
-      // this KeyInfo is actually quite similar to another one.
-      // If so, we clone its EqualityIdentifier and Sequence.
-      var keyGenerator = GetKeyGenerator(context, key.GeneratorType, key.GeneratorName);
-      KeyInfo existingKey = null;
-      if (keyGenerator!=null)
-        context.KeyGenerators.TryGetValue(keyGenerator, out existingKey);
-
-      if (existingKey!=null) {
-        // There is an existing key like this, with the same key generator
-        key.IsFirstAmongSimilarKeys = false;
-        key.EqualityIdentifier = existingKey.EqualityIdentifier;
-        key.Sequence = existingKey.Sequence;
+      if (!hasGenerator) {
+        // Not key generator attached.
+        // Each hierarchy has it's own equality identifier.
+        key.IsFirstAmongSimilarKeys = true;
+        key.EqualityIdentifier = new object();
         return key;
       }
 
-      // No existing key like this was found
-      key.IsFirstAmongSimilarKeys = true;
-      key.EqualityIdentifier = new object();
+      // Hierarchy has key generator.
+      // Equality indentifier is the same if and only if key generators match.
 
-      if (keyGenerator!=null) {
-        context.KeyGenerators.Add(keyGenerator, key);
-        var sequenceIncrement = keyGenerator.SequenceIncrement;
-        var mappingName = context.NameBuilder.BuildSequenceName(key);
-        if (sequenceIncrement.HasValue)
-          key.Sequence = new SequenceInfo(key.GeneratorName) {
-            MappingDatabase = hierarchyDef.Root.MappingDatabase,
-            MappingSchema = context.Configuration.DefaultSchema,
-            MappingName = mappingName,
-            Seed = sequenceIncrement.Value,
-            Increment = sequenceIncrement.Value
-          };
+      object equalityIdentifier;
+      if (!context.KeyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier)) {
+        equalityIdentifier = new object();
+        context.KeyEqualityIdentifiers.Add(generatorName, equalityIdentifier);
+        key.IsFirstAmongSimilarKeys = true;
       }
+      key.EqualityIdentifier = equalityIdentifier;
+
+      if (!IsSequenceBackedKey(key, typeIdColumnIndex))
+        return key;
+
+      // Generate corresponding sequence as well.
+      SequenceInfo sequence;
+      var cacheSize = context.Configuration.KeyGeneratorCacheSize;
+      if (!context.Sequences.TryGetValue(generatorName, out sequence)) {
+        sequence = new SequenceInfo(generatorName) {
+          Seed = cacheSize,
+          Increment = cacheSize,
+          MappingDatabase = hierarchyDef.Root.MappingDatabase,
+          MappingSchema = context.Configuration.DefaultSchema,
+          MappingName = context.NameBuilder.BuildSequenceName(key),
+        };
+        context.Sequences.Add(generatorName, sequence);
+      }
+      key.Sequence = sequence;
 
       return key;
     }
 
-    private static KeyGenerator GetKeyGenerator(BuildingContext context, Type generatorType, string generatorName)
+
+    private static bool IsSequenceBackedKey(KeyInfo key, int typeIdColumnIndex)
     {
-      return generatorName==null 
-        ? null
-        : (KeyGenerator) context.BuilderConfiguration.Services.Get(generatorType, generatorName);
+      var hasOneNonTypeIdColumn = key.Columns
+        .Where((c, i) => i!=typeIdColumnIndex).Count()==1;
+      if (!hasOneNonTypeIdColumn)
+        return false;
+      var hasOneSequenceBackedColumn = key.Columns
+        .Where((c, i) => i!=typeIdColumnIndex)
+        .Count(c => KeyGeneratorFactory.IsSequenceBacked(c.ValueType))==1;
+      return hasOneSequenceBackedColumn;
     }
 
     #endregion

@@ -86,9 +86,10 @@ namespace Xtensive.Orm.Tests
       isInitialized = true;
 
       var config = DomainConfigurationFactory.Create();
-      activeProvider = ParseProvider(config.ConnectionInfo.Provider);
+      var providerName = config.ConnectionInfo.Provider;
+      activeProvider = ParseProvider(providerName);
 
-      activeProviderInfo = ProviderInfoBuilder.Build(TestSqlDriver.Create(config.ConnectionInfo));
+      activeProviderInfo = ProviderInfoBuilder.Build(providerName, TestSqlDriver.Create(config.ConnectionInfo));
     }
 
     private static StorageProvider ParseProvider(string provider)

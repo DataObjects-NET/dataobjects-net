@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.IoC;
 using Xtensive.Linq;
@@ -16,6 +17,7 @@ using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sorting;
+using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Threading;
 
@@ -44,15 +46,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the ordered sequence of query preprocessors to apply to any LINQ query.
     /// </summary>
-    /// <value> The ordered sequence of query preprocessors to apply to any LINQ query. </value>
-    /// <exception cref="InvalidOperationException">Cyclic dependency in query preprocessor graph
-    /// is detected.</exception>
     public IEnumerable<IQueryPreprocessor> QueryPreprocessors { get; private set; }
-
-    /// <summary>
-    /// Gets the storage schema.
-    /// </summary>
-    public Schema Schema { get; private set; }
 
     /// <summary>
     /// Gets the model mapping.
@@ -75,34 +69,18 @@ namespace Xtensive.Orm.Providers
     public CommandProcessorFactory CommandProcessorFactory { get; private set; }
 
     /// <summary>
+    /// Gets the partial index filter normalizer.
+    /// </summary>
+    public PartialIndexFilterNormalizer PartialIndexFilterNormalizer { get; private set; }
+
+    /// <summary>
     /// Builds the mapping schema.
     /// </summary>
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public void BuildMapping()
     {
-      var context = UpgradeContext.Demand();
-      var domainModel = Handlers.Domain.Model;
-
-      Mapping = new ModelMapping();
-      Schema = (Schema) Handlers.SchemaUpgradeHandler.GetNativeExtractedSchema();
-
-      foreach (var type in domainModel.Types) {
-        var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (primaryIndex==null || Mapping[primaryIndex]!=null)
-          continue;
-        if (primaryIndex.IsAbstract)
-          continue;
-        if (context.Configuration.UpgradeMode.IsLegacy() && type.IsSystem)
-          continue;
-
-        var storageTableName = primaryIndex.ReflectedType.MappingName;
-        var storageTable = Schema.Tables[storageTableName];
-        if (storageTable==null)
-          throw new DomainBuilderException(string.Format(Strings.ExTableXIsNotFound, storageTableName));
-        Mapping.Register(primaryIndex, storageTable);
-      }
-
-      Mapping.Lock();
+      var sqlModel  = Handlers.SchemaUpgradeHandler.GetNativeExtractedModel();
+      Mapping = ModelMappingBuilder.Build(Handlers, sqlModel);
     }
 
     /// <summary>
@@ -238,6 +216,7 @@ namespace Xtensive.Orm.Providers
       CommandProcessorFactory = Handlers.Factory.CreateHandler<CommandProcessorFactory>();
       CommandProcessorFactory.Initialize();
 
+      PartialIndexFilterNormalizer = Handlers.Factory.CreateHandler<PartialIndexFilterNormalizer>();
     }
 
     public void ConfigureServices()

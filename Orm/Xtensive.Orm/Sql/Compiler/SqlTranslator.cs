@@ -1529,10 +1529,15 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SchemaNode node)
     {
-      if (node.Schema==null)
+      var schemaQualified = node.Schema!=null
+        && Driver.ServerInfo.Query.Features.Supports(QueryFeatures.MultischemaQueries);
+
+      if (!schemaQualified)
         return QuoteIdentifier(node.DbName);
+
       var dbQualified = node.Schema.Catalog!=null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
+
       return dbQualified
         ? QuoteIdentifier(node.Schema.Catalog.DbName, node.Schema.DbName, node.DbName)
         : QuoteIdentifier(node.Schema.DbName, node.DbName);

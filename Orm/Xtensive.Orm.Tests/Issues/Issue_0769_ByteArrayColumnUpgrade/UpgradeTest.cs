@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
 using Xtensive.Orm.Upgrade.Model;
@@ -45,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
             Bytes = new byte[] {1, 2, 3}
           };
 
-          var bytesColumn = GetColumnInfo(domain.Schema, person.TypeInfo, "Bytes");
+          var bytesColumn = GetColumnInfo(domain.BuiltStorageModel, person.TypeInfo, "Bytes");
           var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
           var expected = driver.TypeMappings[typeof (byte[])].BuildSqlType().Length;
           Assert.AreEqual(expected, bytesColumn.Type.Length);
@@ -65,14 +66,17 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
           AssertEx.AreEqual("Person", person.Name);
           AssertEx.AreEqual(new byte[] {1, 2, 3}, person.Bytes);
 
-          var bytesColumn = GetColumnInfo(domain.Schema, person.TypeInfo, "Bytes");
+          var bytesColumn = GetColumnInfo(domain.BuiltStorageModel, person.TypeInfo, "Bytes");
           Assert.AreEqual(null, bytesColumn.Type.Length);
         }
       }
     }
 
-    private StorageColumnInfo GetColumnInfo(StorageModel schema, TypeInfo type, string fieldName)
+    private StorageColumnInfo GetColumnInfo(StorageModel model, TypeInfo type, string fieldName)
     {
+      var resolver = domain.Handlers.SchemaResolver;
+      var schema = model.Schemas[resolver.GetSchemaName(type)];
+
       var table = schema.Tables[type.MappingName];
       var field = type.Fields[fieldName];
       return table.Columns[field.MappingName];

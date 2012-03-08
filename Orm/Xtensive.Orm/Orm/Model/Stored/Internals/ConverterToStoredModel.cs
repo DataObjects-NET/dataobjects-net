@@ -55,22 +55,23 @@ namespace Xtensive.Orm.Model.Stored
         source.Hierarchy!=null && source.Hierarchy.InheritanceSchema==InheritanceSchema.SingleTable
           ? source.Hierarchy.Root
           : source;
-      var result = new StoredTypeInfo
-        {
-          Name = source.Name,
-          UnderlyingType = GetTypeFullName(source.UnderlyingType),
-          TypeId = source.TypeId,
-          MappingName = mappingNameSource.MappingName,
-          IsEntity = source.IsEntity,
-          IsAbstract = source.IsAbstract,
-          IsInterface = source.IsInterface,
-          IsStructure = source.IsStructure,
-          IsSystem = source.IsSystem,
-          AncestorName = sourceAncestor != null ? sourceAncestor.Name : null,
-          Associations = associations,
-          HierarchyRoot = hierarchyRoot,
-          Fields = fields.Select(ConvertField).ToArray(),
-        };
+      var result = new StoredTypeInfo {
+        Name = source.Name,
+        UnderlyingType = GetTypeFullName(source.UnderlyingType),
+        TypeId = source.TypeId,
+        MappingName = mappingNameSource.MappingName,
+        MappingSchema = source.MappingSchema ?? string.Empty,
+        MappingDatabase = source.MappingDatabase ?? string.Empty,
+        IsEntity = source.IsEntity,
+        IsAbstract = source.IsAbstract,
+        IsInterface = source.IsInterface,
+        IsStructure = source.IsStructure,
+        IsSystem = source.IsSystem,
+        AncestorName = sourceAncestor!=null ? sourceAncestor.Name : null,
+        Associations = associations,
+        HierarchyRoot = hierarchyRoot,
+        Fields = fields.Select(ConvertField).ToArray(),
+      };
       return result;
     }
 

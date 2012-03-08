@@ -53,10 +53,12 @@ namespace Xtensive.Orm.Providers.Sql
     private SqlSelect BuildTableQuery(IndexInfo index)
     {
       var domainHandler = Handlers.DomainHandler;
-      var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
+      var table = domainHandler.Mapping[index.ReflectedType];
+
       var atRootPolicy = false;
+
       if (table==null) {
-        table = domainHandler.Schema.Tables[index.ReflectedType.GetRoot().MappingName];
+        table = domainHandler.Mapping[index.ReflectedType.GetRoot()];
         atRootPolicy = true;
       }
 
@@ -80,7 +82,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       ISqlQueryExpression result = null;
 
-      var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
+      var baseQueries = index.UnderlyingIndexes.Select(BuildProviderQuery).ToList();
       foreach (var select in baseQueries) {
         result = result==null
           ? (ISqlQueryExpression) select

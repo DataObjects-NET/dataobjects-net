@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Providers.Interfaces;
+using Xtensive.Orm.Providers.Sql;
 using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
@@ -17,50 +19,37 @@ using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
 using Node = Xtensive.Sql.Model.Node;
 using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
-using SqlRefAction = Xtensive.Sql.ReferentialAction;
-using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
-using Xtensive.Collections;
 
-namespace Xtensive.Orm.Providers.Sql
+namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
-  /// Converts <see cref="Catalog"/> to indexing storage model.
+  /// Converts <see cref="SqlExtractionResult"/> to <see cref="targetModel"/>.
   /// </summary>
-  public class SqlModelConverter : SqlModelVisitor<IPathNode>
+  internal sealed class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
-    /// <summary>
-    /// Gets the storage info.
-    /// </summary>
-    protected StorageModel StorageModel { get; private set; }
+    private readonly IStorageModelFactory storageModelFactory;
+    private readonly SqlExtractionResult sourceModel;
+    private readonly SchemaResolver schemaResolver;
+    private readonly ProviderInfo providerInfo;
+    private readonly PartialIndexFilterNormalizer indexFilterNormalizer;
 
-    /// <summary>
-    /// Gets the provider info.
-    /// </summary>
-    protected ProviderInfo ProviderInfo { get; private set; }
-
-    /// <summary>
-    /// Gets partial index filter normalizer.
-    /// </summary>
-    protected PartialIndexFilterNormalizer IndexFilterNormalizer { get; private set; }
-
-    /// <summary>
-    /// Gets the schema.
-    /// </summary>
-    protected Schema Schema { get; private set; }
+    private StorageModel targetModel;
+    private TableInfo currentTable;
 
     /// <summary>
     /// Get the result of conversion specified 
-    /// <see cref="Schema"/> to <see cref="StorageModel"/>.
+    /// <see cref="Schema"/> to <see cref="targetModel"/>.
     /// </summary>
     /// <returns>The storage model.</returns>
-    public StorageModel GetConversionResult()
+    public StorageModel Run()
     {
-      if (StorageModel == null) {
-        StorageModel = new StorageModel();
-        Visit(Schema);
+      if (targetModel==null) {
+        targetModel = storageModelFactory.CreateEmptyStorageModel();
+        foreach (var catalog in sourceModel.Catalogs)
+          VisitCatalog(catalog);
       }
 
-      return StorageModel;
+      return targetModel;
     }
 
     #region SqlModelVisitor<IPathNode> implementation
@@ -73,8 +62,7 @@ namespace Xtensive.Orm.Providers.Sql
         Visit(table);
 
       // Build foreign keys.
-      var foreignKeys = schema.Tables.SelectMany(
-        t => t.TableConstraints.OfType<ForeignKey>());
+      var foreignKeys = schema.Tables.SelectMany(t => t.TableConstraints.OfType<ForeignKey>());
       foreach (var foreignKey in foreignKeys)
         Visit(foreignKey);
       foreach (var sequence in schema.Sequences)
@@ -86,7 +74,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode Visit(Node node)
     {
-      if (!ProviderInfo.Supports(ProviderFeatures.Sequences)) {
+      if (!providerInfo.Supports(ProviderFeatures.Sequences)) {
         var table = node as Table;
         if (table!=null && IsGeneratorTable(table))
           return VisitGeneratorTable(table);
@@ -98,18 +86,22 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitTable(Table table)
     {
-      var tableInfo = new TableInfo(StorageModel, table.Name);
+      var tableInfo = new TableInfo(GetTargetSchema(table), table.Name);
+
+      currentTable = tableInfo;
 
       foreach (var column in table.TableColumns)
         Visit(column);
 
       var primaryKey = table.TableConstraints
-        .SingleOrDefault(constraint=>constraint is PrimaryKey);
-      if (primaryKey != null)
+        .SingleOrDefault(constraint => constraint is PrimaryKey);
+      if (primaryKey!=null)
         Visit(primaryKey);
 
       foreach (var index in table.Indexes)
         Visit(index);
+
+      currentTable = null;
 
       return tableInfo;
     }
@@ -117,7 +109,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitTableColumn(TableColumn tableColumn)
     {
-      var tableInfo = StorageModel.Tables[tableColumn.Table.Name];
+      var tableInfo = currentTable;
       var typeInfo = ExtractType(tableColumn);
       var columnInfo = new StorageColumnInfo(tableInfo, tableColumn.Name, typeInfo);
       return columnInfo;
@@ -126,8 +118,9 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitForeignKey(ForeignKey key)
     {
-      var referencingTable = StorageModel.Tables[key.Table.Name];
+      var referencingTable = GetTargetSchema(key.Owner).Tables[key.Owner.Name];
       var referencingColumns = new List<StorageColumnInfo>();
+
       foreach (var refColumn in key.Columns)
         referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
 
@@ -136,7 +129,7 @@ namespace Xtensive.Orm.Providers.Sql
         OnRemoveAction = ConvertReferentialAction(key.OnDelete)
       };
 
-      var referencedTable = StorageModel.Tables[key.ReferencedTable.Name];
+      var referencedTable = GetTargetSchema(key.ReferencedTable).Tables[key.ReferencedTable.Name];
       foreignKeyInfo.PrimaryKey = referencedTable.PrimaryIndex;
 
       foreach (var column in referencingColumns)
@@ -148,7 +141,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitPrimaryKey(PrimaryKey key)
     {
-      var tableInfo = StorageModel.Tables[key.Table.Name];
+      var tableInfo = currentTable;
       var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name) {IsClustered = key.IsClustered};
 
       foreach (var keyColumn in key.Columns)
@@ -163,7 +156,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitFullTextIndex(FullTextIndex index)
     {
-      var tableInfo = StorageModel.Tables[index.DataTable.Name];
+      var tableInfo = currentTable;
       var name = index.Name.IsNullOrEmpty()
         ? string.Format("FT_{0}", index.DataTable.Name)
         : index.Name;
@@ -180,10 +173,10 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitIndex(Index index)
     {
-      var tableInfo = StorageModel.Tables[index.DataTable.Name];
+      var tableInfo = currentTable;
       var native = index.Where as SqlNative;
       var filter = !native.IsNullReference() && !string.IsNullOrEmpty(native.Value)
-        ? new PartialIndexFilterInfo(native.Value, IndexFilterNormalizer.Normalize(native.Value))
+        ? new PartialIndexFilterInfo(native.Value, indexFilterNormalizer.Normalize(native.Value))
         : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
         IsUnique = index.IsUnique,
@@ -219,12 +212,19 @@ namespace Xtensive.Orm.Providers.Sql
       }
       var typeInfo = type!=null ? new StorageTypeInfo(type, null) : StorageTypeInfo.Undefined;
 
-      var sequenceInfo = new StorageSequenceInfo(StorageModel, sequence.Name) {
+      var sequenceInfo = new StorageSequenceInfo(GetTargetSchema(sequence), sequence.Name) {
         Increment = sequence.SequenceDescriptor.Increment.Value,
         // StartValue = sequence.SequenceDescriptor.StartValue.Value,
         Type = typeInfo
       };
       return sequenceInfo;
+    }
+
+    protected override IPathNode VisitCatalog(Catalog catalog)
+    {
+      foreach (var schema in catalog.Schemas)
+        VisitSchema(schema);
+      return null;
     }
 
     #endregion
@@ -234,14 +234,14 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="generatorTable">The generator table.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IPathNode VisitGeneratorTable(Table generatorTable)
+    private IPathNode VisitGeneratorTable(Table generatorTable)
     {
       var idColumn = generatorTable.TableColumns[0];
       var startValue = idColumn.SequenceDescriptor.StartValue;
       var increment = idColumn.SequenceDescriptor.Increment;
       var type = ExtractType(idColumn);
       var sequence =
-        new StorageSequenceInfo(StorageModel, generatorTable.Name) {
+        new StorageSequenceInfo(GetTargetSchema(generatorTable), generatorTable.Name) {
           Seed = startValue ?? 0,
           Increment = increment ?? 1,
           Type = type,
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="column">The column.</param>
     /// <returns>Data type.</returns>
-    protected virtual StorageTypeInfo ExtractType(TableColumn column)
+    private StorageTypeInfo ExtractType(TableColumn column)
     {
       var sqlValueType = column.DataType;
       Type type;
@@ -287,18 +287,18 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>
-    protected virtual ReferentialAction ConvertReferentialAction(SqlRefAction toConvert)
+    private ReferentialAction ConvertReferentialAction(Sql.ReferentialAction toConvert)
     {
       switch (toConvert) {
-      case SqlRefAction.NoAction:
+      case Sql.ReferentialAction.NoAction:
         return ReferentialAction.None;
-      case SqlRefAction.Restrict:
+      case Sql.ReferentialAction.Restrict:
         return ReferentialAction.Restrict;
-      case SqlRefAction.Cascade:
+      case Sql.ReferentialAction.Cascade:
         return ReferentialAction.Cascade;
-      case SqlRefAction.SetNull:
+      case Sql.ReferentialAction.SetNull:
         return ReferentialAction.Clear;
-      case SqlRefAction.SetDefault:
+      case Sql.ReferentialAction.SetDefault:
         return ReferentialAction.Default;
       default:
         return ReferentialAction.Default;
@@ -311,7 +311,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <param name="table">The table.</param>
     /// <param name="keyColumns">The key columns.</param>
     /// <returns>The index.</returns>
-    protected virtual StorageIndexInfo FindIndex(TableInfo table, List<StorageColumnInfo> keyColumns)
+    private StorageIndexInfo FindIndex(TableInfo table, List<StorageColumnInfo> keyColumns)
     {
       var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value);
       if (primaryKeyColumns.Except(keyColumns)
@@ -336,33 +336,32 @@ namespace Xtensive.Orm.Providers.Sql
     /// <see langword="true"/> if table used as sequence; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    protected virtual bool IsGeneratorTable(Table table)
+    private bool IsGeneratorTable(Table table)
     {
-      int columnNumber = ProviderInfo.Supports(ProviderFeatures.InsertDefaultValues) ? 1 : 2;
+      int columnNumber = providerInfo.Supports(ProviderFeatures.InsertDefaultValues) ? 1 : 2;
       return table.TableColumns.Count==columnNumber &&
         table.TableColumns[0].SequenceDescriptor!=null;
     }
 
+    private SchemaInfo GetTargetSchema(SchemaNode node)
+    {
+      return targetModel.Schemas[schemaResolver.GetSchemaName(node)];
+    }
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="storageSchema">The schema.</param>
-    /// <param name="providerInfo">The provider info.</param>
-    /// <param name="indexFilterNormalizer"></param>
-    public SqlModelConverter(Schema storageSchema, ProviderInfo providerInfo, PartialIndexFilterNormalizer indexFilterNormalizer)
+    public SqlModelConverter(
+      HandlerAccessor handlers, IStorageModelFactory storageModelFactory, SqlExtractionResult sourceModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(storageSchema, "storageSchema");
-      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
-      ArgumentValidator.EnsureArgumentNotNull(indexFilterNormalizer, "indexFilterNormalizer");
-      
-      Schema = storageSchema;
-      ProviderInfo = providerInfo;
-      IndexFilterNormalizer = indexFilterNormalizer;
-    }
+      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
+      ArgumentValidator.EnsureArgumentNotNull(storageModelFactory, "storageModelFactory");
 
+      this.storageModelFactory = storageModelFactory;
+      this.sourceModel = sourceModel;
+      schemaResolver = handlers.SchemaResolver;
+      providerInfo = handlers.ProviderInfo;
+      indexFilterNormalizer = handlers.DomainHandler.PartialIndexFilterNormalizer;
+    }
 
     #region Not supported
 
@@ -376,13 +375,6 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitIndexColumn(IndexColumn indexColumn)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitCatalog(Catalog catalog)
     {
       throw new NotSupportedException();
     }

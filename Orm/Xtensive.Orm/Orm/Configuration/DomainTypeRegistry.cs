@@ -29,7 +29,8 @@ namespace Xtensive.Orm.Configuration
     internal readonly static Type iSessionServiceType = typeof (ISessionService);
     internal readonly static Type iModuleType = typeof (IModule);
     internal readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
-    internal readonly static Type iKeyGeneratorType = typeof (KeyGenerator);
+    internal readonly static Type iKeyGeneratorType = typeof (IKeyGenerator);
+    internal readonly static Type iTemporaryKeyGeneratorType = typeof (ITemporaryKeyGenerator);
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -77,7 +78,8 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets all the registered <see cref="KeyGenerator"/> implementations.
+    /// Gets all the registered <see cref="IKeyGenerator"/>
+    /// or <see cref="ITemporaryKeyGenerator"/> implementations.
     /// </summary>
     public IEnumerable<Type> KeyGenerators { 
       get {
@@ -201,6 +203,8 @@ namespace Xtensive.Orm.Configuration
       if (type.IsAbstract)
         return false;
       if (iKeyGeneratorType.IsAssignableFrom(type))
+        return true;
+      if (iTemporaryKeyGeneratorType.IsAssignableFrom(type))
         return true;
       return false;
     }
