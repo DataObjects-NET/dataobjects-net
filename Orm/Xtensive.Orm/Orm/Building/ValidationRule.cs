@@ -9,7 +9,8 @@ namespace Xtensive.Orm.Building
   internal enum ValidationRule
   {
     Type = 0,
-    Service = 2,
+    Database = 1,
+    Schema = 2,
     Field = 3,
     Column = 4,
     Index = 5,

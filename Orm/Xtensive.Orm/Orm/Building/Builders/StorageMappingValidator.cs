@@ -139,35 +139,41 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ValidateAll()
     {
-      EnsureDefaultsAreSpecified();
+      EnsureDefaultsAreValid();
 
       if (model.IsMultidatabase) {
-        EnsureMappingDatabaseIsSpecified();
+        EnsureMappingDatabaseIsValid();
         EnsureHierarchiesMapToSingleDatabase();
         EnsureIntefacesAreImplementedWithinSingleDatabase();
         EnsureNoCyclicReferencesBetweenDatabases();
       }
 
       if (model.IsMultischema)
-        EnsureMappingSchemaIsSpecified();
+        EnsureMappingSchemaIsValid();
     }
 
-    private void EnsureMappingSchemaIsSpecified()
+    private void EnsureMappingSchemaIsValid()
     {
-      foreach (var type in GetMappedTypes())
-        if (string.IsNullOrEmpty(type.MappingSchema))
+      foreach (var type in GetMappedTypes()) {
+        var mappingSchema = type.MappingSchema;
+        if (string.IsNullOrEmpty(mappingSchema))
           throw new DomainBuilderException(string.Format(
             Strings.ExMultischemaModeIsActiveButNoSchemaSpecifiedForX,
             type.UnderlyingType.GetShortName()));
+        Validator.ValidateName(mappingSchema, ValidationRule.Schema);
+      }
     }
 
-    private void EnsureMappingDatabaseIsSpecified()
+    private void EnsureMappingDatabaseIsValid()
     {
-      foreach (var type in GetMappedTypes())
-        if (string.IsNullOrEmpty(type.MappingDatabase))
+      foreach (var type in GetMappedTypes()) {
+        var mappingDatabase = type.MappingDatabase;
+        if (string.IsNullOrEmpty(mappingDatabase))
           throw new DomainBuilderException(string.Format(
             Strings.ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX,
             type.UnderlyingType.GetShortName()));
+        Validator.ValidateName(mappingDatabase, ValidationRule.Database);
+      }
     }
 
     private void EnsureNoCyclicReferencesBetweenDatabases()
@@ -205,18 +211,24 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private void EnsureDefaultsAreSpecified()
+    private void EnsureDefaultsAreValid()
     {
       var hasDefaultSchema = !string.IsNullOrEmpty(configuration.DefaultSchema);
       var hasDefaultDatabase = !string.IsNullOrEmpty(configuration.DefaultDatabase);
 
-      if (model.IsMultidatabase && (!hasDefaultDatabase || !hasDefaultSchema))
-        throw new InvalidOperationException(
-          Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
+      if (model.IsMultidatabase) {
+        if (!hasDefaultDatabase || !hasDefaultSchema)
+          throw new InvalidOperationException(
+            Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
+        Validator.ValidateName(configuration.DefaultDatabase, ValidationRule.Database);
+      }
 
-      if (model.IsMultischema && !hasDefaultSchema)
-        throw new InvalidOperationException(
-          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
+      if (model.IsMultischema) {
+        if (!hasDefaultSchema)
+          throw new InvalidOperationException(
+            Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
+        Validator.ValidateName(configuration.DefaultSchema, ValidationRule.Schema);
+      }
     }
 
     private IEnumerable<TypeInfo> GetMappedTypes()

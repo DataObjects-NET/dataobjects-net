@@ -43,6 +43,8 @@ namespace Xtensive.Orm.Building
       switch (rule) {
         case ValidationRule.Index:
         case ValidationRule.Type:
+        case ValidationRule.Schema:
+        case ValidationRule.Database:
           namingRule = TypeNamingRule;
           break;
         case ValidationRule.Field:
