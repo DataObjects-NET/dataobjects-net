@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Building.Builders
       var upgradeHandler = domain.Handlers.SchemaUpgradeHandler;
 
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
-        var schemas = BuildSchemas(upgradeHandler);
+        var schemas = BuildSchemas(domain, upgradeHandler);
         var extractedSchema = schemas.First;
         var targetSchema = schemas.Second;
 
@@ -323,7 +323,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static Pair<StorageModel, StorageModel> BuildSchemas(SchemaUpgradeHandler upgradeHandler)
+    private static Pair<StorageModel, StorageModel> BuildSchemas(Domain domain, SchemaUpgradeHandler upgradeHandler)
     {
       var extractedModel = upgradeHandler.GetExtractedSchema();
       var targetModel = upgradeHandler.GetTargetSchema();
@@ -336,7 +336,8 @@ namespace Xtensive.Orm.Building.Builders
         targetModel.Dump();
       }
 
-      // Returning unlocked clones
+      domain.StorageModel = targetModel;
+
       return new Pair<StorageModel, StorageModel>(extractedModel, targetModel);
     }
 
