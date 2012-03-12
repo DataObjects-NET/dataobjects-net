@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Diagnostics;
+using Xtensive.Orm.Configuration;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
@@ -44,6 +45,9 @@ namespace Xtensive.Orm.Building.Builders
       = new Dictionary<MappingRequest,MappingResult>();
 
     private readonly bool verbose;
+    private readonly List<MappingRule> mappingRules;
+    private readonly string defaultDatabase;
+    private readonly string defaultSchema;
 
     public static void Run(BuildingContext context)
     {
@@ -77,30 +81,24 @@ namespace Xtensive.Orm.Building.Builders
 
     private MappingResult Process(Type type)
     {
+      var rule = mappingRules.First(r => RuleMatch(r, type));
+
+      var resultDatabase = !string.IsNullOrEmpty(rule.Database) ? rule.Database : defaultDatabase;
+      var resultSchema = !string.IsNullOrEmpty(rule.Schema) ? rule.Schema : defaultSchema;
+
       if (verbose)
-        Log.Info(Strings.ApplyingDefaultMappingToX, type.GetShortName());
+        Log.Info(Strings.ApplyingRuleXToY, rule, type.GetShortName());
 
-      var configuration = context.Configuration;
-      var targetDatabase = configuration.DefaultDatabase;
-      var targetSchema = configuration.DefaultSchema;
+      return new MappingResult(resultDatabase, resultSchema);
+    }
 
-      foreach (var rule in configuration.MappingRules) {
-        var assemblyMatch = rule.Assembly==null
-          || rule.Assembly==type.Assembly;
-        var namespaceMatch = string.IsNullOrEmpty(rule.Namespace)
-          || type.FullName.StartsWith(rule.Namespace + ".");
-
-        if (assemblyMatch && namespaceMatch) {
-          if (verbose)
-            Log.Info(Strings.ApplyingRuleXToY, rule, type.GetShortName());
-          if (!string.IsNullOrEmpty(rule.Database))
-            targetDatabase = rule.Database;
-          if (!string.IsNullOrEmpty(rule.Schema))
-            targetSchema = rule.Schema;
-        }
-      }
-
-      return new MappingResult(targetDatabase, targetSchema);
+    private static bool RuleMatch(MappingRule rule, Type type)
+    {
+      var assemblyMatch =
+        rule.Assembly==null || rule.Assembly==type.Assembly;
+      var namespaceMatch =
+        string.IsNullOrEmpty(rule.Namespace) || type.FullName.StartsWith(rule.Namespace + ".");
+      return assemblyMatch && namespaceMatch;
     }
 
     // Constructors
@@ -108,6 +106,16 @@ namespace Xtensive.Orm.Building.Builders
     private StorageMappingBuilder(BuildingContext context)
     {
       this.context = context;
+
+      // Adding a special catch-all rule that maps all types to default schema/database.
+
+      mappingRules = context.Configuration.MappingRules
+        .Concat(Enumerable.Repeat(new MappingRule(null, null, null, null), 1))
+        .ToList();
+
+      defaultDatabase = context.Configuration.DefaultDatabase;
+      defaultSchema = context.Configuration.DefaultSchema;
+
       verbose = Log.IsLogged(LogEventTypes.Info);
     }
   }

@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
@@ -34,12 +35,12 @@ namespace Xtensive.Orm.Providers
         return model.Catalogs.Single().Schemas.Single();
       }
 
-      public override IEnumerable<string> GetAffectedSchemas(DomainModel model)
+      public override IEnumerable<string> GetAllSchemas()
       {
         return Enumerable.Repeat(DummyName, 1);
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(DomainModel model, ProviderInfo providerInfo)
+      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo)
       {
         var task = new SqlExtractionTask(providerInfo.DefaultDatabase, providerInfo.DefaultSchema);
         return Enumerable.Repeat(task, 1);
@@ -48,11 +49,12 @@ namespace Xtensive.Orm.Providers
 
     private sealed class MultischemaModeSchemaResolver : SchemaResolver
     {
-      private readonly string defaultMappingSchema;
+      private readonly string defaultSchema;
+      private readonly List<string> allSchemas;
 
       public override string GetSchemaName(string mappingDatabase, string mappingSchema)
       {
-        return string.IsNullOrEmpty(mappingSchema) ? defaultMappingSchema : mappingSchema;
+        return string.IsNullOrEmpty(mappingSchema) ? defaultSchema : mappingSchema;
       }
 
       public override string GetSchemaName(SchemaNode node)
@@ -65,44 +67,40 @@ namespace Xtensive.Orm.Providers
         return model.Catalogs.Single().Schemas[name];
       }
 
-      public override IEnumerable<string> GetAffectedSchemas(DomainModel model)
+      public override IEnumerable<string> GetAllSchemas()
       {
-        var schemas = GetSchemasQuery(model);
-        return schemas.ToList();
+        return allSchemas;
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(DomainModel model, ProviderInfo providerInfo)
+      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo)
       {
-        var tasks = GetSchemasQuery(model)
-          .Select(s => new SqlExtractionTask(providerInfo.DefaultDatabase, s))
-          .ToList();
-        return tasks;
+        return allSchemas.Select(s => new SqlExtractionTask(providerInfo.DefaultDatabase, s));
       }
 
-      private IEnumerable<string> GetSchemasQuery(DomainModel model)
-      {
-        return model.Types
-          .Select(t => t.MappingSchema)
-          .Where(s => !string.IsNullOrEmpty(s))
-          .Concat(Enumerable.Repeat(defaultMappingSchema, 1))
-          .Distinct();
-      }
 
       // Constructors
 
-      public MultischemaModeSchemaResolver(string defaultMappingSchema)
+      public MultischemaModeSchemaResolver(DomainConfiguration configuration)
       {
-        this.defaultMappingSchema = defaultMappingSchema;
+        defaultSchema = configuration.DefaultSchema;
+        allSchemas = configuration.MappingRules
+          .Select(r => r.Schema)
+          .Where(s => !string.IsNullOrEmpty(s))
+          .Concat(Enumerable.Repeat(configuration.DefaultSchema, 1))
+          .Distinct()
+          .ToList();
       }
     }
 
     private sealed class MultidatabaseModeSchemaResolver : SchemaResolver
     {
-      private const char Separator = ':'; // Colon is forbidden by name validator
+      private const char Separator = ':'; // This char is forbidden by name validator
+
+      private readonly string defaultDatabase;
+      private readonly string defaultSchema;
 
       private readonly Dictionary<string, string> aliasMap;
-      private readonly string defaultMappingDatabase;
-      private readonly string defaultMappingSchema;
+      private readonly List<Pair<string>> allSchemas;
 
       public override string GetSchemaName(string mappingDatabase, string mappingSchema)
       {
@@ -112,10 +110,10 @@ namespace Xtensive.Orm.Providers
         // If such case occurs we simply use current domain defaults as mapping information.
 
         if (string.IsNullOrEmpty(mappingDatabase))
-          mappingDatabase = defaultMappingDatabase;
+          mappingDatabase = defaultDatabase;
         
         if (string.IsNullOrEmpty(mappingSchema))
-          mappingSchema = defaultMappingSchema;
+          mappingSchema = defaultSchema;
 
         return FormatSchemaName(ResolveAlias(mappingDatabase), mappingSchema);
       }
@@ -132,45 +130,35 @@ namespace Xtensive.Orm.Providers
         return model.Catalogs[names[0]].Schemas[names[1]];
       }
 
-      public override IEnumerable<string> GetAffectedSchemas(DomainModel model)
+      public override IEnumerable<string> GetAllSchemas()
       {
-        return GetDatabases(model)
-          .SelectMany(db => GetSchemasForDatabase(model, db), GetSchemaName)
-          .ToList();
+        return allSchemas.Select(item => FormatSchemaName(item.First, item.Second));
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(DomainModel model, ProviderInfo providerInfo)
+      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo)
       {
-        return GetDatabases(model)
-          .SelectMany(db => GetSchemasForDatabase(model, db),
-            (db, schema) => new SqlExtractionTask(ResolveAlias(db), schema))
-          .ToList();
+        return allSchemas.Select(item => new SqlExtractionTask(item.First, item.Second));
       }
 
-      private IEnumerable<string> GetDatabases(DomainModel model)
+      private static IEnumerable<string> GetSchemasForDatabase(DomainConfiguration configuration, string database)
       {
-        return model.Types
-          .Select(t => t.MappingDatabase)
-          .Where(db => !string.IsNullOrEmpty(db))
-          .Concat(Enumerable.Repeat(defaultMappingDatabase, 1))
-          .Distinct();
-      }
+        var userSchemas =
+          from rule in configuration.MappingRules
+          let db = string.IsNullOrEmpty(rule.Database) ? configuration.DefaultDatabase : rule.Database
+          where db==database
+          select string.IsNullOrEmpty(rule.Schema) ? configuration.DefaultSchema : rule.Schema;
 
-      private IEnumerable<string> GetSchemasForDatabase(DomainModel model, string database)
-      {
-        return model.Types
-          .Where(t => t.MappingDatabase==database)
-          .Select(t => t.MappingSchema)
-          .Concat(Enumerable.Repeat(defaultMappingSchema, 1))
+        return userSchemas
+          .Concat(Enumerable.Repeat(configuration.DefaultSchema, 1))
           .Distinct();
       }
 
       private string ResolveAlias(string alias)
       {
-        string result;
-        return aliasMap.TryGetValue(alias, out result) ? result : alias;
+        string name;
+        return aliasMap.TryGetValue(alias, out name) ? name : alias;
       }
-    
+
       private string FormatSchemaName(string mappingDatabase, string mappingSchema)
       {
         return string.Format("{0}{1}{2}", mappingDatabase, Separator, mappingSchema);
@@ -180,9 +168,18 @@ namespace Xtensive.Orm.Providers
 
       public MultidatabaseModeSchemaResolver(DomainConfiguration configuration)
       {
-        aliasMap = configuration.DatabaseAliases.ToDictionary(alias => alias.Name, alias => alias.Database);
-        defaultMappingDatabase = configuration.DefaultDatabase;
-        defaultMappingSchema = configuration.DefaultSchema;
+        aliasMap = configuration.DatabaseAliases
+          .ToDictionary(alias => alias.Name, alias => alias.Database);
+
+        defaultDatabase = configuration.DefaultDatabase;
+        defaultSchema = configuration.DefaultSchema;
+
+        var allSchemaQuery =
+          from db in configuration.GetDatabases()
+          from schema in GetSchemasForDatabase(configuration, db)
+          select new Pair<string>(ResolveAlias(db), schema);
+
+        allSchemas = allSchemaQuery.ToList();
       }
     }
 
@@ -197,16 +194,16 @@ namespace Xtensive.Orm.Providers
 
     public abstract Schema ResolveSchema(SqlExtractionResult model, string name);
 
-    public abstract IEnumerable<string> GetAffectedSchemas(DomainModel model);
+    public abstract IEnumerable<string> GetAllSchemas();
 
-    public abstract IEnumerable<SqlExtractionTask> GetExtractionTasks(DomainModel model, ProviderInfo providerInfo);
+    public abstract IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo);
 
     public static SchemaResolver Get(DomainConfiguration configuration)
     {
       if (configuration.IsMultidatabase)
         return new MultidatabaseModeSchemaResolver(configuration);
       if (configuration.IsMultischema)
-        return new MultischemaModeSchemaResolver(configuration.DefaultSchema);
+        return new MultischemaModeSchemaResolver(configuration);
       return new SimpleSchemaResolver();
     }
   }

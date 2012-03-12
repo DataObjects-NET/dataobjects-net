@@ -127,9 +127,9 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public TransactionScope TransactionScope { get; set; }
 
-    internal StorageModel ExtractedSchemaCache { get; set; }
+    internal StorageModel ExtractedModelCache { get; set; }
 
-    internal SqlExtractionResult NativeExtractedSchemaCache { get; set; }
+    internal SqlExtractionResult ExtractedSqlModelCache { get; set; }
 
     #region IContext<...> methods
 

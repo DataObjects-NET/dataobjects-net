@@ -91,12 +91,7 @@ namespace Xtensive.Orm.Building.Builders
       // They should have more priority than user's database-agnostic key generators
       // and standard key generators (which are always database-agnostic).
 
-      var databases = configuration.MappingRules
-        .Select(rule => rule.Database)
-        .Where(db => !String.IsNullOrEmpty(db))
-        .Concat(Enumerable.Repeat(configuration.DefaultDatabase, 1))
-        .ToHashSet();
-
+      var databases = configuration.GetDatabases();
       return allRegistrations.SelectMany(_ => databases, AddLocation);
     }
 

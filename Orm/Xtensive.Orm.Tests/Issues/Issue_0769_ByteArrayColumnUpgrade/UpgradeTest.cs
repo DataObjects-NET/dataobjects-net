@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
             Bytes = new byte[] {1, 2, 3}
           };
 
-          var bytesColumn = GetColumnInfo(domain.BuiltStorageModel, person.TypeInfo, "Bytes");
+          var bytesColumn = GetColumnInfo(domain.StorageModel, person.TypeInfo, "Bytes");
           var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
           var expected = driver.TypeMappings[typeof (byte[])].BuildSqlType().Length;
           Assert.AreEqual(expected, bytesColumn.Type.Length);
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
           AssertEx.AreEqual("Person", person.Name);
           AssertEx.AreEqual(new byte[] {1, 2, 3}, person.Bytes);
 
-          var bytesColumn = GetColumnInfo(domain.BuiltStorageModel, person.TypeInfo, "Bytes");
+          var bytesColumn = GetColumnInfo(domain.StorageModel, person.TypeInfo, "Bytes");
           Assert.AreEqual(null, bytesColumn.Type.Length);
         }
       }

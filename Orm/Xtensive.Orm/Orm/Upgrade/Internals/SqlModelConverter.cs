@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Providers.Interfaces;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Reflection;
 using Xtensive.Modelling;
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   internal sealed class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
-    private readonly IStorageModelFactory storageModelFactory;
     private readonly SqlExtractionResult sourceModel;
     private readonly SchemaResolver schemaResolver;
     private readonly ProviderInfo providerInfo;
@@ -36,6 +34,8 @@ namespace Xtensive.Orm.Upgrade
     private StorageModel targetModel;
     private TableInfo currentTable;
 
+    private bool executed;
+
     /// <summary>
     /// Get the result of conversion specified 
     /// <see cref="Schema"/> to <see cref="targetModel"/>.
@@ -43,8 +43,8 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>The storage model.</returns>
     public StorageModel Run()
     {
-      if (targetModel==null) {
-        targetModel = storageModelFactory.CreateEmptyStorageModel();
+      if (!executed) {
+        executed = true;
         foreach (var catalog in sourceModel.Catalogs)
           VisitCatalog(catalog);
       }
@@ -350,14 +350,14 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public SqlModelConverter(
-      HandlerAccessor handlers, IStorageModelFactory storageModelFactory, SqlExtractionResult sourceModel)
+    public SqlModelConverter(HandlerAccessor handlers, SqlExtractionResult sourceModel, StorageModel targetModel)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(storageModelFactory, "storageModelFactory");
+      ArgumentValidator.EnsureArgumentNotNull(targetModel, "storageModelFactory");
 
-      this.storageModelFactory = storageModelFactory;
       this.sourceModel = sourceModel;
+      this.targetModel = targetModel;
+
       schemaResolver = handlers.SchemaResolver;
       providerInfo = handlers.ProviderInfo;
       indexFilterNormalizer = handlers.DomainHandler.PartialIndexFilterNormalizer;

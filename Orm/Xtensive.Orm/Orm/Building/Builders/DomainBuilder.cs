@@ -129,22 +129,28 @@ namespace Xtensive.Orm.Building.Builders
     {
       var handlers = context.Domain.Handlers;
       var factory = handlers.Factory;
-      var configuration = context.Domain.Configuration;
+      var upgradeContext = UpgradeContext.Current;
+      var configuration = upgradeContext!=null ? upgradeContext.OriginalConfiguration : context.Domain.Configuration;
 
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         // StorageDriver
         var storageDriver = new StorageDriver(providerFactory.CreateDriverFactory(), context.Domain);
         handlers.StorageDriver = storageDriver;
+
+        // NameBuilder
+        handlers.NameBuilder = new NameBuilder(configuration, storageDriver.ProviderInfo);
+
+        // SchemaResolver
+        handlers.SchemaResolver = SchemaResolver.Get(configuration);
+
+        // GeneratorQueryBuilder
+        handlers.SequenceQueryBuilder = new SequenceQueryBuilder(storageDriver);
+
         // DomainHandler
         var domainHandler = factory.CreateHandler<DomainHandler>();
         handlers.DomainHandler = domainHandler;
         domainHandler.Initialize();
-        // NameBuilder
-        handlers.NameBuilder = new NameBuilder(configuration, storageDriver.ProviderInfo);
-        // SchemaResolver
-        handlers.SchemaResolver = SchemaResolver.Get(configuration);
-        // GeneratorQueryBuilder
-        handlers.SequenceQueryBuilder = new SequenceQueryBuilder(storageDriver);
+
         // SchemaUpgradeHandler
         var schemaUpgradeHandler = factory.CreateHandler<SchemaUpgradeHandler>();
         handlers.SchemaUpgradeHandler = schemaUpgradeHandler;
@@ -245,7 +251,7 @@ namespace Xtensive.Orm.Building.Builders
       var upgradeHandler = domain.Handlers.SchemaUpgradeHandler;
 
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
-        var schemas = BuildSchemasAsync(domain, upgradeHandler);
+        var schemas = BuildSchemas(upgradeHandler);
         var extractedSchema = schemas.First;
         var targetSchema = schemas.Second;
 
@@ -264,14 +270,14 @@ namespace Xtensive.Orm.Building.Builders
         SchemaComparisonResult result;
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
-          var emptySchema = upgradeHandler.CreateEmptyStorageModel();
+          var emptySchema = upgradeHandler.GetEmptyStorageModel();
           result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model);
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, emptySchema);
             upgradeHandler.ClearExtractedSchemaCache();
-            extractedSchema = upgradeHandler.GetExtractedSchemaProvider().Invoke();
+            extractedSchema = upgradeHandler.GetExtractedSchema();
             hints = null; // Must re-bind them
           }
         }
@@ -317,38 +323,21 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static Pair<StorageModel, StorageModel> BuildSchemasAsync(Domain domain, SchemaUpgradeHandler upgradeHandler)
+    private static Pair<StorageModel, StorageModel> BuildSchemas(SchemaUpgradeHandler upgradeHandler)
     {
-      var extractedSchema = upgradeHandler.GetExtractedSchemaProvider().InvokeAsync();
-      var targetSchema = upgradeHandler.GetTargetSchemaProvider().InvokeAsync();
+      var extractedModel = upgradeHandler.GetExtractedSchema();
+      var targetModel = upgradeHandler.GetTargetSchema();
 
-      Func<Func<StorageModel>, Pair<StorageModel, StorageModel>> cloner = schemaProvider => {
-        var origin = schemaProvider.Invoke();
-        origin.Lock();
-        var clone = (StorageModel) origin.Clone(null, StorageModel.DefaultName);
-        return new Pair<StorageModel, StorageModel>(origin, clone);
-      };
-
-      var extractedSchemaCloner = cloner.InvokeAsync(extractedSchema);
-      var targetSchemaCloner = cloner.InvokeAsync(targetSchema);
-
-      var extractedSchemas = extractedSchemaCloner.Invoke();
-      var targetSchemas = targetSchemaCloner.Invoke();
-
-      domain.ExtractedStorageModel = extractedSchemas.First; // Assigning locked schema
       if (Log.IsLogged(LogEventTypes.Info)) {
         Log.Info(Strings.LogExtractedSchema);
-        domain.ExtractedStorageModel.Dump();
-      }
-      domain.BuiltStorageModel = targetSchemas.First; // Assigning locked schema
-      if (Log.IsLogged(LogEventTypes.Info)) {
+        extractedModel.Dump();
+
         Log.Info(Strings.LogTargetSchema);
-        domain.BuiltStorageModel.Dump();
+        targetModel.Dump();
       }
-      Thread.MemoryBarrier();
 
       // Returning unlocked clones
-      return new Pair<StorageModel, StorageModel>(extractedSchemas.Second, targetSchemas.Second);
+      return new Pair<StorageModel, StorageModel>(extractedModel, targetModel);
     }
 
     private static IEnumerable<ServiceRegistration> CreateServiceRegistrations(DomainConfiguration configuration)

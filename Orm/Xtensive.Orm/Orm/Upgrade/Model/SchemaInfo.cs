@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <summary>
     /// Gets tables.
     /// </summary>
-    [Property(Priority = 0)]
+    [Property(Priority = -20)]
     public TableInfoCollection Tables { get; private set; }
 
     /// <summary>
     /// Gets sequences.
     /// </summary>
-    [Property]
+    [Property(Priority = -10)]
     public SequenceInfoCollection Sequences { get; private set; }
 
     /// <inheritdoc/>

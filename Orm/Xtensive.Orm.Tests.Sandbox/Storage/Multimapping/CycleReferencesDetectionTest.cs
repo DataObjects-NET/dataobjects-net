@@ -73,12 +73,7 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
   [TestFixture]
   public class CycleReferencesDetectionTest : MultidatabaseTest
   {
-    private const string Database1Name = "database1";
-    private const string Database2Name = "database2";
-    private const string Database3Name = "database3";
-    private const string Database4Name = "database4";
-
-    protected Dictionary<int, string> DatabaseNames = new Dictionary<int, string> {
+    private readonly Dictionary<int, string> databaseNames = new Dictionary<int, string> {
       {1, Database1Name},
       {2, Database2Name},
       {3, Database3Name},
@@ -99,7 +94,7 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
         var index = databaseIndexes[i];
         if (index==null)
           continue;
-        var name = DatabaseNames[index.Value];
+        var name = databaseNames[index.Value];
         configuration.Types.Register(types[i]);
         configuration.MappingRules.Map(types[i].Namespace).ToDatabase(name);
       }
@@ -117,6 +112,11 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
       }
 
       domain.Dispose();
+    }
+
+    public override void TestFixtureSetUp()
+    {
+      CheckRequirements();
     }
 
     [Test]

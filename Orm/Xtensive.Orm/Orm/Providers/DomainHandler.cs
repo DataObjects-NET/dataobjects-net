@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Providers
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public void BuildMapping()
     {
-      var sqlModel  = Handlers.SchemaUpgradeHandler.GetNativeExtractedModel();
+      var sqlModel  = Handlers.SchemaUpgradeHandler.GetExtractedSqlSchema();
       Mapping = ModelMappingBuilder.Build(Handlers, sqlModel);
     }
 

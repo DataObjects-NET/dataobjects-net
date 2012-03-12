@@ -16,23 +16,29 @@ namespace Xtensive.Orm.Configuration
   {
     /// <summary>
     /// Gets assembly condition.
-    /// When type is declared in the specified assembly, this rule applies.
+    /// When type is declared in the specified assembly, this rule is applied.
+    /// If this property is set to null value, any assembly matches this rule.
     /// </summary>
     public Assembly Assembly { get; private set; }
 
     /// <summary>
     /// Gets namespace condition.
-    /// When type has specified namespace or any subnamespace, this rule applies.
+    /// When type has specified namespace or any subnamespace, this rule is applied.
+    /// If this property is set to null value, any namespace matches this rule.
     /// </summary>
     public string Namespace { get; private set; }
 
     /// <summary>
     /// Gets database that is assigned to mapped type when this rule is applied.
+    /// If this property is set to null or empty value <see cref="DomainConfiguration.DefaultDatabase"/>
+    /// is used instead.
     /// </summary>
     public string Database { get; private set; }
 
     /// <summary>
     /// Gets schema that is assigned to mapped type when this rule is applied.
+    /// If this property is set to null or empty value <see cref="DomainConfiguration.DefaultSchema"/>
+    /// is used instead.
     /// </summary>
     public string Schema { get; private set; }
 
@@ -41,8 +47,8 @@ namespace Xtensive.Orm.Configuration
     {
       var assembly = Assembly!=null ? Assembly.GetName().Name : "<any assembly>";
       var ns = !string.IsNullOrEmpty(Namespace) ? Namespace : "<any namespace>";
-      var database = !string.IsNullOrEmpty(Database) ? Database : "<any database>";
-      var schema = !string.IsNullOrEmpty(Schema) ? Schema : "<any schema>";
+      var database = !string.IsNullOrEmpty(Database) ? Database : "<default database>";
+      var schema = !string.IsNullOrEmpty(Schema) ? Schema : "<default schema>";
       return string.Format("{0}/{1} -> {2}/{3}", assembly, ns, database, schema);
     }
 

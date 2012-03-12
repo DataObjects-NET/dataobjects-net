@@ -2374,9 +2374,6 @@ Error: {1}</value>
   <data name="LogReusingCachedMappingInformationForX">
     <value xml:space="preserve">Reusing cached mapping information for '{0}'</value>
   </data>
-  <data name="ApplyingDefaultMappingToX">
-    <value xml:space="preserve">Applying default mapping to '{0}'</value>
-  </data>
   <data name="ApplyingRuleXToY">
     <value xml:space="preserve">Applying rule '{0}' to '{1}'</value>
   </data>

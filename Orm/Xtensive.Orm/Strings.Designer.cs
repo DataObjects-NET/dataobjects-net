@@ -79,15 +79,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Applying default mapping to &apos;{0}&apos;.
-        /// </summary>
-        internal static string ApplyingDefaultMappingToX {
-            get {
-                return ResourceManager.GetString("ApplyingDefaultMappingToX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Applying rule &apos;{0}&apos; to &apos;{1}&apos;.
         /// </summary>
         internal static string ApplyingRuleXToY {

@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Diagnostics;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Building;
-using Xtensive.Orm.Providers.Interfaces;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
@@ -22,39 +21,27 @@ namespace Xtensive.Orm.Providers
   /// Upgrades storage schema.
   /// </summary>
   [Serializable]
-  public class SchemaUpgradeHandler : InitializableHandlerBase,
-    IStorageModelFactory
+  public class SchemaUpgradeHandler : InitializableHandlerBase
   {
     private ProviderInfo providerInfo;
     private SchemaResolver schemaResolver;
 
-    protected StorageDriver Driver { get { return Handlers.StorageDriver; } }
-    protected SessionHandler SessionHandler { get { return BuildingContext.Demand().SystemSessionHandler; } }
+    private SessionHandler SessionHandler { get { return BuildingContext.Demand().SystemSessionHandler; } }
 
     /// <summary>
     /// Gets the target schema.
     /// </summary>
     /// <returns>The target schema.</returns>
-    public Func<StorageModel> GetTargetSchemaProvider()
+    public StorageModel GetTargetSchema()
     {
-      var buildingContext = BuildingContext.Demand();
-      var domainHandler = Handlers.DomainHandler;
+      var configuration = Handlers.Domain.Configuration;
 
-      var domainModelConverter = new DomainModelConverter(Handlers, this) {
-        BuildForeignKeys = (buildingContext.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0,
-        BuildHierarchyForeignKeys = (buildingContext.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0
+      var converter = new DomainModelConverter(Handlers, GetEmptyStorageModel()) {
+        BuildForeignKeys = configuration.Supports(ForeignKeyMode.Reference),
+        BuildHierarchyForeignKeys = configuration.Supports(ForeignKeyMode.Hierarchy),
       };
 
-      var upgradeContext = UpgradeContext.Current;
-      var session = Session.Current;
-
-      return () => {
-        using (upgradeContext==null ? null : upgradeContext.Activate())
-        using (new BuildingScope(buildingContext))
-        using (session==null ? null : session.Activate()) {
-          return domainModelConverter.Run();
-        }
-      };
+      return converter.Run();
     }
 
     /// <summary>
@@ -62,28 +49,18 @@ namespace Xtensive.Orm.Providers
     /// This method caches the schema inside <see cref="UpgradeContext"/>.
     /// </summary>
     /// <returns>The extracted schema.</returns>
-    public Func<StorageModel> GetExtractedSchemaProvider()
+    public StorageModel GetExtractedSchema()
     {
       var upgradeContext = UpgradeContext.Current;
-      if (upgradeContext!=null && upgradeContext.ExtractedSchemaCache!=null)
-        return () => upgradeContext.ExtractedSchemaCache;
+      if (upgradeContext!=null && upgradeContext.ExtractedModelCache!=null)
+        return upgradeContext.ExtractedModelCache;
 
-      var buildingContext = BuildingContext.Current;
-      var session = Session.Current;
-      return () => {
-        StorageModel schema;
-        using (upgradeContext==null ? null : upgradeContext.Activate())
-        using (buildingContext==null ? null : new BuildingScope(buildingContext))
-        using (session==null ? null : session.Activate()) {
-          schema = ExtractModel();
-        }
-        if (upgradeContext!=null) {
-          lock (upgradeContext) {
-            upgradeContext.ExtractedSchemaCache = schema;
-          }
-        }
-        return schema;
-      };
+      var result = ExtractSchema();
+
+      if (upgradeContext!=null)
+        upgradeContext.ExtractedModelCache = result;
+
+      return result;
     }
 
     /// <summary>
@@ -91,16 +68,15 @@ namespace Xtensive.Orm.Providers
     /// This method caches the schema inside <see cref="UpgradeContext"/>.
     /// </summary>
     /// <returns>The native extracted schema.</returns>
-    public SqlExtractionResult GetNativeExtractedModel()
+    public SqlExtractionResult GetExtractedSqlSchema()
     {
       var upgradeContext = UpgradeContext.Current;
-      if (upgradeContext!=null && upgradeContext.NativeExtractedSchemaCache!=null)
-        return upgradeContext.NativeExtractedSchemaCache;
+      if (upgradeContext!=null && upgradeContext.ExtractedSqlModelCache!=null)
+        return upgradeContext.ExtractedSqlModelCache;
 
-      var schema = ExtractSqlModel();
-
+      var schema = ExtractSqlSchema();
       if (upgradeContext!=null)
-        upgradeContext.NativeExtractedSchemaCache = schema;
+        upgradeContext.ExtractedSqlModelCache = schema;
       return schema;
     }
 
@@ -112,27 +88,27 @@ namespace Xtensive.Orm.Providers
       var upgradeContext = UpgradeContext.Current;
       if (upgradeContext==null)
         return;
-      upgradeContext.ExtractedSchemaCache = null;
-      upgradeContext.NativeExtractedSchemaCache = null;
+      upgradeContext.ExtractedModelCache = null;
+      upgradeContext.ExtractedSqlModelCache = null;
     }
 
-    private StorageModel ExtractModel()
+    private StorageModel ExtractSchema()
     {
-      var sqlModel = GetNativeExtractedModel(); // Must rely on this method to avoid multiple extractions
-      var converter = new SqlModelConverter(Handlers, this, sqlModel);
+      var sqlModel = GetExtractedSqlSchema(); // Must rely on this method to avoid multiple extractions
+      var converter = new SqlModelConverter(Handlers, sqlModel, GetEmptyStorageModel());
       return converter.Run();
     }
 
-    private SqlExtractionResult ExtractSqlModel()
+    private SqlExtractionResult ExtractSqlSchema()
     {
       var connection = ((Sql.SessionHandler) SessionHandler).Connection;
-      var tasks = schemaResolver.GetExtractionTasks(Handlers.Domain.Model, Handlers.ProviderInfo);
+      var tasks = schemaResolver.GetExtractionTasks(Handlers.ProviderInfo);
       var sqlModel = Handlers.StorageDriver.Extract(connection, tasks);
-      FixSqlModel(sqlModel);
+      FixSqlSchema(sqlModel);
       return sqlModel;
     }
 
-    private void FixSqlModel(SqlExtractionResult model)
+    private void FixSqlSchema(SqlExtractionResult model)
     {
       bool isSqlServerFamily = providerInfo.ProviderName
         .In(WellKnown.Provider.SqlServer, WellKnown.Provider.SqlServerCe);
@@ -171,7 +147,7 @@ namespace Xtensive.Orm.Providers
 
       var translator = new SqlActionTranslator(
         Handlers, sqlExecutor,
-        upgradeActions, GetNativeExtractedModel(), sourceModel, targetModel,
+        upgradeActions, GetExtractedSqlSchema(), sourceModel, targetModel,
         enforceChangedColumns, !skipConstraints);
 
       var result = translator.Translate();
@@ -216,13 +192,14 @@ namespace Xtensive.Orm.Providers
       var session = SessionHandler!=null ? SessionHandler.Session : null;
 
       Log.Info(Strings.LogSessionXSchemaUpgradeScriptY,
-        session.ToStringSafely(), Driver.BuildBatch(commands).Trim());
+        session.ToStringSafely(),
+        Handlers.StorageDriver.BuildBatch(commands).Trim());
     }
 
-    public StorageModel CreateEmptyStorageModel()
+    public StorageModel GetEmptyStorageModel()
     {
       var result = new StorageModel();
-      foreach (var schema in schemaResolver.GetAffectedSchemas(Handlers.Domain.Model))
+      foreach (var schema in schemaResolver.GetAllSchemas())
         new SchemaInfo(result, schema);
       return result;
     }

@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Upgrade.Model
   public class SchemaInfoCollection : NodeCollectionBase<SchemaInfo, StorageModel>,
     IUnorderedNodeCollection
   {
-    public SchemaInfoCollection(Node parent)
+    public SchemaInfoCollection(StorageModel parent)
       : base(parent, "Schemas")
     {
     }

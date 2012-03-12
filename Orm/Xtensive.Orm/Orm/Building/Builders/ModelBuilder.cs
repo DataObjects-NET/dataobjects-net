@@ -324,8 +324,10 @@ namespace Xtensive.Orm.Building.Builders
         // Defining auxiliary type
         var underlyingTypeDef = ModelDefBuilder.DefineType(context, underlyingType);
         underlyingTypeDef.Name = association.Name;
-        underlyingTypeDef.MappingName = 
-          context.NameBuilder.BuildAuxiliaryTypeMappingName(association);
+        underlyingTypeDef.MappingName = context.NameBuilder.BuildAuxiliaryTypeMappingName(association);
+        // Copy mapping information from master type
+        underlyingTypeDef.MappingSchema = association.OwnerType.MappingSchema;
+        underlyingTypeDef.MappingDatabase = association.OwnerType.MappingDatabase;
 
         // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
         var hra = genericInstanceType.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
@@ -362,12 +364,15 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build auxiliary types
       foreach (var pair in list) {
-        var auxiliaryType = TypeBuilder.BuildType(context, pair.Second);
+        var association = pair.First;
+        var auxTypeDef = pair.Second;
+
+        var auxiliaryType = TypeBuilder.BuildType(context, auxTypeDef);
         auxiliaryType.IsAuxiliary = true;
-        TypeBuilder.BuildFields(context, pair.Second, auxiliaryType);
-        pair.First.AuxiliaryType = auxiliaryType;
-        if (pair.First.IsPaired)
-          pair.First.Reversed.AuxiliaryType = auxiliaryType;
+        TypeBuilder.BuildFields(context, auxTypeDef, auxiliaryType);
+        association.AuxiliaryType = auxiliaryType;
+        if (association.IsPaired)
+          association.Reversed.AuxiliaryType = auxiliaryType;
       }
     }
 

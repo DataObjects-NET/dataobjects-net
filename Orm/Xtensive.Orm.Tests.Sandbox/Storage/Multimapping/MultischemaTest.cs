@@ -8,7 +8,7 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage.Multimapping
 {
-  public abstract class MultischemaTest : MultimappingTest
+  public abstract class MultischemaTest : AutoBuildTest
   {
     protected override void CheckRequirements()
     {

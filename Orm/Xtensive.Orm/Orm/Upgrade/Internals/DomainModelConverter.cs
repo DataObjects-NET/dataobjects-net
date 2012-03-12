@@ -13,7 +13,6 @@ using Xtensive.Modelling;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Providers.Interfaces;
 using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Providers.Sql.Expressions;
 using Xtensive.Orm.Upgrade.Model;
@@ -32,7 +31,6 @@ namespace Xtensive.Orm.Upgrade
   internal sealed class DomainModelConverter : ModelVisitor<IPathNode>
   {
     private readonly HandlerAccessor handlers;
-    private readonly IStorageModelFactory storageModelFactory;
 
     private readonly ProviderInfo providerInfo;
     private readonly DomainModel sourceModel;
@@ -44,6 +42,8 @@ namespace Xtensive.Orm.Upgrade
     private StorageModel targetModel;
     private TableInfo currentTable;
 
+    private bool executed;
+
     public bool BuildForeignKeys { get; set; }
     public bool BuildHierarchyForeignKeys { get; set; }
 
@@ -53,8 +53,8 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public StorageModel Run()
     {
-      if (targetModel==null) {
-        targetModel = storageModelFactory.CreateEmptyStorageModel();
+      if (!executed) {
+        executed = true;
         Visit(sourceModel);
       }
 
@@ -465,7 +465,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var referencingTable = GetTable(ownerType);
       var referencedTable = GetTable(targetType);
-      if (referencedTable == null || referencingTable == null)
+      if (referencedTable==null || referencingTable==null || referencingTable.Parent!=referencedTable.Parent)
         return;
       var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(ownerType, ownerField, targetType);
       CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
@@ -474,15 +474,14 @@ namespace Xtensive.Orm.Upgrade
     private void ProcessIndirectAssociation(TypeInfo auxiliaryType)
     {
       var referencingTable = GetTable(auxiliaryType);
-      if (referencingTable == null)
+      if (referencingTable==null)
         return;
-      foreach (var field in auxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity))
-      {
+      foreach (var field in auxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
         var referencedType = sourceModel.Types[field.ValueType];
         if (!IsValidForeignKeyTarget(referencedType))
           continue;
         var referencedTable = GetTable(referencedType);
-        if (referencedTable == null)
+        if (referencedTable==null || referencedTable.Parent!=referencingTable.Parent)
           continue;
         var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(auxiliaryType, field, referencedType);
         CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
@@ -566,13 +565,13 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public DomainModelConverter(HandlerAccessor handlers, IStorageModelFactory storageModelFactory)
+    public DomainModelConverter(HandlerAccessor handlers, StorageModel targetModel)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(storageModelFactory, "storageModelFactory");
+      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
 
       this.handlers = handlers;
-      this.storageModelFactory = storageModelFactory;
+      this.targetModel = targetModel;
 
       sourceModel = handlers.Domain.Model;
       providerInfo = handlers.ProviderInfo;

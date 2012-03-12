@@ -123,12 +123,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the storage model that was build from <see cref="Model"/>.
     /// </summary>
-    internal StorageModel BuiltStorageModel { get; set; }
-
-    /// <summary>
-    /// Gets the storage model that was extracted from RDBMS.
-    /// </summary>
-    internal StorageModel ExtractedStorageModel { get; set; }
+    internal StorageModel StorageModel { get; set; }
 
     /// <summary>
     /// Gets the domain-level temporary data.

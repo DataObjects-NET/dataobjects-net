@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [SetUp]
     public virtual void SetUp()
     {
-      Schema = BuildDomain().BuiltStorageModel.Schemas.Single();
+      Schema = BuildDomain().StorageModel.Schemas.Single();
     }
 
     [Test]
