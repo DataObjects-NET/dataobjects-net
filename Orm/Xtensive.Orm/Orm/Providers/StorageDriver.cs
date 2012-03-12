@@ -69,6 +69,7 @@ namespace Xtensive.Orm.Providers
 
     public StorageDriver CreateNew(Domain domain)
     {
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       return new StorageDriver(underlyingDriver, domain.Configuration, GetModelProvider(domain));
     }
 

@@ -129,8 +129,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var handlers = context.Domain.Handlers;
       var factory = handlers.Factory;
-      var upgradeContext = UpgradeContext.Current;
-      var configuration = upgradeContext!=null ? upgradeContext.OriginalConfiguration : context.Domain.Configuration;
+      var configuration = context.Domain.Configuration;
 
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         // StorageDriver

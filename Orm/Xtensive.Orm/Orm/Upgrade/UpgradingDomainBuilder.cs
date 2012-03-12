@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Upgrade
     private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
     {
       var context = UpgradeContext.Current;
-      return new DomainBuilderConfiguration(schemaUpgradeMode, context.Modules, context.Services) {
+      return new DomainBuilderConfiguration(schemaUpgradeMode, context.Modules) {
         TypeFilter = type => {
           var assembly = type.Assembly;
           var handlers = context.UpgradeHandlers;

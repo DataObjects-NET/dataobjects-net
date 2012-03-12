@@ -151,20 +151,13 @@ namespace Xtensive.Orm.Upgrade
 
     private void BuildServices()
     {
-      var handlerRegistrations = (
-        from type in OriginalConfiguration.Types.UpgradeHandlers
-        select new ServiceRegistration(typeof (IUpgradeHandler), type, false)
-        ).ToList();
-      var moduleRegistrations = (
-        from type in OriginalConfiguration.Types.Modules
-        select new ServiceRegistration(typeof (IModule), type, false)
-        ).ToList();
-      var keyGeneratorRegistrations = KeyGeneratorFactory.CreateRegistrations(OriginalConfiguration);
+      var handlers = OriginalConfiguration.Types.UpgradeHandlers
+        .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
 
-      var allRegistrations = 
-        handlerRegistrations
-        .Concat(moduleRegistrations)
-        .Concat(keyGeneratorRegistrations);
+      var modules = OriginalConfiguration.Types.Modules
+        .Select(type => new ServiceRegistration(typeof (IModule), type, false));
+
+      var allRegistrations = handlers.Concat(modules);
 
       var baseServices = new ServiceContainer(new List<ServiceRegistration>{
         new ServiceRegistration(typeof (UpgradeContext), this),

@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Providers
       var configuration = Handlers.Domain.Configuration;
 
       persistRequiresTopologicalSort =
-        (configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0
+        configuration.Supports(ForeignKeyMode.Reference)
         && providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints)
         && !providerInfo.Supports(ProviderFeatures.DeferrableConstraints);
     }

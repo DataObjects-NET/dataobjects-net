@@ -8,7 +8,6 @@ using System;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.IoC;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -63,12 +62,7 @@ namespace Xtensive.Orm.Building.Builders
     /// </summary>
     public ReadOnlyList<IModule> Modules { get; private set; }
 
-    /// <summary>
-    /// Gets the collection of services related to building or upgrade.
-    /// </summary>
-    public IServiceContainer Services { get; private set; }
 
-    
     // Constructors
 
     /// <summary>
@@ -76,14 +70,10 @@ namespace Xtensive.Orm.Building.Builders
     /// </summary>
     /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
     /// <param name="modules">The collection of modules.</param>
-    /// <param name="services">The collection of services.</param>
-    public DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, 
-      ReadOnlyList<IModule> modules,
-      IServiceContainer services)
+    public DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, ReadOnlyList<IModule> modules)
     {
       SchemaUpgradeMode = schemaUpgradeMode;
       Modules = modules;
-      Services = services;
     }
   }
 }
