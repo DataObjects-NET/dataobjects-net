@@ -14,9 +14,6 @@ namespace Xtensive.Sql
   /// </summary>
   public abstract class SqlDriverFactory
   {
-    private static ThreadSafeDictionary<ConnectionInfo, SqlDriver> DriverCache
-      = ThreadSafeDictionary<ConnectionInfo, SqlDriver>.Create(new object());
-
     /// <summary>
     /// Gets driver for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
@@ -25,17 +22,10 @@ namespace Xtensive.Sql
     public SqlDriver GetDriver(ConnectionInfo connectionInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
-      return DriverCache.GetValue(connectionInfo, CreateAndInitializeDriver);
+      var driver = CreateDriver(GetConnectionString(connectionInfo));
+      driver.Initialize(this);
+      return driver;
     }
-
-    /// <summary>
-    /// Removes all drivers from cache.
-    /// </summary>
-    public static void ResetDriverCache()
-    {
-      DriverCache.Clear();
-    }
-
     /// <summary>
     /// Gets connection string for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
@@ -61,12 +51,5 @@ namespace Xtensive.Sql
     /// <param name="connectionUrl">The connection URL.</param>
     /// <returns>Built connection string</returns>
     protected abstract string BuildConnectionString(UrlInfo connectionUrl);
-
-    private SqlDriver CreateAndInitializeDriver(ConnectionInfo connectionInfo)
-    {
-      var driver = CreateDriver(GetConnectionString(connectionInfo));
-      driver.Initialize(this);
-      return driver;
-    }
   }
 }

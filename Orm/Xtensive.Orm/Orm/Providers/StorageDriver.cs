@@ -67,6 +67,11 @@ namespace Xtensive.Orm.Providers
       return accessorCache.GetValue(descriptor, CreateDataReaderAccessor);
     }
 
+    public StorageDriver CreateNew(Domain domain)
+    {
+      return new StorageDriver(underlyingDriver, domain.Configuration, GetModelProvider(domain));
+    }
+
     private DbDataReaderAccessor CreateDataReaderAccessor(TupleDescriptor descriptor)
     {
       return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
@@ -77,31 +82,38 @@ namespace Xtensive.Orm.Providers
       return null;
     }
 
-    private static Func<DomainModel> GetDomainModelProvider(Domain domain)
+    private static Func<DomainModel> GetModelProvider(Domain domain)
     {
       return () => domain.Model;
     }
 
     // Constructors
 
-    internal StorageDriver(SqlDriverFactory driverFactory, Domain domain)
-      : this(driverFactory, domain.Configuration, GetDomainModelProvider(domain))
+    public static StorageDriver Create(SqlDriverFactory driverFactory, Domain domain)
     {
+      ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+
+      var configuration = domain.Configuration;
+      var driver = driverFactory.GetDriver(configuration.ConnectionInfo);
+
+      return new StorageDriver(driver, configuration, GetModelProvider(domain));
     }
 
-    internal StorageDriver(SqlDriverFactory driverFactory, DomainConfiguration configuration)
-      : this(driverFactory, configuration, GetNullModel)
-    {
-    }
-
-    private StorageDriver(SqlDriverFactory driverFactory, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      ArgumentValidator.EnsureArgumentNotNull(modelProvider, "modelProvider");
 
+      var driver = driverFactory.GetDriver(configuration.ConnectionInfo);
+
+      return new StorageDriver(driver, configuration, GetNullModel);
+    }
+
+    private StorageDriver(SqlDriver driver, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    {
       this.configuration = configuration;
-      underlyingDriver = driverFactory.GetDriver(configuration.ConnectionInfo);
+      underlyingDriver = driver;
 
       ProviderInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, underlyingDriver);
       ExceptionBuilder = new StorageExceptionBuilder(underlyingDriver, configuration, modelProvider);

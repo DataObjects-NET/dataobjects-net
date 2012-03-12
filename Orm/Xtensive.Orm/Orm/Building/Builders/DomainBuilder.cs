@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Building.Builders
 
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         // StorageDriver
-        var storageDriver = new StorageDriver(providerFactory.CreateDriverFactory(), context.Domain);
+        var storageDriver = StorageDriver.Create(providerFactory.CreateDriverFactory(), context.Domain);
         handlers.StorageDriver = storageDriver;
 
         // NameBuilder
