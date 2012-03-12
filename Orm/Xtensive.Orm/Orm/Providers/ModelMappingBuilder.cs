@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Providers
 
     private static SchemaNode GetGeneratorSequence(ModelMapping mapping, SequenceInfo sequenceInfo, Schema schema)
     {
-      return schema.Sequences[sequenceInfo.Name];
+      return schema.Sequences[sequenceInfo.MappingName];
     }
 
     private static SchemaNode GetGeneratorTable(ModelMapping mapping, SequenceInfo sequenceInfo, Schema schema)
