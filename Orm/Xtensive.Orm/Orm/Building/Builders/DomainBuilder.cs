@@ -58,7 +58,6 @@ namespace Xtensive.Orm.Building.Builders
 
     private void Run()
     {
-      CreateProviderFactory();
       CreateDomain();
       CreateHandlers();
       BuildModel();
@@ -90,13 +89,6 @@ namespace Xtensive.Orm.Building.Builders
         finally {
           upgradeContext.TransactionScope.DisposeSafely();
         }
-      }
-    }
-
-    private void CreateProviderFactory()
-    {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (ProviderDescriptor).GetShortName())) {
-        ProviderDescriptor.Get(context.Configuration.ConnectionInfo.Provider);
       }
     }
 
