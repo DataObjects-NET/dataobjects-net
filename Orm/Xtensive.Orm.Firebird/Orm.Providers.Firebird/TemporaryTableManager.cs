@@ -5,7 +5,7 @@
 // Created:    2010.02.11
 
 using System;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Providers.Firebird
@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Providers.Firebird
   /// <summary>
   /// A temporary table manager specific to Firebird
   /// </summary>
-  public class TemporaryTableManager : Sql.TemporaryTableManager
+  public class TemporaryTableManager : Providers.TemporaryTableManager
   {
     /// <inheritdoc/>
     protected override Table CreateTemporaryTable(Schema schema, string tableName)

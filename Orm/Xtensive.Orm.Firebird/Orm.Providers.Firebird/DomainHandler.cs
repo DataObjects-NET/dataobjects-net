@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.Firebird
   /// <summary>
   /// A domain handler for Firebird RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {

@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// <summary>
   /// A domain handler specific to PostgreSQL RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {

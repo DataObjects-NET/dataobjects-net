@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Providers
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
-      isLoggingEnabled = Sql.Log.IsLogged(LogEventTypes.Info); // Just to cache this value
+      isLoggingEnabled = Providers.Log.IsLogged(LogEventTypes.Info); // Just to cache this value
     }
   }
 }

@@ -15,7 +15,7 @@ using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.MySql
 {
-  internal class SqlCompiler : Sql.SqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
 
     // Constructors

@@ -13,8 +13,6 @@ using Xtensive.Modelling;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Providers.Sql;
-using Xtensive.Orm.Providers.Sql.Expressions;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;

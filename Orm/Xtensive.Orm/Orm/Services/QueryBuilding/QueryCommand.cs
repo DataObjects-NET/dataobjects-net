@@ -6,7 +6,6 @@
 
 using System.Data.Common;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Services
 {

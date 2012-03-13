@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Providers.SqlServer
   /// Storage provider for Microsoft SQL Server.
   /// </summary>
   [Provider(WellKnown.Provider.SqlServer, typeof (Xtensive.Sql.Drivers.SqlServer.DriverFactory))]
-  public class HandlerFactory : Sql.HandlerFactory
+  public class HandlerFactory : Providers.HandlerFactory
   {
   }
 }

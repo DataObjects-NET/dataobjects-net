@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.MySql
   /// <summary>
   /// A domain handler for MySql RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {

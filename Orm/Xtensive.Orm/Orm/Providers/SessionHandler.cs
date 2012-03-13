@@ -25,10 +25,14 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Base <see cref="Session"/> handler class.
   /// </summary>
-  public abstract partial class SessionHandler : HandlerBase,
-    IDisposable
+  public abstract partial class SessionHandler : IDisposable
   {
     private static readonly object CachingRegion = new object();
+
+    /// <summary>
+    /// Gets <see cref="HandlerAccessor"/>.
+    /// </summary>
+    protected HandlerAccessor Handlers { get; private set; }
 
     /// <summary>
     /// Gets the current <see cref="Session"/>.
@@ -154,8 +158,19 @@ namespace Xtensive.Orm.Providers
 
     // Initialization
 
+    public void Initialize(HandlerAccessor handlers, Session session)
+    {
+      if (Handlers!=null)
+        throw new InvalidOperationException();
+
+      Handlers = handlers;
+      Session = session;
+
+      Initialize();
+    }
+
     /// <inheritdoc/>
-    public override void Initialize()
+    protected virtual void Initialize()
     {
       prefetchManager = new PrefetchManager(Session);
 

@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Diagnostics;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Building;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Sql;
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Providers
 
     private SqlExtractionResult ExtractSqlSchema()
     {
-      var connection = ((Sql.SessionHandler) SessionHandler).Connection;
+      var connection = ((Providers.SqlSessionHandler) SessionHandler).Connection;
       var tasks = schemaResolver.GetExtractionTasks(Handlers.ProviderInfo);
       var sqlModel = Handlers.StorageDriver.Extract(connection, tasks);
       FixSqlSchema(sqlModel);

@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.SqlServer
   /// <summary>
   /// A domain handler specific to Microsoft SQL Server RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)

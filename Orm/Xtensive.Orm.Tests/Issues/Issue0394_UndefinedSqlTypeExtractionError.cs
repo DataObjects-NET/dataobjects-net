@@ -7,12 +7,11 @@
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel.Northwind;
 using System.Linq;
 using System;
 using Xtensive.Sql;
-using SessionHandler = Xtensive.Orm.Providers.Sql.SessionHandler;
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -58,7 +57,7 @@ namespace Xtensive.Orm.Tests.Issues
           var driver = Domain.Handlers.StorageDriver;
           var defaultSchema = driver.ProviderInfo.DefaultSchema;
           var defaultDatabase = driver.ProviderInfo.DefaultDatabase;
-          var connection = ((SessionHandler) session.Handler).Connection;
+          var connection = ((SqlSessionHandler) session.Handler).Connection;
 
           var schema = driver
             .Extract(connection, new[] {new SqlExtractionTask(defaultDatabase, defaultSchema)})

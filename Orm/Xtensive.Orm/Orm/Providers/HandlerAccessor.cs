@@ -5,7 +5,7 @@
 // Created:    2008.07.11
 
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Providers
 {

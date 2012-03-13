@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.SqlServerCe
   /// <summary>
   /// A domain handler specific to Microsoft SQL Server Compact Edition RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {

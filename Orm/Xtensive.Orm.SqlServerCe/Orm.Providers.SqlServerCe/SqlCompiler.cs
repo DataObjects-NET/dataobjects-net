@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;

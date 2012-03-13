@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql;
 using Xtensive.Orm.Rse;
@@ -17,7 +17,7 @@ using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
-  internal class SqlCompiler : Sql.SqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {

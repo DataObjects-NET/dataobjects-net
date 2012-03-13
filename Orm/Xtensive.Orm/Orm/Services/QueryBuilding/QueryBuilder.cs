@@ -12,12 +12,9 @@ using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
-using DomainHandler = Xtensive.Orm.Providers.Sql.DomainHandler;
-using SessionHandler = Xtensive.Orm.Providers.Sql.SessionHandler;
 
 namespace Xtensive.Orm.Services
 {
@@ -80,7 +77,7 @@ namespace Xtensive.Orm.Services
 
       var mapping = driver.GetTypeMapping(valueType);
       return new QueryParameterBinding(
-        new Providers.Sql.QueryParameterBinding(valueAccessor, mapping));
+        new Providers.QueryParameterBinding(valueAccessor, mapping));
     }
 
     /// <summary>
@@ -119,7 +116,7 @@ namespace Xtensive.Orm.Services
     public QueryBuilder(Session session)
       : base(session)
     {
-      var sqlSessionHandler = (SessionHandler) session.Handler.GetRealHandler();
+      var sqlSessionHandler = (SqlSessionHandler) session.Handler.GetRealHandler();
 
       driver = session.Domain.Handlers.StorageDriver;
       commandFactory = sqlSessionHandler.CommandFactory;

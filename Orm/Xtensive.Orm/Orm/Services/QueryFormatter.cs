@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Services
 {
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Services
     public QueryFormatter(Session session)
       : base(session)
     {
-      var sqlSessionHandler = (SessionHandler) session.Handler.GetRealHandler();
+      var sqlSessionHandler = (SqlSessionHandler) session.Handler.GetRealHandler();
       commandFactory = sqlSessionHandler.CommandFactory;
     }
   }

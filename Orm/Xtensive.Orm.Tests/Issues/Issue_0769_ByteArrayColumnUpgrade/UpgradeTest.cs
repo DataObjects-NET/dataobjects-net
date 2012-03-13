@@ -10,7 +10,6 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Sql.Tests;

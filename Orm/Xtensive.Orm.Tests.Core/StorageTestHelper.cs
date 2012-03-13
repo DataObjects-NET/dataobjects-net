@@ -5,7 +5,7 @@
 // Created:    2009.12.17
 
 using System;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests
     public static object GetNativeTransaction()
     {
       var handler = Session.Demand().Handler;
-      var sqlHandler = handler as SessionHandler;
+      var sqlHandler = handler as SqlSessionHandler;
       if (sqlHandler!=null)
         return sqlHandler.Connection.ActiveTransaction;
       throw new NotSupportedException();

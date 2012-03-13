@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;
@@ -15,7 +15,7 @@ using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.Firebird
 {
-  internal class SqlCompiler : Sql.SqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
     protected override SqlProvider VisitInclude(IncludeProvider provider)
     {

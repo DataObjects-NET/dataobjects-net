@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Providers.Firebird
   /// Storage provider for Firebird.
   /// </summary>
   [Provider(WellKnown.Provider.Firebird, typeof (Xtensive.Sql.Drivers.Firebird.DriverFactory))]
-  public class HandlerFactory : Sql.HandlerFactory
+  public class HandlerFactory : Providers.HandlerFactory
   {
   }
 }

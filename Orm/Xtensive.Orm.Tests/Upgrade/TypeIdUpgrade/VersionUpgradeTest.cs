@@ -7,7 +7,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
 {
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
 
       using (var session = domain.OpenSession(SessionType.System)) 
       using (var t = session.OpenTransaction()) {
-        var handler = (SessionHandler) session.Handler;
+        var handler = (SqlSessionHandler) session.Handler;
         var connection = handler.Connection;
         var command = connection.CreateCommand(string.Format(
           "ALTER TABLE [dbo].[Metadata.Assembly] ADD [TypeId] integer NOT NULL DEFAULT({0});" + 
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
 
       using (var session = domain.OpenSession(SessionType.System)) 
       using (var t = session.OpenTransaction()) {
-        var handler = (SessionHandler) session.Handler;
+        var handler = (SqlSessionHandler) session.Handler;
         var connection = handler.Connection;
         var command = connection.CreateCommand(string.Format(
           "ALTER TABLE [dbo].[Person] ADD [TypeId] integer NOT NULL DEFAULT({0});" +
@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
 
       using (var session = domain.OpenSession(SessionType.System)) 
       using (var t = session.OpenTransaction()) {
-        var handler = (SessionHandler) session.Handler;
+        var handler = (SqlSessionHandler) session.Handler;
         var connection = handler.Connection;
         var command = connection.CreateCommand(string.Format(
          "ALTER TABLE [dbo].[Metadata.Assembly] ADD [TypeId] integer NOT NULL DEFAULT({0});" +

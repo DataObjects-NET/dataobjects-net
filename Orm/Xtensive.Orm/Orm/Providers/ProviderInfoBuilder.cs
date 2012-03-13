@@ -8,7 +8,7 @@ using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Orm.Providers.Sql
+namespace Xtensive.Orm.Providers
 {
   internal static class ProviderInfoBuilder
   {

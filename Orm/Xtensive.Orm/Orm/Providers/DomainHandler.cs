@@ -6,19 +6,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
 using Xtensive.IoC;
 using Xtensive.Linq;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers.Sql;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Upgrade;
+using Xtensive.Orm.Rse.PreCompilation.Correction;
+using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;
+using Xtensive.Orm.Rse.PreCompilation.Optimization;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sorting;
-using Xtensive.Sql;
-using Xtensive.Sql.Model;
 using Xtensive.Threading;
 
 namespace Xtensive.Orm.Providers
@@ -113,14 +110,31 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new compiler.</returns>
-    protected abstract ICompiler CreateCompiler(CompilerConfiguration configuration);
+    protected virtual ICompiler CreateCompiler(CompilerConfiguration configuration)
+    {
+      return new SqlCompiler(Handlers);
+    }
 
     /// <summary>
     /// Creates the <see cref="IPreCompiler"/>.
     /// </summary>
     /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new pre-compiler.</returns>
-    protected abstract IPreCompiler CreatePreCompiler(CompilerConfiguration configuration);
+    protected virtual IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
+    {
+      var providerInfo = Handlers.ProviderInfo;
+
+      var applyCorrector = new ApplyProviderCorrector(
+        !providerInfo.Supports(ProviderFeatures.Apply));
+      var skipTakeCorrector = new SkipTakeCorrector(
+        providerInfo.Supports(ProviderFeatures.NativeTake),
+        providerInfo.Supports(ProviderFeatures.NativeSkip));
+      return new CompositePreCompiler(
+        applyCorrector,
+        skipTakeCorrector,
+        new RedundantColumnOptimizer(),
+        new OrderingCorrector(ResolveOrderingDescriptor));
+    }
 
     /// <summary>
     /// Creates the <see cref="IPostCompiler"/>.
@@ -128,7 +142,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="configuration">Compiler configuration to use.</param>
     /// <param name="compiler">Currently used compiler instance.</param>
     /// <returns>A new post-compiler.</returns>
-    protected abstract IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler);
+    protected virtual IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler)
+    {
+      var result = new CompositePostCompiler(new SqlSelectCorrector());
+      if (configuration.PrepareRequest)
+        result.Items.Add(new SqlProviderPreparer(Handlers));
+      return result;
+    }
 
     /// <summary>
     /// Gets compiler containers specific to current storage provider.
@@ -136,7 +156,18 @@ namespace Xtensive.Orm.Providers
     /// <returns>Compiler containers for current provider.</returns>
     protected virtual IEnumerable<Type> GetProviderCompilerContainers()
     {
-      return EnumerableUtils<Type>.Empty;
+      return new[] {
+        typeof (NullableCompilers),
+        typeof (StringCompilers),
+        typeof (DateTimeCompilers),
+        typeof (TimeSpanCompilers),
+        typeof (MathCompilers),
+        typeof (NumericCompilers),
+        typeof (DecimalCompilers),
+        typeof (GuidCompilers),
+        typeof (VbStringsCompilers),
+        typeof (VbDateAndTimeCompilers),
+      };
     }
 
     #endregion
@@ -148,7 +179,7 @@ namespace Xtensive.Orm.Providers
     /// for <see cref="Orm.Domain.Services"/> container.
     /// </summary>
     /// <returns>Container providing base services.</returns>
-    public virtual IServiceContainer CreateBaseServices()
+    public IServiceContainer CreateBaseServices()
     {
       var registrations = new List<ServiceRegistration>{
         new ServiceRegistration(typeof (Domain), Domain),
@@ -156,19 +187,9 @@ namespace Xtensive.Orm.Providers
         new ServiceRegistration(typeof (HandlerAccessor), Handlers),
         new ServiceRegistration(typeof (NameBuilder), Handlers.NameBuilder),
         new ServiceRegistration(typeof (DomainHandler), this),
+        new ServiceRegistration(typeof (IStorageSequenceAccessor), new StorageSequenceAccessor(Handlers)),
       };
-      AddBaseServiceRegistrations(registrations);
       return new ServiceContainer(registrations);
-    }
-
-    /// <summary>
-    /// Adds base service registration entries into the list of
-    /// registrations used by <see cref="CreateBaseServices"/>
-    /// method.
-    /// </summary>
-    /// <param name="registrations">The list of service registrations.</param>
-    protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
-    {
     }
 
     #endregion
@@ -194,6 +215,29 @@ namespace Xtensive.Orm.Providers
       if (ordered==null)
         throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
       QueryPreprocessors = ordered;
+    }
+
+    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
+    {
+      bool isOrderSensitive = provider.Type==ProviderType.Skip 
+        || provider.Type == ProviderType.Take
+        || provider.Type == ProviderType.Seek
+        || provider.Type == ProviderType.Paging
+        || provider.Type == ProviderType.RowNumber;
+      bool preservesOrder = provider.Type==ProviderType.Take
+        || provider.Type == ProviderType.Skip
+        || provider.Type == ProviderType.Seek
+        || provider.Type == ProviderType.RowNumber
+        || provider.Type == ProviderType.Paging
+        || provider.Type == ProviderType.Distinct
+        || provider.Type == ProviderType.Alias;
+      bool isOrderBreaker = provider.Type == ProviderType.Except
+        || provider.Type == ProviderType.Intersect
+        || provider.Type == ProviderType.Union
+        || provider.Type == ProviderType.Concat
+        || provider.Type == ProviderType.Existence;
+      bool isSorter = provider.Type==ProviderType.Sort || provider.Type == ProviderType.Index;
+      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
 
     #endregion
