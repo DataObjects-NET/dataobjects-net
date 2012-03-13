@@ -19,7 +19,6 @@ using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using DomainHandler = Xtensive.Orm.Providers.DomainHandler;
-using HandlerFactory = Xtensive.Orm.Providers.HandlerFactory;
 using SchemaUpgradeHandler = Xtensive.Orm.Providers.SchemaUpgradeHandler;
 using Tuple = Xtensive.Tuples.Tuple;
 using UpgradeContext = Xtensive.Orm.Upgrade.UpgradeContext;
@@ -136,6 +135,7 @@ namespace Xtensive.Orm.Building.Builders
 
         // DomainHandler
         handlers.DomainHandler = handlers.CreateAndInitialize<DomainHandler>();
+        handlers.DomainHandler.CreateHandlers();
 
         // SchemaUpgradeHandler
         handlers.SchemaUpgradeHandler = handlers.CreateAndInitialize<SchemaUpgradeHandler>();

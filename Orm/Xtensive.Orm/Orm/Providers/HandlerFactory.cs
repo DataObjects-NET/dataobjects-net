@@ -46,9 +46,12 @@ namespace Xtensive.Orm.Providers
 
     private void RegisterHandler(Type type)
     {
-      while (type!=HandlerBaseType && !serviceMapping.ContainsKey(type)) {
-        serviceMapping[type] = type;
-        type = type.BaseType;
+      var contract = type;
+      var implementor = type;
+
+      while (contract!=HandlerBaseType && !serviceMapping.ContainsKey(contract)) {
+        serviceMapping[contract] = implementor;
+        contract = contract.BaseType;
       }
     }
 
@@ -57,11 +60,10 @@ namespace Xtensive.Orm.Providers
     protected HandlerFactory()
     {
       var type = GetType();
-      while (type!=typeof (HandlerFactory)) {
+      while (type!=typeof (object)) {
         RegisterHandlersFrom(type.Assembly, type.Namespace);
         type = type.BaseType;
       }
-      RegisterHandlersFrom(typeof (HandlerFactory).Assembly, typeof (HandlerFactory).Namespace);
     }
   }
 }

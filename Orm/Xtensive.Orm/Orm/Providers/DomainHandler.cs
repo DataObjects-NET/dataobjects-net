@@ -206,7 +206,10 @@ namespace Xtensive.Orm.Providers
     {
       BuildMemberCompilerProviders();
       BuildCompilationService();
+    }
 
+    internal void CreateHandlers()
+    {
       PersistRequestBuilder = Handlers.CreateAndInitialize<PersistRequestBuilder>();
       TemporaryTableManager = Handlers.CreateAndInitialize<TemporaryTableManager>();
       CommandProcessorFactory = Handlers.CreateAndInitialize<CommandProcessorFactory>();
