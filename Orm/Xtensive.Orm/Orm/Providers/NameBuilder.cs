@@ -18,7 +18,6 @@ using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
-using Xtensive.Tuples;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Providers
@@ -481,40 +480,41 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <summary>
-    /// Builds global (unique) name for key generator.
+    /// Builds name for key generator.
     /// </summary>
-    /// <param name="localName">Local key generator name</param>
-    /// <param name="mappingDatabase">Mapping database.</param>
-    /// <returns>Global name.</returns>
-    public static string BuildKeyGeneratorName(string localName, string mappingDatabase)
+    /// <param name="key">Key to build key generator name for.</param>
+    /// <param name="hierarchyDef">Hierarchy definition.</param>
+    /// <returns>Key generator name</returns>
+    public string BuildKeyGeneratorName(KeyInfo key, HierarchyDef hierarchyDef)
     {
-      return !string.IsNullOrEmpty(mappingDatabase)
-        ? string.Format("{0}@{1}", localName, mappingDatabase)
-        : localName;
+      var mappingDatabase = hierarchyDef.Root.MappingDatabase;
+      var databaseSuffixRequired =
+        key.GeneratorKind==KeyGeneratorKind.Default
+        && KeyGeneratorFactory.IsSequenceBacked(key.SingleColumnType)
+        && !string.IsNullOrEmpty(mappingDatabase);
+      var baseName = key.GeneratorBaseName;
+      return databaseSuffixRequired
+        ? string.Format("{0}@{1}", baseName, mappingDatabase)
+        : baseName;
     }
 
     /// <summary>
-    /// Builds local (per-database) name for key generator.
+    /// Builds base name for key generator.
     /// </summary>
-    /// <param name="hierarchyDef">Hierarchy that uses key generator.</param>
-    /// <param name="keyTupleDescriptor">Key tuple descriptor.</param>
-    /// <param name="typeIdColumnIndex">Index of TypeId column.</param>
-    /// <returns>Local name.</returns>
-    public string BuildKeyGeneratorBaseName(
-      HierarchyDef hierarchyDef, TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
+    /// <param name="key">Key to build base key generator name for.</param>
+    /// <param name="hierarchyDef">Hierarchy definition.</param>
+    /// <returns>Base key generator name.</returns>
+    public string BuildKeyGeneratorBaseName(KeyInfo key, HierarchyDef hierarchyDef)
     {
       if (!string.IsNullOrEmpty(hierarchyDef.KeyGeneratorName))
         return hierarchyDef.KeyGeneratorName;
 
-      if (hierarchyDef.KeyGeneratorKind==KeyGeneratorKind.Custom)
-        throw new InvalidOperationException(string.Format(
-          "Type '{0}': custom key generator is used, but no name provided",
-          hierarchyDef.Root.UnderlyingType.GetShortName()));
+      if (key.GeneratorKind==KeyGeneratorKind.Default)
+        return key.SingleColumnType.GetShortName();
 
-      return keyTupleDescriptor
-        .Where((type, index) => index!=typeIdColumnIndex)
-        .Select(type => type.GetShortName())
-        .ToDelimitedString("-");
+      throw new DomainBuilderException(string.Format(
+        Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet,
+        hierarchyDef.Root.UnderlyingType.GetShortName()));
     }
 
     /// <summary>

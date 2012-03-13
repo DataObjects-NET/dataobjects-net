@@ -17,7 +17,6 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
-using Xtensive.Tuples;
 using DomainHandler = Xtensive.Orm.Providers.DomainHandler;
 using SchemaUpgradeHandler = Xtensive.Orm.Providers.SchemaUpgradeHandler;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -31,9 +30,6 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class DomainBuilder
   {
     private readonly BuildingContext context;
-    private readonly HashSet<IKeyGenerator> initializedKeyGenerators = new HashSet<IKeyGenerator>();
-
-    private ProviderDescriptor providerDescriptor;
 
     /// <summary>
     /// Builds the domain.
@@ -65,8 +61,8 @@ namespace Xtensive.Orm.Building.Builders
       CreateProviderFactory();
       CreateDomain();
       CreateHandlers();
-      CreateServices();
       BuildModel();
+      CreateServices();
       CreateKeyGenerators();
       ConfigureServices();
       PerformUpgradeActions();
@@ -100,7 +96,7 @@ namespace Xtensive.Orm.Building.Builders
     private void CreateProviderFactory()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (ProviderDescriptor).GetShortName())) {
-        providerDescriptor = ProviderDescriptor.Get(context.Configuration.ConnectionInfo.Provider);
+        ProviderDescriptor.Get(context.Configuration.ConnectionInfo.Provider);
       }
     }
 
@@ -149,7 +145,7 @@ namespace Xtensive.Orm.Building.Builders
         var configuration = domain.Configuration;
         var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
         var registrations = CreateServiceRegistrations(configuration)
-          .Concat(KeyGeneratorFactory.CreateRegistrations(configuration));
+          .Concat(KeyGeneratorFactory.GetRegistrations(context));
         var baseServiceContainer = domain.Handler.CreateBaseServices();
         domain.Services = ServiceContainer.Create(
           typeof (ServiceContainer), registrations, ServiceContainer.Create(serviceContainerType, baseServiceContainer));
@@ -197,28 +193,23 @@ namespace Xtensive.Orm.Building.Builders
         var domain = context.Domain;
         var generators = domain.KeyGenerators;
         var initialized = new HashSet<IKeyGenerator>();
-        var keysToProcess = domain.Model.Hierarchies.Select(h => h.Key).Where(k => k.HasGenerator);
+        var keysToProcess = domain.Model.Hierarchies
+          .Select(h => h.Key)
+          .Where(k => k.GeneratorKind!=KeyGeneratorKind.None);
         foreach (var keyInfo in keysToProcess) {
           var generator = domain.Services.Demand<IKeyGenerator>(keyInfo.GeneratorName);
-          InitializeKeyGenerator(generator, keyInfo.TupleDescriptor);
           generators.Register(keyInfo, generator);
-
-          var localGenerator = domain.Services.Get<ITemporaryKeyGenerator>(keyInfo.GeneratorName);
-          if (localGenerator==null)
-            continue; // Local key generators are optional
-          InitializeKeyGenerator(localGenerator, keyInfo.TupleDescriptor);
-          generators.RegisterTemporary(keyInfo, localGenerator);
+          if (keyInfo.IsFirstAmongSimilarKeys)
+            generator.Initialize(context.Domain, keyInfo.TupleDescriptor);
+          var temporaryGenerator = domain.Services.Get<ITemporaryKeyGenerator>(keyInfo.GeneratorName);
+          if (temporaryGenerator==null)
+            continue; // Temporary key generators are optional
+          generators.RegisterTemporary(keyInfo, temporaryGenerator);
+          if (keyInfo.IsFirstAmongSimilarKeys)
+            temporaryGenerator.Initialize(context.Domain, keyInfo.TupleDescriptor);
         }
         generators.Lock();
       }
-    }
-
-    private void InitializeKeyGenerator(IKeyGenerator keyGenerator, TupleDescriptor keyTupleDescriptor)
-    {
-      if (initializedKeyGenerators.Contains(keyGenerator))
-        return;
-      keyGenerator.Initialize(context.Domain, keyTupleDescriptor);
-      initializedKeyGenerators.Add(keyGenerator);
     }
 
     private void ConfigureServices()

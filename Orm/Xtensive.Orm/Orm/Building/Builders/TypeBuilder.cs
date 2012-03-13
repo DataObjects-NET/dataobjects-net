@@ -393,33 +393,29 @@ namespace Xtensive.Orm.Building.Builders
         ).ToList());
 
       var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
-
       var typeIdColumnIndex = -1;
       if (hierarchyDef.IncludeTypeId)
         for (int i = 0; i < keyColumns.Count; i++)
           if (keyColumns[i].Field.IsTypeId)
             typeIdColumnIndex = i;
 
-      Type generatorType = null;
-      string generatorBaseName = null;
-      string generatorName = null;
+      var key = new KeyInfo(root.Name, keyFields, keyColumns, keyTupleDescriptor, typeIdColumnIndex);
 
-      var hasGenerator =
-        hierarchyDef.KeyGeneratorKind!=KeyGeneratorKind.None
-        && keyFields.All(f => f.Parent==null); // = does not contain foreign key(s)
+      var generatorKind = hierarchyDef.KeyGeneratorKind;
 
-      if (hasGenerator) {
-        var nameBuilder = context.NameBuilder;
-        generatorBaseName = nameBuilder.BuildKeyGeneratorBaseName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex);
-        generatorName = NameBuilder.BuildKeyGeneratorName(generatorBaseName, hierarchyDef.Root.MappingDatabase);
+      // Force absence of key generator if key is a reference.
+      if (key.ContainsForeignKeys)
+        generatorKind = KeyGeneratorKind.None;
+
+      if (generatorKind==KeyGeneratorKind.Default) {
+        var canBeHandled = key.SingleColumnType!=null && KeyGeneratorFactory.IsSupported(key.SingleColumnType);
+        // Force absence of key generator if key can not be handled by standard keygen.
+        if (!canBeHandled)
+          generatorKind = KeyGeneratorKind.None;
       }
 
-      var key = new KeyInfo(
-        root.Name, keyFields, keyColumns,
-        generatorBaseName, generatorName, keyTupleDescriptor, typeIdColumnIndex);
-
-      if (!hasGenerator) {
-        // Not key generator attached.
+      if (generatorKind==KeyGeneratorKind.None) {
+        // No key generator is attached.
         // Each hierarchy has it's own equality identifier.
         key.IsFirstAmongSimilarKeys = true;
         key.EqualityIdentifier = new object();
@@ -427,20 +423,27 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Hierarchy has key generator.
-      // Equality indentifier is the same if and only if key generators match.
 
+      // Setup key generator name.
+      key.GeneratorKind = generatorKind;
+      key.GeneratorBaseName = context.NameBuilder.BuildKeyGeneratorBaseName(key, hierarchyDef);
+      var generatorName = key.GeneratorName = context.NameBuilder.BuildKeyGeneratorName(key, hierarchyDef);
+
+      // Equality indentifier is the same if and only if key generator names match.
       object equalityIdentifier;
       if (!context.KeyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier)) {
+        key.IsFirstAmongSimilarKeys = true;
         equalityIdentifier = new object();
         context.KeyEqualityIdentifiers.Add(generatorName, equalityIdentifier);
-        key.IsFirstAmongSimilarKeys = true;
       }
       key.EqualityIdentifier = equalityIdentifier;
 
-      if (!IsSequenceBackedKey(key, typeIdColumnIndex))
+      // Don't create sequences for user key generators
+      // and for key generators that are not sequence-backed (such as GuidGenerator).
+      if (key.GeneratorKind==KeyGeneratorKind.Custom || !IsSequenceBacked(key))
         return key;
 
-      // Generate corresponding sequence as well.
+      // Generate backing sequence.
       SequenceInfo sequence;
       var cacheSize = context.Configuration.KeyGeneratorCacheSize;
       if (!context.Sequences.TryGetValue(generatorName, out sequence)) {
@@ -458,17 +461,10 @@ namespace Xtensive.Orm.Building.Builders
       return key;
     }
 
-
-    private static bool IsSequenceBackedKey(KeyInfo key, int typeIdColumnIndex)
+    private static bool IsSequenceBacked(KeyInfo key)
     {
-      var hasOneNonTypeIdColumn = key.Columns
-        .Where((c, i) => i!=typeIdColumnIndex).Count()==1;
-      if (!hasOneNonTypeIdColumn)
-        return false;
-      var hasOneSequenceBackedColumn = key.Columns
-        .Where((c, i) => i!=typeIdColumnIndex)
-        .Count(c => KeyGeneratorFactory.IsSequenceBacked(c.ValueType))==1;
-      return hasOneSequenceBackedColumn;
+      var valueType = key.SingleColumnType;
+      return valueType!=null && KeyGeneratorFactory.IsSequenceBacked(valueType);
     }
 
     #endregion

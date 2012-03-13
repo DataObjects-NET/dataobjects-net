@@ -23,6 +23,18 @@ namespace Xtensive.Orm.Model
     private SequenceInfo sequence;
     private object equalityIdentifier;
     private bool isFirstAmongSimilarKeys;
+    private string generatorName;
+    private string generatorBaseName;
+    private KeyGeneratorKind generatorKind;
+    private Type singleColumnType;
+
+    /// <summary>
+    /// Gets single column type if this <see cref="KeyInfo"/>
+    /// has single column (excluding possible TypeId column).
+    /// If this <see cref="KeyInfo"/> has multiple columns
+    /// returns <see langword="null"/>.
+    /// </summary>
+    public Type SingleColumnType { get { return singleColumnType; } }
 
     /// <summary>
     /// Gets the hierarchy this key belongs to.
@@ -50,20 +62,44 @@ namespace Xtensive.Orm.Model
     /// Gets the key generator name.
     /// This name is used as service name in IoC.
     /// </summary>
-    public string GeneratorName { get; private set; }
+    public string GeneratorName
+    {
+      get { return generatorName; }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorName = value;
+      }
+    }
 
     /// <summary>
     /// Gets generator base name.
     /// This name don't include database suffix
     /// and is used to build physical table/sequence name.
     /// </summary>
-    public string GeneratorBaseName { get; private set; }
+    public string GeneratorBaseName
+    {
+      get { return generatorBaseName; }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorBaseName = value;
+      }
+    }
 
     /// <summary>
-    /// Gets value indicating whether is <see cref="KeyInfo"/>
-    /// has any key generator.
+    /// Gets <see cref="KeyGeneratorKind"/> for this <see cref="KeyInfo"/>.
     /// </summary>
-    public bool HasGenerator { get { return GeneratorName!=null; } }
+    public KeyGeneratorKind GeneratorKind
+    {
+      get { return generatorKind; }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorKind = value;
+      }
+    }
+
 
     /// <summary>
     /// Gets the tuple descriptor of the key.
@@ -156,23 +192,22 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="fields">The key fields.</param>
     /// <param name="columns">The key columns.</param>
-    /// <param name="generatorBaseName">Base name of the key generator.</param>
-    /// <param name="generatorName">Name of the key generator (<see langword="null"/> means unnamed).</param>
     /// <param name="tupleDescriptor">Key tuple descriptor.</param>
     /// <param name="typeIdColumnIndex">Index of the type id column.</param>
-    public KeyInfo(
-      string name, ReadOnlyList<FieldInfo> fields, ReadOnlyList<ColumnInfo> columns, 
-      string generatorBaseName, string generatorName,
+    public KeyInfo(string name, ReadOnlyList<FieldInfo> fields, ReadOnlyList<ColumnInfo> columns,
       TupleDescriptor tupleDescriptor, int typeIdColumnIndex)
       : base(name)
     {
       Fields = fields;
       Columns = columns;
-      GeneratorBaseName = generatorBaseName;
-      GeneratorName = generatorName;
+
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;
+
       ContainsForeignKeys = fields.Any(f => f.Parent!=null);
+
+      if (Columns.Where((c, i) => i!=TypeIdColumnIndex).Count()==1)
+        singleColumnType = Columns.Where((c, i) => i!=TypeIdColumnIndex).First().ValueType;
     }
   }
 }

@@ -7,20 +7,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.IoC;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals.KeyGenerators;
-using Xtensive.Orm.Providers;
-using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
 {
   internal static class KeyGeneratorFactory
   {
-    public static bool IsSupportedByStandardGenerators(Type valueType)
+    private static readonly Type[] SupportedTypes = WellKnown.SupportedNumericTypes
+      .Concat(new[] {typeof (Guid), typeof (string)})
+      .ToArray();
+
+    public static bool IsSupported(Type valueType)
     {
-      return IsSequenceBacked(valueType) || valueType==typeof (Guid) || valueType==typeof (string);
+      return SupportedTypes.Contains(valueType);
     }
 
     public static bool IsSequenceBacked(Type valueType)
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Building.Builders
       return WellKnown.SupportedNumericTypes.Contains(valueType);
     }
 
-    public static Type GetGeneratorType(Type valueType)
+    private static Type GetGeneratorType(Type valueType)
     {
       if (IsSequenceBacked(valueType))
         return typeof (StorageSequentalGenerator<>).MakeGenericType(valueType);
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Building.Builders
       throw TypeNotSupported(valueType);
     }
 
-    public static Type GetTemporaryGeneratorType(Type valueType)
+    private static Type GetTemporaryGeneratorType(Type valueType)
     {
       if (IsSequenceBacked(valueType))
         return typeof (TemporarySequentalGenerator<>).MakeGenericType(valueType);
@@ -56,52 +56,25 @@ namespace Xtensive.Orm.Building.Builders
       throw TypeNotSupported(valueType);
     }
 
-    public static IEnumerable<ServiceRegistration> CreateStandardRegistrations()
+    private static IEnumerable<ServiceRegistration> GetStandardRegistrations(string name, Type valueType)
     {
-      var types = WellKnown.SupportedNumericTypes.Concat(new[] {typeof (Guid), typeof (string)});
-
-      foreach (var type in types) {
-        var name = type.GetShortName();
-        yield return new ServiceRegistration(
-          typeof (IKeyGenerator), name, GetGeneratorType(type), true);
-        yield return new ServiceRegistration(
-          typeof (ITemporaryKeyGenerator), name, GetTemporaryGeneratorType(type), true);
-      }
+      yield return new ServiceRegistration(
+        typeof (IKeyGenerator), name, GetGeneratorType(valueType), true);
+      yield return new ServiceRegistration(
+        typeof (ITemporaryKeyGenerator), name, GetTemporaryGeneratorType(valueType), true);
     }
 
-    public static IEnumerable<ServiceRegistration> CreateRegistrations(DomainConfiguration configuration)
+    public static IEnumerable<ServiceRegistration> GetRegistrations(BuildingContext context)
     {
-      var userRegistrations = configuration.Types.KeyGenerators
+      var standardRegistrations = context.Model.Hierarchies.Select(h => h.Key)
+        .Where(key => key.GeneratorKind==KeyGeneratorKind.Default && key.IsFirstAmongSimilarKeys)
+        .SelectMany(key => GetStandardRegistrations(key.GeneratorName, key.SingleColumnType));
+
+      var userRegistrations = context.Configuration.Types.KeyGenerators
         .SelectMany(ServiceRegistration.CreateAll)
         .ToList();
 
-      var standardRegistrations =
-        CreateStandardRegistrations()
-          .Where(reg => !userRegistrations.Any(r => r.Type==reg.Type && r.Name==reg.Name))
-          .ToList();
-
-      var allRegistrations = userRegistrations.Concat(standardRegistrations);
-
-      if (!configuration.IsMultidatabase)
-        return allRegistrations;
-
-      // If we are in multidatabase mode key generators will have database specific suffixes
-      // We need to handle it by building a cross product between all key generators and all databases.
-      // TODO: handle user's per-database registrations
-      // They should have more priority than user's database-agnostic key generators
-      // and standard key generators (which are always database-agnostic).
-
-      var databases = configuration.GetDatabases();
-      return allRegistrations.SelectMany(_ => databases, AddLocation);
-    }
-
-    private static ServiceRegistration AddLocation(ServiceRegistration originalRegistration, string database)
-    {
-      return new ServiceRegistration(
-        originalRegistration.Type,
-        NameBuilder.BuildKeyGeneratorName(originalRegistration.Name, database),
-        originalRegistration.MappedType,
-        originalRegistration.Singleton);
+      return userRegistrations.Concat(standardRegistrations);
     }
 
     private static NotSupportedException TypeNotSupported(Type valueType)

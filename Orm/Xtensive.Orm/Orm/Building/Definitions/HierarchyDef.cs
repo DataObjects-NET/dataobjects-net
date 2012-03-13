@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Building.Definitions
     public bool IsClustered { get; set; }
 
     /// <summary>
-    /// Gets or sets the key generator type to use in this hierarchy.
+    /// Gets or sets the key generator kind to use in this hierarchy.
     /// </summary>
     public KeyGeneratorKind KeyGeneratorKind { get; set; }
 
