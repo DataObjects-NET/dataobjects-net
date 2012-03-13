@@ -14,6 +14,14 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.
     /// </summary>
-    public HandlerAccessor Handlers { get; set; }
+    public HandlerAccessor Handlers { get; internal set; }
+
+    /// <summary>
+    /// Initializer.
+    /// Invoked right after creation and initial configuration of the handler.
+    /// </summary>
+    public virtual void Initialize()
+    {
+    }
   }
 }

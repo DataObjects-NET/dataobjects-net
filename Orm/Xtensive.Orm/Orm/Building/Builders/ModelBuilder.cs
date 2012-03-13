@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Building.Builders
     private static void ApplyCustomDefinitions(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
-        foreach (var module in context.BuilderConfiguration.Modules)
+        foreach (var module in context.BuilderConfiguration.UpgradeContext.Modules)
           module.OnDefinitionsBuilt(context, context.ModelDef);
       }
     }

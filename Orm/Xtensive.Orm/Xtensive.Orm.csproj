@@ -100,7 +100,7 @@
     <Compile Include="Orm\Attributes\VersionMode.cs" />
     <Compile Include="Orm\Building\Builders\AssociationBuilder.cs" />
     <Compile Include="Orm\Building\Builders\KeyGeneratorFactory.cs" />
-    <Compile Include="Orm\Building\Builders\ProviderFactory.cs" />
+    <Compile Include="Orm\Building\Builders\ProviderDescriptor.cs" />
     <Compile Include="Orm\Building\Builders\TypeGenerationMonitor.cs" />
     <Compile Include="Orm\Building\Builders\IndexBuilder.ClusteredIndexes.cs" />
     <Compile Include="Orm\Building\Builders\MemberCompilerProviderBuilder.cs" />
@@ -166,7 +166,6 @@
     <Compile Include="Orm\Providers\HandlerAccessor.cs" />
     <Compile Include="Orm\Providers\HandlerBase.cs" />
     <Compile Include="Orm\Providers\HandlerFactory.cs" />
-    <Compile Include="Orm\Providers\InitializableHandlerBase.cs" />
     <Compile Include="Orm\Providers\Interfaces\IStorageSequenceAccessor.cs" />
     <Compile Include="Orm\Providers\Interfaces\IDirectSqlService.cs" />
     <Compile Include="Orm\Providers\IsolationLevelConverter.cs" />

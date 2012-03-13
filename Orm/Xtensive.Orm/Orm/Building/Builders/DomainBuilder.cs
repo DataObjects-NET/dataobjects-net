@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.IoC;
@@ -18,7 +17,6 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
-using Xtensive.Sql;
 using Xtensive.Tuples;
 using DomainHandler = Xtensive.Orm.Providers.DomainHandler;
 using HandlerFactory = Xtensive.Orm.Providers.HandlerFactory;
@@ -36,7 +34,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly BuildingContext context;
     private readonly HashSet<IKeyGenerator> initializedKeyGenerators = new HashSet<IKeyGenerator>();
 
-    private ProviderFactory providerFactory;
+    private ProviderDescriptor providerDescriptor;
 
     /// <summary>
     /// Builds the domain.
@@ -67,7 +65,6 @@ namespace Xtensive.Orm.Building.Builders
     {
       CreateProviderFactory();
       CreateDomain();
-      CreateHandlerFactory();
       CreateHandlers();
       CreateServices();
       BuildModel();
@@ -103,8 +100,8 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateProviderFactory()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (ProviderFactory).GetShortName())) {
-        providerFactory = ProviderFactory.Get(context.Configuration.ConnectionInfo.Provider);
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (ProviderDescriptor).GetShortName())) {
+        providerDescriptor = ProviderDescriptor.Get(context.Configuration.ConnectionInfo.Provider);
       }
     }
 
@@ -115,45 +112,33 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private void CreateHandlerFactory()
-    {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
-        var handlers = context.Domain.Handlers;
-        var handlerFactory = providerFactory.CreateHandlerFactory();
-        handlerFactory.Initialize(handlers);
-        handlers.Factory = handlerFactory;
-      }
-    }
-
     private void CreateHandlers()
     {
-      var handlers = context.Domain.Handlers;
-      var factory = handlers.Factory;
       var configuration = context.Domain.Configuration;
+      var handlers = context.Domain.Handlers;
+      var upgradeContext = context.BuilderConfiguration.UpgradeContext;
 
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
-        // StorageDriver
-        var storageDriver = StorageDriver.Create(providerFactory.CreateDriverFactory(), context.Domain);
-        handlers.StorageDriver = storageDriver;
-
         // NameBuilder
-        handlers.NameBuilder = new NameBuilder(configuration, storageDriver.ProviderInfo);
+        handlers.NameBuilder = upgradeContext.NameBuilder;
 
         // SchemaResolver
-        handlers.SchemaResolver = SchemaResolver.Get(configuration);
+        handlers.SchemaResolver = upgradeContext.SchemaResolver;
+
+        // StorageDriver
+        handlers.StorageDriver = upgradeContext.TemplateDriver.CreateNew(context.Domain);
 
         // GeneratorQueryBuilder
-        handlers.SequenceQueryBuilder = new SequenceQueryBuilder(storageDriver);
+        handlers.SequenceQueryBuilder = new SequenceQueryBuilder(handlers.StorageDriver);
+
+        // HandlerFactory
+        handlers.Factory = upgradeContext.HandlerFactory;
 
         // DomainHandler
-        var domainHandler = factory.CreateHandler<DomainHandler>();
-        handlers.DomainHandler = domainHandler;
-        domainHandler.Initialize();
+        handlers.DomainHandler = handlers.CreateAndInitialize<DomainHandler>();
 
         // SchemaUpgradeHandler
-        var schemaUpgradeHandler = factory.CreateHandler<SchemaUpgradeHandler>();
-        handlers.SchemaUpgradeHandler = schemaUpgradeHandler;
-        schemaUpgradeHandler.Initialize();
+        handlers.SchemaUpgradeHandler = handlers.CreateAndInitialize<SchemaUpgradeHandler>();
       }
     }
 

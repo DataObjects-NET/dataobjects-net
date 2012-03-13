@@ -15,7 +15,6 @@ using Xtensive.Orm.Providers.Sql;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.Model;
 using Xtensive.Threading;
 using Xtensive.Tuples;
 
@@ -70,7 +69,7 @@ namespace Xtensive.Orm.Providers
     public StorageDriver CreateNew(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return new StorageDriver(underlyingDriver, domain.Configuration, GetModelProvider(domain));
+      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain));
     }
 
     private DbDataReaderAccessor CreateDataReaderAccessor(TupleDescriptor descriptor)
@@ -90,40 +89,26 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public static StorageDriver Create(SqlDriverFactory driverFactory, Domain domain)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-
-      var configuration = domain.Configuration;
-      var driver = driverFactory.GetDriver(configuration.ConnectionInfo);
-
-      return new StorageDriver(driver, configuration, GetModelProvider(domain));
-    }
-
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo);
+      var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
-      return new StorageDriver(driver, configuration, GetNullModel);
+      return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
     }
 
-    private StorageDriver(SqlDriver driver, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    private StorageDriver(SqlDriver driver, ProviderInfo providerInfo, DomainConfiguration configuration, Func<DomainModel> modelProvider)
     {
-      this.configuration = configuration;
       underlyingDriver = driver;
-
-      ProviderInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, underlyingDriver);
-      ExceptionBuilder = new StorageExceptionBuilder(underlyingDriver, configuration, modelProvider);
-
+      ProviderInfo = providerInfo;
+      this.configuration = configuration;
+      ExceptionBuilder = new StorageExceptionBuilder(driver, configuration, modelProvider);
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
-
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
-
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = Sql.Log.IsLogged(LogEventTypes.Info); // Just to cache this value
     }

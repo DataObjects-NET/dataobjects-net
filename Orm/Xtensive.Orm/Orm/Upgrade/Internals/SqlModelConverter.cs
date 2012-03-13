@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly ProviderInfo providerInfo;
     private readonly PartialIndexFilterNormalizer indexFilterNormalizer;
 
-    private StorageModel targetModel;
+    private readonly StorageModel targetModel;
     private TableInfo currentTable;
 
     private bool executed;

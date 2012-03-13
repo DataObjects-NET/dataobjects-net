@@ -31,7 +31,6 @@ namespace Xtensive.Orm.Building
     internal HashSet<TypeDef> Interfaces { get; private set; }
     internal HashSet<IndexInfo> UntypedIndexes { get; private set; }
     internal Queue<Type> Types { get; private set; }
-
     internal Dictionary<string, object> KeyEqualityIdentifiers { get; private set; }
     internal Dictionary<string, SequenceInfo> Sequences { get; private set; }
 
@@ -40,9 +39,7 @@ namespace Xtensive.Orm.Building
     /// <summary>
     /// Gets the current <see cref="BuildingContext"/>.
     /// </summary>
-    public static BuildingContext Current {
-      get { return BuildingScope.Context; }
-    }
+    public static BuildingContext Current { get { return BuildingScope.Context; } }
 
     /// <summary>
     /// Gets the current <see cref="BuildingContext"/>, or throws <see cref="InvalidOperationException"/>, if active context is not found.
@@ -77,9 +74,7 @@ namespace Xtensive.Orm.Building
     /// <summary>
     /// Gets the name builder.
     /// </summary>
-    public NameBuilder NameBuilder { 
-      get { return Domain.Handlers.NameBuilder; }
-    }
+    public NameBuilder NameBuilder { get { return Domain.Handlers.NameBuilder; } }
 
     /// <summary>
     /// Gets the system session handler.

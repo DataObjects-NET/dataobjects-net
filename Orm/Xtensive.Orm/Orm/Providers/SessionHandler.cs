@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Base <see cref="Session"/> handler class.
   /// </summary>
-  public abstract partial class SessionHandler : InitializableHandlerBase,
+  public abstract partial class SessionHandler : HandlerBase,
     IDisposable
   {
     private static readonly object CachingRegion = new object();

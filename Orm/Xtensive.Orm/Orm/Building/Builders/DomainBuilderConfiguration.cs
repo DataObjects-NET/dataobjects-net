@@ -6,8 +6,6 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -19,13 +17,17 @@ namespace Xtensive.Orm.Building.Builders
   /// Additional domain build process configuration 
   /// used by <see cref="DomainBuilder"/>.
   /// </summary>
-  [Serializable]
   public class DomainBuilderConfiguration
   {
     /// <summary>
     /// Gets or sets the schema upgrade mode.
     /// </summary>
-    public SchemaUpgradeMode SchemaUpgradeMode { get; set; }
+    public SchemaUpgradeMode SchemaUpgradeMode { get; private set; }
+
+    /// <summary>
+    /// Gets current <see cref="UpgradeContext"/>.
+    /// </summary>
+    public Upgrade.UpgradeContext UpgradeContext { get; private set; }
 
     /// <summary>
     /// Gets or sets the type filter.
@@ -57,23 +59,12 @@ namespace Xtensive.Orm.Building.Builders
     /// </summary>
     public Func<Type, int> TypeIdProvider { get; set; }
 
-    /// <summary>
-    /// Gets the collection of extension modules.
-    /// </summary>
-    public ReadOnlyList<IModule> Modules { get; private set; }
-
-
     // Constructors
 
-    /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
-    /// <param name="modules">The collection of modules.</param>
-    public DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, ReadOnlyList<IModule> modules)
+    internal DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, Upgrade.UpgradeContext upgradeContext)
     {
       SchemaUpgradeMode = schemaUpgradeMode;
-      Modules = modules;
+      UpgradeContext = upgradeContext;
     }
   }
 }

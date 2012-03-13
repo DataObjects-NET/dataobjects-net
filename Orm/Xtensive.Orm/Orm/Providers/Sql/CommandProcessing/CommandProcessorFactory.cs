@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// A handlers that is capable of creating <see cref="CommandProcessor"/>s.
   /// </summary>
-  public class CommandProcessorFactory : InitializableHandlerBase
+  public class CommandProcessorFactory : HandlerBase
   {
     private StorageDriver driver;
     private ProviderInfo providerInfo;

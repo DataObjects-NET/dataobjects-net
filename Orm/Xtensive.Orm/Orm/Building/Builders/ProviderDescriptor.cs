@@ -16,35 +16,24 @@ namespace Xtensive.Orm.Building.Builders
   /// <summary>
   /// Provider search result.
   /// </summary>
-  public sealed class ProviderFactory
+  public sealed class ProviderDescriptor
   {
-    private readonly Type handlerFactory;
-    private readonly Type driverFactory;
-
     /// <summary>
-    /// Creates <see cref="SqlDriverFactory"/> for this provider.
+    /// Gets <see cref="HandlerFactory"/> type.
     /// </summary>
-    /// <returns></returns>
-    public SqlDriverFactory CreateDriverFactory()
-    {
-      return (SqlDriverFactory) Activator.CreateInstance(driverFactory);
-    }
+    public Type HandlerFactory { get; private set; }
 
     /// <summary>
-    /// Creates <see cref="Providers.HandlerFactory"/> for this provider.
+    /// Gets <see cref="SqlDriverFactory"/> type.
     /// </summary>
-    /// <returns></returns>
-    public HandlerFactory CreateHandlerFactory()
-    {
-      return (HandlerFactory) Activator.CreateInstance(handlerFactory);
-    }
+    public Type DriverFactory { get; private set; }
 
     /// <summary>
-    /// Gets <see cref="ProviderFactory"/> for the specified <paramref name="providerName"/>.
+    /// Gets <see cref="ProviderDescriptor"/> for the specified <paramref name="providerName"/>.
     /// </summary>
     /// <param name="providerName">Name of the storage provider.</param>
     /// <returns>Provider factory for <paramref name="providerName"/>.</returns>
-    public static ProviderFactory Get(string providerName)
+    public static ProviderDescriptor Get(string providerName)
     {
       var providerAssembly = GetProviderAssembly(providerName);
 
@@ -58,7 +47,7 @@ namespace Xtensive.Orm.Building.Builders
         throw new DomainBuilderException(string.Format(
           Strings.ExStorageProviderXIsNotFound, providerName));
 
-      return new ProviderFactory(entry.Attribute.DriverFactory, entry.HandlerFactory);
+      return new ProviderDescriptor(entry.Attribute.DriverFactory, entry.HandlerFactory);
     }
 
     private static Assembly GetProviderAssembly(string providerName)
@@ -82,10 +71,10 @@ namespace Xtensive.Orm.Building.Builders
 
     // Constructors
 
-    private ProviderFactory(Type driverFactory, Type handlerFactory)
+    private ProviderDescriptor(Type driverFactory, Type handlerFactory)
     {
-      this.driverFactory = driverFactory;
-      this.handlerFactory = handlerFactory;
+      DriverFactory = driverFactory;
+      HandlerFactory = handlerFactory;
     }
   }
 }

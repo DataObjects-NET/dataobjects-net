@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// A manager of temporary tables.
   /// </summary>
-  public class TemporaryTableManager : InitializableHandlerBase
+  public class TemporaryTableManager : HandlerBase
   {
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";

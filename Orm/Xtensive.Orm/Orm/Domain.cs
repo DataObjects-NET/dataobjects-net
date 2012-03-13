@@ -10,19 +10,17 @@ using System.Diagnostics;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Disposing;
 using Xtensive.IoC;
-using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Orm.Providers;
-using Xtensive.Threading;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Threading;
 
 namespace Xtensive.Orm
 {
@@ -37,13 +35,15 @@ namespace Xtensive.Orm
     IHasExtensions
   {
     private readonly object _lock = new object();
+
     private volatile ExtensionCollection extensions;
+
     private DisposingState disposingState;
     
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
     /// </summary>
-    /// <seealso cref="Session.Open(Domain)"/>
+    /// <seealso cref="OpenSession()"/>
     public event EventHandler<SessionEventArgs> SessionOpen;
 
     /// <summary>

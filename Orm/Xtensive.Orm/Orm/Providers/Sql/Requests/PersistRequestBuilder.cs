@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers.Sql
   /// <summary>
   /// Builder of <see cref="PersistRequest"/>s.
   /// </summary>
-  public class PersistRequestBuilder : InitializableHandlerBase
+  public class PersistRequestBuilder : HandlerBase
   {
     private bool useLargeObjects;
 

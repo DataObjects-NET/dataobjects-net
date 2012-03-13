@@ -11,16 +11,15 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
-using Xtensive.Sorting;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model.Stored;
-
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
+using Xtensive.Sorting;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
@@ -30,14 +29,12 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   public sealed class UpgradeContext : Context<UpgradeScope>
   {
-    #region IContext<...> static members (Current, Demand())
+    #region IContext members
 
     /// <summary>
     /// Gets the current <see cref="UpgradeContext"/>.
     /// </summary>
-    public static UpgradeContext Current {
-      get { return UpgradeScope.CurrentContext; }
-    }
+    public static UpgradeContext Current { get { return UpgradeScope.CurrentContext; } }
 
     /// <summary>
     /// Gets the current <see cref="UpgradeContext"/>, or throws <see cref="InvalidOperationException"/>, if active context is not found.
@@ -47,9 +44,18 @@ namespace Xtensive.Orm.Upgrade
     public static UpgradeContext Demand()
     {
       var currentContext = Current;
-      if (currentContext==null)        
-        throw Exceptions.ContextRequired<UpgradeContext,UpgradeScope>();
+      if (currentContext==null)
+        throw Exceptions.ContextRequired<UpgradeContext, UpgradeScope>();
       return currentContext;
+    }
+
+    /// <inheritdoc/>
+    public override bool IsActive { get { return UpgradeScope.CurrentContext==this; } }
+
+    /// <inheritdoc/>
+    protected override UpgradeScope CreateActiveScope()
+    {
+      return new UpgradeScope(this);
     }
 
     #endregion
@@ -62,7 +68,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the original <see cref="DomainConfiguration"/>.
     /// </summary>
-    public DomainConfiguration OriginalConfiguration { get; internal set; }
+    public DomainConfiguration OriginalConfiguration { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="DomainConfiguration"/>
@@ -105,129 +111,39 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets or sets the collection of services related to upgrade.
     /// </summary>
-    public IServiceContainer Services { get; private set; }
+    public IServiceContainer Services { get; internal set; }
 
     /// <summary>
     /// Gets the map of upgrade handlers.
     /// </summary>
-    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get; private set; }
+    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get; internal set; }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get; private set; }
+    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get; internal set; }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IModule> Modules { get; private set; }
+    public ReadOnlyList<IModule> Modules { get; internal set; }
 
     /// <summary>
     /// Gets or sets current transaction scope.
     /// </summary>
     public TransactionScope TransactionScope { get; set; }
 
+    internal HandlerFactory HandlerFactory { get; set; }
+
+    internal StorageDriver TemplateDriver { get; set; }
+
+    internal NameBuilder NameBuilder { get; set; }
+
+    internal SchemaResolver SchemaResolver { get; set; }
+
     internal StorageModel ExtractedModelCache { get; set; }
 
     internal SqlExtractionResult ExtractedSqlModelCache { get; set; }
-
-    #region IContext<...> methods
-
-    /// <inheritdoc/>
-    public override bool IsActive
-    {
-      get { return UpgradeScope.CurrentContext==this; }
-    }
-
-    /// <inheritdoc/>
-    protected override UpgradeScope CreateActiveScope()
-    {
-      return new UpgradeScope(this);
-    }
-
-    #endregion
-
-    #region BuildXxx methods
-
-    private void BuildServices()
-    {
-      var handlers = OriginalConfiguration.Types.UpgradeHandlers
-        .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
-
-      var modules = OriginalConfiguration.Types.Modules
-        .Select(type => new ServiceRegistration(typeof (IModule), type, false));
-
-      var allRegistrations = handlers.Concat(modules);
-
-      var baseServices = new ServiceContainer(new List<ServiceRegistration>{
-        new ServiceRegistration(typeof (UpgradeContext), this),
-        new ServiceRegistration(typeof (DomainConfiguration), OriginalConfiguration),
-      });
-
-      var serviceContainerType = OriginalConfiguration.ServiceContainerType ?? typeof (ServiceContainer);
-      Services = 
-        ServiceContainer.Create(typeof (ServiceContainer), allRegistrations, 
-          ServiceContainer.Create(serviceContainerType, baseServices));
-    }
-
-    /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
-    private void BuildUpgradeHandlers()
-    {
-      // Getting user handlers
-      var userHandlers =
-        from handler in Services.GetAll<IUpgradeHandler>()
-        let assembly = handler.Assembly ?? handler.GetType().Assembly
-        where handler.IsEnabled
-        group handler by assembly;
-
-      // Adding user handlers
-      var handlers = new Dictionary<Assembly, IUpgradeHandler>();
-      foreach (var group in userHandlers) {
-        var handler = group.SingleOrDefault();
-        if (handler==null)
-          throw new DomainBuilderException(
-            Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY.FormatWith(
-              typeof (IUpgradeHandler).GetShortName(), group.Key));
-        handlers.Add(group.Key, handler);
-      }
-
-      // Adding default handlers
-      var assembliesWithUserHandlers = handlers.Select(pair => pair.Key);
-      var assembliesWithoutUserHandler = 
-        OriginalConfiguration.Types.PersistentTypes
-          .Select(type => type.Assembly)
-          .Distinct()
-          .Except(assembliesWithUserHandlers);
-
-      foreach (var assembly in assembliesWithoutUserHandler) {
-        var handler = new UpgradeHandler(assembly);
-        handlers.Add(assembly, handler);
-      }
-
-      // Building a list of handlers sorted by dependencies of their assemblies
-      var dependencies = handlers.Keys.ToDictionary(
-        assembly => assembly,
-        assembly => assembly.GetReferencedAssemblies().Select(assemblyName => assemblyName.ToString()).ToHashSet());
-      var sortedHandlers =
-        from pair in 
-          TopologicalSorter.Sort(handlers, 
-            (a0, a1) => dependencies[a1.Key].Contains(a0.Key.GetName().ToString()))
-        select pair.Value;
-
-      // Storing the result
-      UpgradeHandlers = 
-        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
-      OrderedUpgradeHandlers = 
-        new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
-    }
-
-    private void BuildModules()
-    {
-      Modules = new ReadOnlyList<IModule>(Services.GetAll<IModule>().ToList());
-    }
-
-    #endregion
-
 
     // Constructors.
 
@@ -236,13 +152,6 @@ namespace Xtensive.Orm.Upgrade
       OriginalConfiguration = originalConfiguration;
       Stage = UpgradeStage.Initializing;
       Hints = new SetSlim<UpgradeHint>();
-
-      using (Activate()) {
-        // Ensures UpgradeContext.Current is this context
-        BuildServices();
-        BuildUpgradeHandlers();
-        BuildModules();
-      }
     }
   }
 }

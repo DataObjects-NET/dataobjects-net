@@ -63,6 +63,21 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     internal SequenceQueryBuilder SequenceQueryBuilder { get; set; }
 
+    internal THandler Create<THandler>()
+      where THandler : HandlerBase
+    {
+      var handler = (THandler) Factory.CreateHandler(typeof (THandler));
+      handler.Handlers = this;
+      return handler;
+    }
+
+    internal THandler CreateAndInitialize<THandler>()
+      where THandler : HandlerBase
+    {
+      var handler = Create<THandler>();
+      handler.Initialize();
+      return handler;
+    }
 
     // Constructors
 

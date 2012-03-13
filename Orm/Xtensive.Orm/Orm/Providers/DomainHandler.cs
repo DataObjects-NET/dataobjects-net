@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// <see cref="Orm.Domain"/>-level handler.
   /// </summary>
-  public abstract class DomainHandler : InitializableHandlerBase
+  public abstract class DomainHandler : HandlerBase
   {
     private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
     private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache
@@ -207,16 +207,10 @@ namespace Xtensive.Orm.Providers
       BuildMemberCompilerProviders();
       BuildCompilationService();
 
-      PersistRequestBuilder = Handlers.Factory.CreateHandler<PersistRequestBuilder>();
-      PersistRequestBuilder.Initialize();
-
-      TemporaryTableManager = Handlers.Factory.CreateHandler<TemporaryTableManager>();
-      TemporaryTableManager.Initialize();
-
-      CommandProcessorFactory = Handlers.Factory.CreateHandler<CommandProcessorFactory>();
-      CommandProcessorFactory.Initialize();
-
-      PartialIndexFilterNormalizer = Handlers.Factory.CreateHandler<PartialIndexFilterNormalizer>();
+      PersistRequestBuilder = Handlers.CreateAndInitialize<PersistRequestBuilder>();
+      TemporaryTableManager = Handlers.CreateAndInitialize<TemporaryTableManager>();
+      CommandProcessorFactory = Handlers.CreateAndInitialize<CommandProcessorFactory>();
+      PartialIndexFilterNormalizer = Handlers.CreateAndInitialize<PartialIndexFilterNormalizer>();
     }
 
     public void ConfigureServices()

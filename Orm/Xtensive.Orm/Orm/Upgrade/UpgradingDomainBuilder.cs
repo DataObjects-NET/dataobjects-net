@@ -5,8 +5,13 @@
 // Created:    2009.04.23
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.IoC;
+using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
@@ -14,7 +19,8 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade.Model;
-
+using Xtensive.Sorting;
+using Xtensive.Sql;
 using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Upgrade
@@ -38,9 +44,18 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       if (configuration.ConnectionInfo==null)
         throw new ArgumentNullException("configuration.ConnectionInfo", Strings.ExConnectionInfoIsMissing);
-      configuration.Lock();
+
+      if (!configuration.IsLocked)
+        configuration.Lock();
+
       var context = new UpgradeContext(configuration);
+
       using (context.Activate()) {
+        BuildEssentialHandlers(context);
+        BuildServices(context);
+        BuildModules(context);
+        BuildUpgradeHandlers(context);
+
         // 1st Domain
         try {
           BuildStageDomain(UpgradeStage.Initializing).DisposeSafely();
@@ -62,8 +77,102 @@ namespace Xtensive.Orm.Upgrade
         var domain = BuildStageDomain(UpgradeStage.Final);
         foreach (var module in context.Modules)
           module.OnBuilt(domain);
+
         return domain;
       }
+    }
+
+    private static void BuildEssentialHandlers(UpgradeContext context)
+    {
+      var configuration = context.OriginalConfiguration;
+
+      var descriptor = ProviderDescriptor.Get(configuration.ConnectionInfo.Provider);
+
+      var driverFactory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
+      var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
+
+      context.HandlerFactory = handlerFactory;
+      context.TemplateDriver = StorageDriver.Create(driverFactory, configuration);
+      context.NameBuilder = new NameBuilder(configuration, context.TemplateDriver.ProviderInfo);
+      context.SchemaResolver = SchemaResolver.Get(configuration);
+    }
+
+    private static void BuildServices(UpgradeContext context)
+    {
+      var configuration = context.OriginalConfiguration;
+
+      var handlers = configuration.Types.UpgradeHandlers
+        .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
+
+      var modules = configuration.Types.Modules
+        .Select(type => new ServiceRegistration(typeof (IModule), type, false));
+
+      var allRegistrations = handlers.Concat(modules);
+
+      var baseServices = new ServiceContainer(new List<ServiceRegistration> {
+        new ServiceRegistration(typeof (DomainConfiguration), configuration),
+        new ServiceRegistration(typeof (UpgradeContext), context),
+      });
+
+      var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
+      context.Services = ServiceContainer.Create(typeof (ServiceContainer), allRegistrations,
+        ServiceContainer.Create(serviceContainerType, baseServices));
+    }
+
+    /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
+    private static void BuildUpgradeHandlers(UpgradeContext context)
+    {
+      // Getting user handlers
+      var userHandlers =
+        from handler in context.Services.GetAll<IUpgradeHandler>()
+        let assembly = handler.Assembly ?? handler.GetType().Assembly
+        where handler.IsEnabled
+        group handler by assembly;
+
+      // Adding user handlers
+      var handlers = new Dictionary<Assembly, IUpgradeHandler>();
+      foreach (var group in userHandlers) {
+        var handler = group.SingleOrDefault();
+        if (handler==null)
+          throw new DomainBuilderException(
+            Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY.FormatWith(
+              typeof (IUpgradeHandler).GetShortName(), group.Key));
+        handlers.Add(group.Key, handler);
+      }
+
+      // Adding default handlers
+      var assembliesWithUserHandlers = handlers.Select(pair => pair.Key);
+      var assembliesWithoutUserHandler = 
+        context.OriginalConfiguration.Types.PersistentTypes
+          .Select(type => type.Assembly)
+          .Distinct()
+          .Except(assembliesWithUserHandlers);
+
+      foreach (var assembly in assembliesWithoutUserHandler) {
+        var handler = new UpgradeHandler(assembly);
+        handlers.Add(assembly, handler);
+      }
+
+      // Building a list of handlers sorted by dependencies of their assemblies
+      var dependencies = handlers.Keys.ToDictionary(
+        assembly => assembly,
+        assembly => assembly.GetReferencedAssemblies().Select(assemblyName => assemblyName.ToString()).ToHashSet());
+      var sortedHandlers =
+        from pair in 
+          TopologicalSorter.Sort(handlers, 
+            (a0, a1) => dependencies[a1.Key].Contains(a0.Key.GetName().ToString()))
+        select pair.Value;
+
+      // Storing the result
+      context.UpgradeHandlers = 
+        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
+      context.OrderedUpgradeHandlers = 
+        new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
+    }
+
+    private static void BuildModules(UpgradeContext context)
+    {
+      context.Modules = new ReadOnlyList<IModule>(context.Services.GetAll<IModule>().ToList());
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
@@ -86,7 +195,7 @@ namespace Xtensive.Orm.Upgrade
     private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
     {
       var context = UpgradeContext.Current;
-      return new DomainBuilderConfiguration(schemaUpgradeMode, context.Modules) {
+      return new DomainBuilderConfiguration(schemaUpgradeMode, context) {
         TypeFilter = type => {
           var assembly = type.Assembly;
           var handlers = context.UpgradeHandlers;

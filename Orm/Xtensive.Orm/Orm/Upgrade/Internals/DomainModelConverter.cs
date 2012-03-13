@@ -38,8 +38,8 @@ namespace Xtensive.Orm.Upgrade
     private readonly StorageDriver driver;
     private readonly PartialIndexFilterNormalizer filterNormalizer;
     private readonly SchemaResolver schemaResolver;
+    private readonly StorageModel targetModel;
 
-    private StorageModel targetModel;
     private TableInfo currentTable;
 
     private bool executed;

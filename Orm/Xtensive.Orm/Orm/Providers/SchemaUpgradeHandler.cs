@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Providers
   /// Upgrades storage schema.
   /// </summary>
   [Serializable]
-  public class SchemaUpgradeHandler : InitializableHandlerBase
+  public class SchemaUpgradeHandler : HandlerBase
   {
     private ProviderInfo providerInfo;
     private SchemaResolver schemaResolver;
