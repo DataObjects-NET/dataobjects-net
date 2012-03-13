@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Upgrade
 
         // 1st Domain
         try {
-          BuildStageDomain(UpgradeStage.Initializing).DisposeSafely();
+          BuildStageDomain(context, UpgradeStage.Initializing).DisposeSafely();
         }
         catch (Exception e) {
           if (GetInnermostException(e) is SchemaSynchronizationException) {
@@ -71,10 +71,10 @@ namespace Xtensive.Orm.Upgrade
         }
 
         // 2nd Domain
-        BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
+        BuildStageDomain(context, UpgradeStage.Upgrading).DisposeSafely();
 
         // 3rd Domain
-        var domain = BuildStageDomain(UpgradeStage.Final);
+        var domain = BuildStageDomain(context, UpgradeStage.Final);
         foreach (var module in context.Modules)
           module.OnBuilt(domain);
 
@@ -176,9 +176,8 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
-    private static Domain BuildStageDomain(UpgradeStage stage)
+    private static Domain BuildStageDomain(UpgradeContext context, UpgradeStage stage)
     {
-      var context = UpgradeContext.Current;
       var configuration = context.Configuration = context.OriginalConfiguration.Clone();
       context.Stage = stage;
       // Raising "Before upgrade" event
@@ -188,13 +187,13 @@ namespace Xtensive.Orm.Upgrade
       var schemaUpgradeMode = GetUpgradeMode(stage, configuration.UpgradeMode);
       if (schemaUpgradeMode==null)
         return null;
-      return DomainBuilder.BuildDomain(
-        configuration, CreateBuilderConfiguration(schemaUpgradeMode.Value));
+
+      var builderConfiguration = CreateBuilderConfiguration(context, schemaUpgradeMode.Value);
+      return DomainBuilder.BuildDomain(configuration, builderConfiguration);
     }
 
-    private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
+    private static DomainBuilderConfiguration CreateBuilderConfiguration(UpgradeContext context, SchemaUpgradeMode schemaUpgradeMode)
     {
-      var context = UpgradeContext.Current;
       return new DomainBuilderConfiguration(schemaUpgradeMode, context) {
         TypeFilter = type => {
           var assembly = type.Assembly;
