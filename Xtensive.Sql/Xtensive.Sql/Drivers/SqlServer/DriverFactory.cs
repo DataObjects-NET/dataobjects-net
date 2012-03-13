@@ -102,15 +102,15 @@ namespace Xtensive.Sql.SqlServer
         coreServerInfo.MultipleActiveResultSets = builder.MultipleActiveResultSets;
         if (IsAzure(connection))
           return new Azure.Driver(coreServerInfo, new ErrorMessageParser());
-        var parser = CreateMessageParser(connection);
-        switch (version.Major) {
-        case 9:
-          return new v09.Driver(coreServerInfo, parser);
-        case 10:
-          return new v10.Driver(coreServerInfo, parser);
-        default:
+
+        if (version.Major < 9)
           throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
-        }
+
+        var parser = CreateMessageParser(connection);
+        if (version.Major == 9)
+          return new v09.Driver(coreServerInfo, parser);
+
+        return new v10.Driver(coreServerInfo, parser);
       }
     }
   }
