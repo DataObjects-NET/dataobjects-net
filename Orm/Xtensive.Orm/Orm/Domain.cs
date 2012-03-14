@@ -244,13 +244,7 @@ namespace Xtensive.Orm
     #region IHasExtensions members
 
     /// <inheritdoc/>
-    public IExtensionCollection Extensions {
-      get {
-        if (extensions==null) lock (_lock) if (extensions==null)
-          extensions = new ExtensionCollection();
-        return extensions;
-      }
-    }
+    public IExtensionCollection Extensions { get { return extensions; } }
     
     #endregion
 
@@ -280,6 +274,7 @@ namespace Xtensive.Orm
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
+      extensions = new ExtensionCollection();
     }
 
     /// <inheritdoc/>
