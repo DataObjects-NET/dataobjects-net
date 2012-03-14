@@ -30,10 +30,8 @@ namespace Xtensive.Orm.Upgrade
     private readonly ProviderInfo providerInfo;
     private readonly PartialIndexFilterNormalizer normalizer;
 
-    private readonly StorageModel targetModel;
+    private StorageModel targetModel;
     private TableInfo currentTable;
-
-    private bool executed;
 
     /// <summary>
     /// Get the result of conversion specified 
@@ -42,8 +40,8 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>The storage model.</returns>
     public StorageModel Run()
     {
-      if (!executed) {
-        executed = true;
+      if (targetModel==null) {
+        targetModel = schemaResolver.GetEmptyModel();
         foreach (var catalog in sourceModel.Catalogs)
           VisitCatalog(catalog);
       }
@@ -359,7 +357,6 @@ namespace Xtensive.Orm.Upgrade
       schemaResolver = services.SchemaResolver;
       providerInfo = services.ProviderInfo;
       normalizer = services.Normalizer;
-      targetModel = schemaResolver.GetEmptyModel();
     }
 
     #region Not supported
