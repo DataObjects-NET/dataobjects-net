@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.05.01
 
-using System;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Orm.Configuration;
@@ -15,12 +13,10 @@ namespace Xtensive.Orm.Building.Builders
 {
   public sealed class DomainBuilderConfiguration : LockableBase
   {
-    private Func<Type, bool> typeFilter;
-    private Func<PropertyInfo, bool> fieldFilter;
-    private Func<Type, int> typeIdProvider;
     private UpgradeServiceAccessor services;
     private DomainConfiguration domainConfiguration;
     private UpgradeStage stage;
+    private IModelFilter modelFilter;
 
     /// <summary>
     /// Gets <see cref="DomainConfiguration"/> for domain.
@@ -48,29 +44,13 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    /// <summary>
-    /// Gets type filter for domain.
-    /// </summary>
-    public Func<Type, bool> TypeFilter
+    internal IModelFilter ModelFilter
     {
-      get { return typeFilter; }
+      get { return modelFilter; }
       set
       {
         this.EnsureNotLocked();
-        typeFilter = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets field filter for domain.
-    /// </summary>
-    public Func<PropertyInfo, bool> FieldFilter
-    {
-      get { return fieldFilter; }
-      set
-      {
-        this.EnsureNotLocked();
-        fieldFilter = value;
+        modelFilter = value;
       }
     }
 

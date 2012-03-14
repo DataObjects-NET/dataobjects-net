@@ -117,6 +117,7 @@
     <Compile Include="Orm\Building\FixupActions\CopyKeyFieldsAction.cs" />
     <Compile Include="Orm\Attributes\FullTextAttribute.cs" />
     <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
+    <Compile Include="Orm\Building\Builders\IModelFilter.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
     <Compile Include="Orm\Configuration\DatabaseAlias.cs" />
     <Compile Include="Orm\Configuration\DatabaseAliasCollection.cs" />
@@ -348,6 +349,7 @@
     <Compile Include="Orm\TransactionState.cs" />
     <Compile Include="Orm\TransactionStateExtensions.cs" />
     <Compile Include="Orm\Providers\SchemaResolver.cs" />
+    <Compile Include="Orm\Upgrade\Internals\StageModelFilter.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
     <Compile Include="Orm\Upgrade\Model\SchemaInfo.cs" />
     <Compile Include="Orm\Upgrade\Model\SchemaInfoCollection.cs" />

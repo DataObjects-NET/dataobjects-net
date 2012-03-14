@@ -327,13 +327,13 @@ namespace Xtensive.Orm.Building.Builders
 
     private static Func<Type, bool> GetTypeFilter(BuildingContext context)
     {
-      var filter = context.BuilderConfiguration.TypeFilter ?? DomainTypeRegistry.IsPersistentType;
-      return (t => filter(t) && t!=typeof (EntitySetItem<,>));
+      Func<Type, bool> filter = context.BuilderConfiguration.ModelFilter.IsTypeAvailable;
+      return t => filter(t) && t!=typeof (EntitySetItem<,>);
     }
 
     private static Func<PropertyInfo, bool> GetFieldFilter(BuildingContext context)
     {
-      return context.BuilderConfiguration.FieldFilter ?? (p => true);
+      return context.BuilderConfiguration.ModelFilter.IsFieldAvailable;
     }
 
     #endregion

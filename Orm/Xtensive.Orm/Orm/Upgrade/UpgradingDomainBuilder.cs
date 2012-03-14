@@ -218,28 +218,10 @@ namespace Xtensive.Orm.Upgrade
         DomainConfiguration = context.Configuration,
         Stage = stage,
         Services = context.Services,
-        TypeFilter = type => IsTypeAvailable(type),
-        FieldFilter = field => IsFieldAvailable(field),
+        ModelFilter = new StageModelFilter(context.UpgradeHandlers, context.Stage)
       };
       configuration.Lock();
       return configuration;
-    }
-
-    private bool IsFieldAvailable(PropertyInfo field)
-    {
-      var assembly = field.DeclaringType.Assembly;
-      var handlers = context.UpgradeHandlers;
-      return handlers.ContainsKey(assembly)
-        && handlers[assembly].IsFieldAvailable(field, context.Stage);
-    }
-
-    private bool IsTypeAvailable(Type type)
-    {
-      var assembly = type.Assembly;
-      var handlers = context.UpgradeHandlers;
-      return handlers.ContainsKey(assembly)
-        && DomainTypeRegistry.IsPersistentType(type)
-        && handlers[assembly].IsTypeAvailable(type, context.Stage);
     }
 
     private static Exception GetInnermostException(Exception exception)
