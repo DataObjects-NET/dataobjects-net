@@ -338,7 +338,8 @@ namespace Xtensive.Orm.Upgrade
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
           var emptySchema = context.Services.SchemaResolver.GetEmptyModel();
-          result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, domain.Model);
+          result = SchemaComparer.Compare(extractedSchema, emptySchema,
+            null, context.Hints, schemaUpgradeMode, domain.Model);
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
@@ -349,7 +350,8 @@ namespace Xtensive.Orm.Upgrade
           }
         }
 
-        result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, schemaUpgradeMode, domain.Model);
+        result = SchemaComparer.Compare(extractedSchema, targetSchema,
+          hints, context.Hints, schemaUpgradeMode, domain.Model);
         var shouldDumpSchema = !schemaUpgradeMode.In(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema)

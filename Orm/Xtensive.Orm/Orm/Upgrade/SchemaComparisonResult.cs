@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.01
 
-using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Collections;
@@ -12,16 +11,14 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-
 using System.Linq;
 
-namespace Xtensive.Orm.Building
+namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// The result of schema comparison.
   /// </summary>
-  [Serializable]
-  public class SchemaComparisonResult
+  public sealed class SchemaComparisonResult
   {
     /// <summary>
     /// Gets the comparison status.

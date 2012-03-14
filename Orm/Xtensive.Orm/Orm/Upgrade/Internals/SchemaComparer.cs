@@ -9,17 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Upgrade;
-using UpgradeContext=Xtensive.Orm.Upgrade.UpgradeContext;
-using UpgradeStage=Xtensive.Modelling.Comparison.UpgradeStage;
+using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Reflection;
 
-namespace Xtensive.Orm.Building
+namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// Compares storage models.
@@ -31,13 +28,15 @@ namespace Xtensive.Orm.Building
     /// </summary>
     /// <param name="sourceSchema">The source schema.</param>
     /// <param name="targetSchema">The target schema.</param>
-    /// <param name="hints">The upgrade hints.</param>
+    /// <param name="schemaHints">The upgrade hints.</param>
     /// <returns>Comparison result.</returns>
-    public static SchemaComparisonResult Compare(StorageModel sourceSchema, StorageModel targetSchema, 
-      HintSet hints, SchemaUpgradeMode schemaUpgradeMode, DomainModel model)
+    public static SchemaComparisonResult Compare(
+      StorageModel sourceSchema, StorageModel targetSchema, 
+      HintSet schemaHints, SetSlim<UpgradeHint> upgradeHints,
+      SchemaUpgradeMode schemaUpgradeMode, DomainModel model)
     {
-      if (hints == null)
-        hints = new HintSet(sourceSchema, targetSchema);
+      if (schemaHints == null)
+        schemaHints = new HintSet(sourceSchema, targetSchema);
 
       // Nothing must be done in Skip mode
       if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
@@ -45,20 +44,20 @@ namespace Xtensive.Orm.Building
           SchemaComparisonStatus.NotEqual, 
           false, 
           null, 
-          hints, 
+          schemaHints, 
           null, 
           new ActionSequence(), 
           new List<NodeAction>());
 
       var comparer = new Comparer();
-      var difference = comparer.Compare(sourceSchema, targetSchema, hints);
-      var actions = new ActionSequence() {
-        difference==null 
-        ? EnumerableUtils<NodeAction>.Empty 
-        : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
+      var difference = comparer.Compare(sourceSchema, targetSchema, schemaHints);
+      var actions = new ActionSequence {
+        difference==null
+          ? EnumerableUtils<NodeAction>.Empty
+          : new Upgrader().GetUpgradeSequence(difference, schemaHints, comparer)
       };
       var comparisonStatus = GetComparisonStatus(actions, schemaUpgradeMode);
-      var unsafeActions = GetUnsafeActions(actions);
+      var unsafeActions = GetUnsafeActions(actions, upgradeHints);
       var columnTypeChangeActions = GetTypeChangeActions(actions);
       
       if (schemaUpgradeMode!=SchemaUpgradeMode.ValidateLegacy)
@@ -66,7 +65,7 @@ namespace Xtensive.Orm.Building
           comparisonStatus, 
           columnTypeChangeActions.Any(), 
           null, 
-          hints, 
+          schemaHints, 
           difference, 
           actions, 
           unsafeActions);
@@ -105,24 +104,15 @@ namespace Xtensive.Orm.Building
         comparisonStatus, 
         columnTypeChangeActions.Any(), 
         isCompatibleInLegacyMode, 
-        hints, 
+        schemaHints, 
         difference, 
         actions, 
         unsafeActions);
     }
 
-    private static IList<GroupingNodeAction> GetSystemTableActions(ActionSequence actions, HashSet<string> systemTableNames)
-    {
-      return actions.OfType<GroupingNodeAction>().Flatten(
-        action => action.Actions.OfType<GroupingNodeAction>(), ga => { }, false)
-        .Where(action => systemTableNames.Contains(action.Comment, StringComparer.OrdinalIgnoreCase)).ToList();
-    }
-    
-    private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
+    private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions, SetSlim<UpgradeHint> hints)
     {
       var unsafeActions = new List<NodeAction>();
-      var upgradeContext = UpgradeContext.Demand();
-      var hints = upgradeContext.Hints;
       
       // Unsafe type changes
       var typeChangeAction = GetTypeChangeActions(upgradeActions);

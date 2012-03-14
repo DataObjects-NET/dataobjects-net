@@ -4,7 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2009.04.23
 
-namespace Xtensive.Orm.Building
+namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// Schema upgrade modes.

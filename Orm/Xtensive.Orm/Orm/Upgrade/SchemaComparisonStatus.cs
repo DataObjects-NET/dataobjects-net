@@ -4,7 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.01
 
-namespace Xtensive.Orm.Building
+namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// Schema comparison status.

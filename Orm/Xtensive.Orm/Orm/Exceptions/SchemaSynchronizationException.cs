@@ -8,8 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Building;
-
+using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm
 {
