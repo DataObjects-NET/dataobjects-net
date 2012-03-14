@@ -393,56 +393,17 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private static SchemaUpgradeMode GetUpgradingStageUpgradeMode(DomainUpgradeMode upgradeMode)
-    {
-      switch (upgradeMode) {
-        case DomainUpgradeMode.PerformSafely:
-          return SchemaUpgradeMode.PerformSafely;
-        case DomainUpgradeMode.Perform:
-          return SchemaUpgradeMode.Perform;
-        default:
-          throw new ArgumentOutOfRangeException("upgradeMode");
-      }
-    }
-
-    private static SchemaUpgradeMode GetFinalStageUpgradeMode(DomainUpgradeMode upgradeMode)
-    {
-      switch (upgradeMode) {
-        case DomainUpgradeMode.Skip:
-        case DomainUpgradeMode.LegacySkip:
-          return SchemaUpgradeMode.Skip;
-        case DomainUpgradeMode.Validate:
-          return SchemaUpgradeMode.ValidateExact;
-        case DomainUpgradeMode.LegacyValidate:
-          return SchemaUpgradeMode.ValidateLegacy;
-        case DomainUpgradeMode.Recreate:
-          return SchemaUpgradeMode.Recreate;
-        case DomainUpgradeMode.Perform:
-        case DomainUpgradeMode.PerformSafely:
-          // We need Perform here because after Upgrading stage
-          // there may be some recycled columns/tables.
-          // Perform will wipe them out.
-          return SchemaUpgradeMode.Perform;
-        default:
-          throw new ArgumentOutOfRangeException("upgradeMode");
-      }
-    }
-
     private static SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage, DomainUpgradeMode upgradeMode)
     {
       switch (stage) {
-        case UpgradeStage.Initializing:
-          return upgradeMode.RequiresInitializingStage()
-            ? SchemaUpgradeMode.ValidateCompatible
-            : (SchemaUpgradeMode?) null;
-        case UpgradeStage.Upgrading:
-          return upgradeMode.RequiresUpgradingStage() 
-            ? GetUpgradingStageUpgradeMode(upgradeMode)
-            : (SchemaUpgradeMode?) null;
-        case UpgradeStage.Final:
-          return GetFinalStageUpgradeMode(upgradeMode);
-        default:
-          throw new ArgumentOutOfRangeException("context.Stage");
+      case UpgradeStage.Initializing:
+        return upgradeMode.RequiresInitializingStage() ? SchemaUpgradeMode.ValidateCompatible : (SchemaUpgradeMode?) null;
+      case UpgradeStage.Upgrading:
+        return upgradeMode.RequiresUpgradingStage() ? upgradeMode.GetUpgradingStageUpgradeMode() : (SchemaUpgradeMode?) null;
+      case UpgradeStage.Final:
+        return upgradeMode.GetFinalStageUpgradeMode();
+      default:
+        throw new ArgumentOutOfRangeException("context.Stage");
       }
     }
 
