@@ -170,7 +170,7 @@
     <Compile Include="Orm\Providers\Interfaces\IStorageSequenceAccessor.cs" />
     <Compile Include="Orm\Providers\Interfaces\IDirectSqlService.cs" />
     <Compile Include="Orm\Providers\IsolationLevelConverter.cs" />
-    <Compile Include="Orm\Providers\ModelMappingBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\ModelMappingBuilder.cs" />
     <Compile Include="Orm\Providers\NameBuilder.cs" />
     <Compile Include="Orm\Providers\ProviderAttribute.cs" />
     <Compile Include="Orm\Providers\ProviderFeatures.cs" />

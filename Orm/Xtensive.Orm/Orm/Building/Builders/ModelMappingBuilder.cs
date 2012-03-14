@@ -7,11 +7,12 @@
 using System;
 using System.Linq;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm.Building.Builders
 {
   internal static class ModelMappingBuilder
   {
