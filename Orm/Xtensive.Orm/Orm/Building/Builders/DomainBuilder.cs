@@ -49,7 +49,6 @@ namespace Xtensive.Orm.Building.Builders
       BuildModel();
       CreateServices();
       InitializeServices();
-      BuildStorageModel();
     }
 
     private void CreateDomain()
@@ -113,20 +112,6 @@ namespace Xtensive.Orm.Building.Builders
 
         // Starting background process caching the Tuples related to model
         GetBackgroundCacher(model).InvokeAsync();
-      }
-    }
-
-    private void BuildStorageModel()
-    {
-      var domain = context.Domain;
-
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (Upgrade.Model.StorageModel).GetShortName())) {
-        var normalizer = context.BuilderConfiguration.Services.Normalizer;
-        var converter = new Upgrade.DomainModelConverter(domain.Handlers, normalizer) {
-          BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
-          BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
-        };
-        domain.StorageModel = converter.Run();
       }
     }
 

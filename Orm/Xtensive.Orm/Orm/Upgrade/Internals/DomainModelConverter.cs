@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly StorageDriver driver;
     private readonly PartialIndexFilterNormalizer normalizer;
     private readonly SchemaResolver schemaResolver;
+    private readonly Func<Type, int> typeIdProvider;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -179,8 +180,7 @@ namespace Xtensive.Orm.Upgrade
       if (column.IsSystem && column.Field.IsTypeId) {
         var type = column.Field.ReflectedType;
         if (type.IsEntity && type==type.Hierarchy.Root) {
-          var buildingContext = BuildingContext.Demand();
-          defaultValue = buildingContext.BuilderConfiguration.TypeIdProvider(type.UnderlyingType);
+          defaultValue = typeIdProvider.Invoke(type.UnderlyingType);
         }
       }
 
@@ -561,13 +561,15 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public DomainModelConverter(HandlerAccessor handlers, PartialIndexFilterNormalizer normalizer)
+    public DomainModelConverter(HandlerAccessor handlers, Func<Type, int> typeIdProvider, PartialIndexFilterNormalizer normalizer)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
+      ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
       ArgumentValidator.EnsureArgumentNotNull(normalizer, "normalizer");
 
       this.handlers = handlers;
       this.normalizer = normalizer;
+      this.typeIdProvider = typeIdProvider;
 
       sourceModel = handlers.Domain.Model;
       providerInfo = handlers.ProviderInfo;

@@ -74,19 +74,6 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    /// <summary>
-    /// Gets type id provider for domain.
-    /// </summary>
-    public Func<Type, int> TypeIdProvider
-    {
-      get { return typeIdProvider; }
-      set
-      {
-        this.EnsureNotLocked();
-        typeIdProvider = value;
-      }
-    }
-
     internal UpgradeServiceAccessor Services
     {
       get { return services; }

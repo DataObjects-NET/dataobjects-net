@@ -220,7 +220,6 @@ namespace Xtensive.Orm.Upgrade
         Services = context.Services,
         TypeFilter = type => IsTypeAvailable(type),
         FieldFilter = field => IsFieldAvailable(field),
-        TypeIdProvider = ProvideTypeId,
       };
       configuration.Lock();
       return configuration;
@@ -317,7 +316,7 @@ namespace Xtensive.Orm.Upgrade
     {
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var extractedSchema = upgrader.GetExtractedSchema();
-        var targetSchema = domain.StorageModel;
+        var targetSchema = domain.StorageModel = GetTargetModel(domain);
 
         if (Log.IsLogged(LogEventTypes.Info)) {
           Log.Info(Strings.LogExtractedSchema);
@@ -391,6 +390,17 @@ namespace Xtensive.Orm.Upgrade
             throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
       }
+    }
+
+
+    private StorageModel GetTargetModel(Domain domain)
+    {
+      var normalizer = context.Services.Normalizer;
+      var converter = new DomainModelConverter(domain.Handlers, ProvideTypeId, normalizer) {
+        BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
+        BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
+      };
+      return converter.Run();
     }
 
     private static SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage, DomainUpgradeMode upgradeMode)
