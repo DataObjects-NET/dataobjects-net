@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A manager of temporary tables.
   /// </summary>
-  public class TemporaryTableManager : HandlerBase
+  public class TemporaryTableManager : DomainBoundHandler
   {
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void Initialize()
+    protected override void Initialize()
     {
       domainHandler = Handlers.DomainHandler;
     }

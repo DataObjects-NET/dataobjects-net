@@ -16,6 +16,7 @@ using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Orm.Rse.PreCompilation.Optimization;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sorting;
+using Xtensive.Sql;
 using Xtensive.Threading;
 
 namespace Xtensive.Orm.Providers
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// <see cref="Orm.Domain"/>-level handler.
   /// </summary>
-  public abstract class DomainHandler : HandlerBase
+  public abstract class DomainHandler : DomainBoundHandler
   {
     private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
     private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache
@@ -66,18 +67,12 @@ namespace Xtensive.Orm.Providers
     public CommandProcessorFactory CommandProcessorFactory { get; private set; }
 
     /// <summary>
-    /// Gets the partial index filter normalizer.
-    /// </summary>
-    public PartialIndexFilterNormalizer PartialIndexFilterNormalizer { get; private set; }
-
-    /// <summary>
     /// Builds the mapping schema.
     /// </summary>
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    public void BuildMapping()
+    public void BuildMapping(SqlExtractionResult model)
     {
-      var sqlModel  = Handlers.SchemaUpgradeHandler.GetExtractedSqlSchema();
-      Mapping = ModelMappingBuilder.Build(Handlers, sqlModel);
+      Mapping = ModelMappingBuilder.Build(Handlers, model);
     }
 
     /// <summary>
@@ -245,23 +240,17 @@ namespace Xtensive.Orm.Providers
 
     // Initialization
 
-    /// <inheritdoc/>
-    public override void Initialize()
+    internal void BuildHandlers()
+    {
+      PersistRequestBuilder = Handlers.Create<PersistRequestBuilder>();
+      TemporaryTableManager = Handlers.Create<TemporaryTableManager>();
+      CommandProcessorFactory = Handlers.Create<CommandProcessorFactory>();
+    }
+
+    public void InitializeServices()
     {
       BuildMemberCompilerProviders();
       BuildCompilationService();
-    }
-
-    internal void CreateHandlers()
-    {
-      PersistRequestBuilder = Handlers.CreateAndInitialize<PersistRequestBuilder>();
-      TemporaryTableManager = Handlers.CreateAndInitialize<TemporaryTableManager>();
-      CommandProcessorFactory = Handlers.CreateAndInitialize<CommandProcessorFactory>();
-      PartialIndexFilterNormalizer = Handlers.CreateAndInitialize<PartialIndexFilterNormalizer>();
-    }
-
-    public void ConfigureServices()
-    {
       BuildQueryPreprocessors();
     }
   }

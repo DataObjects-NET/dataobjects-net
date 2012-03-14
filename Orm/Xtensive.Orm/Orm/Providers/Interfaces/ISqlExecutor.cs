@@ -68,5 +68,12 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="statements">Statements to execute</param>
     void ExecuteDdl(IEnumerable<string> statements);
+
+    /// <summary>
+    /// Executes specified extraction tasks.
+    /// </summary>
+    /// <param name="tasks">Tasks to execute.</param>
+    /// <returns>Extration result.</returns>
+    SqlExtractionResult Extract(IEnumerable<SqlExtractionTask> tasks);
   }
 }

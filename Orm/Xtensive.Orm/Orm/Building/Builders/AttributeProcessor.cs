@@ -9,10 +9,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
-
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
@@ -41,8 +39,9 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Process(TypeDef type, SystemTypeAttribute attribute)
     {
-        type.Attributes |= TypeAttributes.System;
-        BuildingContext.Demand().SystemTypeIds[type.UnderlyingType] = attribute.TypeId;
+      type.Attributes |= TypeAttributes.System;
+      if (attribute.TypeId!=TypeInfo.NoTypeId)
+        type.StaticTypeId = attribute.TypeId;
     }
 
     public static void Process(HierarchyDef hierarchyDef, HierarchyRootAttribute attribute)
@@ -227,18 +226,14 @@ namespace Xtensive.Orm.Building.Builders
             string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
       }
 
-      if (attribute.nullableOnUpgrade != null) {
+      if (attribute.nullableOnUpgrade!=null) {
         if (!canUseNullableFlag)
           throw new DomainBuilderException(
             string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
         if (fieldDef.IsNullable)
           return;
-        var upgradeContext = UpgradeContext.Current;
-        if (upgradeContext==null)
-          return;
-        if (upgradeContext.Stage!=UpgradeStage.Upgrading)
-          return;
-        fieldDef.IsNullable = true;
+        if (BuildingContext.Demand().BuilderConfiguration.Stage==UpgradeStage.Upgrading)
+          fieldDef.IsNullable = attribute.nullableOnUpgrade==true;
       }
     }
 

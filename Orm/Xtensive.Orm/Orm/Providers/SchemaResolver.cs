@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 
@@ -186,6 +187,14 @@ namespace Xtensive.Orm.Providers
     public string GetSchemaName(SchemaMappedNode node) // Domain model
     {
       return GetSchemaName(node.MappingDatabase, node.MappingSchema);
+    }
+
+    public StorageModel GetEmptyModel()
+    {
+      var result = new StorageModel();
+      foreach (var schema in GetAllSchemas())
+        new SchemaInfo(result, schema);
+      return result;
     }
 
     public abstract string GetSchemaName(string mappingDatabase, string mappingSchema); // Custom mapping information

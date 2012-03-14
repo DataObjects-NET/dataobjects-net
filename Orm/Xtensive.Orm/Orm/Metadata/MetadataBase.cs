@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Metadata
     /// <exception cref="Exception">Object is read-only.</exception>
     protected void EnsureIsWritable()
     {
-      if (BuildingContext.Current==null)
+      if (Upgrade.UpgradeContext.Current==null)
         throw Exceptions.ObjectIsReadOnly(null);
     }
 
@@ -58,6 +58,7 @@ namespace Xtensive.Orm.Metadata
     {
       EnsureIsWritable();
     }
+
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

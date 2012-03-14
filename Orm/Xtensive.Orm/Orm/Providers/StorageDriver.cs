@@ -50,7 +50,9 @@ namespace Xtensive.Orm.Providers
 
     public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
     {
-      return underlyingDriver.Extract(connection, tasks);
+      var result = underlyingDriver.Extract(connection, tasks);
+      FixExtractionResult(result);
+      return result;
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
@@ -85,6 +87,23 @@ namespace Xtensive.Orm.Providers
     private static Func<DomainModel> GetModelProvider(Domain domain)
     {
       return () => domain.Model;
+    }
+
+    private void FixExtractionResult(SqlExtractionResult result)
+    {
+      var isSqlServerFamily = ProviderInfo.ProviderName.In(
+        WellKnown.Provider.SqlServer, WellKnown.Provider.SqlServerCe);
+
+      // This code works for SQL Server and SQL Server CE
+      if (!isSqlServerFamily)
+        return;
+
+      foreach (var schema in result.Catalogs.SelectMany(c => c.Schemas)) {
+        var tables = schema.Tables;
+        var sysdiagrams = tables["sysdiagrams"];
+        if (sysdiagrams!=null)
+          tables.Remove(sysdiagrams);
+      }
     }
 
     // Constructors

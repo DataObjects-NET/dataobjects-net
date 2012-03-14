@@ -34,13 +34,11 @@ namespace Xtensive.Orm.Upgrade
     private readonly DomainModel sourceModel;
     private readonly NameBuilder nameBuilder;
     private readonly StorageDriver driver;
-    private readonly PartialIndexFilterNormalizer filterNormalizer;
+    private readonly PartialIndexFilterNormalizer normalizer;
     private readonly SchemaResolver schemaResolver;
-    private readonly StorageModel targetModel;
 
+    private StorageModel targetModel;
     private TableInfo currentTable;
-
-    private bool executed;
 
     public bool BuildForeignKeys { get; set; }
     public bool BuildHierarchyForeignKeys { get; set; }
@@ -51,8 +49,8 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public StorageModel Run()
     {
-      if (!executed) {
-        executed = true;
+      if (targetModel==null) {
+        targetModel = schemaResolver.GetEmptyModel();
         Visit(sourceModel);
       }
 
@@ -543,7 +541,7 @@ namespace Xtensive.Orm.Upgrade
       var processor = new ExpressionProcessor(index.Filter.Expression, handlers, null, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
       var expression = driver.Compile(fragment).GetCommandText();
-      return new PartialIndexFilterInfo(expression, filterNormalizer.Normalize(expression));
+      return new PartialIndexFilterInfo(expression, normalizer.Normalize(expression));
     }
 
     private Table CreateStubTable(string name, int columnsCount)
@@ -563,20 +561,19 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public DomainModelConverter(HandlerAccessor handlers, StorageModel targetModel)
+    public DomainModelConverter(HandlerAccessor handlers, PartialIndexFilterNormalizer normalizer)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
+      ArgumentValidator.EnsureArgumentNotNull(normalizer, "normalizer");
 
       this.handlers = handlers;
-      this.targetModel = targetModel;
+      this.normalizer = normalizer;
 
       sourceModel = handlers.Domain.Model;
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
       schemaResolver = handlers.SchemaResolver;
-      filterNormalizer = handlers.DomainHandler.PartialIndexFilterNormalizer;
     }
   }
 }

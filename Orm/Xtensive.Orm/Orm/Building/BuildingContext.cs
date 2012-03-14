@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Building
     internal HashSet<TypeInfo> TypesWithProcessedInheritedAssociations { get; private set; }
     internal Dictionary<TypeInfo,List<Pair<AssociationInfo, string>>> PairedAssociationsToReverse { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
-    internal Dictionary<Type, int> SystemTypeIds { get; private set; }
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
@@ -48,10 +47,10 @@ namespace Xtensive.Orm.Building
     /// <exception cref="InvalidOperationException"><see cref="BuildingContext.Current"/> <see cref="BuildingContext"/> is <see langword="null" />.</exception>
     public static BuildingContext Demand()
     {
-      var currentContext = Current;
-      if (currentContext==null)
-        throw Exceptions.ContextRequired<BuildingContext,BuildingScope>();
-      return currentContext;
+      var current = Current;
+      if (current==null)
+        throw Exceptions.ContextRequired<BuildingContext, BuildingScope>();
+      return current;
     }
 
     #endregion
@@ -59,7 +58,7 @@ namespace Xtensive.Orm.Building
     /// <summary>
     /// Gets the configuration of the building <see cref="Orm.Domain"/>.
     /// </summary>
-    public DomainConfiguration Configuration { get; private set; }
+    public DomainConfiguration Configuration { get { return BuilderConfiguration.DomainConfiguration; } }
 
     /// <summary>
     /// Gets the building configuration.
@@ -77,11 +76,6 @@ namespace Xtensive.Orm.Building
     public NameBuilder NameBuilder { get { return Domain.Handlers.NameBuilder; } }
 
     /// <summary>
-    /// Gets the system session handler.
-    /// </summary>
-    public SessionHandler SystemSessionHandler { get; internal set; }
-
-    /// <summary>
     /// Gets the <see cref="Orm.Domain"/> model definition.
     /// </summary>
     public DomainModelDef ModelDef { get; internal set; }
@@ -94,24 +88,20 @@ namespace Xtensive.Orm.Building
 
     // Constructors
 
-    internal BuildingContext(DomainConfiguration configuration, DomainBuilderConfiguration builderConfiguration)
+    internal BuildingContext(DomainBuilderConfiguration builderConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
 
-      Configuration = configuration;
       BuilderConfiguration = builderConfiguration;
-
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       PairedAssociationsToReverse = new Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>>();
       TypesWithProcessedInheritedAssociations = new HashSet<TypeInfo>();
-      DiscardedAssociations = new HashSet<  AssociationInfo>();
-      SystemTypeIds = new Dictionary<Type, int>();
+      DiscardedAssociations = new HashSet<AssociationInfo>();
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
       Interfaces = new HashSet<TypeDef>();
       UntypedIndexes = new HashSet<IndexInfo>();
-      Types = new Queue<Type>(configuration.Types);
+      Types = new Queue<Type>(Configuration.Types);
       KeyEqualityIdentifiers = new Dictionary<string, object>();
       Sequences = new Dictionary<string, SequenceInfo>();
     }

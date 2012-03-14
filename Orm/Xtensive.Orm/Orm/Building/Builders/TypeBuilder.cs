@@ -40,6 +40,10 @@ namespace Xtensive.Orm.Building.Builders
           MappingSchema = typeDef.MappingSchema,
           HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type==typeof (IHasVersionRoots))
         };
+
+        if (typeDef.StaticTypeId!=null)
+          typeInfo.TypeId = typeDef.StaticTypeId.Value;
+
         context.Model.Types.Add(typeInfo);
 
         // Registering connections between type & its ancestors

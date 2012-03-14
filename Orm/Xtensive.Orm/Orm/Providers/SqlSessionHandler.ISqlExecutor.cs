@@ -71,6 +71,12 @@ namespace Xtensive.Orm.Providers
       ExecuteMany(statements, ProviderFeatures.DmlBatches);
     }
 
+    SqlExtractionResult ISqlExecutor.Extract(IEnumerable<SqlExtractionTask> tasks)
+    {
+      EnsureConnectionIsOpen();
+      return driver.Extract(connection, tasks);
+    }
+
     private void ExecuteMany(IEnumerable<string> statements, ProviderFeatures batchFeatures)
     {
       EnsureConnectionIsOpen();

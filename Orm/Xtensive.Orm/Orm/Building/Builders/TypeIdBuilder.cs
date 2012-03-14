@@ -4,6 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2009.04.14
 
+using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -11,67 +12,72 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {  
-  internal static class TypeIdBuilder
+  internal sealed class TypeIdBuilder
   {
-    public static void BuildTypeIds(BuildingContext context, bool systemTypesOnly)
-    {
-      var domain = context.Domain;
+    private readonly Domain domain;
+    private readonly Func<Type, int> typeIdProvider;
 
-      BuildSystemTypeIds(context);
+    public void BuildTypeIds(bool systemTypesOnly)
+    {
       if (!systemTypesOnly)
-        BuildRegularTypeIds(context);
+        BuildRegularTypeIds();
 
       // Updating TypeId index
-      context.Model.Types.RebuildTypeIdIndex();
-      // Updating Type-leve caches
-      var typeLevelCaches = domain.TypeLevelCaches;
+      domain.Model.Types.RebuildTypeIdIndex();
+
+      // Updating type-level caches
+      RebuildTypeLevelCaches();
+    }
+
+    private void RebuildTypeLevelCaches()
+    {
+      var caches = domain.TypeLevelCaches;
       foreach (var type in domain.Model.Types) {
-        int typeId = type.TypeId;
-        if (typeId!=TypeInfo.NoTypeId) {
-          TypeLevelCache cache;
-          if (!typeLevelCaches.TryGetValue(typeId, out cache))
-            typeLevelCaches.Add(typeId, new TypeLevelCache(type));
-        }
+        var typeId = type.TypeId;
+        if (typeId==TypeInfo.NoTypeId)
+          continue;
+        TypeLevelCache cache;
+        if (!caches.TryGetValue(typeId, out cache))
+          caches.Add(typeId, new TypeLevelCache(type));
       }
     }
 
-    private static void BuildSystemTypeIds(BuildingContext context)
+    private void BuildRegularTypeIds()
     {
-      foreach (var type in context.SystemTypeIds.Keys) {
-        var typeInfo = context.Model.Types[type];
-        int systemTypeId = context.SystemTypeIds[type];
-// ReSharper disable RedundantCheckBeforeAssignment
-        if (typeInfo.TypeId!=systemTypeId)
-          typeInfo.TypeId = systemTypeId;
-// ReSharper restore RedundantCheckBeforeAssignment
-      }
-    }
-
-    private static void BuildRegularTypeIds(BuildingContext context)
-    {
-      var getTypeId = context.BuilderConfiguration.TypeIdProvider ?? (type => TypeInfo.NoTypeId);
-      var maxTypeId = context.Model.Types
+      var maxTypeId = domain.Model.Types
         .Where(type => type.TypeId >= TypeInfo.MinTypeId)
         .Select(type => type.TypeId)
         .DefaultIfEmpty(TypeInfo.MinTypeId)
         .Max();
-      var typesToProcess = context.Model.Types
-        .Where(type => type.TypeId == TypeInfo.NoTypeId && type.UnderlyingType != typeof(Structure))
-        .Select(type => new {Type = type, Id = type.IsEntity 
-          ? getTypeId(type.UnderlyingType) 
-          : TypeInfo.NoTypeId })
+      var typesToProcess = domain.Model.Types
+        .Where(type => type.TypeId==TypeInfo.NoTypeId && type.UnderlyingType!=typeof (Structure))
+        .Select(type => new {
+          Type = type,
+          Id = type.IsEntity ? typeIdProvider.Invoke(type.UnderlyingType) : TypeInfo.NoTypeId
+        })
         .OrderByDescending(x => x.Type.IsEntity)
         .ThenBy(x => x.Type.Name)
         .ToList();
       var nextTypeId = typesToProcess
-        .Where(x => x.Id != TypeInfo.NoTypeId)
+        .Where(x => x.Id!=TypeInfo.NoTypeId)
         .Select(x => x.Id)
         .AddOne(maxTypeId)
         .Max() + 1;
       foreach (var pair in typesToProcess)
-        pair.Type.TypeId = pair.Id == TypeInfo.NoTypeId
+        pair.Type.TypeId = pair.Id==TypeInfo.NoTypeId
           ? nextTypeId++
           : pair.Id;
+    }
+
+    // Constructors
+
+    public TypeIdBuilder(Domain domain, Func<Type, int> typeIdProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
+
+      this.domain = domain;
+      this.typeIdProvider = typeIdProvider;
     }
   }
 }

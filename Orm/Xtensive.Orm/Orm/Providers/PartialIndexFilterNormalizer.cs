@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers
   /// Normalization of such expressions are required to compare filter extracted from DBMS
   /// with expression generated inside domain model.
   /// </summary>
-  public class PartialIndexFilterNormalizer : HandlerBase
+  public class PartialIndexFilterNormalizer : Handler
   {
     /// <summary>
     /// Normalizes <paramref name="expression"/>.

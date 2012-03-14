@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Upgrade
       var types = Assembly.GetTypes();
       var registeredTypes = (
         from t in types
-        where context.OriginalConfiguration.Types.Contains(t)
+        where context.Configuration.Types.Contains(t)
         select t).ToArray();
 
       var recycledTypes =

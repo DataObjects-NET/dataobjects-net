@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly SqlExtractionResult sourceModel;
     private readonly SchemaResolver schemaResolver;
     private readonly ProviderInfo providerInfo;
-    private readonly PartialIndexFilterNormalizer indexFilterNormalizer;
+    private readonly PartialIndexFilterNormalizer normalizer;
 
     private readonly StorageModel targetModel;
     private TableInfo currentTable;
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Upgrade
       var tableInfo = currentTable;
       var native = index.Where as SqlNative;
       var filter = !native.IsNullReference() && !string.IsNullOrEmpty(native.Value)
-        ? new PartialIndexFilterInfo(native.Value, indexFilterNormalizer.Normalize(native.Value))
+        ? new PartialIndexFilterInfo(native.Value, normalizer.Normalize(native.Value))
         : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
         IsUnique = index.IsUnique,
@@ -349,17 +349,17 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public SqlModelConverter(HandlerAccessor handlers, SqlExtractionResult sourceModel, StorageModel targetModel)
+    public SqlModelConverter(UpgradeServiceAccessor services, SqlExtractionResult sourceModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "storageModelFactory");
+      ArgumentValidator.EnsureArgumentNotNull(services, "handlers");
+      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
 
       this.sourceModel = sourceModel;
-      this.targetModel = targetModel;
 
-      schemaResolver = handlers.SchemaResolver;
-      providerInfo = handlers.ProviderInfo;
-      indexFilterNormalizer = handlers.DomainHandler.PartialIndexFilterNormalizer;
+      schemaResolver = services.SchemaResolver;
+      providerInfo = services.ProviderInfo;
+      normalizer = services.Normalizer;
+      targetModel = schemaResolver.GetEmptyModel();
     }
 
     #region Not supported

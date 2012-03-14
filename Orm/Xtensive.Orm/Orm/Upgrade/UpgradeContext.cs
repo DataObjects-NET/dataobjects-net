@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -16,10 +15,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model.Stored;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Reflection;
-using Xtensive.Sorting;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
@@ -68,7 +64,8 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the original <see cref="DomainConfiguration"/>.
     /// </summary>
-    public DomainConfiguration OriginalConfiguration { get; private set; }
+    [Obsolete("Use Configuration property instead")]
+    public DomainConfiguration OriginalConfiguration { get { return Configuration; } }
 
     /// <summary>
     /// Gets the <see cref="DomainConfiguration"/>
@@ -109,47 +106,37 @@ namespace Xtensive.Orm.Upgrade
     public Dictionary<string, int> ExtractedTypeMap { get; internal set; }
 
     /// <summary>
-    /// Gets or sets the collection of services related to upgrade.
-    /// </summary>
-    public IServiceContainer Services { get; internal set; }
-
-    /// <summary>
     /// Gets the map of upgrade handlers.
     /// </summary>
-    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get; internal set; }
+    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get { return Services.UpgradeHandlers; } }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get; internal set; }
+    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get { return Services.OrderedUpgradeHandlers; } }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IModule> Modules { get; internal set; }
+    public ReadOnlyList<IModule> Modules { get { return Services.Modules; } }
 
-    /// <summary>
-    /// Gets or sets current transaction scope.
-    /// </summary>
-    public TransactionScope TransactionScope { get; set; }
-
-    internal HandlerFactory HandlerFactory { get; set; }
-
-    internal StorageDriver TemplateDriver { get; set; }
-
-    internal NameBuilder NameBuilder { get; set; }
-
-    internal SchemaResolver SchemaResolver { get; set; }
+    internal UpgradeServiceAccessor Services { get; set; }
 
     internal StorageModel ExtractedModelCache { get; set; }
 
     internal SqlExtractionResult ExtractedSqlModelCache { get; set; }
 
+    internal Domain CurrentDomain { get; set; }
+
+    internal Func<Type, int> TypeIdProvider { get; set; }
+
     // Constructors.
 
-    internal UpgradeContext(DomainConfiguration originalConfiguration)
+    internal UpgradeContext(DomainConfiguration configuration)
     {
-      OriginalConfiguration = originalConfiguration;
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+
+      Configuration = configuration;
       Stage = UpgradeStage.Initializing;
       Hints = new SetSlim<UpgradeHint>();
     }

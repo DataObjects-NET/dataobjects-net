@@ -6,65 +6,101 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Modelling.Actions;
-using Xtensive.Modelling.Comparison;
-using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Core;
+using Xtensive.Helpers;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  /// <summary>
-  /// Additional domain build process configuration 
-  /// used by <see cref="DomainBuilder"/>.
-  /// </summary>
-  public class DomainBuilderConfiguration
+  public sealed class DomainBuilderConfiguration : LockableBase
   {
-    /// <summary>
-    /// Gets or sets the schema upgrade mode.
-    /// </summary>
-    public SchemaUpgradeMode SchemaUpgradeMode { get; private set; }
+    private Func<Type, bool> typeFilter;
+    private Func<PropertyInfo, bool> fieldFilter;
+    private Func<Type, int> typeIdProvider;
+    private UpgradeServiceAccessor services;
+    private DomainConfiguration domainConfiguration;
+    private UpgradeStage stage;
 
     /// <summary>
-    /// Gets current <see cref="UpgradeContext"/>.
+    /// Gets <see cref="DomainConfiguration"/> for domain.
     /// </summary>
-    public Upgrade.UpgradeContext UpgradeContext { get; private set; }
+    public DomainConfiguration DomainConfiguration
+    {
+      get { return domainConfiguration; }
+      set
+      {
+        this.EnsureNotLocked();
+        domainConfiguration = value;
+      }
+    }
 
     /// <summary>
-    /// Gets or sets the type filter.
+    /// Gets <see cref="UpgradeStage"/> for domain.
     /// </summary>
-    public Func<Type, bool> TypeFilter { get; set; }
+    public UpgradeStage Stage
+    {
+      get { return stage; }
+      set
+      {
+        this.EnsureNotLocked();
+        stage = value;
+      }
+    }
 
     /// <summary>
-    /// Gets or sets the property filter.
+    /// Gets type filter for domain.
     /// </summary>
-    public Func<PropertyInfo, bool> FieldFilter { get; set; }
+    public Func<Type, bool> TypeFilter
+    {
+      get { return typeFilter; }
+      set
+      {
+        this.EnsureNotLocked();
+        typeFilter = value;
+      }
+    }
 
     /// <summary>
-    /// Gets or sets the "schema ready" handler.
+    /// Gets field filter for domain.
     /// </summary>
-    public Func<StorageModel, StorageModel, HintSet> SchemaReadyHandler { get; set; }
+    public Func<PropertyInfo, bool> FieldFilter
+    {
+      get { return fieldFilter; }
+      set
+      {
+        this.EnsureNotLocked();
+        fieldFilter = value;
+      }
+    }
 
     /// <summary>
-    /// Gets or sets the "upgrade actions ready" handler.
+    /// Gets type id provider for domain.
     /// </summary>
-    public Action<NodeDifference, ActionSequence> UpgradeActionsReadyHandler { get; set; }
+    public Func<Type, int> TypeIdProvider
+    {
+      get { return typeIdProvider; }
+      set
+      {
+        this.EnsureNotLocked();
+        typeIdProvider = value;
+      }
+    }
 
-    /// <summary>
-    /// Gets or sets the upgrade handler.
-    /// </summary>
-    public Action UpgradeHandler { get; set; }
-
-    /// <summary>
-    /// Gets or sets the type id provider.
-    /// </summary>
-    public Func<Type, int> TypeIdProvider { get; set; }
+    internal UpgradeServiceAccessor Services
+    {
+      get { return services; }
+      set
+      {
+        this.EnsureNotLocked();
+        services = value;
+      }
+    }
 
     // Constructors
 
-    internal DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, Upgrade.UpgradeContext upgradeContext)
+    internal DomainBuilderConfiguration()
     {
-      SchemaUpgradeMode = schemaUpgradeMode;
-      UpgradeContext = upgradeContext;
     }
   }
 }

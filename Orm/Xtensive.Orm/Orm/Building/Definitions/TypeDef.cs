@@ -31,6 +31,11 @@ namespace Xtensive.Orm.Building.Definitions
     private NodeCollection<TypeDef> implementors;
   
     /// <summary>
+    /// Gets or sets static type id for this type.
+    /// </summary>
+    public int? StaticTypeId { get; internal set; }
+
+    /// <summary>
     /// Gets a value indicating whether this instance is entity.
     /// </summary>
     public bool IsEntity

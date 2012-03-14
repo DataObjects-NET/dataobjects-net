@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Builder of <see cref="PersistRequest"/>s.
   /// </summary>
-  public class PersistRequestBuilder : HandlerBase
+  public class PersistRequestBuilder : DomainBoundHandler
   {
     private bool useLargeObjects;
 
@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void Initialize()
+    protected override void Initialize()
     {
       domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;

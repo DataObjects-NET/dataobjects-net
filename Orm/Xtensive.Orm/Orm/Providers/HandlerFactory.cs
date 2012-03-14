@@ -16,31 +16,34 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract class HandlerFactory
   {
-    private static readonly Type HandlerBaseType = typeof (HandlerBase);
+    private static readonly Type HandlerType = typeof (Handler);
+    private static readonly Type DomainBoundHandlerType = typeof (DomainBoundHandler);
 
     private readonly Dictionary<Type, Type> serviceMapping = new Dictionary<Type, Type>();
 
     /// <summary>
-    /// Creates the handler of specified type <paramref name="handlerType"/>.
+    /// Creates the handler of specified type <typeparamref name="TContract"/>.
     /// </summary>
-    /// <param name="handlerType">Type of the handler to create.</param>
+    /// <typeparam name="TContract">Handler contract</typeparam>
     /// <returns>A newly created handler of requested type;</returns>
-    /// <exception cref="NotSupportedException">Handler for type <paramref name="handlerType"/> was not found.</exception>
-    public HandlerBase CreateHandler(Type handlerType)
+    /// <exception cref="NotSupportedException">
+    /// Handler for type <typeparamref name="TContract"/> was not found.</exception>
+    public TContract CreateHandler<TContract>()
+      where TContract : Handler
     {
       Type implementor;
 
-      if (serviceMapping.TryGetValue(handlerType, out implementor))
-        return (HandlerBase) Activator.CreateInstance(implementor);
+      if (serviceMapping.TryGetValue(typeof (TContract), out implementor))
+        return (TContract) Activator.CreateInstance(implementor);
 
       throw new NotSupportedException(
-        string.Format(Strings.ExCannotFindHandlerOfTypeX, handlerType.GetShortName()));
+        string.Format(Strings.ExCannotFindHandlerOfTypeX, typeof (TContract).GetShortName()));
     }
 
     private void RegisterHandlersFrom(Assembly assembly, string @namespace)
     {
       foreach (var type in assembly.GetTypes())
-        if (type.Namespace==@namespace && type.IsPublicNonAbstractInheritorOf(HandlerBaseType))
+        if (type.Namespace==@namespace && type.IsPublicNonAbstractInheritorOf(HandlerType))
           RegisterHandler(type);
     }
 
@@ -49,7 +52,7 @@ namespace Xtensive.Orm.Providers
       var contract = type;
       var implementor = type;
 
-      while (contract!=HandlerBaseType && !serviceMapping.ContainsKey(contract)) {
+      while (contract!=HandlerType && contract!=DomainBoundHandlerType && !serviceMapping.ContainsKey(contract)) {
         serviceMapping[contract] = implementor;
         contract = contract.BaseType;
       }

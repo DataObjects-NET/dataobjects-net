@@ -6,12 +6,13 @@
 
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Storage handler accessor.
-  /// Provided by protected members, such as <see cref="HandlerBase.Handlers"/> 
+  /// Provided by protected members, such as <see cref="DomainBoundHandler.Handlers"/> 
   /// to provide access to other available handlers.
   /// </summary>
   public sealed class HandlerAccessor
@@ -49,11 +50,6 @@ namespace Xtensive.Orm.Providers
     public DomainHandler DomainHandler { get; internal set; }
 
     /// <summary>
-    /// Gets the <see cref="SchemaUpgradeHandler"/> instance.
-    /// </summary>
-    public SchemaUpgradeHandler SchemaUpgradeHandler { get; internal set; }
-
-    /// <summary>
     /// Gets the <see cref="SchemaResolver"/> instance.
     /// </summary>
     internal SchemaResolver SchemaResolver { get; set; }
@@ -64,18 +60,10 @@ namespace Xtensive.Orm.Providers
     internal SequenceQueryBuilder SequenceQueryBuilder { get; set; }
 
     internal THandler Create<THandler>()
-      where THandler : HandlerBase
+      where THandler : DomainBoundHandler
     {
-      var handler = (THandler) Factory.CreateHandler(typeof (THandler));
-      handler.Handlers = this;
-      return handler;
-    }
-
-    internal THandler CreateAndInitialize<THandler>()
-      where THandler : HandlerBase
-    {
-      var handler = Create<THandler>();
-      handler.Initialize();
+      var handler = Factory.CreateHandler<THandler>();
+      handler.Initialize(this);
       return handler;
     }
 

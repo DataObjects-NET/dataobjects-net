@@ -38,6 +38,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<Hint> schemaHints = new List<Hint>();
     private readonly IEnumerable<UpgradeHint> inputHints;
     private readonly SchemaResolver schemaResolver;
+    private readonly DomainModel domainModel;
 
     public HintGenerationResult Run()
     {
@@ -411,7 +412,7 @@ namespace Xtensive.Orm.Upgrade
       // Build generic types mapping
       var genericTypeMapping = new List<Triplet<string, Type, List<Pair<string, Type>>>>();
       var oldGenericTypes = GetGenericTypes(extractedModel);
-      var newGenericTypes = GetGenericTypes(BuildingContext.Demand().Model);
+      var newGenericTypes = GetGenericTypes(domainModel);
       var renamedTypesLookup = renameTypeHints.ToDictionary(h => h.OldType);
       var newTypesLookup     = newGenericTypes.GetClasses().ToDictionary(t => t.GetFullName());
       foreach (var oldGenericDefName in oldGenericTypes.GetClasses()) {
@@ -1222,8 +1223,9 @@ namespace Xtensive.Orm.Upgrade
 
       nameBuilder = handlers.NameBuilder;
       schemaResolver = handlers.SchemaResolver;
+      domainModel = handlers.Domain.Model;
 
-      currentModel = handlers.Domain.Model.ToStoredModel();
+      currentModel = domainModel.ToStoredModel();
       currentModel.UpdateReferences();
       currentTypes = currentModel.Types.ToDictionary(t => t.UnderlyingType);
 

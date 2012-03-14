@@ -10,6 +10,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.Hierarchies;
+using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Model.Hierarchies
 {
@@ -100,29 +101,30 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public static bool IsEnabled;
 
     public virtual void OnBuilt(Domain domain)
-    {}
+    {
+    }
 
     public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
       if (!IsEnabled)
         return;
-      if (context.BuilderConfiguration.SchemaUpgradeMode == SchemaUpgradeMode.ValidateCompatible)
+      if (context.BuilderConfiguration.Stage==UpgradeStage.Initializing)
         return;
 
       TypeDef type;
-      type = model.Types[typeof(A)];
+      type = model.Types[typeof (A)];
       Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
 
-      type = model.Types[typeof(AB)];
+      type = model.Types[typeof (AB)];
       Assert.IsTrue(context.ModelDef.FindRoot(type)==type);
 
-      type = model.Types[typeof(ABC)];
+      type = model.Types[typeof (ABC)];
       Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
 
-      type = model.Types[typeof(B)];
+      type = model.Types[typeof (B)];
       Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
 
-      type = model.Types[typeof(BC)];
+      type = model.Types[typeof (BC)];
       Assert.IsTrue(context.ModelDef.FindRoot(type)==type);
     }
   }

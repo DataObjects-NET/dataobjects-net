@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     public override bool IsEnabled {
       get {
-        // Enabled just for Xtensive.Storage
+        // Enabled just for Xtensive.Orm
         return Assembly==GetType().Assembly;
       }
     }
@@ -40,11 +40,12 @@ namespace Xtensive.Orm.Upgrade
     public override void OnStage()
     {
       var context = UpgradeContext;
-      var upgradeMode = context.OriginalConfiguration.UpgradeMode;
-      var buildingContext = BuildingContext.Demand();
+      var upgradeMode = context.Configuration.UpgradeMode;
+      var builder = new TypeIdBuilder(context.CurrentDomain, context.TypeIdProvider);
+
       switch (context.Stage) {
       case UpgradeStage.Initializing:
-        TypeIdBuilder.BuildTypeIds(buildingContext, false);
+        builder.BuildTypeIds(false);
         if (upgradeMode.IsUpgrading())
           // Perform or PerformSafely
           CheckMetadata();
@@ -52,26 +53,26 @@ namespace Xtensive.Orm.Upgrade
         break;
       case UpgradeStage.Upgrading:
         // Perform or PerformSafely
-        TypeIdBuilder.BuildTypeIds(buildingContext, false);
+        builder.BuildTypeIds(false);
         UpdateMetadata();
         break;
       case UpgradeStage.Final:
         if (upgradeMode.IsUpgrading()) {
           // Recreate, Perform or PerformSafely
-          TypeIdBuilder.BuildTypeIds(buildingContext, false);
+          builder.BuildTypeIds(false);
           UpdateMetadata();
         }
         else if (upgradeMode.IsLegacy()) {
           // LegacySkip and LegacyValidate
-          TypeIdBuilder.BuildTypeIds(buildingContext, false);
+          builder.BuildTypeIds(false);
         }
         else {
           // Skip and Validate
           // We need only system types to extract other TypeIds
-          TypeIdBuilder.BuildTypeIds(buildingContext, true); 
+          builder.BuildTypeIds(true); 
           ExtractDomainModel(true);
           // And only after that we can build all TypeIds
-          TypeIdBuilder.BuildTypeIds(buildingContext, false);
+          builder.BuildTypeIds(false);
         }
         break;
       default:

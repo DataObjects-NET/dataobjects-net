@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A handlers that is capable of creating <see cref="CommandProcessor"/>s.
   /// </summary>
-  public class CommandProcessorFactory : HandlerBase
+  public class CommandProcessorFactory : DomainBoundHandler
   {
     private StorageDriver driver;
     private ProviderInfo providerInfo;
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void Initialize()
+    protected override void Initialize()
     {
       driver = Handlers.StorageDriver;
       providerInfo = Handlers.ProviderInfo;

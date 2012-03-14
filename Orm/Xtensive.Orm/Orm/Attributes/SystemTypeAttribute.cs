@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
 {
@@ -21,7 +22,6 @@ namespace Xtensive.Orm
     /// </summary>
     public new int TypeId { get; set; }
 
-
     // Constructors
 
     /// <summary>
@@ -29,6 +29,7 @@ namespace Xtensive.Orm
     /// </summary>
     public SystemTypeAttribute()
     {
+      TypeId = TypeInfo.NoTypeId;
     }
 
     /// <summary>

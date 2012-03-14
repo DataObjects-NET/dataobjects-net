@@ -161,11 +161,12 @@
     <Compile Include="Orm\Providers\DomainHandler.cs" />
     <Compile Include="Orm\Providers\EnumerationContext.cs" />
     <Compile Include="Orm\Providers\EnumerationScope.cs" />
+    <Compile Include="Orm\Providers\Handler.cs" />
     <Compile Include="Orm\Providers\Interfaces\ISqlTaskProcessor.cs" />
     <Compile Include="Orm\Providers\SequenceQuery.cs" />
     <Compile Include="Orm\Providers\SequenceQueryBuilder.cs" />
     <Compile Include="Orm\Providers\HandlerAccessor.cs" />
-    <Compile Include="Orm\Providers\HandlerBase.cs" />
+    <Compile Include="Orm\Providers\DomainBoundHandler.cs" />
     <Compile Include="Orm\Providers\HandlerFactory.cs" />
     <Compile Include="Orm\Providers\Interfaces\IStorageSequenceAccessor.cs" />
     <Compile Include="Orm\Providers\Interfaces\IDirectSqlService.cs" />
@@ -175,7 +176,7 @@
     <Compile Include="Orm\Providers\ProviderAttribute.cs" />
     <Compile Include="Orm\Providers\ProviderFeatures.cs" />
     <Compile Include="Orm\Providers\ProviderInfo.cs" />
-    <Compile Include="Orm\Providers\SchemaUpgradeHandler.cs" />
+    <Compile Include="Orm\Upgrade\Internals\SchemaUpgrader.cs" />
     <Compile Include="Orm\Providers\SessionHandler.cs" />
     <Compile Include="Orm\Providers\SessionHandler.Fetching.cs" />
     <Compile Include="Orm\Providers\SessionHandler.Persist.cs" />
@@ -347,6 +348,7 @@
     <Compile Include="Orm\TransactionState.cs" />
     <Compile Include="Orm\TransactionStateExtensions.cs" />
     <Compile Include="Orm\Providers\SchemaResolver.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
     <Compile Include="Orm\Upgrade\Model\SchemaInfo.cs" />
     <Compile Include="Orm\Upgrade\Model\SchemaInfoCollection.cs" />
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />

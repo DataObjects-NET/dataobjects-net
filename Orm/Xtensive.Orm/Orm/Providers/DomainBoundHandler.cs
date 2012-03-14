@@ -9,18 +9,20 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Abstract base class for any storage handler.
   /// </summary>
-  public abstract class HandlerBase 
+  public abstract class DomainBoundHandler : Handler
   {
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.
     /// </summary>
-    public HandlerAccessor Handlers { get; internal set; }
+    public HandlerAccessor Handlers { get; private set; }
 
-    /// <summary>
-    /// Initializer.
-    /// Invoked right after creation and initial configuration of the handler.
-    /// </summary>
-    public virtual void Initialize()
+    internal void Initialize(HandlerAccessor handlers)
+    {
+      Handlers = handlers;
+      Initialize();
+    }
+
+    protected virtual void Initialize()
     {
     }
   }
