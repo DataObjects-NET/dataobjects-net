@@ -28,8 +28,10 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Builds domain in extended modes.
   /// </summary>
-  public static class UpgradingDomainBuilder
+  public sealed class UpgradingDomainBuilder
   {
+    private UpgradeContext context;
+
     /// <summary>
     /// Builds the new <see cref="Domain"/> by the specified configuration.
     /// </summary>
@@ -47,42 +49,46 @@ namespace Xtensive.Orm.Upgrade
 
       if (!configuration.IsLocked)
         configuration.Lock();
-
       var context = new UpgradeContext(configuration);
 
       using (context.Activate()) {
-        BuildEssentialHandlers(context);
-        BuildServices(context);
-        BuildModules(context);
-        BuildUpgradeHandlers(context);
-
-        // 1st Domain
-        try {
-          BuildStageDomain(context, UpgradeStage.Initializing).DisposeSafely();
-        }
-        catch (Exception e) {
-          if (GetInnermostException(e) is SchemaSynchronizationException) {
-            if (context.SchemaUpgradeActions.OfType<RemoveNodeAction>().Any())
-              throw; // There must be no any removes to proceed further 
-                     // (i.e. schema should be clean)
-          }
-          else
-            throw;
-        }
-
-        // 2nd Domain
-        BuildStageDomain(context, UpgradeStage.Upgrading).DisposeSafely();
-
-        // 3rd Domain
-        var domain = BuildStageDomain(context, UpgradeStage.Final);
-        foreach (var module in context.Modules)
-          module.OnBuilt(domain);
-
-        return domain;
+        return new UpgradingDomainBuilder(context).Run();
       }
     }
 
-    private static void BuildEssentialHandlers(UpgradeContext context)
+    private  Domain Run()
+    {
+      BuildEssentialHandlers();
+      BuildServices();
+      BuildModules();
+      BuildUpgradeHandlers();
+
+      // 1st Domain
+      try {
+        BuildStageDomain(UpgradeStage.Initializing).DisposeSafely();
+      }
+      catch (Exception e) {
+        if (GetInnermostException(e) is SchemaSynchronizationException) {
+          if (context.SchemaUpgradeActions.OfType<RemoveNodeAction>().Any())
+            throw; // There must be no any removes to proceed further 
+          // (i.e. schema should be clean)
+        }
+        else
+          throw;
+      }
+
+      // 2nd Domain
+      BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
+
+      // 3rd Domain
+      var domain = BuildStageDomain(UpgradeStage.Final);
+      foreach (var module in context.Modules)
+        module.OnBuilt(domain);
+
+      return domain;
+    }
+
+    private void BuildEssentialHandlers()
     {
       var configuration = context.OriginalConfiguration;
 
@@ -97,7 +103,7 @@ namespace Xtensive.Orm.Upgrade
       context.SchemaResolver = SchemaResolver.Get(configuration);
     }
 
-    private static void BuildServices(UpgradeContext context)
+    private void BuildServices()
     {
       var configuration = context.OriginalConfiguration;
 
@@ -120,7 +126,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
-    private static void BuildUpgradeHandlers(UpgradeContext context)
+    private void BuildUpgradeHandlers()
     {
       // Getting user handlers
       var userHandlers =
@@ -170,13 +176,13 @@ namespace Xtensive.Orm.Upgrade
         new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
     }
 
-    private static void BuildModules(UpgradeContext context)
+    private void BuildModules()
     {
       context.Modules = new ReadOnlyList<IModule>(context.Services.GetAll<IModule>().ToList());
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
-    private static Domain BuildStageDomain(UpgradeContext context, UpgradeStage stage)
+    private Domain BuildStageDomain(UpgradeStage stage)
     {
       var configuration = context.Configuration = context.OriginalConfiguration.Clone();
       context.Stage = stage;
@@ -188,11 +194,11 @@ namespace Xtensive.Orm.Upgrade
       if (schemaUpgradeMode==null)
         return null;
 
-      var builderConfiguration = CreateBuilderConfiguration(context, schemaUpgradeMode.Value);
+      var builderConfiguration = CreateBuilderConfiguration(schemaUpgradeMode.Value);
       return DomainBuilder.BuildDomain(configuration, builderConfiguration);
     }
 
-    private static DomainBuilderConfiguration CreateBuilderConfiguration(UpgradeContext context, SchemaUpgradeMode schemaUpgradeMode)
+    private DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
     {
       return new DomainBuilderConfiguration(schemaUpgradeMode, context) {
         TypeFilter = type => {
@@ -222,7 +228,7 @@ namespace Xtensive.Orm.Upgrade
           foreach (var handler in context.OrderedUpgradeHandlers)
             handler.OnStage();
         },
-        TypeIdProvider = (type => ProvideTypeId(context, type)),
+        TypeIdProvider = ProvideTypeId,
       };
     }
 
@@ -235,9 +241,8 @@ namespace Xtensive.Orm.Upgrade
       return current;
     }
 
-    private static void BuildSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
+    private void BuildSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
     {
-      var context = UpgradeContext.Demand();
       var oldModel = context.ExtractedDomainModel;
       if (oldModel==null)
         return;
@@ -257,7 +262,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private static int ProvideTypeId(UpgradeContext context, Type type)
+    private int ProvideTypeId(Type type)
     {
       var typeId = ModelTypeInfo.NoTypeId;
       var oldModel = context.ExtractedDomainModel;
@@ -336,7 +341,14 @@ namespace Xtensive.Orm.Upgrade
           return GetFinalStageUpgradeMode(upgradeMode);
         default:
           throw new ArgumentOutOfRangeException("context.Stage");
-      }      
+      }
+    }
+
+    // Constructors
+
+    private UpgradingDomainBuilder(UpgradeContext context)
+    {
+      this.context = context;
     }
   }
 }
