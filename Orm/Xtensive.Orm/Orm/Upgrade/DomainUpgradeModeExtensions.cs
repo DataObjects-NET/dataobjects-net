@@ -17,23 +17,27 @@ namespace Xtensive.Orm.Upgrade
     /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Upgrading"/> stage.
     /// </summary>
     /// <param name="upgradeMode">The upgrade mode.</param>
+    [Obsolete("Use IsMultistage() instead")]
     public static bool RequiresUpgradingStage(this DomainUpgradeMode upgradeMode)
     {
-      switch (upgradeMode) {
-      case DomainUpgradeMode.Perform:
-      case DomainUpgradeMode.PerformSafely:
-        return true;
-      default:
-        return false;
-      }
+      return upgradeMode.IsMultistage();
     }
-
 
     /// <summary>
     /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Initializing"/> stage.
     /// </summary>
     /// <param name="upgradeMode">The upgrade mode.</param>
+    [Obsolete("Use IsMultistage() instead")]
     public static bool RequiresInitializingStage(this DomainUpgradeMode upgradeMode)
+    {
+      return upgradeMode.IsMultistage();
+    }
+
+    /// <summary>
+    /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Upgrading"/> stage.
+    /// </summary>
+    /// <param name="upgradeMode">The upgrade mode.</param>
+    public static bool IsMultistage(this DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
       case DomainUpgradeMode.Perform:
@@ -81,6 +85,24 @@ namespace Xtensive.Orm.Upgrade
         return false;
       default:
         return true;
+      }
+    }
+
+    internal static SqlWorkerTask GetSqlWorkerTask(this DomainUpgradeMode upgradeMode)
+    {
+      switch (upgradeMode) {
+      case DomainUpgradeMode.Skip:
+      case DomainUpgradeMode.Validate:
+      case DomainUpgradeMode.Perform:
+      case DomainUpgradeMode.PerformSafely:
+        return SqlWorkerTask.ExtractSchema | SqlWorkerTask.ExtractMetadata;
+      case DomainUpgradeMode.Recreate:
+        return SqlWorkerTask.ExtractSchema | SqlWorkerTask.DropSchema;
+      case DomainUpgradeMode.LegacySkip:
+      case DomainUpgradeMode.LegacyValidate:
+        return SqlWorkerTask.ExtractSchema;
+      default:
+        throw new ArgumentOutOfRangeException("upgradeMode");
       }
     }
 

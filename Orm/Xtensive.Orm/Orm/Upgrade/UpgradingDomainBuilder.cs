@@ -389,9 +389,9 @@ namespace Xtensive.Orm.Upgrade
     {
       switch (stage) {
       case UpgradeStage.Initializing:
-        return upgradeMode.RequiresInitializingStage() ? SchemaUpgradeMode.ValidateCompatible : (SchemaUpgradeMode?) null;
+        return upgradeMode.IsMultistage() ? SchemaUpgradeMode.ValidateCompatible : (SchemaUpgradeMode?) null;
       case UpgradeStage.Upgrading:
-        return upgradeMode.RequiresUpgradingStage() ? upgradeMode.GetUpgradingStageUpgradeMode() : (SchemaUpgradeMode?) null;
+        return upgradeMode.IsMultistage() ? upgradeMode.GetUpgradingStageUpgradeMode() : (SchemaUpgradeMode?) null;
       case UpgradeStage.Final:
         return upgradeMode.GetFinalStageUpgradeMode();
       default:
