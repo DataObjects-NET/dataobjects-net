@@ -153,10 +153,10 @@
     <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
     <Compile Include="Orm\Internals\SortingPersistActionGenerator.cs" />
-    <Compile Include="Orm\Metadata\AssemblyMetadata.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Metadata\ConfigurationModule.cs" />
-    <Compile Include="Orm\Metadata\ExtensionMetadata.cs" />
-    <Compile Include="Orm\Metadata\TypeMetadata.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Metadata\TypeMetadata.cs" />
     <Compile Include="Orm\Model\DomainModelAttributes.cs" />
     <Compile Include="Orm\Model\SchemaMappedNode.cs" />
     <Compile Include="Orm\Providers\DomainHandler.cs" />
@@ -229,7 +229,7 @@
     <Compile Include="Orm\Providers\Log.cs" />
     <Compile Include="Orm\Providers\ManualPagingSqlCompiler.cs" />
     <Compile Include="Orm\Providers\ModelMapping.cs" />
-    <Compile Include="Orm\Providers\MetadataAccessor.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataExtractor.cs" />
     <Compile Include="Orm\Providers\NonTransactionalStage.cs" />
     <Compile Include="Orm\Providers\Requests\ParameterBinding.cs" />
     <Compile Include="Orm\Providers\PartialIndexFilterNormalizer.cs" />

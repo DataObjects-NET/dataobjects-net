@@ -11,17 +11,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Metadata;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm.Upgrade
 {
-  /// <summary>
-  /// Metadata accessor used to read persistent metadata
-  /// on early stage of <see cref="Domain"/> build.
-  /// </summary>
-  public sealed class MetadataAccessor
+  internal sealed class MetadataExtractor
   {
     private readonly NameBuilder nameBuilder;
     private readonly ISqlExecutor executor;
@@ -38,10 +35,6 @@ namespace Xtensive.Orm.Providers
     private readonly string metadataExtensionName;
     private readonly string metadataExtensionText;
 
-    /// <summary>
-    /// Gets all <see cref="AssemblyMetadata"/> found in the storage.
-    /// </summary>
-    /// <returns>Stored <see cref="AssemblyMetadata"/> instances.</returns>
     public IEnumerable<AssemblyMetadata> GetAssemblies(string databaseName, string schemaName)
     {
       var query = CreateQuery(
@@ -51,11 +44,7 @@ namespace Xtensive.Orm.Providers
       return ExecuteQuery(query, ParseAssembly);
     }
 
-    /// <summary>
-    /// Gets all <see cref="TypeMetadata"/> found in the storage.
-    /// </summary>
-    /// <returns>Stored <see cref="TypeMetadata"/> instances.</returns>
-    public IEnumerable<TypeMetadata> GetTypes(string databaseName, string schemaName)
+   public IEnumerable<TypeMetadata> GetTypes(string databaseName, string schemaName)
     {
       var query = CreateQuery(
         databaseName, schemaName, metadataType,
@@ -64,10 +53,6 @@ namespace Xtensive.Orm.Providers
       return ExecuteQuery(query, ParseType);
     }
 
-    /// <summary>
-    /// Gets all <see cref="ExtensionMetadata"/> found int storage.
-    /// </summary>
-    /// <returns>Stored <see cref="ExtensionMetadata"/> instances.</returns>
     public IEnumerable<ExtensionMetadata> GetExtensions(string databaseName, string schemaName)
     {
       var query = CreateQuery(
@@ -149,7 +134,7 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public MetadataAccessor(NameBuilder nameBuilder, ISqlExecutor executor)
+    public MetadataExtractor(NameBuilder nameBuilder, ISqlExecutor executor)
     {
       ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
       ArgumentValidator.EnsureArgumentNotNull(executor, "executor");
