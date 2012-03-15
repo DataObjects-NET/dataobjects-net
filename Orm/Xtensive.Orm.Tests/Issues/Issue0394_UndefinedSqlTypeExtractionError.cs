@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues
             createTableCommandText = "CREATE TABLE " + schemaName + ".[TestTable] ([TestColumn] [money])";
           else
             createTableCommandText = "CREATE TABLE [TestTable] ([TestColumn] [money])";
-          var executor = session.Handler.GetService<ISqlExecutor>();
+          var executor = session.Services.Demand<ISqlExecutor>();
           executor.ExecuteNonQuery(createTableCommandText);
           transactionScope.Complete();
         }

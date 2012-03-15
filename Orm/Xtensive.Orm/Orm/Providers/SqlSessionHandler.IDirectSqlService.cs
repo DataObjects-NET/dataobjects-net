@@ -16,16 +16,16 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     DbConnection IDirectSqlService.Connection {
       get {
-        var sqlConnection = Connection;
-        return sqlConnection==null ? null : sqlConnection.UnderlyingConnection;
+        EnsureConnectionIsOpen();
+        return connection.UnderlyingConnection;
       }
     }
 
     /// <inheritdoc/>
     DbTransaction IDirectSqlService.Transaction {
       get {
-        var sqlConnection = Connection;
-        return sqlConnection==null ? null : sqlConnection.ActiveTransaction;
+        EnsureConnectionIsOpen();
+        return connection.ActiveTransaction;
       }
     }
 
@@ -33,13 +33,8 @@ namespace Xtensive.Orm.Providers
     /// <exception cref="InvalidOperationException">Connection is not open.</exception>
     DbCommand IDirectSqlService.CreateCommand()
     {
-      var sqlConnection = Connection;
-      if (sqlConnection==null)
-        throw new InvalidOperationException(Strings.ExConnectionIsNotOpen);
-      var dbCommand = sqlConnection.CreateCommand();
-      if (Session.CommandTimeout!=null)
-        dbCommand.CommandTimeout = Session.CommandTimeout.Value;
-      return dbCommand;
+      EnsureConnectionIsOpen();
+      return connection.CreateCommand();
     }
   }
 }

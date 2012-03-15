@@ -18,23 +18,17 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// <see cref="Session"/>-level handler for SQL storages.
   /// </summary>
-  public partial class SqlSessionHandler : Providers.SessionHandler,
+  public partial class SqlSessionHandler : SessionHandler,
     IProviderExecutor,
-    ISqlExecutor,
     IDirectSqlService
   {
-    private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations =
-      EnumerableUtils<ServiceRegistration>.Empty;
-
     private StorageDriver driver;
-    private Providers.DomainHandler domainHandler;
+    private DomainHandler domainHandler;
     private SqlConnection connection;
     private CommandProcessor commandProcessor;
 
     /// <inheritdoc/>
-    public override bool TransactionIsStarted {
-      get { return connection!=null && connection.ActiveTransaction!=null; }
-    }
+    public override bool TransactionIsStarted { get { return connection.ActiveTransaction!=null; } }
 
     /// <summary>
     /// Gets <see cref="SqlConnection"/> associated with current instance.
@@ -63,8 +57,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void SetCommandTimeout(int? commandTimeout)
     {
-      if (connection!=null)
-        connection.CommandTimeout = commandTimeout;
+      connection.CommandTimeout = commandTimeout;
     }
 
     /// <inheritdoc/>
@@ -127,7 +120,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
-      if (Connection.ActiveTransaction!=null)
+      if (connection.ActiveTransaction!=null)
         driver.CommitTransaction(Session, connection);
       EndNativeTransaction();
     }
@@ -135,8 +128,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
-      if (Connection.ActiveTransaction!=null)
-        driver.RollbackTransaction(Session, Connection);
+      if (connection.ActiveTransaction!=null)
+        driver.RollbackTransaction(Session, connection);
       EndNativeTransaction();
     }
 
@@ -200,11 +193,7 @@ namespace Xtensive.Orm.Providers
 
     private void EnsureConnectionIsOpen()
     {
-      if (connection!=null)
-        return;
-      connection = driver.CreateConnection(Session);
-      driver.OpenConnection(Session, connection);
-      commandProcessor = domainHandler.CommandProcessorFactory.CreateCommandProcessor(Session, Connection);
+      driver.EnsureConnectionIsOpen(Session, connection);
     }
 
     private void EndNativeTransaction()
@@ -217,7 +206,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
-      registrations.AddRange(baseServiceRegistrations);
+      registrations.Add(new ServiceRegistration(typeof (ISqlExecutor), new SqlExecutor(driver, connection, Session)));
     }
 
     /// <inheritdoc/>
@@ -227,13 +216,14 @@ namespace Xtensive.Orm.Providers
 
       domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;
+      connection = driver.CreateConnection(Session);
+      commandProcessor = domainHandler.CommandProcessorFactory.CreateCommandProcessor(Session, connection);
     }
 
     /// <inheritdoc/>
     public override void Dispose()
     {
-      if (connection!=null)
-        driver.CloseConnection(Session, connection);
+      driver.CloseConnection(Session, connection);
     }
   }
 }

@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly SchemaResolver schemaResolver;
     private readonly StorageDriver driver;
     private readonly UpgradeServiceAccessor services;
+    private readonly ISqlExecutor executor;
 
     private TransactionScope transactionScope;
 
@@ -77,14 +78,11 @@ namespace Xtensive.Orm.Upgrade
 
     private SqlExtractionResult ExtractSqlSchema()
     {
-      var tasks = schemaResolver.GetExtractionTasks(providerInfo);
-      return session.Handler.GetService<ISqlExecutor>().Extract(tasks);
+      return executor.Extract(schemaResolver.GetExtractionTasks(providerInfo));
     }
 
     public void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceModel, StorageModel targetModel)
     {
-      var executor = session.Handler.GetService<ISqlExecutor>();
-
       var enforceChangedColumns = context.Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
@@ -117,14 +115,14 @@ namespace Xtensive.Orm.Upgrade
     {
       CommitTransaction();
 
-      session.Handler.GetService<ISqlExecutor>().ExecuteDdl(batch);
+      executor.ExecuteDdl(batch);
 
       BeginTransaction();
     }
 
     private void ExecuteTransactionally(IEnumerable<string> batch)
     {
-      session.Handler.GetService<ISqlExecutor>().ExecuteDdl(batch);
+      executor.ExecuteDdl(batch);
     }
 
     private void LogStatements(IEnumerable<string> statements)
@@ -169,6 +167,7 @@ namespace Xtensive.Orm.Upgrade
       driver = services.Driver;
       schemaResolver = services.SchemaResolver;
       providerInfo = services.ProviderInfo;
+      executor = session.Services.Demand<ISqlExecutor>();
 
       BeginTransaction();
     }

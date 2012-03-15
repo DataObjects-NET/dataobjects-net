@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
@@ -181,7 +182,8 @@ namespace Xtensive.Orm.Providers
 
     protected void ExecuteNonQuery(EnumerationContext context, string statement)
     {
-      context.SessionHandler.GetService<ISqlExecutor>().ExecuteNonQuery(statement);
+      var executor = context.SessionHandler.Session.Services.Demand<ISqlExecutor>();
+      executor.ExecuteNonQuery(statement);
     }
 
     private static TemporaryTableStateRegistry GetRegistry(Session session)

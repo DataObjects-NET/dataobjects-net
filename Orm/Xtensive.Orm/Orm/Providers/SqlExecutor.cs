@@ -7,81 +7,82 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.IoC;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
-  public partial class SqlSessionHandler
+  [Service(typeof (ISqlExecutor))]
+  internal sealed class SqlExecutor : ISqlExecutor
   {
-    // Implementation of ISqlExecutor
+    private readonly SqlConnection connection;
+    private readonly StorageDriver driver;
+    private readonly Session session;
 
-    /// <inheritdoc/>
-    CommandWithDataReader ISqlExecutor.ExecuteReader(ISqlCompileUnit statement)
+    public CommandWithDataReader ExecuteReader(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
       return ExecuteReader(connection.CreateCommand(Compile(statement)));
     }
 
-    /// <inheritdoc/>
-    int ISqlExecutor.ExecuteNonQuery(ISqlCompileUnit statement)
+    public int ExecuteNonQuery(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
       using (var command = connection.CreateCommand(Compile(statement)))
-        return driver.ExecuteNonQuery(Session, command);
+        return driver.ExecuteNonQuery(session, command);
     }
 
-    /// <inheritdoc/>
-    object ISqlExecutor.ExecuteScalar(ISqlCompileUnit statement)
+    public object ExecuteScalar(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
       using (var command = connection.CreateCommand(Compile(statement)))
-        return driver.ExecuteScalar(Session, command);
+        return driver.ExecuteScalar(session, command);
     }
 
-    /// <inheritdoc/>
-    CommandWithDataReader ISqlExecutor.ExecuteReader(string commandText)
+    public CommandWithDataReader ExecuteReader(string commandText)
     {
       EnsureConnectionIsOpen();
       return ExecuteReader(connection.CreateCommand(commandText));
     }
 
-    /// <inheritdoc/>
-    int ISqlExecutor.ExecuteNonQuery(string commandText)
+    public int ExecuteNonQuery(string commandText)
     {
       EnsureConnectionIsOpen();
       using (var command = connection.CreateCommand(commandText))
-        return driver.ExecuteNonQuery(Session, command);
+        return driver.ExecuteNonQuery(session, command);
     }
 
-    /// <inheritdoc/>
-    object ISqlExecutor.ExecuteScalar(string commandText)
+    public object ExecuteScalar(string commandText)
     {
       EnsureConnectionIsOpen();
       using (var command = connection.CreateCommand(commandText))
-        return driver.ExecuteScalar(Session, command);
+        return driver.ExecuteScalar(session, command);
     }
 
-    void ISqlExecutor.ExecuteDdl(IEnumerable<string> statements)
+    public void ExecuteDdl(IEnumerable<string> statements)
     {
       ExecuteMany(statements, ProviderFeatures.DdlBatches);
     }
 
-    void ISqlExecutor.ExecuteDml(IEnumerable<string> statements)
+    public void ExecuteDml(IEnumerable<string> statements)
     {
       ExecuteMany(statements, ProviderFeatures.DmlBatches);
     }
 
-    SqlExtractionResult ISqlExecutor.Extract(IEnumerable<SqlExtractionTask> tasks)
+    public SqlExtractionResult Extract(IEnumerable<SqlExtractionTask> tasks)
     {
       EnsureConnectionIsOpen();
       return driver.Extract(connection, tasks);
     }
 
+    #region Private / internal methods
+
     private void ExecuteMany(IEnumerable<string> statements, ProviderFeatures batchFeatures)
     {
       EnsureConnectionIsOpen();
 
-      if (Handlers.ProviderInfo.Supports(batchFeatures))
+      if (driver.ProviderInfo.Supports(batchFeatures))
         ExecuteManyBatched(statements);
       else
         ExecuteManyByOne(statements);
@@ -92,8 +93,8 @@ namespace Xtensive.Orm.Providers
       foreach (var statement in statements) {
         if (string.IsNullOrEmpty(statement))
           continue;
-        using (var command = Connection.CreateCommand(statement))
-          driver.ExecuteNonQuery(Session, command);
+        using (var command = connection.CreateCommand(statement))
+          driver.ExecuteNonQuery(session, command);
       }
     }
 
@@ -104,8 +105,8 @@ namespace Xtensive.Orm.Providers
         var batch = driver.BuildBatch(group.ToArray());
         if (string.IsNullOrEmpty(batch))
           return;
-        using (var command = Connection.CreateCommand(batch))
-          driver.ExecuteNonQuery(Session, command);
+        using (var command = connection.CreateCommand(batch))
+          driver.ExecuteNonQuery(session, command);
       }
     }
 
@@ -135,13 +136,36 @@ namespace Xtensive.Orm.Providers
     {
       DbDataReader reader;
       try {
-        reader = driver.ExecuteReader(Session, command);
+        reader = driver.ExecuteReader(session, command);
       }
       catch {
         command.Dispose();
         throw;
       }
       return new CommandWithDataReader(command, reader);
+    }
+
+    private void EnsureConnectionIsOpen()
+    {
+      driver.EnsureConnectionIsOpen(session, connection);
+    }
+
+    #endregion
+
+    // Constructors
+
+    public SqlExecutor(StorageDriver driver, SqlConnection connection)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+      this.driver = driver;
+      this.connection = connection;
+    }
+
+    public SqlExecutor(StorageDriver driver, SqlConnection connection, Session session)
+      : this(driver, connection)
+    {
+      this.session = session;
     }
   }
 }

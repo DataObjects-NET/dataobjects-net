@@ -44,6 +44,12 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    public void EnsureConnectionIsOpen(Session session, SqlConnection connection)
+    {
+      if (connection.State!=ConnectionState.Open)
+        OpenConnection(session, connection);
+    }
+
     public void CloseConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)

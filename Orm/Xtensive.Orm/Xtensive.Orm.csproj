@@ -249,7 +249,7 @@
     <Compile Include="Orm\Providers\SqlSessionHandler.cs" />
     <Compile Include="Orm\Providers\SqlSessionHandler.IDirectSqlService.cs" />
     <Compile Include="Orm\Providers\SqlSessionHandler.IProviderExecutor.cs" />
-    <Compile Include="Orm\Providers\SqlSessionHandler.ISqlExecutor.cs" />
+    <Compile Include="Orm\Providers\SqlExecutor.cs" />
     <Compile Include="Orm\Internals\KeyGenerators\GloballyUniqueValueGenerator.cs" />
     <Compile Include="Orm\Internals\KeyGenerators\GuidGenerator.cs" />
     <Compile Include="Orm\Internals\KeyGenerators\TemporarySequentalGenerator.cs" />

@@ -17,10 +17,10 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Standard <see cref="IStorageSequenceAccessor"/> implementation.
   /// </summary>
-  [Service(typeof(IStorageSequenceAccessor), Singleton = true)]
+  [Service(typeof (IStorageSequenceAccessor))]
   public class StorageSequenceAccessor : IStorageSequenceAccessor
   {
-    private readonly Providers.DomainHandler domainHandler;
+    private readonly DomainHandler domainHandler;
     private readonly SequenceQueryBuilder queryBuilder;
     private readonly bool hasArbitaryIncrement;
     private readonly bool hasSequences;
@@ -34,10 +34,10 @@ namespace Xtensive.Orm.Providers
 
       long hiValue;
 
-      var isUpgradeRunning = UpgradeContext.Current!=null;
-      using (var session = isUpgradeRunning ? null : domain.OpenSession(SessionType.KeyGenerator))
-      using (var tx = isUpgradeRunning ? null : session.OpenTransaction()) {
-        var executor = (session ?? Session.Current).Handler.GetService<ISqlExecutor>();
+      using (var session = domain.OpenSession(SessionType.KeyGenerator))
+      using (session.OpenTransaction()) {
+        // TODO: use lightweight connection
+        var executor = session.Services.Demand<ISqlExecutor>();
         hiValue = query.ExecuteWith(executor);
         // Intentionally rolling back the transaction!
       }
