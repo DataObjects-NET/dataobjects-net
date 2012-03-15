@@ -14,6 +14,6 @@ namespace Xtensive.Orm.Upgrade
     None = 0,
     DropSchema = 0x1,
     ExtractSchema = 0x2,
-    ExtractMetadata = 0x3,
+    ExtractMetadata = 0x4,
   }
 }
