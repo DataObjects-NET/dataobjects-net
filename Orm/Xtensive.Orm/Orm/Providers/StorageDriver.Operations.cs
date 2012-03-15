@@ -8,7 +8,6 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Core;
-using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -183,8 +182,10 @@ namespace Xtensive.Orm.Providers
 
     private ConnectionInfo GetConnectionInfo(Session session)
     {
-      return session.Configuration.ConnectionInfo
-        ?? session.Domain.Configuration.ConnectionInfo;
+      var sessionConnectionInfo = session==null
+        ? configuration.Sessions.System.ConnectionInfo
+        : session.Configuration.ConnectionInfo;
+      return sessionConnectionInfo ?? configuration.ConnectionInfo;
     }
   }
 }
