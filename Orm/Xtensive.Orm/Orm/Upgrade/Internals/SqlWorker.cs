@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.15
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Providers;
@@ -14,7 +15,12 @@ namespace Xtensive.Orm.Upgrade
 {
   internal static class SqlWorker
   {
-    public static SqlWorkerResult Run(UpgradeServiceAccessor services, SqlWorkerTask task)
+    public static Func<SqlWorkerResult> Create(UpgradeServiceAccessor services, SqlWorkerTask task)
+    {
+      return () => Run(services, task);
+    }
+
+    private static SqlWorkerResult Run(UpgradeServiceAccessor services, SqlWorkerTask task)
     {
       var result = new SqlWorkerResult();
       using (var connection = services.Driver.CreateConnection(null)) {

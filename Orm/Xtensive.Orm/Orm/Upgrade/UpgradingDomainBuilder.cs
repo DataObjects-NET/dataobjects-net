@@ -33,6 +33,11 @@ namespace Xtensive.Orm.Upgrade
     private readonly UpgradeContext context;
     private readonly DomainUpgradeMode upgradeMode;
 
+    private FutureResult<SqlWorkerResult> workerResult;
+
+    private IAsyncResult asyncWorkerResult;
+    private IAsyncResult asyncBuilderResult;
+
     /// <summary>
     /// Builds the new <see cref="Domain"/> by the specified configuration.
     /// </summary>
@@ -62,15 +67,40 @@ namespace Xtensive.Orm.Upgrade
     {
       BuildServices();
 
-      // 2nd Domain
-      BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
+      workerResult = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
 
-      // 3rd Domain
-      var domain = BuildStageDomain(UpgradeStage.Final);
+      using (workerResult) {
+        var domain = upgradeMode.IsMultistage()
+          ? BuildMultistageDomain()
+          : BuildSingleStageDomain();
+        foreach (var module in context.Modules)
+          module.OnBuilt(domain);
+        return domain;
+      }
+    }
 
-      foreach (var module in context.Modules)
-        module.OnBuilt(domain);
+    private FutureResult<T> CreateResult<T>(Func<T> action)
+    {
+      return new FutureResult<T>(action, true);
+    }
 
+    private Domain BuildMultistageDomain()
+    {
+      Domain finalDomain;
+      using (var finalDomainResult = CreateResult(CreateBuilder(UpgradeStage.Final))) {
+        using (var upgradeDomain = CreateBuilder(UpgradeStage.Upgrading).Invoke()) {
+          PerformUpgrade(upgradeDomain, UpgradeStage.Upgrading);
+        }
+        finalDomain = finalDomainResult.Get();
+      }
+      PerformUpgrade(finalDomain, UpgradeStage.Final);
+      return finalDomain;
+    }
+
+    private Domain BuildSingleStageDomain()
+    {
+      var domain = CreateBuilder(UpgradeStage.Final).Invoke();
+      PerformUpgrade(domain, UpgradeStage.Final);
       return domain;
     }
 
@@ -112,6 +142,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       serviceAccessor.Lock();
+
       context.Services = serviceAccessor;
       context.TypeIdProvider = ProvideTypeId;
     }
@@ -168,38 +199,32 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
-    private Domain BuildStageDomain(UpgradeStage stage)
+    private void PerformUpgrade(Domain domain, UpgradeStage stage)
     {
       context.Stage = stage;
 
-      var schemaUpgradeMode = GetUpgradeMode(stage);
-      if (schemaUpgradeMode==null)
-        return null;
-
-      var domain = DomainBuilder.Run(CreateBuilderConfiguration(stage));
       OnBeforeStage();
 
       using (var session = domain.OpenSession(SessionType.System))
       using (session.Activate())
       using (var upgrader = new SchemaUpgrader(context, session)) {
-        SynchronizeSchema(domain, upgrader, schemaUpgradeMode.Value);
+        SynchronizeSchema(domain, upgrader, GetUpgradeMode(stage));
         domain.Handler.BuildMapping(upgrader.GetExtractedSqlSchema());
         OnStage();
       }
-
-      return domain;
     }
 
-    private DomainBuilderConfiguration CreateBuilderConfiguration(UpgradeStage stage)
+    private Func<Domain> CreateBuilder(UpgradeStage stage)
     {
       var configuration = new DomainBuilderConfiguration {
         DomainConfiguration = context.Configuration,
         Stage = stage,
         Services = context.Services,
-        ModelFilter = new StageModelFilter(context.UpgradeHandlers, context.Stage)
+        ModelFilter = new StageModelFilter(context.UpgradeHandlers, stage)
       };
       configuration.Lock();
-      return configuration;
+      Func<DomainBuilderConfiguration, Domain> builder = DomainBuilder.Run;
+      return builder.Bind(configuration);
     }
 
     private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
@@ -330,7 +355,7 @@ namespace Xtensive.Orm.Upgrade
     private void OnBeforeStage()
     {
       if (context.WorkerResult==null) {
-        var result = SqlWorker.Run(context.Services, upgradeMode.GetSqlWorkerTask());
+        var result = workerResult.Get();
         context.WorkerResult = result;
         context.ExtractedSqlModelCache = result.Schema;
       }
@@ -355,13 +380,11 @@ namespace Xtensive.Orm.Upgrade
       return converter.Run();
     }
 
-    private SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage)
+    private SchemaUpgradeMode GetUpgradeMode(UpgradeStage stage)
     {
       switch (stage) {
-      case UpgradeStage.Initializing:
-        return upgradeMode.IsMultistage() ? SchemaUpgradeMode.ValidateCompatible : (SchemaUpgradeMode?) null;
       case UpgradeStage.Upgrading:
-        return upgradeMode.IsMultistage() ? upgradeMode.GetUpgradingStageUpgradeMode() : (SchemaUpgradeMode?) null;
+        return upgradeMode.GetUpgradingStageUpgradeMode();
       case UpgradeStage.Final:
         return upgradeMode.GetFinalStageUpgradeMode();
       default:
@@ -374,6 +397,7 @@ namespace Xtensive.Orm.Upgrade
     private UpgradingDomainBuilder(UpgradeContext context)
     {
       this.context = context;
+
       upgradeMode = context.Configuration.UpgradeMode;
     }
   }
