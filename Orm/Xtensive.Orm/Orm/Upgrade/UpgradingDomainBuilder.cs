@@ -13,14 +13,12 @@ using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.IoC;
 using Xtensive.Modelling.Comparison;
-using Xtensive.Orm.Providers;
-using Xtensive.Reflection;
-using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Reflection;
 using Xtensive.Sorting;
 using Xtensive.Sql;
 using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -33,6 +31,7 @@ namespace Xtensive.Orm.Upgrade
   public sealed class UpgradingDomainBuilder
   {
     private readonly UpgradeContext context;
+    private readonly DomainUpgradeMode upgradeMode;
 
     /// <summary>
     /// Builds the new <see cref="Domain"/> by the specified configuration.
@@ -62,20 +61,6 @@ namespace Xtensive.Orm.Upgrade
     private Domain Run()
     {
       BuildServices();
-
-      // 1st Domain
-      try {
-        BuildStageDomain(UpgradeStage.Initializing).DisposeSafely();
-      }
-      catch (Exception e) {
-        if (GetInnermostException(e) is SchemaSynchronizationException) {
-          if (context.SchemaUpgradeActions.OfType<RemoveNodeAction>().Any())
-            throw; // There must be no any removes to proceed further 
-          // (i.e. schema should be clean)
-        }
-        else
-          throw;
-      }
 
       // 2nd Domain
       BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
@@ -128,6 +113,7 @@ namespace Xtensive.Orm.Upgrade
 
       serviceAccessor.Lock();
       context.Services = serviceAccessor;
+      context.TypeIdProvider = ProvideTypeId;
     }
 
     /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
@@ -186,30 +172,26 @@ namespace Xtensive.Orm.Upgrade
     {
       context.Stage = stage;
 
-      var schemaUpgradeMode = GetUpgradeMode(stage, context.Configuration.UpgradeMode);
+      var schemaUpgradeMode = GetUpgradeMode(stage);
       if (schemaUpgradeMode==null)
         return null;
 
-      // Raising "Before upgrade" event
-      foreach (var handler in context.OrderedUpgradeHandlers)
-        handler.OnBeforeStage();
-
       var domain = DomainBuilder.Run(CreateBuilderConfiguration(stage));
+      OnBeforeStage();
+      PerformUpgrade(domain, schemaUpgradeMode.Value);
+      return domain;
+    }
+
+    private void PerformUpgrade(Domain domain, SchemaUpgradeMode schemaUpgradeMode)
+    {
       using (var session = domain.OpenSession(SessionType.System))
       using (session.Activate())
       using (var upgrader = new SchemaUpgrader(context, session)) {
-        SynchronizeSchema(domain, upgrader, schemaUpgradeMode.Value);
+        SynchronizeSchema(domain, upgrader, schemaUpgradeMode);
         domain.Handler.BuildMapping(upgrader.GetExtractedSqlSchema());
-
-        // Provide information for system upgrade handler.
-        context.TypeIdProvider = ProvideTypeId;
-        context.CurrentDomain = domain;
-
         // Raising "Upgrade" event
-        foreach (var handler in context.OrderedUpgradeHandlers)
-          handler.OnStage();
+        OnStage();
       }
-      return domain;
     }
 
     private DomainBuilderConfiguration CreateBuilderConfiguration(UpgradeStage stage)
@@ -374,6 +356,23 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    private void OnBeforeStage()
+    {
+      if (context.WorkerResult==null) {
+        var result = SqlWorker.Run(context.Services, upgradeMode.GetSqlWorkerTask());
+        context.WorkerResult = result;
+        context.ExtractedSqlModelCache = result.Schema;
+      }
+
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnBeforeStage();
+    }
+
+    private void OnStage()
+    {
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnStage();
+    }
 
     private StorageModel GetTargetModel(Domain domain)
     {
@@ -385,7 +384,7 @@ namespace Xtensive.Orm.Upgrade
       return converter.Run();
     }
 
-    private static SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage, DomainUpgradeMode upgradeMode)
+    private SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage)
     {
       switch (stage) {
       case UpgradeStage.Initializing:
@@ -395,7 +394,7 @@ namespace Xtensive.Orm.Upgrade
       case UpgradeStage.Final:
         return upgradeMode.GetFinalStageUpgradeMode();
       default:
-        throw new ArgumentOutOfRangeException("context.Stage");
+        throw new ArgumentOutOfRangeException("stage");
       }
     }
 
@@ -404,6 +403,7 @@ namespace Xtensive.Orm.Upgrade
     private UpgradingDomainBuilder(UpgradeContext context)
     {
       this.context = context;
+      upgradeMode = context.Configuration.UpgradeMode;
     }
   }
 }

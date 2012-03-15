@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Upgrade
 
     internal SqlExtractionResult ExtractedSqlModelCache { get; set; }
 
-    internal Domain CurrentDomain { get; set; }
+    internal SqlWorkerResult WorkerResult { get; set; }
 
     internal Func<Type, int> TypeIdProvider { get; set; }
 

@@ -17,10 +17,9 @@ namespace Xtensive.Orm.Building.Builders
     private readonly Domain domain;
     private readonly Func<Type, int> typeIdProvider;
 
-    public void BuildTypeIds(bool systemTypesOnly)
+    public void BuildTypeIds()
     {
-      if (!systemTypesOnly)
-        BuildRegularTypeIds();
+      BuildRegularTypeIds();
 
       // Updating TypeId index
       domain.Model.Types.RebuildTypeIdIndex();

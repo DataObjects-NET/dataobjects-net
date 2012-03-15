@@ -34,12 +34,16 @@ namespace Xtensive.Orm.Providers
 
       long hiValue;
 
-      using (var session = domain.OpenSession(SessionType.KeyGenerator))
-      using (session.OpenTransaction()) {
-        // TODO: use lightweight connection
-        var executor = session.Services.Demand<ISqlExecutor>();
-        hiValue = query.ExecuteWith(executor);
-        // Intentionally rolling back the transaction!
+      if (UpgradeContext.Current!=null) {
+        hiValue = query.ExecuteWith(Session.Demand().Services.Demand<ISqlExecutor>());
+      }
+      else {
+        using (var session = domain.OpenSession(SessionType.KeyGenerator))
+        using (session.OpenTransaction()) {
+          var executor = session.Services.Demand<ISqlExecutor>();
+          hiValue = query.ExecuteWith(executor);
+          // Rollback
+        }
       }
 
       var increment = sequenceInfo.Increment;

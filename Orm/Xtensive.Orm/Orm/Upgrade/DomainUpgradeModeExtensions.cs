@@ -68,23 +68,22 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <summary>
-    /// Determines whether the specified upgrade mode is legacy.
+    /// Determines whether the specified upgrade mode changes database schema.
     /// </summary>
     /// <param name="upgradeMode">The upgrade mode.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified upgrade mode is legacy;
+    /// <see langword="true"/> if the specified upgrade mode changes database schema;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsUpgrading(this DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
-      case DomainUpgradeMode.LegacySkip:
-      case DomainUpgradeMode.LegacyValidate:
-      case DomainUpgradeMode.Skip:
-      case DomainUpgradeMode.Validate:
-        return false;
-      default:
+      case DomainUpgradeMode.Perform:
+      case DomainUpgradeMode.PerformSafely:
+      case DomainUpgradeMode.Recreate:
         return true;
+      default:
+        return false;
       }
     }
 
