@@ -35,7 +35,7 @@ namespace Xtensive.Sql
     {
       get { return commandTimeout; }
       set {
-        if (value.HasValue)
+        if (value!=null)
           ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, "CommandTimeout");
         commandTimeout = value;
       }
@@ -53,7 +53,7 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand()
     {
       var command = CreateNativeCommand();
-      if (commandTimeout.HasValue)
+      if (commandTimeout!=null)
         command.CommandTimeout = commandTimeout.Value;
       command.Transaction = ActiveTransaction;
       return command;
@@ -67,10 +67,7 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      var command = CreateNativeCommand();
-      if (commandTimeout.HasValue)
-        command.CommandTimeout = commandTimeout.Value;
-      command.Transaction = ActiveTransaction;
+      var command = CreateCommand();
       command.CommandText = Driver.Compile(statement).GetCommandText();
       return command;
     }
@@ -83,10 +80,7 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(string commandText)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, "commandText");
-      var command = CreateNativeCommand();
-      if (commandTimeout.HasValue)
-        command.CommandTimeout = commandTimeout.Value;
-      command.Transaction = ActiveTransaction;
+      var command = CreateCommand();
       command.CommandText = commandText;
       return command;
     }
