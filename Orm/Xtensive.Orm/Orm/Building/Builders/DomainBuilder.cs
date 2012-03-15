@@ -4,16 +4,13 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -103,41 +100,11 @@ namespace Xtensive.Orm.Building.Builders
     private void BuildModel()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
-        var domain = context.Domain;
-
         ModelBuilder.Run(context);
         var model = context.Model;
         model.Lock(true);
-        domain.Model = model;
-
-        // Starting background process caching the Tuples related to model
-        GetBackgroundCacher(model).InvokeAsync();
+        context.Domain.Model = model;
       }
-    }
-
-    private static Func<bool> GetBackgroundCacher(DomainModel model)
-    {
-      return () => {
-        var processed = new HashSet<HierarchyInfo>();
-        foreach (var type in model.Types) {
-          try {
-            var ignored1 = type.TuplePrototype;
-            var hierarchy = type.Hierarchy;
-            if (hierarchy==null) // It's Structure
-              continue;
-            if (!processed.Contains(hierarchy)) {
-              var key = hierarchy.Key;
-              if (key!=null && key.TupleDescriptor!=null) {
-                var ignored2 = Tuple.Create(key.TupleDescriptor);
-              }
-            }
-          }
-          catch {
-            // We supress everything here.
-          }
-        }
-        return true;
-      };
     }
 
     private void InitializeServices()
