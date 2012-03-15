@@ -8,6 +8,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Providers
 
       try {
         var connection = underlyingDriver.CreateConnection(connectionInfo);
-        connection.CommandTimeout = session.CommandTimeout;
+        connection.CommandTimeout = GetConfiguartion(session).DefaultCommandTimeout;
         return connection;
       }
       catch (Exception exception) {
@@ -186,12 +187,14 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
+    private SessionConfiguration GetConfiguartion(Session session)
+    {
+      return session!=null ? session.Configuration : configuration.Sessions.System;
+    }
+
     private ConnectionInfo GetConnectionInfo(Session session)
     {
-      var sessionConnectionInfo = session==null
-        ? configuration.Sessions.System.ConnectionInfo
-        : session.Configuration.ConnectionInfo;
-      return sessionConnectionInfo ?? configuration.ConnectionInfo;
+      return GetConfiguartion(session).ConnectionInfo ?? configuration.ConnectionInfo;
     }
   }
 }
