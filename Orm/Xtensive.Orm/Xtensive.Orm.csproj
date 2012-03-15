@@ -349,6 +349,9 @@
     <Compile Include="Orm\TransactionState.cs" />
     <Compile Include="Orm\TransactionStateExtensions.cs" />
     <Compile Include="Orm\Providers\SchemaResolver.cs" />
+    <Compile Include="Orm\Upgrade\Internals\SqlWorker.cs" />
+    <Compile Include="Orm\Upgrade\Internals\SqlWorkerResult.cs" />
+    <Compile Include="Orm\Upgrade\Internals\SqlWorkerTask.cs" />
     <Compile Include="Orm\Upgrade\Internals\StageModelFilter.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
     <Compile Include="Orm\Upgrade\Model\SchemaInfo.cs" />
