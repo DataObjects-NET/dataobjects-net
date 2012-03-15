@@ -178,20 +178,16 @@ namespace Xtensive.Orm.Upgrade
 
       var domain = DomainBuilder.Run(CreateBuilderConfiguration(stage));
       OnBeforeStage();
-      PerformUpgrade(domain, schemaUpgradeMode.Value);
-      return domain;
-    }
 
-    private void PerformUpgrade(Domain domain, SchemaUpgradeMode schemaUpgradeMode)
-    {
       using (var session = domain.OpenSession(SessionType.System))
       using (session.Activate())
       using (var upgrader = new SchemaUpgrader(context, session)) {
-        SynchronizeSchema(domain, upgrader, schemaUpgradeMode);
+        SynchronizeSchema(domain, upgrader, schemaUpgradeMode.Value);
         domain.Handler.BuildMapping(upgrader.GetExtractedSqlSchema());
-        // Raising "Upgrade" event
         OnStage();
       }
+
+      return domain;
     }
 
     private DomainBuilderConfiguration CreateBuilderConfiguration(UpgradeStage stage)
@@ -206,24 +202,15 @@ namespace Xtensive.Orm.Upgrade
       return configuration;
     }
 
-    private static Exception GetInnermostException(Exception exception)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(exception, "exception");
-      var current = exception;
-      while (current.InnerException!=null)
-        current = current.InnerException;
-      return current;
-    }
-
-    private HintSet GetSchemaHints(StorageModel targetSchema, StorageModel extractedSchema)
+    private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
     {
       context.SchemaHints = new HintSet(extractedSchema, targetSchema);
       if (context.Stage==UpgradeStage.Upgrading)
-        BuildSchemaHints(extractedSchema, targetSchema);
+        BuildSchemaHints(extractedSchema);
       return context.SchemaHints;
     }
 
-    private void BuildSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
+    private void BuildSchemaHints(StorageModel extractedSchema)
     {
       var oldModel = context.ExtractedDomainModel;
       if (oldModel==null)
@@ -290,30 +277,14 @@ namespace Xtensive.Orm.Upgrade
         }
 
         // Hints
-        var hints = GetSchemaHints(targetSchema, extractedSchema);
+        var hints = GetSchemaHints(extractedSchema, targetSchema);
         foreach (var handler in context.OrderedUpgradeHandlers)
           handler.OnSchemaReady();
 
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
           return; // Skipping comparison completely
 
-        SchemaComparisonResult result;
-        // Let's clear the schema if mode is Recreate
-        if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
-          var emptySchema = context.Services.SchemaResolver.GetEmptyModel();
-          result = SchemaComparer.Compare(extractedSchema, emptySchema,
-            null, context.Hints, schemaUpgradeMode, domain.Model);
-          if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
-            if (Log.IsLogged(LogEventTypes.Info))
-              Log.Info(Strings.LogClearingComparisonResultX, result);
-            upgrader.UpgradeSchema(result.UpgradeActions, extractedSchema, emptySchema);
-            upgrader.ClearExtractedSchemaCache();
-            extractedSchema = upgrader.GetExtractedSchema();
-            hints = null; // Must re-bind them
-          }
-        }
-
-        result = SchemaComparer.Compare(extractedSchema, targetSchema,
+        var result = SchemaComparer.Compare(extractedSchema, targetSchema,
           hints, context.Hints, schemaUpgradeMode, domain.Model);
         var shouldDumpSchema = !schemaUpgradeMode.In(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
