@@ -23,6 +23,9 @@ namespace Xtensive.Orm.Upgrade
     private readonly NameBuilder nameBuilder;
     private readonly ISqlExecutor executor;
 
+    private readonly string databaseName;
+    private readonly string schemaName;
+
     private readonly string metadataAssembly;
     private readonly string metadataAssemblyName;
     private readonly string metadataAssemblyVersion;
@@ -35,7 +38,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly string metadataExtensionName;
     private readonly string metadataExtensionText;
 
-    public IEnumerable<AssemblyMetadata> GetAssemblies(string databaseName, string schemaName)
+    public List<AssemblyMetadata> GetAssemblies()
     {
       var query = CreateQuery(
         databaseName, schemaName, metadataAssembly,
@@ -44,7 +47,7 @@ namespace Xtensive.Orm.Upgrade
       return ExecuteQuery(query, ParseAssembly);
     }
 
-   public IEnumerable<TypeMetadata> GetTypes(string databaseName, string schemaName)
+   public List<TypeMetadata> GetTypes()
     {
       var query = CreateQuery(
         databaseName, schemaName, metadataType,
@@ -53,7 +56,7 @@ namespace Xtensive.Orm.Upgrade
       return ExecuteQuery(query, ParseType);
     }
 
-    public IEnumerable<ExtensionMetadata> GetExtensions(string databaseName, string schemaName)
+    public List<ExtensionMetadata> GetExtensions()
     {
       var query = CreateQuery(
         databaseName, schemaName, metadataExtension,
@@ -98,7 +101,7 @@ namespace Xtensive.Orm.Upgrade
       return result;
     }
  
-    private SqlSelect CreateQuery(string databaseName, string schemaName, string tableName, params string[] columnNames)
+    private SqlSelect CreateQuery(string tableName, params string[] columnNames)
     {
       var catalog = new Catalog(databaseName);
       var schema = catalog.CreateSchema(schemaName);
@@ -134,13 +137,17 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public MetadataExtractor(NameBuilder nameBuilder, ISqlExecutor executor)
+    public MetadataExtractor(NameBuilder nameBuilder, ISqlExecutor executor, Schema schema)
     {
       ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
       ArgumentValidator.EnsureArgumentNotNull(executor, "executor");
+      ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
 
       this.nameBuilder = nameBuilder;
       this.executor = executor;
+
+      databaseName = schema.Catalog.Name;
+      schemaName = schema.Name;
 
       metadataAssembly = TableOf(typeof (Assembly));
       metadataAssemblyName = ColumnOf((Assembly x) => x.Name);

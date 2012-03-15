@@ -34,7 +34,16 @@ namespace Xtensive.Orm.Upgrade
 
     private static void ExtractMetadata(UpgradeServiceAccessor services, ISqlExecutor executor, SqlWorkerResult result)
     {
-      throw new System.NotImplementedException();
+      var schemaName = services.SchemaResolver.GetSchemaName(
+        services.Configuration.DefaultDatabase,
+        services.Configuration.DefaultSchema);
+
+      var schema = services.SchemaResolver.ResolveSchema(result.Schema, schemaName);
+      var extractor = new MetadataExtractor(services.NameBuilder, executor, schema);
+
+      result.Assemblies = extractor.GetAssemblies();
+      result.Types = extractor.GetTypes();
+      result.Extensions = extractor.GetExtensions();
     }
 
     private static SqlExtractionResult Extract(UpgradeServiceAccessor services, ISqlExecutor executor)
