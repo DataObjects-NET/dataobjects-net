@@ -67,6 +67,12 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultIncludeSqlInExceptions = true;
 
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.BuildInParallel"/> value: 
+    /// <see langword="true" />.
+    /// </summary>
+    public const bool DefaultBuildInParallel = true;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -90,6 +96,7 @@ namespace Xtensive.Orm.Configuration
     private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
+    private bool buildInParallel = DefaultBuildInParallel;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
 
@@ -382,6 +389,20 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets value indicating whether <see cref="Domain.Build"/>
+    /// process should be parallelized whenever possible.
+    /// </summary>
+    public bool BuildInParallel
+    {
+      get { return buildInParallel; }
+      set
+      {
+        this.EnsureNotLocked();
+        buildInParallel = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase
@@ -478,6 +499,7 @@ namespace Xtensive.Orm.Configuration
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
+      buildInParallel = configuration.buildInParallel;
       databaseAliases = (DatabaseAliasCollection) configuration.DatabaseAliases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
     }

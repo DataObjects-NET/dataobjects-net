@@ -41,6 +41,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ValidationModeElementName = "validationMode";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
+    private const string BuildInParallelElementName = "buildInParallel";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -261,6 +262,17 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.BuildInParallel" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(BuildInParallelElementName,
+      DefaultValue = DomainConfiguration.DefaultBuildInParallel)]
+    public bool BuildInParallel
+    {
+      get { return (bool) this[BuildInParallelElementName]; }
+      set { this[BuildInParallelElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -285,6 +297,7 @@ namespace Xtensive.Orm.Configuration.Elements
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
+        BuildInParallel = BuildInParallel,
       };
 
       foreach (var element in Types)

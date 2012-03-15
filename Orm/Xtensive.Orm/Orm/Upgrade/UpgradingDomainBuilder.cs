@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Upgrade
 
     private FutureResult<T> CreateResult<T>(Func<T> action)
     {
-      return new FutureResult<T>(action, true);
+      return new FutureResult<T>(action, context.Configuration.BuildInParallel);
     }
 
     private Domain BuildMultistageDomain()
