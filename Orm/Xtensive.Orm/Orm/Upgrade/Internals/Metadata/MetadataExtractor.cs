@@ -40,8 +40,7 @@ namespace Xtensive.Orm.Upgrade
 
     public List<AssemblyMetadata> GetAssemblies()
     {
-      var query = CreateQuery(
-        databaseName, schemaName, metadataAssembly,
+      var query = CreateQuery(metadataAssembly,
         metadataAssemblyName, metadataAssemblyVersion);
 
       return ExecuteQuery(query, ParseAssembly);
@@ -49,8 +48,7 @@ namespace Xtensive.Orm.Upgrade
 
    public List<TypeMetadata> GetTypes()
     {
-      var query = CreateQuery(
-        databaseName, schemaName, metadataType,
+      var query = CreateQuery(metadataType,
         metadataTypeId, metadataTypeName);
 
       return ExecuteQuery(query, ParseType);
@@ -58,8 +56,7 @@ namespace Xtensive.Orm.Upgrade
 
     public List<ExtensionMetadata> GetExtensions()
     {
-      var query = CreateQuery(
-        databaseName, schemaName, metadataExtension,
+      var query = CreateQuery(metadataExtension,
         metadataExtensionName, metadataExtensionText);
 
       return ExecuteQuery(query, ParseExtension);
@@ -128,7 +125,7 @@ namespace Xtensive.Orm.Upgrade
 
     private string ColumnOf<TItem, TProperty>(Expression<Func<TItem, TProperty>> expression)
     {
-      var memberExpression = (MemberExpression) expression.StripCasts();
+      var memberExpression = (MemberExpression) expression.Body.StripCasts();
       var name = memberExpression.Member.Name;
       return nameBuilder.ApplyNamingRules(name);
     }
