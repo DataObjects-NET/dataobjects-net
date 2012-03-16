@@ -63,9 +63,6 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\Lib\SQLite\System.Data.SQLite.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
@@ -78,7 +75,31 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\Lib\Sqlite\Net35\System.Data.SQLite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\Lib\Sqlite\Net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
+    <Compile Include="Sql.Drivers.Sqlite\Connection.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Driver.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\DriverFactory.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Resources\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Sql.Drivers.Sqlite\v3\Compiler.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Driver.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Extractor.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Translator.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\TypeMapper.cs" />
     <Compile Include="Orm.Providers.Sqlite\DomainHandler.cs" />
     <Compile Include="Orm.Providers.Sqlite\HandlerFactory.cs" />
     <Compile Include="Orm.Providers.Sqlite\SqlCompiler.cs" />
@@ -86,24 +107,10 @@
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
-    <Compile Include="Resources\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Sql.Drivers.Sqlite\Connection.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\Driver.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\DriverFactory.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\v3\Compiler.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\v3\Driver.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\v3\Extractor.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\v3\ServerInfoProvider.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\v3\Translator.cs" />
-    <Compile Include="Sql.Drivers.Sqlite\v3\TypeMapper.cs" />
-    <EmbeddedResource Include="Resources\Strings.resx">
+    <EmbeddedResource Include="Sql.Drivers.Sqlite\Resources\Strings.resx">
+      <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -116,8 +123,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Orm.Providers.Sqlite\keep.txt" />
+    <Content Include="Sql.Drivers.Sqlite\Issues.txt" />
+    <Content Include="Sql.Drivers.Sqlite\keep.txt" />
+    <Content Include="Sql.Drivers.Sqlite\Progression.txt" />
+    <Content Include="Sql.Drivers.Sqlite\readme.txt" />
   </ItemGroup>
-
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
