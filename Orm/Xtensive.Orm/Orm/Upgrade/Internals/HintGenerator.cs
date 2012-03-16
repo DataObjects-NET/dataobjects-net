@@ -9,13 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
-using Xtensive.Orm.Building;
-using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -516,7 +515,7 @@ namespace Xtensive.Orm.Upgrade
         if (type!=targetType) {
           hint.IsExplicit = true;
           hint.AffectedColumns = new ReadOnlyList<string>(new List<string> {
-            GetColumnPath(targetType.MappingName, targetTypeIdField.MappingName)
+            GetColumnPath(targetType, targetTypeIdField.MappingName)
           });
         }
         result.Add(hint);
@@ -528,12 +527,14 @@ namespace Xtensive.Orm.Upgrade
     {
       var mappingsToProcess = typeMapping
         .Where(type => type.Key.IsEntity)
-        .Where(type => type.Key.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable || type.Key.Hierarchy.Root==type.Key);
+        .Where(type => type.Key.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable
+          || type.Key.Hierarchy.Root==type.Key);
       foreach (var mapping in mappingsToProcess) {
-        var oldTable = mapping.Key.MappingName;
-        var newTable = mapping.Value.MappingName;
-        if (oldTable != newTable)
-          RegisterRenameTableHint(oldTable, newTable);
+        var oldType = mapping.Key;
+        var newType = mapping.Value;
+        if (!MappingEquals(oldType, newType)) {
+          RegisterRenameTableHint(oldType, newType);
+        }
       }
     }
 
@@ -559,7 +560,8 @@ namespace Xtensive.Orm.Upgrade
           GenerateRenameFieldHint(oldField, newField, newType, true);
           break;
         default:
-          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, newType.Hierarchy.InheritanceSchema), Log.Instance);
+          throw Exceptions.InternalError(String.Format(
+            Strings.ExInheritanceSchemaIsInvalid, newType.Hierarchy.InheritanceSchema), Log.Instance);
         }
       }
     }
@@ -573,9 +575,7 @@ namespace Xtensive.Orm.Upgrade
         StoredTypeInfo oldTargetType;
         if (!reverseTypeMapping.TryGetValue(newTargetType, out oldTargetType))
           continue;
-        RegisterRenameFieldHint(
-          oldTargetType.MappingName, newTargetType.MappingName,
-          oldField.MappingName, newField.MappingName);
+        RegisterRenameFieldHint(oldTargetType, newTargetType, oldField.MappingName, newField.MappingName);
       }
     }
     
@@ -623,24 +623,23 @@ namespace Xtensive.Orm.Upgrade
         throw FieldsDoNotMatch(sourceField, targetField);
 
       // building source/destination table/column names
-      var sourceTable = sourceType.MappingName;
-      var targetTables = GetAffectedMappedTypes(targetType, targetHierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
-        .Select(type => type.MappingName);
+      var targetTypes = GetAffectedMappedTypes(
+        targetType, targetHierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable);
 
       // generating result hints
-      foreach (var targetTable in targetTables) {
-        var sourceTablePath = GetTablePath(sourceTable);
+      foreach (var target in targetTypes) {
+        var sourceTablePath = GetTablePath(sourceType);
         var identities = new List<IdentityPair>();
         var copiedColumns = new List<Pair<string>>();
         foreach (var keyColumnPair in pairedKeyColumns)
           identities.Add(new IdentityPair(
-            GetColumnPath(sourceTable, keyColumnPair.First),
-            GetColumnPath(targetTable, keyColumnPair.Second),
+            GetColumnPath(sourceType, keyColumnPair.First),
+            GetColumnPath(target, keyColumnPair.Second),
             false));
         foreach (var columnPair in pairedColumns)
           copiedColumns.Add(new Pair<string>(
-            GetColumnPath(sourceTable, columnPair.First),
-            GetColumnPath(targetTable, columnPair.Second)));
+            GetColumnPath(sourceType, columnPair.First),
+            GetColumnPath(target, columnPair.Second)));
         schemaHints.Add(new CopyDataHint(sourceTablePath, identities, copiedColumns));
       }
     }
@@ -672,13 +671,12 @@ namespace Xtensive.Orm.Upgrade
         throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, hierarchy.InheritanceSchema), Log.Instance);
       }
       foreach (var type in typesToProcess) {
-        var tableName = type.MappingName;
-        var sourceTablePath = GetTablePath(tableName);
+        var sourceTablePath = GetTablePath(type);
         var identities = new List<IdentityPair>();
         // ConcreteTable schema doesn't include TypeId
         if (hierarchy.InheritanceSchema != InheritanceSchema.ConcreteTable)
           identities.Add(new IdentityPair(
-            GetColumnPath(tableName, GetTypeIdMappingName(type)),
+            GetColumnPath(type, GetTypeIdMappingName(type)),
             removedType.TypeId.ToString(),
             true));
         schemaHints.Add(
@@ -780,18 +778,18 @@ namespace Xtensive.Orm.Upgrade
         throw new InvalidOperationException(
           String.Format(Strings.ExPairedIdentityColumnsForTypesXAndXNotFound, removedType, updatedType));
 
-      var sourceTablePath = GetTablePath(updatedType.MappingName);
+      var sourceTablePath = GetTablePath(updatedType);
       var identities = pairedIdentityColumns.Select(pair =>
         new IdentityPair(
-          GetColumnPath(updatedType.MappingName, pair.Second),
-          GetColumnPath(removedType.MappingName, pair.First), false))
+          GetColumnPath(updatedType, pair.Second),
+          GetColumnPath(removedType, pair.First), false))
         .ToList();
       if (removedType.Hierarchy.InheritanceSchema!=InheritanceSchema.ConcreteTable)
         identities.Add(new IdentityPair(
-          GetColumnPath(removedType.MappingName, GetTypeIdMappingName(removedType)),
+          GetColumnPath(removedType, GetTypeIdMappingName(removedType)),
           removedType.TypeId.ToString(), true));
       var updatedColumns = pairedIdentityColumns.Select(pair =>
-        new Pair<string, object>(GetColumnPath(updatedType.MappingName, pair.Second), null))
+        new Pair<string, object>(GetColumnPath(updatedType, pair.Second), null))
         .ToList();
 
       if (association.ConnectorType==null)
@@ -829,16 +827,15 @@ namespace Xtensive.Orm.Upgrade
       switch (inheritanceSchema)
       {
         case InheritanceSchema.ClassTable:
-          affectedTables.Add(GetTablePath(storedType.MappingName));
+          affectedTables.Add(GetTablePath(storedType));
           break;
         case InheritanceSchema.SingleTable:
-          affectedTables.Add(GetTablePath(storedType.Hierarchy.Root.MappingName));
+          affectedTables.Add(GetTablePath(storedType.Hierarchy.Root));
           break;
         case InheritanceSchema.ConcreteTable:
           var typeToProcess = GetAffectedMappedTypes(storedType,
             storedType.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable);
-          affectedTables.AddRange(
-            typeToProcess.Select(type => GetTablePath(type.MappingName)));
+          affectedTables.AddRange(typeToProcess.Select(GetTablePath));
           break;
         default:
           throw Exceptions.InternalError(String.Format(
@@ -925,42 +922,43 @@ namespace Xtensive.Orm.Upgrade
       return newRoot!=typeMapping.GetValueOrDefault(oldRoot);
     }
 
-    private void RegisterRenameTableHint(string oldTableName, string newTableName)
+    private void RegisterRenameTableHint(StoredTypeInfo oldType, StoredTypeInfo newType)
     {
-      if (EnsureTableExist(oldTableName))
-        schemaHints.Add(new RenameHint(GetTablePath(oldTableName), GetTablePath(newTableName)));
+      if (EnsureTableExist(oldType))
+        schemaHints.Add(new RenameHint(GetTablePath(oldType), GetTablePath(newType)));
     }
 
-    private void RegisterRenameFieldHint(string oldTableName, string newTableName, string oldColumnName, string newColumnName)
+    private void RegisterRenameFieldHint(
+      StoredTypeInfo oldType, StoredTypeInfo newType, string oldColumnName, string newColumnName)
     {
-      if (EnsureTableExist(oldTableName) && EnsureFieldExist(oldTableName, oldColumnName))
+      if (EnsureTableExist(oldType) && EnsureFieldExist(oldType, oldColumnName))
         schemaHints.Add(new RenameHint(
-          GetColumnPath(oldTableName, oldColumnName),
-          GetColumnPath(newTableName, newColumnName)));
+          GetColumnPath(oldType, oldColumnName),
+          GetColumnPath(newType, newColumnName)));
         
     }
 
-    private bool EnsureTableExist(string tableName)
+    private bool EnsureTableExist(StoredTypeInfo type)
     {
-      var schema = extractedStorageModel
-        .Schemas[schemaResolver.GetSchemaName(null, null)]; // BUG
+      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingName);
+      var schema = extractedStorageModel.Schemas[schemaName];
 
-      if (!schema.Tables.Contains(tableName)) {
-        Log.Warning(Strings.ExTableXIsNotFound, tableName);
+      if (!schema.Tables.Contains(type.MappingName)) {
+        Log.Warning(Strings.ExTableXIsNotFound, type.MappingName);
         return false;
       }
       return true;
     }
 
-    private bool EnsureFieldExist(string tableName, string fieldName)
+    private bool EnsureFieldExist(StoredTypeInfo type, string fieldName)
     {
-      if (!EnsureTableExist(tableName))
+      if (!EnsureTableExist(type))
         return false;
-      var schema = extractedStorageModel
-        .Schemas[schemaResolver.GetSchemaName(null, null)]; // BUG
+      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
+      var schema = extractedStorageModel.Schemas[schemaName];
       var actualFieldName = nameBuilder.ApplyNamingRules(fieldName);
-      if (!schema.Tables[tableName].Columns.Contains(actualFieldName)) {
-        Log.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, tableName);
+      if (!schema.Tables[type.MappingName].Columns.Contains(actualFieldName)) {
+        Log.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, type.MappingName);
         return false;
       }
       return true;
@@ -973,14 +971,14 @@ namespace Xtensive.Orm.Upgrade
         var inheritanceSchema = type.Hierarchy.InheritanceSchema;
         switch (inheritanceSchema) {
           case InheritanceSchema.ClassTable:
-            affectedColumns.Add(GetColumnPath(primitiveField.DeclaringType.MappingName, primitiveField.MappingName));
+            affectedColumns.Add(GetColumnPath(primitiveField.DeclaringType, primitiveField.MappingName));
             break;
           case InheritanceSchema.SingleTable:
-            affectedColumns.Add(GetColumnPath(type.Hierarchy.Root.MappingName, primitiveField.MappingName));
+            affectedColumns.Add(GetColumnPath(type.Hierarchy.Root, primitiveField.MappingName));
             break;
           case InheritanceSchema.ConcreteTable:
             var typeToProcess = GetAffectedMappedTypes(type, type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable);
-            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t.MappingName, primitiveField.MappingName)));
+            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t, primitiveField.MappingName)));
             break;
           default:
             throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
@@ -988,10 +986,6 @@ namespace Xtensive.Orm.Upgrade
       }
       return affectedColumns;
     }
-
-    #endregion
-
-    #region Static helpers
 
     private static IEnumerable<StoredTypeInfo> GetNonConnectorTypes(StoredDomainModel model)
     {
@@ -1069,21 +1063,21 @@ namespace Xtensive.Orm.Upgrade
         genericArgumentNames.ToCommaDelimitedString());
     }
 
-    private string GetTablePath(string name)
+    private string GetTablePath(StoredTypeInfo type)
     {
-      var schemaName = schemaResolver.GetSchemaName(null, null); // BUG
-      return string.Format("Schemas/{0}/Tables/{1}", schemaName, name);
+      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
+      return string.Format("Schemas/{0}/Tables/{1}", schemaName, type.MappingName);
     }
 
-    private string GetColumnPath(string tableName, string columnName)
+    private string GetColumnPath(StoredTypeInfo type, string columnName)
     {
-      var schemaName = schemaResolver.GetSchemaName(null, null); // BUG
+      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
       // Due to current implementation of domain model FieldInfo.MappingName is not correct,
       // it has naming rules unapplied, corresponding ColumnInfo.Name however is correct.
       // StoredFieldInfo.MappingName is taken directly from FieldInfo.MappingName and thus is incorrect too.
       // We need to apply naming rules here to make it work.
       var actualColumnName = nameBuilder.ApplyNamingRules(columnName);
-      return string.Format("Schemas/{0}/Tables/{1}/Columns/{2}", schemaName, tableName, actualColumnName);
+      return string.Format("Schemas/{0}/Tables/{1}/Columns/{2}", schemaName, type.MappingName, actualColumnName);
     }
 
     private static string GetTypeIdMappingName(StoredTypeInfo type)
@@ -1159,6 +1153,13 @@ namespace Xtensive.Orm.Upgrade
     {
       var schemaName = schemaResolver.GetSchemaName(typeInfo.MappingDatabase, typeInfo.MappingSchema);
       return extractedStorageModel.Schemas[schemaName];
+    }
+
+    private bool MappingEquals(StoredTypeInfo left, StoredTypeInfo right)
+    {
+      var leftSchema = schemaResolver.GetSchemaName(left.MappingDatabase, left.MappingSchema);
+      var rightSchema = schemaResolver.GetSchemaName(right.MappingDatabase, right.MappingSchema);
+      return leftSchema==rightSchema && left.MappingName==right.MappingName;
     }
 
     #endregion
