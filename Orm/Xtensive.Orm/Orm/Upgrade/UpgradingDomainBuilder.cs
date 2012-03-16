@@ -35,9 +35,6 @@ namespace Xtensive.Orm.Upgrade
 
     private FutureResult<SqlWorkerResult> workerResult;
 
-    private IAsyncResult asyncWorkerResult;
-    private IAsyncResult asyncBuilderResult;
-
     /// <summary>
     /// Builds the new <see cref="Domain"/> by the specified configuration.
     /// </summary>

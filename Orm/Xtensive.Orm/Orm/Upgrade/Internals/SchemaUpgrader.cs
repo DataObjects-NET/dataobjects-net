@@ -21,21 +21,18 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   internal sealed class SchemaUpgrader : IDisposable
   {
-    private readonly Session session;
     private readonly UpgradeContext context;
+    private readonly Session session;
+
     private readonly ProviderInfo providerInfo;
     private readonly SchemaResolver schemaResolver;
     private readonly StorageDriver driver;
     private readonly UpgradeServiceAccessor services;
     private readonly ISqlExecutor executor;
+    private readonly Action<IEnumerable<string>> statementProcessor;
 
     private TransactionScope transactionScope;
 
-    /// <summary>
-    /// Gets the extracted schema.
-    /// This method caches the schema inside <see cref="UpgradeContext"/>.
-    /// </summary>
-    /// <returns>The extracted schema.</returns>
     public StorageModel GetExtractedSchema()
     {
       if (context.ExtractedModelCache!=null)
@@ -46,11 +43,6 @@ namespace Xtensive.Orm.Upgrade
       return result;
     }
 
-    /// <summary>
-    /// Gets the native extracted schema.
-    /// This method caches the schema inside <see cref="UpgradeContext"/>.
-    /// </summary>
-    /// <returns>The native extracted schema.</returns>
     public SqlExtractionResult GetExtractedSqlSchema()
     {
       if (context.ExtractedSqlModelCache!=null)
@@ -61,24 +53,10 @@ namespace Xtensive.Orm.Upgrade
       return schema;
     }
 
-    /// <summary>
-    /// Clears the extracted schema cache.
-    /// </summary>
     public void ClearExtractedSchemaCache()
     {
       context.ExtractedModelCache = null;
       context.ExtractedSqlModelCache = null;
-    }
-
-    private StorageModel ExtractSchema()
-    {
-      var schema = GetExtractedSqlSchema(); // Must rely on this method to avoid multiple extractions
-      return new SqlModelConverter(services, schema).Run();
-    }
-
-    private SqlExtractionResult ExtractSqlSchema()
-    {
-      return executor.Extract(schemaResolver.GetExtractionTasks(providerInfo));
     }
 
     public void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceModel, StorageModel targetModel)
@@ -103,12 +81,20 @@ namespace Xtensive.Orm.Upgrade
       foreach (var handler in context.OrderedUpgradeHandlers)
         handler.OnBeforeExecuteActions(result);
 
-      var regularProcessor =
-        providerInfo.Supports(ProviderFeatures.TransactionalDdl)
-          ? (Action<IEnumerable<string>>) ExecuteTransactionally
-          : ExecuteNonTransactionally;
+      result.ProcessWith(statementProcessor, ExecuteNonTransactionally);
+    }
 
-      result.ProcessWith(regularProcessor, ExecuteNonTransactionally);
+    #region Private / internal methods
+
+    private StorageModel ExtractSchema()
+    {
+      var schema = GetExtractedSqlSchema(); // Must rely on this method to avoid multiple extractions
+      return new SqlModelConverter(services, schema).Run();
+    }
+
+    private SqlExtractionResult ExtractSqlSchema()
+    {
+      return executor.Extract(schemaResolver.GetExtractionTasks(providerInfo));
     }
 
     private void ExecuteNonTransactionally(IEnumerable<string> batch)
@@ -156,6 +142,8 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    #endregion
+
     // Constructors
 
     public SchemaUpgrader(UpgradeContext context, Session session)
@@ -168,6 +156,11 @@ namespace Xtensive.Orm.Upgrade
       schemaResolver = services.SchemaResolver;
       providerInfo = services.ProviderInfo;
       executor = session.Services.Demand<ISqlExecutor>();
+
+      if (driver.ProviderInfo.Supports(ProviderFeatures.TransactionalDdl))
+        statementProcessor = ExecuteTransactionally;
+      else
+        statementProcessor = ExecuteNonTransactionally;
 
       BeginTransaction();
     }

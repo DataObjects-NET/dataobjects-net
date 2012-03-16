@@ -1203,7 +1203,7 @@ namespace Xtensive.Orm.Upgrade
       schemaResolver = handlers.SchemaResolver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
-      providerInfo = driver.ProviderInfo;
+      providerInfo = handlers.ProviderInfo;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
       this.sqlModel = sqlModel;

@@ -231,7 +231,6 @@
     <Compile Include="Orm\Providers\ManualPagingSqlCompiler.cs" />
     <Compile Include="Orm\Providers\ModelMapping.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataExtractor.cs" />
-    <Compile Include="Orm\Providers\NonTransactionalStage.cs" />
     <Compile Include="Orm\Providers\Requests\ParameterBinding.cs" />
     <Compile Include="Orm\Providers\PartialIndexFilterNormalizer.cs" />
     <Compile Include="Orm\Providers\Requests\PersistParameterBinding.cs" />
