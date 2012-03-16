@@ -6,14 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Xtensive.Core;
-using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Sql.Tests
 {
   public static class TestSqlDriver
   {
+    private static readonly Dictionary<ConnectionInfo, SqlDriver> DriverCache = new Dictionary<ConnectionInfo, SqlDriver>();
+
     private static readonly Dictionary<string, Type> FactoryRegistry = new Dictionary<string, Type> {
         {"sqlserver", typeof (Drivers.SqlServer.DriverFactory)},
         {"sqlserverce", typeof (Drivers.SqlServerCe.DriverFactory)},
@@ -50,9 +50,16 @@ namespace Xtensive.Sql.Tests
 
     private static SqlDriver BuildDriver(ConnectionInfo connectionInfo)
     {
-      var factoryType = FactoryRegistry[connectionInfo.Provider.ToLower()];
-      var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
-      return factory.GetDriver(connectionInfo);
+      lock (DriverCache) {
+        SqlDriver driver;
+        if (!DriverCache.TryGetValue(connectionInfo, out driver)) {
+          var factoryType = FactoryRegistry[connectionInfo.Provider];
+          var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
+          driver = factory.GetDriver(connectionInfo);
+          DriverCache.Add(connectionInfo, driver);
+        }
+        return driver;
+      }
     }
   }
 }

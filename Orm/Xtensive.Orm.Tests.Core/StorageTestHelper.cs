@@ -5,8 +5,12 @@
 // Created:    2009.12.17
 
 using System;
+using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
+using Xtensive.Sql;
 using Xtensive.Sql.Model;
+using Xtensive.Sql.Tests;
 
 namespace Xtensive.Orm.Tests
 {
@@ -30,6 +34,24 @@ namespace Xtensive.Orm.Tests
     public static Schema GetDefaultSchema(Domain domain)
     {
       return domain.Handler.Mapping[domain.Model.Types[typeof (Metadata.Assembly)]].Schema;
+    }
+
+    public static void DemandSchemas(ConnectionInfo connectionInfo, params string[] schemas)
+    {
+      var driver = TestSqlDriver.Create(connectionInfo);
+      using (var connection = driver.CreateConnection()) {
+        connection.Open();
+        var extractionTask = new SqlExtractionTask(driver.CoreServerInfo.DatabaseName);
+        var extractionResult = driver.Extract(connection, new[] {extractionTask});
+        var catalog = extractionResult.Catalogs.Single();
+        var existingSchemas = catalog.Schemas.Select(s => s.Name);
+        foreach (var schema in schemas.Except(existingSchemas)) {
+          var query = SqlDdl.Create(catalog.CreateSchema(schema));
+          using (var command = connection.CreateCommand(query)) {
+            command.ExecuteNonQuery();
+          }
+        }
+      }
     }
   }
 }
