@@ -940,7 +940,7 @@ namespace Xtensive.Orm.Upgrade
 
     private bool EnsureTableExist(StoredTypeInfo type)
     {
-      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingName);
+      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
       var schema = extractedStorageModel.Schemas[schemaName];
 
       if (!schema.Tables.Contains(type.MappingName)) {
