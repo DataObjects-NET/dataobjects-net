@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<PropertyGroup>
+  <Major>4</Major>
+  <Minor>5</Minor>
+  <Patch>0</Patch>
+  <Modifier>RC 2</Modifier>
+  <BuildNumberBase>0</BuildNumberBase>
+</PropertyGroup>
+
+</Project>

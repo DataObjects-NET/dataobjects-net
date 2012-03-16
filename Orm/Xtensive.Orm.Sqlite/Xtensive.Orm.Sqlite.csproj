@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Net40-Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F23EF4D3-B75F-4A68-90A3-2440D7B1816B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xtensive</RootNamespace>
+    <AssemblyName>Xtensive.Orm.Sqlite</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SkipPostSharp>true</SkipPostSharp>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Secure\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net35\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net35\Xtensive.Orm.Sqlite.xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net35\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net35\Xtensive.Orm.Sqlite.xml</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net40\Xtensive.Orm.Sqlite.xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.Sqlite.xml</DocumentationFile>
+    <DefineConstants>TRACE;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PostSharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\Lib\SQLite\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Orm.Providers.Sqlite\DomainHandler.cs" />
+    <Compile Include="Orm.Providers.Sqlite\HandlerFactory.cs" />
+    <Compile Include="Orm.Providers.Sqlite\SqlCompiler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
+    <Compile Include="Resources\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Sql.Drivers.Sqlite\Connection.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Driver.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\DriverFactory.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Compiler.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Driver.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Extractor.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Translator.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\TypeMapper.cs" />
+    <EmbeddedResource Include="Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
+      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
+      <Name>Xtensive.Orm</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Orm.Providers.Sqlite\keep.txt" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

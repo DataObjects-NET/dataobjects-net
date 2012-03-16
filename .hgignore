@@ -10,6 +10,7 @@ syntax: glob
 *.resharperoptions
 _ReSharper.*
 *.vs10x
+*.DotSettings
 
 *.exe
 *.dll
@@ -35,7 +36,10 @@ Help\*.chm
 Manual\Temp\*
 Release.Files\*
 
-Lib/.NET Reactor/license.v3lic
-Lib/.NET Reactor/reactor.license
-Lib/.NET Reactor/reactor.v3lic
+Lib/DotNetReactor/*.license
+Lib/DotNetReactor/*.v3lic
+Lib/DotNetReactor/*.nrcfg
 
+_Build
+_Work
+Secure

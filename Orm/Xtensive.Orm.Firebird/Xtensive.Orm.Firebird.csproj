@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Net40-Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{86D95846-57DD-4032-A2B2-3423D1C71CDD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xtensive</RootNamespace>
+    <AssemblyName>Xtensive.Orm.Firebird</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SkipPostSharp>true</SkipPostSharp>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Secure\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net35\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net35\Xtensive.Orm.Firebird.xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net35\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net35\Xtensive.Orm.Firebird.xml</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net40\Xtensive.Orm.Firebird.xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.Firebird.xml</DocumentationFile>
+    <DefineConstants>TRACE;NET40</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PostSharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
+    <Reference Include="FirebirdSql.Data.FirebirdClient">
+      <HintPath>..\..\Lib\Firebird\Net35\FirebirdSql.Data.FirebirdClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
+    <Reference Include="FirebirdSql.Data.FirebirdClient">
+      <HintPath>..\..\Lib\Firebird\Net40\FirebirdSql.Data.FirebirdClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sql.Drivers.Firebird\Connection.cs" />
+    <Compile Include="Sql.Drivers.Firebird\Constants.cs" />
+    <Compile Include="Sql.Drivers.Firebird\Driver.cs" />
+    <Compile Include="Sql.Drivers.Firebird\DriverFactory.cs" />
+    <Compile Include="Sql.Drivers.Firebird\Helpers.cs" />
+    <Compile Include="Sql.Drivers.Firebird\v2_5\Compiler.cs" />
+    <Compile Include="Sql.Drivers.Firebird\v2_5\Driver.cs" />
+    <Compile Include="Sql.Drivers.Firebird\v2_5\Extractor.cs" />
+    <Compile Include="Sql.Drivers.Firebird\v2_5\Extractor.Queries.cs" />
+    <Compile Include="Sql.Drivers.Firebird\v2_5\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.Firebird\v2_5\Translator.cs" />
+    <Compile Include="Sql.Drivers.Firebird\v2_5\TypeMapper.cs" />
+    <EmbeddedResource Include="Sql.Drivers.Firebird\Resources\Strings.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Include="Orm.Providers.Firebird\DomainHandler.cs" />
+    <Compile Include="Orm.Providers.Firebird\HandlerFactory.cs" />
+    <Compile Include="Orm.Providers.Firebird\SchemaUpgradeHandler.cs" />
+    <Compile Include="Orm.Providers.Firebird\SqlCompiler.cs" />
+    <Compile Include="Orm.Providers.Firebird\TemporaryTableManager.cs" />
+    <Compile Include="Sql.Drivers.Firebird\Resources\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
+      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
+      <Name>Xtensive.Orm</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Sql.Drivers.Firebird\progression.txt" />
+    <Content Include="Sql.Drivers.Firebird\questions.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

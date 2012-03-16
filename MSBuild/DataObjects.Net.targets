@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<PropertyGroup Condition="'$(XtensiveOrmNoWeaver)'!='true'">
+  <PostSharp21DependsOn>$(PostSharp21DependsOn);RegisterXtensiveAspectsWeaver</PostSharp21DependsOn>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(XtensiveOrmPath)'==''">
+  <XtensiveOrmPath>$(MSBuildThisFileDirectory)</XtensiveOrmPath>
+</PropertyGroup>
+
+<Target Name="DetectXtensiveOrmPath"
+        DependsOnTargets="ResolveAssemblyReferences"
+        Condition="'$(XtensiveOrmPath)'==''">
+  <CreateProperty
+    Condition="'%(ReferencePath.FileName)'=='Xtensive.Aspects'"
+    Value="%(ReferencePath.RootDir)%(ReferencePath.Directory)">
+    <Output TaskParameter="Value" PropertyName="XtensiveAspectsReferencePath" />
+  </CreateProperty>
+  <Message Condition="Exists('$(XtensiveAspectsReferencePath)')"
+           Importance="low"
+           Text="Found Xtensive.Aspects.dll in '$(XtensiveAspectsReferencePath)'" />
+  <PropertyGroup Condition="'$(XtensiveOrmPath)'=='' and Exists('$(XtensiveAspectsReferencePath)')">
+    <XtensiveOrmPath>$(XtensiveAspectsReferencePath)..\..\</XtensiveOrmPath>
+  </PropertyGroup>
+</Target>
+
+<Target Name="CheckXtensiveOrmPath" DependsOnTargets="DetectXtensiveOrmPath">
+  <Error Condition="'$(XtensiveOrmPath)'==''"
+         Text="XtensiveOrmPath property is not set" />
+  <Error Condition="!Exists('$(XtensiveOrmPath)')"
+         Text="XtensiveOrmPath is set to '$(XtensiveOrmPath)' which does not exists" />
+  <PropertyGroup>
+    <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
+  </PropertyGroup>
+  <Message Importance="low" Text="Detected XtensiveOrmPath '$(XtensiveOrmPath)'"/>
+</Target>
+
+<Target Name="RegisterXtensiveAspectsWeaver" DependsOnTargets="CheckXtensiveOrmPath">
+  <PropertyGroup>
+    <XtensiveAspectsWeaverPath>$(XtensiveOrmPath)Tools</XtensiveAspectsWeaverPath>
+    <PostSharpSearchPath>$(PostSharpSearchPath);$(XtensiveAspectsWeaverPath)</PostSharpSearchPath>
+  </PropertyGroup>
+  <Message Importance="low" Text="Added '$(XtensiveAspectsWeaverPath)' to PostSharpSearchPath"/>
+</Target>
+
+<Import Condition="'$(XtensiveOrmNoPostSharp)'!='true'"
+        Project="Tools\PostSharp\PostSharp.targets" />
+
+</Project>
