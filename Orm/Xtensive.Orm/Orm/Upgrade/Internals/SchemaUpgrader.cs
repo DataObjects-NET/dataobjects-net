@@ -59,11 +59,9 @@ namespace Xtensive.Orm.Upgrade
 
     private void ExecuteNonTransactionally(IEnumerable<string> batch)
     {
-      CommitTransaction();
-
+      Complete();
       executor.ExecuteDdl(batch);
-
-      BeginTransaction();
+      Start();
     }
 
     private void ExecuteTransactionally(IEnumerable<string> batch)
@@ -81,25 +79,26 @@ namespace Xtensive.Orm.Upgrade
 
     public void Dispose()
     {
-      CommitTransaction();
+      if (transactionScope==null)
+        return;
+      try {
+        transactionScope.Dispose();
+      }
+      finally {
+        transactionScope = null;
+      }
     }
 
-    private void BeginTransaction()
+    private void Start()
     {
       transactionScope = session.OpenTransaction();
     }
 
-    private void CommitTransaction()
+    public void Complete()
     {
-      if (transactionScope==null)
-        return;
-      try {
-        transactionScope.Complete();
-      }
-      finally {
-        transactionScope.Dispose();
-        transactionScope = null;
-      }
+      transactionScope.Complete();
+      transactionScope.Dispose();
+      transactionScope = null;
     }
 
     #endregion
@@ -119,8 +118,7 @@ namespace Xtensive.Orm.Upgrade
       else
         statementProcessor = ExecuteNonTransactionally;
 
-      BeginTransaction();
+      Start();
     }
-
   }
 }

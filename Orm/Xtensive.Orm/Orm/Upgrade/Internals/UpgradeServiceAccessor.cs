@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade
     private DomainConfiguration configuration;
     private StorageDriver driver;
     private NameBuilder nameBuilder;
-    private SchemaResolver schemaResolver;
+    private SchemaNodeResolver resolver;
     private PartialIndexFilterNormalizer normalizer;
     private HandlerFactory handlerFactory;
     private ReadOnlyList<IModule> modules;
@@ -67,13 +67,13 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public SchemaResolver SchemaResolver
+    public SchemaNodeResolver Resolver
     {
-      get { return schemaResolver; }
+      get { return resolver; }
       set
       {
         this.EnsureNotLocked();
-        schemaResolver = value;
+        resolver = value;
       }
     }
 

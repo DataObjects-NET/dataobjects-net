@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Upgrade
 
     private readonly List<Hint> schemaHints = new List<Hint>();
     private readonly IEnumerable<UpgradeHint> inputHints;
-    private readonly SchemaResolver schemaResolver;
+    private readonly SchemaNodeResolver resolver;
     private readonly DomainModel domainModel;
 
     public HintGenerationResult Run()
@@ -504,10 +504,9 @@ namespace Xtensive.Orm.Upgrade
           continue;
         if (targetTypeIdField.IsPrimaryKey)
           continue;
-        var typeSchema = ResolveSchema(type);
-        if (!typeSchema.Tables.Contains(type.MappingName))
+        if (!extractedStorageModel.Tables.Contains(GetTableName(type)))
           continue;
-        if (!typeSchema.Tables[type.MappingName].Columns.Contains(typeIdField.MappingName))
+        if (!extractedStorageModel.Tables[GetTableName(type)].Columns.Contains(typeIdField.MappingName))
           continue;
         var hint = new RemoveFieldHint(targetType.UnderlyingType, targetTypeIdField.Name);
 
@@ -532,7 +531,7 @@ namespace Xtensive.Orm.Upgrade
       foreach (var mapping in mappingsToProcess) {
         var oldType = mapping.Key;
         var newType = mapping.Value;
-        if (!MappingEquals(oldType, newType)) {
+        if (GetTableName(oldType)!=GetTableName(newType)) {
           RegisterRenameTableHint(oldType, newType);
         }
       }
@@ -940,28 +939,25 @@ namespace Xtensive.Orm.Upgrade
 
     private bool EnsureTableExist(StoredTypeInfo type)
     {
-      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
-      var schema = extractedStorageModel.Schemas[schemaName];
+      var nodeName = GetTableName(type);
 
-      if (!schema.Tables.Contains(type.MappingName)) {
-        Log.Warning(Strings.ExTableXIsNotFound, type.MappingName);
-        return false;
-      }
-      return true;
+      if (extractedStorageModel.Tables.Contains(nodeName))
+        return true;
+
+      Log.Warning(Strings.ExTableXIsNotFound, nodeName);
+      return false;
     }
 
     private bool EnsureFieldExist(StoredTypeInfo type, string fieldName)
     {
       if (!EnsureTableExist(type))
         return false;
-      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
-      var schema = extractedStorageModel.Schemas[schemaName];
+      var nodeName = GetTableName(type);
       var actualFieldName = nameBuilder.ApplyNamingRules(fieldName);
-      if (!schema.Tables[type.MappingName].Columns.Contains(actualFieldName)) {
-        Log.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, type.MappingName);
-        return false;
-      }
-      return true;
+      if (extractedStorageModel.Tables[nodeName].Columns.Contains(actualFieldName))
+        return true;
+      Log.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, nodeName);
+      return false;
     }
 
     private List<string> GetAffectedColumns(StoredTypeInfo type, StoredFieldInfo field)
@@ -1063,21 +1059,27 @@ namespace Xtensive.Orm.Upgrade
         genericArgumentNames.ToCommaDelimitedString());
     }
 
+    private string GetTableName(StoredTypeInfo type)
+    {
+      return resolver.GetNodeName(
+        type.MappingDatabase, type.MappingSchema, type.MappingName);
+    }
+
     private string GetTablePath(StoredTypeInfo type)
     {
-      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
-      return string.Format("Schemas/{0}/Tables/{1}", schemaName, type.MappingName);
+      var nodeName = GetTableName(type);
+      return string.Format("Tables/{0}", nodeName);
     }
 
     private string GetColumnPath(StoredTypeInfo type, string columnName)
     {
-      var schemaName = schemaResolver.GetSchemaName(type.MappingDatabase, type.MappingSchema);
+      var nodeName = GetTableName(type);
       // Due to current implementation of domain model FieldInfo.MappingName is not correct,
       // it has naming rules unapplied, corresponding ColumnInfo.Name however is correct.
       // StoredFieldInfo.MappingName is taken directly from FieldInfo.MappingName and thus is incorrect too.
       // We need to apply naming rules here to make it work.
       var actualColumnName = nameBuilder.ApplyNamingRules(columnName);
-      return string.Format("Schemas/{0}/Tables/{1}/Columns/{2}", schemaName, type.MappingName, actualColumnName);
+      return string.Format("Tables/{0}/Columns/{1}", nodeName, actualColumnName);
     }
 
     private static string GetTypeIdMappingName(StoredTypeInfo type)
@@ -1149,19 +1151,6 @@ namespace Xtensive.Orm.Upgrade
         .ToArray();
     }
 
-    private SchemaInfo ResolveSchema(StoredTypeInfo typeInfo)
-    {
-      var schemaName = schemaResolver.GetSchemaName(typeInfo.MappingDatabase, typeInfo.MappingSchema);
-      return extractedStorageModel.Schemas[schemaName];
-    }
-
-    private bool MappingEquals(StoredTypeInfo left, StoredTypeInfo right)
-    {
-      var leftSchema = schemaResolver.GetSchemaName(left.MappingDatabase, left.MappingSchema);
-      var rightSchema = schemaResolver.GetSchemaName(right.MappingDatabase, right.MappingSchema);
-      return leftSchema==rightSchema && left.MappingName==right.MappingName;
-    }
-
     #endregion
 
     #region Exception helpers
@@ -1223,7 +1212,7 @@ namespace Xtensive.Orm.Upgrade
       this.inputHints = inputHints;
 
       nameBuilder = handlers.NameBuilder;
-      schemaResolver = handlers.SchemaResolver;
+      resolver = handlers.SchemaNodeResolver;
       domainModel = handlers.Domain.Model;
 
       currentModel = domainModel.ToStoredModel();

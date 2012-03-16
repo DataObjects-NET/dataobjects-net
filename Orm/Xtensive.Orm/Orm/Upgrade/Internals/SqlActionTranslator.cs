@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly StorageModel targetModel;
     private readonly StorageDriver driver;
     private readonly SequenceQueryBuilder sequenceQueryBuilder;
-    private readonly SchemaResolver schemaResolver;
+    private readonly SchemaNodeResolver resolver;
 
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<Sequence> createdSequences = new List<Sequence>();
@@ -313,38 +313,44 @@ namespace Xtensive.Orm.Upgrade
 
     private void VisitAlterTableAction(MoveNodeAction action)
     {
-      var oldTableInfo = sourceModel.Resolve(action.Path, true) as TableInfo;
-      var table = FindTable(oldTableInfo);
-      if (providerInfo.Supports(ProviderFeatures.TableRename))
-        RegisterCommand(SqlDdl.Rename(table, action.Name));
-      else {
-          var scheme = table.Schema;
-          var newTable = scheme.CreateTable(action.Name);
-          foreach (var item in table.TableColumns) {
-            var column = newTable.CreateColumn(item.Name, item.DataType);
-            column.DbName = item.DbName;
-            column.IsNullable = item.IsNullable;
-          }
-          RegisterCommand(SqlDdl.Create(newTable));
+      var oldTableInfo = (TableInfo) sourceModel.Resolve(action.Path, true);
+      var oldTable = FindTable(oldTableInfo);
 
-          // Copying data from one table to another
-          var insert = SqlDml.Insert(SqlDml.TableRef(newTable));
-          var select = SqlDml.Select(SqlDml.TableRef(table));
-          insert.From = SqlDml.QueryRef(select);
-          RegisterCommand(insert);
+      var newTableNode = resolver.Resolve(sqlModel, action.Name);
+      var canRename =
+        providerInfo.Supports(ProviderFeatures.TableRename)
+        && newTableNode.Schema==oldTable.Schema;
 
-          // Removing table
-          RegisterCommand(SqlDdl.Drop(table));
-
-          scheme.Tables.Remove(newTable);
+      if (canRename) {
+        RegisterCommand(SqlDdl.Rename(oldTable, newTableNode.Name));
       }
+      else
+        RecreateTableWithNewName(oldTable, newTableNode);
+
       oldTableInfo.Name = action.Name;
-      RenameSchemaTable(table, action.Name);
+      RenameSchemaTable(oldTable, oldTable.Schema, newTableNode.Schema, newTableNode.Name);
     }
-    
-    private void VisitAlterTableAction(NodeAction action)
+
+    private void RecreateTableWithNewName(Table oldTable, NodeResolveResult newTableNode)
     {
-      throw new NotSupportedException();
+      var newTable = newTableNode.Schema.CreateTable(newTableNode.Name);
+
+      foreach (var item in oldTable.TableColumns) {
+        var column = newTable.CreateColumn(item.Name, item.DataType);
+        column.DbName = item.DbName;
+        column.IsNullable = item.IsNullable;
+      }
+
+      RegisterCommand(SqlDdl.Create(newTable));
+
+      // Copying data from one table to another
+      var insert = SqlDml.Insert(SqlDml.TableRef(newTable));
+      var select = SqlDml.Select(SqlDml.TableRef(oldTable));
+      insert.From = SqlDml.QueryRef(@select);
+      RegisterCommand(insert);
+
+      // Removing table
+      RegisterCommand(SqlDdl.Drop(oldTable));
     }
 
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)
@@ -545,10 +551,9 @@ namespace Xtensive.Orm.Upgrade
     private void VisitCreateSequenceAction(CreateNodeAction action)
     {
       var sequenceInfo = (StorageSequenceInfo) action.Difference.Target;
-      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
-
       if (providerInfo.Supports(ProviderFeatures.Sequences)) {
-        var sequence = schema.CreateSequence(sequenceInfo.Name);
+        var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
+        var sequence = node.Schema.CreateSequence(node.Name);
         var descriptor = new SequenceDescriptor(sequence, sequenceInfo.Seed, sequenceInfo.Increment) {
           MinValue = sequenceInfo.Seed
         };
@@ -565,11 +570,11 @@ namespace Xtensive.Orm.Upgrade
     private void VisitRemoveSequenceAction(RemoveNodeAction action)
     {
       var sequenceInfo = (StorageSequenceInfo) action.Difference.Source;
-      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
       if (providerInfo.Supports(ProviderFeatures.Sequences)) {
-        var sequence = schema.Sequences[sequenceInfo.Name];
+        var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
+        var sequence = node.GetSequence();
         RegisterCommand(SqlDdl.Drop(sequence));
-        schema.Sequences.Remove(sequence);
+        node.Schema.Sequences.Remove(sequence);
       }
       else {
         DropGeneratorTable(sequenceInfo);
@@ -579,16 +584,17 @@ namespace Xtensive.Orm.Upgrade
     private void VisitAlterSequenceAction(PropertyChangeAction action)
     {
       var sequenceInfo = (StorageSequenceInfo) targetModel.Resolve(action.Path, true);
-      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
+      var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
 
       // Check if sequence is not newly created
-      if (IsNewlyCreatedSequence(schema, sequenceInfo))
+      if (IsNewlyCreatedSequence(node))
         return;
 
       var currentValue = GetCurrentSequenceValue(sequenceInfo);
       var newStartValue = currentValue + sequenceInfo.Increment;
+
       if (providerInfo.Supports(ProviderFeatures.Sequences)) {
-        var exisitingSequence = schema.Sequences[sequenceInfo.Name];
+        var exisitingSequence = node.GetSequence();
         var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
         newSequenceDescriptor.LastValue = currentValue;
         exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
@@ -601,13 +607,12 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private bool IsNewlyCreatedSequence(Schema schema, StorageSequenceInfo sequenceInfo)
+    private bool IsNewlyCreatedSequence(NodeResolveResult node)
     {
-      
       if (providerInfo.Supports(ProviderFeatures.Sequences))
-        return createdSequences.Any(s => s.Name==sequenceInfo.Name && s.Schema==schema);
+        return createdSequences.Any(s => s.Name==node.Name && s.Schema==node.Schema);
       else
-        return createdTables.Any(t => t.Name==sequenceInfo.Name && t.Schema==schema);
+        return createdTables.Any(t => t.Name==node.Name && t.Schema==node.Schema);
     }
 
     private void VisitCreateFullTextIndexAction(CreateNodeAction action)
@@ -782,8 +787,8 @@ namespace Xtensive.Orm.Upgrade
 
       // Sort actions topologicaly according with foreign keys
       var nodes = new List<Xtensive.Sorting.Node<TableInfo, ForeignKeyInfo>>();
-      var foreignKeys = sourceModel.Schemas
-        .SelectMany(s => s.Tables.SelectMany(table => table.ForeignKeys))
+      var foreignKeys = sourceModel.Tables
+        .SelectMany(table => table.ForeignKeys)
         .ToList();
       foreach (var pair in deleteActions)
         nodes.Add(new Xtensive.Sorting.Node<TableInfo, ForeignKeyInfo>(pair.Key));
@@ -872,8 +877,8 @@ namespace Xtensive.Orm.Upgrade
 
     private Table CreateTable(TableInfo tableInfo)
     {
-      var schema = schemaResolver.ResolveSchema(sqlModel, tableInfo.Parent.Name);
-      var table = schema.CreateTable(tableInfo.Name);
+      var node = resolver.Resolve(sqlModel, tableInfo.Name);
+      var table = node.Schema.CreateTable(node.Name);
       foreach (var columnInfo in tableInfo.Columns)
         CreateColumn(columnInfo, table);
       if (tableInfo.PrimaryIndex!=null)
@@ -957,8 +962,8 @@ namespace Xtensive.Orm.Upgrade
 
     private void CreateGeneratorTable(StorageSequenceInfo sequenceInfo)
     {
-      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
-      var sequenceTable = schema.CreateTable(sequenceInfo.Name);
+      var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
+      var sequenceTable = node.Schema.CreateTable(node.Name);
       createdTables.Add(sequenceTable);
       var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName,
         (SqlValueType) sequenceInfo.Type.NativeType);
@@ -977,21 +982,21 @@ namespace Xtensive.Orm.Upgrade
 
     private void DropGeneratorTable(StorageSequenceInfo sequenceInfo)
     {
-      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
-      var sequenceTable = schema.Tables[sequenceInfo.Name];
+      var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
+      var sequenceTable = node.GetTable();
       RegisterCommand(SqlDdl.Drop(sequenceTable));
-      schema.Tables.Remove(sequenceTable);
+      node.Schema.Tables.Remove(sequenceTable);
     }
 
-    private void RenameSchemaTable(Table table, string newName)
+    private void RenameSchemaTable(Table table, Schema oldSchema, Schema newSchema, string newName)
     {
       var schema = table.Schema;
 
       // Renamed table must be removed and added with new name
       // for reregistring in dictionary
-      schema.Tables.Remove(table);
+      oldSchema.Tables.Remove(table);
       table.Name = newName;
-      schema.Tables.Add(table);
+      newSchema.Tables.Add(table);
     }
 
     private void RenameSchemaColumn(TableColumn column, string newName)
@@ -1016,15 +1021,12 @@ namespace Xtensive.Orm.Upgrade
 
     private Table FindTable(TableInfo tableInfo)
     {
-      var name = tableInfo.Name;
-      var schema = schemaResolver.ResolveSchema(sqlModel, tableInfo.Parent.Name);
-      return schema.Tables[name];
+      return resolver.Resolve(sqlModel, tableInfo.Name).GetTable();
     }
 
     private TableColumn FindColumn(Table table, string name)
     {
-      return table.TableColumns.
-        FirstOrDefault(c => StringComparer.Compare(c.Name, name) == 0);
+      return table.TableColumns[name];
     }
 
     private TableColumn FindColumn(TableInfo tableInfo, string columnName)
@@ -1153,10 +1155,10 @@ namespace Xtensive.Orm.Upgrade
 
     private long? GetCurrentSequenceValue(StorageSequenceInfo sequenceInfo)
     {
-      var schema = schemaResolver.ResolveSchema(sqlModel, sequenceInfo.Parent.Name);
+      var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
       var generatorNode = providerInfo.Supports(ProviderFeatures.Sequences)
-        ? schema.Sequences[sequenceInfo.Name]
-        : (SchemaNode) schema.Tables[sequenceInfo.Name];
+        ? (SchemaNode) node.GetSequence()
+        : node.GetTable();
       return sequenceQueryBuilder.Build(generatorNode, 0).ExecuteWith(sqlExecutor);
     }
 
@@ -1200,7 +1202,7 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
 
       driver = handlers.StorageDriver;
-      schemaResolver = handlers.SchemaResolver;
+      resolver = handlers.SchemaNodeResolver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
       providerInfo = handlers.ProviderInfo;

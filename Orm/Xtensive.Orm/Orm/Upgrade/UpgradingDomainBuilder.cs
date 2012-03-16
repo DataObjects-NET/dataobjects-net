@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Upgrade
         Driver = driver,
         NameBuilder = new NameBuilder(configuration, driver.ProviderInfo),
         Normalizer = handlerFactory.CreateHandler<PartialIndexFilterNormalizer>(),
-        SchemaResolver = SchemaResolver.Get(configuration),
+        Resolver = SchemaNodeResolver.Get(configuration),
       };
 
       var standardRegistrations = new[] {
@@ -209,6 +209,7 @@ namespace Xtensive.Orm.Upgrade
         SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
         domain.Handler.BuildMapping(extractor.GetSqlSchema());
         OnStage();
+        upgrader.Complete();
       }
     }
 

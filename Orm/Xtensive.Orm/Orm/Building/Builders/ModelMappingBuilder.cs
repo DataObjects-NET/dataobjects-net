@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building.Builders
       var domainModel = handlers.Domain.Model;
       var configuration = handlers.Domain.Configuration;
       var providerInfo = handlers.ProviderInfo;
-      var schemaResolver = handlers.SchemaResolver;
+      var resolver = handlers.SchemaNodeResolver;
 
       var mapping = new ModelMapping();
 
@@ -37,11 +37,10 @@ namespace Xtensive.Orm.Building.Builders
         if (primaryIndex==null || primaryIndex.IsAbstract)
           continue;
         var reflectedType = primaryIndex.ReflectedType;
-        var schema = schemaResolver.ResolveSchema(sqlModel, schemaResolver.GetSchemaName(reflectedType));
-        string mappingName = reflectedType.MappingName;
-        var storageTable = schema.Tables[mappingName];
+        var nodeName = resolver.GetNodeName(reflectedType);
+        var storageTable = resolver.Resolve(sqlModel, nodeName).GetTable();
         if (storageTable==null)
-          throw new DomainBuilderException(String.Format(Strings.ExTableXIsNotFound, mappingName));
+          throw new DomainBuilderException(String.Format(Strings.ExTableXIsNotFound, nodeName));
         mapping.Register(reflectedType, storageTable);
       }
 
@@ -52,39 +51,33 @@ namespace Xtensive.Orm.Building.Builders
         .Where(s => s!=null)
         .Distinct();
 
-      var nodeResolver = providerInfo.Supports(ProviderFeatures.Sequences)
-        ? (Func<ModelMapping, SequenceInfo, Schema, SchemaNode>) GetGeneratorSequence
-        : GetGeneratorTable;
+      Func<NodeResolveResult, SchemaNode> nodeResolver;
+      
+      if (providerInfo.Supports(ProviderFeatures.Sequences))
+        nodeResolver = r => r.GetSequence();
+      else
+        nodeResolver = r => r.GetTable();
 
       foreach (var sequence in keyGenerator) {
-        var schema = schemaResolver.ResolveSchema(sqlModel, schemaResolver.GetSchemaName(sequence));
-        var node = nodeResolver.Invoke(mapping, sequence, schema);
+        var nodeResult = resolver.Resolve(sqlModel, resolver.GetNodeName(sequence));
+        var node = nodeResolver.Invoke(nodeResult);
         mapping.Register(sequence, node);
       }
 
       // Fill information for TemporaryTableManager
 
-      var defaultSchemaName = schemaResolver
-        .GetSchemaName(configuration.DefaultDatabase, configuration.DefaultSchema);
-      var defaultSchema = schemaResolver.ResolveSchema(sqlModel, defaultSchemaName);
+      var sampleNameNode = resolver.GetNodeName(
+        configuration.DefaultDatabase, configuration.DefaultSchema, "Dummy");
+      var defaultSchema = resolver.Resolve(sqlModel, sampleNameNode).Schema;
 
       mapping.TemporaryTableDatabase = defaultSchema.Catalog.Name;
       mapping.TemporaryTableSchema = defaultSchema.Name;
+
       var collation = defaultSchema.Collations.FirstOrDefault();
       mapping.TemporaryTableCollation = collation!=null ? collation.Name : null;
 
       mapping.Lock();
       return mapping;
-    }
-
-    private static SchemaNode GetGeneratorSequence(ModelMapping mapping, SequenceInfo sequenceInfo, Schema schema)
-    {
-      return schema.Sequences[sequenceInfo.MappingName];
-    }
-
-    private static SchemaNode GetGeneratorTable(ModelMapping mapping, SequenceInfo sequenceInfo, Schema schema)
-    {
-      return schema.Tables[sequenceInfo.MappingName];
     }
   }
 }

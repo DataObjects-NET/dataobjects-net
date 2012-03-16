@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// A collection of <see cref="TableInfo"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class TableInfoCollection : NodeCollectionBase<TableInfo, SchemaInfo>,
+  public sealed class TableInfoCollection : NodeCollectionBase<TableInfo, StorageModel>,
     IUnorderedNodeCollection
   {
     // Constructors
@@ -22,9 +22,9 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="schema">The storage.</param>
-    public TableInfoCollection(SchemaInfo schema)
-      : base(schema, "Tables")
+    /// <param name="storage">The storage.</param>
+    public TableInfoCollection(StorageModel storage)
+      : base(storage, "Tables")
     {
     }
   }

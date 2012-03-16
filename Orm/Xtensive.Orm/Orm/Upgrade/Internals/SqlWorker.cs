@@ -40,12 +40,12 @@ namespace Xtensive.Orm.Upgrade
 
     private static void ExtractMetadata(UpgradeServiceAccessor services, ISqlExecutor executor, SqlWorkerResult result)
     {
-      var schemaName = services.SchemaResolver.GetSchemaName(
+      var dummyName = services.Resolver.GetNodeName(
         services.Configuration.DefaultDatabase,
-        services.Configuration.DefaultSchema);
+        services.Configuration.DefaultSchema, "Dummy");
 
-      var schema = services.SchemaResolver.ResolveSchema(result.Schema, schemaName);
-      var extractor = new MetadataExtractor(services.NameBuilder, executor, schema);
+      var node = services.Resolver.Resolve(result.Schema, dummyName);
+      var extractor = new MetadataExtractor(services.NameBuilder, executor, node.Schema);
 
       result.Assemblies = extractor.GetAssemblies();
       result.Types = extractor.GetTypes();
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static SqlExtractionResult Extract(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
-      return executor.Extract(services.SchemaResolver.GetExtractionTasks(services.Driver.ProviderInfo));
+      return executor.Extract(services.Resolver.GetExtractionTasks(services.Driver.ProviderInfo));
     }
 
     private static void DropSchema(UpgradeServiceAccessor services, ISqlExecutor executor)

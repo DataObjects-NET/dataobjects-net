@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade
   internal sealed class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
     private readonly SqlExtractionResult sourceModel;
-    private readonly SchemaResolver schemaResolver;
+    private readonly SchemaNodeResolver resolver;
     private readonly ProviderInfo providerInfo;
     private readonly PartialIndexFilterNormalizer normalizer;
 
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Upgrade
     public StorageModel Run()
     {
       if (targetModel==null) {
-        targetModel = schemaResolver.GetEmptyModel();
+        targetModel = new StorageModel();
         foreach (var catalog in sourceModel.Catalogs)
           VisitCatalog(catalog);
       }
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitTable(Table table)
     {
-      var tableInfo = new TableInfo(GetTargetSchema(table), table.Name);
+      var tableInfo = new TableInfo(targetModel, resolver.GetNodeName(table));
 
       currentTable = tableInfo;
 
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitForeignKey(ForeignKey key)
     {
-      var referencingTable = GetTargetSchema(key.Owner).Tables[key.Owner.Name];
+      var referencingTable = targetModel.Tables[resolver.GetNodeName(key.Owner)];
       var referencingColumns = new List<StorageColumnInfo>();
 
       foreach (var refColumn in key.Columns)
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Upgrade
         OnRemoveAction = ConvertReferentialAction(key.OnDelete)
       };
 
-      var referencedTable = GetTargetSchema(key.ReferencedTable).Tables[key.ReferencedTable.Name];
+      var referencedTable = targetModel.Tables[resolver.GetNodeName(key.ReferencedTable)];
       foreignKeyInfo.PrimaryKey = referencedTable.PrimaryIndex;
 
       foreach (var column in referencingColumns)
@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Upgrade
       }
       var typeInfo = type!=null ? new StorageTypeInfo(type, null) : StorageTypeInfo.Undefined;
 
-      var sequenceInfo = new StorageSequenceInfo(GetTargetSchema(sequence), sequence.Name) {
+      var sequenceInfo = new StorageSequenceInfo(targetModel, resolver.GetNodeName(sequence)) {
         Increment = sequence.SequenceDescriptor.Increment.Value,
         // StartValue = sequence.SequenceDescriptor.StartValue.Value,
         Type = typeInfo
@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Upgrade
       var increment = idColumn.SequenceDescriptor.Increment;
       var type = ExtractType(idColumn);
       var sequence =
-        new StorageSequenceInfo(GetTargetSchema(generatorTable), generatorTable.Name) {
+        new StorageSequenceInfo(targetModel, resolver.GetNodeName(generatorTable)) {
           Seed = startValue ?? 0,
           Increment = increment ?? 1,
           Type = type,
@@ -340,10 +340,6 @@ namespace Xtensive.Orm.Upgrade
         table.TableColumns[0].SequenceDescriptor!=null;
     }
 
-    private SchemaInfo GetTargetSchema(SchemaNode node)
-    {
-      return targetModel.Schemas[schemaResolver.GetSchemaName(node)];
-    }
 
     // Constructors
 
@@ -354,7 +350,7 @@ namespace Xtensive.Orm.Upgrade
 
       this.sourceModel = sourceModel;
 
-      schemaResolver = services.SchemaResolver;
+      resolver = services.Resolver;
       providerInfo = services.ProviderInfo;
       normalizer = services.Normalizer;
     }

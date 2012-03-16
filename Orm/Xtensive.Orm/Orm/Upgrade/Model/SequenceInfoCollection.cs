@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// The collection of <see cref="StorageSequenceInfo"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class SequenceInfoCollection : NodeCollectionBase<StorageSequenceInfo, SchemaInfo>,
+  public sealed class SequenceInfoCollection : NodeCollectionBase<StorageSequenceInfo, StorageModel>,
     IUnorderedNodeCollection
   {
     // Constructors
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The storage.</param>
-    public SequenceInfoCollection(SchemaInfo parent)
+    public SequenceInfoCollection(StorageModel parent)
       : base(parent, "Sequences")
     {
     }

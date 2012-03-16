@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture, Category("Upgrade")]
   public class ConvertDomainModelTest
   {
-    protected SchemaInfo Schema { get; set; }
+    protected StorageModel Schema { get; set; }
 
     protected Domain Domain { get; set; }
     
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [SetUp]
     public virtual void SetUp()
     {
-      Schema = BuildDomain().StorageModel.Schemas.Single();
+      Schema = BuildDomain().StorageModel;
     }
 
     [Test]

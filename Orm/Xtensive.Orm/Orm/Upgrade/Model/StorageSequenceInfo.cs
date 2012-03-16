@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Sequence.
   /// </summary>
   [Serializable]
-  public sealed class StorageSequenceInfo : NodeBase<SchemaInfo>
+  public sealed class StorageSequenceInfo : NodeBase<StorageModel>
   {
     private StorageTypeInfo type;
     private long seed;
@@ -49,6 +49,9 @@ namespace Xtensive.Orm.Upgrade.Model
       get { return increment; }
       set
       {
+//        Increment value can be negative
+//        ArgumentValidator
+//          .EnsureArgumentIsGreaterThan(value, 0, "Increment");
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Increment", value)) {
           increment = value;
@@ -80,7 +83,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<StorageSequenceInfo, SchemaInfo, SequenceInfoCollection>(this, "Sequences");
+      return new Nesting<StorageSequenceInfo, StorageModel, SequenceInfoCollection>(this, "Sequences");
     }
 
     /// <inheritdoc/>
@@ -115,7 +118,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent.</param>
     /// <param name="name">The name.</param>
-    public StorageSequenceInfo(SchemaInfo parent, string name)
+    public StorageSequenceInfo(StorageModel parent, string name)
       : base(parent, name)
     {
     }

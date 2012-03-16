@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly NameBuilder nameBuilder;
     private readonly StorageDriver driver;
     private readonly PartialIndexFilterNormalizer normalizer;
-    private readonly SchemaResolver schemaResolver;
+    private readonly SchemaNodeResolver resolver;
     private readonly Func<Type, int> typeIdProvider;
 
     private StorageModel targetModel;
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Upgrade
     public StorageModel Run()
     {
       if (targetModel==null) {
-        targetModel = schemaResolver.GetEmptyModel();
+        targetModel = new StorageModel();
         Visit(sourceModel);
       }
 
@@ -121,8 +121,8 @@ namespace Xtensive.Orm.Upgrade
       foreach (var indexPair in indexPairs.Keys) {
         var referencedIndex = indexPair.First;
         var referencingIndex = indexPair.Second;
-        var referencingTable = GetTargetSchema(referencedIndex.ReflectedType).Tables[referencingIndex.ReflectedType.MappingName];
-        var referencedTable = GetTargetSchema(referencedIndex.ReflectedType).Tables[referencedIndex.ReflectedType.MappingName];
+        var referencingTable = targetModel.Tables[resolver.GetNodeName(referencingIndex.ReflectedType)];
+        var referencedTable = targetModel.Tables[resolver.GetNodeName(referencedIndex.ReflectedType)];
         var storageReferencingIndex = FindIndex(referencingTable,
           new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
 
@@ -226,7 +226,7 @@ namespace Xtensive.Orm.Upgrade
       long increment = 1;
       if (providerInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement) || providerInfo.Supports(ProviderFeatures.Sequences))
         increment = sequenceInfo.Increment;
-      var sequence = new StorageSequenceInfo(GetTargetSchema(sequenceInfo), sequenceInfo.MappingName) {
+      var sequence = new StorageSequenceInfo(targetModel, resolver.GetNodeName(sequenceInfo)) {
         Seed = sequenceInfo.Seed,
         Increment = increment,
         Type = CreateType(keyInfo.TupleDescriptor[0], null, null, null),
@@ -264,8 +264,8 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>Visit result.</returns>
     private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
-      var tableName = index.ReflectedType.MappingName;
-      currentTable = new TableInfo(GetTargetSchema(index.ReflectedType), tableName);
+      var tableName = resolver.GetNodeName(index.ReflectedType);
+      currentTable = new TableInfo(targetModel, tableName);
       foreach (var column in index.Columns)
         Visit(column);
 
@@ -408,11 +408,15 @@ namespace Xtensive.Orm.Upgrade
 
     private TableInfo GetTable(TypeInfo type)
     {
-      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
-        return GetTargetSchema(type).Tables.FirstOrDefault(table => table.Name==type.MappingName);
-      if (type.IsInterface)
-        return null;
-      return GetTargetSchema(type).Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
+      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable) {
+        var name = resolver.GetNodeName(type);
+        return targetModel.Tables.FirstOrDefault(t => t.Name==name);
+      }
+      if (!type.IsInterface) {
+        var name = resolver.GetNodeName(type.Hierarchy.Root);
+        return targetModel.Tables.FirstOrDefault(table => table.Name==name);
+      }
+      return null;
     }
 
     private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
@@ -429,8 +433,7 @@ namespace Xtensive.Orm.Upgrade
     private static void CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
     {
       var foreignColumns = referencingField.Columns.Select(column => referencingTable.Columns[column.Name]).ToList();
-      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
-      {
+      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,
         OnUpdateAction = ReferentialAction.None
@@ -459,9 +462,11 @@ namespace Xtensive.Orm.Upgrade
 
     private void ProcessDirectAssociation(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
     {
+      if (!AreMappedToSameDatabase(ownerType, targetType))
+        return;
       var referencingTable = GetTable(ownerType);
       var referencedTable = GetTable(targetType);
-      if (referencedTable==null || referencingTable==null || referencingTable.Parent!=referencedTable.Parent)
+      if (referencedTable==null || referencingTable==null)
         return;
       var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(ownerType, ownerField, targetType);
       CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
@@ -474,14 +479,19 @@ namespace Xtensive.Orm.Upgrade
         return;
       foreach (var field in auxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
         var referencedType = sourceModel.Types[field.ValueType];
-        if (!IsValidForeignKeyTarget(referencedType))
+        if (!IsValidForeignKeyTarget(referencedType) || !AreMappedToSameDatabase(auxiliaryType, referencedType))
           continue;
         var referencedTable = GetTable(referencedType);
-        if (referencedTable==null || referencedTable.Parent!=referencingTable.Parent)
+        if (referencedTable==null)
           continue;
         var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(auxiliaryType, field, referencedType);
         CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
       }
+    }
+
+    private bool AreMappedToSameDatabase(TypeInfo type1, TypeInfo type2)
+    {
+      return (type1.MappingDatabase ?? string.Empty)==(type2.MappingDatabase ?? string.Empty);
     }
 
     private IEnumerable<TypeInfo> GetForeignKeyOwners(TypeInfo type)
@@ -554,11 +564,6 @@ namespace Xtensive.Orm.Upgrade
       return table;
     }
 
-    private SchemaInfo GetTargetSchema(SchemaMappedNode node)
-    {
-      return targetModel.Schemas[schemaResolver.GetSchemaName(node)];
-    }
-
     // Constructors
 
     public DomainModelConverter(HandlerAccessor handlers, Func<Type, int> typeIdProvider, PartialIndexFilterNormalizer normalizer)
@@ -575,7 +580,7 @@ namespace Xtensive.Orm.Upgrade
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
-      schemaResolver = handlers.SchemaResolver;
+      resolver = handlers.SchemaNodeResolver;
     }
   }
 }

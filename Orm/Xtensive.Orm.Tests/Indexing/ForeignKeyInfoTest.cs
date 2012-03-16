@@ -27,8 +27,7 @@ namespace Xtensive.Orm.Tests.Indexing
     public void BuildStorageModel()
     {
       storage = new StorageModel("storage");
-      var schema = new SchemaInfo(storage, "schema");
-      referencingTable = new TableInfo(schema, "referencingTable");
+      referencingTable = new TableInfo(storage, "referencingTable");
       var pkColumn = new StorageColumnInfo(referencingTable, "Id", new StorageTypeInfo(typeof (int), null));
       var fkColumn = new StorageColumnInfo(referencingTable, "foreignId", new StorageTypeInfo(typeof (int?), null));
       var fkColumn2 = new StorageColumnInfo(referencingTable, "invalideForeignId", new StorageTypeInfo(typeof (string), null));
@@ -42,7 +41,7 @@ namespace Xtensive.Orm.Tests.Indexing
       new KeyColumnRef(invalideReferencingIndex, fkColumn2);
       primaryKey.PopulateValueColumns();
 
-      referencedTable = new TableInfo(schema, "referencedTable");
+      referencedTable = new TableInfo(storage, "referencedTable");
       pkColumn = new StorageColumnInfo(referencedTable, "Id", new StorageTypeInfo(typeof (int), null));
       foreignPrimary = new PrimaryIndexInfo(referencedTable, "Id");
       new KeyColumnRef(foreignPrimary, pkColumn);

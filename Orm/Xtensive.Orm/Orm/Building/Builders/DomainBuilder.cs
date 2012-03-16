@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Building.Builders
         handlers.NameBuilder = services.NameBuilder;
 
         // SchemaResolver
-        handlers.SchemaResolver = services.SchemaResolver;
+        handlers.SchemaNodeResolver = services.Resolver;
 
         // StorageDriver
         handlers.StorageDriver = services.Driver.CreateNew(context.Domain);

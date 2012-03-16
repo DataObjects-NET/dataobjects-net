@@ -50,9 +50,9 @@ namespace Xtensive.Orm.Providers
     public DomainHandler DomainHandler { get; internal set; }
 
     /// <summary>
-    /// Gets the <see cref="SchemaResolver"/> instance.
+    /// Gets the <see cref="SchemaNodeResolver"/> instance.
     /// </summary>
-    internal SchemaResolver SchemaResolver { get; set; }
+    internal SchemaNodeResolver SchemaNodeResolver { get; set; }
 
     /// <summary>
     /// Gets the <see cref="SequenceQueryBuilder"/> instance.

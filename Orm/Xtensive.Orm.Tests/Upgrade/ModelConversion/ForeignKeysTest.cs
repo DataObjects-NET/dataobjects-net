@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         || SingleTableSchemaModifier.IsEnabled)
         return;
       var targetModel = (StorageModel) context.SchemaHints.TargetModel;
-      var schema = targetModel.Schemas.Single();
+      var schema = targetModel;
       
       var tableA = schema.Tables["A"];
       var tableB = schema.Tables["B"];
