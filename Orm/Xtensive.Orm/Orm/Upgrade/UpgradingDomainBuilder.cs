@@ -205,8 +205,9 @@ namespace Xtensive.Orm.Upgrade
       using (var session = domain.OpenSession(SessionType.System))
       using (session.Activate())
       using (var upgrader = new SchemaUpgrader(context, session)) {
-        SynchronizeSchema(domain, upgrader, GetUpgradeMode(stage));
-        domain.Handler.BuildMapping(upgrader.GetExtractedSqlSchema());
+        var extractor = new SchemaExtractor(context, session);
+        SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
+        domain.Handler.BuildMapping(extractor.GetSqlSchema());
         OnStage();
       }
     }
@@ -282,13 +283,11 @@ namespace Xtensive.Orm.Upgrade
       return ModelTypeInfo.NoTypeId;
     }
 
-    /// <exception cref="SchemaSynchronizationException">Extracted schema is incompatible 
-    /// with the target schema in specified <paramref name="schemaUpgradeMode"/>.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
-    private void SynchronizeSchema(Domain domain, SchemaUpgrader upgrader, SchemaUpgradeMode schemaUpgradeMode)
+    private void SynchronizeSchema(
+      Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
-        var extractedSchema = upgrader.GetExtractedSchema();
+        var extractedSchema = extractor.GetSchema();
         var targetSchema = domain.StorageModel = GetTargetModel(domain);
 
         if (Log.IsLogged(LogEventTypes.Info)) {
@@ -335,9 +334,9 @@ namespace Xtensive.Orm.Upgrade
             goto case SchemaUpgradeMode.Perform;
           case SchemaUpgradeMode.Recreate:
           case SchemaUpgradeMode.Perform:
-            upgrader.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+            upgrader.UpgradeSchema(extractor.GetSqlSchema(), extractedSchema, targetSchema, result.UpgradeActions);
             if (result.UpgradeActions.Any())
-              upgrader.ClearExtractedSchemaCache();
+              extractor.ClearCache();
             break;
           case SchemaUpgradeMode.ValidateLegacy:
             if (result.IsCompatibleInLegacyMode!=true)
