@@ -21,11 +21,6 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public AssemblyMetadata(string name)
-      : this(name, null)
-    {
-    }
-
     public AssemblyMetadata(string name, string version)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");

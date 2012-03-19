@@ -36,11 +36,7 @@ namespace Xtensive.Orm.Metadata
 
     #endregion
 
-    /// <summary>
-    /// Ensures the entity is writable.
-    /// </summary>
-    /// <exception cref="Exception">Object is read-only.</exception>
-    protected void EnsureIsWritable()
+    private void EnsureIsWritable()
     {
       if (Upgrade.UpgradeContext.Current==null)
         throw Exceptions.ObjectIsReadOnly(null);

@@ -124,8 +124,8 @@ namespace Xtensive.Orm.Upgrade
         var referencingIndex = indexPair.Second;
         var referencingTable = targetModel.Tables[resolver.GetNodeName(referencingIndex.ReflectedType)];
         var referencedTable = targetModel.Tables[resolver.GetNodeName(referencedIndex.ReflectedType)];
-        var storageReferencingIndex = FindIndex(referencingTable,
-          new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
+        var storageReferencingIndex = FindIndex(
+          referencingTable, referencingIndex.KeyColumns.Select(ci => ci.Key.Name).ToList());
 
         string foreignKeyName = nameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
         CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
@@ -351,60 +351,19 @@ namespace Xtensive.Orm.Upgrade
       return Activator.CreateInstance(column.ValueType);
     }
 
-    private static ReferentialAction ConvertReferentialAction(OnRemoveAction source)
+    private static StorageIndexInfo FindIndex(TableInfo table, ICollection<string> keyColumns)
     {
-      switch (source) {
-      case OnRemoveAction.Deny:
-        return ReferentialAction.Restrict;
-      case OnRemoveAction.Cascade:
-        return ReferentialAction.Cascade;
-      case OnRemoveAction.Clear:
-        return ReferentialAction.Clear;
-      default:
-        return ReferentialAction.Default;
-      }
-    }
+      var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name).ToList();
 
-    private static StorageIndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
-    {
-      IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
-      if (primaryKeyColumns.Except(keyColumns)
-        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
+      if (!primaryKeyColumns.Except(keyColumns).Union(keyColumns.Except(primaryKeyColumns)).Any())
         return table.PrimaryIndex;
 
       foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
-        IEnumerable<string> secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
-        if (secondaryKeyColumns.Except(keyColumns)
-          .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
+        var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name).ToList();
+        if (!secondaryKeyColumns.Except(keyColumns).Union(keyColumns.Except(secondaryKeyColumns)).Any())
           return index;
       }
       return null;
-    }
-
-    private static IndexInfo FindIndex(IndexInfo index, FieldInfo field)
-    {
-      if (index.IsVirtual) {
-        foreach (var underlyingIndex in index.UnderlyingIndexes) {
-          var result = FindIndex(underlyingIndex, field);
-          if (result!=null)
-            return result;
-        }
-      }
-      else if (field==null || index.Columns.ContainsAny(field.Columns))
-        return index;
-      return null;
-    }
-
-    private static IndexInfo FindNonVirtualPrimaryIndex(IndexInfo index)
-    {
-      if (index.IsPrimary && !index.IsVirtual)
-        return index;
-      var primaryIndex = index.ReflectedType.Indexes.PrimaryIndex;
-
-      return
-        primaryIndex.IsVirtual
-          ? primaryIndex.DeclaringIndex
-          : primaryIndex;
     }
 
     private TableInfo GetTable(TypeInfo type)
