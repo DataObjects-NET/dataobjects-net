@@ -328,6 +328,7 @@ namespace Xtensive.Orm.Upgrade
         RecreateTableWithNewName(oldTable, newTableNode);
 
       oldTableInfo.Name = action.Name;
+
       RenameSchemaTable(oldTable, oldTable.Schema, newTableNode.Schema, newTableNode.Name);
     }
 
@@ -346,11 +347,13 @@ namespace Xtensive.Orm.Upgrade
       // Copying data from one table to another
       var insert = SqlDml.Insert(SqlDml.TableRef(newTable));
       var select = SqlDml.Select(SqlDml.TableRef(oldTable));
-      insert.From = SqlDml.QueryRef(@select);
+      insert.From = select;
       RegisterCommand(insert);
 
       // Removing table
       RegisterCommand(SqlDdl.Drop(oldTable));
+
+      newTable.Schema.Tables.Remove(newTable);
     }
 
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)

@@ -10,9 +10,10 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlInsert : SqlQueryStatement, ISqlCompileUnit
   {
-    private Dictionary<SqlColumn, SqlExpression> values = new Dictionary<SqlColumn, SqlExpression>();
+    private readonly Dictionary<SqlColumn, SqlExpression> values = new Dictionary<SqlColumn, SqlExpression>();
+
     private SqlTableRef into;
-    private SqlTable from;
+    private SqlSelect from;
 
     /// <summary>
     /// Gets or sets the table.
@@ -37,7 +38,7 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets or sets the FROM clause expression.
     /// </summary>
-    public SqlTable From {
+    public SqlSelect From {
       get {
         return from;
       }
@@ -53,9 +54,9 @@ namespace Xtensive.Sql.Dml
 
       SqlInsert clone = new SqlInsert();
       if (Into!=null)
-        clone.Into = (SqlTableRef)Into.Clone(context);
+        clone.Into = (SqlTableRef) Into.Clone(context);
       if (from!=null)
-        clone.From = (SqlTable)from.Clone(context);
+        clone.From = (SqlSelect) from.Clone(context);
       foreach (KeyValuePair<SqlColumn, SqlExpression> p in values)
         clone.Values[(SqlTableColumn) p.Key.Clone(context)] =
           p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
