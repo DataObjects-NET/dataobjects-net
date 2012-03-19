@@ -206,10 +206,11 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 			using (context.EnterScope(node)) {
 				context.Output.AppendText(translator.Translate(context, node, TrimSection.Entry));
 				context.Output.AppendText(translator.Translate(node.TrimType));
-				if (node.TrimCharacters!=null)
-					context.Output.AppendText(translator.Translate(context, node.TrimCharacters));
-				//context.Output.AppendText(translator.Translate(context, node, TrimSection.From));
 				node.Expression.AcceptVisitor(this);
+				if (node.TrimCharacters!=null) {
+					context.Output.AppendText(",");
+					context.Output.AppendText(translator.Translate(context, node.TrimCharacters));
+				}
 				context.Output.AppendText(translator.Translate(context, node, TrimSection.Exit));
 			}
 		}
