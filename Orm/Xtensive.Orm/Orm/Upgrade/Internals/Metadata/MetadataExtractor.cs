@@ -20,6 +20,9 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class MetadataExtractor
   {
+    private TypeMapping stringMapping;
+    private TypeMapping intMapping;
+
     private readonly NameBuilder nameBuilder;
     private readonly ISqlExecutor executor;
 
@@ -64,24 +67,24 @@ namespace Xtensive.Orm.Upgrade
 
     #region Private / internal methods
 
-    private static ExtensionMetadata ParseExtension(DbDataReader reader)
+    private ExtensionMetadata ParseExtension(DbDataReader reader)
     {
-      var name = reader.GetString(0);
-      var text = reader.IsDBNull(1) ? null : reader.GetString(1);
+      var name = ReadString(reader, 0);
+      var text = ReadString(reader, 1);
       return new ExtensionMetadata(name, text);
     }
 
-    private static AssemblyMetadata ParseAssembly(DbDataReader reader)
+    private AssemblyMetadata ParseAssembly(DbDataReader reader)
     {
-      var name = reader.GetString(0);
-      var version = reader.IsDBNull(1) ? null : reader.GetString(1);
+      var name = ReadString(reader, 0);
+      var version = ReadString(reader, 1);
       return new AssemblyMetadata(name, version);
     }
 
-    private static TypeMetadata ParseType(DbDataReader reader)
+    private TypeMetadata ParseType(DbDataReader reader)
     {
-      var id = reader.GetInt32(0);
-      var name = reader.GetString(1);
+      var id = ReadInt(reader, 0);
+      var name = ReadString(reader, 1);
       return new TypeMetadata(id, name);
     }
 
@@ -114,6 +117,16 @@ namespace Xtensive.Orm.Upgrade
       return select;
     }
 
+    private string ReadString(DbDataReader reader, int index)
+    {
+      return reader.IsDBNull(index) ? null : (string) stringMapping.ReadValue(reader, index);
+    }
+
+    private int ReadInt(DbDataReader reader, int index)
+    {
+      return (int) intMapping.ReadValue(reader, index);
+    }
+
     private string TableOf(System.Type type)
     {
       var name = type
@@ -134,14 +147,18 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public MetadataExtractor(NameBuilder nameBuilder, ISqlExecutor executor, Schema schema)
+    public MetadataExtractor(StorageDriver driver, NameBuilder nameBuilder, ISqlExecutor executor, Schema schema)
     {
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
       ArgumentValidator.EnsureArgumentNotNull(executor, "executor");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
 
       this.nameBuilder = nameBuilder;
       this.executor = executor;
+
+      stringMapping = driver.GetTypeMapping(typeof (string));
+      intMapping = driver.GetTypeMapping(typeof (int));
 
       databaseName = schema.Catalog.Name;
       schemaName = schema.Name;

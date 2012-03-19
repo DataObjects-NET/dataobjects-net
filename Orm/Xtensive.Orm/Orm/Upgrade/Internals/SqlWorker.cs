@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade
         services.Configuration.DefaultSchema, "Dummy");
 
       var node = services.Resolver.Resolve(result.Schema, dummyName);
-      var extractor = new MetadataExtractor(services.NameBuilder, executor, node.Schema);
+      var extractor = new MetadataExtractor(services.Driver, services.NameBuilder, executor, node.Schema);
 
       result.Assemblies = extractor.GetAssemblies();
       result.Types = extractor.GetTypes();
