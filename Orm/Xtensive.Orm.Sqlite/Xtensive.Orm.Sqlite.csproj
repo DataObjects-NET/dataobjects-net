@@ -122,7 +122,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Sql.Drivers.Sqlite\Issues.txt" />
-    <Content Include="Sql.Drivers.Sqlite\keep.txt" />
     <Content Include="Sql.Drivers.Sqlite\Progression.txt" />
     <Content Include="Sql.Drivers.Sqlite\readme.txt" />
   </ItemGroup>
