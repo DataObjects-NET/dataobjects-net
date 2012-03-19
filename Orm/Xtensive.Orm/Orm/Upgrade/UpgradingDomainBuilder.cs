@@ -341,7 +341,7 @@ namespace Xtensive.Orm.Upgrade
     private StorageModel GetTargetModel(Domain domain)
     {
       var normalizer = context.Services.Normalizer;
-      var converter = new DomainModelConverter(domain.Handlers, ProvideTypeId, normalizer) {
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, normalizer) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
         BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
       };
