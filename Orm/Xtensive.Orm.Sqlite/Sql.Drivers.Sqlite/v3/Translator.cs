@@ -399,7 +399,7 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 			case TableColumnSection.Exit:
 				return string.Empty;
 			case TableColumnSection.GeneratedExit:
-				return "PRIMARY KEY AUTOINCREMENT"; //Workaround based on fake sequence.
+				return string.Empty;
 			default:
 				return base.Translate(context, column, section);
 			}
