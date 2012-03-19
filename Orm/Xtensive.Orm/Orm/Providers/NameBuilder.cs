@@ -37,7 +37,6 @@ namespace Xtensive.Orm.Providers
 
     private readonly Dictionary<Pair<Type, string>, string> fieldNameCache = new Dictionary<Pair<Type, string>, string>();
     private readonly object _lock = new object();
-    private readonly HashAlgorithm hashAlgorithm;
     private readonly int maxIdentifierLength;
     private readonly NamingConvention namingConvention;
 
@@ -181,15 +180,19 @@ namespace Xtensive.Orm.Providers
     private string BuildFieldNameInternal(PropertyInfo propertyInfo)
     {
       var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
-      string result;
-      if (fieldNameCache.TryGetValue(key, out result))
-        return result;
-      var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>();
-      if (attribute!=null) {
-        result = attribute.Name;
-        fieldNameCache.Add(key, result);
-        return result;
+
+      lock (fieldNameCache) {
+        string result;
+        if (fieldNameCache.TryGetValue(key, out result))
+          return result;
+        var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>();
+        if (attribute!=null) {
+          result = attribute.Name;
+          fieldNameCache.Add(key, result);
+          return result;
+        }
       }
+
       return propertyInfo.Name;
     }
 
@@ -199,11 +202,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="propertyInfo">The property info.</param>
     public string BuildFieldName(PropertyInfo propertyInfo)
     {
-      var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
-      string result;
-      return fieldNameCache.TryGetValue(key, out result) 
-        ? result 
-        : propertyInfo.Name;
+      lock (fieldNameCache) {
+        var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
+        string result;
+        return fieldNameCache.TryGetValue(key, out result)
+          ? result
+          : propertyInfo.Name;
+      }
     }
 
     /// <summary>
@@ -550,8 +555,10 @@ namespace Xtensive.Orm.Providers
     /// <returns>Computed hash.</returns>
     protected string GetHash(string name)
     {
-      byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
-      return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
+        byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
+        return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      }
     }
 
 
@@ -562,8 +569,6 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNull(configuration.NamingConvention, "configuration.NamingConvention");
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
-
-      hashAlgorithm = new MD5CryptoServiceProvider();
 
       namingConvention = configuration.NamingConvention;
       maxIdentifierLength = providerInfo.MaxIdentifierLength;
