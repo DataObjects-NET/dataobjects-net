@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class TypeIdBuilder
   {
     private readonly Domain domain;
-    private readonly Func<Type, int> typeIdProvider;
+    private readonly ITypeIdProvider typeIdProvider;
 
     public void BuildTypeIds()
     {
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Building.Builders
         .Where(type => type.TypeId==TypeInfo.NoTypeId && type.UnderlyingType!=typeof (Structure))
         .Select(type => new {
           Type = type,
-          Id = type.IsEntity ? typeIdProvider.Invoke(type.UnderlyingType) : TypeInfo.NoTypeId
+          Id = type.IsEntity ? typeIdProvider.GetTypeId(type.UnderlyingType) : TypeInfo.NoTypeId
         })
         .OrderByDescending(x => x.Type.IsEntity)
         .ThenBy(x => x.Type.Name)
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Building.Builders
 
     // Constructors
 
-    public TypeIdBuilder(Domain domain, Func<Type, int> typeIdProvider)
+    public TypeIdBuilder(Domain domain, ITypeIdProvider typeIdProvider)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");

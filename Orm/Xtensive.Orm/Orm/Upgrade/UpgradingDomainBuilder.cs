@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Upgrade
       serviceAccessor.Lock();
 
       context.Services = serviceAccessor;
-      context.TypeIdProvider = ProvideTypeId;
+      context.TypeIdProvider = new TypeIdProvider(context);
     }
 
     /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
@@ -253,35 +253,6 @@ namespace Xtensive.Orm.Upgrade
           Log.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
         }
       }
-    }
-
-    private int ProvideTypeId(Type type)
-    {
-      var typeId = ModelTypeInfo.NoTypeId;
-      var oldModel = context.ExtractedDomainModel;
-      if (oldModel==null && context.ExtractedTypeMap==null)
-        return typeId;
-
-      // type has been renamed?
-      var fullName = type.GetFullName();
-      var renamer = context.Hints.OfType<RenameTypeHint>()
-        .SingleOrDefault(hint => hint.NewType.GetFullName()==fullName);
-      if (renamer!=null) {
-        if (context.ExtractedTypeMap.TryGetValue(renamer.OldType, out typeId))
-          return typeId;
-        if (oldModel!=null)
-          return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
-      }
-      // type has been preserved
-      if (context.ExtractedTypeMap.TryGetValue(fullName, out typeId))
-        return typeId;
-      if (oldModel!=null) {
-        var oldType = oldModel.Types
-          .SingleOrDefault(t => t.UnderlyingType==fullName);
-        if (oldType!=null)
-          return oldType.TypeId;
-      }
-      return ModelTypeInfo.NoTypeId;
     }
 
     private void SynchronizeSchema(

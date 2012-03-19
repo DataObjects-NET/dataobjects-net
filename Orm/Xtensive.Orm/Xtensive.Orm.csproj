@@ -99,6 +99,7 @@
     <Compile Include="Orm\Attributes\VersionAttribute.cs" />
     <Compile Include="Orm\Attributes\VersionMode.cs" />
     <Compile Include="Orm\Building\Builders\AssociationBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\ITypeIdProvider.cs" />
     <Compile Include="Orm\Building\Builders\KeyGeneratorFactory.cs" />
     <Compile Include="Orm\Building\Builders\ProviderDescriptor.cs" />
     <Compile Include="Orm\Building\Builders\TypeGenerationMonitor.cs" />
@@ -355,6 +356,7 @@
     <Compile Include="Orm\Upgrade\Internals\SqlWorkerResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\SqlWorkerTask.cs" />
     <Compile Include="Orm\Upgrade\Internals\StageModelFilter.cs" />
+    <Compile Include="Orm\Upgrade\Internals\TypeIdProvider.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
     <Compile Include="Orm\Validation\Aspects\Constraints\EmailConstraint.cs" />

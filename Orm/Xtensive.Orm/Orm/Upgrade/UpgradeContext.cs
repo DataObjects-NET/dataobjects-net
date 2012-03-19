@@ -13,6 +13,7 @@ using Xtensive.IoC;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Upgrade.Model;
@@ -128,7 +129,7 @@ namespace Xtensive.Orm.Upgrade
 
     internal SqlWorkerResult WorkerResult { get; set; }
 
-    internal Func<Type, int> TypeIdProvider { get; set; }
+    internal ITypeIdProvider TypeIdProvider { get; set; }
 
     // Constructors.
 
