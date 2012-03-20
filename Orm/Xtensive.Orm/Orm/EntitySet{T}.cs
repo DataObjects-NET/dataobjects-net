@@ -249,7 +249,7 @@ namespace Xtensive.Orm
       return qe => GetItemsQuery(qe, field).LongCount();
     }
 
-    private static IQueryable<TItem> GetItemsQuery(Session.QueryEndpoint qe, FieldInfo field)
+    private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
         .GetProperty("Value", typeof(Entity)));
