@@ -18,11 +18,13 @@ namespace Xtensive.Orm.Internals.Prefetch
   internal sealed class NodeBuilder
   {
     private readonly DomainModel model;
-    private readonly ParameterExpression parameter;
+    private readonly Expression root;
     private readonly ExpressionMap map;
 
     public static KeyExtractorNode<T> Build<T, TValue>(DomainModel model, Expression<Func<T, TValue>> expression)
     {
+      if (!typeof (IEntity).IsAssignableFrom(typeof (T)))
+        return null;
       var parameter = expression.Parameters.First();
       if (expression.Body==parameter)
         return null;
@@ -34,15 +36,12 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static Func<T, IEnumerable<Key>> GetExtractor<T>()
     {
-      return target => {
-        var entity = target as IEntity;
-        return entity==null ? EnumerableUtils<Key>.Empty : EnumerableUtils.One(entity.Key);
-      };
+      return target => EnumerableUtils.One(((IEntity) target).Key);
     }
 
     private IEnumerable<BaseFieldNode> VisitRoot()
     {
-      return Visit(parameter);
+      return Visit(root);
     }
 
     private IEnumerable<BaseFieldNode> Visit(Expression expression)
@@ -140,10 +139,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    private NodeBuilder(DomainModel model, ExpressionMap map, ParameterExpression parameter)
+    private NodeBuilder(DomainModel model, ExpressionMap map, Expression root)
     {
       this.model = model;
-      this.parameter = parameter;
+      this.root = root;
       this.map = map;
     }
   }

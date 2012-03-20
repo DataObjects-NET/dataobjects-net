@@ -85,11 +85,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    protected override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
     {
       using (var connection = new SqlServerConnection(connectionString)) {
         connection.Open();
-        var version = new Version(connection.ServerVersion);
+        var version = new Version(forcedVersion ?? connection.ServerVersion);
         var builder = new SqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.DataSource, builder.InitialCatalog);
         var coreServerInfo = new CoreServerInfo {
@@ -100,15 +100,15 @@ namespace Xtensive.Sql.Drivers.SqlServer
         coreServerInfo.MultipleActiveResultSets = builder.MultipleActiveResultSets;
         if (IsAzure(connection))
           return new Azure.Driver(coreServerInfo, new ErrorMessageParser());
-        var parser = CreateMessageParser(connection);
-        switch (version.Major) {
-        case 9:
-          return new v09.Driver(coreServerInfo, parser);
-        case 10:
-          return new v10.Driver(coreServerInfo, parser);
-        default:
+
+        if (version.Major < 9)
           throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
-        }
+
+        var parser = CreateMessageParser(connection);
+        if (version.Major == 9)
+          return new v09.Driver(coreServerInfo, parser);
+
+        return new v10.Driver(coreServerInfo, parser);
       }
     }
   }

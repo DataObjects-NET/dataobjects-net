@@ -96,6 +96,7 @@ namespace Xtensive.Orm.Configuration
     private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
+    private string forcedServerVersion;
     private bool buildInParallel = DefaultBuildInParallel;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
@@ -389,6 +390,22 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets forced server version,
+    /// if this property set to non-empty value,
+    /// DataObjects.Net acts as it connected to server having
+    /// specified version, ignoring actual version of the server.
+    /// </summary>
+    public string ForcedServerVersion
+    {
+      get { return forcedServerVersion; }
+      set
+      {
+        this.EnsureNotLocked();
+        forcedServerVersion = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets value indicating whether <see cref="Domain.Build"/>
     /// process should be parallelized whenever possible.
     /// </summary>
@@ -499,6 +516,7 @@ namespace Xtensive.Orm.Configuration
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
+      forcedServerVersion = configuration.forcedServerVersion;
       buildInParallel = configuration.buildInParallel;
       databaseAliases = (DatabaseAliasCollection) configuration.DatabaseAliases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();

@@ -297,7 +297,7 @@ namespace Xtensive.Orm.Building.Builders
           if (field.Column!=null)
             clone.Column = BuildInheritedColumn(context, clone, field.Column);
         }
-        if (clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
+        if (clone.IsStructure && clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
           var origin = context.Model.Associations
             .Find(context.Model.Types[field.ValueType], true)
             .FirstOrDefault(a => a.OwnerField==field);

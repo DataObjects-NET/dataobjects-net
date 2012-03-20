@@ -21,8 +21,22 @@ namespace Xtensive.Sql
     /// <returns>Driver for <paramref name="connectionInfo"/>.</returns>
     public SqlDriver GetDriver(ConnectionInfo connectionInfo)
     {
+      return GetDriver(connectionInfo, null);
+    }
+
+    /// <summary>
+    /// Creates driver from the specified <paramref name="connectionInfo"/>.
+    /// </summary>
+    /// <param name="connectionInfo">The connection info to create driver from.</param>
+    /// <param name="forcedVersion">Forced server version.</param>
+    /// <returns>Created driver.</returns>
+    public SqlDriver GetDriver(ConnectionInfo connectionInfo, string forcedVersion)
+    {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
-      var driver = CreateDriver(GetConnectionString(connectionInfo));
+      var connectionString = GetConnectionString(connectionInfo);
+      if (forcedVersion==string.Empty)
+        forcedVersion = null; // Simplify handling for all servers
+      var driver = CreateDriver(connectionString, forcedVersion);
       driver.Initialize(this);
       return driver;
     }
@@ -42,8 +56,9 @@ namespace Xtensive.Sql
     /// Creates the driver from the specified <paramref name="connectionString"/>.
     /// </summary>
     /// <param name="connectionString">The connection string to create driver from.</param>
+    /// <param name="forcedVersion"> </param>
     /// <returns>Created driver.</returns>
-    protected abstract SqlDriver CreateDriver(string connectionString);
+    protected abstract SqlDriver CreateDriver(string connectionString, string forcedVersion);
 
     /// <summary>
     /// Builds the connection string from the specified URL.

@@ -430,6 +430,9 @@ namespace Xtensive.Orm
         Handler.DisposeSafely();
         disposableSet.DisposeSafely();
         disposableSet = null;
+
+        EntityChangeRegistry.Clear();
+        EntityStateCache.Clear();
       }
       finally {
         isDisposed = true;

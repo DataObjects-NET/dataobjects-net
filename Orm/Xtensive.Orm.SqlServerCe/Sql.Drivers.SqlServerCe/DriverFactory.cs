@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
   public class DriverFactory : SqlDriverFactory
   {
     /// <inheritdoc/>
-    protected override SqlDriver CreateDriver(string connectionString)
+    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
     {
       var version = new Version(3, 5, 1, 0);
       var coreServerInfo = new CoreServerInfo {
