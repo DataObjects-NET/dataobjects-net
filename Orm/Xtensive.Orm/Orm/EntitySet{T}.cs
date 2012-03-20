@@ -246,15 +246,15 @@ namespace Xtensive.Orm
     [Infrastructure]
     protected sealed override Func<QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {
-      return qe => GetItemsQuery(field).LongCount();
+      return qe => GetItemsQuery(qe, field).LongCount();
     }
 
-    private IQueryable<TItem> GetItemsQuery(FieldInfo field)
+    private static IQueryable<TItem> GetItemsQuery(Session.QueryEndpoint qe, FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
         .GetProperty("Value", typeof(Entity)));
       var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, field);
-      return Session.Query.Provider.CreateQuery<TItem>(queryExpression);
+      return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 
  

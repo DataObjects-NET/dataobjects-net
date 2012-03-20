@@ -60,12 +60,25 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void Test()
+    public void PrefetchViaPersistentType()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = Query.All<Jira0339Owner>()
           .Prefetch(o => o.Targets.Target)
+          .ToList();
+        StorageTestHelper.IsFetched(session, targetKey);
+      }
+    }
+
+    [Test]
+    public void PrefetchViaNonPersistentType()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var result = Query.All<Jira0339Owner>()
+          .GroupBy(o => new {Owner = o})
+          .Prefetch(g => g.Key.Owner.Targets.Target)
           .ToList();
         StorageTestHelper.IsFetched(session, targetKey);
       }
