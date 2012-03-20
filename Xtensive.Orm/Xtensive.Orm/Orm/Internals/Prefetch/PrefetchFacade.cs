@@ -31,6 +31,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
       var node = NodeBuilder.Build(session.Domain.Model, expression);
+      if (node==null)
+        return this;
       return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
     }
 
