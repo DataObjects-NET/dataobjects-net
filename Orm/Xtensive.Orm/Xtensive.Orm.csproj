@@ -136,7 +136,7 @@
     <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
     <Compile Include="Orm\Internals\SortingPersistActionGenerator.cs" />
-    <Compile Include="Orm\Metadata\ConfigurationModule.cs" />
+    <Compile Include="Orm\Building\SystemModule.cs" />
     <Compile Include="Orm\Providers\DomainHandler.cs" />
     <Compile Include="Orm\Providers\EnumerationContext.cs" />
     <Compile Include="Orm\Providers\EnumerationScope.cs" />
