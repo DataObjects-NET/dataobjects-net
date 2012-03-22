@@ -8,7 +8,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Providers
 {
-  internal struct NodeResolveResult
+  internal struct MappingResolveResult
   {
     public readonly Schema Schema;
 
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
       return Schema.Sequences[Name];
     }
 
-    public NodeResolveResult(Schema schema, string name)
+    public MappingResolveResult(Schema schema, string name)
     {
       Schema = schema;
       Name = name;

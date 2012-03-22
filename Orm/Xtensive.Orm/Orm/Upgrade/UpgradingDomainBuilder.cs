@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Upgrade
         Driver = driver,
         NameBuilder = new NameBuilder(configuration, driver.ProviderInfo),
         Normalizer = handlerFactory.CreateHandler<PartialIndexFilterNormalizer>(),
-        Resolver = SchemaNodeResolver.Get(configuration, driver.ProviderInfo),
+        Resolver = MappingResolver.Get(configuration, driver.ProviderInfo),
       };
 
       var standardRegistrations = new[] {

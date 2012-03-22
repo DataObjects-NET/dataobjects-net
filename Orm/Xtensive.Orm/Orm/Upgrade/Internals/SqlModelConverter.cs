@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade
   internal sealed class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
     private readonly SqlExtractionResult sourceModel;
-    private readonly SchemaNodeResolver resolver;
+    private readonly MappingResolver resolver;
     private readonly ProviderInfo providerInfo;
     private readonly PartialIndexFilterNormalizer normalizer;
 

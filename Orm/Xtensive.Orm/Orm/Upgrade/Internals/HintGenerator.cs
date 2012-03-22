@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Upgrade
 
     private readonly List<Hint> schemaHints = new List<Hint>();
     private readonly IEnumerable<UpgradeHint> inputHints;
-    private readonly SchemaNodeResolver resolver;
+    private readonly MappingResolver resolver;
     private readonly DomainModel domainModel;
 
     public HintGenerationResult Run()
@@ -1212,7 +1212,7 @@ namespace Xtensive.Orm.Upgrade
       this.inputHints = inputHints;
 
       nameBuilder = handlers.NameBuilder;
-      resolver = handlers.SchemaNodeResolver;
+      resolver = handlers.MappingResolver;
       domainModel = handlers.Domain.Model;
 
       currentModel = domainModel.ToStoredModel();

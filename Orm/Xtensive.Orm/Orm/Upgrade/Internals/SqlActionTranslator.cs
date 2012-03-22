@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly StorageModel targetModel;
     private readonly StorageDriver driver;
     private readonly SequenceQueryBuilder sequenceQueryBuilder;
-    private readonly SchemaNodeResolver resolver;
+    private readonly MappingResolver resolver;
 
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<Sequence> createdSequences = new List<Sequence>();
@@ -332,7 +332,7 @@ namespace Xtensive.Orm.Upgrade
       RenameSchemaTable(oldTable, oldTable.Schema, newTableNode.Schema, newTableNode.Name);
     }
 
-    private void RecreateTableWithNewName(Table oldTable, NodeResolveResult newTableNode)
+    private void RecreateTableWithNewName(Table oldTable, MappingResolveResult newTableNode)
     {
       var newTable = newTableNode.Schema.CreateTable(newTableNode.Name);
 
@@ -610,7 +610,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private bool IsNewlyCreatedSequence(NodeResolveResult node)
+    private bool IsNewlyCreatedSequence(MappingResolveResult node)
     {
       if (providerInfo.Supports(ProviderFeatures.Sequences))
         return createdSequences.Any(s => s.Name==node.Name && s.Schema==node.Schema);
@@ -1205,7 +1205,7 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
 
       driver = handlers.StorageDriver;
-      resolver = handlers.SchemaNodeResolver;
+      resolver = handlers.MappingResolver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
       providerInfo = handlers.ProviderInfo;

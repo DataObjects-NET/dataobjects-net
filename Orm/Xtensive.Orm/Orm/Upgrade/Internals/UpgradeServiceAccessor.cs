@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade
     private DomainConfiguration configuration;
     private StorageDriver driver;
     private NameBuilder nameBuilder;
-    private SchemaNodeResolver resolver;
+    private MappingResolver resolver;
     private PartialIndexFilterNormalizer normalizer;
     private HandlerFactory handlerFactory;
     private ReadOnlyList<IModule> modules;
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public SchemaNodeResolver Resolver
+    public MappingResolver Resolver
     {
       get { return resolver; }
       set

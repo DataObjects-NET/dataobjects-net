@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
 
     private StorageColumnInfo GetColumnInfo(StorageModel model, TypeInfo type, string fieldName)
     {
-      var resolver = domain.Handlers.SchemaNodeResolver;
+      var resolver = domain.Handlers.MappingResolver;
       var table = model.Tables[resolver.GetNodeName(type)];
       var field = type.Fields[fieldName];
       return table.Columns[field.MappingName];

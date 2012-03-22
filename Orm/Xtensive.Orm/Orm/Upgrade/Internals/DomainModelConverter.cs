@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly NameBuilder nameBuilder;
     private readonly StorageDriver driver;
     private readonly PartialIndexFilterNormalizer normalizer;
-    private readonly SchemaNodeResolver resolver;
+    private readonly MappingResolver resolver;
     private readonly ITypeIdProvider typeIdProvider;
 
     private StorageModel targetModel;
@@ -541,7 +541,7 @@ namespace Xtensive.Orm.Upgrade
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
-      resolver = handlers.SchemaNodeResolver;
+      resolver = handlers.MappingResolver;
     }
   }
 }

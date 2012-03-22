@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building.Builders
       var domainModel = handlers.Domain.Model;
       var configuration = handlers.Domain.Configuration;
       var providerInfo = handlers.ProviderInfo;
-      var resolver = handlers.SchemaNodeResolver;
+      var resolver = handlers.MappingResolver;
 
       var mapping = new ModelMapping();
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Building.Builders
         .Where(s => s!=null)
         .Distinct();
 
-      Func<NodeResolveResult, SchemaNode> nodeResolver;
+      Func<MappingResolveResult, SchemaNode> nodeResolver;
       
       if (providerInfo.Supports(ProviderFeatures.Sequences))
         nodeResolver = r => r.GetSequence();

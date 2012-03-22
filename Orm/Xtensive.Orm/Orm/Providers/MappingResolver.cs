@@ -15,11 +15,11 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Providers
 {
-  internal abstract class SchemaNodeResolver
+  internal abstract class MappingResolver
   {
     private const char Separator = ':'; // This char is forbidden by name validator
 
-    private sealed class SimpleResolver : SchemaNodeResolver
+    private sealed class SimpleResolver : MappingResolver
     {
       private readonly ProviderInfo providerInfo;
 
@@ -33,10 +33,10 @@ namespace Xtensive.Orm.Providers
         return node.Name;
       }
 
-      public override NodeResolveResult Resolve(SqlExtractionResult model, string nodeName)
+      public override MappingResolveResult Resolve(SqlExtractionResult model, string nodeName)
       {
         var schema = model.Catalogs.Single().Schemas.Single();
-        return new NodeResolveResult(schema, nodeName);
+        return new MappingResolveResult(schema, nodeName);
       }
 
       public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private sealed class MultischemaResolver : SchemaNodeResolver
+    private sealed class MultischemaResolver : MappingResolver
     {
       private readonly ProviderInfo providerInfo;
       private readonly string defaultSchema;
@@ -71,12 +71,12 @@ namespace Xtensive.Orm.Providers
         return FormatNodeName(node.Schema.Name, node.Name);
       }
 
-      public override NodeResolveResult Resolve(SqlExtractionResult model, string nodeName)
+      public override MappingResolveResult Resolve(SqlExtractionResult model, string nodeName)
       {
         var names = nodeName.Split(Separator);
         var schema = model.Catalogs.Single().Schemas[names[0]];
         var name = names[1];
-        return new NodeResolveResult(schema, name);
+        return new MappingResolveResult(schema, name);
       }
 
       public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private sealed class MultidatabaseResolver : SchemaNodeResolver
+    private sealed class MultidatabaseResolver : MappingResolver
     {
       private readonly string defaultDatabase;
       private readonly string defaultSchema;
@@ -135,12 +135,12 @@ namespace Xtensive.Orm.Providers
         return FormatNodeName(schema.Catalog.Name, schema.Name, node.Name);
       }
 
-      public override NodeResolveResult Resolve(SqlExtractionResult model, string nodeName)
+      public override MappingResolveResult Resolve(SqlExtractionResult model, string nodeName)
       {
         var names = nodeName.Split(Separator);
         var schema = model.Catalogs[names[0]].Schemas[names[1]];
         var name = names[2];
-        return new NodeResolveResult(schema, name);
+        return new MappingResolveResult(schema, name);
       }
 
       public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
@@ -200,11 +200,11 @@ namespace Xtensive.Orm.Providers
 
     public abstract string GetNodeName(SchemaNode node);
 
-    public abstract NodeResolveResult Resolve(SqlExtractionResult model, string nodeName);
+    public abstract MappingResolveResult Resolve(SqlExtractionResult model, string nodeName);
 
     public abstract IEnumerable<SqlExtractionTask> GetExtractionTasks();
 
-    public static SchemaNodeResolver Get(DomainConfiguration configuration, ProviderInfo providerInfo)
+    public static MappingResolver Get(DomainConfiguration configuration, ProviderInfo providerInfo)
     {
       if (configuration.IsMultidatabase)
         return new MultidatabaseResolver(configuration);

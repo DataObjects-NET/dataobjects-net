@@ -154,7 +154,7 @@
     <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
     <Compile Include="Orm\Internals\SortingPersistActionGenerator.cs" />
-    <Compile Include="Orm\Providers\NodeResolveResult.cs" />
+    <Compile Include="Orm\Providers\MappingResolveResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Metadata\ConfigurationModule.cs" />
@@ -351,7 +351,7 @@
     <Compile Include="Orm\Services\TransactionMonitor.cs" />
     <Compile Include="Orm\TransactionState.cs" />
     <Compile Include="Orm\TransactionStateExtensions.cs" />
-    <Compile Include="Orm\Providers\SchemaNodeResolver.cs" />
+    <Compile Include="Orm\Providers\MappingResolver.cs" />
     <Compile Include="Orm\Upgrade\Internals\SqlWorker.cs" />
     <Compile Include="Orm\Upgrade\Internals\SqlWorkerResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\SqlWorkerTask.cs" />
