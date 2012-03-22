@@ -261,7 +261,7 @@ namespace Xtensive.Orm.Providers
         var sqlColumn = query.Columns[columnIndex];
         var column = provider.Header.Columns[columnIndex];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
-        var binding = new QueryParameterBinding(GetSeekKeyElementAccessor(provider.Key, i), typeMapping);
+        var binding = new QueryParameterBinding(typeMapping, GetSeekKeyElementAccessor(provider.Key, i));
         parameterBindings.Add(binding);
         query.Where &= sqlColumn==binding.ParameterReference;
       }

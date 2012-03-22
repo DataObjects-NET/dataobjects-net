@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Providers
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               var typeMapping = driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
-              binding = new PersistParameterBinding(fieldIndex, typeMapping, bindingType);
+              binding = new PersistParameterBinding(typeMapping, fieldIndex, bindingType);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Providers
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               var typeMapping = driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
-              binding = new PersistParameterBinding(fieldIndex, typeMapping, bindingType);
+              binding = new PersistParameterBinding(typeMapping, fieldIndex, bindingType);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Providers
           fieldIndex = GetFieldIndex(context.Task.Type, column1);
           if (!context.ParameterBindings.TryGetValue(column1, out binding)) {
             TypeMapping typeMapping1 = driver.GetTypeMapping(column1);
-            binding = new PersistParameterBinding(fieldIndex, typeMapping1);
+            binding = new PersistParameterBinding(typeMapping1, fieldIndex);
             context.ParameterBindings.Add(column1, binding);
           }
           expression &= tableRef[column1.Name]==binding.ParameterReference;
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Providers
           PersistParameterBinding binding;
           if (!context.ParameterBindings.TryGetValue(column, out binding)) {
             TypeMapping typeMapping = driver.GetTypeMapping(column);
-            binding = new PersistParameterBinding(fieldIndex, typeMapping);
+            binding = new PersistParameterBinding(typeMapping, fieldIndex);
             context.ParameterBindings.Add(column, binding);
           }
           expression &= tableRef[column.Name]==binding.ParameterReference;
@@ -171,17 +171,17 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    protected virtual PersistParameterBindingType GetBindingType(TableColumn column)
+    protected virtual ParameterTransmissionType GetBindingType(TableColumn column)
     {
       if (!useLargeObjects)
-        return PersistParameterBindingType.Regular;
+        return ParameterTransmissionType.Regular;
       switch (column.DataType.Type) {
       case SqlType.VarCharMax:
-        return PersistParameterBindingType.CharacterLob;
+        return ParameterTransmissionType.CharacterLob;
       case SqlType.VarBinaryMax:
-        return PersistParameterBindingType.BinaryLob;
+        return ParameterTransmissionType.BinaryLob;
       default:
-        return PersistParameterBindingType.Regular;
+        return ParameterTransmissionType.Regular;
       }
     }
 

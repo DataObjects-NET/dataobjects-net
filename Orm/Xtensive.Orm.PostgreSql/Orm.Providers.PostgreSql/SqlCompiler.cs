@@ -25,10 +25,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var rankColumnName = provider.Header.Columns.Last().Name;
 
       var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
-      var binding = new QueryParameterBinding(
-        provider.SearchCriteria.Invoke,
-        stringTypeMapping,
-        QueryParameterBindingType.Regular);
+      var binding = new QueryParameterBinding(stringTypeMapping,
+        provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
       SqlSelect select = SqlDml.Select();
       var realPrimaryIndex = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);

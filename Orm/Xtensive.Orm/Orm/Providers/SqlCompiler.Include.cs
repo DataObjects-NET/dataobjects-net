@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
       var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type));
-      binding = new QueryRowFilterParameterBinding(valueAccessor, mappings);
+      binding = new QueryRowFilterParameterBinding(mappings, valueAccessor);
       var resultExpression = SqlDml.DynamicFilter(binding);
       resultExpression.Expressions.AddRange(provider.FilteredColumns.Select(index => sourceColumns[index]));
       return resultExpression;

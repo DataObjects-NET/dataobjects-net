@@ -237,7 +237,7 @@
     <Compile Include="Orm\Providers\Requests\ParameterBinding.cs" />
     <Compile Include="Orm\Providers\PartialIndexFilterNormalizer.cs" />
     <Compile Include="Orm\Providers\Requests\PersistParameterBinding.cs" />
-    <Compile Include="Orm\Providers\Requests\PersistParameterBindingType.cs" />
+    <Compile Include="Orm\Providers\Requests\ParameterTransmissionType.cs" />
     <Compile Include="Orm\Providers\Requests\PersistRequest.cs" />
     <Compile Include="Orm\Providers\Requests\PersistRequestBuilder.cs" />
     <Compile Include="Orm\Providers\Requests\PersistRequestBuilderContext.cs" />

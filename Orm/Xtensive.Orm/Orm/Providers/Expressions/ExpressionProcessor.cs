@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Providers
         : (smartNull
             ? QueryParameterBindingType.SmartNull
             : QueryParameterBindingType.Regular);
-      var binding = new QueryParameterBinding(expression.CachingCompile(), typeMapping, bindingType);
+      var binding = new QueryParameterBinding(typeMapping, expression.CachingCompile(), bindingType);
       bindings.Add(binding);
       SqlExpression result;
       if (optimizeBooleanParameter) {

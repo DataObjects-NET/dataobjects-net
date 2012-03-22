@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Providers
       fieldIndex = 0;
       foreach (var column in tableRef.Columns) {
         TypeMapping typeMapping = typeMappings[fieldIndex];
-        var binding = new PersistParameterBinding(fieldIndex, typeMapping);
+        var binding = new PersistParameterBinding(typeMapping, fieldIndex);
         insertStatement.Values[column] = binding.ParameterReference;
         storeRequestBindings.Add(binding);
         fieldIndex++;

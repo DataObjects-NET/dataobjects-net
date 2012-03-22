@@ -209,14 +209,14 @@ namespace Xtensive.Orm.Providers
     private void AddPersistParameter(CommandPart commandPart,
       string parameterName, object parameterValue, PersistParameterBinding binding)
     {
-      switch (binding.BindingType) {
-      case PersistParameterBindingType.Regular:
+      switch (binding.TransmissionType) {
+      case ParameterTransmissionType.Regular:
         AddRegularParameter(commandPart, parameterName, parameterValue, binding.TypeMapping);
         break;
-      case PersistParameterBindingType.CharacterLob:
+      case ParameterTransmissionType.CharacterLob:
         AddCharacterLobParameter(commandPart, parameterName, (string) parameterValue);
         break;
-      case PersistParameterBindingType.BinaryLob:
+      case ParameterTransmissionType.BinaryLob:
         AddBinaryLobParameter(commandPart, parameterName, (byte[]) parameterValue);
         break;
       default:

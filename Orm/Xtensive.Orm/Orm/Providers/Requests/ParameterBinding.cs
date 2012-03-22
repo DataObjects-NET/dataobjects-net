@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -18,8 +19,9 @@ namespace Xtensive.Orm.Providers
   {
     public TypeMapping TypeMapping { get; private set; }
 
-    public SqlExpression ParameterReference { get; private set; }
+    public ParameterTransmissionType TransmissionType { get; private set; }
 
+    public SqlExpression ParameterReference { get; private set; }
 
     public static IEnumerable<T> NormalizeBindings<T>(IEnumerable<T> bindings)
       where T : ParameterBinding
@@ -30,9 +32,12 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    protected ParameterBinding(TypeMapping typeMapping)
+    protected ParameterBinding(TypeMapping typeMapping, ParameterTransmissionType transmissionType)
     {
+      ArgumentValidator.EnsureArgumentNotNull(typeMapping, "typeMapping");
+
       TypeMapping = typeMapping;
+      TransmissionType = transmissionType;
       ParameterReference = SqlDml.Placeholder(this);
     }
   }

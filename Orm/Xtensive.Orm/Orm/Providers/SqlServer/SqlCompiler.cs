@@ -21,10 +21,8 @@ namespace Xtensive.Orm.Providers.SqlServer
     {
       var domainHandler = DomainHandler;
       var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
-      var binding = new QueryParameterBinding(
-        provider.SearchCriteria.Invoke,
-        stringTypeMapping,
-        QueryParameterBindingType.Regular);
+      var binding = new QueryParameterBinding(stringTypeMapping,
+        provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
       SqlSelect select = SqlDml.Select();
       var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);

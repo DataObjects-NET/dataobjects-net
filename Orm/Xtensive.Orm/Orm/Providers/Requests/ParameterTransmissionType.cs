@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Possible types of <see cref="PersistParameterBinding"/>.
   /// </summary>
-  public enum PersistParameterBindingType
+  public enum ParameterTransmissionType
   {
     /// <summary>
     /// Indicates that no special handling of parameter is performed.

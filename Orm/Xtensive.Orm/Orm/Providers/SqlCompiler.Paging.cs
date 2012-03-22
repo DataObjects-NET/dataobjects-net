@@ -63,10 +63,8 @@ namespace Xtensive.Orm.Providers
 
     protected static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
     {
-      return new QueryParameterBinding(
-        BuildLimitOffsetAccessor(accessor),
-        null,
-        QueryParameterBindingType.LimitOffset);
+      return new QueryParameterBinding(null,
+        BuildLimitOffsetAccessor(accessor), QueryParameterBindingType.LimitOffset);
     }
 
     private static Func<object> BuildLimitOffsetAccessor(Func<int> originalAccessor)

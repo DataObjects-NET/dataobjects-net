@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Services
 
       var mapping = driver.GetTypeMapping(valueType);
       return new QueryParameterBinding(
-        new Providers.QueryParameterBinding(valueAccessor, mapping));
+        new Providers.QueryParameterBinding(mapping, valueAccessor));
     }
 
     /// <summary>

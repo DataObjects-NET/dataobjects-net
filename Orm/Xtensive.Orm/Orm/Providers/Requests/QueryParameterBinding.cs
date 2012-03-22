@@ -21,8 +21,9 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public QueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, QueryParameterBindingType bindingType)
-      : base(typeMapping)
+    private QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor,
+      ParameterTransmissionType transmissionType, QueryParameterBindingType bindingType)
+      : base(typeMapping, transmissionType)
     {
       ArgumentValidator.EnsureArgumentNotNull(valueAccessor, "valueAccessor");
 
@@ -37,8 +38,18 @@ namespace Xtensive.Orm.Providers
       BindingType = bindingType;
     }
 
-    public QueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping)
-      : this(valueAccessor, typeMapping, QueryParameterBindingType.Regular)
+    public QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor, ParameterTransmissionType transmissionType)
+      : this(typeMapping, valueAccessor, transmissionType, QueryParameterBindingType.Regular)
+    {
+    }
+
+    public QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor, QueryParameterBindingType bindingType)
+      : this(typeMapping, valueAccessor, ParameterTransmissionType.Regular, bindingType)
+    {
+    }
+
+    public QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor)
+      : this(typeMapping, valueAccessor, ParameterTransmissionType.Regular, QueryParameterBindingType.Regular)
     {
     }
   }
