@@ -22,14 +22,9 @@ namespace Xtensive.Orm.Providers
     public CommandFactory Factory { get; private set; }
 
     /// <summary>
-    /// Session this command processor is bound to.
-    /// </summary>
-    public Session Session { get; private set; }
-
-    /// <summary>
     /// <see cref="SqlTask"/> queue associated with current instance.
     /// </summary>
-    public Queue<SqlTask> Tasks { get; set; }
+    public Queue<SqlTask> Tasks { get; private set; }
 
     /// <summary>
     /// Executes all registred requests plus the specified one query,
