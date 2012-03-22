@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Providers
           var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
           string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
           configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
-          AddPersistParameter(part, parameterName, parameterValue, binding);
+          AddParameter(part, binding, parameterName, parameterValue);
         }
 
         part.Statement = compilationResult.GetCommandText(configuration);
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Providers
                 var name = string.Format(RowFilterParameterNameFormat, commonPrefix, tupleIndex, fieldIndex);
                 var value = tuple.GetValueOrDefault(fieldIndex);
                 parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
-                AddRegularParameter(result, name, value, rowTypeMapping[fieldIndex]);
+                AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
               }
               filterValues.Add(parameterReferences);
             }
@@ -149,14 +149,14 @@ namespace Xtensive.Orm.Providers
           // regular case -> just adding the parameter
           string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
           configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
-          AddRegularParameter(result, parameterName, parameterValue, binding.TypeMapping);
+          AddParameter(result, binding, parameterName, parameterValue);
         }
       }
       result.Statement = compilationResult.GetCommandText(configuration);
       return result;
     }
     
-    private void AddRegularParameter(CommandPart commandPart, string name, object value, TypeMapping mapping)
+    private void AddRegularParameter(CommandPart commandPart, TypeMapping mapping, string name, object value)
     {
       var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
@@ -206,12 +206,12 @@ namespace Xtensive.Orm.Providers
       commandPart.Parameters.Add(parameter);
     }
 
-    private void AddPersistParameter(CommandPart commandPart,
-      string parameterName, object parameterValue, PersistParameterBinding binding)
+    private void AddParameter(
+      CommandPart commandPart, ParameterBinding binding, string parameterName, object parameterValue)
     {
       switch (binding.TransmissionType) {
       case ParameterTransmissionType.Regular:
-        AddRegularParameter(commandPart, parameterName, parameterValue, binding.TypeMapping);
+        AddRegularParameter(commandPart, binding.TypeMapping, parameterName, parameterValue);
         break;
       case ParameterTransmissionType.CharacterLob:
         AddCharacterLobParameter(commandPart, parameterName, (string) parameterValue);
