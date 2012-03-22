@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals;
 using Xtensive.Sql;
@@ -83,7 +82,7 @@ namespace Xtensive.Orm.Providers
     private void RegisterQueryTask(QueryTask task, QueryRequest request)
     {
       task.Result = new List<Tuple>();
-      commandProcessor.Tasks.Enqueue(new SqlLoadTask(request, task.Result, task.ParameterContext));
+      commandProcessor.RegisterTask(new SqlLoadTask(request, task.Result, task.ParameterContext));
     }
 
     #region Transaction control methods
@@ -141,7 +140,7 @@ namespace Xtensive.Orm.Providers
     public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
       foreach (var action in persistActions)
-        commandProcessor.Tasks.Enqueue(CreatePersistTask(action));
+        commandProcessor.RegisterTask(CreatePersistTask(action));
       commandProcessor.ExecuteTasks(allowPartialExecution);
     }
 
@@ -198,7 +197,7 @@ namespace Xtensive.Orm.Providers
 
     private void EndNativeTransaction()
     {
-      commandProcessor.Tasks.Clear();
+      commandProcessor.ClearTasks();
     }
 
     #endregion
@@ -207,6 +206,8 @@ namespace Xtensive.Orm.Providers
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
       registrations.Add(new ServiceRegistration(typeof (ISqlExecutor), new SqlExecutor(driver, connection, Session)));
+      registrations.Add(new ServiceRegistration(typeof (CommandFactory), commandProcessor.Factory));
+      registrations.Add(new ServiceRegistration(typeof (CommandProcessor), commandProcessor));
     }
 
     /// <inheritdoc/>

@@ -11,14 +11,22 @@ namespace Xtensive.Orm.Providers
 {
   internal sealed class SimpleCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
+    public override void RegisterTask(SqlTask task)
+    {
+      task.ProcessWith(this);
+    }
+
+    public override void ClearTasks()
+    {
+    }
+
     public override void ExecuteTasks(bool allowPartialExecution)
     {
-      ExecuteAllTasks();
+      // All tasks are already executed in RegisterTask method.
     }
 
     public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest lastRequest)
     {
-      ExecuteAllTasks();
       var command = Factory.CreateCommand();
       var part = Factory.CreateQueryPart(lastRequest);
       command.AddPart(part);
@@ -46,14 +54,6 @@ namespace Xtensive.Orm.Providers
     }
 
     #region Private / internal methods
-
-    private void ExecuteAllTasks()
-    {
-      while (Tasks.Count > 0) {
-        var task = Tasks.Dequeue();
-        task.ProcessWith(this);
-      }
-    }
 
     private void ExecutePersist(SqlPersistTask task)
     {

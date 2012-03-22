@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -14,6 +13,7 @@ namespace Xtensive.Orm.Providers
   internal sealed class BatchingCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
     private readonly int batchSize;
+    private readonly Queue<SqlTask> tasks;
 
     private int reenterCount;
     private Command activeCommand;
@@ -35,19 +35,29 @@ namespace Xtensive.Orm.Providers
 
     public override void ExecuteTasks(bool allowPartialExecution)
     {
-      while (Tasks.Count >= batchSize)
+      while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
       if (!allowPartialExecution)
-        ExecuteBatch(Tasks.Count, null);
+        ExecuteBatch(tasks.Count, null);
+    }
+
+    public override void RegisterTask(SqlTask task)
+    {
+      tasks.Enqueue(task);
+    }
+
+    public override void ClearTasks()
+    {
+      tasks.Clear();
     }
 
     public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request)
     {
-      while (Tasks.Count >= batchSize)
+      while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      return ExecuteBatch(Tasks.Count, request).AsReaderOf(request);
+      return ExecuteBatch(tasks.Count, request).AsReaderOf(request);
     }
 
     #region Private / internal methods
@@ -85,9 +95,9 @@ namespace Xtensive.Orm.Providers
       AllocateCommand();
 
       try {
-        while (numberOfTasks > 0 && Tasks.Count > 0) {
+        while (numberOfTasks > 0 && tasks.Count > 0) {
           numberOfTasks--;
-          var task = Tasks.Dequeue();
+          var task = tasks.Dequeue();
           task.ProcessWith(this);
         }
         if (shouldReturnReader) {
@@ -135,6 +145,7 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;
+      tasks = new Queue<SqlTask>();
     }
   }
 }

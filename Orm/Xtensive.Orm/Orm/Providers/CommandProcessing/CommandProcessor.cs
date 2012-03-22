@@ -22,9 +22,15 @@ namespace Xtensive.Orm.Providers
     public CommandFactory Factory { get; private set; }
 
     /// <summary>
-    /// <see cref="SqlTask"/> queue associated with current instance.
+    /// Registers tasks for execution.
     /// </summary>
-    public Queue<SqlTask> Tasks { get; private set; }
+    /// <param name="task">Task to register.</param>
+    public abstract void RegisterTask(SqlTask task);
+
+    /// <summary>
+    /// Clears all registered tasks
+    /// </summary>
+    public abstract void ClearTasks();
 
     /// <summary>
     /// Executes all registred requests plus the specified one query,
@@ -63,7 +69,6 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentValidator.EnsureArgumentNotNull(factory, "factory");
       Factory = factory;
-      Tasks = new Queue<SqlTask>();
     }
   }
 }

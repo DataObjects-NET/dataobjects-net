@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers
     {
       EnsureConnectionIsOpen();
       foreach (var tuple in tuples)
-        commandProcessor.Tasks.Enqueue(new SqlPersistTask(descriptor.StoreRequest, tuple));
+        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
       commandProcessor.ExecuteTasks();
     }
 
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Providers
     void IProviderExecutor.Clear(TemporaryTableDescriptor descriptor)
     {
       EnsureConnectionIsOpen();
-      commandProcessor.Tasks.Enqueue(new SqlPersistTask(descriptor.ClearRequest, null));
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
       commandProcessor.ExecuteTasks();
     }
   }
