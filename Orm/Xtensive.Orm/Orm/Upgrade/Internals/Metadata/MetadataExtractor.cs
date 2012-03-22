@@ -22,22 +22,22 @@ namespace Xtensive.Orm.Upgrade
     private readonly ISqlExecutor executor;
     private readonly SqlExtractionTask task;
 
-    public IEnumerable<AssemblyMetadata> GetAssemblies()
+    public void GetAssemblies(ICollection<AssemblyMetadata> output)
     {
       var query = CreateQuery(mapping.Assembly, mapping.AssemblyName, mapping.AssemblyVersion);
-      return ExecuteQuery(query, ParseAssembly);
+      ExecuteQuery(output, query, ParseAssembly);
     }
 
-    public IEnumerable<TypeMetadata> GetTypes()
+    public void GetTypes(ICollection<TypeMetadata> output)
     {
       var query = CreateQuery(mapping.Type, mapping.TypeId, mapping.TypeName);
-      return ExecuteQuery(query, ParseType);
+      ExecuteQuery(output, query, ParseType);
     }
 
-    public IEnumerable<ExtensionMetadata> GetExtensions()
+    public void GetExtensions(ICollection<ExtensionMetadata> output)
     {
       var query = CreateQuery(mapping.Extension, mapping.ExtensionName, mapping.ExtensionText);
-      return ExecuteQuery(query, ParseExtension);
+      ExecuteQuery(output, query, ParseExtension);
     }
 
     #region Private / internal methods
@@ -63,17 +63,13 @@ namespace Xtensive.Orm.Upgrade
       return new TypeMetadata(id, name);
     }
 
-    private List<T> ExecuteQuery<T>(ISqlCompileUnit query, Func<DbDataReader, T> parser)
+    private void ExecuteQuery<T>(ICollection<T> output, ISqlCompileUnit query, Func<DbDataReader, T> parser)
     {
-      var result = new List<T>();
-
       using (var command = executor.ExecuteReader(query)) {
         var reader = command.Reader;
         while (reader.Read())
-          result.Add(parser.Invoke(reader));
+          output.Add(parser.Invoke(reader));
       }
-
-      return result;
     }
  
     private SqlSelect CreateQuery(string tableName, params string[] columnNames)

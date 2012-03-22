@@ -49,9 +49,9 @@ namespace Xtensive.Orm.Upgrade
 
       foreach (var task in services.Resolver.GetMetadataTasks()) {
         var extractor = new MetadataExtractor(mapping, task, executor);
-        result.Assemblies.AddRange(extractor.GetAssemblies());
-        result.Extensions.AddRange(extractor.GetExtensions());
-        result.Types.AddRange(extractor.GetTypes());
+        extractor.GetAssemblies(result.Assemblies);
+        extractor.GetExtensions(result.Extensions);
+        extractor.GetTypes(result.Types);
       }
     }
 
