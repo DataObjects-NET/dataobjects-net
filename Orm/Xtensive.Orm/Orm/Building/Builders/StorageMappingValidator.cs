@@ -141,14 +141,14 @@ namespace Xtensive.Orm.Building.Builders
     {
       EnsureDefaultsAreValid();
 
-      if (model.IsMultidatabase) {
+      if (configuration.IsMultidatabase) {
         EnsureMappingDatabaseIsValid();
         EnsureHierarchiesMapToSingleDatabase();
         EnsureIntefacesAreImplementedWithinSingleDatabase();
         EnsureNoCyclicReferencesBetweenDatabases();
       }
 
-      if (model.IsMultischema)
+      if (configuration.IsMultischema)
         EnsureMappingSchemaIsValid();
     }
 
@@ -216,14 +216,14 @@ namespace Xtensive.Orm.Building.Builders
       var hasDefaultSchema = !string.IsNullOrEmpty(configuration.DefaultSchema);
       var hasDefaultDatabase = !string.IsNullOrEmpty(configuration.DefaultDatabase);
 
-      if (model.IsMultidatabase) {
+      if (configuration.IsMultidatabase) {
         if (!hasDefaultDatabase || !hasDefaultSchema)
           throw new InvalidOperationException(
             Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
         Validator.ValidateName(configuration.DefaultDatabase, ValidationRule.Database);
       }
 
-      if (model.IsMultischema) {
+      if (configuration.IsMultischema) {
         if (!hasDefaultSchema)
           throw new InvalidOperationException(
             Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);

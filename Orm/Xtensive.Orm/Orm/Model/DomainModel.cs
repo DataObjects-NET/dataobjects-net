@@ -44,27 +44,6 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public AssociationInfoCollection Associations { get; private set; }
 
-    /// <summary>
-    /// Gets value indicating whenever this model defines mapping in multi-database mode.
-    /// </summary>
-    public bool IsMultidatabase
-    {
-      get { return (Attributes & DomainModelAttributes.Multidatabase)==DomainModelAttributes.Multidatabase; }
-    }
-
-    /// <summary>
-    /// Gets value indicating whenever this model defines mapping in multi-schema mode.
-    /// </summary>
-    public bool IsMultischema
-    {
-      get { return (Attributes & DomainModelAttributes.Multischema)==DomainModelAttributes.Multischema; }
-    }
-
-    /// <summary>
-    /// Gets model attributes.
-    /// </summary>
-    public DomainModelAttributes Attributes { get; private set; }
-
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -75,25 +54,6 @@ namespace Xtensive.Orm.Model
       Types.UpdateState(true);
       RealIndexes.UpdateState(true);
       Associations.UpdateState(true);
-      UpdateAttributes();
-    }
-
-    private void UpdateAttributes()
-    {
-      var multischema = Types
-        .Select(t => t.MappingSchema)
-        .Any(schema => !string.IsNullOrEmpty(schema));
-
-      var multidatabase = Types
-        .Select(t => t.MappingDatabase)
-        .Any(db => !string.IsNullOrEmpty(db));
-
-      var attributes = DomainModelAttributes.None;
-      if (multischema)
-        attributes |= DomainModelAttributes.Multischema;
-      if (multidatabase)
-        attributes |= DomainModelAttributes.Multidatabase;
-      Attributes = attributes;
     }
 
     /// <inheritdoc/>

@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
 
       var domain = Domain.Build(configuration);
 
-      Assert.That(domain.Model.IsMultidatabase);
+      Assert.That(domain.Configuration.IsMultidatabase);
 
       for (int i = 0; i < types.Length; i++) {
         var expected = names[i];

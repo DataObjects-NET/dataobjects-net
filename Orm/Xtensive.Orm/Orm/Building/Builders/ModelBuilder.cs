@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private static void ValidateMappingConfiguration(BuildingContext context)
     {
-      if (context.Model.IsMultidatabase || context.Model.IsMultischema)
+      if (context.Configuration.IsMultidatabase || context.Configuration.IsMultischema)
         StorageMappingValidator.Run(context);
     }
 
