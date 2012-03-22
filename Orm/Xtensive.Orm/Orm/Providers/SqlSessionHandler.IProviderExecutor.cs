@@ -40,5 +40,15 @@ namespace Xtensive.Orm.Providers
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
       commandProcessor.ExecuteTasks();
     }
+
+    /// <inheritdoc/>
+    void IProviderExecutor.Overwrite(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
+    {
+      EnsureConnectionIsOpen();
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
+      foreach (var tuple in tuples)
+        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+      commandProcessor.ExecuteTasks();
+    }
   }
 }

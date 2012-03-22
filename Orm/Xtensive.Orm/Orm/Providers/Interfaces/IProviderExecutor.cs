@@ -33,5 +33,12 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="descriptor">Persist descriptor.</param>
     void Clear(IPersistDescriptor descriptor);
+
+    /// <summary>
+    /// Executes <see cref="Store"/> and <see cref="Clear"/> via single batch.
+    /// </summary>
+    /// <param name="descriptor">Persist descriptor</param>
+    /// <param name="tuples">Tuples to store</param>
+    void Overwrite(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples);
   }
 }
