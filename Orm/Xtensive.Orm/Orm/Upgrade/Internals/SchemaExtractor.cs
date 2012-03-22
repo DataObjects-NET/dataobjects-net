@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Upgrade
 
     private SqlExtractionResult ExtractSqlSchema()
     {
-      return executor.Extract(services.Resolver.GetExtractionTasks());
+      return executor.Extract(services.Resolver.GetSchemaTasks());
     }
 
     #endregion

@@ -39,10 +39,15 @@ namespace Xtensive.Orm.Providers
         return new MappingResolveResult(schema, nodeName);
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
+      public override IEnumerable<SqlExtractionTask> GetSchemaTasks()
       {
         var task = new SqlExtractionTask(providerInfo.DefaultDatabase, providerInfo.DefaultSchema);
         return Enumerable.Repeat(task, 1);
+      }
+
+      public override IEnumerable<SqlExtractionTask> GetMetadataTasks()
+      {
+        return GetSchemaTasks();
       }
 
       // Constructors
@@ -79,9 +84,15 @@ namespace Xtensive.Orm.Providers
         return new MappingResolveResult(schema, name);
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
+      public override IEnumerable<SqlExtractionTask> GetSchemaTasks()
       {
         return allSchemas.Select(s => new SqlExtractionTask(providerInfo.DefaultDatabase, s));
+      }
+
+      public override IEnumerable<SqlExtractionTask> GetMetadataTasks()
+      {
+        var task = new SqlExtractionTask(providerInfo.DefaultDatabase, defaultSchema);
+        return Enumerable.Repeat(task, 1);
       }
 
       private string FormatNodeName(string mappingSchema, string mappingName)
@@ -143,9 +154,14 @@ namespace Xtensive.Orm.Providers
         return new MappingResolveResult(schema, name);
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
+      public override IEnumerable<SqlExtractionTask> GetSchemaTasks()
       {
         return allSchemas.Select(item => new SqlExtractionTask(item.First, item.Second));
+      }
+
+      public override IEnumerable<SqlExtractionTask> GetMetadataTasks()
+      {
+        return GetSchemaTasks().Where(t => t.Schema==defaultSchema);
       }
 
       private static IEnumerable<string> GetSchemasForDatabase(DomainConfiguration configuration, string database)
@@ -212,7 +228,9 @@ namespace Xtensive.Orm.Providers
 
     public abstract MappingResolveResult Resolve(SqlExtractionResult model, string nodeName);
 
-    public abstract IEnumerable<SqlExtractionTask> GetExtractionTasks();
+    public abstract IEnumerable<SqlExtractionTask> GetSchemaTasks();
+
+    public abstract IEnumerable<SqlExtractionTask> GetMetadataTasks();
 
     public static MappingResolver Get(DomainConfiguration configuration, ProviderInfo providerInfo)
     {

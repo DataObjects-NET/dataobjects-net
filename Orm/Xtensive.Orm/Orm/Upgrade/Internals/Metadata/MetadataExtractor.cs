@@ -8,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Orm.Metadata;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -20,48 +18,25 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class MetadataExtractor
   {
-    private TypeMapping stringMapping;
-    private TypeMapping intMapping;
-
-    private readonly NameBuilder nameBuilder;
+    private readonly MetadataMapping mapping;
     private readonly ISqlExecutor executor;
+    private readonly SqlExtractionTask task;
 
-    private readonly string databaseName;
-    private readonly string schemaName;
-
-    private readonly string metadataAssembly;
-    private readonly string metadataAssemblyName;
-    private readonly string metadataAssemblyVersion;
-
-    private readonly string metadataType;
-    private readonly string metadataTypeId;
-    private readonly string metadataTypeName;
-
-    private readonly string metadataExtension;
-    private readonly string metadataExtensionName;
-    private readonly string metadataExtensionText;
-
-    public List<AssemblyMetadata> GetAssemblies()
+    public IEnumerable<AssemblyMetadata> GetAssemblies()
     {
-      var query = CreateQuery(metadataAssembly,
-        metadataAssemblyName, metadataAssemblyVersion);
-
+      var query = CreateQuery(mapping.Assembly, mapping.AssemblyName, mapping.AssemblyVersion);
       return ExecuteQuery(query, ParseAssembly);
     }
 
-   public List<TypeMetadata> GetTypes()
+    public IEnumerable<TypeMetadata> GetTypes()
     {
-      var query = CreateQuery(metadataType,
-        metadataTypeId, metadataTypeName);
-
+      var query = CreateQuery(mapping.Type, mapping.TypeId, mapping.TypeName);
       return ExecuteQuery(query, ParseType);
     }
 
-    public List<ExtensionMetadata> GetExtensions()
+    public IEnumerable<ExtensionMetadata> GetExtensions()
     {
-      var query = CreateQuery(metadataExtension,
-        metadataExtensionName, metadataExtensionText);
-
+      var query = CreateQuery(mapping.Extension, mapping.ExtensionName, mapping.ExtensionText);
       return ExecuteQuery(query, ParseExtension);
     }
 
@@ -103,8 +78,8 @@ namespace Xtensive.Orm.Upgrade
  
     private SqlSelect CreateQuery(string tableName, params string[] columnNames)
     {
-      var catalog = new Catalog(databaseName);
-      var schema = catalog.CreateSchema(schemaName);
+      var catalog = new Catalog(task.Catalog);
+      var schema = catalog.CreateSchema(task.Schema);
       var table = schema.CreateTable(tableName);
       foreach (var column in columnNames)
         table.CreateColumn(column);
@@ -119,61 +94,27 @@ namespace Xtensive.Orm.Upgrade
 
     private string ReadString(DbDataReader reader, int index)
     {
-      return reader.IsDBNull(index) ? null : (string) stringMapping.ReadValue(reader, index);
+      return reader.IsDBNull(index) ? null : (string) mapping.StringMapping.ReadValue(reader, index);
     }
 
     private int ReadInt(DbDataReader reader, int index)
     {
-      return (int) intMapping.ReadValue(reader, index);
-    }
-
-    private string TableOf(System.Type type)
-    {
-      var name = type
-        .GetCustomAttributes(typeof (TableMappingAttribute), false)
-        .Cast<TableMappingAttribute>()
-        .Single().Name;
-      return nameBuilder.ApplyNamingRules(name);
-    }
-
-    private string ColumnOf<TItem, TProperty>(Expression<Func<TItem, TProperty>> expression)
-    {
-      var memberExpression = (MemberExpression) expression.Body.StripCasts();
-      var name = memberExpression.Member.Name;
-      return nameBuilder.ApplyNamingRules(name);
+      return (int) mapping.IntMapping.ReadValue(reader, index);
     }
 
     #endregion
 
     // Constructors
 
-    public MetadataExtractor(StorageDriver driver, NameBuilder nameBuilder, ISqlExecutor executor, Schema schema)
+    public MetadataExtractor(MetadataMapping mapping, SqlExtractionTask task, ISqlExecutor executor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(nameBuilder, "nameBuilder");
+      ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
+      ArgumentValidator.EnsureArgumentNotNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNull(executor, "executor");
-      ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
 
-      this.nameBuilder = nameBuilder;
+      this.mapping = mapping;
+      this.task = task;
       this.executor = executor;
-
-      stringMapping = driver.GetTypeMapping(typeof (string));
-      intMapping = driver.GetTypeMapping(typeof (int));
-
-      databaseName = schema.Catalog.Name;
-      schemaName = schema.Name;
-
-      metadataAssembly = TableOf(typeof (Assembly));
-      metadataAssemblyName = ColumnOf((Assembly x) => x.Name);
-      metadataAssemblyVersion = ColumnOf((Assembly x) => x.Version);
-
-      metadataType = TableOf(typeof (Metadata.Type));
-      metadataTypeId = ColumnOf((Metadata.Type x) => x.Id);
-      metadataTypeName = ColumnOf((Metadata.Type x) => x.Name);
-
-      metadataExtension = TableOf(typeof (Extension));
-      metadataExtensionName = ColumnOf((Extension x) => x.Name);
-      metadataExtensionText = ColumnOf((Extension x) => x.Text);
     }
   }
 }

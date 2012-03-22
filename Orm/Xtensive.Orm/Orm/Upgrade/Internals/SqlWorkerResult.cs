@@ -5,7 +5,6 @@
 // Created:    2012.03.15
 
 using System.Collections.Generic;
-using Xtensive.Orm.Metadata;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade

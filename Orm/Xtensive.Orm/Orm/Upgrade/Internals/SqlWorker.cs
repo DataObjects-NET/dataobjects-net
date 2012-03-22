@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Upgrade
         if ((task & SqlWorkerTask.DropSchema) > 0)
           DropSchema(services, executor);
         if ((task & SqlWorkerTask.ExtractSchema) > 0)
-          result.Schema = Extract(services, executor);
+          result.Schema = ExtractSchema(services, executor);
         if ((task & SqlWorkerTask.ExtractMetadata) > 0)
           ExtractMetadata(services, executor, result);
 
@@ -40,27 +40,30 @@ namespace Xtensive.Orm.Upgrade
 
     private static void ExtractMetadata(UpgradeServiceAccessor services, ISqlExecutor executor, SqlWorkerResult result)
     {
-      var dummyName = services.Resolver.GetNodeName(
-        services.Configuration.DefaultDatabase,
-        services.Configuration.DefaultSchema, "Dummy");
+      var extractors = new List<MetadataExtractor>();
+      var mapping = new MetadataMapping(services.Driver, services.NameBuilder);
 
-      var node = services.Resolver.Resolve(result.Schema, dummyName);
-      var extractor = new MetadataExtractor(services.Driver, services.NameBuilder, executor, node.Schema);
+      result.Assemblies = new List<AssemblyMetadata>();
+      result.Extensions = new List<ExtensionMetadata>();
+      result.Types = new List<TypeMetadata>();
 
-      result.Assemblies = extractor.GetAssemblies();
-      result.Types = extractor.GetTypes();
-      result.Extensions = extractor.GetExtensions();
+      foreach (var task in services.Resolver.GetMetadataTasks()) {
+        var extractor = new MetadataExtractor(mapping, task, executor);
+        result.Assemblies.AddRange(extractor.GetAssemblies());
+        result.Extensions.AddRange(extractor.GetExtensions());
+        result.Types.AddRange(extractor.GetTypes());
+      }
     }
 
-    private static SqlExtractionResult Extract(UpgradeServiceAccessor services, ISqlExecutor executor)
+    private static SqlExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
-      return executor.Extract(services.Resolver.GetExtractionTasks());
+      return executor.Extract(services.Resolver.GetSchemaTasks());
     }
 
     private static void DropSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
       var driver = services.Driver;
-      var extractionResult = Extract(services, executor);
+      var extractionResult = ExtractSchema(services, executor);
       var schemas = extractionResult.Catalogs.SelectMany(c => c.Schemas).ToList();
       var tables = schemas.SelectMany(s => s.Tables).ToList();
       var sequences = schemas.SelectMany(s => s.Sequences);
