@@ -574,19 +574,6 @@ namespace Xtensive.Orm.Configuration
       return domainElement.ToNative();
     }
 
-    internal IEnumerable<string> GetDatabases()
-    {
-      if (!IsMultidatabase)
-        return Enumerable.Empty<string>();
-
-      return MappingRules
-        .Select(r => r.Database)
-        .Where(db => !string.IsNullOrEmpty(db))
-        .Concat(Enumerable.Repeat(DefaultDatabase, 1))
-        .Distinct()
-        .ToList();
-    }
-
     internal bool Supports(ForeignKeyMode fkMode)
     {
       return (foreignKeyMode & fkMode)==fkMode;

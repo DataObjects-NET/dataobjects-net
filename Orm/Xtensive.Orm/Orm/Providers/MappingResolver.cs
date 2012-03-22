@@ -161,6 +161,16 @@ namespace Xtensive.Orm.Providers
           .Distinct();
       }
 
+      private static IEnumerable<string> GetDatabases(DomainConfiguration configuration)
+      {
+        return configuration.MappingRules
+          .Select(r => r.Database)
+          .Where(db => !string.IsNullOrEmpty(db))
+          .Concat(Enumerable.Repeat(configuration.DefaultDatabase, 1))
+          .Distinct()
+          .ToList();
+      }
+
       private string ResolveAlias(string alias)
       {
         string name;
@@ -183,7 +193,7 @@ namespace Xtensive.Orm.Providers
         defaultSchema = configuration.DefaultSchema;
 
         var allSchemaQuery =
-          from db in configuration.GetDatabases()
+          from db in GetDatabases(configuration)
           from schema in GetSchemasForDatabase(configuration, db)
           select new Pair<string>(ResolveAlias(db), schema);
 
