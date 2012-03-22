@@ -60,13 +60,13 @@ namespace Xtensive.Orm.Upgrade
     private void ExecuteNonTransactionally(IEnumerable<string> batch)
     {
       Complete();
-      executor.ExecuteDdl(batch);
+      executor.ExecuteMany(batch);
       Start();
     }
 
     private void ExecuteTransactionally(IEnumerable<string> batch)
     {
-      executor.ExecuteDdl(batch);
+      executor.ExecuteMany(batch);
     }
 
     private void LogStatements(IEnumerable<string> statements)

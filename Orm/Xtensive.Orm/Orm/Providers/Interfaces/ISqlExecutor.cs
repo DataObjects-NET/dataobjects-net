@@ -58,16 +58,10 @@ namespace Xtensive.Orm.Providers
     int ExecuteNonQuery(string commandText);
 
     /// <summary>
-    /// Executes group of DML statements via <see cref="ExecuteNonQuery(System.String)"/>.
-    /// </summary>
-    /// <param name="statements">Statements to execute</param>
-    void ExecuteDml(IEnumerable<string> statements);
-
-    /// <summary>
     /// Executes group of DDL statements via <see cref="ExecuteNonQuery(System.String)"/>.
     /// </summary>
     /// <param name="statements">Statements to execute</param>
-    void ExecuteDdl(IEnumerable<string> statements);
+    void ExecuteMany(IEnumerable<string> statements);
 
     /// <summary>
     /// Executes specified extraction tasks.

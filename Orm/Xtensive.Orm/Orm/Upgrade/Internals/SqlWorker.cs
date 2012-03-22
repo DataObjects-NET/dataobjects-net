@@ -32,7 +32,6 @@ namespace Xtensive.Orm.Upgrade
           result.Schema = ExtractSchema(services, executor);
         if ((task & SqlWorkerTask.ExtractMetadata) > 0)
           ExtractMetadata(services, executor, result);
-
         connection.Close();
       }
       return result;
@@ -78,7 +77,7 @@ namespace Xtensive.Orm.Upgrade
       var statements = sequences
         .Select(s => driver.Compile(SqlDdl.Drop(s)).GetCommandText())
         .ToList();
-      executor.ExecuteDdl(statements);
+      executor.ExecuteMany(statements);
     }
 
     private static void DropTables(StorageDriver driver, IEnumerable<Table> tables, ISqlExecutor executor)
@@ -86,7 +85,7 @@ namespace Xtensive.Orm.Upgrade
       var statements = tables
         .Select(t => driver.Compile(SqlDdl.Drop(t)).GetCommandText())
         .ToList();
-      executor.ExecuteDdl(statements);
+      executor.ExecuteMany(statements);
     }
 
     private static void DropForeignKeys(StorageDriver driver, IEnumerable<Table> tables, ISqlExecutor executor)
@@ -95,7 +94,7 @@ namespace Xtensive.Orm.Upgrade
         .SelectMany(t => t.TableConstraints.OfType<ForeignKey>())
         .Select(fk => driver.Compile(SqlDdl.Alter(fk.Table, SqlDdl.DropConstraint(fk))).GetCommandText())
         .ToList();
-      executor.ExecuteDdl(statements);
+      executor.ExecuteMany(statements);
     }
   }
 }

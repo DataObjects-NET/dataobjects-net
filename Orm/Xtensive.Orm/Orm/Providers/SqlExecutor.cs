@@ -60,14 +60,14 @@ namespace Xtensive.Orm.Providers
         return driver.ExecuteScalar(session, command);
     }
 
-    public void ExecuteDdl(IEnumerable<string> statements)
+    public void ExecuteMany(IEnumerable<string> statements)
     {
-      ExecuteMany(statements, ProviderFeatures.DdlBatches);
-    }
+      EnsureConnectionIsOpen();
 
-    public void ExecuteDml(IEnumerable<string> statements)
-    {
-      ExecuteMany(statements, ProviderFeatures.DmlBatches);
+      if (driver.ProviderInfo.Supports(ProviderFeatures.Batches))
+        ExecuteManyBatched(statements);
+      else
+        ExecuteManyByOne(statements);
     }
 
     public SqlExtractionResult Extract(IEnumerable<SqlExtractionTask> tasks)
@@ -77,16 +77,6 @@ namespace Xtensive.Orm.Providers
     }
 
     #region Private / internal methods
-
-    private void ExecuteMany(IEnumerable<string> statements, ProviderFeatures batchFeatures)
-    {
-      EnsureConnectionIsOpen();
-
-      if (driver.ProviderInfo.Supports(batchFeatures))
-        ExecuteManyBatched(statements);
-      else
-        ExecuteManyByOne(statements);
-    }
 
     private void ExecuteManyByOne(IEnumerable<string> statements)
     {
