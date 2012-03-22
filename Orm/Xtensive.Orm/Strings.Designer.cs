@@ -5576,6 +5576,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Calculating database dependencies.
+        /// </summary>
+        internal static string LogCalculatingDatabaseDependencies {
+            get {
+                return ResourceManager.GetString("LogCalculatingDatabaseDependencies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Changes are successfully applied..
         /// </summary>
         internal static string LogChangesAreSuccessfullyApplied {

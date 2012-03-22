@@ -99,6 +99,7 @@
     <Compile Include="Orm\Attributes\VersionAttribute.cs" />
     <Compile Include="Orm\Attributes\VersionMode.cs" />
     <Compile Include="Orm\Building\Builders\AssociationBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\DatabaseDependencyBuilder.cs" />
     <Compile Include="Orm\Building\Builders\ITypeIdProvider.cs" />
     <Compile Include="Orm\Building\Builders\KeyGeneratorFactory.cs" />
     <Compile Include="Orm\Building\Builders\ProviderDescriptor.cs" />
@@ -154,6 +155,9 @@
     <Compile Include="Orm\Internals\Prefetch\Nodes\ReferenceNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
     <Compile Include="Orm\Internals\SortingPersistActionGenerator.cs" />
+    <Compile Include="Orm\Model\DatabaseInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Orm\Providers\MappingResolveResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />

@@ -16,117 +16,6 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal sealed class StorageMappingValidator
   {
-    private struct DatabaseReference
-    {
-      public readonly string OwnerDatabase;
-      public readonly string TargetDatabase;
-
-      public DatabaseReference(string ownerDatabase, string targetDatabase)
-      {
-        OwnerDatabase = ownerDatabase;
-        TargetDatabase = targetDatabase;
-      }
-    }
-
-    private struct TypeReference
-    {
-      public readonly FieldInfo OwnerField;
-      public readonly TypeInfo TargetType;
-
-      public DatabaseReference DatabaseReference
-      {
-        get
-        {
-          return new DatabaseReference(
-            OwnerField.DeclaringType.MappingDatabase, TargetType.MappingDatabase);
-        }
-      }
-
-      public override string ToString()
-      {
-        var ownerType = OwnerField.DeclaringType;
-        return string.Format("[{0}] {1}.{2} -> [{3}] {4}",
-          ownerType.MappingDatabase, ownerType.UnderlyingType.GetShortName(), OwnerField.Name,
-          TargetType.MappingDatabase, TargetType.UnderlyingType.GetShortName());
-      }
-
-      public TypeReference(FieldInfo ownerField, TypeInfo targetEntry)
-      {
-        OwnerField = ownerField;
-        TargetType = targetEntry;
-      }
-    }
-
-    private sealed class CycleDetector
-    {
-      private readonly DomainModel model;
-      private readonly List<TypeInfo> typesToProcess;
-      private readonly HashSet<string> visited = new HashSet<string>();
-      private readonly Stack<DatabaseReference> visitSequence = new Stack<DatabaseReference>();
-      private readonly Dictionary<DatabaseReference, TypeReference> referenceRegistry
-        = new Dictionary<DatabaseReference, TypeReference>();
-
-      public static void Run(DomainModel model, List<TypeInfo> typesToProcess)
-      {
-        new CycleDetector(model, typesToProcess).Run();
-      }
-
-      private void Run()
-      {
-        var outgoingReferences = typesToProcess.SelectMany(GetReferencesToExternalDatabases);
-
-        // Calculate cross-database reference information (i.e. build a graph).
-        foreach (var reference in outgoingReferences) {
-          var dbReference = reference.DatabaseReference;
-          if (!referenceRegistry.ContainsKey(dbReference))
-            referenceRegistry.Add(dbReference, reference);
-        }
-
-        // Use DFS to find cycles.
-        // Since number of databases is small, use very inefficient algorithm.
-        var databases = typesToProcess.Select(t => t.MappingDatabase).Distinct();
-        foreach (var database in databases)
-          Visit(database);
-      }
-
-      private void Visit(string database)
-      {
-        if (visited.Contains(database))
-          return;
-        visited.Add(database);
-        var references = referenceRegistry.Keys
-          .Where(r => r.OwnerDatabase==database);
-        foreach (var reference in references) {
-          visitSequence.Push(reference);
-          var next = reference.TargetDatabase;
-          if (visitSequence.Any(r => r.OwnerDatabase==next)) {
-            var cycle = visitSequence
-              .Select(i => referenceRegistry[i])
-              .ToCommaDelimitedString();
-            throw new DomainBuilderException(string.Format(
-              Strings.ExCyclicDependencyBetweenDatabasesFoundX, cycle));
-          }
-          Visit(next);
-          visitSequence.Pop();
-        }
-      }
-
-      private IEnumerable<TypeReference> GetReferencesToExternalDatabases(TypeInfo source)
-      {
-        var result = source.Fields
-          .Where(field => field.IsEntity && field.IsDeclared)
-          .Select(field => new TypeReference(field, model.Types[field.ValueType]))
-          .Where(reference => reference.TargetType.MappingDatabase!=source.MappingDatabase);
-        return result;
-      }
-
-      private CycleDetector(DomainModel model, List<TypeInfo> typesToProcess)
-      {
-        this.model = model;
-        this.typesToProcess = typesToProcess;
-      }
-    }
-
     private readonly DomainModel model;
     private readonly DomainConfiguration configuration;
 
@@ -145,7 +34,6 @@ namespace Xtensive.Orm.Building.Builders
         EnsureMappingDatabaseIsValid();
         EnsureHierarchiesMapToSingleDatabase();
         EnsureIntefacesAreImplementedWithinSingleDatabase();
-        EnsureNoCyclicReferencesBetweenDatabases();
       }
 
       if (configuration.IsMultischema)
@@ -174,11 +62,6 @@ namespace Xtensive.Orm.Building.Builders
             type.UnderlyingType.GetShortName()));
         Validator.ValidateName(mappingDatabase, ValidationRule.Database);
       }
-    }
-
-    private void EnsureNoCyclicReferencesBetweenDatabases()
-    {
-      CycleDetector.Run(model, GetMappedTypes().ToList());
     }
 
     private void EnsureIntefacesAreImplementedWithinSingleDatabase()

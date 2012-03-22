@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Model
   /// A mapping model of storage.
   /// </summary>
   [Serializable]
-  public sealed class DomainModel: Node
+  public sealed class DomainModel : Node
   {
     /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
@@ -44,6 +44,11 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public AssociationInfoCollection Associations { get; private set; }
 
+    /// <summary>
+    /// Gets databases.
+    /// </summary>
+    public NodeCollection<DatabaseInfo> Databases { get; private set; }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -66,6 +71,7 @@ namespace Xtensive.Orm.Model
       Types.Lock(true);
       RealIndexes.Lock(true);
       Associations.Lock(true);
+      Databases.Lock(true);
       FullTextIndexes.Lock(true);
     }
 
@@ -81,6 +87,7 @@ namespace Xtensive.Orm.Model
       RealIndexes = new IndexInfoCollection(this, "RealIndexes");
       Hierarchies = new HierarchyInfoCollection(this, "Hierarchies");
       Associations = new AssociationInfoCollection(this, "Associations");
+      Databases = new NodeCollection<DatabaseInfo>(this, "Databases");
       FullTextIndexes = new FullTextIndexInfoCollection();
     }
   }

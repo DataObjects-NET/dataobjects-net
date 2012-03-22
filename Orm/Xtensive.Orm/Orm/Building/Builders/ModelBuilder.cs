@@ -99,8 +99,15 @@ namespace Xtensive.Orm.Building.Builders
         IndexBuilder.BuildIndexes(context);
         context.Model.UpdateState(true);
         ValidateMappingConfiguration(context);
+        BuildDatabaseDependencies(context);
         BuildPrefetchActions(context);
       }
+    }
+
+    private static void BuildDatabaseDependencies(BuildingContext context)
+    {
+      if (context.Configuration.IsMultidatabase)
+        DatabaseDependencyBuilder.Run(context);
     }
 
     private static void ValidateMappingConfiguration(BuildingContext context)
