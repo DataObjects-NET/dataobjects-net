@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static SqlExtractionResult Extract(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
-      return executor.Extract(services.Resolver.GetExtractionTasks(services.Driver.ProviderInfo));
+      return executor.Extract(services.Resolver.GetExtractionTasks());
     }
 
     private static void DropSchema(UpgradeServiceAccessor services, ISqlExecutor executor)

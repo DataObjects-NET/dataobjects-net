@@ -21,6 +21,8 @@ namespace Xtensive.Orm.Providers
 
     private sealed class SimpleResolver : SchemaNodeResolver
     {
+      private readonly ProviderInfo providerInfo;
+
       public override string GetNodeName(string mappingDatabase, string mappingSchema, string mappingName)
       {
         return mappingName;
@@ -37,15 +39,23 @@ namespace Xtensive.Orm.Providers
         return new NodeResolveResult(schema, nodeName);
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo)
+      public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
       {
         var task = new SqlExtractionTask(providerInfo.DefaultDatabase, providerInfo.DefaultSchema);
         return Enumerable.Repeat(task, 1);
+      }
+
+      // Constructors
+
+      public SimpleResolver(ProviderInfo providerInfo)
+      {
+        this.providerInfo = providerInfo;
       }
     }
 
     private sealed class MultischemaResolver : SchemaNodeResolver
     {
+      private readonly ProviderInfo providerInfo;
       private readonly string defaultSchema;
       private readonly List<string> allSchemas;
 
@@ -69,7 +79,7 @@ namespace Xtensive.Orm.Providers
         return new NodeResolveResult(schema, name);
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo)
+      public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
       {
         return allSchemas.Select(s => new SqlExtractionTask(providerInfo.DefaultDatabase, s));
       }
@@ -82,8 +92,9 @@ namespace Xtensive.Orm.Providers
 
       // Constructors
 
-      public MultischemaResolver(DomainConfiguration configuration)
+      public MultischemaResolver(DomainConfiguration configuration, ProviderInfo providerInfo)
       {
+        this.providerInfo = providerInfo;
         defaultSchema = configuration.DefaultSchema;
         allSchemas = configuration.MappingRules
           .Select(r => r.Schema)
@@ -132,7 +143,7 @@ namespace Xtensive.Orm.Providers
         return new NodeResolveResult(schema, name);
       }
 
-      public override IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo)
+      public override IEnumerable<SqlExtractionTask> GetExtractionTasks()
       {
         return allSchemas.Select(item => new SqlExtractionTask(item.First, item.Second));
       }
@@ -191,15 +202,15 @@ namespace Xtensive.Orm.Providers
 
     public abstract NodeResolveResult Resolve(SqlExtractionResult model, string nodeName);
 
-    public abstract IEnumerable<SqlExtractionTask> GetExtractionTasks(ProviderInfo providerInfo);
+    public abstract IEnumerable<SqlExtractionTask> GetExtractionTasks();
 
-    public static SchemaNodeResolver Get(DomainConfiguration configuration)
+    public static SchemaNodeResolver Get(DomainConfiguration configuration, ProviderInfo providerInfo)
     {
       if (configuration.IsMultidatabase)
         return new MultidatabaseResolver(configuration);
       if (configuration.IsMultischema)
-        return new MultischemaResolver(configuration);
-      return new SimpleResolver();
+        return new MultischemaResolver(configuration, providerInfo);
+      return new SimpleResolver(providerInfo);
     }
   }
 }

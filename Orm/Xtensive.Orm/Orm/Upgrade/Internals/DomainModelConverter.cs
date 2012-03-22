@@ -265,8 +265,8 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>Visit result.</returns>
     private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
-      var tableName = resolver.GetNodeName(index.ReflectedType);
-      currentTable = new TableInfo(targetModel, tableName);
+      currentTable = new TableInfo(targetModel, resolver.GetNodeName(index.ReflectedType));
+
       foreach (var column in index.Columns)
         Visit(column);
 
@@ -291,6 +291,7 @@ namespace Xtensive.Orm.Upgrade
         VisitIndexInfo(index, secondaryIndex);
 
       currentTable = null;
+
       return primaryIndex;
     }
 

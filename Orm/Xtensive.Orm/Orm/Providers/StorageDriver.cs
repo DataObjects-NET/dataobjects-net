@@ -119,7 +119,8 @@ namespace Xtensive.Orm.Providers
       return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
     }
 
-    private StorageDriver(SqlDriver driver, ProviderInfo providerInfo, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    private StorageDriver(
+      SqlDriver driver, ProviderInfo providerInfo, DomainConfiguration configuration, Func<DomainModel> modelProvider)
     {
       underlyingDriver = driver;
       ProviderInfo = providerInfo;
@@ -129,7 +130,7 @@ namespace Xtensive.Orm.Providers
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
-      isLoggingEnabled = Providers.Log.IsLogged(LogEventTypes.Info); // Just to cache this value
+      isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
     }
   }
 }
