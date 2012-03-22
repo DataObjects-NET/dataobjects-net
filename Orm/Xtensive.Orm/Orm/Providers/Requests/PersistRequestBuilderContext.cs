@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
-using Xtensive.Sql.Dml;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Providers
@@ -17,8 +16,6 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class PersistRequestBuilderContext
   {
-    public SqlBatch Batch { get; private set; }
-
     public PersistRequestBuilderTask Task { get; private set; }
 
     public TypeInfo Type { get; private set; }
