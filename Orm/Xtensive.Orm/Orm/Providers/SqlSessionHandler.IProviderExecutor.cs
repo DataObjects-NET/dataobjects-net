@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    void IProviderExecutor.Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples)
+    void IProviderExecutor.Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       EnsureConnectionIsOpen();
       foreach (var tuple in tuples)
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    void IProviderExecutor.Clear(TemporaryTableDescriptor descriptor)
+    void IProviderExecutor.Clear(IPersistDescriptor descriptor)
     {
       EnsureConnectionIsOpen();
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));

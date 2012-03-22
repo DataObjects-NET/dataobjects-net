@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A descriptor of temporary table.
   /// </summary>
-  public sealed class TemporaryTableDescriptor
+  public sealed class TemporaryTableDescriptor : IPersistDescriptor
   {
     /// <summary>
     /// Gets the unique name of this temporary table.

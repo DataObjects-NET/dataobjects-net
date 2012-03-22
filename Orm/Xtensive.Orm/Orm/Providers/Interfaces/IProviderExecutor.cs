@@ -22,16 +22,16 @@ namespace Xtensive.Orm.Providers
     IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request);
 
     /// <summary>
-    /// Stores the specified tuples in specified temporary table.
+    /// Stores the specified tuples in specified table.
     /// </summary>
-    /// <param name="descriptor">The descriptor of temporary table.</param>
+    /// <param name="descriptor">Persist descriptor.</param>
     /// <param name="tuples">The tuples to store.</param>
-    void Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples);
+    void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples);
 
     /// <summary>
-    /// Clears the specified temporary table.
+    /// Clears the specified table.
     /// </summary>
-    /// <param name="descriptor">The descriptor of temporary table.</param>
-    void Clear(TemporaryTableDescriptor descriptor);
+    /// <param name="descriptor">Persist descriptor.</param>
+    void Clear(IPersistDescriptor descriptor);
   }
 }

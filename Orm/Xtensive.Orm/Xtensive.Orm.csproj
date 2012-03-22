@@ -158,6 +158,7 @@
     <Compile Include="Orm\Model\DatabaseInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Orm\Providers\Interfaces\IPersistDescriptor.cs" />
     <Compile Include="Orm\Providers\MappingResolveResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
