@@ -5,7 +5,6 @@
 // Created:    2007.07.06
 
 using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core;
@@ -209,16 +208,6 @@ namespace Xtensive.Orm.Model
         this.EnsureNotLocked();
         indexes = value;
       }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="IComparer"/> instance.
-    /// </summary>
-    /// <param name="cultureInfo">The <see cref="CultureInfo"/> object.</param>
-    /// <returns>The instance in <see cref="IComparer"/> to compare values of type <see cref="ValueType"/>.</returns>
-    public IComparer GetComparer(CultureInfo cultureInfo)
-    {
-      return ComparerProvider.GetComparer(ValueType, cultureInfo);
     }
 
     #region Equals, GetHashCode methods

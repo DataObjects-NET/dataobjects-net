@@ -290,7 +290,6 @@
     <Compile Include="Orm\Model\ColumnInfo.cs" />
     <Compile Include="Orm\Model\ColumnInfoCollection.cs" />
     <Compile Include="Orm\Model\ColumnInfoRef.cs" />
-    <Compile Include="Orm\Model\ComparerProvider.cs" />
     <Compile Include="Orm\Model\DomainModel.cs" />
     <Compile Include="Orm\Model\DomainModelExtensions.cs" />
     <Compile Include="Orm\Model\FieldAttributes.cs" />
