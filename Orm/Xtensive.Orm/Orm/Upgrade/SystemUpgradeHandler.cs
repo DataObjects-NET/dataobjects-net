@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Upgrade
         var assembly = pair.Second;
         if (handler==null)
           throw HandlerNotFound(assembly);
-        new Assembly(handler.AssemblyName) {Version = handler.AssemblyVersion};
+        new Assembly(handler.AssemblyName, handler.AssemblyVersion);
       }
     }
 

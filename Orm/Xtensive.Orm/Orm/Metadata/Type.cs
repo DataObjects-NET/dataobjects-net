@@ -6,9 +6,6 @@
 
 using System;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-
 
 namespace Xtensive.Orm.Metadata
 {

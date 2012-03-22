@@ -6,9 +6,6 @@
 
 using System;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-
 
 namespace Xtensive.Orm.Metadata
 {
@@ -53,6 +50,18 @@ namespace Xtensive.Orm.Metadata
     public Assembly(string name) 
       : base(name)
     {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The assembly name.</param>
+    /// <param name="version">The assembly version.</param>
+    /// <exception cref="Exception">Object is read-only.</exception>
+    public Assembly(string name, string version)
+      : base(name)
+    {
+      Version = version;
     }
   }
 }
