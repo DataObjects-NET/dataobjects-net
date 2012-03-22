@@ -10,8 +10,8 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling;
-using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
@@ -29,6 +29,8 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   internal sealed class DomainModelConverter : ModelVisitor<IPathNode>
   {
+    private static readonly string MetadataNamespace = typeof (Metadata.MetadataBase).Namespace;
+
     private readonly HandlerAccessor handlers;
 
     private readonly ProviderInfo providerInfo;
@@ -38,6 +40,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly PartialIndexFilterNormalizer normalizer;
     private readonly MappingResolver resolver;
     private readonly ITypeIdProvider typeIdProvider;
+    private readonly DomainConfiguration configuration;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -63,8 +66,14 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode Visit(Orm.Model.Node node)
     {
       var indexInfo = node as IndexInfo;
-      if (indexInfo!=null && indexInfo.IsPrimary)
-        return VisitPrimaryIndexInfo(indexInfo);
+      if (indexInfo!=null && indexInfo.IsPrimary) {
+        foreach (var table in CreateTables(indexInfo)) {
+          currentTable = table;
+          var result = VisitPrimaryIndexInfo(indexInfo);
+          currentTable = null;
+        }
+        return null;
+      }
 
       return base.Visit(node);
     }
@@ -265,8 +274,6 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>Visit result.</returns>
     private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
-      currentTable = new TableInfo(targetModel, resolver.GetNodeName(index.ReflectedType));
-
       foreach (var column in index.Columns)
         Visit(column);
 
@@ -289,10 +296,22 @@ namespace Xtensive.Orm.Upgrade
 
       foreach (var secondaryIndex in index.ReflectedType.Indexes.Where(i => i.IsSecondary && !i.IsVirtual))
         VisitIndexInfo(index, secondaryIndex);
-
-      currentTable = null;
-
       return primaryIndex;
+    }
+
+    private IEnumerable<TableInfo> CreateTables(IndexInfo index)
+    {
+      var result = new List<TableInfo>();
+      var type = index.ReflectedType;
+      if (configuration.IsMultidatabase && type.UnderlyingType.Namespace==MetadataNamespace) {
+        foreach (var db in sourceModel.Databases) {
+          var name = resolver.GetNodeName(db.Name, type.MappingSchema, type.MappingName);
+          result.Add(new TableInfo(targetModel, name));
+        }
+      }
+      else
+        result.Add(new TableInfo(targetModel, resolver.GetNodeName(type)));
+      return result;
     }
 
     #region Not supported
@@ -538,6 +557,7 @@ namespace Xtensive.Orm.Upgrade
       this.typeIdProvider = typeIdProvider;
 
       sourceModel = handlers.Domain.Model;
+      configuration = handlers.Domain.Configuration;
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
