@@ -34,8 +34,6 @@ namespace Xtensive.Orm.Providers
 
     protected ParameterBinding(TypeMapping typeMapping, ParameterTransmissionType transmissionType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(typeMapping, "typeMapping");
-
       TypeMapping = typeMapping;
       TransmissionType = transmissionType;
       ParameterReference = SqlDml.Placeholder(this);
