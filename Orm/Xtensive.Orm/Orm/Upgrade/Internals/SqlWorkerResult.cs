@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.15
 
-using System.Collections.Generic;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
@@ -13,10 +12,6 @@ namespace Xtensive.Orm.Upgrade
   {
     public SqlExtractionResult Schema { get; set; }
 
-    public List<AssemblyMetadata> Assemblies { get; set; }
-
-    public List<TypeMetadata> Types { get; set; }
-
-    public List<ExtensionMetadata> Extensions { get; set; }
+    public MetadataSet Metadata { get; set; }
   }
 }

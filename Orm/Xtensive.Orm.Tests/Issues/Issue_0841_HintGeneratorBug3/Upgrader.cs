@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
       if (UpgradeContext.Stage==UpgradeStage.Upgrading) {
         // Relying on Metadata.Type, because
         // only system types are registered in model @ this stage.
-        var typeMetadata = UpgradeContext.WorkerResult.Types;
+        var typeMetadata = UpgradeContext.Metadata.Types;
         int baseTypeId = typeMetadata.Single(t => t.Name==typeof(M1.Base).FullName).Id;
         int derivedTypeId = typeMetadata.Single(t => t.Name==typeof(M1.Derived).FullName).Id;
         using (var connection = new SqlConnection(connectionString)) {

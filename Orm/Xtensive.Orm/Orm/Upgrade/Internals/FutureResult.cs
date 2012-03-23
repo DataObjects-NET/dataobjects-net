@@ -13,10 +13,12 @@ namespace Xtensive.Orm.Upgrade
     private Func<T> worker;
     private IAsyncResult asyncResult;
 
+    public bool IsAvailable { get { return worker!=null; } }
+
     public T Get()
     {
-      if (worker==null)
-        throw new InvalidOperationException();
+      if (!IsAvailable)
+        throw new InvalidOperationException("Result is not available");
 
       var workerCopy = worker;
       var asyncResultCopy = asyncResult;

@@ -39,19 +39,11 @@ namespace Xtensive.Orm.Upgrade
 
     private static void ExtractMetadata(UpgradeServiceAccessor services, ISqlExecutor executor, SqlWorkerResult result)
     {
-      var extractors = new List<MetadataExtractor>();
       var mapping = new MetadataMapping(services.Driver, services.NameBuilder);
-
-      result.Assemblies = new List<AssemblyMetadata>();
-      result.Extensions = new List<ExtensionMetadata>();
-      result.Types = new List<TypeMetadata>();
-
-      foreach (var task in services.Resolver.GetMetadataTasks()) {
-        var extractor = new MetadataExtractor(mapping, task, executor);
-        extractor.GetAssemblies(result.Assemblies);
-        extractor.GetExtensions(result.Extensions);
-        extractor.GetTypes(result.Types);
-      }
+      var set = new MetadataSet();
+      foreach (var task in services.Resolver.GetMetadataTasks())
+        new MetadataExtractor(mapping, task, executor).Extract(set);
+      result.Metadata = set;
     }
 
     private static SqlExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)

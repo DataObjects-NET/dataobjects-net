@@ -27,19 +27,8 @@ namespace Xtensive.Orm.Tests.Model
     public void MainTest()
     {
       var model = Domain.Model.ToStoredModel();
-
-      string serialized;
-
-      using (var writer = new StringWriter()) {
-        model.Serialize(writer);
-        serialized = writer.ToString();
-      }
-
-      StoredDomainModel result;
-      using (var reader = new StringReader(serialized)) {
-        result = StoredDomainModel.Deserialize(reader);
-      }
-
+      var serialized = model.Serialize();
+      var result = StoredDomainModel.Deserialize(serialized);
       result.UpdateReferences();
     }
   }

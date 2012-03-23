@@ -322,9 +322,9 @@ namespace Xtensive.Orm.Upgrade
 
     private void OnBeforeStage()
     {
-      if (context.WorkerResult==null) {
+      if (workerResult.IsAvailable) {
         var result = workerResult.Get();
-        context.WorkerResult = result;
+        context.Metadata = result.Metadata;
         context.ExtractedSqlModelCache = result.Schema;
       }
 

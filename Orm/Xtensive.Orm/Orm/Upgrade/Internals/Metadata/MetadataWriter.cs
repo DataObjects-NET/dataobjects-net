@@ -27,7 +27,16 @@ namespace Xtensive.Orm.Upgrade
     private readonly SqlExtractionTask task;
     private readonly IProviderExecutor executor;
 
-    public void WriteExtensions(IEnumerable<ExtensionMetadata> extensions)
+    public void Write(MetadataSet metadata)
+    {
+      WriteTypes(metadata.Types);
+      WriteAssemblies(metadata.Assemblies);
+      WriteExtensions(metadata.Extensions);
+    }
+
+    #region Private / internal methods
+
+    private void WriteExtensions(IEnumerable<ExtensionMetadata> extensions)
     {
       var descriptor = CreateDescriptor(mapping.Extension,
         mapping.StringMapping, mapping.ExtensionName,
@@ -36,7 +45,7 @@ namespace Xtensive.Orm.Upgrade
       executor.Overwrite(descriptor, extensions.Select(item => Tuple.Create(item.Name, item.Value)));
     }
 
-    public void WriteTypes(IEnumerable<TypeMetadata> types)
+    private void WriteTypes(IEnumerable<TypeMetadata> types)
     {
       var descriptor = CreateDescriptor(mapping.Type,
         mapping.IntMapping, mapping.TypeId,
@@ -45,7 +54,7 @@ namespace Xtensive.Orm.Upgrade
       executor.Overwrite(descriptor, types.Select(item => Tuple.Create(item.Id, item.Name)));
     }
 
-    public void WriteAssemblies(IEnumerable<AssemblyMetadata> assemblies)
+    private void WriteAssemblies(IEnumerable<AssemblyMetadata> assemblies)
     {
       var descriptor = CreateDescriptor(mapping.Assembly,
         mapping.StringMapping, mapping.AssemblyName,
@@ -76,7 +85,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var storeRequest = new PersistRequest(driver, insert, bindings);
-      var clearRequest = new PersistRequest(driver, SqlDml.Delete(tableRef), bindings);
+      var clearRequest = new PersistRequest(driver, SqlDml.Delete(tableRef), null);
 
       storeRequest.Prepare();
       clearRequest.Prepare();
@@ -86,6 +95,8 @@ namespace Xtensive.Orm.Upgrade
         ClearRequest = clearRequest
       };
     }
+
+    #endregion
 
     // Constructors
 

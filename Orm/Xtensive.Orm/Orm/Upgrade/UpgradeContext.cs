@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Upgrade
 
     internal SqlExtractionResult ExtractedSqlModelCache { get; set; }
 
-    internal SqlWorkerResult WorkerResult { get; set; }
+    internal MetadataSet Metadata { get; set; }
 
     internal ITypeIdProvider TypeIdProvider { get; set; }
 

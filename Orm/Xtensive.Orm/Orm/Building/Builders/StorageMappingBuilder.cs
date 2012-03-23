@@ -58,8 +58,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ProcessAll()
     {
-      var typesToProcess = context.ModelDef.Types
-        .Where(t => t.IsEntity);
+      var typesToProcess = context.ModelDef.Types;
       foreach (var type in typesToProcess) {
         var underlyingType = type.UnderlyingType;
         if (verbose)
@@ -113,8 +112,8 @@ namespace Xtensive.Orm.Building.Builders
         .Concat(Enumerable.Repeat(new MappingRule(null, null, null, null), 1))
         .ToList();
 
-      defaultDatabase = context.Configuration.DefaultDatabase;
-      defaultSchema = context.Configuration.DefaultSchema;
+      defaultDatabase = context.Configuration.DefaultDatabase ?? string.Empty;
+      defaultSchema = context.Configuration.DefaultSchema ?? string.Empty;
 
       verbose = Log.IsLogged(LogEventTypes.Info);
     }

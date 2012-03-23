@@ -471,7 +471,7 @@ namespace Xtensive.Orm.Upgrade
 
     private bool AreMappedToSameDatabase(TypeInfo type1, TypeInfo type2)
     {
-      return (type1.MappingDatabase ?? string.Empty)==(type2.MappingDatabase ?? string.Empty);
+      return type1.MappingDatabase==type2.MappingDatabase;
     }
 
     private IEnumerable<TypeInfo> GetForeignKeyOwners(TypeInfo type)

@@ -101,6 +101,9 @@ namespace Xtensive.Orm.Configuration
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
 
+    private bool? isMultidatabase;
+    private bool? isMultischema;
+
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
     /// </summary>
@@ -422,26 +425,24 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
-    public bool IsMultidatabase
-    {
-      get
-      {
-        return !string.IsNullOrEmpty(DefaultDatabase)
-          || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Database));
-      }
-    }
+    public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
 
     /// <summary>
     /// Gets a value indicating whether this configuration is multi-schema.
     /// </summary>
-    public bool IsMultischema
+    public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
+
+    private bool GetIsMultidatabase()
     {
-      get
-      {
-        return !string.IsNullOrEmpty(DefaultSchema)
-          || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Schema))
-          || IsMultidatabase;
-      }
+      return !string.IsNullOrEmpty(DefaultDatabase)
+        || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Database));
+    }
+
+    private bool GetIsMultischema()
+    {
+      return !string.IsNullOrEmpty(DefaultSchema)
+        || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Schema))
+        || GetIsMultidatabase();
     }
 
     /// <summary>
@@ -450,9 +451,12 @@ namespace Xtensive.Orm.Configuration
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
     public override void Lock(bool recursive)
     {
+      var multischema = GetIsMultischema();
+      var multidatabase = GetIsMultidatabase();
+
       // This couldn't be done in Validate() method
       // because override sequence of Lock() is so broken.
-      ValidateMappingConfiguration();
+      ValidateMappingConfiguration(multischema, multidatabase);
 
       types.Lock(true);
       sessions.Lock(true);
@@ -461,6 +465,10 @@ namespace Xtensive.Orm.Configuration
       mappingRules.Lock(true);
 
       base.Lock(recursive);
+
+      // Everything locked fine, commit the flags
+      isMultischema = multischema;
+      isMultidatabase = multidatabase;
     }
 
     /// <inheritdoc/>
@@ -468,13 +476,13 @@ namespace Xtensive.Orm.Configuration
     {
     }
 
-    private void ValidateMappingConfiguration()
+    private void ValidateMappingConfiguration(bool multischema, bool multidatabase)
     {
-      if (IsMultischema && string.IsNullOrEmpty(DefaultSchema))
+      if (multischema && string.IsNullOrEmpty(DefaultSchema))
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
       
-      if (IsMultidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
+      if (multidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
     }

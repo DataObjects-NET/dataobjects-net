@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Building.Builders
         modelDef.Types.Remove(ientityDef);
     }
 
-    public static void BuildModel(BuildingContext context)
+    private static void BuildModel(BuildingContext context)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         context.Model = new DomainModel();

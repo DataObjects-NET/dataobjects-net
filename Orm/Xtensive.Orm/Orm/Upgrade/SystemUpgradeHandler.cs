@@ -6,15 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
-using Xtensive.Orm.Metadata;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
+using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
-using Type = Xtensive.Orm.Metadata.Type;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -41,9 +41,9 @@ namespace Xtensive.Orm.Upgrade
       if (UpgradeContext.Stage!=UpgradeStage.Upgrading)
         return;
 
-      CheckMetadata();
-      ExtractTypeIds();
-      ExtractDomainModel();
+      CheckAssemblies();
+      BuildTypeIdMap();
+      DeserializeDomainModel();
     }
 
     /// <inheritdoc/>
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Upgrade
           }
           else {
             // Skip and Validate
-            ExtractTypeIds();
+            BuildTypeIdMap();
             builder.BuildTypeIds();
           }
           break;
@@ -86,34 +86,51 @@ namespace Xtensive.Orm.Upgrade
       return true;
     }
 
-    private void CheckMetadata()
-    {
-      CheckAssemblies();
-    }
-
     private void UpdateMetadata(Session session)
     {
-      UpdateAssemblies(session);
-      UpdateTypes(session);
-      UpdateDomainModel(session);
-      session.SaveChanges();
+      var groups = BuildMetadata(session.Domain.Model);
+      var driver = session.Handlers.StorageDriver;
+      var mapping = new MetadataMapping(driver, session.Handlers.NameBuilder);
+      var executor = session.Handler.GetService<IProviderExecutor>();
+      var resolver = UpgradeContext.Services.Resolver;
+      var metadataSchema = UpgradeContext.Configuration.DefaultSchema;
+      var sqlModel = UpgradeContext.ExtractedSqlModelCache;
+
+      foreach (var group in groups) {
+        var metadataDatabase = group.Key;
+        var metadata = group.Value;
+        var schema = resolver.GetSchema(sqlModel, metadataDatabase, metadataSchema);
+        var task = new SqlExtractionTask(schema.Catalog.Name, schema.Name);
+        var writer = new MetadataWriter(driver, mapping, task, executor);
+        writer.Write(metadata);
+      }
+
+      var flatMetadata = new MetadataSet();
+      foreach (var metadata in groups.Values)
+        flatMetadata.UnionWith(metadata);
+      UpgradeContext.Metadata = flatMetadata;
     }
 
-    /// <exception cref="DomainBuilderException">Impossible to upgrade all assemblies.</exception>
     private void CheckAssemblies()
     {
-      foreach (var pair in GetAssemblies()) {
-        var handler = pair.First;
-        var assembly = pair.Second;
-        if (handler==null)
-          throw HandlerNotFound(assembly);
-        if (assembly==null) {
-          if (!handler.CanUpgradeFrom(null))
-            throw HandlerCanNotUpgrade(handler, Strings.ZeroAssemblyVersion);
+      var oldMetadata = UpgradeContext.Metadata.Assemblies ?? Enumerable.Empty<AssemblyMetadata>();
+
+      var oldAssemblies = oldMetadata
+        .GroupBy(a => a.Name)
+        .ToDictionary(g => g.Key, g => g.ToList());
+
+      var handlers = UpgradeContext.OrderedUpgradeHandlers;
+
+      foreach (var handler in handlers) {
+        List<AssemblyMetadata> assemblies;
+        if (oldAssemblies.TryGetValue(handler.AssemblyName, out assemblies)) {
+          foreach (var assembly in assemblies)
+            if (!handler.CanUpgradeFrom(assembly.Version))
+              throw HandlerCanNotUpgrade(handler, assembly.Version);
         }
         else {
-          if (!handler.CanUpgradeFrom(assembly.Version))
-            throw HandlerCanNotUpgrade(handler, assembly.Version);
+          if (!handler.CanUpgradeFrom(null))
+            throw HandlerCanNotUpgrade(handler, Strings.ZeroAssemblyVersion);
         }
       }
     }
@@ -125,107 +142,78 @@ namespace Xtensive.Orm.Upgrade
         handler.AssemblyName, sourceVersion, handler.AssemblyVersion));
     }
 
-    private static DomainBuilderException HandlerNotFound(AssemblyMetadata assembly)
+    private Dictionary<string, MetadataSet> BuildMetadata(DomainModel model)
     {
-      return new DomainBuilderException(string.Format(
-        Strings.ExNoUpgradeHandlerIsFoundForAssemblyXVersionY,
-        assembly.Name, assembly.Version));
-    }
+      var metadataGroups = model.Databases.ToDictionary(db => db.Name, db => new MetadataSet());
+      if (metadataGroups.Count==0)
+        metadataGroups.Add(string.Empty, new MetadataSet());
 
-    private void UpdateAssemblies(Session session)
-    {
-      session.Query.All<Assembly>().Remove();
-      session.SaveChanges();
-
-      foreach (var pair in GetAssemblies()) {
-        var handler = pair.First;
-        var assembly = pair.Second;
-        if (handler==null)
-          throw HandlerNotFound(assembly);
-        new Assembly(handler.AssemblyName, handler.AssemblyVersion);
+      foreach (var group in metadataGroups) {
+        var database = group.Key;
+        var metadata = group.Value;
+        Func<TypeInfo, bool> filter = t => t.MappingDatabase==database;
+        var types = model.Types.Where(filter).ToList();
+        var typeMetadata = GetTypeMetadata(types);
+        var assemblies = types.Select(t => t.UnderlyingType.Assembly).ToHashSet();
+        var assemblyMetadata = GetAssemblyMetadata(assemblies);
+        var serializedModel = model.ToStoredModel(filter).Serialize();
+        var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel);
+        metadata.Assemblies.AddRange(assemblyMetadata);
+        metadata.Types.AddRange(typeMetadata);
+        metadata.Extensions.Add(modelExtension);
       }
+
+      return metadataGroups;
     }
 
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private void UpdateTypes(Session session)
+    private IEnumerable<AssemblyMetadata> GetAssemblyMetadata(HashSet<Assembly> assemblies)
     {
-      var domainModel = session.Domain.Model;
-
-      session.Query.All<Type>().Remove();
-      session.SaveChanges();
-
-      domainModel.Types
-        .Where(type => type.IsEntity && type.TypeId!=TypeInfo.NoTypeId)
-        .ForEach(type => new Type(type.TypeId, type.UnderlyingType.GetFullName()));
+      var assemblyMetadata = UpgradeContext.OrderedUpgradeHandlers
+        .Where(handler => assemblies.Contains(handler.Assembly))
+        .Select(handler => new AssemblyMetadata(handler.AssemblyName, handler.AssemblyVersion));
+      return assemblyMetadata;
     }
 
-    private void UpdateDomainModel(Session session)
+    private static IEnumerable<TypeMetadata> GetTypeMetadata(IEnumerable<TypeInfo> types)
     {
-      var domainModel = session.Domain.Model;
-      var modelHolder = session.Query.All<Extension>()
-        .SingleOrDefault(extension => extension.Name==WellKnown.DomainModelExtensionName);
-      if (modelHolder==null)
-        modelHolder = new Extension(WellKnown.DomainModelExtensionName);
-      using (var writer = new StringWriter()) {
-        domainModel.ToStoredModel().Serialize(writer);
-        modelHolder.Text = writer.ToString();
-      }
+      return types
+        .Where(t => t.IsEntity && t.TypeId!=TypeInfo.NoTypeId)
+        .Select(type => new TypeMetadata(type.TypeId, type.UnderlyingType.GetFullName()));
     }
 
-    private IEnumerable<Pair<IUpgradeHandler, AssemblyMetadata>> GetAssemblies()
-    {
-      var extractedAssemblies = UpgradeContext.WorkerResult.Assemblies;
-      var oldAssemblies = extractedAssemblies!=null
-        ? extractedAssemblies.ToDictionary(a => a.Name)
-        : new Dictionary<string, AssemblyMetadata>();
-
-      var oldNames = oldAssemblies.Keys.ToList();
-
-      var handlers = UpgradeContext.UpgradeHandlers.Values.ToDictionary(h => h.AssemblyName);
-      if (oldNames.Contains("Xtensive.Storage"))
-        handlers["Xtensive.Storage"] = new SystemUpgradeHandler();
-      var handledAssemblyNames = handlers.Keys;
-
-      var commonNames = handledAssemblyNames.Intersect(oldNames).ToList();
-      var addedNames = handledAssemblyNames.Except(commonNames);
-      var removedNames = oldNames.Except(commonNames);
-
-      return
-        addedNames.Select(n => new Pair<IUpgradeHandler, AssemblyMetadata>(handlers[n], null))
-          .Concat(commonNames.Select(n => new Pair<IUpgradeHandler, AssemblyMetadata>(handlers[n], oldAssemblies[n])))
-          .Concat(removedNames.Select(n => new Pair<IUpgradeHandler, AssemblyMetadata>(null, oldAssemblies[n])))
-          .ToArray();
-    }
-
-    private void ExtractDomainModel()
+    private void DeserializeDomainModel()
     {
       var context = UpgradeContext;
+      var extensions = context.Metadata.Extensions.Where(e => e.Name==WellKnown.DomainModelExtensionName);
+      try {
+        var found = false;
+        var types = new List<StoredTypeInfo>();
 
-      var modelHolder = context.WorkerResult.Extensions
-        .SingleOrDefault(e => e.Name==WellKnown.DomainModelExtensionName);
+        foreach (var extension in extensions) {
+          found = true;
+          var part = StoredDomainModel.Deserialize(extension.Value);
+          types.AddRange(part.Types);
+        }
 
-      if (modelHolder==null) {
-        Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
-        return;
+        if (!found) {
+          Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
+          return;
+        }
+
+        var model = new StoredDomainModel {Types = types.ToArray()};
+        model.UpdateReferences();
+
+        context.ExtractedDomainModel = model;
       }
-
-      StoredDomainModel model = null;
-      using (var reader = new StringReader(modelHolder.Value))
-        try {
-          model = StoredDomainModel.Deserialize(reader);
-          model.UpdateReferences();
-        }
-        catch (Exception e) {
-          Log.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
-        }
-
-      context.ExtractedDomainModel = model;
+      catch (Exception e) {
+        Log.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
+      }
     }
 
-    private void ExtractTypeIds()
+    private void BuildTypeIdMap()
     {
       var context = UpgradeContext;
-      context.ExtractedTypeMap = context.WorkerResult.Types.ToDictionary(t => t.Name, t => t.Id);
+      context.ExtractedTypeMap = context.Metadata.Types.ToDictionary(t => t.Name, t => t.Id);
     }
   }
 }

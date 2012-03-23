@@ -37,24 +37,34 @@ namespace Xtensive.Orm.Model.Stored
     public StoredHierarchyInfo[] Hierarchies;
 
     /// <summary>
-    /// Deserializes <see cref="StoredDomainModel"/>
-    /// from the specified <see cref="TextReader"/>.
+    /// Deserializes <see cref="StoredDomainModel"/> from string.
     /// </summary>
-    /// <param name="reader">Reader to provider XML text.</param>
+    /// <param name="serialized">Serialized instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static StoredDomainModel Deserialize(TextReader reader)
+    public static StoredDomainModel Deserialize(string serialized)
     {
-      ArgumentValidator.EnsureArgumentNotNull(reader, "reader");
-      return (StoredDomainModel) Serializer.Deserialize(reader);
+      ArgumentValidator.EnsureArgumentNotNull(serialized, "serialized");
+
+      StoredDomainModel result;
+      using (var reader = new StringReader(serialized)) {
+        result = (StoredDomainModel) Serializer.Deserialize(reader);
+      }
+
+      return result;
     }
 
     /// <summary>
-    /// Serializes this instance writing to the specified <see cref="TextWriter"/>.
+    /// Serializes this instance to string.
     /// </summary>
-    /// <param name="writer">A writer to use.</param>
-    public void Serialize(TextWriter writer)
+    /// <returns>Serialized instance.</returns>
+    public string Serialize()
     {
-      Serializer.Serialize(writer, this);
+      string result;
+      using (var writer = new StringWriter()) {
+        Serializer.Serialize(writer, this);
+        result = writer.ToString();
+      }
+      return result;
     }
 
     /// <summary>

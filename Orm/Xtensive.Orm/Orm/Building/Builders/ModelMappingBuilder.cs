@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Building.Builders
 
       var typesToProcess = domainModel.Types.AsEnumerable();
 
-      if (configuration.UpgradeMode.IsLegacy())
+      if (configuration.UpgradeMode.IsLegacy() || configuration.IsMultidatabase)
         typesToProcess = typesToProcess.Where(t => !t.IsSystem);
 
       foreach (var type in typesToProcess) {
@@ -66,9 +66,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Fill information for TemporaryTableManager
 
-      var sampleNameNode = resolver.GetNodeName(
-        configuration.DefaultDatabase, configuration.DefaultSchema, "Dummy");
-      var defaultSchema = resolver.Resolve(sqlModel, sampleNameNode).Schema;
+      var defaultSchema = resolver.GetSchema(sqlModel, configuration.DefaultDatabase, configuration.DefaultSchema);
 
       mapping.TemporaryTableDatabase = defaultSchema.Catalog.Name;
       mapping.TemporaryTableSchema = defaultSchema.Name;

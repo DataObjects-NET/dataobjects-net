@@ -22,25 +22,32 @@ namespace Xtensive.Orm.Upgrade
     private readonly ISqlExecutor executor;
     private readonly SqlExtractionTask task;
 
-    public void GetAssemblies(ICollection<AssemblyMetadata> output)
+    public void Extract(MetadataSet output)
+    {
+      ExtractAssemblies(output.Assemblies);
+      ExtractTypes(output.Types);
+      ExtractExtensions(output.Extensions);
+    }
+
+    #region Private / internal methods
+
+    private void ExtractAssemblies(ICollection<AssemblyMetadata> output)
     {
       var query = CreateQuery(mapping.Assembly, mapping.AssemblyName, mapping.AssemblyVersion);
       ExecuteQuery(output, query, ParseAssembly);
     }
 
-    public void GetTypes(ICollection<TypeMetadata> output)
+    private void ExtractTypes(ICollection<TypeMetadata> output)
     {
       var query = CreateQuery(mapping.Type, mapping.TypeId, mapping.TypeName);
       ExecuteQuery(output, query, ParseType);
     }
 
-    public void GetExtensions(ICollection<ExtensionMetadata> output)
+    private void ExtractExtensions(ICollection<ExtensionMetadata> output)
     {
       var query = CreateQuery(mapping.Extension, mapping.ExtensionName, mapping.ExtensionText);
       ExecuteQuery(output, query, ParseExtension);
     }
-
-    #region Private / internal methods
 
     private ExtensionMetadata ParseExtension(DbDataReader reader)
     {

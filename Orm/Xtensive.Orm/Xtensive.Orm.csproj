@@ -165,6 +165,7 @@
     <Compile Include="Orm\Metadata\ConfigurationModule.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataMapping.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataSet.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataWriter.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\TypeMetadata.cs" />
     <Compile Include="Orm\Model\SchemaMappedNode.cs" />

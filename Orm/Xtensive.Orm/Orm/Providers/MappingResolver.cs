@@ -217,6 +217,12 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    public Schema GetSchema(SqlExtractionResult model, string mappingDatabase, string mappingSchema)
+    {
+      var sampleNameNode = GetNodeName(mappingDatabase, mappingSchema, "sample");
+      return Resolve(model, sampleNameNode).Schema;
+    }
+
     public string GetNodeName(SchemaMappedNode node)
     {
       return GetNodeName(node.MappingDatabase, node.MappingSchema, node.MappingName);
