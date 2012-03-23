@@ -58,7 +58,9 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ProcessAll()
     {
-      var typesToProcess = context.ModelDef.Types;
+      var typesToProcess = context.ModelDef.Types
+        .Where(t => !t.IsGenericTypeDefinition && !t.IsAutoGenericInstance);
+
       foreach (var type in typesToProcess) {
         var underlyingType = type.UnderlyingType;
         if (verbose)
