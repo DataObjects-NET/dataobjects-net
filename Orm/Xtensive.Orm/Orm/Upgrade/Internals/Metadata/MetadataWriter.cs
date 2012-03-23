@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Upgrade
         mapping.StringMapping, mapping.ExtensionName,
         mapping.StringMapping, mapping.ExtensionText);
 
-      executor.Overwrite(descriptor, extensions.Select(item => Tuple.Create(item.Name, item.Value)));
+      executor.Overwrite(descriptor, extensions.Select(item => (Tuple) Tuple.Create(item.Name, item.Value)));
     }
 
     private void WriteTypes(IEnumerable<TypeMetadata> types)
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Upgrade
         mapping.IntMapping, mapping.TypeId,
         mapping.StringMapping, mapping.TypeName);
 
-      executor.Overwrite(descriptor, types.Select(item => Tuple.Create(item.Id, item.Name)));
+      executor.Overwrite(descriptor, types.Select(item => (Tuple) Tuple.Create(item.Id, item.Name)));
     }
 
     private void WriteAssemblies(IEnumerable<AssemblyMetadata> assemblies)
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Upgrade
         mapping.StringMapping, mapping.AssemblyName,
         mapping.StringMapping, mapping.AssemblyVersion);
 
-      executor.Overwrite(descriptor, assemblies.Select(item => Tuple.Create(item.Name, item.Version)));
+      executor.Overwrite(descriptor, assemblies.Select(item => (Tuple) Tuple.Create(item.Name, item.Version)));
     }
 
     private IPersistDescriptor CreateDescriptor(string tableName,
