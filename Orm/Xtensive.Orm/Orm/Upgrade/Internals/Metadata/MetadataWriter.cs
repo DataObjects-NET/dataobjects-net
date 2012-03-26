@@ -38,9 +38,13 @@ namespace Xtensive.Orm.Upgrade
 
     private void WriteExtensions(IEnumerable<ExtensionMetadata> extensions)
     {
+      var extensionTextTransmissionType =
+        driver.ProviderInfo.Supports(ProviderFeatures.LargeObjects)
+        ? ParameterTransmissionType.CharacterLob
+        : ParameterTransmissionType.Regular;
       var descriptor = CreateDescriptor(mapping.Extension,
-        mapping.StringMapping, mapping.ExtensionName,
-        mapping.StringMapping, mapping.ExtensionText);
+        mapping.StringMapping, mapping.ExtensionName, ParameterTransmissionType.Regular,
+        mapping.StringMapping, mapping.ExtensionText, extensionTextTransmissionType);
 
       executor.Overwrite(descriptor, extensions.Select(item => (Tuple) Tuple.Create(item.Name, item.Value)));
     }
@@ -48,8 +52,8 @@ namespace Xtensive.Orm.Upgrade
     private void WriteTypes(IEnumerable<TypeMetadata> types)
     {
       var descriptor = CreateDescriptor(mapping.Type,
-        mapping.IntMapping, mapping.TypeId,
-        mapping.StringMapping, mapping.TypeName);
+        mapping.IntMapping, mapping.TypeId, ParameterTransmissionType.Regular,
+        mapping.StringMapping, mapping.TypeName, ParameterTransmissionType.Regular);
 
       executor.Overwrite(descriptor, types.Select(item => (Tuple) Tuple.Create(item.Id, item.Name)));
     }
@@ -57,14 +61,15 @@ namespace Xtensive.Orm.Upgrade
     private void WriteAssemblies(IEnumerable<AssemblyMetadata> assemblies)
     {
       var descriptor = CreateDescriptor(mapping.Assembly,
-        mapping.StringMapping, mapping.AssemblyName,
-        mapping.StringMapping, mapping.AssemblyVersion);
+        mapping.StringMapping, mapping.AssemblyName, ParameterTransmissionType.Regular,
+        mapping.StringMapping, mapping.AssemblyVersion, ParameterTransmissionType.Regular);
 
       executor.Overwrite(descriptor, assemblies.Select(item => (Tuple) Tuple.Create(item.Name, item.Version)));
     }
 
     private IPersistDescriptor CreateDescriptor(string tableName,
-      TypeMapping mapping1, string columnName1, TypeMapping mapping2, string columnName2)
+      TypeMapping mapping1, string columnName1, ParameterTransmissionType transmissionType1,
+      TypeMapping mapping2, string columnName2, ParameterTransmissionType transmissionType2)
     {
       var catalog = new Catalog(task.Catalog);
       var schema = catalog.CreateSchema(task.Schema);
@@ -72,6 +77,7 @@ namespace Xtensive.Orm.Upgrade
 
       var columnNames = new[] {columnName1, columnName2};
       var mappings = new[] {mapping1, mapping2};
+      var transmissionTypes = new[] {transmissionType1, transmissionType2};
 
       var columns = columnNames.Select(table.CreateColumn).ToList();
       var tableRef = SqlDml.TableRef(table);
@@ -79,7 +85,7 @@ namespace Xtensive.Orm.Upgrade
       var insert = SqlDml.Insert(tableRef);
       var bindings = new PersistParameterBinding[columns.Count];
       for (int i = 0; i < columns.Count; i++) {
-        var binding = new PersistParameterBinding(mappings[i], i);
+        var binding = new PersistParameterBinding(mappings[i], i, transmissionTypes[i]);
         insert.Values[tableRef.Columns[i]] = binding.ParameterReference;
         bindings[i] = binding;
       }
