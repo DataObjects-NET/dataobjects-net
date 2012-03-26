@@ -58,8 +58,6 @@ namespace Xtensive.Orm.Building
 
     #endregion
 
-    internal readonly static Type TypeOfIEntity = typeof (IEntity);
-
     private readonly BuildingContext context;
 
     public static void Run(BuildingContext context)
@@ -137,7 +135,7 @@ namespace Xtensive.Orm.Building
         var argument = arguments[i];
         var constraints = argument.GetGenericParameterConstraints()
           .ToList();
-        if (constraints.Count == 0 || !constraints.Any(c => TypeOfIEntity.IsAssignableFrom(c)))
+        if (constraints.Count == 0 || !constraints.Any(c => typeof (IEntity).IsAssignableFrom(c)))
           return; // No IEntity / Entity constraints
         var queue = new Queue<Type>(
           from hierarchy in hierarchies
