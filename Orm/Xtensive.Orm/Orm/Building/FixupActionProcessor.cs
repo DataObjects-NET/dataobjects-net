@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Building
       if (hierarchyToRemove != null) 
         context.ModelDef.Hierarchies.Remove(hierarchyToRemove);
 
-      // Building al possible generic arguemtn substitusions
+      // Building all possible generic argument substitutions
       var arguments = type.UnderlyingType.GetGenericArguments();
       var typeSubstitutions = new Type[arguments.Length][];
       for (var i = 0; i < arguments.Length; i++) {
@@ -165,6 +165,11 @@ namespace Xtensive.Orm.Building
       foreach (var instanceType in GenericArgumentCombinator.Generate(type.UnderlyingType, typeSubstitutions)) {
         var typeDef = ModelDefBuilder.ProcessType(context, instanceType);
         typeDef.Attributes |= TypeAttributes.AutoGenericInstance;
+        // Copy schema/database from first generic argument
+        var originatingType = instanceType.GetGenericArguments()[0];
+        var originatingEntity = context.ModelDef.Types[originatingType];
+        typeDef.MappingDatabase = originatingEntity.MappingDatabase;
+        typeDef.MappingSchema = originatingEntity.MappingSchema;
       }
     }
 
