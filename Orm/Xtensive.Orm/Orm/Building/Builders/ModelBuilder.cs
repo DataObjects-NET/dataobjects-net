@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private readonly BuildingContext context;
     private readonly TypeBuilder typeBuilder;
+    private readonly ModelDefBuilder modelDefBuilder;
 
     public static void Run(BuildingContext context)
     {
@@ -35,7 +36,9 @@ namespace Xtensive.Orm.Building.Builders
     private void Run()
     {
       // Model definition building
-      ModelDefBuilder.Run(context);
+      BuildModelDefinition();
+      // Applying mapping rules
+      StorageMappingBuilder.Run(context);
       // Invoke user-defined transformations
       ApplyCustomDefinitions();
       // Clean-up
@@ -53,7 +56,7 @@ namespace Xtensive.Orm.Building.Builders
         // Applying fixup actions to the model definition.
         FixupActionProcessor.Run(context);
 
-        ModelDefBuilder.ProcessTypes(context);
+        modelDefBuilder.ProcessTypes();
         InspectAndProcessGeneratedEntities();
         BuildModel();
         monitor.Detach();
@@ -61,6 +64,15 @@ namespace Xtensive.Orm.Building.Builders
       else {
         // Simply build model
         BuildModel();
+      }
+    }
+
+    private void BuildModelDefinition()
+    {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
+        context.ModelDef = new DomainModelDef(modelDefBuilder);
+        using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types))
+          modelDefBuilder.ProcessTypes();
       }
     }
 
@@ -303,7 +315,7 @@ namespace Xtensive.Orm.Building.Builders
       if (typeDef.Indexes.Any(isIndexForField))
         return;
       var attribute = new IndexAttribute(association.OwnerField.Name);
-      var indexDef = ModelDefBuilder.DefineIndex(context, typeDef, attribute);
+      var indexDef = modelDefBuilder.DefineIndex(typeDef, attribute);
       typeDef.Indexes.Add(indexDef);
     }
 
@@ -333,7 +345,7 @@ namespace Xtensive.Orm.Building.Builders
           genericInstanceType);
 
         // Defining auxiliary type
-        var underlyingTypeDef = ModelDefBuilder.DefineType(context, underlyingType);
+        var underlyingTypeDef = modelDefBuilder.DefineType(underlyingType);
         underlyingTypeDef.Name = association.Name;
         underlyingTypeDef.MappingName = context.NameBuilder.BuildAuxiliaryTypeMappingName(association);
         // Copy mapping information from master type
@@ -343,10 +355,10 @@ namespace Xtensive.Orm.Building.Builders
         // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
         var hra = genericInstanceType.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
         // Defining the hierarchy
-        var hierarchy = ModelDefBuilder.DefineHierarchy(context, underlyingTypeDef, hra);
+        var hierarchy = modelDefBuilder.DefineHierarchy(underlyingTypeDef, hra);
 
         // Processing type properties
-        ModelDefBuilder.ProcessProperties(context, underlyingTypeDef, hierarchy);
+        modelDefBuilder.ProcessProperties(underlyingTypeDef, hierarchy);
 
         // Getting fields
         var masterFieldDef = underlyingTypeDef.Fields[WellKnown.MasterFieldName];
@@ -417,6 +429,8 @@ namespace Xtensive.Orm.Building.Builders
     private ModelBuilder(BuildingContext context)
     {
       this.context = context;
+      modelDefBuilder = new ModelDefBuilder(context);
+      context.ModelDefBuilder = modelDefBuilder;
       typeBuilder = new TypeBuilder(context);
     }
   }

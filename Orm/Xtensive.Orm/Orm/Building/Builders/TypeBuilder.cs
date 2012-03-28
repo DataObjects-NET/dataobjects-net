@@ -310,7 +310,7 @@ namespace Xtensive.Orm.Building.Builders
         if (!clone.IsStructure && !clone.IsEntitySet && 0!=(clone.Attributes & FieldAttributes.Indexed)) {
           var typeDef = context.ModelDef.Types[target.DeclaringType.UnderlyingType];
           var attribute = new IndexAttribute(clone.Name);
-          var index = ModelDefBuilder.DefineIndex(context, typeDef, attribute);
+          var index = context.ModelDefBuilder.DefineIndex(typeDef, attribute);
           if (typeDef.Indexes.Contains(index.Name))
             throw new DomainBuilderException(
               string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
@@ -500,7 +500,6 @@ namespace Xtensive.Orm.Building.Builders
     public TypeBuilder(BuildingContext context)
     {
       this.context = context;
-
     }
   }
 }

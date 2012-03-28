@@ -22,12 +22,12 @@ namespace Xtensive.Orm.Building.Definitions
   [Serializable]
   public sealed class TypeDef : SchemaMappedNode
   {
-    private readonly BuildingContext context;
-
+    private readonly ModelDefBuilder builder;
     private readonly Type underlyingType;
-    private TypeAttributes attributes;
     private readonly NodeCollection<FieldDef> fields;
     private readonly NodeCollection<IndexDef> indexes;
+
+    private TypeAttributes attributes;
     private NodeCollection<TypeDef> implementors;
   
     /// <summary>
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Building.Definitions
         throw new DomainBuilderException(
           string.Format(Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.GetFullName()));
             
-      FieldDef fieldDef = ModelDefBuilder.DefineField(context, property);
+      FieldDef fieldDef = builder.DefineField(property);
       fields.Add(fieldDef);
       return fieldDef;
     }
@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(valueType, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
-      FieldDef field = ModelDefBuilder.DefineField(context, UnderlyingType, name, valueType);
+      FieldDef field = builder.DefineField(UnderlyingType, name, valueType);
       fields.Add(field);
       return field;
     }
@@ -215,24 +215,27 @@ namespace Xtensive.Orm.Building.Definitions
 
     // Constructors
 
-    internal TypeDef(BuildingContext context, Type type)
+    internal TypeDef(ModelDefBuilder builder, Type type)
     {
-      this.context = context;
+      this.builder = builder;
       underlyingType = type;
+
       if (type.IsInterface)
         Attributes = TypeAttributes.Interface;
-      else if (type == typeof (Structure) || type.IsSubclassOf(typeof (Structure)))
+      else if (type==typeof (Structure) || type.IsSubclassOf(typeof (Structure)))
         Attributes = TypeAttributes.Structure;
       else
         Attributes = type.IsAbstract
           ? TypeAttributes.Entity | TypeAttributes.Abstract
           : TypeAttributes.Entity;
+
       if (type.IsGenericTypeDefinition)
         Attributes = Attributes | TypeAttributes.GenericTypeDefinition;
+
       fields = new NodeCollection<FieldDef>(this, "Fields");
       indexes = new NodeCollection<IndexDef>(this, "Indexes");
-      implementors = IsInterface 
-        ? new NodeCollection<TypeDef>(this, "Implementors") 
+      implementors = IsInterface
+        ? new NodeCollection<TypeDef>(this, "Implementors")
         : NodeCollection<TypeDef>.Empty;
     }
   }

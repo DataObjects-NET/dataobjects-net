@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Building.Definitions
   [Serializable]
   public sealed class DomainModelDef : Node
   {
-    private readonly BuildingContext context;
+    private readonly ModelDefBuilder builder;
     private readonly HierarchyDefCollection hierarchies;
     private readonly TypeDefCollection types;
     private readonly FullTextIndexDefCollection fullTextIndexes;
@@ -31,26 +31,17 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets the <see cref="TypeDef"/> instances contained in this instance.
     /// </summary>
-    public TypeDefCollection Types
-    {
-      get { return types; }
-    }
+    public TypeDefCollection Types { get { return types; } }
 
     /// <summary>
     /// Gets the collection of <see cref="HierarchyDef"/> instances contained in this instance.
     /// </summary>
-    public HierarchyDefCollection Hierarchies
-    {
-      get { return hierarchies; }
-    }
+    public HierarchyDefCollection Hierarchies { get { return hierarchies; } }
 
     /// <summary>
     /// Gets the collection of <see cref="FullTextIndexDef"/> instances contained in this instance.
     /// </summary>
-    public FullTextIndexDefCollection FullTextIndexes
-    {
-      get { return fullTextIndexes; }
-    }
+    public FullTextIndexDefCollection FullTextIndexes { get { return fullTextIndexes; } }
 
     /// <summary>
     /// Defines new <see cref="TypeDef"/> and adds it to <see cref="DomainModelDef"/> instance.
@@ -64,7 +55,7 @@ namespace Xtensive.Orm.Building.Definitions
       if (types.Contains(type))
         throw new DomainBuilderException(string.Format(Strings.ExTypeXIsAlreadyDefined, type.GetFullName()));
 
-      return ModelDefBuilder.ProcessType(context, type);
+      return builder.ProcessType(type);
     }
 
     /// <summary>
@@ -106,9 +97,9 @@ namespace Xtensive.Orm.Building.Definitions
 
     // Constructors
 
-    internal DomainModelDef(BuildingContext context)
+    internal DomainModelDef(ModelDefBuilder builder)
     {
-      this.context = context;
+      this.builder = builder;
 
       types = new TypeDefCollection(this, "Types");
       hierarchies = new HierarchyDefCollection();

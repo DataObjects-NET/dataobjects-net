@@ -82,6 +82,7 @@ namespace Xtensive.Orm.Building
     /// </summary>
     public DomainModel Model { get; internal set; }
 
+    internal ModelDefBuilder ModelDefBuilder { get; set; }
 
     // Constructors
 

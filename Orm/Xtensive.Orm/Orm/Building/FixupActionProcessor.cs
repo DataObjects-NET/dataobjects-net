@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
@@ -161,7 +160,7 @@ namespace Xtensive.Orm.Building
         typeSubstitutions[i] = types.ToArray();
       }
       foreach (var instanceType in GenericArgumentCombinator.Generate(type.UnderlyingType, typeSubstitutions)) {
-        var typeDef = ModelDefBuilder.ProcessType(context, instanceType);
+        var typeDef = context.ModelDefBuilder.ProcessType(instanceType);
         typeDef.Attributes |= TypeAttributes.AutoGenericInstance;
         // Copy schema/database from first generic argument
         var originatingType = instanceType.GetGenericArguments()[0];
@@ -194,7 +193,7 @@ namespace Xtensive.Orm.Building
         return;
 
       var attribute = new IndexAttribute(action.Field.Name);
-      var indexDef = ModelDefBuilder.DefineIndex(context, type, attribute);
+      var indexDef = context.ModelDefBuilder.DefineIndex(type, attribute);
       type.Indexes.Add(indexDef);
     }
 
@@ -247,7 +246,7 @@ namespace Xtensive.Orm.Building
 
     public void Process(AddTypeIdFieldAction action)
     {
-      FieldDef fieldDef = ModelDefBuilder.DefineField(context, typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
+      FieldDef fieldDef = context.ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);

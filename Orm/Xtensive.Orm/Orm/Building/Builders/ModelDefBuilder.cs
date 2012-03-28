@@ -10,38 +10,25 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
-using Xtensive.Orm.Building.Definitions;
-using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal static class ModelDefBuilder
+  internal sealed class ModelDefBuilder
   {
-    public static void Run(BuildingContext context)
+    private readonly BuildingContext context;
+
+    public void ProcessTypes()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
-
-        context.ModelDef = new DomainModelDef(context);
-
-        using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types))
-          ProcessTypes(context);
-
-        StorageMappingBuilder.Run(context);
-      }
-    }
-
-    public static void ProcessTypes(BuildingContext context)
-    {
-      var typeFilter = GetTypeFilter(context);
       var closedGenericTypes = new List<Type>();
       var openGenericTypes = new List<Type>();
 
-      while (context.Types.Count != 0) {
+      while (context.Types.Count!=0) {
         var type = context.Types.Dequeue();
-        if (!typeFilter(type))
+        if (!IsTypeAvailable(type))
           continue;
         if (type.IsGenericType) {
           if (type.IsGenericTypeDefinition)
@@ -50,23 +37,23 @@ namespace Xtensive.Orm.Building.Builders
             closedGenericTypes.Add(type);
         }
         else
-          ProcessType(context, type);
+          ProcessType(type);
       }
       closedGenericTypes = closedGenericTypes.Where(t => !t.FullName.IsNullOrEmpty()).ToList();
       List<Node<Type, object>> loops;
       closedGenericTypes = TopologicalSorter.Sort(
         closedGenericTypes,
-        (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)), 
+        (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)),
         out loops);
       foreach (var type in closedGenericTypes)
-        ProcessType(context, type);
+        ProcessType(type);
       foreach (var type in openGenericTypes)
-        ProcessType(context, type);
+        ProcessType(type);
     }
 
     #region Automatic processing members
 
-    public static TypeDef ProcessType(BuildingContext context, Type type)
+    public TypeDef ProcessType(Type type)
     {
       var modelDef = context.ModelDef;
 
@@ -75,7 +62,7 @@ namespace Xtensive.Orm.Building.Builders
         return typeDef;
       
       using (Log.InfoRegion(Strings.LogDefiningX, type.GetFullName())) {
-        typeDef = DefineType(context, type);
+        typeDef = DefineType(type);
         if (modelDef.Types.Contains(typeDef.Name))
           throw new DomainBuilderException(string.Format(Strings.ExTypeWithNameXIsAlreadyDefined, typeDef.Name));
 
@@ -84,13 +71,13 @@ namespace Xtensive.Orm.Building.Builders
           // HierarchyRootAttribute is required for hierarchy root
           var hra = type.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
           if (hra!=null)
-            hierarchyDef = DefineHierarchy(context, typeDef, hra);
+            hierarchyDef = DefineHierarchy(typeDef, hra);
         }
 
-        ProcessProperties(context, typeDef, hierarchyDef);
+        ProcessProperties(typeDef, hierarchyDef);
 
         if (typeDef.IsEntity || typeDef.IsInterface)
-          ProcessIndexes(context, typeDef);
+          ProcessIndexes(typeDef);
 
         if (hierarchyDef!=null) {
           Log.Info(Strings.LogHierarchyX, typeDef.Name);
@@ -98,13 +85,13 @@ namespace Xtensive.Orm.Building.Builders
         }
         modelDef.Types.Add(typeDef);
 
-        ProcessFullTextIndexes(context, typeDef);
+        ProcessFullTextIndexes(typeDef);
 
         return typeDef;
       }
     }
 
-    private static void ProcessFullTextIndexes(BuildingContext context, TypeDef typeDef)
+    private void ProcessFullTextIndexes(TypeDef typeDef)
     {
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
       var modelDef = context.ModelDef;
@@ -127,15 +114,14 @@ namespace Xtensive.Orm.Building.Builders
         modelDef.FullTextIndexes.Add(fullTextIndexDef);
     }
 
-    public static void ProcessProperties(BuildingContext context, TypeDef typeDef, HierarchyDef hierarchyDef)
+    public void ProcessProperties(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-      var fieldFilter = GetFieldFilter(context);
       var properties = typeDef.UnderlyingType.GetProperties(
         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
       foreach (var propertyInfo in properties) {
         // Domain builder stage-related filter
-        if (!fieldFilter.Invoke(propertyInfo))
+        if (!IsFieldAvailable(propertyInfo))
           continue;
 
         // FieldAttribute presence is required
@@ -143,7 +129,7 @@ namespace Xtensive.Orm.Building.Builders
         if (fieldAttributes.Length==0)
           continue;
 
-        var field = DefineField(context, propertyInfo, fieldAttributes);
+        var field = DefineField(propertyInfo, fieldAttributes);
 
         // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
@@ -169,7 +155,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void ProcessIndexes(BuildingContext context, TypeDef typeDef)
+    private void ProcessIndexes(TypeDef typeDef)
     {
       var targets = typeDef.Fields
         .Where(f => f.IsIndexed)
@@ -182,7 +168,7 @@ namespace Xtensive.Orm.Building.Builders
         return;
 
       foreach (var attribute in targets) {
-        var index = DefineIndex(context, typeDef, attribute);
+        var index = DefineIndex(typeDef, attribute);
         if (typeDef.Indexes.Contains(index.Name))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
@@ -196,9 +182,9 @@ namespace Xtensive.Orm.Building.Builders
 
     #region Definition-related members
 
-    public static TypeDef DefineType(BuildingContext context, Type type)
+    public TypeDef DefineType(Type type)
     {
-      var typeDef = new TypeDef(context, type);
+      var typeDef = new TypeDef(this, type);
       typeDef.Name = context.NameBuilder.BuildTypeName(typeDef);
 
       if (!(type.UnderlyingSystemType.IsInterface || type.IsAbstract)) {
@@ -222,19 +208,19 @@ namespace Xtensive.Orm.Building.Builders
       return typeDef;
     }
 
-    public static HierarchyDef DefineHierarchy(BuildingContext context, TypeDef typeDef)
+    public HierarchyDef DefineHierarchy(TypeDef typeDef)
     {
       // Prefer standard hierarchy definition flow
       var hra = typeDef.UnderlyingType.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
       if (hra!=null)
-        return DefineHierarchy(context, typeDef, hra);
+        return DefineHierarchy(typeDef, hra);
 
       Validator.ValidateHierarchyRoot(typeDef);
       var result = new HierarchyDef(typeDef);
       return result;
     }
 
-    public static HierarchyDef DefineHierarchy(BuildingContext context, TypeDef typeDef, HierarchyRootAttribute attribute)
+    public HierarchyDef DefineHierarchy(TypeDef typeDef, HierarchyRootAttribute attribute)
     {
       Validator.ValidateHierarchyRoot(typeDef);
 
@@ -249,12 +235,12 @@ namespace Xtensive.Orm.Building.Builders
       return hierarchyDef;
     }
 
-    public static FieldDef DefineField(BuildingContext context, PropertyInfo propertyInfo)
+    public FieldDef DefineField(PropertyInfo propertyInfo)
     {
-      return DefineField(context, propertyInfo, GetFieldAttributes<FieldAttribute>(propertyInfo));
+      return DefineField(propertyInfo, GetFieldAttributes<FieldAttribute>(propertyInfo));
     }
 
-    public static FieldDef DefineField(BuildingContext context, PropertyInfo propertyInfo, FieldAttribute[] fieldAttributes)
+    public FieldDef DefineField(PropertyInfo propertyInfo, FieldAttribute[] fieldAttributes)
     {
       // Persistent indexers are not supported
       var indexParameters = propertyInfo.GetIndexParameters();
@@ -288,17 +274,17 @@ namespace Xtensive.Orm.Building.Builders
       return fieldDef;
     }
 
-    public static FieldDef DefineField(BuildingContext context, Type declaringType, string name, Type valueType)
+    public FieldDef DefineField(Type declaringType, string name, Type valueType)
     {
       // Prefer standard field definition flow if corresponding property exists
       var propertyInfo = declaringType.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic);
       if (propertyInfo!=null)
-        return DefineField(context, propertyInfo);
+        return DefineField(propertyInfo);
 
       return new FieldDef(valueType) {Name = name};
     }
 
-    public static IndexDef DefineIndex(BuildingContext context, TypeDef typeDef, IndexAttribute attribute)
+    public IndexDef DefineIndex(TypeDef typeDef, IndexAttribute attribute)
     {
       var index = new IndexDef(typeDef) {IsSecondary = true};
       AttributeProcessor.Process(index, attribute);
@@ -324,18 +310,24 @@ namespace Xtensive.Orm.Building.Builders
       return attributes;
     }
 
-
-    private static Func<Type, bool> GetTypeFilter(BuildingContext context)
+    private bool IsTypeAvailable(Type type)
     {
-      Func<Type, bool> filter = context.BuilderConfiguration.ModelFilter.IsTypeAvailable;
-      return t => filter(t) && t!=typeof (EntitySetItem<,>);
+      return context.BuilderConfiguration.ModelFilter.IsTypeAvailable(type)
+        && type!=typeof (EntitySetItem<,>);
     }
 
-    private static Func<PropertyInfo, bool> GetFieldFilter(BuildingContext context)
+    private bool IsFieldAvailable(PropertyInfo property)
     {
-      return context.BuilderConfiguration.ModelFilter.IsFieldAvailable;
+      return context.BuilderConfiguration.ModelFilter.IsFieldAvailable(property);
     }
 
     #endregion
+
+    // Constructors
+
+    public ModelDefBuilder(BuildingContext context)
+    {
+      this.context = context;
+    }
   }
 }
