@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build typed indexes
       foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real)) {
-        if (!context.UntypedIndexes.Contains(realIndex)) 
+        if (!untypedIndexes.Contains(realIndex)) 
           continue;
         var typedIndex = BuildTypedIndex(type, realIndex);
         type.Indexes.Add(typedIndex);
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Building.Builders
         if (!secondaryIndex.IsAbstract)
           context.Model.RealIndexes.Add(secondaryIndex);
         // Build typed index for secondary one
-        if (!context.UntypedIndexes.Contains(secondaryIndex))
+        if (!untypedIndexes.Contains(secondaryIndex))
           continue;
         var typedIndex = BuildTypedIndex(type, secondaryIndex);
         type.Indexes.Add(typedIndex);
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Building.Builders
       // Build virtual secondary indexes
       if (descendants.Count > 0)
         foreach (var index in type.Indexes.Where(i => !i.IsPrimary && !i.IsVirtual).ToList()) {
-          var isUntyped = context.UntypedIndexes.Contains(index);
+          var isUntyped = untypedIndexes.Contains(index);
           var indexToUnion = isUntyped
             ? type.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && i.IsTyped)
             : index;

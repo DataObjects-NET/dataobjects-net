@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {
         if (!types.Contains(realIndex.ReflectedType))
           continue;
-        if (!context.UntypedIndexes.Contains(realIndex))
+        if (!untypedIndexes.Contains(realIndex))
           continue;
         if (root.Indexes.Any(i => i.DeclaringIndex == realIndex.DeclaringIndex && i.ReflectedType == type && i.IsTyped))
           continue;
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Building.Builders
       var ancestorIndexes = root.Indexes
         .Where(i => types.Contains(i.ReflectedType) && !i.IsTyped)
         .Reverse()
-        .Select(i => context.UntypedIndexes.Contains(i)
+        .Select(i => untypedIndexes.Contains(i)
           ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.ReflectedType == type && index.IsTyped)
           : i)
         .ToList();

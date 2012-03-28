@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Building.Builders
       // Build typed indexes
       if (type == root)
         foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real)) {
-          if (!context.UntypedIndexes.Contains(realIndex)) 
+          if (!untypedIndexes.Contains(realIndex)) 
             continue;
           var typedIndex = BuildTypedIndex(type, realIndex);
           type.Indexes.Add(typedIndex);
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Import inherited indexes
       var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-      if (context.UntypedIndexes.Contains(primaryIndex) && primaryIndex.ReflectedType == root)
+      if (untypedIndexes.Contains(primaryIndex) && primaryIndex.ReflectedType == root)
         primaryIndex = type.Indexes.Single(i => i.DeclaringIndex == primaryIndex.DeclaringIndex && i.IsTyped);
       var filterByTypes = type.GetDescendants(true).AddOne(type).ToList();
 
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Building.Builders
         var baseIndexes = new Stack<IndexInfo>();
         foreach (var ancestor in ancestors.Where(t => t.Fields.Any(f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared))) {
           var ancestorIndex = ancestor.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
-          if (context.UntypedIndexes.Contains(ancestorIndex) && ancestorIndex.ReflectedType == root)
+          if (untypedIndexes.Contains(ancestorIndex) && ancestorIndex.ReflectedType == root)
             ancestorIndex = ancestor.Indexes.Single(i => i.DeclaringIndex == ancestorIndex.DeclaringIndex && i.IsTyped);
           if (ancestorIndex.ValueColumns.Count > 0)
             baseIndexes.Push(ancestorIndex);
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Building.Builders
         if (ancestorIndex.DeclaringIndex != ancestorIndex)
           continue;
         var ancestorType = ancestorIndex.ReflectedType;
-        var indexToFilter = context.UntypedIndexes.Contains(ancestorIndex) && ancestorIndex.ReflectedType == root
+        var indexToFilter = untypedIndexes.Contains(ancestorIndex) && ancestorIndex.ReflectedType == root
           ? ancestorType.Indexes.Single(i => i.DeclaringIndex == ancestorIndex.DeclaringIndex && i.IsTyped)
           : ancestorIndex;
         var virtualIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);

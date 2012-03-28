@@ -28,7 +28,6 @@ namespace Xtensive.Orm.Building
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
-    internal HashSet<IndexInfo> UntypedIndexes { get; private set; }
     internal Queue<Type> Types { get; private set; }
     internal Dictionary<string, object> KeyEqualityIdentifiers { get; private set; }
     internal Dictionary<string, SequenceInfo> Sequences { get; private set; }
@@ -100,7 +99,6 @@ namespace Xtensive.Orm.Building
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
       Interfaces = new HashSet<TypeDef>();
-      UntypedIndexes = new HashSet<IndexInfo>();
       Types = new Queue<Type>(Configuration.Types);
       KeyEqualityIdentifiers = new Dictionary<string, object>();
       Sequences = new Dictionary<string, SequenceInfo>();
