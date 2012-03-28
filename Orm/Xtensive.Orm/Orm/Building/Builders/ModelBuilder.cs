@@ -8,34 +8,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Notifications;
-using Xtensive.Reflection;
-using Xtensive.Sorting;
-using Xtensive.Threading;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-
-using TypeHelper=Xtensive.Reflection.TypeHelper;
+using Xtensive.Reflection;
+using Xtensive.Sorting;
+using Xtensive.Threading;
+using TypeHelper = Xtensive.Reflection.TypeHelper;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal static class ModelBuilder
+  internal sealed class ModelBuilder
   {
     private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
+    private static ThreadSafeDictionary<string, Type> GeneratedTypes = ThreadSafeDictionary<string, Type>.Create(new object());
 
-    private static ThreadSafeDictionary<string, Type> generatedTypes
-      = ThreadSafeDictionary<string, Type>.Create(new object());
+    private readonly BuildingContext context;
+    private readonly TypeBuilder typeBuilder;
 
     public static void Run(BuildingContext context)
+    {
+      new ModelBuilder(context).Run();
+    }
+
+    private void Run()
     {
       // Model definition building
       ModelDefBuilder.Run(context);
       // Invoke user-defined transformations
-      ApplyCustomDefinitions(context);
+      ApplyCustomDefinitions();
       // Clean-up
-      RemoveTemporaryDefinitions(context);
+      RemoveTemporaryDefinitions();
       // Inspecting model definition
       ModelInspector.Run(context);
 
@@ -50,17 +54,17 @@ namespace Xtensive.Orm.Building.Builders
         FixupActionProcessor.Run(context);
 
         ModelDefBuilder.ProcessTypes(context);
-        InspectAndProcessGeneratedEntities(context);
-        BuildModel(context);
+        InspectAndProcessGeneratedEntities();
+        BuildModel();
         monitor.Detach();
       }
       else {
         // Simply build model
-        BuildModel(context);
+        BuildModel();
       }
     }
 
-    private static void InspectAndProcessGeneratedEntities(BuildingContext context)
+    private void InspectAndProcessGeneratedEntities()
     {
       foreach (var hieararchy in context.ModelInspectionResult.GeneratedHierarchies)
         ModelInspector.Inspect(context, hieararchy);
@@ -74,7 +78,7 @@ namespace Xtensive.Orm.Building.Builders
         FixupActionProcessor.Run(context);
     }
 
-    private static void ApplyCustomDefinitions(BuildingContext context)
+    private void ApplyCustomDefinitions()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
         foreach (var module in context.BuilderConfiguration.Services.Modules)
@@ -82,7 +86,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void RemoveTemporaryDefinitions(BuildingContext context)
+    private void RemoveTemporaryDefinitions()
     {
       var modelDef = context.ModelDef;
       var ientityDef = modelDef.Types.TryGetValue(typeof (IEntity));
@@ -90,33 +94,33 @@ namespace Xtensive.Orm.Building.Builders
         modelDef.Types.Remove(ientityDef);
     }
 
-    private static void BuildModel(BuildingContext context)
+    private void BuildModel()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         context.Model = new DomainModel();
-        BuildTypes(context, GetTypeBuildSequence(context));
-        BuildAssociations(context);
+        BuildTypes(GetTypeBuildSequence());
+        BuildAssociations();
         IndexBuilder.BuildIndexes(context);
         context.Model.UpdateState(true);
-        ValidateMappingConfiguration(context);
-        BuildDatabaseDependencies(context);
-        BuildPrefetchActions(context);
+        ValidateMappingConfiguration();
+        BuildDatabaseDependencies();
+        BuildPrefetchActions();
       }
     }
 
-    private static void BuildDatabaseDependencies(BuildingContext context)
+    private void BuildDatabaseDependencies()
     {
       if (context.Configuration.IsMultidatabase)
         DatabaseDependencyBuilder.Run(context);
     }
 
-    private static void ValidateMappingConfiguration(BuildingContext context)
+    private void ValidateMappingConfiguration()
     {
       if (context.Configuration.IsMultidatabase || context.Configuration.IsMultischema)
         StorageMappingValidator.Run(context);
     }
 
-    private static void BuildPrefetchActions(BuildingContext context)
+    private void BuildPrefetchActions()
     {
       var model = context.Model;
       var domain = context.Domain;
@@ -132,23 +136,23 @@ namespace Xtensive.Orm.Building.Builders
       }
     } 
 
-    private static void BuildTypes(BuildingContext context, IEnumerable<TypeDef> typeDefs)
+    private void BuildTypes(IEnumerable<TypeDef> typeDefs)
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         // Building types, system fields and hierarchies
         foreach (var typeDef in typeDefs) {
-          TypeBuilder.BuildType(context, typeDef);
+          typeBuilder.BuildType(typeDef);
         }
       }
       using (Log.InfoRegion(Strings.LogBuildingX, "Fields"))
         foreach (var typeDef in typeDefs) {
           var typeInfo = context.Model.Types[typeDef.UnderlyingType];
-          TypeBuilder.BuildFields(context, typeDef, typeInfo);
-          TypeBuilder.BuildTypeDiscriminatorMap(context, typeDef, typeInfo);
+          typeBuilder.BuildFields(typeDef, typeInfo);
+          typeBuilder.BuildTypeDiscriminatorMap(typeDef, typeInfo);
         }
     }
 
-    private static void PreprocessAssociations(BuildingContext context)
+    private void PreprocessAssociations()
     {
       foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity && !t.IsAuxiliary)) {
         
@@ -247,10 +251,10 @@ namespace Xtensive.Orm.Building.Builders
     }
 
 
-    private static void BuildAssociations(BuildingContext context)
+    private void BuildAssociations()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
-        PreprocessAssociations(context);
+        PreprocessAssociations();
         foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
             continue;
@@ -264,7 +268,7 @@ namespace Xtensive.Orm.Building.Builders
         context.DiscardedAssociations.Clear();
 
         foreach (var association in context.Model.Associations) {
-          TryAddForeignKeyIndex(context, association);
+          TryAddForeignKeyIndex(association);
           if (association.IsPaired)
             continue;
           if (!association.OnOwnerRemove.HasValue)
@@ -276,11 +280,11 @@ namespace Xtensive.Orm.Building.Builders
             association.OnTargetRemove = OnRemoveAction.Deny;
         }
 
-        BuildAuxiliaryTypes(context, context.Model.Associations);
+        BuildAuxiliaryTypes(context.Model.Associations);
       }
     }
 
-    private static void TryAddForeignKeyIndex(BuildingContext context, AssociationInfo association)
+    private void TryAddForeignKeyIndex(AssociationInfo association)
     {
       if (!association.Multiplicity.In(Multiplicity.OneToOne, Multiplicity.ZeroToOne))
         return;
@@ -303,7 +307,7 @@ namespace Xtensive.Orm.Building.Builders
       typeDef.Indexes.Add(indexDef);
     }
 
-    private static void BuildAuxiliaryTypes(BuildingContext context, IEnumerable<AssociationInfo> associations)
+    private void BuildAuxiliaryTypes(IEnumerable<AssociationInfo> associations)
     {
       var list = new List<Pair<AssociationInfo, TypeDef>>();
       foreach (var association in associations) {
@@ -323,7 +327,7 @@ namespace Xtensive.Orm.Building.Builders
         var underlyingTypeName = String.Format(GeneratedTypeNameFormat,
           masterType.UnderlyingType.Namespace,
           context.NameBuilder.BuildAssociationName(association));
-        var underlyingType = generatedTypes.GetValue(underlyingTypeName,
+        var underlyingType = GeneratedTypes.GetValue(underlyingTypeName,
           (_underlyingTypeName, _genericInstanceType) =>
             TypeHelper.CreateInheritedDummyType(_underlyingTypeName, _genericInstanceType, true),
           genericInstanceType);
@@ -367,35 +371,32 @@ namespace Xtensive.Orm.Building.Builders
         list.Add(new Pair<AssociationInfo, TypeDef>(association, underlyingTypeDef));
       }
 
-      InspectAndProcessGeneratedEntities(context);
+      InspectAndProcessGeneratedEntities();
 
       // Build auxiliary types
       foreach (var pair in list) {
         var association = pair.First;
         var auxTypeDef = pair.Second;
 
-        var auxiliaryType = TypeBuilder.BuildType(context, auxTypeDef);
+        var auxiliaryType = typeBuilder.BuildType(auxTypeDef);
         auxiliaryType.IsAuxiliary = true;
-        TypeBuilder.BuildFields(context, auxTypeDef, auxiliaryType);
+        typeBuilder.BuildFields(auxTypeDef, auxiliaryType);
         association.AuxiliaryType = auxiliaryType;
         if (association.IsPaired)
           association.Reversed.AuxiliaryType = auxiliaryType;
       }
     }
 
-    #region Event handlers
-
-
-    #endregion
-
     #region Topological sort helpers
 
-    private static IEnumerable<TypeDef> GetTypeBuildSequence(BuildingContext context)
+    private IEnumerable<TypeDef> GetTypeBuildSequence()
     {
       List<Node<Node<TypeDef>, object>> loops;
       var result = TopologicalSorter.Sort(context.DependencyGraph.Nodes, TypeConnector, out loops);
       if (result==null)
-        throw new DomainBuilderException(String.Format(Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX, loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX,
+          loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
       var dependentTypes = result.Select(n => n.Value);
       var independentTypes = context.ModelDef.Types.Except(dependentTypes);
       return independentTypes.Concat(dependentTypes);
@@ -410,5 +411,13 @@ namespace Xtensive.Orm.Building.Builders
     }
 
     #endregion
+
+    // Constructors
+
+    private ModelBuilder(BuildingContext context)
+    {
+      this.context = context;
+      typeBuilder = new TypeBuilder(context);
+    }
   }
 }
