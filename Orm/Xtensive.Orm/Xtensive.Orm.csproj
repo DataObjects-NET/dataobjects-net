@@ -124,6 +124,7 @@
     <Compile Include="Orm\Configuration\DatabaseAlias.cs" />
     <Compile Include="Orm\Configuration\DatabaseAliasCollection.cs" />
     <Compile Include="Orm\Configuration\Elements\KeyGeneratorElement.cs" />
+    <Compile Include="Orm\Configuration\KeyGeneratorMode.cs" />
     <Compile Include="Orm\Configuration\KeyGenerator.cs" />
     <Compile Include="Orm\Configuration\KeyGeneratorCollection.cs" />
     <Compile Include="Orm\Configuration\MappingRule.cs" />

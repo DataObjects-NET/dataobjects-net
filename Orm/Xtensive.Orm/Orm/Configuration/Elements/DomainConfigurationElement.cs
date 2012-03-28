@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
+    private const string KeyGeneratorModeElementName = "keyGeneratorMode";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
     private const string BuildInParallelElementName = "buildInParallel";
@@ -192,6 +193,13 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ValidationModeElementName] = value; }
     }
 
+    [ConfigurationProperty(KeyGeneratorModeElementName, DefaultValue = "Default")]
+    public string KeyGeneratorMode
+    {
+      get { return (string) this[KeyGeneratorModeElementName]; }
+      set { this[KeyGeneratorModeElementName] = value; }
+    }
+
     /// <summary>
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
@@ -314,6 +322,7 @@ namespace Xtensive.Orm.Configuration.Elements
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
+        KeyGeneratorMode = (KeyGeneratorMode) Enum.Parse(typeof (KeyGeneratorMode), KeyGeneratorMode, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
         BuildInParallel = BuildInParallel,

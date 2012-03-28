@@ -94,6 +94,7 @@ namespace Xtensive.Orm.Configuration
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
     private ValidationMode validationMode = ValidationMode.Default;
+    private KeyGeneratorMode keyGeneratorMode = KeyGeneratorMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion;
@@ -308,6 +309,19 @@ namespace Xtensive.Orm.Configuration
       {
         this.EnsureNotLocked();
         validationMode = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets key generator mode.
+    /// </summary>
+    public KeyGeneratorMode KeyGeneratorMode
+    {
+      get { return keyGeneratorMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        keyGeneratorMode = value;
       }
     }
 
@@ -537,6 +551,7 @@ namespace Xtensive.Orm.Configuration
       upgradeMode = configuration.UpgradeMode;
       autoValidation = configuration.AutoValidation;
       validationMode = configuration.ValidationMode;
+      keyGeneratorMode = configuration.keyGeneratorMode;
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
