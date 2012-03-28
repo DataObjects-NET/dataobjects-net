@@ -123,6 +123,9 @@
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
     <Compile Include="Orm\Configuration\DatabaseAlias.cs" />
     <Compile Include="Orm\Configuration\DatabaseAliasCollection.cs" />
+    <Compile Include="Orm\Configuration\Elements\KeyGeneratorElement.cs" />
+    <Compile Include="Orm\Configuration\KeyGenerator.cs" />
+    <Compile Include="Orm\Configuration\KeyGeneratorCollection.cs" />
     <Compile Include="Orm\Configuration\MappingRule.cs" />
     <Compile Include="Orm\Configuration\MappingRuleCollection.cs" />
     <Compile Include="Orm\Configuration\Internals\MappingRuleConstructionFlow.cs" />

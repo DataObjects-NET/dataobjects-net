@@ -100,6 +100,7 @@ namespace Xtensive.Orm.Configuration
     private bool buildInParallel = DefaultBuildInParallel;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
+    private KeyGeneratorCollection keyGenerators = new KeyGeneratorCollection();
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -367,6 +368,20 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets key generators.
+    /// </summary>
+    public KeyGeneratorCollection KeyGenerators
+    {
+      get { return keyGenerators; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        keyGenerators = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the type of the service container.
     /// </summary>
     public Type ServiceContainerType 
@@ -463,6 +478,7 @@ namespace Xtensive.Orm.Configuration
       linqExtensions.Lock(true);
       databaseAliases.Lock(true);
       mappingRules.Lock(true);
+      keyGenerators.Lock(true);
 
       base.Lock(recursive);
 
@@ -528,6 +544,7 @@ namespace Xtensive.Orm.Configuration
       buildInParallel = configuration.buildInParallel;
       databaseAliases = (DatabaseAliasCollection) configuration.DatabaseAliases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
+      keyGenerators = (KeyGeneratorCollection) configuration.KeyGenerators.Clone();
     }
 
     /// <summary>

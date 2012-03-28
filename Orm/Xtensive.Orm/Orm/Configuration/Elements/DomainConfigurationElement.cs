@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string SessionsElementName = "sessions";
     private const string MappingRulesElementName = "mappingRules";
     private const string DatabaseAliasesElementName = "databaseAliases";
+    private const string KeyGeneratorsElementName = "keyGenerators";
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
@@ -221,6 +222,13 @@ namespace Xtensive.Orm.Configuration.Elements
       get { return (ConfigurationCollection<DatabaseAliasElement>) this[DatabaseAliasesElementName]; }
     }
 
+    [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseAliasElement>), AddItemName = "keyGenerator")]
+    public ConfigurationCollection<KeyGeneratorElement> KeyGenerators
+    {
+      get { return (ConfigurationCollection<KeyGeneratorElement>) this[KeyGeneratorsElementName]; }
+    }
+
     /// <summary>
     /// <see cref="DomainConfiguration.ServiceContainerType" copy="true"/>
     /// </summary>
@@ -320,6 +328,8 @@ namespace Xtensive.Orm.Configuration.Elements
         config.MappingRules.Add(element.ToNative());
       foreach (var element in DatabaseAliases)
         config.DatabaseAliases.Add(element.ToNative());
+      foreach (var element in KeyGenerators)
+        config.KeyGenerators.Add(element.ToNative());
 
       return config;
     }
