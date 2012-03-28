@@ -12,6 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -424,19 +425,23 @@ namespace Xtensive.Orm.Building.Builders
 
       // Hierarchy has key generator.
 
+      var generatorMode = context.Configuration.KeyGeneratorMode;
+
       // Setup key generator name.
       key.GeneratorKind = generatorKind;
-      key.GeneratorBaseName = context.NameBuilder.BuildKeyGeneratorBaseName(key, hierarchyDef);
-      var generatorName = key.GeneratorName = context.NameBuilder.BuildKeyGeneratorName(key, hierarchyDef);
+      key.GeneratorBaseName = context.NameBuilder.BuildKeyGeneratorBaseName(key, hierarchyDef, generatorMode);
+      key.GeneratorName = context.NameBuilder.BuildKeyGeneratorName(key, hierarchyDef, generatorMode);
+      var generatorName = key.GeneratorName;
 
       // Equality indentifier is the same if and only if key generator names match.
       object equalityIdentifier;
-      if (!context.KeyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier)) {
+      if (context.KeyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier))
+        key.EqualityIdentifier = equalityIdentifier;
+      else {
         key.IsFirstAmongSimilarKeys = true;
-        equalityIdentifier = new object();
-        context.KeyEqualityIdentifiers.Add(generatorName, equalityIdentifier);
+        key.EqualityIdentifier = new object();
+        context.KeyEqualityIdentifiers.Add(generatorName, key.EqualityIdentifier);
       }
-      key.EqualityIdentifier = equalityIdentifier;
 
       // Don't create sequences for user key generators
       // and for key generators that are not sequence-backed (such as GuidGenerator).
@@ -445,20 +450,40 @@ namespace Xtensive.Orm.Building.Builders
 
       // Generate backing sequence.
       SequenceInfo sequence;
-      var cacheSize = context.Configuration.KeyGeneratorCacheSize;
-      if (!context.Sequences.TryGetValue(generatorName, out sequence)) {
-        sequence = new SequenceInfo(generatorName) {
-          Seed = cacheSize,
-          Increment = cacheSize,
-          MappingDatabase = hierarchyDef.Root.MappingDatabase,
-          MappingSchema = context.Configuration.DefaultSchema,
-          MappingName = context.NameBuilder.BuildSequenceName(key),
-        };
-        context.Sequences.Add(generatorName, sequence);
+      if (context.Sequences.TryGetValue(generatorName, out sequence))
+        key.Sequence = sequence;
+      else {
+        key.Sequence = BuildSequence(context, hierarchyDef, key);
+        context.Sequences.Add(generatorName, key.Sequence);
       }
-      key.Sequence = sequence;
 
       return key;
+    }
+
+    private static SequenceInfo BuildSequence(BuildingContext context, HierarchyDef hierarchyDef, KeyInfo key)
+    {
+      var cacheSize = context.Configuration.KeyGeneratorCacheSize;
+
+      var sequence = new SequenceInfo(key.GeneratorName) {
+        Seed = cacheSize,
+        Increment = cacheSize,
+        MappingName = context.NameBuilder.BuildSequenceName(key),
+      };
+
+      switch (context.Configuration.KeyGeneratorMode) {
+      case KeyGeneratorMode.PerKeyType:
+        sequence.MappingDatabase = hierarchyDef.Root.MappingDatabase;
+        sequence.MappingSchema = context.Configuration.DefaultSchema;
+        break;
+      case KeyGeneratorMode.PerHierarchy:
+        sequence.MappingDatabase = hierarchyDef.Root.MappingDatabase;
+        sequence.MappingSchema = hierarchyDef.Root.MappingSchema;
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
+
+      return sequence;
     }
 
     private static bool IsSequenceBacked(KeyInfo key)

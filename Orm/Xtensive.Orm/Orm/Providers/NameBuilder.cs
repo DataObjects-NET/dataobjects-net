@@ -490,12 +490,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="key">Key to build key generator name for.</param>
     /// <param name="hierarchyDef">Hierarchy definition.</param>
     /// <returns>Key generator name</returns>
-    public string BuildKeyGeneratorName(KeyInfo key, HierarchyDef hierarchyDef)
+    public string BuildKeyGeneratorName(KeyInfo key, HierarchyDef hierarchyDef, KeyGeneratorMode mode)
     {
       var mappingDatabase = hierarchyDef.Root.MappingDatabase;
       var databaseSuffixRequired =
         key.GeneratorKind==KeyGeneratorKind.Default
         && KeyGeneratorFactory.IsSequenceBacked(key.SingleColumnType)
+        && mode==KeyGeneratorMode.PerKeyType
         && !string.IsNullOrEmpty(mappingDatabase);
       var baseName = key.GeneratorBaseName;
       return databaseSuffixRequired
@@ -509,17 +510,29 @@ namespace Xtensive.Orm.Providers
     /// <param name="key">Key to build base key generator name for.</param>
     /// <param name="hierarchyDef">Hierarchy definition.</param>
     /// <returns>Base key generator name.</returns>
-    public string BuildKeyGeneratorBaseName(KeyInfo key, HierarchyDef hierarchyDef)
+    public string BuildKeyGeneratorBaseName(KeyInfo key, HierarchyDef hierarchyDef, KeyGeneratorMode mode)
     {
+      if (key.GeneratorKind==KeyGeneratorKind.None)
+        throw new ArgumentOutOfRangeException("key.GeneratorKind");
+
       if (!string.IsNullOrEmpty(hierarchyDef.KeyGeneratorName))
         return hierarchyDef.KeyGeneratorName;
 
-      if (key.GeneratorKind==KeyGeneratorKind.Default)
-        return key.SingleColumnType.GetShortName();
+      if (key.GeneratorKind==KeyGeneratorKind.Custom)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet,
+          hierarchyDef.Root.UnderlyingType.GetShortName()));
 
-      throw new DomainBuilderException(string.Format(
-        Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet,
-        hierarchyDef.Root.UnderlyingType.GetShortName()));
+      // KeyGeneratorKind.Default:
+
+      switch (mode) {
+      case KeyGeneratorMode.PerKeyType:
+        return key.SingleColumnType.GetShortName();
+      case KeyGeneratorMode.PerHierarchy:
+        return hierarchyDef.Root.UnderlyingType.GetShortName();
+      default:
+        throw new ArgumentOutOfRangeException("mode");
+      }
     }
 
     /// <summary>
