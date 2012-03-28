@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly TypeBuilder typeBuilder;
     private readonly ModelDefBuilder modelDefBuilder;
 
+    private readonly HashSet<TypeInfo> typesWithProcessedInheritedAssociations = new HashSet<TypeInfo>();
     private readonly Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>> pairedAssociationsToReverse
       = new Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>>();
 
@@ -172,7 +173,7 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity && !t.IsAuxiliary)) {
         
         // pair integrity escalation and consistency check
-        context.TypesWithProcessedInheritedAssociations.Add(typeInfo);
+        typesWithProcessedInheritedAssociations.Add(typeInfo);
         var refFields = typeInfo.Fields.Where(f => f.IsEntity || f.IsEntitySet).ToList();
         // check for interface fields
         foreach (var refField in refFields) {
@@ -209,7 +210,7 @@ namespace Xtensive.Orm.Building.Builders
             if (pairedAssociations.Count > 0) {
               foreach (var paired in pairedAssociations) {
                 paired.First.Ancestors.AddRange(interfaceAssociations);
-                if (paired.First.TargetType.IsInterface || context.TypesWithProcessedInheritedAssociations.Contains(paired.First.TargetType))
+                if (paired.First.TargetType.IsInterface || typesWithProcessedInheritedAssociations.Contains(paired.First.TargetType))
                   AssociationBuilder.BuildReversedAssociation(context, paired.First, paired.Second);
                 else {
                   List<Pair<AssociationInfo, string>> pairs;

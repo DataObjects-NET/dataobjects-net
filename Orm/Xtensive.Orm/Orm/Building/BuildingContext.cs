@@ -22,7 +22,6 @@ namespace Xtensive.Orm.Building
   public sealed class BuildingContext
   {
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
-    internal HashSet<TypeInfo> TypesWithProcessedInheritedAssociations { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
@@ -90,7 +89,6 @@ namespace Xtensive.Orm.Building
 
       BuilderConfiguration = builderConfiguration;
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
-      TypesWithProcessedInheritedAssociations = new HashSet<TypeInfo>();
       DiscardedAssociations = new HashSet<AssociationInfo>();
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
