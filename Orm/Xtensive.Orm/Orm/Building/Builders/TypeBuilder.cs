@@ -467,23 +467,24 @@ namespace Xtensive.Orm.Building.Builders
       var sequence = new SequenceInfo(key.GeneratorName) {
         Seed = cacheSize,
         Increment = cacheSize,
+        MappingDatabase = hierarchyDef.Root.MappingDatabase,
+        MappingSchema = GetMappingSchema(context, hierarchyDef),
         MappingName = context.NameBuilder.BuildSequenceName(key),
       };
 
+      return sequence;
+    }
+
+    private static string GetMappingSchema(BuildingContext context, HierarchyDef hierarchyDef)
+    {
       switch (context.Configuration.KeyGeneratorMode) {
       case KeyGeneratorMode.PerKeyType:
-        sequence.MappingDatabase = hierarchyDef.Root.MappingDatabase;
-        sequence.MappingSchema = context.Configuration.DefaultSchema;
-        break;
+        return context.Configuration.DefaultSchema;
       case KeyGeneratorMode.PerHierarchy:
-        sequence.MappingDatabase = hierarchyDef.Root.MappingDatabase;
-        sequence.MappingSchema = hierarchyDef.Root.MappingSchema;
-        break;
+        return hierarchyDef.Root.MappingSchema;
       default:
         throw new ArgumentOutOfRangeException();
       }
-
-      return sequence;
     }
 
     private static bool IsSequenceBacked(KeyInfo key)
