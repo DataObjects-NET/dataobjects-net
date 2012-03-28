@@ -5,6 +5,7 @@
 // Created:    2009.02.13
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -194,12 +195,12 @@ namespace Xtensive.Orm.Model
     /// <param name="columns">The key columns.</param>
     /// <param name="tupleDescriptor">Key tuple descriptor.</param>
     /// <param name="typeIdColumnIndex">Index of the type id column.</param>
-    public KeyInfo(string name, ReadOnlyList<FieldInfo> fields, ReadOnlyList<ColumnInfo> columns,
+    public KeyInfo(string name, IList<FieldInfo> fields, IList<ColumnInfo> columns,
       TupleDescriptor tupleDescriptor, int typeIdColumnIndex)
       : base(name)
     {
-      Fields = fields;
-      Columns = columns;
+      Fields = new ReadOnlyList<FieldInfo>(fields);
+      Columns = new ReadOnlyList<ColumnInfo>(columns);
 
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;

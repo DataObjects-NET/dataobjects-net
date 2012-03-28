@@ -383,18 +383,15 @@ namespace Xtensive.Orm.Building.Builders
 
     private static KeyInfo BuildKeyInfo(BuildingContext context, TypeInfo root, HierarchyDef hierarchyDef)
     {
-      var keyFields = new ReadOnlyList<FieldInfo>((
-        from field in root.Fields
-        where field.IsPrimaryKey
-        orderby field.MappingInfo.Offset
-        select field
-        ).ToList());
+      var keyFields = root.Fields
+        .Where(field => field.IsPrimaryKey)
+        .OrderBy(field => field.MappingInfo.Offset)
+        .ToList();
 
-      var keyColumns = new ReadOnlyList<ColumnInfo>((
-        from field in keyFields
-        where field.Column!=null
-        select field.Column
-        ).ToList());
+      var keyColumns = keyFields
+        .Where(field => field.Column!=null)
+        .Select(field => field.Column)
+        .ToList();
 
       var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
       var typeIdColumnIndex = -1;
@@ -404,7 +401,6 @@ namespace Xtensive.Orm.Building.Builders
             typeIdColumnIndex = i;
 
       var key = new KeyInfo(root.Name, keyFields, keyColumns, keyTupleDescriptor, typeIdColumnIndex);
-
       var generatorKind = hierarchyDef.KeyGeneratorKind;
 
       // Force absence of key generator if key is a reference.
