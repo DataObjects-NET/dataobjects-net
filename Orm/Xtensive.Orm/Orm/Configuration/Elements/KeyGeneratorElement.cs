@@ -21,6 +21,9 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
 
+    /// <summary>
+    /// <see cref="KeyGenerator.Name" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(NameElementName, IsKey = true)]
     public string Name
     {
@@ -28,6 +31,9 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[NameElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="KeyGenerator.Seed" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(SeedElementName, DefaultValue = 0)]
     public long Seed
     {
@@ -35,6 +41,9 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[SeedElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="KeyGenerator.CacheSize" copy="true" />
+    /// </summary>
     [ConfigurationProperty(CacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyGeneratorCacheSize)]
     public long CacheSize
     {
@@ -42,6 +51,10 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[CacheSizeElementName] = value; }
     }
 
+    /// <summary>
+    /// Converts this instance to corresponding <see cref="KeyGenerator"/>.
+    /// </summary>
+    /// <returns>Result of conversion.</returns>
     public KeyGenerator ToNative()
     {
       return new KeyGenerator(Name, Seed, CacheSize);

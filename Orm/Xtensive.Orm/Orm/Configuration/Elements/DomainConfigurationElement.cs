@@ -193,6 +193,9 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ValidationModeElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="DomainConfiguration.KeyGeneratorMode" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(KeyGeneratorModeElementName, DefaultValue = "Default")]
     public string KeyGeneratorMode
     {
@@ -230,6 +233,9 @@ namespace Xtensive.Orm.Configuration.Elements
       get { return (ConfigurationCollection<DatabaseAliasElement>) this[DatabaseAliasesElementName]; }
     }
 
+    /// <summary>
+    /// <see cref="DomainConfiguration.KeyGenerators" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseAliasElement>), AddItemName = "keyGenerator")]
     public ConfigurationCollection<KeyGeneratorElement> KeyGenerators
