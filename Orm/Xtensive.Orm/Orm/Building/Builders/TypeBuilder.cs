@@ -472,7 +472,7 @@ namespace Xtensive.Orm.Building.Builders
 
       switch (context.Configuration.KeyGeneratorMode) {
       case KeyGeneratorMode.PerKeyType:
-        sequence.MappingDatabase = context.Configuration.DefaultDatabase;
+        sequence.MappingDatabase = hierarchyDef.Root.MappingDatabase;
         sequence.MappingSchema = context.Configuration.DefaultSchema;
         break;
       case KeyGeneratorMode.PerHierarchy:
