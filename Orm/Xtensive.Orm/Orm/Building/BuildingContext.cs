@@ -28,7 +28,6 @@ namespace Xtensive.Orm.Building
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
-    internal Queue<Type> Types { get; private set; }
 
     #region Current property & Demand() method
 
@@ -98,7 +97,6 @@ namespace Xtensive.Orm.Building
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
       Interfaces = new HashSet<TypeDef>();
-      Types = new Queue<Type>(Configuration.Types);
     }
   }
 }

@@ -20,14 +20,15 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class ModelDefBuilder
   {
     private readonly BuildingContext context;
+    private readonly Queue<Type> types = new Queue<Type>();
 
     public void ProcessTypes()
     {
       var closedGenericTypes = new List<Type>();
       var openGenericTypes = new List<Type>();
 
-      while (context.Types.Count!=0) {
-        var type = context.Types.Dequeue();
+      while (types.Count!=0) {
+        var type = types.Dequeue();
         if (!IsTypeAvailable(type))
           continue;
         if (type.IsGenericType) {
@@ -151,7 +152,7 @@ namespace Xtensive.Orm.Building.Builders
         if (propertyType.IsGenericParameter)
           continue;
         if (propertyType.IsSubclassOf(typeof(Persistent)) && !context.ModelDef.Types.Contains(propertyType))
-          context.Types.Enqueue(propertyType);
+          types.Enqueue(propertyType);
       }
     }
 
