@@ -29,8 +29,6 @@ namespace Xtensive.Orm.Building
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
     internal Queue<Type> Types { get; private set; }
-    internal Dictionary<string, object> KeyEqualityIdentifiers { get; private set; }
-    internal Dictionary<string, SequenceInfo> Sequences { get; private set; }
 
     #region Current property & Demand() method
 
@@ -100,8 +98,6 @@ namespace Xtensive.Orm.Building
       DependencyGraph = new Graph<TypeDef>();
       Interfaces = new HashSet<TypeDef>();
       Types = new Queue<Type>(Configuration.Types);
-      KeyEqualityIdentifiers = new Dictionary<string, object>();
-      Sequences = new Dictionary<string, SequenceInfo>();
     }
   }
 }

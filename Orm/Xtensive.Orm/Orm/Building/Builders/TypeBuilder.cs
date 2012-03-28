@@ -23,6 +23,8 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class TypeBuilder
   {
     private readonly BuildingContext context;
+    private readonly Dictionary<string, object> keyEqualityIdentifiers = new Dictionary<string, object>();
+    private readonly Dictionary<string, SequenceInfo> sequences = new Dictionary<string, SequenceInfo>();
 
     /// <summary>
     /// Builds the <see cref="TypeInfo"/> instance, its key fields and <see cref="HierarchyInfo"/> for hierarchy root.
@@ -433,12 +435,12 @@ namespace Xtensive.Orm.Building.Builders
 
       // Equality indentifier is the same if and only if key generator names match.
       object equalityIdentifier;
-      if (context.KeyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier))
+      if (keyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier))
         key.EqualityIdentifier = equalityIdentifier;
       else {
         key.IsFirstAmongSimilarKeys = true;
         key.EqualityIdentifier = new object();
-        context.KeyEqualityIdentifiers.Add(generatorName, key.EqualityIdentifier);
+        keyEqualityIdentifiers.Add(generatorName, key.EqualityIdentifier);
       }
 
       // Don't create sequences for user key generators
@@ -448,11 +450,11 @@ namespace Xtensive.Orm.Building.Builders
 
       // Generate backing sequence.
       SequenceInfo sequence;
-      if (context.Sequences.TryGetValue(generatorName, out sequence))
+      if (sequences.TryGetValue(generatorName, out sequence))
         key.Sequence = sequence;
       else {
         key.Sequence = BuildSequence(hierarchyDef, key);
-        context.Sequences.Add(generatorName, key.Sequence);
+        sequences.Add(generatorName, key.Sequence);
       }
 
       return key;
@@ -498,6 +500,7 @@ namespace Xtensive.Orm.Building.Builders
     public TypeBuilder(BuildingContext context)
     {
       this.context = context;
+
     }
   }
 }
