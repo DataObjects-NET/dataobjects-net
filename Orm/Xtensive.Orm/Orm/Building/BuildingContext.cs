@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Building
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
-    internal HashSet<TypeDef> Interfaces { get; private set; }
 
     #region Current property & Demand() method
 
@@ -92,7 +91,6 @@ namespace Xtensive.Orm.Building
       DiscardedAssociations = new HashSet<AssociationInfo>();
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
-      Interfaces = new HashSet<TypeDef>();
     }
   }
 }

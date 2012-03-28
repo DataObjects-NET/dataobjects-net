@@ -262,11 +262,9 @@ namespace Xtensive.Orm.Building
           context.DependencyGraph.AddEdge(typeDef, parent, EdgeKind.Inheritance, EdgeWeight.High);
 
         // Interfaces
-        foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType)) {
+        foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType))
           context.DependencyGraph.AddEdge(typeDef, @interface, EdgeKind.Implementation, EdgeWeight.High);
-          context.Interfaces.Add(@interface);
-        }
-       
+
         Validator.ValidateType(typeDef, hierarchyDef);
         // We should skip key fields inspection as they have been already inspected
         foreach (var field in typeDef.Fields.Where(f => !hierarchyDef.KeyFields.Any(kf => kf.Name == f.Name)))
