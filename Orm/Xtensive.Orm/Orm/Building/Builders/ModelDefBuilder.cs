@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class ModelDefBuilder
   {
     private readonly BuildingContext context;
-    private readonly Queue<Type> types = new Queue<Type>();
+    private readonly Queue<Type> types;
 
     public void ProcessTypes()
     {
@@ -329,6 +329,7 @@ namespace Xtensive.Orm.Building.Builders
     public ModelDefBuilder(BuildingContext context)
     {
       this.context = context;
+      types = new Queue<Type>(context.Configuration.Types);
     }
   }
 }
