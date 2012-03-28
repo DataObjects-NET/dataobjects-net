@@ -28,6 +28,9 @@ namespace Xtensive.Orm.Building.Builders
     private readonly TypeBuilder typeBuilder;
     private readonly ModelDefBuilder modelDefBuilder;
 
+    private readonly Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>> pairedAssociationsToReverse
+      = new Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>>();
+
     public static void Run(BuildingContext context)
     {
       new ModelBuilder(context).Run();
@@ -196,7 +199,7 @@ namespace Xtensive.Orm.Building.Builders
 
           if (!parentIsPaired && !interfaceIsPaired) {
             List<Pair<AssociationInfo, string>> pairedToReverse;
-            if (context.PairedAssociationsToReverse.TryGetValue(typeInfo, out pairedToReverse))
+            if (pairedAssociationsToReverse.TryGetValue(typeInfo, out pairedToReverse))
               foreach (var pair in pairedToReverse)
                 AssociationBuilder.BuildReversedAssociation(context, pair.First, pair.Second);
             var field = refField;
@@ -210,9 +213,9 @@ namespace Xtensive.Orm.Building.Builders
                   AssociationBuilder.BuildReversedAssociation(context, paired.First, paired.Second);
                 else {
                   List<Pair<AssociationInfo, string>> pairs;
-                  if (!context.PairedAssociationsToReverse.TryGetValue(paired.First.TargetType, out pairs)) {
+                  if (!pairedAssociationsToReverse.TryGetValue(paired.First.TargetType, out pairs)) {
                     pairs = new List<Pair<AssociationInfo, string>>();
-                    context.PairedAssociationsToReverse.Add(paired.First.TargetType, pairs);
+                    pairedAssociationsToReverse.Add(paired.First.TargetType, pairs);
                   }
                   pairs.Add(paired);
                 }
