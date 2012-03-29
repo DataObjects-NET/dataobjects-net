@@ -18,40 +18,41 @@ using TypeAttributes = Xtensive.Orm.Model.TypeAttributes;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal static class AttributeProcessor
+  internal sealed class AttributeProcessor
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+    private readonly BuildingContext context;
 
-    public static void Process(TypeDef type, TableMappingAttribute attribute)
+    public void Process(TypeDef type, TableMappingAttribute attribute)
     {
       ProcessMappingName(type, attribute.Name, ValidationRule.Type);
     }
 
-    public static void Process(FieldDef field, FieldMappingAttribute attribute)
+    public void Process(FieldDef field, FieldMappingAttribute attribute)
     {
       ProcessMappingName(field, attribute.Name, ValidationRule.Field);
     }
 
-    public static void Process(TypeDef type, MaterializedViewAttribute attribute)
+    public void Process(TypeDef type, MaterializedViewAttribute attribute)
     {
       type.Attributes |= TypeAttributes.Materialized;
     }
 
-    public static void Process(TypeDef type, SystemTypeAttribute attribute)
+    public void Process(TypeDef type, SystemTypeAttribute attribute)
     {
       type.Attributes |= TypeAttributes.System;
       if (attribute.TypeId!=TypeInfo.NoTypeId)
         type.StaticTypeId = attribute.TypeId;
     }
 
-    public static void Process(HierarchyDef hierarchyDef, HierarchyRootAttribute attribute)
+    public void Process(HierarchyDef hierarchyDef, HierarchyRootAttribute attribute)
     {
       hierarchyDef.Schema = attribute.InheritanceSchema;
       hierarchyDef.IncludeTypeId = attribute.IncludeTypeId;
       hierarchyDef.IsClustered = attribute.Clustered;
     }
 
-    public static void Process(HierarchyDef hierarchyDef, FieldDef fieldDef, KeyAttribute attribute)
+    public void Process(HierarchyDef hierarchyDef, FieldDef fieldDef, KeyAttribute attribute)
     {
       ArgumentValidator.EnsureArgumentIsInRange(attribute.Position, 0, WellKnown.MaxKeyFieldNumber-1, "attribute.Position");
 
@@ -73,7 +74,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    public static void Process(HierarchyDef hierarchy, KeyGeneratorAttribute attribute)
+    public void Process(HierarchyDef hierarchy, KeyGeneratorAttribute attribute)
     {
       hierarchy.KeyGeneratorKind = attribute.Kind;
          
@@ -81,7 +82,7 @@ namespace Xtensive.Orm.Building.Builders
         hierarchy.KeyGeneratorName = attribute.Name;
     }
 
-    public static void Process(FieldDef fieldDef, FieldAttribute attribute)
+    public void Process(FieldDef fieldDef, FieldAttribute attribute)
     {
       ProcessDefault(fieldDef, attribute);
       ProcessNullable(fieldDef, attribute);
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Building.Builders
       ProcessIndexed(fieldDef, attribute);
     }
 
-    public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
+    public void Process(FieldDef fieldDef, AssociationAttribute attribute)
     {
       if (fieldDef.IsPrimitive || fieldDef.IsStructure) {
         throw new DomainBuilderException(
@@ -104,7 +105,7 @@ namespace Xtensive.Orm.Building.Builders
       ProcessOnTargetRemove(fieldDef, attribute);
     }
 
-    public static void Process(IndexDef indexDef, IndexAttribute attribute)
+    public void Process(IndexDef indexDef, IndexAttribute attribute)
     {
       ProcessMappingName(indexDef, attribute.Name, ValidationRule.Index);
       ProcessKeyFields(attribute.KeyFields, indexDef.KeyFields);
@@ -115,7 +116,7 @@ namespace Xtensive.Orm.Building.Builders
       ProcessClustered(indexDef, attribute);
     }
 
-    private static void ProcessClustered(IndexDef indexDef, IndexAttribute attribute)
+    private void ProcessClustered(IndexDef indexDef, IndexAttribute attribute)
     {
       if (!attribute.Clustered)
         return;
@@ -124,7 +125,7 @@ namespace Xtensive.Orm.Building.Builders
       indexDef.IsClustered = true;
     }
 
-    public static void Process(TypeDef typeDef, TypeDiscriminatorValueAttribute attribute)
+    public void Process(TypeDef typeDef, TypeDiscriminatorValueAttribute attribute)
     {
       typeDef.IsDefaultTypeInHierarchy = attribute.Default;
       if (!attribute.Default && attribute.Value == null)
@@ -133,7 +134,7 @@ namespace Xtensive.Orm.Building.Builders
       typeDef.TypeDiscriminatorValue = attribute.Value;
     }
 
-    public static void Process(FieldDef fieldDef, VersionAttribute attribute)
+    public void Process(FieldDef fieldDef, VersionAttribute attribute)
     {
       FieldAttributes value;
       switch(attribute.Mode) {
@@ -152,7 +153,7 @@ namespace Xtensive.Orm.Building.Builders
       fieldDef.Attributes |= value;
     }
 
-    public static void Process(FieldDef fieldDef, TypeDiscriminatorAttribute attribute)
+    public void Process(FieldDef fieldDef, TypeDiscriminatorAttribute attribute)
     {
       var reflectedType = fieldDef.UnderlyingProperty.ReflectedType;
 
@@ -168,32 +169,32 @@ namespace Xtensive.Orm.Building.Builders
       fieldDef.IsTypeDiscriminator = true;
     }
 
-    private static void ProcessPairTo(FieldDef fieldDef, AssociationAttribute attribute)
+    private void ProcessPairTo(FieldDef fieldDef, AssociationAttribute attribute)
     {
       fieldDef.PairTo = attribute.PairTo;
     }
 
-    private static void ProcessOnOwnerRemove(FieldDef fieldDef, AssociationAttribute attribute)
+    private void ProcessOnOwnerRemove(FieldDef fieldDef, AssociationAttribute attribute)
     {
       if (attribute.onOwnerRemove==null)
         return;
       fieldDef.OnOwnerRemove = attribute.OnOwnerRemove;
     }
 
-    private static void ProcessOnTargetRemove(FieldDef fieldDef, AssociationAttribute attribute)
+    private void ProcessOnTargetRemove(FieldDef fieldDef, AssociationAttribute attribute)
     {
       if (attribute.onTargetRemove==null)
         return;
       fieldDef.OnTargetRemove = attribute.OnTargetRemove;
     }
 
-    private static void ProcessIsUnique(IndexDef indexDef, IndexAttribute attribute)
+    private void ProcessIsUnique(IndexDef indexDef, IndexAttribute attribute)
     {
       if (attribute.unique.HasValue)
         indexDef.IsUnique = attribute.Unique;
     }
 
-    private static void ProcessFilter(IndexDef indexDef, IndexAttribute attribute)
+    private void ProcessFilter(IndexDef indexDef, IndexAttribute attribute)
     {
       if (string.IsNullOrEmpty(attribute.Filter))
         return;
@@ -201,20 +202,20 @@ namespace Xtensive.Orm.Building.Builders
       var filterType = attribute.FilterType ?? declaringType;
       indexDef.FilterExpression = GetExpressionFromProvider(filterType, attribute.Filter, declaringType, typeof (bool));
       if (indexDef.MappingName == null) {
-        var nameBuilder = BuildingContext.Demand().NameBuilder;
+        var nameBuilder = context.NameBuilder;
         var name = nameBuilder.BuildPartialIndexName(indexDef, filterType, attribute.Filter);
         ProcessMappingName(indexDef, name, ValidationRule.Index);
       }
     }
 
-    private static void ProcessDefault(FieldDef fieldDef, FieldAttribute attribute)
+    private void ProcessDefault(FieldDef fieldDef, FieldAttribute attribute)
     {
       object defaultValue = attribute.DefaultValue;
       if (defaultValue!=null)
         fieldDef.DefaultValue = ValueTypeBuilder.AdjustValue(fieldDef, defaultValue);
     }
 
-    private static void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
+    private void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
     {
       bool canUseNullableFlag = !fieldDef.ValueType.IsValueType && !fieldDef.IsStructure;
 
@@ -232,12 +233,12 @@ namespace Xtensive.Orm.Building.Builders
             string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
         if (fieldDef.IsNullable)
           return;
-        if (BuildingContext.Demand().BuilderConfiguration.Stage==UpgradeStage.Upgrading)
+        if (context.BuilderConfiguration.Stage==UpgradeStage.Upgrading)
           fieldDef.IsNullable = attribute.nullableOnUpgrade==true;
       }
     }
 
-    private static void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)
+    private void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.length==null)
         return;
@@ -249,7 +250,7 @@ namespace Xtensive.Orm.Building.Builders
       fieldDef.Length = attribute.Length;
     }
 
-    private static void ProcessScale(FieldDef fieldDef, FieldAttribute attribute)
+    private void ProcessScale(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.scale==null)
         return;
@@ -261,7 +262,7 @@ namespace Xtensive.Orm.Building.Builders
       fieldDef.Scale = attribute.Scale;
     }
 
-    private static void ProcessPrecision(FieldDef fieldDef, FieldAttribute attribute)
+    private void ProcessPrecision(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.precision==null)
         return;
@@ -273,7 +274,7 @@ namespace Xtensive.Orm.Building.Builders
       fieldDef.Precision = attribute.Precision;
     }
 
-    private static void ProcessLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
+    private void ProcessLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.lazyLoad == null)
         return;
@@ -285,7 +286,7 @@ namespace Xtensive.Orm.Building.Builders
         fieldDef.IsLazyLoad = attribute.LazyLoad;
     }
 
-    private static void ProcessIndexed(FieldDef fieldDef, FieldAttribute attribute)
+    private void ProcessIndexed(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.indexed==null)
         return;
@@ -301,12 +302,12 @@ namespace Xtensive.Orm.Building.Builders
         fieldDef.IsNotIndexed = true;
     }
 
-    private static void ProcessMappingName(MappedNode node, string mappingName, ValidationRule rule)
+    private void ProcessMappingName(MappedNode node, string mappingName, ValidationRule rule)
     {
       if (mappingName.IsNullOrEmpty())
         return;
 
-      mappingName = BuildingContext.Demand().NameBuilder.ApplyNamingRules(mappingName);
+      mappingName = context.NameBuilder.ApplyNamingRules(mappingName);
 
       Validator.ValidateName(mappingName, rule);
 
@@ -317,7 +318,7 @@ namespace Xtensive.Orm.Building.Builders
         node.MappingName = mappingName;
     }
 
-    private static void ProcessKeyFields(string[] source, IDictionary<string, Direction> target)
+    private void ProcessKeyFields(string[] source, IDictionary<string, Direction> target)
     {
       if (source==null || source.Length==0)
         throw new DomainBuilderException(
@@ -336,7 +337,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void ProcessIncludedFields(string[] source, IList<string> target)
+    private void ProcessIncludedFields(string[] source, IList<string> target)
     {
       if (source==null || source.Length==0)
         return;
@@ -354,7 +355,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static void ProcessFillFactor(IndexDef index, IndexAttribute attribute)
+    private void ProcessFillFactor(IndexDef index, IndexAttribute attribute)
     {
       if (!attribute.fillFactor.HasValue)
         return;
@@ -362,7 +363,7 @@ namespace Xtensive.Orm.Building.Builders
       index.FillFactor = attribute.FillFactor;
     }
 
-    private static Pair<string, Direction> ParseFieldName(string fieldName)
+    private Pair<string, Direction> ParseFieldName(string fieldName)
     {
       if (fieldName.EndsWith(":DESC", StringComparison.InvariantCultureIgnoreCase))
         return new Pair<string, Direction>(fieldName.Substring(0, fieldName.Length - 5), Direction.Negative);
@@ -372,7 +373,7 @@ namespace Xtensive.Orm.Building.Builders
       return new Pair<string, Direction>(fieldName, Direction.Positive);
     }
 
-    private static LambdaExpression GetExpressionFromProvider(Type providerType, string providerMember, Type parameterType, Type returnType)
+    private LambdaExpression GetExpressionFromProvider(Type providerType, string providerMember, Type parameterType, Type returnType)
     {
       const BindingFlags bindingFlags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
       const string memberNameFormat = "{0}.{1}";
@@ -400,6 +401,13 @@ namespace Xtensive.Orm.Building.Builders
         throw new DomainBuilderException(string.Format(Strings.ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY, memberName, returnType.FullName));
 
       return expression;
+    }
+
+    // Constructors
+
+    public AttributeProcessor(BuildingContext context)
+    {
+      this.context = context;
     }
   }
 }

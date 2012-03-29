@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class ModelDefBuilder
   {
     private readonly BuildingContext context;
+    private readonly AttributeProcessor attributeProcessor;
     private readonly Queue<Type> types;
 
     public void ProcessTypes()
@@ -139,7 +140,7 @@ namespace Xtensive.Orm.Building.Builders
 
           var keyAttributes = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
           if (keyAttributes!=null)
-            AttributeProcessor.Process(hierarchyDef, field, keyAttributes);
+            attributeProcessor.Process(hierarchyDef, field, keyAttributes);
         }
         // Only declared properies must be processed in other cases
         else if (propertyInfo.DeclaringType==propertyInfo.ReflectedType) {
@@ -191,21 +192,21 @@ namespace Xtensive.Orm.Building.Builders
       if (!(type.UnderlyingSystemType.IsInterface || type.IsAbstract)) {
           var sta = type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
           if (sta!=null)
-            AttributeProcessor.Process(typeDef, sta);
+            attributeProcessor.Process(typeDef, sta);
       }
       if (typeDef.IsEntity) {
         var tdva = type.GetAttribute<TypeDiscriminatorValueAttribute>(AttributeSearchOptions.Default);
         if (tdva != null)
-          AttributeProcessor.Process(typeDef, tdva);
+          attributeProcessor.Process(typeDef, tdva);
       }
       if (typeDef.IsInterface) {
         var mva = type.GetAttribute<MaterializedViewAttribute>(AttributeSearchOptions.Default);
         if (mva!=null)
-          AttributeProcessor.Process(typeDef, mva);
+          attributeProcessor.Process(typeDef, mva);
       }
       var ma = type.GetAttribute<TableMappingAttribute>(AttributeSearchOptions.Default);
       if (ma!=null)
-        AttributeProcessor.Process(typeDef, ma);
+        attributeProcessor.Process(typeDef, ma);
       return typeDef;
     }
 
@@ -226,12 +227,12 @@ namespace Xtensive.Orm.Building.Builders
       Validator.ValidateHierarchyRoot(typeDef);
 
       var hierarchyDef = new HierarchyDef(typeDef);
-      AttributeProcessor.Process(hierarchyDef, attribute);
+      attributeProcessor.Process(hierarchyDef, attribute);
 
       // KeyGeneratorAttribute is optional
       var kga = typeDef.UnderlyingType.GetAttribute<KeyGeneratorAttribute>(AttributeSearchOptions.InheritAll);
       if (kga!=null)
-        AttributeProcessor.Process(hierarchyDef, kga);
+        attributeProcessor.Process(hierarchyDef, kga);
 
       return hierarchyDef;
     }
@@ -253,23 +254,23 @@ namespace Xtensive.Orm.Building.Builders
 
       if (fieldAttributes.Length > 0) {
         foreach (var attribute in fieldAttributes)
-          AttributeProcessor.Process(fieldDef, attribute);
+          attributeProcessor.Process(fieldDef, attribute);
         // Association
         var associationAttributes = GetFieldAttributes<AssociationAttribute>(propertyInfo);
         foreach (var attribute in associationAttributes)
-          AttributeProcessor.Process(fieldDef, attribute);
+          attributeProcessor.Process(fieldDef, attribute);
         // Mapping name
         var mappingAttributes = GetFieldAttributes<FieldMappingAttribute>(propertyInfo);
         foreach (var attribute in mappingAttributes)
-          AttributeProcessor.Process(fieldDef, attribute);
+          attributeProcessor.Process(fieldDef, attribute);
         // Type discriminator
         var typeDiscriminatorAttribute = propertyInfo.GetAttribute<TypeDiscriminatorAttribute>(AttributeSearchOptions.InheritAll);
         if (typeDiscriminatorAttribute!=null)
-          AttributeProcessor.Process(fieldDef, typeDiscriminatorAttribute);
+          attributeProcessor.Process(fieldDef, typeDiscriminatorAttribute);
         // Version
         var versionAttribute = propertyInfo.GetAttribute<VersionAttribute>(AttributeSearchOptions.InheritAll);
         if (versionAttribute!=null)
-          AttributeProcessor.Process(fieldDef, versionAttribute);
+          attributeProcessor.Process(fieldDef, versionAttribute);
       }
 
       return fieldDef;
@@ -288,7 +289,7 @@ namespace Xtensive.Orm.Building.Builders
     public IndexDef DefineIndex(TypeDef typeDef, IndexAttribute attribute)
     {
       var index = new IndexDef(typeDef) {IsSecondary = true};
-      AttributeProcessor.Process(index, attribute);
+      attributeProcessor.Process(index, attribute);
 
       if (string.IsNullOrEmpty(index.Name) && index.KeyFields.Count > 0)
         index.Name = context.NameBuilder.BuildIndexName(typeDef, index);
@@ -329,6 +330,7 @@ namespace Xtensive.Orm.Building.Builders
     public ModelDefBuilder(BuildingContext context)
     {
       this.context = context;
+      attributeProcessor = new AttributeProcessor(context);
       types = new Queue<Type>(context.Configuration.Types);
     }
   }
