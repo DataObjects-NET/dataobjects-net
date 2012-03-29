@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Key generator definition.
   /// </summary>
-  public sealed class KeyGenerator : LockableBase
+  public sealed class KeyGeneratorConfiguration : LockableBase
   {
     private string name;
     private long seed;
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public KeyGenerator(string name)
+    public KeyGeneratorConfiguration(string name)
     {
       Name = name;
       Seed = 0;
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public KeyGenerator(string name, long seed, long cacheSize)
+    public KeyGeneratorConfiguration(string name, long seed, long cacheSize)
     {
       Name = name;
       Seed = seed;

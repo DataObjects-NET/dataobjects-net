@@ -238,9 +238,9 @@ namespace Xtensive.Orm.Configuration.Elements
     /// </summary>
     [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseAliasElement>), AddItemName = "keyGenerator")]
-    public ConfigurationCollection<KeyGeneratorElement> KeyGenerators
+    public ConfigurationCollection<KeyGeneratorConfigurationElement> KeyGenerators
     {
-      get { return (ConfigurationCollection<KeyGeneratorElement>) this[KeyGeneratorsElementName]; }
+      get { return (ConfigurationCollection<KeyGeneratorConfigurationElement>) this[KeyGeneratorsElementName]; }
     }
 
     /// <summary>

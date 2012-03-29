@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Configuration.Elements
   /// <summary>
   /// Key generator element within a configuration file.
   /// </summary>
-  public class KeyGeneratorElement : ConfigurationCollectionElementBase
+  public class KeyGeneratorConfigurationElement : ConfigurationCollectionElementBase
   {
     private const string NameElementName = "name";
     private const string SeedElementName = "seed";
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Configuration.Elements
     public override object Identifier { get { return Name; } }
 
     /// <summary>
-    /// <see cref="KeyGenerator.Name" copy="true"/>
+    /// <see cref="KeyGeneratorConfiguration.Name" copy="true"/>
     /// </summary>
     [ConfigurationProperty(NameElementName, IsKey = true)]
     public string Name
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="KeyGenerator.Seed" copy="true"/>
+    /// <see cref="KeyGeneratorConfiguration.Seed" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SeedElementName, DefaultValue = 0)]
     public long Seed
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="KeyGenerator.CacheSize" copy="true" />
+    /// <see cref="KeyGeneratorConfiguration.CacheSize" copy="true" />
     /// </summary>
     [ConfigurationProperty(CacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyGeneratorCacheSize)]
     public long CacheSize
@@ -52,12 +52,12 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// Converts this instance to corresponding <see cref="KeyGenerator"/>.
+    /// Converts this instance to corresponding <see cref="KeyGeneratorConfiguration"/>.
     /// </summary>
     /// <returns>Result of conversion.</returns>
-    public KeyGenerator ToNative()
+    public KeyGeneratorConfiguration ToNative()
     {
-      return new KeyGenerator(Name, Seed, CacheSize);
+      return new KeyGeneratorConfiguration(Name, Seed, CacheSize);
     }
   }
 }

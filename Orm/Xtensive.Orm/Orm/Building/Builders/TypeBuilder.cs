@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly BuildingContext context;
     private readonly Dictionary<string, object> keyEqualityIdentifiers = new Dictionary<string, object>();
     private readonly Dictionary<string, SequenceInfo> sequences = new Dictionary<string, SequenceInfo>();
-    private readonly Dictionary<string, KeyGenerator> keyGeneratorConfigurations;
+    private readonly Dictionary<string, KeyGeneratorConfiguration> keyGeneratorConfigurations;
 
     /// <summary>
     /// Builds the <see cref="TypeInfo"/> instance, its key fields and <see cref="HierarchyInfo"/> for hierarchy root.
@@ -467,7 +467,7 @@ namespace Xtensive.Orm.Building.Builders
       var cacheSize = (long) context.Configuration.KeyGeneratorCacheSize;
 
       var generatorName = key.GeneratorName;
-      KeyGenerator configuration;
+      KeyGeneratorConfiguration configuration;
       if (keyGeneratorConfigurations.TryGetValue(generatorName, out configuration)) {
         seed = configuration.Seed;
         cacheSize = configuration.CacheSize;

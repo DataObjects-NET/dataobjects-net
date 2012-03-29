@@ -9,7 +9,7 @@ using Xtensive.Collections;
 
 namespace Xtensive.Orm.Configuration
 {
-  public sealed class KeyGeneratorCollection : CollectionBaseSlim<KeyGenerator>, ICloneable
+  public sealed class KeyGeneratorConfigurationCollection : CollectionBaseSlim<KeyGeneratorConfiguration>, ICloneable
   {
     public override void Lock(bool recursive)
     {
@@ -22,9 +22,9 @@ namespace Xtensive.Orm.Configuration
 
     public object Clone()
     {
-      var clone = new KeyGeneratorCollection();
+      var clone = new KeyGeneratorConfigurationCollection();
       foreach (var generator in this)
-        clone.Add(new KeyGenerator(generator.Name, generator.Seed, generator.CacheSize));
+        clone.Add(new KeyGeneratorConfiguration(generator.Name, generator.Seed, generator.CacheSize));
       return clone;
     }
   }

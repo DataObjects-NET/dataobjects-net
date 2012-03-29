@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Configuration
     private bool buildInParallel = DefaultBuildInParallel;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
-    private KeyGeneratorCollection keyGenerators = new KeyGeneratorCollection();
+    private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -384,7 +384,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets key generators.
     /// </summary>
-    public KeyGeneratorCollection KeyGenerators
+    public KeyGeneratorConfigurationCollection KeyGenerators
     {
       get { return keyGenerators; }
       set
@@ -559,7 +559,7 @@ namespace Xtensive.Orm.Configuration
       buildInParallel = configuration.buildInParallel;
       databaseAliases = (DatabaseAliasCollection) configuration.DatabaseAliases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
-      keyGenerators = (KeyGeneratorCollection) configuration.KeyGenerators.Clone();
+      keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
     }
 
     /// <summary>
