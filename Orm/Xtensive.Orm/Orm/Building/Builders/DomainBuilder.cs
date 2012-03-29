@@ -31,9 +31,7 @@ namespace Xtensive.Orm.Building.Builders
       ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
 
       var context = new BuildingContext(builderConfiguration);
-
       using (Log.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName()))
-      using (new BuildingScope(context))
         new DomainBuilder(context).Run();
 
       return context.Domain;

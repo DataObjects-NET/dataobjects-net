@@ -96,7 +96,8 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ApplyCustomDefinitions()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions))
+      using (new BuildingScope(context)) { // Activate context for compatibility with previous versions
         foreach (var module in context.BuilderConfiguration.Services.Modules)
           module.OnDefinitionsBuilt(context, context.ModelDef);
       }
