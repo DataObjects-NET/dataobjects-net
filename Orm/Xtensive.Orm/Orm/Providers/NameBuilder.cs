@@ -500,7 +500,6 @@ namespace Xtensive.Orm.Providers
       var databaseSuffixRequired =
         key.GeneratorKind==KeyGeneratorKind.Default
         && KeyGeneratorFactory.IsSequenceBacked(key.SingleColumnType)
-        && keyGeneratorMode==KeyGeneratorMode.PerKeyType
         && !string.IsNullOrEmpty(mappingDatabase);
       var baseName = key.GeneratorBaseName;
       return databaseSuffixRequired
