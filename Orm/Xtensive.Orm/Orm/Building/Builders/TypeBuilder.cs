@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    #region Private members
+    #region Private/internal methods
 
     private void BuildFieldMap(TypeInfo @interface, TypeInfo implementor)
     {
@@ -426,12 +426,10 @@ namespace Xtensive.Orm.Building.Builders
 
       // Hierarchy has key generator.
 
-      var generatorMode = context.Configuration.KeyGeneratorMode;
-
       // Setup key generator name.
       key.GeneratorKind = generatorKind;
-      key.GeneratorBaseName = context.NameBuilder.BuildKeyGeneratorBaseName(key, hierarchyDef, generatorMode);
-      key.GeneratorName = context.NameBuilder.BuildKeyGeneratorName(key, hierarchyDef, generatorMode);
+      key.GeneratorBaseName = context.NameBuilder.BuildKeyGeneratorBaseName(key, hierarchyDef);
+      key.GeneratorName = context.NameBuilder.BuildKeyGeneratorName(key, hierarchyDef);
       var generatorName = key.GeneratorName;
 
       // Equality indentifier is the same if and only if key generator names match.
@@ -504,13 +502,15 @@ namespace Xtensive.Orm.Building.Builders
 
     #endregion
 
+
     // Constructors
 
     public TypeBuilder(BuildingContext context)
     {
       this.context = context;
 
-      keyGeneratorConfigurations = context.Configuration.KeyGenerators.ToDictionary(g => g.Name);
+      keyGeneratorConfigurations = context.Configuration.KeyGenerators
+        .ToDictionary(configuration => context.NameBuilder.BuildKeyGeneratorName(configuration));
     }
   }
 }

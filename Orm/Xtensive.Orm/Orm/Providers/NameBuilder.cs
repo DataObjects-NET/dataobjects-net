@@ -39,6 +39,9 @@ namespace Xtensive.Orm.Providers
     private readonly object _lock = new object();
     private readonly int maxIdentifierLength;
     private readonly NamingConvention namingConvention;
+    private readonly bool isMultidatabase;
+    private readonly string defaultDatabase;
+    private readonly KeyGeneratorMode keyGeneratorMode;
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -491,18 +494,33 @@ namespace Xtensive.Orm.Providers
     /// <param name="key">Key to build key generator name for.</param>
     /// <param name="hierarchyDef">Hierarchy definition.</param>
     /// <returns>Key generator name</returns>
-    public string BuildKeyGeneratorName(KeyInfo key, HierarchyDef hierarchyDef, KeyGeneratorMode mode)
+    public string BuildKeyGeneratorName(KeyInfo key, HierarchyDef hierarchyDef)
     {
       var mappingDatabase = hierarchyDef.Root.MappingDatabase;
       var databaseSuffixRequired =
         key.GeneratorKind==KeyGeneratorKind.Default
         && KeyGeneratorFactory.IsSequenceBacked(key.SingleColumnType)
-        && mode==KeyGeneratorMode.PerKeyType
+        && keyGeneratorMode==KeyGeneratorMode.PerKeyType
         && !string.IsNullOrEmpty(mappingDatabase);
       var baseName = key.GeneratorBaseName;
       return databaseSuffixRequired
-        ? string.Format("{0}@{1}", baseName, mappingDatabase)
+        ? FormatKeyGeneratorName(mappingDatabase, baseName)
         : baseName;
+    }
+
+    /// <summary>
+    /// Builds name for key generator.
+    /// </summary>
+    /// <param name="configuration">Configuration.</param>
+    /// <returns>Key generator name.</returns>
+    public string BuildKeyGeneratorName(KeyGeneratorConfiguration configuration)
+    {
+      if (!isMultidatabase)
+        return configuration.Name;
+      var database = configuration.Database;
+      if (string.IsNullOrEmpty(database))
+        database = defaultDatabase;
+      return FormatKeyGeneratorName(database, configuration.Name);
     }
 
     /// <summary>
@@ -511,7 +529,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="key">Key to build base key generator name for.</param>
     /// <param name="hierarchyDef">Hierarchy definition.</param>
     /// <returns>Base key generator name.</returns>
-    public string BuildKeyGeneratorBaseName(KeyInfo key, HierarchyDef hierarchyDef, KeyGeneratorMode mode)
+    public string BuildKeyGeneratorBaseName(KeyInfo key, HierarchyDef hierarchyDef)
     {
       if (key.GeneratorKind==KeyGeneratorKind.None)
         throw new ArgumentOutOfRangeException("key.GeneratorKind");
@@ -526,13 +544,13 @@ namespace Xtensive.Orm.Providers
 
       // KeyGeneratorKind.Default:
 
-      switch (mode) {
+      switch (keyGeneratorMode) {
       case KeyGeneratorMode.PerKeyType:
         return key.SingleColumnType.GetShortName();
       case KeyGeneratorMode.PerHierarchy:
         return hierarchyDef.Root.UnderlyingType.GetShortName();
       default:
-        throw new ArgumentOutOfRangeException("mode");
+        throw new ArgumentOutOfRangeException("keyGeneratorMode");
       }
     }
 
@@ -577,6 +595,11 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    private static string FormatKeyGeneratorName(string database, string name)
+    {
+      return string.Format("{0}@{1}", name, database);
+    }
+
 
     // Constructors
 
@@ -587,8 +610,12 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
 
       namingConvention = configuration.NamingConvention;
+      isMultidatabase = configuration.IsMultidatabase;
+      defaultDatabase = configuration.DefaultDatabase;
+      keyGeneratorMode = configuration.KeyGeneratorMode;
       maxIdentifierLength = providerInfo.MaxIdentifierLength;
-      TypeIdColumnName = ApplyNamingRules(Orm.WellKnown.TypeIdFieldName);
+
+      TypeIdColumnName = ApplyNamingRules(WellKnown.TypeIdFieldName);
     }
   }
 }

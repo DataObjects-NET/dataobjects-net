@@ -6,6 +6,7 @@
 
 using System.Configuration;
 using Xtensive.Configuration;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Configuration.Elements
 {
@@ -17,9 +18,12 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string NameElementName = "name";
     private const string SeedElementName = "seed";
     private const string CacheSizeElementName = "cacheSize";
+    private const string DatabaseElementName = "database";
 
     /// <inheritdoc/>
-    public override object Identifier { get { return Name; } }
+    public override object Identifier {
+      get { return new Pair<string>(Name ?? string.Empty, Database ?? string.Empty); }
+    }
 
     /// <summary>
     /// <see cref="KeyGeneratorConfiguration.Name" copy="true"/>
@@ -29,6 +33,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (string) this[NameElementName]; }
       set { this[NameElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="KeyGeneratorConfiguration.Database" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(DatabaseElementName, IsKey = true)]
+    public string Database
+    {
+      get { return (string) this[DatabaseElementName]; }
+      set { this[DatabaseElementName] = value; }
     }
 
     /// <summary>
@@ -57,7 +71,11 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <returns>Result of conversion.</returns>
     public KeyGeneratorConfiguration ToNative()
     {
-      return new KeyGeneratorConfiguration(Name, Seed, CacheSize);
+      return new KeyGeneratorConfiguration(Name) {
+        CacheSize = CacheSize,
+        Seed = Seed,
+        Database = Database,
+      };
     }
   }
 }

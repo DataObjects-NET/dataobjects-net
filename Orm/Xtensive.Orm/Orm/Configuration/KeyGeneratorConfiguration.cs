@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Configuration
     private string name;
     private long seed;
     private long cacheSize;
+    private string database;
 
     /// <summary>
     /// Gets or sets key generator name.
@@ -30,6 +31,19 @@ namespace Xtensive.Orm.Configuration
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
         this.EnsureNotLocked();
         name = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets database for key generator.
+    /// </summary>
+    public string Database
+    {
+      get { return database; }
+      set
+      {
+        this.EnsureNotLocked();
+        database = value;
       }
     }
 
@@ -74,11 +88,11 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public KeyGeneratorConfiguration(string name, long seed, long cacheSize)
+    public KeyGeneratorConfiguration(KeyGeneratorConfiguration other)
     {
-      Name = name;
-      Seed = seed;
-      CacheSize = cacheSize;
+      name = other.name;
+      seed = other.seed;
+      cacheSize = other.cacheSize;
     }
   }
 }
