@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly BuildingContext context;
     private readonly Dictionary<string, object> keyEqualityIdentifiers = new Dictionary<string, object>();
     private readonly Dictionary<string, SequenceInfo> sequences = new Dictionary<string, SequenceInfo>();
+    private readonly Dictionary<string, KeyGenerator> keyGeneratorConfigurations;
 
     /// <summary>
     /// Builds the <see cref="TypeInfo"/> instance, its key fields and <see cref="HierarchyInfo"/> for hierarchy root.
@@ -462,10 +463,18 @@ namespace Xtensive.Orm.Building.Builders
 
     private SequenceInfo BuildSequence(HierarchyDef hierarchyDef, KeyInfo key)
     {
-      var cacheSize = context.Configuration.KeyGeneratorCacheSize;
+      var seed = 0L;
+      var cacheSize = (long) context.Configuration.KeyGeneratorCacheSize;
 
-      var sequence = new SequenceInfo(key.GeneratorName) {
-        Seed = cacheSize,
+      var generatorName = key.GeneratorName;
+      KeyGenerator configuration;
+      if (keyGeneratorConfigurations.TryGetValue(generatorName, out configuration)) {
+        seed = configuration.Seed;
+        cacheSize = configuration.CacheSize;
+      }
+
+      var sequence = new SequenceInfo(generatorName) {
+        Seed = seed + cacheSize, // Preallocate keys for the first access
         Increment = cacheSize,
         MappingDatabase = hierarchyDef.Root.MappingDatabase,
         MappingSchema = GetMappingSchema(hierarchyDef),
@@ -500,6 +509,8 @@ namespace Xtensive.Orm.Building.Builders
     public TypeBuilder(BuildingContext context)
     {
       this.context = context;
+
+      keyGeneratorConfigurations = context.Configuration.KeyGenerators.ToDictionary(g => g.Name);
     }
   }
 }
