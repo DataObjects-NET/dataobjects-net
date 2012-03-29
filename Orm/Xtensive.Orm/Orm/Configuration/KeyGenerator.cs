@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets cache size (incremenet) for key generator.
+    /// Gets cache size (increment) for key generator.
     /// </summary>
     public long CacheSize
     {
