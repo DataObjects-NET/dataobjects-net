@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace Xtensive.Orm.Configuration
 {
-  internal struct MappingRuleConstructionFlow : IMappingRuleConstructionFlow
+  internal sealed class MappingRuleConstructionFlow : IMappingRuleConstructionFlow
   {
     private readonly ICollection<MappingRule> target;
     private readonly Assembly assembly;
@@ -29,6 +29,8 @@ namespace Xtensive.Orm.Configuration
     {
       target.Add(new MappingRule(assembly, @namespace, database, schema));
     }
+
+    // Constructors
 
     public MappingRuleConstructionFlow(ICollection<MappingRule> target, Assembly assembly, string @namespace)
     {
