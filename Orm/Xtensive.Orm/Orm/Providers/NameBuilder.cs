@@ -50,12 +50,13 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="type">The <see cref="TypeDef"/> object.</param>
     /// <returns>Type name.</returns>
-    public string BuildTypeName(TypeDef type)
+    public string BuildTypeName(BuildingContext context, TypeDef type)
     {
+      ArgumentValidator.EnsureArgumentNotNull(context, "context");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       if (type.UnderlyingType.IsGenericType)
-        return ApplyNamingRules(BuildGenericTypeName(type.UnderlyingType, type.MappingName));
+        return ApplyNamingRules(BuildGenericTypeName(context, type.UnderlyingType, type.MappingName));
 
       if (!type.MappingName.IsNullOrEmpty())
         return ApplyNamingRules(type.MappingName);
@@ -85,7 +86,7 @@ namespace Xtensive.Orm.Providers
       return ApplyNamingRules(result);
     }
 
-    private string BuildGenericTypeName(Type type, string mappingName)
+    private string BuildGenericTypeName(BuildingContext context, Type type, string mappingName)
     {
       if (!type.IsGenericType || type.IsGenericParameter)
         return type.GetShortName();
@@ -103,17 +104,17 @@ namespace Xtensive.Orm.Providers
       if (type.IsGenericTypeDefinition)
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
-          names[i] = BuildGenericTypeName(argument, null);
+          names[i] = BuildGenericTypeName(context, argument, null);
         }
       else {
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
           if (argument.IsSubclassOf(typeof (Persistent))) {
-            var argTypeDef = BuildingContext.Demand().ModelDefBuilder.ProcessType(argument);
+            var argTypeDef = context.ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }
           else
-            names[i] = BuildGenericTypeName(argument, null);
+            names[i] = BuildGenericTypeName(context, argument, null);
         }
       }
       return ApplyNamingRules(string.Format(GenericTypePattern, typeName, string.Join("-", names)));
