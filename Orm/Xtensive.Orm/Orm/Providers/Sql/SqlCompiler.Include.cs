@@ -31,8 +31,10 @@ namespace Xtensive.Orm.Providers.Sql
       SqlExpression resultExpression;
       TemporaryTableDescriptor tableDescriptor = null;
       QueryParameterBinding extraBinding = null;
-
-      switch (provider.Algorithm) {
+      var algorithm = provider.Algorithm;
+      if (!temporaryTablesSupported)
+        algorithm = IncludeAlgorithm.ComplexCondition;
+      switch (algorithm) {
       case IncludeAlgorithm.Auto:
         var complexConditionExpression = CreateIncludeViaComplexConditionExpression(
           provider, BuildRowFilterParameterAccessor(filterDataSource, true),

@@ -27,8 +27,9 @@ namespace Xtensive.Orm.Providers.Sql
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
-//    private SqlDriver Driver { get { return DomainHandler.Driver; } }
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
+
+    public bool Supported { get; private set; }
 
     /// <summary>
     /// Builds the descriptor of a temporary table.
@@ -50,6 +51,9 @@ namespace Xtensive.Orm.Providers.Sql
     /// <returns>Built descriptor.</returns>
     public TemporaryTableDescriptor BuildDescriptor(string name, TupleDescriptor source, string[] fieldNames)
     {
+      if (!Supported)
+        throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
+
       // TODO: split this method to a set of various simple virtual methods
       var driver = DomainHandler.Driver;
       var catalog = new Catalog(DomainHandler.Schema.Catalog.Name);
@@ -148,10 +152,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <returns>Created table.</returns>
     protected virtual Table CreateTemporaryTable(Schema schema, string tableName)
     {
-      var table = schema.CreateTemporaryTable(tableName);
-      if (!DomainHandler.ProviderInfo.Supports(TemporaryTableFeatures.Local))
-        table.IsGlobal = true;
-      return table;
+      return schema.CreateTemporaryTable(tableName);
     }
 
     /// <summary>
@@ -179,6 +180,11 @@ namespace Xtensive.Orm.Providers.Sql
     {
     }
 
+    protected virtual bool CheckIsSupported()
+    {
+      return DomainHandler.ProviderInfo.Supports(ProviderFeatures.TemporaryTables);
+    }
+
     protected void ExecuteNonQuery(EnumerationContext context, string statement)
     {
       context.SessionHandler.GetService<IQueryExecutor>(true).ExecuteNonQuery(statement);
@@ -197,6 +203,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
+      Supported = CheckIsSupported();
     }
   }
 }
