@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Providers
 {
@@ -18,7 +17,6 @@ namespace Xtensive.Orm.Providers
   {
     private readonly Version storageVersion;
     private readonly ProviderFeatures providerFeatures;
-    private readonly TemporaryTableFeatures temporaryTableFeatures;
 
     /// <summary>
     /// Determines whether the specified features are supported.
@@ -27,15 +25,6 @@ namespace Xtensive.Orm.Providers
     public bool Supports(ProviderFeatures required)
     {
       return (providerFeatures & required)==required;
-    }
-
-    /// <summary>
-    /// Determines whether the specified features are supported.
-    /// </summary>
-    /// <param name="required">The required feature set.</param>
-    public bool Supports(TemporaryTableFeatures required)
-    {
-      return (temporaryTableFeatures & required) == required;
     }
 
     /// <summary>
@@ -65,19 +54,17 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, TemporaryTableFeatures temporaryTableFeatures, int maxIdentifierLength)
+    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, int maxIdentifierLength)
     {
       this.storageVersion = storageVersion;
       this.providerFeatures = providerFeatures;
-      this.temporaryTableFeatures = temporaryTableFeatures;
       MaxIdentifierLength = maxIdentifierLength;
     }
 
-    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, TemporaryTableFeatures temporaryTableFeatures, int maxIdentifierLength, string constantPrimaryIndexName)
+    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, int maxIdentifierLength, string constantPrimaryIndexName)
     {
       this.storageVersion = storageVersion;
       this.providerFeatures = providerFeatures;
-      this.temporaryTableFeatures = temporaryTableFeatures;
       MaxIdentifierLength = maxIdentifierLength;
       ConstantPrimaryIndexName = constantPrimaryIndexName;
     }

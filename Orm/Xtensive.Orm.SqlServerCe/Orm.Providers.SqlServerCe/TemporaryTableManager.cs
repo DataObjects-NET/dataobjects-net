@@ -14,6 +14,11 @@ namespace Xtensive.Orm.Providers.SqlServerCe
   /// </summary>
   public class TemporaryTableManager : Sql.TemporaryTableManager
   {
+    protected override bool CheckIsSupported()
+    {
+      return true;
+    }
+
     /// <inheritdoc/>
     protected override Table CreateTemporaryTable(Schema schema, string tableName)
     {

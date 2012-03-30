@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Providers.Sql
         f |= ProviderFeatures.ScalarSubqueries;
 
       var tt = si.TemporaryTable;
-      if (tt != null)
+      if (tt != null && tt.Features.Supports(TemporaryTableFeatures.Local))
         f |= ProviderFeatures.TemporaryTables;
       if (si.FullTextSearch != null) {
         if (si.FullTextSearch.Features==FullTextSearchFeatures.Full)
@@ -116,8 +116,7 @@ namespace Xtensive.Orm.Providers.Sql
           si.UniqueConstraint
         }.Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength).Min();
 
-      return new ProviderInfo(storageVersion, f, si.TemporaryTable == null ? 
-        TemporaryTableFeatures.None : si.TemporaryTable.Features, maxIdentifierLength, si.PrimaryKey.ConstantName);
+      return new ProviderInfo(storageVersion, f, maxIdentifierLength, si.PrimaryKey.ConstantName);
     }
   }
 }
