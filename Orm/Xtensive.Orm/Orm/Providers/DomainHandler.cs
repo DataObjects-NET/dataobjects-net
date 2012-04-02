@@ -17,7 +17,6 @@ using Xtensive.Orm.Rse.PreCompilation.Optimization;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sorting;
 using Xtensive.Sql;
-using Xtensive.Threading;
 
 namespace Xtensive.Orm.Providers
 {
@@ -27,8 +26,6 @@ namespace Xtensive.Orm.Providers
   public abstract class DomainHandler : DomainBoundHandler
   {
     private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
-    private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache
-      = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
 
     /// <summary>
     /// Gets the domain this handler is bound to.
@@ -52,11 +49,6 @@ namespace Xtensive.Orm.Providers
     public ModelMapping Mapping { get; private set; }
 
     /// <summary>
-    /// Gets the SQL request builder.
-    /// </summary>
-    public PersistRequestBuilder PersistRequestBuilder { get; private set; }
-
-    /// <summary>
     /// Gets the temporary table manager.
     /// </summary>
     public TemporaryTableManager TemporaryTableManager { get; private set; }
@@ -65,6 +57,8 @@ namespace Xtensive.Orm.Providers
     /// Gets the command processor factory.
     /// </summary>
     public CommandProcessorFactory CommandProcessorFactory { get; private set; }
+
+    internal Persister Persister { get; private set; }
 
     /// <summary>
     /// Builds the mapping schema.
@@ -86,16 +80,6 @@ namespace Xtensive.Orm.Providers
     public IMemberCompilerProvider<T> GetMemberCompilerProvider<T>()
     {
       return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof (T)];
-    }
-
-    /// <summary>
-    /// Gets the persist request for the specified <paramref name="task"/>.
-    /// </summary>
-    /// <param name="task">The task to get request from.</param>
-    /// <returns>A <see cref="PersistRequest"/> that represents <paramref name="task"/>.</returns>
-    public IEnumerable<PersistRequest> GetPersistRequest(PersistRequestBuilderTask task)
-    {
-      return requestCache.GetValue(task, PersistRequestBuilder.Build);
     }
 
     #region Customization members
@@ -242,9 +226,10 @@ namespace Xtensive.Orm.Providers
 
     internal void BuildHandlers()
     {
-      PersistRequestBuilder = Handlers.Create<PersistRequestBuilder>();
       TemporaryTableManager = Handlers.Create<TemporaryTableManager>();
       CommandProcessorFactory = Handlers.Create<CommandProcessorFactory>();
+      var persistRequestBuilder = Handlers.Create<PersistRequestBuilder>();
+      Persister = new Persister(Handlers, persistRequestBuilder);
     }
 
     public void InitializeServices()

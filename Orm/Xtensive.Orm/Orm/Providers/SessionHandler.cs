@@ -107,6 +107,13 @@ namespace Xtensive.Orm.Providers
     public abstract void SetCommandTimeout(int? commandTimeout);
 
     /// <summary>
+    /// Persists changed entities.
+    /// </summary>
+    /// <param name="registry">The registry.</param>
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
+    public abstract void Persist(EntityChangeRegistry registry, bool allowPartialExecution);
+
+    /// <summary>
     /// Provides service for the specified <typeparamref name="TContract"/>.
     /// </summary>
     /// <typeparam name="TContract">Service contract</typeparam>
@@ -173,14 +180,6 @@ namespace Xtensive.Orm.Providers
     protected virtual void Initialize()
     {
       prefetchManager = new PrefetchManager(Session);
-
-      var providerInfo = Handlers.ProviderInfo;
-      var configuration = Handlers.Domain.Configuration;
-
-      persistRequiresTopologicalSort =
-        configuration.Supports(ForeignKeyMode.Reference)
-        && providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints)
-        && !providerInfo.Supports(ProviderFeatures.DeferrableConstraints);
     }
 
     // Disposing

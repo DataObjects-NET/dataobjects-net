@@ -93,12 +93,6 @@ namespace Xtensive.Orm.Internals
       ChainedHandler.Persist(registry, allowPartialExecution);
     }
 
-    /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
-    {
-      ChainedHandler.Persist(persistActions, allowPartialExecution);
-    }
-
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return ChainedHandler.Prefetch(key, type, descriptors);

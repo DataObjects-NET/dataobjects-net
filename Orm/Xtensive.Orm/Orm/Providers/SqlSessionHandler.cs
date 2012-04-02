@@ -59,32 +59,6 @@ namespace Xtensive.Orm.Providers
       connection.CommandTimeout = commandTimeout;
     }
 
-    /// <inheritdoc/>
-    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
-    {
-      EnsureConnectionIsOpen();
-      var nonBatchedTasks = new List<QueryTask>();
-      foreach (var task in queryTasks) {
-        var sqlProvider = task.DataSource as SqlProvider;
-        if (sqlProvider!=null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
-          RegisterQueryTask(task, sqlProvider.Request);
-        else
-          nonBatchedTasks.Add(task);
-      }
-      if (nonBatchedTasks.Count > 0) {
-        commandProcessor.ExecuteTasks();
-        base.ExecuteQueryTasks(nonBatchedTasks, allowPartialExecution);
-      }
-      else
-        commandProcessor.ExecuteTasks(allowPartialExecution);
-    }
-
-    private void RegisterQueryTask(QueryTask task, QueryRequest request)
-    {
-      task.Result = new List<Tuple>();
-      commandProcessor.RegisterTask(new SqlLoadTask(request, task.Result, task.ParameterContext));
-    }
-
     #region Transaction control methods
 
     /// <inheritdoc/>
@@ -134,61 +108,13 @@ namespace Xtensive.Orm.Providers
 
     #endregion
     
-    #region Insert, Update, Delete
-
-    /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
-    {
-      foreach (var action in persistActions)
-        commandProcessor.RegisterTask(CreatePersistTask(action));
-      commandProcessor.ExecuteTasks(allowPartialExecution);
-    }
-
-    private SqlPersistTask CreatePersistTask(PersistAction action)
-    {
-      switch (action.ActionKind) {
-      case PersistActionKind.Insert:
-        return CreateInsertTask(action);
-      case PersistActionKind.Update:
-        return CreateUpdateTask(action);
-      case PersistActionKind.Remove:
-        return CreateRemoveTask(action);
-      default:
-        throw new ArgumentOutOfRangeException("action.ActionKind");
-      }
-    }
-    
-    private SqlPersistTask CreateInsertTask(PersistAction action)
-    {
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Insert, action.EntityState.Type);
-      var request = domainHandler.GetPersistRequest(task);
-      var tuple = action.EntityState.Tuple.ToRegular();
-      return new SqlPersistTask(request, tuple);
-    }
-
-    private SqlPersistTask CreateUpdateTask(PersistAction action)
-    {
-      var entityState = action.EntityState;
-      var dTuple = entityState.DifferentialTuple;
-      var source = dTuple.Difference;
-      var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Update, entityState.Type, fieldStateMap);
-      var request = domainHandler.GetPersistRequest(task);
-      var tuple = entityState.Tuple.ToRegular();
-      return new SqlPersistTask(request, tuple);
-    }
-
-    private SqlPersistTask CreateRemoveTask(PersistAction action)
-    {
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Remove, action.EntityState.Type);
-      var request = domainHandler.GetPersistRequest(task);
-      var tuple = action.EntityState.Key.Value;
-      return new SqlPersistTask(request, tuple);
-    }
-
-    #endregion
-    
     #region Private / internal members
+
+    private void RegisterQueryTask(QueryTask task, QueryRequest request)
+    {
+      task.Result = new List<Tuple>();
+      commandProcessor.RegisterTask(new SqlLoadTask(request, task.Result, task.ParameterContext));
+    }
 
     private void EnsureConnectionIsOpen()
     {
@@ -203,9 +129,36 @@ namespace Xtensive.Orm.Providers
     #endregion
 
     /// <inheritdoc/>
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
+    {
+      EnsureConnectionIsOpen();
+      var nonBatchedTasks = new List<QueryTask>();
+      foreach (var task in queryTasks) {
+        var sqlProvider = task.DataSource as SqlProvider;
+        if (sqlProvider!=null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
+          RegisterQueryTask(task, sqlProvider.Request);
+        else
+          nonBatchedTasks.Add(task);
+      }
+      if (nonBatchedTasks.Count > 0) {
+        commandProcessor.ExecuteTasks();
+        base.ExecuteQueryTasks(nonBatchedTasks, allowPartialExecution);
+      }
+      else
+        commandProcessor.ExecuteTasks(allowPartialExecution);
+    }
+
+    /// <inheritdoc/>
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
       registrations.Add(new ServiceRegistration(typeof (ISqlExecutor), new SqlExecutor(driver, connection, Session)));
+    }
+
+    /// <inheritdoc/>
+    public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
+    {
+      domainHandler.Persister.Persist(registry, commandProcessor);
+      commandProcessor.ExecuteTasks(allowPartialExecution);
     }
 
     /// <inheritdoc/>
@@ -215,6 +168,7 @@ namespace Xtensive.Orm.Providers
 
       domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;
+
       connection = driver.CreateConnection(Session);
       commandProcessor = domainHandler.CommandProcessorFactory.CreateCommandProcessor(Session, connection);
     }

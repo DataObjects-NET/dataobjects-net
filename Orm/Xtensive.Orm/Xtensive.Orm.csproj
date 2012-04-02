@@ -167,6 +167,7 @@
     </Compile>
     <Compile Include="Orm\Providers\Interfaces\IPersistDescriptor.cs" />
     <Compile Include="Orm\Providers\MappingResolveResult.cs" />
+    <Compile Include="Orm\Providers\Persister.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />
@@ -197,7 +198,6 @@
     <Compile Include="Orm\Upgrade\Internals\SchemaUpgrader.cs" />
     <Compile Include="Orm\Providers\SessionHandler.cs" />
     <Compile Include="Orm\Providers\SessionHandler.Fetching.cs" />
-    <Compile Include="Orm\Providers\SessionHandler.Persist.cs" />
     <Compile Include="Orm\Providers\SessionHandler.References.cs" />
     <Compile Include="Orm\Providers\SessionHandler.StateManagement.cs" />
     <Compile Include="Orm\Providers\SessionHandler.Transactions.cs" />
