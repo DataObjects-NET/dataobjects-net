@@ -5,7 +5,6 @@
 // Created:    2009.06.01
 
 using System;
-using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Providers
 {
@@ -15,7 +14,6 @@ namespace Xtensive.Orm.Providers
   [Serializable]
   public sealed class ProviderInfo
   {
-    private readonly TemporaryTableFeatures temporaryTableFeatures;
 
     /// <summary>
     /// Gets provider name.
@@ -62,22 +60,12 @@ namespace Xtensive.Orm.Providers
       return (ProviderFeatures & required)==required;
     }
 
-    /// <summary>
-    /// Determines whether the specified features are supported.
-    /// </summary>
-    /// <param name="required">The required feature set.</param>
-    public bool Supports(TemporaryTableFeatures required)
-    {
-      return (temporaryTableFeatures & required)==required;
-    }
-
     // Constructors
 
     internal ProviderInfo(
       string providerName,
       Version storageVersion,
       ProviderFeatures providerFeatures,
-      TemporaryTableFeatures temporaryTableFeatures,
       int maxIdentifierLength,
       string constantPrimaryIndexName,
       string defaultDatabase,
@@ -87,8 +75,6 @@ namespace Xtensive.Orm.Providers
 
       StorageVersion = storageVersion;
       ProviderFeatures = providerFeatures;
-
-      this.temporaryTableFeatures = temporaryTableFeatures;
 
       MaxIdentifierLength = maxIdentifierLength;
       ConstantPrimaryIndexName = constantPrimaryIndexName;

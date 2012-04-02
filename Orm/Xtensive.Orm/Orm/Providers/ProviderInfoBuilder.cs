@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.TransactionalFullTextDdl;
 
       var temporaryTable = serverInfo.TemporaryTable;
-      if (temporaryTable!=null)
+      if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))
         f |= ProviderFeatures.TemporaryTables;
       if (serverInfo.FullTextSearch!=null) {
         f |= ProviderFeatures.FullText;
@@ -129,7 +129,6 @@ namespace Xtensive.Orm.Providers
 
       return new ProviderInfo(
         providerName, storageVersion, f,
-        serverInfo.TemporaryTable==null ? TemporaryTableFeatures.None : serverInfo.TemporaryTable.Features,
         maxIdentifierLength,
         serverInfo.PrimaryKey.ConstantName,
         coreServerInfo.DatabaseName, coreServerInfo.DefaultSchemaName);

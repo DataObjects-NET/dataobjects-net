@@ -4079,6 +4079,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Temporary tables are not supported by current storage.
+        /// </summary>
+        internal static string ExTemporaryTablesAreNotSupportedByCurrentStorage {
+            get {
+                return ResourceManager.GetString("ExTemporaryTablesAreNotSupportedByCurrentStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Temporary table &apos;{0}&apos; is locked.
         /// </summary>
         internal static string ExTemporaryTableXIsLocked {

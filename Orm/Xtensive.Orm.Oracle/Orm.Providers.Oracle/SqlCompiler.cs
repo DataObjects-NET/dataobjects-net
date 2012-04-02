@@ -37,21 +37,6 @@ namespace Xtensive.Orm.Providers.Oracle
       return result;
     }
 
-    protected override SqlProvider VisitInclude(IncludeProvider provider)
-    {
-      var source = Compile(provider.Source);
-      var resultQuery = ExtractSqlSelect(provider, source);
-      var sourceColumns = ExtractColumnExpressions(resultQuery, provider);
-      var parameterAcessor = BuildRowFilterParameterAccessor(
-        provider.FilterDataSource.CachingCompile(), false);
-      QueryParameterBinding binding;
-      var includeExpression = CreateIncludeViaComplexConditionExpression(
-        provider, parameterAcessor, sourceColumns, out binding);
-      includeExpression = GetBooleanColumnExpression(includeExpression);
-      AddInlinableColumn(provider, resultQuery, provider.ResultColumnName, includeExpression);
-      return CreateProvider(resultQuery, binding, provider, source);
-    }
-
 
     // Constructors
     

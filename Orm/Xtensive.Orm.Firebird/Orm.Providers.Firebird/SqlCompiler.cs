@@ -17,14 +17,6 @@ namespace Xtensive.Orm.Providers.Firebird
 {
   internal class SqlCompiler : Providers.SqlCompiler
   {
-    protected override SqlProvider VisitInclude(IncludeProvider provider)
-    {
-      var newProvider = new IncludeProvider(provider.Source, IncludeAlgorithm.ComplexCondition, provider.IsInlined,
-                                            provider.FilterDataSource, provider.ResultColumnName,
-                                            provider.FilteredColumns);
-      return base.VisitInclude(newProvider);
-    }
-
     // Constructors
     
     public SqlCompiler(HandlerAccessor handlers)

@@ -107,7 +107,6 @@
     <Compile Include="Orm.Providers.Firebird\DomainHandler.cs" />
     <Compile Include="Orm.Providers.Firebird\HandlerFactory.cs" />
     <Compile Include="Orm.Providers.Firebird\SqlCompiler.cs" />
-    <Compile Include="Orm.Providers.Firebird\TemporaryTableManager.cs" />
     <Compile Include="Sql.Drivers.Firebird\Resources\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
       <DesignTime>True</DesignTime>

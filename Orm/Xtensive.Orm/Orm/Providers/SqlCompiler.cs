@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Providers
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
+    private bool temporaryTablesSupported;
 
     /// <summary>
     /// Gets the SQL domain handler.
@@ -485,6 +486,8 @@ namespace Xtensive.Orm.Providers
 
       if (!handlers.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
+
+      temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
 
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
 

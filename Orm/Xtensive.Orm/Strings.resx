@@ -2380,4 +2380,7 @@ Error: {1}</value>
   <data name="LogCalculatingDatabaseDependencies">
     <value xml:space="preserve">Calculating database dependencies</value>
   </data>
+  <data name="ExTemporaryTablesAreNotSupportedByCurrentStorage">
+    <value xml:space="preserve">Temporary tables are not supported by current storage</value>
+  </data>
 </root>
