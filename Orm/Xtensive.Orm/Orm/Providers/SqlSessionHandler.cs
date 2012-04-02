@@ -206,8 +206,6 @@ namespace Xtensive.Orm.Providers
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
       registrations.Add(new ServiceRegistration(typeof (ISqlExecutor), new SqlExecutor(driver, connection, Session)));
-      registrations.Add(new ServiceRegistration(typeof (CommandFactory), commandProcessor.Factory));
-      registrations.Add(new ServiceRegistration(typeof (CommandProcessor), commandProcessor));
     }
 
     /// <inheritdoc/>
