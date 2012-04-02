@@ -10,26 +10,23 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Providers;
-using Xtensive.Reflection;
-using Xtensive.Sql;
-using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Reflection;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
-  /// <inheritdoc/>
-  [Serializable]
   public partial class SqlCompiler : Compiler<SqlProvider>
   {
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
-    private bool temporaryTablesSupported;
+    private readonly bool temporaryTablesSupported;
 
     /// <summary>
     /// Gets the SQL domain handler.
@@ -483,15 +480,13 @@ namespace Xtensive.Orm.Providers
     public SqlCompiler(HandlerAccessor handlers)
     {
       Handlers = handlers;
-
-      if (!handlers.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
-        booleanExpressionConverter = new BooleanExpressionConverter(Driver);
-
+      providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
 
-      stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
+      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
+        booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
-      providerInfo = Handlers.ProviderInfo;
+      stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
     }
   }
 }

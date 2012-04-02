@@ -7,12 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Orm;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Model;
-using Xtensive.Orm.Rse.Providers.Compilable;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Providers

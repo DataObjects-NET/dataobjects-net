@@ -9,14 +9,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Providers;
-using Xtensive.Sql;
-using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Helpers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Orm;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers
 {

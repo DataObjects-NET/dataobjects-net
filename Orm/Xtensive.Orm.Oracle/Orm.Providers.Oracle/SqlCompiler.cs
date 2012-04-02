@@ -6,13 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Orm.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Orm.Rse;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.Oracle
 {

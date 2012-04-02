@@ -4,14 +4,10 @@
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
-using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.SqlServerCe
 {

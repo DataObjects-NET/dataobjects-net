@@ -5,13 +5,11 @@
 // Created:    2009.02.13
 
 using System.Collections.Generic;
-using Xtensive.Collections;
-using Xtensive.Orm.Providers;
-using Xtensive.Sql;
-using Xtensive.Sql.Dml;
+using System.Linq;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
-using System.Linq;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.SqlServer
 {
