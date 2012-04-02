@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Services
     public DirectSqlAccessor(Session session)
       : base(session)
     {
-      service = session.Handler.GetService<IDirectSqlService>();
+      service = session.Services.Demand<IDirectSqlService>();
     }
   }
 }

@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Created context.</returns>
     public virtual Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
-      return new EnumerationContext(this, GetEnumerationContextOptions());
+      return new EnumerationContext(Session, GetEnumerationContextOptions());
     }
 
     /// <summary>
@@ -105,25 +105,6 @@ namespace Xtensive.Orm.Providers
     /// <param name="registry">The registry.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
     public abstract void Persist(EntityChangeRegistry registry, bool allowPartialExecution);
-
-    /// <summary>
-    /// Provides service for the specified <typeparamref name="TContract"/>.
-    /// </summary>
-    /// <typeparam name="TContract">Service contract</typeparam>
-    /// <returns>Service registered for the contract</returns>
-    /// <exception cref="NotSupportedException">Specified contract is not supported
-    /// by <see cref="SessionHandler"/>.</exception>
-    public TContract GetService<TContract>()
-      where TContract : class
-    {
-      var service = GetRealHandler() as TContract;
-      if (service!=null)
-        return service;
-      throw new NotSupportedException(string.Format(
-        "Service '{0}' is not supported by '{1}'",
-        typeof (TContract).GetShortName(),
-        typeof (SessionHandler).GetShortName()));
-    }
 
     #region IoC support (Domain.Services)
 

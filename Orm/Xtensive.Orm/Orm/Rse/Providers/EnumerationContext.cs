@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// The single enumeration attempt context for the <see cref="ExecutableProvider"/>.
   /// </summary>
   [Serializable]
-  public abstract class EnumerationContext: Context<EnumerationScope>
+  public abstract class EnumerationContext : Context<EnumerationScope>
   {
     private const string DefaultName = "Default";
 

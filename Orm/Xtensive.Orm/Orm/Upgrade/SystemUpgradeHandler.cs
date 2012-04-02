@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Upgrade
       var groups = BuildMetadata(session.Domain.Model);
       var driver = session.Handlers.StorageDriver;
       var mapping = new MetadataMapping(driver, session.Handlers.NameBuilder);
-      var executor = session.Handler.GetService<IProviderExecutor>();
+      var executor = session.Services.Demand<IProviderExecutor>();
       var resolver = UpgradeContext.Services.Resolver;
       var metadataSchema = UpgradeContext.Configuration.DefaultSchema;
       var sqlModel = UpgradeContext.ExtractedSqlModelCache;

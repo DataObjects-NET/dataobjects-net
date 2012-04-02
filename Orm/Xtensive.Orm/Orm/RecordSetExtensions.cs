@@ -55,11 +55,11 @@ namespace Xtensive.Orm
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, int primaryKeyIndex)
     {
-      var session = ((EnumerationContext)source.Context).SessionHandler.Session;
+      var session = ((EnumerationContext) source.Context).Session;
       var reader = session.Domain.RecordSetReader;
       foreach (var record in reader.Read(source, source.Header, session)) {
         var key = record.GetKey(primaryKeyIndex);
-        if (key == null)
+        if (key==null)
           continue;
         var tuple = record.GetTuple(primaryKeyIndex);
         if (tuple!=null)

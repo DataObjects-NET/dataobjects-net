@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
 
@@ -21,8 +20,6 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
-    private readonly EnumerationContextOptions options;
-
     private class EnumerationFinalizer : ICompletableScope
     {
       private readonly Queue<Action> finalizationQueue;
@@ -54,24 +51,25 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    private readonly EnumerationContextOptions options;
+
     /// <summary>
     /// Gets the session handler.
     /// </summary>
     /// <value>The session handler.</value>
-    public SessionHandler SessionHandler { get; private set; }
-
-    internal MaterializationContext MaterializationContext { get; set; }
+    public Session Session { get; private set; }
 
     /// <inheritdoc/>
     public override EnumerationContextOptions Options { get { return options; } }
 
+    internal MaterializationContext MaterializationContext { get; set; }
+
     /// <inheritdoc/>
     public override ICompletableScope BeginEnumeration()
     {
-      var session = SessionHandler.Session;
-      var tx = session.OpenAutoTransaction();
-      session.EnsureTransactionIsStarted();
-      if (MaterializationContext != null && MaterializationContext.MaterializationQueue != null)
+      var tx = Session.OpenAutoTransaction();
+      Session.EnsureTransactionIsStarted();
+      if (MaterializationContext!=null && MaterializationContext.MaterializationQueue!=null)
         return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, tx);
       return tx;
     }
@@ -95,7 +93,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateNew()
     {
-      return new EnumerationContext(SessionHandler, options);
+      return new EnumerationContext(Session, options);
     }
 
     /// <inheritdoc/>
@@ -110,11 +108,11 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="sessionHandler">The session handler.</param>
+    /// <param name="session">The session handler.</param>
     /// <param name="options">A value for <see cref="Options"/>.</param>
-    public EnumerationContext(SessionHandler sessionHandler, EnumerationContextOptions options)
+    public EnumerationContext(Session session, EnumerationContextOptions options)
     {
-      SessionHandler = sessionHandler;
+      Session = session;
       this.options = options;
     }
   }

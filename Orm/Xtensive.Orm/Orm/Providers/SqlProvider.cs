@@ -54,9 +54,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      var sessionContext = (EnumerationContext) context;
-      var sessionHandler = sessionContext.SessionHandler;
-      var executor = sessionHandler.GetService<IProviderExecutor>();
+      var storageContext = (EnumerationContext) context;
+      var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
       var enumerator = executor.ExecuteTupleReader(Request);
       using (enumerator) {
         while (enumerator.MoveNext()) {

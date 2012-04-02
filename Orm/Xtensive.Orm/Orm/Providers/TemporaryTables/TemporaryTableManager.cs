@@ -128,8 +128,7 @@ namespace Xtensive.Orm.Providers
     public IDisposable Acquire(EnumerationContext context, TemporaryTableDescriptor descriptor)
     {
       var name = descriptor.Name;
-      var sessionHandler = context.SessionHandler;
-      var session = sessionHandler.Session;
+      var session = context.Session;
       var registry = GetRegistry(session);
 
       bool isLocked;
@@ -190,7 +189,7 @@ namespace Xtensive.Orm.Providers
 
     protected void ExecuteNonQuery(EnumerationContext context, string statement)
     {
-      var executor = context.SessionHandler.Session.Services.Demand<ISqlExecutor>();
+      var executor = context.Session.Services.Demand<ISqlExecutor>();
       executor.ExecuteNonQuery(statement);
     }
 
