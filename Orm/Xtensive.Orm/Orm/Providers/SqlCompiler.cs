@@ -28,21 +28,17 @@ namespace Xtensive.Orm.Providers
   {
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
+    private readonly ProviderInfo providerInfo;
 
     /// <summary>
     /// Gets the SQL domain handler.
     /// </summary>
-    protected Providers.DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
+    protected DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
 
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
     protected StorageDriver Driver { get { return Handlers.StorageDriver; } }
-
-    /// <summary>
-    /// Gets the provider info.
-    /// </summary>
-    protected ProviderInfo ProviderInfo { get { return Handlers.ProviderInfo; } }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
@@ -491,6 +487,8 @@ namespace Xtensive.Orm.Providers
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
+
+      providerInfo = Handlers.ProviderInfo;
     }
   }
 }

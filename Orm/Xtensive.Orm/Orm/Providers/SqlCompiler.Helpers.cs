@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Providers
 
     protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression)
     {
-      return ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)
+      return providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)
         ? originalExpression
         : booleanExpressionConverter.BooleanToInt(originalExpression);
     }

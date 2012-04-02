@@ -26,14 +26,14 @@ namespace Xtensive.Orm.Providers
       switch (provider.SequenceType) {
       case ApplySequenceType.All:
         // apply is required
-        if (!ProviderInfo.Supports(ProviderFeatures.Apply))
+        if (!providerInfo.Supports(ProviderFeatures.Apply))
           throw new NotSupportedException();
         processViaCrossApply = true;
         break;
       case ApplySequenceType.First:
       case ApplySequenceType.FirstOrDefault:
         // apply is prefered but is not required
-        processViaCrossApply = ProviderInfo.Supports(ProviderFeatures.Apply);
+        processViaCrossApply = providerInfo.Supports(ProviderFeatures.Apply);
         break;
       case ApplySequenceType.Single:
       case ApplySequenceType.SingleOrDefault:

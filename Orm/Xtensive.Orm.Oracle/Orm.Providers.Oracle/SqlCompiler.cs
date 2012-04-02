@@ -16,7 +16,7 @@ using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.Oracle
 {
-  internal class SqlCompiler : ManualPagingSqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
     protected override string ProcessAliasedName(string name)
     {

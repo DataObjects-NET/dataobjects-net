@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace Xtensive.Orm.Providers.SqlServer
 {
-  internal class SqlCompiler : ManualPagingSqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
@@ -34,16 +34,6 @@ namespace Xtensive.Orm.Providers.SqlServer
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[1], SqlType.Double), "RANK");
       select.From = fromTableRef;
       return CreateProvider(select, binding, provider);
-    }
-
-    protected override SqlProvider VisitTake(TakeProvider provider)
-    {
-      var compiledSource = Compile(provider.Source);
-
-      var query = ExtractSqlSelect(provider, compiledSource);
-      var binding = CreateLimitOffsetParameterBinding(provider.Count);
-      query.Limit = binding.ParameterReference;
-      return CreateProvider(query, binding, provider, compiledSource);
     }
 
     protected override SqlExpression ProcessAggregate(
