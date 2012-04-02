@@ -26,6 +26,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
 
 using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.Providers;
 using EnumerationContext=Xtensive.Orm.Rse.Providers.EnumerationContext;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
@@ -185,8 +186,27 @@ namespace Xtensive.Orm
     {
       Persist(PersistReason.Query);
       ProcessDelayedQueries(true);
-//      EnsureTransactionIsStarted();
-      return Handler.CreateEnumerationContext();
+      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+    }
+
+    private EnumerationContextOptions GetEnumerationContextOptions()
+    {
+      var options = EnumerationContextOptions.None;
+      switch (Configuration.ReaderPreloading) {
+        case ReaderPreloadingPolicy.Auto:
+          bool marsSupported = Handlers.ProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets);
+          if (!marsSupported)
+            options |= EnumerationContextOptions.GreedyEnumerator;
+          break;
+        case ReaderPreloadingPolicy.Always:
+          options |= EnumerationContextOptions.GreedyEnumerator;
+          break;
+        case ReaderPreloadingPolicy.Never:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("Configuration.ReaderPreloading");
+      }
+      return options;
     }
 
     #endregion

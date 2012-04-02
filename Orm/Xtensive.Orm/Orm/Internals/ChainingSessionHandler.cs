@@ -144,12 +144,6 @@ namespace Xtensive.Orm.Internals
       return ChainedHandler.TryGetEntityState(key, out entityState);
     }
 
-    /// <inheritdoc/>
-    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
-    {
-      return ChainedHandler.CreateEnumerationContext();
-    }
-
 
     // Constructors
 

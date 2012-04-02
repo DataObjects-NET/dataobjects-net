@@ -52,41 +52,6 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <summary>
-    /// Creates enumeration context.
-    /// </summary>
-    /// <returns>Created context.</returns>
-    public virtual Rse.Providers.EnumerationContext CreateEnumerationContext()
-    {
-      return new EnumerationContext(Session, GetEnumerationContextOptions());
-    }
-
-    /// <summary>
-    /// Gets the enumeration context options.
-    /// </summary>
-    /// <returns>Options for new enumeration context.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><c>Session.Configuration.ReaderPreloading</c> is out of range.</exception>
-    protected virtual EnumerationContextOptions GetEnumerationContextOptions()
-    {
-      var options = (EnumerationContextOptions) 0;
-      switch (Session.Configuration.ReaderPreloading) {
-      case ReaderPreloadingPolicy.Auto:
-        bool marsSupported = Handlers.ProviderInfo
-          .Supports(ProviderFeatures.MultipleActiveResultSets);
-        if (!marsSupported)
-          options |= EnumerationContextOptions.GreedyEnumerator;
-        break;
-      case ReaderPreloadingPolicy.Always:
-        options |= EnumerationContextOptions.GreedyEnumerator;
-        break;
-      case ReaderPreloadingPolicy.Never:
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("Session.Configuration.ReaderPreloading");
-      }
-      return options;
-    }
-
-    /// <summary>
     /// Executes the specified query tasks.
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>

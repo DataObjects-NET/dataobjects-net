@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Xtensive.Sql;
 using Xtensive.Tuples;
@@ -134,6 +135,7 @@ namespace Xtensive.Orm.Providers
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       EnsureConnectionIsOpen();
+
       var nonBatchedTasks = new List<QueryTask>();
       foreach (var task in queryTasks) {
         var sqlProvider = task.DataSource as SqlProvider;
@@ -142,16 +144,18 @@ namespace Xtensive.Orm.Providers
         else
           nonBatchedTasks.Add(task);
       }
-      if (nonBatchedTasks.Count > 0) {
-        commandProcessor.ExecuteTasks();
-        foreach (var task in nonBatchedTasks) {
-          using (CreateEnumerationContext().Activate())
-          using (task.ParameterContext.ActivateSafely())
-            task.Result = task.DataSource.ToList();
-        }
-      }
-      else
+
+      if (nonBatchedTasks.Count==0) {
         commandProcessor.ExecuteTasks(allowPartialExecution);
+        return;
+      }
+
+      commandProcessor.ExecuteTasks();
+      foreach (var task in nonBatchedTasks) {
+        using (new EnumerationContext(Session).Activate())
+        using (task.ParameterContext.ActivateSafely())
+          task.Result = task.DataSource.ToList();
+      }
     }
 
     /// <inheritdoc/>

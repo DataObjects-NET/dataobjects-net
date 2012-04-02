@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
 
@@ -60,7 +59,7 @@ namespace Xtensive.Orm.Providers
     public Session Session { get; private set; }
 
     /// <inheritdoc/>
-    public override EnumerationContextOptions Options { get { return options; } }
+    protected override EnumerationContextOptions Options { get { return options; } }
 
     internal MaterializationContext MaterializationContext { get; set; }
 
@@ -91,12 +90,6 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override Rse.Providers.EnumerationContext CreateNew()
-    {
-      return new EnumerationContext(Session, options);
-    }
-
-    /// <inheritdoc/>
     protected override Rse.Providers.EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);
@@ -105,15 +98,16 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session handler.</param>
-    /// <param name="options">A value for <see cref="Options"/>.</param>
-    public EnumerationContext(Session session, EnumerationContextOptions options)
+    internal EnumerationContext(Session session, EnumerationContextOptions options)
     {
       Session = session;
+
       this.options = options;
+    }
+
+    internal EnumerationContext(Session session)
+    {
+      Session = session;
     }
   }
 }
