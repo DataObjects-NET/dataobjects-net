@@ -105,10 +105,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
           throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
 
         var parser = CreateMessageParser(connection);
-        if (version.Major == 9)
+        if (version.Major==9)
           return new v09.Driver(coreServerInfo, parser);
-
-        return new v10.Driver(coreServerInfo, parser);
+        if (version.Major==10)
+          return new v10.Driver(coreServerInfo, parser);
+        return new v11.Driver(coreServerInfo, parser);
       }
     }
   }

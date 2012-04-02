@@ -1079,6 +1079,11 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlSelect node)
     {
+      VisitSelectDefault(node);
+    }
+
+    public void VisitSelectDefault(SqlSelect node)
+    {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectHints(node);
@@ -1193,10 +1198,12 @@ namespace Xtensive.Sql.Compiler
       if (!node.Limit.IsNullReference()) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
         node.Limit.AcceptVisitor(this);
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.LimitEnd));
       }
       if (!node.Offset.IsNullReference()) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
         node.Offset.AcceptVisitor(this);
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.OffsetEnd));
       }
     }
 

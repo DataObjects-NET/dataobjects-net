@@ -206,6 +206,8 @@ namespace Xtensive.Sql.Compiler
     HintsExit = 9,
     Limit = 10,
     Offset = 11,
+    LimitEnd = 12,
+    OffsetEnd = 13,
   }
 
   public enum TableSection

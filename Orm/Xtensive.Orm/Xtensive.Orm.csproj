@@ -983,6 +983,10 @@
     <Compile Include="Sql\Drivers\SqlServer\v10\Translator.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\TypeMapper.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\TypeMappingCollection.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v11\Compiler.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v11\Driver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v11\ServerInfoProvider.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v11\Translator.cs" />
     <Compile Include="Sql\Info\ColumnFeatures.cs" />
     <Compile Include="Sql\Info\ColumnInfo.cs" />
     <Compile Include="Sql\Info\Constaints\AssertConstraintInfo.cs" />
