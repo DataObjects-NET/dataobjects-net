@@ -91,14 +91,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
-    public virtual void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
-    {
-      foreach (var task in queryTasks) {
-        using (CreateEnumerationContext().Activate())
-        using (task.ParameterContext.ActivateSafely())
-          task.Result = task.DataSource.ToList();
-      }
-    }
+    public abstract void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution);
 
     /// <summary>
     /// Sets command timeout for all <see cref="IDbCommand"/> created within current instance.

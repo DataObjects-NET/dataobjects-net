@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals;
+using Xtensive.Parameters;
 using Xtensive.Sql;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -142,7 +144,11 @@ namespace Xtensive.Orm.Providers
       }
       if (nonBatchedTasks.Count > 0) {
         commandProcessor.ExecuteTasks();
-        base.ExecuteQueryTasks(nonBatchedTasks, allowPartialExecution);
+        foreach (var task in nonBatchedTasks) {
+          using (CreateEnumerationContext().Activate())
+          using (task.ParameterContext.ActivateSafely())
+            task.Result = task.DataSource.ToList();
+        }
       }
       else
         commandProcessor.ExecuteTasks(allowPartialExecution);
