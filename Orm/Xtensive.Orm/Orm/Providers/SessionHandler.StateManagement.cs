@@ -16,57 +16,23 @@ namespace Xtensive.Orm.Providers
   {
     internal virtual bool LookupState(Key key, out EntityState entityState)
     {
-      return LookupStateInCache(key, out entityState);
+      return Session.LookupStateInCache(key, out entityState);
     }
 
     internal virtual bool LookupState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
-      return LookupStateInCache(key, fieldInfo, out entitySetState);
+      return Session.LookupStateInCache(key, fieldInfo, out entitySetState);
     }
 
     internal virtual EntityState UpdateState(Key key, Tuple tuple)
     {
-      return UpdateStateInCache(key, tuple);
+      return Session.UpdateStateInCache(key, tuple);
     }
 
     internal virtual EntitySetState UpdateState(Key key, FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
     {
-      return UpdateStateInCache(key, fieldInfo, entityKeys, isFullyLoaded);
-    }
-
-    protected bool LookupStateInCache(Key key, out EntityState entityState)
-    {
-      return Session.EntityStateCache.TryGetItem(key, true, out entityState);
-    }
-
-    protected bool LookupStateInCache(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
-    {
-      var entityState = Session.EntityStateCache[key, false];
-      if (entityState!=null) {
-        var entity = entityState.Entity;
-        if (entity!=null) {
-          var entitySet = (EntitySetBase) entity.GetFieldValue(fieldInfo);
-          if (entitySet.CheckStateIsLoaded()) {
-            entitySetState = entitySet.State;
-            return true;
-          }
-        }
-      }
-      entitySetState = null;
-      return false;
-    }
-
-    protected EntityState UpdateStateInCache(Key key, Tuple tuple)
-    {
-      return Session.UpdateEntityState(key, tuple);
-    }
-
-    protected EntitySetState UpdateStateInCache(Key key, FieldInfo fieldInfo, IEnumerable<Key> entityKeys, bool isFullyLoaded)
-    {
-      if (Session.EntityStateCache[key, false]==null)
-        return null;
-      return Session.UpdateEntitySetState(key, fieldInfo, entityKeys, isFullyLoaded);
+      return Session.UpdateStateInCache(key, fieldInfo, entityKeys, isFullyLoaded);
     }
   }
 }

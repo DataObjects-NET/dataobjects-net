@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select *
           CompilableProvider rsMain = ii.GetQuery();
-          session.UpdateCache(rsMain.GetRecordSet(session));
+          UpdateCache(session, rsMain.GetRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select Id, TypeId, Title
           CompilableProvider rsTitle = rsMain.Select(0, 1, 2);
-          session.UpdateCache(rsTitle.GetRecordSet(session));
+          UpdateCache(session, rsTitle.GetRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select Id, TypeId, Text
           CompilableProvider rsText = rsMain.Select(0, 1, 3);
-          session.UpdateCache(rsText.GetRecordSet(session));
+          UpdateCache(session, rsText.GetRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
@@ -74,12 +74,28 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
-          session.UpdateCache(rsJoin.GetRecordSet(session));
+          UpdateCache(session, rsJoin.GetRecordSet(session));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
           Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
           ResetState(state);
+        }
+      }
+    }
+
+    private void UpdateCache(Session session, RecordSet source)
+    {
+      var reader = Domain.RecordSetReader;
+      foreach (var record in reader.Read(source, source.Header, session)) {
+        for (int i = 0; i < record.Count; i++) {
+          var key = record.GetKey(i);
+          if (key==null)
+            continue;
+          var tuple = record.GetTuple(i);
+          if (tuple==null)
+            continue;
+          session.UpdateStateInCache(key, tuple);
         }
       }
     }

@@ -154,13 +154,13 @@ namespace Xtensive.Orm.Disconnected
 
     internal override bool LookupState(Key key, out EntityState entityState)
     {
-      if (LookupStateInCache(key, out entityState))
+      if (Session.LookupStateInCache(key, out entityState))
         return true;
       
       var cachedEntityState = disconnectedState.GetEntityState(key);
       if (cachedEntityState!=null && cachedEntityState.IsLoadedOrRemoved) {
         var tuple = cachedEntityState.Tuple!=null ? cachedEntityState.Tuple.Clone() : null;
-        entityState = UpdateStateInCache(key, tuple);
+        entityState = Session.UpdateStateInCache(key, tuple);
         return true;
       }
       entityState = null;
@@ -169,13 +169,13 @@ namespace Xtensive.Orm.Disconnected
 
     internal override bool LookupState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
-      if (LookupStateInCache(key, fieldInfo, out entitySetState))
+      if (Session.LookupStateInCache(key, fieldInfo, out entitySetState))
         return true;
       
       var cachedState = disconnectedState.GetEntityState(key);
       if (cachedState!=null) {
         var setState = cachedState.GetEntitySetState(fieldInfo);
-        entitySetState = UpdateStateInCache(key, fieldInfo, setState.Items.Keys, setState.IsFullyLoaded);
+        entitySetState = Session.UpdateStateInCache(key, fieldInfo, setState.Items.Keys, setState.IsFullyLoaded);
         return true;
       }
       entitySetState = null;
@@ -194,9 +194,9 @@ namespace Xtensive.Orm.Disconnected
       }
 
       if (cachedEntityState==null || cachedEntityState.IsRemoved || cachedEntityState.Tuple == null)
-        return UpdateStateInCache(key, null);
-      
-      var entityState = UpdateStateInCache(cachedEntityState.Key, cachedEntityState.Tuple.Clone());
+        return Session.UpdateStateInCache(key, null);
+
+      var entityState = Session.UpdateStateInCache(cachedEntityState.Key, cachedEntityState.Tuple.Clone());
       
       // Fetch version roots
       if (entityState.Type.HasVersionRoots) {
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Disconnected
       var cachedState = disconnectedState.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entityKeys, auxEntities);
       
       // Update session cache
-      return UpdateStateInCache(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
+      return Session.UpdateStateInCache(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
     }
 
     /// <inheritdoc/>
@@ -235,7 +235,7 @@ namespace Xtensive.Orm.Disconnected
         Tuple tuple = null;
         if (!cachedState.IsRemoved && cachedState.Tuple!=null) 
           tuple = cachedState.Tuple.Clone();
-        var entityState = Session.UpdateEntityState(cachedState.Key, tuple, true);
+        var entityState = Session.UpdateStateInCache(cachedState.Key, tuple, true);
         return cachedState.IsRemoved ? null : entityState;
       }
 

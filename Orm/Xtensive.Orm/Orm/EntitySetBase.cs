@@ -137,10 +137,9 @@ namespace Xtensive.Orm
       if (key==null || !Field.ItemType.IsAssignableFrom(key.TypeInfo.UnderlyingType))
         return false;
 
-      var entityState = Session.EntityStateCache[key, true];
-      if (entityState != null) {
+      EntityState entityState;
+      if (Session.LookupStateInCache(key, out entityState))
         return Contains(key, entityState.TryGetEntity());
-      }
       return Contains(key, null);
     }
 

@@ -144,21 +144,18 @@ namespace Xtensive.Orm
     /// </returns>
     public Entity SingleOrDefault(Key key)
     {
-      if (key == null)
+      if (key==null)
         return null;
       Entity result;
       using (var tx = session.OpenAutoTransaction()) {
-        var cache = session.EntityStateCache;
-        var state = cache[key, true];
-
-        if (state == null) {
+        EntityState state;
+        if (!session.LookupStateInCache(key, out state)) {
           if (session.IsDebugEventLoggingEnabled)
-            LogTemplate<Log>.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key,
-                                   key.HasExactType ? Strings.Known : Strings.Unknown);
+            Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
           state = session.Handler.FetchEntityState(key);
         }
-
-        if (state == null || state.IsNotAvailableOrMarkedAsRemoved || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType))
+        if (state==null || state.IsNotAvailableOrMarkedAsRemoved
+          || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType))
           // No state or Tuple = null or incorrect query type => no data in storage
           result = null;
         else
