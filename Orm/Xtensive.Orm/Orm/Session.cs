@@ -440,8 +440,7 @@ namespace Xtensive.Orm
       if (isDisposed)
         return;
       try {
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXDisposing, this);
+        Log.Debug(Strings.LogSessionXDisposing, this);
         
         SystemEvents.NotifyDisposing();
         Events.NotifyDisposing();

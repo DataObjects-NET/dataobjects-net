@@ -150,8 +150,7 @@ namespace Xtensive.Orm
       using (var tx = session.OpenAutoTransaction()) {
         EntityState state;
         if (!session.LookupStateInCache(key, out state)) {
-          if (session.IsDebugEventLoggingEnabled)
-            Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
+          Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
           state = session.Handler.FetchEntityState(key);
         }
         if (state==null || state.IsNotAvailableOrMarkedAsRemoved

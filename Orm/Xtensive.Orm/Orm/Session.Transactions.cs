@@ -202,8 +202,7 @@ namespace Xtensive.Orm
 
     internal void CommitTransaction(Transaction transaction)
     {
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCommittingTransaction, this);
+      Log.Debug(Strings.LogSessionXCommittingTransaction, this);
       
       SystemEvents.NotifyTransactionPrecommitting(transaction);
       Events.NotifyTransactionPrecommitting(transaction);
@@ -225,8 +224,7 @@ namespace Xtensive.Orm
     internal void RollbackTransaction(Transaction transaction)
     {
       try {
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollingBackTransaction, this);
+        Log.Debug(Strings.LogSessionXRollingBackTransaction, this);
         SystemEvents.NotifyTransactionRollbacking(transaction);
         Events.NotifyTransactionRollbacking(transaction);
       }
@@ -258,14 +256,12 @@ namespace Xtensive.Orm
 
       switch (transaction.State) {
       case TransactionState.Committed:
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCommittedTransaction, this);
+        Log.Debug(Strings.LogSessionXCommittedTransaction, this);
         SystemEvents.NotifyTransactionCommitted(transaction);
         Events.NotifyTransactionCommitted(transaction);
         break;
       case TransactionState.RolledBack:
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
+        Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
         SystemEvents.NotifyTransactionRollbacked(transaction);
         Events.NotifyTransactionRollbacked(transaction);
         break;
@@ -340,8 +336,7 @@ namespace Xtensive.Orm
 
     private TransactionScope OpenTransactionScope(Transaction transaction)
     {
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXOpeningTransaction, this);
+      Log.Debug(Strings.LogSessionXOpeningTransaction, this);
       
       SystemEvents.NotifyTransactionOpening(transaction);
       Events.NotifyTransactionOpening(transaction);

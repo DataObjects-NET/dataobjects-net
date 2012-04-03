@@ -58,9 +58,7 @@ namespace Xtensive.Orm.Operations
       KeyByIdentifier.Add(identifier, key);
       IdentifierByKey.Add(key, identifier);
 
-      if (Owner.Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXEntityWithKeyYIdentifiedAsZ,
-          Owner.Session, key, identifier);
+      Log.Debug(Strings.LogSessionXEntityWithKeyYIdentifiedAsZ, Owner.Session, key, identifier);
     }
 
     

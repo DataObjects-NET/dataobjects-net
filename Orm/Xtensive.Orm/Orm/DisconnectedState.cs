@@ -249,15 +249,13 @@ namespace Xtensive.Orm
       if (IsConnected)
         return null;
       
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXDisconnectedStateConnect, Session);
+      Log.Debug(Strings.LogSessionXDisconnectedStateConnect, Session);
       ConnectInternal();
 
       return new Disposable(disposing => {
         if (!IsConnected)
           return;
-        if (Session.IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXDisconnectedStateDisconnect, Session);
+        Log.Debug(Strings.LogSessionXDisconnectedStateDisconnect, Session);
         DisconnectInternal();
       });
     }
@@ -320,10 +318,8 @@ namespace Xtensive.Orm
             }
             tx.Complete();
           }
-          if (targetSession.IsDebugEventLoggingEnabled) {
-            Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
-            Log.Debug("{0}", keyMapping);
-          }
+          Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
+          Log.Debug("{0}", keyMapping);
         }
         finally {
           disposable.DisposeSafely();

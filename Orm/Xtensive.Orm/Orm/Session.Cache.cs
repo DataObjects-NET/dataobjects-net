@@ -24,8 +24,7 @@ namespace Xtensive.Orm
 
     internal void Invalidate()
     {
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXInvalidate, this);
+      Log.Debug(Strings.LogSessionXInvalidate, this);
 
       ClearChangeRegistry();
       InvalidateCachedEntities();
@@ -53,8 +52,7 @@ namespace Xtensive.Orm
       using (Activate()) {
         Persist(PersistReason.RemapEntityKeys);
         Invalidate();
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);
+        Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);
         var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
         EntityStateCache.Clear();
         foreach (var pair in oldCacheContent) {
@@ -110,8 +108,7 @@ namespace Xtensive.Orm
       };
       EntityStateCache.Add(result);
 
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCachingY, this, result);
+      Log.Debug(Strings.LogSessionXCachingY, this, result);
       return;
     }
 
@@ -154,8 +151,7 @@ namespace Xtensive.Orm
         result.PersistenceState = PersistenceState.New;
       }
 
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCachingY, this, result);
+      Log.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
     }
 
@@ -203,8 +199,7 @@ namespace Xtensive.Orm
         }
         result.Update(tuple);
         result.IsStale = isStale;
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
+        Log.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
       }
       return result;
     }
@@ -233,8 +228,7 @@ namespace Xtensive.Orm
         PersistenceState = PersistenceState.Synchronized
       };
       EntityStateCache.Add(result);
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCachingY, this, result);
+      Log.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
     }
 
