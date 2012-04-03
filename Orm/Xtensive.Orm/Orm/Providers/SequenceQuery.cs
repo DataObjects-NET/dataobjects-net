@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Providers
 {
@@ -15,6 +14,8 @@ namespace Xtensive.Orm.Providers
     public string InsertQuery { get; private set; }
 
     public string SelectQuery { get; private set; }
+
+    public bool RequiresSeparateSession { get; private set; }
 
     public long ExecuteWith(ISqlExecutor sqlExecutor)
     {
@@ -25,19 +26,21 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public SequenceQuery(string insertQuery, string selectQuery)
+    public SequenceQuery(string insertQuery, string selectQuery, bool requiresSeparateSession)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(insertQuery, "insertQuery");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
 
       InsertQuery = insertQuery;
       SelectQuery = selectQuery;
+      RequiresSeparateSession = requiresSeparateSession;
     }
 
-    public SequenceQuery(string selectQuery)
+    public SequenceQuery(string selectQuery, bool requiresSeparateSession)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
       SelectQuery = selectQuery;
+      RequiresSeparateSession = requiresSeparateSession;
     }
   }
 }

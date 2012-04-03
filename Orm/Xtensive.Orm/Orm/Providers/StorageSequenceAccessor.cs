@@ -27,29 +27,33 @@ namespace Xtensive.Orm.Providers
     private readonly Domain domain;
 
     /// <inheritdoc/>
-    public Segment<long> NextBulk(SequenceInfo sequenceInfo)
+    public Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session)
     {
       var generatorNode = GetGeneratorNode(sequenceInfo);
       var query = queryBuilder.Build(generatorNode, sequenceInfo.Increment);
 
       long hiValue;
 
-      if (UpgradeContext.Current!=null) {
-        hiValue = query.ExecuteWith(Session.Demand().Services.Demand<ISqlExecutor>());
-      }
-      else {
-        using (var session = domain.OpenSession(SessionType.KeyGenerator))
-        using (session.OpenTransaction()) {
-          var executor = session.Services.Demand<ISqlExecutor>();
-          hiValue = query.ExecuteWith(executor);
-          // Rollback
-        }
-      }
+      if (UpgradeContext.Current==null && query.RequiresSeparateSession)
+        hiValue = ExecuteInKeyGeneratorSession(query);
+      else
+        hiValue = query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
 
       var increment = sequenceInfo.Increment;
       var current = hasArbitaryIncrement ? hiValue - increment : (hiValue - 1) * increment;
 
       return new Segment<long>(current + 1, increment);
+    }
+
+    private long ExecuteInKeyGeneratorSession(SequenceQuery query)
+    {
+      long result;
+      using (var session = domain.OpenSession(SessionType.KeyGenerator))
+      using (session.OpenTransaction()) {
+        result = query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
+        // Rollback
+      }
+      return result;
     }
 
     private SchemaNode GetGeneratorNode(SequenceInfo sequenceInfo)

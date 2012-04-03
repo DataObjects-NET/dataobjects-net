@@ -25,15 +25,17 @@ namespace Xtensive.Orm.Providers
         ? GetSequenceBasedNextImplementation(generatorNode, increment)
         : GetTableBasedNextImplementation(generatorNode);
 
+      var requiresSeparateSession = !hasSequences;
       var batch = sqlNext as SqlBatch;
       if (batch==null || hasBatches)
         // There are batches or there is single statement, so we can run this as a single request
-        return new SequenceQuery(driver.Compile(sqlNext).GetCommandText());
+        return new SequenceQuery(driver.Compile(sqlNext).GetCommandText(), requiresSeparateSession);
 
       // No batches, so we must execute this manually
       return new SequenceQuery(
         driver.Compile((ISqlCompileUnit) batch[0]).GetCommandText(),
-        driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText());
+        driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText(),
+        requiresSeparateSession);
     }
 
     private ISqlCompileUnit GetSequenceBasedNextImplementation(SchemaNode generatorNode, long increment)

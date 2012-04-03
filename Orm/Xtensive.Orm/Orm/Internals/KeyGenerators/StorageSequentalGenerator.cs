@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
       TValue keyValue;
       lock (syncRoot) {
         if (cachedValues.Count==0)
-          CacheValues(keyInfo.Sequence);
+          CacheValues(keyInfo.Sequence, session);
         keyValue = cachedValues.Dequeue();
       }
       var keyTuple = prototype.CreateNew();
@@ -44,10 +44,10 @@ namespace Xtensive.Orm.Internals.KeyGenerators
       return keyTuple;
     }
 
-    private void CacheValues(SequenceInfo sequenceInfo)
+    private void CacheValues(SequenceInfo sequenceInfo, Session session)
     {
       var accessor = domain.Services.Get<IStorageSequenceAccessor>();
-      var values = accessor.NextBulk(sequenceInfo);
+      var values = accessor.NextBulk(sequenceInfo, session);
       var current = (TValue) Convert.ChangeType(values.Offset, typeof (TValue));
       for (int i = 0; i < values.Length; i++) {
         cachedValues.Enqueue(current);

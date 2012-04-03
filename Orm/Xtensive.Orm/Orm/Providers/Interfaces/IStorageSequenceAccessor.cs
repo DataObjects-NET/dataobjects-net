@@ -18,7 +18,8 @@ namespace Xtensive.Orm.Providers
     /// Gets next range of sequental values.
     /// </summary>
     /// <param name="sequenceInfo">Sequence that should be used.</param>
+    /// <param name="session">Current session.</param>
     /// <returns>Next range of sequental value.</returns>
-    Segment<long> NextBulk(SequenceInfo sequenceInfo);
+    Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session);
   }
 }
