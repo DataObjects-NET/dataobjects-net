@@ -152,37 +152,37 @@ namespace Xtensive.Orm.Disconnected
 
     #endregion
 
-    internal override bool TryGetEntityState(Key key, out EntityState entityState)
+    internal override bool LookupState(Key key, out EntityState entityState)
     {
-      if (TryGetEntityStateFromSessionCache(key, out entityState))
+      if (LookupStateInCache(key, out entityState))
         return true;
       
       var cachedEntityState = disconnectedState.GetEntityState(key);
       if (cachedEntityState!=null && cachedEntityState.IsLoadedOrRemoved) {
         var tuple = cachedEntityState.Tuple!=null ? cachedEntityState.Tuple.Clone() : null;
-        entityState = UpdateEntityStateInSessionCache(key, tuple, true);
+        entityState = UpdateStateInCache(key, tuple);
         return true;
       }
       entityState = null;
       return false;
     }
 
-    internal override bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
+    internal override bool LookupState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
-      if (TryGetEntitySetStateFromSessionCache(key, fieldInfo, out entitySetState))
+      if (LookupStateInCache(key, fieldInfo, out entitySetState))
         return true;
       
       var cachedState = disconnectedState.GetEntityState(key);
       if (cachedState!=null) {
         var setState = cachedState.GetEntitySetState(fieldInfo);
-        entitySetState = UpdateEntitySetStateInSessionCache(key, fieldInfo, setState.Items.Keys, setState.IsFullyLoaded);
+        entitySetState = UpdateStateInCache(key, fieldInfo, setState.Items.Keys, setState.IsFullyLoaded);
         return true;
       }
       entitySetState = null;
       return false;
     }
 
-    internal override EntityState RegisterEntityState(Key key, Tuple tuple)
+    internal override EntityState UpdateState(Key key, Tuple tuple)
     {
       var cachedEntityState = tuple==null 
         ? disconnectedState.GetEntityState(key) 
@@ -194,9 +194,9 @@ namespace Xtensive.Orm.Disconnected
       }
 
       if (cachedEntityState==null || cachedEntityState.IsRemoved || cachedEntityState.Tuple == null)
-        return UpdateEntityStateInSessionCache(key, null, true);
+        return UpdateStateInCache(key, null);
       
-      var entityState = UpdateEntityStateInSessionCache(cachedEntityState.Key, cachedEntityState.Tuple.Clone(), true);
+      var entityState = UpdateStateInCache(cachedEntityState.Key, cachedEntityState.Tuple.Clone());
       
       // Fetch version roots
       if (entityState.Type.HasVersionRoots) {
@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Disconnected
       return entityState;
     }
 
-    internal override EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo,
+    internal override EntitySetState UpdateState(Key key, FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
     {
       var cachedOwner = disconnectedState.GetEntityState(key);
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Disconnected
       var cachedState = disconnectedState.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entityKeys, auxEntities);
       
       // Update session cache
-      return UpdateEntitySetStateInSessionCache(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
+      return UpdateStateInCache(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
     }
 
     /// <inheritdoc/>
@@ -248,7 +248,7 @@ namespace Xtensive.Orm.Disconnected
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
         ExecutePrefetchTasks(true);
         EntityState result;
-        return TryGetEntityState(key, out result) ? result : null;
+        return LookupState(key, out result) ? result : null;
       }
 
       // If state unknown return null

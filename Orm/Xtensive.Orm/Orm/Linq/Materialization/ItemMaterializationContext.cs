@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq.Materialization
       }
       if (accuracy==TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
-        var entityState = Session.Handler.RegisterEntityState(key, entityTuple);
+        var entityState = Session.Handler.UpdateState(key, entityTuple);
         result = entityState.Entity;
       }
       else {

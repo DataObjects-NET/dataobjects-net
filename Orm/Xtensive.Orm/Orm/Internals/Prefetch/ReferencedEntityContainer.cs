@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         return Task;
 
       EntityState ownerState;
-      var isStateCached = Manager.Owner.TryGetEntityState(ownerKey, out ownerState);
+      var isStateCached = Manager.Owner.LookupState(ownerKey, out ownerState);
       if (isStateCached) {
         if (ownerState == null)
           return null;

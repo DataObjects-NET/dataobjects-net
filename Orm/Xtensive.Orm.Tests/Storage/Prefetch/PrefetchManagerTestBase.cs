@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Session session)
     {
       EntitySetState state;
-      Assert.IsTrue(session.Handler.TryGetEntitySetState(key, field, out state));
+      Assert.IsTrue(session.Handler.LookupState(key, field, out state));
       Assert.AreEqual(count, state.Count());
       Assert.AreEqual(isFullyLoaded, state.IsFullyLoaded);
     }

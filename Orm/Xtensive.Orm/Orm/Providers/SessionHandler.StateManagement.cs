@@ -6,43 +6,41 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Orm;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
   partial class SessionHandler
   {
-    internal virtual bool TryGetEntityState(Key key, out EntityState entityState)
+    internal virtual bool LookupState(Key key, out EntityState entityState)
     {
-      return TryGetEntityStateFromSessionCache(key, out entityState);
+      return LookupStateInCache(key, out entityState);
     }
 
-    internal virtual bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
+    internal virtual bool LookupState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
-      return TryGetEntitySetStateFromSessionCache(key, fieldInfo, out entitySetState);
+      return LookupStateInCache(key, fieldInfo, out entitySetState);
     }
 
-    internal virtual EntityState RegisterEntityState(Key key, Tuple tuple)
+    internal virtual EntityState UpdateState(Key key, Tuple tuple)
     {
-      return UpdateEntityStateInSessionCache(key, tuple, false);
+      return UpdateStateInCache(key, tuple);
     }
 
-    internal virtual EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo,
+    internal virtual EntitySetState UpdateState(Key key, FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
     {
-      return UpdateEntitySetStateInSessionCache(key, fieldInfo, entityKeys, isFullyLoaded);
+      return UpdateStateInCache(key, fieldInfo, entityKeys, isFullyLoaded);
     }
 
-    public bool TryGetEntityStateFromSessionCache(Key key, out EntityState entityState)
+    internal bool LookupStateInCache(Key key, out EntityState entityState)
     {
       return Session.EntityStateCache.TryGetItem(key, true, out entityState);
     }
 
-    public bool TryGetEntitySetStateFromSessionCache(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
+    internal bool LookupStateInCache(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
       var entityState = Session.EntityStateCache[key, false];
       if (entityState!=null) {
@@ -59,12 +57,12 @@ namespace Xtensive.Orm.Providers
       return false;
     }
 
-    public EntityState UpdateEntityStateInSessionCache(Key key, Tuple tuple, bool isStale)
+    internal EntityState UpdateStateInCache(Key key, Tuple tuple)
     {
       return Session.UpdateEntityState(key, tuple);
     }
 
-    public EntitySetState UpdateEntitySetStateInSessionCache(Key key, FieldInfo fieldInfo, IEnumerable<Key> entityKeys, bool isFullyLoaded)
+    internal EntitySetState UpdateStateInCache(Key key, FieldInfo fieldInfo, IEnumerable<Key> entityKeys, bool isFullyLoaded)
     {
       if (Session.EntityStateCache[key, false]==null)
         return null;

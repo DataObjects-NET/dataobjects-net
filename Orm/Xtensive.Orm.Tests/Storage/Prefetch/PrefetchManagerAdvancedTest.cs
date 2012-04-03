@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         Assert.AreEqual(1, graphContainers.Count);
         prefetchManager.ExecuteTasks(true);
         EntitySetState actualState;
-        session.Handler.TryGetEntitySetState(orderKey, DetailsField, out actualState);
+        session.Handler.LookupState(orderKey, DetailsField, out actualState);
         Assert.AreEqual(0, actualState.TotalItemCount);
         Assert.IsTrue(actualState.IsFullyLoaded);
       }
@@ -307,7 +307,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchManager.ExecuteTasks(true);
         EntitySetState entitySetState;
-        Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, DetailsField, out entitySetState));
+        Assert.IsTrue(session.Handler.LookupState(orderKey, DetailsField, out entitySetState));
         Assert.IsTrue(entitySetState.IsFullyLoaded);
       }
 
@@ -318,7 +318,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchManager.ExecuteTasks(true);
         EntitySetState entitySetState;
-        Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, DetailsField, out entitySetState));
+        Assert.IsTrue(session.Handler.LookupState(orderKey, DetailsField, out entitySetState));
         Assert.AreEqual(2, entitySetState.Count());
         Assert.IsFalse(entitySetState.IsFullyLoaded);
       }

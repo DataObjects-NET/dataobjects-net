@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           CollectGarbadge();
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, orderType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
-          session.Handler.TryGetEntitySetState(order.Key, detailsField, out state);
+          session.Handler.LookupState(order.Key, detailsField, out state);
           Assert.IsTrue(state.IsFullyLoaded);
           foreach (var detailKey in state) {
             Assert.IsTrue(detailKey.HasExactType);

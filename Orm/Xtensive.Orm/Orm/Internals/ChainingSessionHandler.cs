@@ -122,26 +122,26 @@ namespace Xtensive.Orm.Internals
       ChainedHandler.FetchEntitySet(ownerKey, field, itemCountLimit);
     }
 
-    internal override EntitySetState RegisterEntitySetState(Key key, Model.FieldInfo fieldInfo,
+    internal override EntitySetState UpdateState(Key key, Model.FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {
-      return ChainedHandler.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
+      return ChainedHandler.UpdateState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
     }
 
-    internal override EntityState RegisterEntityState(Key key, Tuple tuple)
+    internal override EntityState UpdateState(Key key, Tuple tuple)
     {
-      return ChainedHandler.RegisterEntityState(key, tuple);
+      return ChainedHandler.UpdateState(key, tuple);
     }
 
-    internal override bool TryGetEntitySetState(Key key, Model.FieldInfo fieldInfo,
+    internal override bool LookupState(Key key, Model.FieldInfo fieldInfo,
       out EntitySetState entitySetState)
     {
-      return ChainedHandler.TryGetEntitySetState(key, fieldInfo, out entitySetState);
+      return ChainedHandler.LookupState(key, fieldInfo, out entitySetState);
     }
 
-    internal override bool TryGetEntityState(Key key, out EntityState entityState)
+    internal override bool LookupState(Key key, out EntityState entityState)
     {
-      return ChainedHandler.TryGetEntityState(key, out entityState);
+      return ChainedHandler.LookupState(key, out entityState);
     }
 
 

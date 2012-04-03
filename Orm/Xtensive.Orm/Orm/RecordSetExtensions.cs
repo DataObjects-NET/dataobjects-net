@@ -63,7 +63,7 @@ namespace Xtensive.Orm
           continue;
         var tuple = record.GetTuple(primaryKeyIndex);
         if (tuple!=null)
-          yield return session.Handler.RegisterEntityState(key, tuple).Entity;
+          yield return session.Handler.UpdateState(key, tuple).Entity;
         else
           yield return session.Query.SingleOrDefault(key);
       }
@@ -88,7 +88,7 @@ namespace Xtensive.Orm
           continue;
         var tuple = record.GetTuple(primaryKeyIndex);
         if (tuple!=null)
-          yield return session.Handler.RegisterEntityState(key, tuple).Entity;
+          yield return session.Handler.UpdateState(key, tuple).Entity;
         else
           yield return session.Query.SingleOrDefault(key);
       }

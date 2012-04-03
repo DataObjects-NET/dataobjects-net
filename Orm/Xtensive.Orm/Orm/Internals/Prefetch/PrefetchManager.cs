@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     public EntityState GetCachedEntityState(ref Key key, out bool isRemoved)
     {
       EntityState cachedState;
-      if (Owner.TryGetEntityState(key, out cachedState)) {
+      if (Owner.LookupState(key, out cachedState)) {
         if (cachedState == null) {
           isRemoved = false;
           return null;
