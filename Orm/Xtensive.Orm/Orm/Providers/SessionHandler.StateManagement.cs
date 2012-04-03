@@ -35,12 +35,12 @@ namespace Xtensive.Orm.Providers
       return UpdateStateInCache(key, fieldInfo, entityKeys, isFullyLoaded);
     }
 
-    internal bool LookupStateInCache(Key key, out EntityState entityState)
+    protected bool LookupStateInCache(Key key, out EntityState entityState)
     {
       return Session.EntityStateCache.TryGetItem(key, true, out entityState);
     }
 
-    internal bool LookupStateInCache(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
+    protected bool LookupStateInCache(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
       var entityState = Session.EntityStateCache[key, false];
       if (entityState!=null) {
@@ -57,12 +57,12 @@ namespace Xtensive.Orm.Providers
       return false;
     }
 
-    internal EntityState UpdateStateInCache(Key key, Tuple tuple)
+    protected EntityState UpdateStateInCache(Key key, Tuple tuple)
     {
       return Session.UpdateEntityState(key, tuple);
     }
 
-    internal EntitySetState UpdateStateInCache(Key key, FieldInfo fieldInfo, IEnumerable<Key> entityKeys, bool isFullyLoaded)
+    protected EntitySetState UpdateStateInCache(Key key, FieldInfo fieldInfo, IEnumerable<Key> entityKeys, bool isFullyLoaded)
     {
       if (Session.EntityStateCache[key, false]==null)
         return null;
