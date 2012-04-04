@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
     protected override SqlProvider VisitTake(TakeProvider provider)
     {
       if (providerInfo.Supports(ProviderFeatures.NativeTake))
-        return VisitTakeNative(provider);
+        return VisitPagingNative(provider, provider.Count, null);
       if (providerInfo.Supports(ProviderFeatures.RowNumber))
         return VisitTakeRowNumber(provider);
       throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, "Take"));
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
     protected override SqlProvider VisitSkip(SkipProvider provider)
     {
       if (providerInfo.Supports(ProviderFeatures.NativeSkip))
-        return VisitSkipNative(provider);
+        return VisitPagingNative(provider, null, provider.Count);
       if (providerInfo.Supports(ProviderFeatures.RowNumber))
         return VisitSkipRowNumber(provider);
       throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, "Skip"));
@@ -40,58 +40,43 @@ namespace Xtensive.Orm.Providers
     protected override SqlProvider VisitPaging(PagingProvider provider)
     {
       if (providerInfo.Supports(ProviderFeatures.NativePaging))
-        return VisitPagingNative(provider);
+        return VisitPagingNative(provider, provider.Take, provider.Skip);
       if (providerInfo.Supports(ProviderFeatures.RowNumber))
         return VisitPagingRowNumber(provider);
       throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, "Take/Skip"));
     }
 
-    private SqlProvider VisitTakeNative(TakeProvider provider)
+    private SqlProvider VisitPagingNative(UnaryProvider provider, Func<int> take, Func<int> skip)
     {
       var compiledSource = Compile(provider.Source);
-
       var query = ExtractSqlSelect(provider, compiledSource);
-      var binding = CreateLimitOffsetParameterBinding(provider.Count);
-      query.Limit = binding.ParameterReference;
-      // For SQL Server / SQL Server CE which support take but not skip
-      // AddOrderByStatement below leads to incorrect queries
-      // because "order by" is already added at different place.
-      // Corresponding check in VisitSkipNative() is not required
-      // because there are no servers that support Skip, but don't support Take.
-      if (providerInfo.Supports(ProviderFeatures.NativeSkip))
-        AddOrderByStatement(provider, query);
-      return CreateProvider(query, binding, provider, compiledSource);
-    }
 
-    private SqlProvider VisitSkipNative(SkipProvider provider)
-    {
-      var compiledSource = Compile(provider.Source);
+      var bindings = new List<QueryParameterBinding>();
 
-      var query = ExtractSqlSelect(provider, compiledSource);
-      var binding = CreateLimitOffsetParameterBinding(provider.Count);
-      query.Offset = binding.ParameterReference;
-      AddOrderByStatement(provider, query);
-      return CreateProvider(query, binding, provider, compiledSource);
-    }
+      if (take!=null) {
+        var takeBinding = CreateLimitOffsetParameterBinding(take);
+        bindings.Add(takeBinding);
+        query.Limit = takeBinding.ParameterReference;
+      }
 
-    private SqlProvider VisitPagingNative(PagingProvider provider)
-    {
-      var compiledSource = Compile(provider.Source);
+      if (skip!=null) {
+        var skipBinding = CreateLimitOffsetParameterBinding(skip);
+        bindings.Add(skipBinding);
+        query.Offset = skipBinding.ParameterReference;
+      }
 
-      var query = ExtractSqlSelect(provider, compiledSource);
-      var skipBinding = CreateLimitOffsetParameterBinding(provider.Skip);
-      var takeBinding = CreateLimitOffsetParameterBinding(provider.Take);
-      query.Offset = skipBinding.ParameterReference;
-      query.Limit = takeBinding.ParameterReference;
-      AddOrderByStatement(provider, query);
-      return CreateProvider(query, new[] {skipBinding, takeBinding}, provider, compiledSource);
+      query.OrderBy.Clear();
+      var columnExpressions = ExtractColumnExpressions(query, provider);
+      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
+        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
+
+      return CreateProvider(query, bindings, provider, compiledSource);
     }
 
     private SqlProvider VisitSkipRowNumber(SkipProvider provider)
     {
       var skipParameterBinding = CreateLimitOffsetParameterBinding(provider.Count);
       var bindings = new List<QueryParameterBinding> {skipParameterBinding};
-
       var compiledSource = Compile(provider.Source);
       var source = compiledSource.Request.Statement;
       var queryRef = SqlDml.QueryRef(source);
@@ -104,8 +89,7 @@ namespace Xtensive.Orm.Providers
     private SqlProvider VisitTakeRowNumber(TakeProvider provider)
     {
       var takeParameterBinding = CreateLimitOffsetParameterBinding(provider.Count);
-      var bindings = new List<QueryParameterBinding> { takeParameterBinding };
-
+      var bindings = new List<QueryParameterBinding> {takeParameterBinding};
       var compiledSource = Compile(provider.Source);
       var source = compiledSource.Request.Statement;
       var queryRef = SqlDml.QueryRef(source);
@@ -119,26 +103,17 @@ namespace Xtensive.Orm.Providers
     {
       var fromParameterBinding = CreateLimitOffsetParameterBinding(provider.From);
       var toParameterBinding = CreateLimitOffsetParameterBinding(provider.To);
-      var bindings = new List<QueryParameterBinding> { fromParameterBinding, toParameterBinding };
-
+      var bindings = new List<QueryParameterBinding> {fromParameterBinding, toParameterBinding};
       var compiledSource = Compile(provider.Source);
       var source = compiledSource.Request.Statement;
       var queryRef = SqlDml.QueryRef(source);
       var query = SqlDml.Select(queryRef);
       var rowNumberColumn = queryRef.Columns.Last();
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Where = SqlDml.Between(
-        rowNumberColumn, 
+      query.Where = SqlDml.Between(rowNumberColumn,
         fromParameterBinding.ParameterReference,
         toParameterBinding.ParameterReference);
       return CreateProvider(query, bindings, provider, compiledSource);
-    }
-
-    private void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
-    {
-      var columnExpressions = ExtractColumnExpressions(query, provider);
-      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
-        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
     }
 
     private static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)

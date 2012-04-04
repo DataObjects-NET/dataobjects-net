@@ -11,12 +11,21 @@ namespace Xtensive.Orm.Providers
 {
   public class SqlSelectCorrector : IPostCompiler
   {
+    private readonly ProviderInfo providerInfo;
+
     public ExecutableProvider Process(ExecutableProvider rootProvider)
     {
       var sqlProvider = rootProvider as SqlProvider;
       if (sqlProvider!=null)
-        SqlSelectProcessor.Process(sqlProvider.Request.Statement);
+        SqlSelectProcessor.Process(sqlProvider.Request.Statement, providerInfo);
       return rootProvider;
+    }
+
+    // Constructors
+    
+    public SqlSelectCorrector(ProviderInfo providerInfo)
+    {
+      this.providerInfo = providerInfo;
     }
   }
 }

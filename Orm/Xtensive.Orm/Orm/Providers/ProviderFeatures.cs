@@ -55,6 +55,7 @@ namespace Xtensive.Orm.Providers
     DeleteFrom = 1L << 37,
     Multischema = 1L << 38,
     Multidatabase = 1L << 39,
+    PagingRequiresOrderBy = 1L << 40,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,

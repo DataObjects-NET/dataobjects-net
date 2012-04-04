@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>A new post-compiler.</returns>
     protected virtual IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler)
     {
-      var result = new CompositePostCompiler(new SqlSelectCorrector());
+      var result = new CompositePostCompiler(new SqlSelectCorrector(Handlers.ProviderInfo));
       if (configuration.PrepareRequest)
         result.Items.Add(new SqlProviderPreparer(Handlers));
       return result;

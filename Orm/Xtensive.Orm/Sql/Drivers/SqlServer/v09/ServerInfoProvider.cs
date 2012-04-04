@@ -197,7 +197,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         QueryFeatures.RowNumber |
         QueryFeatures.MultischemaQueries |
         QueryFeatures.MultidatabaseQueries |
-        QueryFeatures.ScalarSubquery;
+        QueryFeatures.ScalarSubquery |
+        QueryFeatures.PagingRequiresOrderBy;
       return queryInfo;
     }
 

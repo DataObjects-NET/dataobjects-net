@@ -10,6 +10,7 @@ namespace Xtensive.Orm.Providers
   internal class SqlSelectProcessor : ISqlVisitor
   {
     private readonly SqlSelect rootSelect;
+    private readonly ProviderInfo providerInfo;
     private readonly HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
 
     public void Visit(SqlAggregate node)
@@ -450,12 +451,18 @@ namespace Xtensive.Orm.Providers
       if (node.Columns.Count==0)
         node.Columns.Add(SqlDml.Null, "NULL");
 
-      var keepOrderBy = ReferenceEquals(node, rootSelect)
-        || !node.Offset.IsNullReference()
-        || !node.Limit.IsNullReference();
+      var hasPaging = node.HasLimit || node.HasOffset;
 
+      var keepOrderBy = ReferenceEquals(node, rootSelect) || hasPaging;
       if (!keepOrderBy)
         node.OrderBy.Clear();
+
+      var addOrderBy = hasPaging
+        && node.OrderBy.Count==0
+        && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+
+      if (addOrderBy)
+        node.OrderBy.Add(1);
     }
 
     public void Visit(SqlSubQuery node)
@@ -556,15 +563,19 @@ namespace Xtensive.Orm.Providers
     {
     }
 
-    public static void Process(SqlSelect select)
+    public static void Process(SqlSelect select, ProviderInfo providerInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(select, "select");
-      new SqlSelectProcessor(select).Visit(select);
+      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      new SqlSelectProcessor(select, providerInfo).Visit(select);
     }
 
-    private SqlSelectProcessor(SqlSelect rootSelect)
+    // Constructors
+
+    private SqlSelectProcessor(SqlSelect rootSelect, ProviderInfo providerInfo)
     {
       this.rootSelect = rootSelect;
+      this.providerInfo = providerInfo;
     }
   }
 }
