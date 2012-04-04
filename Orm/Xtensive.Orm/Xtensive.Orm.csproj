@@ -324,7 +324,6 @@
     <Compile Include="Orm\Model\Internals\TypePairComparer.cs" />
     <Compile Include="Orm\Model\KeyField.cs" />
     <Compile Include="Orm\Model\KeyInfo.cs" />
-    <Compile Include="Orm\Model\Log.cs" />
     <Compile Include="Orm\Model\MappedNode.cs" />
     <Compile Include="Orm\Model\ModelVisitor.cs" />
     <Compile Include="Orm\Model\Multiplicity.cs" />
@@ -383,7 +382,6 @@
     <Compile Include="Orm\Validation\Aspects\Internals\ConstraintRegistry.cs" />
     <Compile Include="Orm\Validation\Aspects\PropertyConstraintAspect.cs" />
     <Compile Include="Orm\Validation\Exceptions\ConstraintViolationException.cs" />
-    <Compile Include="Orm\Validation\Log.cs" />
     <Compile Include="Orm\Validation\Interfaces\IValidationAware.cs" />
     <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
     <Compile Include="Orm\Validation\ValidationContext.cs" />
@@ -1133,7 +1131,6 @@
     <Compile Include="Orm\Upgrade\Model\KeyColumnRef.cs" />
     <Compile Include="Orm\Upgrade\Model\KeyColumnRefCollection.cs" />
     <Compile Include="Orm\Upgrade\Model\KeyColumnRef{TParent}.cs" />
-    <Compile Include="Orm\Upgrade\Model\Log.cs" />
     <Compile Include="Orm\Upgrade\Model\NodeBase.cs" />
     <Compile Include="Orm\Upgrade\Model\NodeCollectionBase.cs" />
     <Compile Include="Orm\Upgrade\Model\PartialIndexFilterInfo.cs" />
@@ -1178,7 +1175,6 @@
     <Compile Include="Orm\Rse\JoinType.cs" />
     <Compile Include="Orm\Rse\LockBehavior.cs" />
     <Compile Include="Orm\Rse\LockMode.cs" />
-    <Compile Include="Orm\Rse\Log.cs" />
     <Compile Include="Orm\Rse\MappedColumn.cs" />
     <Compile Include="Orm\Rse\Compilation\CompositePreCompiler.cs" />
     <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\ApplyProviderCorrector.cs" />
