@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Providers.Sql
     private DomainHandler domainHandler;
     private SqlConnection connection;
     private CommandProcessor commandProcessor;
+    private bool isDisposed;
 
     /// <inheritdoc/>
     public override bool TransactionIsStarted {
@@ -230,6 +231,9 @@ namespace Xtensive.Orm.Providers.Sql
     /// <inheritdoc/>
     public override void Dispose()
     {
+      if (isDisposed)
+        return;
+      isDisposed = true;
       if (connection!=null)
         driver.CloseConnection(Session, connection);
     }
