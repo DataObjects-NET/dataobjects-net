@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Building
       if (context.Configuration.ConnectionInfo.Provider!=WellKnown.Provider.MySql)
         return;
 
-      Log.Info("Applying changes to Metadata-related types for MySQL");
+      BuildLog.Info("Applying changes to Metadata-related types for MySQL");
 
       // Fixing length of Assembly.Name field
       TypeDef type = model.Types.TryGetValue(typeof (Assembly));

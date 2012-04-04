@@ -112,7 +112,7 @@ namespace Xtensive.Orm
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
             EnsureTransactionIsStarted();
-            Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+            OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
 
             EntityChangeRegistry itemsToPersist;
             if (performPinning) {
@@ -140,7 +140,7 @@ namespace Xtensive.Orm
               else
                 EntityChangeRegistry.Clear();
 
-              Log.Debug(Strings.LogSessionXPersistCompleted, this);
+              OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
           }
           SystemEvents.NotifyPersisted();

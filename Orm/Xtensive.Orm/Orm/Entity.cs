@@ -454,7 +454,7 @@ namespace Xtensive.Orm
 
     internal void SystemBeforeRemove()
     {
-      Log.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
+      OrmLog.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
 
       Session.SystemEvents.NotifyEntityRemoving(this);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -499,7 +499,7 @@ namespace Xtensive.Orm
     internal override sealed void SystemBeforeInitialize(bool materialize)
     {
       State.Entity = this;
-      Log.Debug(Strings.LogSessionXMaterializingYKeyZ, Session, GetType().GetShortName(), State.Key);
+      OrmLog.Debug(Strings.LogSessionXMaterializingYKeyZ, Session, GetType().GetShortName(), State.Key);
 
       if (Session.IsSystemLogicOnly || materialize) 
         return;
@@ -584,7 +584,7 @@ namespace Xtensive.Orm
     {
       if ((Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
         EnsureNotRemoved();
-      Log.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
+      OrmLog.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
       EnsureIsFetched(field);
 
       Session.SystemEvents.NotifyFieldValueGetting(this, field);
@@ -630,7 +630,7 @@ namespace Xtensive.Orm
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
     {
       EnsureNotRemoved();
-      Log.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
+      OrmLog.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
 

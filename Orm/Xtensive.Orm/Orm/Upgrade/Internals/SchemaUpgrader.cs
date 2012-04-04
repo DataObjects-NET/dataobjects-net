@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Upgrade
 
       var result = translator.Translate();
 
-      if (Providers.Log.IsLogged(LogEventTypes.Info))
+      if (SqlLog.IsLogged(LogEventTypes.Info))
         LogStatements(result);
 
       foreach (var handler in context.OrderedUpgradeHandlers)
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void LogStatements(IEnumerable<string> statements)
     {
-      Providers.Log.Info(
+      SqlLog.Info(
         Strings.LogSessionXSchemaUpgradeScriptY,
         session.ToStringSafely(),
         services.Driver.BuildBatch(statements.ToArray()).Trim());

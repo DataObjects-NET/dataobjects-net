@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2007.11.13
 
-using System.Reflection;
 using Xtensive.Diagnostics;
 
 namespace Xtensive.Orm
@@ -12,7 +11,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Log for this namespace.
   /// </summary>
-  internal sealed class Log: LogTemplate<Log>
+  internal sealed class UpgradeLog: LogTemplate<UpgradeLog>
   {
     // Copy-paste this code!
     /// <summary>
@@ -20,10 +19,9 @@ namespace Xtensive.Orm
     /// </summary>
     public static readonly string Name;
 
-    static Log()
+    static UpgradeLog()
     {
-      string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;
-      Name = className.Substring(0, className.LastIndexOf('.'));
+      Name = "Xtensive.Orm.Upgrade";
     }
   }
 }

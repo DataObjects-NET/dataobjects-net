@@ -375,7 +375,7 @@ namespace Xtensive.Orm
     internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
-      IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogEventTypes.Debug); // Just to cache this value
 
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
@@ -440,7 +440,7 @@ namespace Xtensive.Orm
       if (isDisposed)
         return;
       try {
-        Log.Debug(Strings.LogSessionXDisposing, this);
+        OrmLog.Debug(Strings.LogSessionXDisposing, this);
         
         SystemEvents.NotifyDisposing();
         Events.NotifyDisposing();

@@ -250,7 +250,7 @@ namespace Xtensive.Orm.Upgrade
           context.SchemaHints.Add(schemaHint);
         }
         catch (Exception error) {
-          Log.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
+          UpgradeLog.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
         }
       }
     }
@@ -258,14 +258,14 @@ namespace Xtensive.Orm.Upgrade
     private void SynchronizeSchema(
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
-      using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var extractedSchema = extractor.GetSchema();
         var targetSchema = domain.StorageModel = GetTargetModel(domain);
 
-        if (Log.IsLogged(LogEventTypes.Info)) {
-          Log.Info(Strings.LogExtractedSchema);
+        if (UpgradeLog.IsLogged(LogEventTypes.Info)) {
+          UpgradeLog.Info(Strings.LogExtractedSchema);
           extractedSchema.Dump();
-          Log.Info(Strings.LogTargetSchema);
+          UpgradeLog.Info(Strings.LogTargetSchema);
           targetSchema.Dump();
         }
 
@@ -282,10 +282,10 @@ namespace Xtensive.Orm.Upgrade
         var shouldDumpSchema = !schemaUpgradeMode.In(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema)
-          Log.Info(result.ToString());
+          UpgradeLog.Info(result.ToString());
 
-        if (Log.IsLogged(LogEventTypes.Info))
-          Log.Info(Strings.LogComparisonResultX, result);
+        if (UpgradeLog.IsLogged(LogEventTypes.Info))
+          UpgradeLog.Info(Strings.LogComparisonResultX, result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;
         context.SchemaUpgradeActions = result.UpgradeActions;

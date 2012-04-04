@@ -24,7 +24,7 @@ namespace Xtensive.Orm
 
     internal void Invalidate()
     {
-      Log.Debug(Strings.LogSessionXInvalidate, this);
+      OrmLog.Debug(Strings.LogSessionXInvalidate, this);
 
       ClearChangeRegistry();
       InvalidateCachedEntities();
@@ -52,7 +52,7 @@ namespace Xtensive.Orm
       using (Activate()) {
         Persist(PersistReason.RemapEntityKeys);
         Invalidate();
-        Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);
+        OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
         var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
         EntityStateCache.Clear();
         foreach (var pair in oldCacheContent) {
@@ -108,7 +108,7 @@ namespace Xtensive.Orm
       };
       EntityStateCache.Add(result);
 
-      Log.Debug(Strings.LogSessionXCachingY, this, result);
+      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
       return;
     }
 
@@ -151,7 +151,7 @@ namespace Xtensive.Orm
         result.PersistenceState = PersistenceState.New;
       }
 
-      Log.Debug(Strings.LogSessionXCachingY, this, result);
+      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
     }
 
@@ -187,7 +187,7 @@ namespace Xtensive.Orm
         if (!key.HasExactType && tuple!=null)
           throw Exceptions.InternalError(
             Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType,
-            Log.Instance);
+            OrmLog.Instance);
         result = AddEntityStateToCache(key, tuple, isStale);
         SystemEvents.NotifyEntityMaterialized(result);
         Events.NotifyEntityMaterialized(result);
@@ -199,7 +199,7 @@ namespace Xtensive.Orm
         }
         result.Update(tuple);
         result.IsStale = isStale;
-        Log.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
+        OrmLog.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
       }
       return result;
     }
@@ -228,7 +228,7 @@ namespace Xtensive.Orm
         PersistenceState = PersistenceState.Synchronized
       };
       EntityStateCache.Add(result);
-      Log.Debug(Strings.LogSessionXCachingY, this, result);
+      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
     }
 

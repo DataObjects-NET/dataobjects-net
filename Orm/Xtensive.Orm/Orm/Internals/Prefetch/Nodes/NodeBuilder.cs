@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         case ExpressionType.New:
           return VisitNew((NewExpression) expression);
         default:
-          throw Exceptions.InternalError("NodeBuilder failed to process expression", Log.Instance);
+          throw Exceptions.InternalError("NodeBuilder failed to process expression", OrmLog.Instance);
       }
     }
 

@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void BuildIndexes(BuildingContext context)
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Indexes)) {
+      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Indexes)) {
         new IndexBuilder(context).BuildAll();
       }
     }
@@ -289,7 +289,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef, bool buildAbstract)
     {
-      Log.Info(Strings.LogBuildingIndexX, indexDef.Name);
+      BuildLog.Info(Strings.LogBuildingIndexX, indexDef.Name);
       var attributes = !buildAbstract ? indexDef.Attributes : indexDef.Attributes | IndexAttributes.Abstract;
 
       if (typeInfo.IsInterface && !typeInfo.IsMaterialized)
@@ -393,7 +393,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private IndexInfo BuildInheritedIndex(TypeInfo reflectedType, IndexInfo ancestorIndex, bool buildAbstract)
     {
-      Log.Info(Strings.LogBuildingIndexX, ancestorIndex.Name);
+      BuildLog.Info(Strings.LogBuildingIndexX, ancestorIndex.Name);
       var attributes = IndexAttributes.None;
 
       if (reflectedType.IsInterface && !reflectedType.IsMaterialized)

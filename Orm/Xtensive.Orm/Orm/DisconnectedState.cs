@@ -249,13 +249,13 @@ namespace Xtensive.Orm
       if (IsConnected)
         return null;
       
-      Log.Debug(Strings.LogSessionXDisconnectedStateConnect, Session);
+      OrmLog.Debug(Strings.LogSessionXDisconnectedStateConnect, Session);
       ConnectInternal();
 
       return new Disposable(disposing => {
         if (!IsConnected)
           return;
-        Log.Debug(Strings.LogSessionXDisconnectedStateDisconnect, Session);
+        OrmLog.Debug(Strings.LogSessionXDisconnectedStateDisconnect, Session);
         DisconnectInternal();
       });
     }
@@ -286,8 +286,8 @@ namespace Xtensive.Orm
       using (targetSession.Activate())
         try {
           if (targetSession.IsDebugEventLoggingEnabled) {
-            disposable = Log.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
-            Log.Debug("{0}", Operations);
+            disposable = OrmLog.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
+            OrmLog.Debug("{0}", Operations);
           }
           var originalVersions = Versions; // Necessary, because it will be changed later
           var versionValidator = (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0
@@ -318,8 +318,8 @@ namespace Xtensive.Orm
             }
             tx.Complete();
           }
-          Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
-          Log.Debug("{0}", keyMapping);
+          OrmLog.Debug(Strings.LogChangesAreSuccessfullyApplied);
+          OrmLog.Debug("{0}", keyMapping);
         }
         finally {
           disposable.DisposeSafely();
@@ -336,7 +336,7 @@ namespace Xtensive.Orm
     public void CancelChanges()
     {
       EnsureNoTransaction();
-      Log.Debug(Strings.LogDisconnectedStateCancelChanges);
+      OrmLog.Debug(Strings.LogDisconnectedStateCancelChanges);
       state = new StateRegistry(originalState);
     }
 
@@ -589,8 +589,8 @@ namespace Xtensive.Orm
           && (!existingVersion.IsVoid)
             && existingVersion!=version;
       if (versionConflict && mergeMode == MergeMode.Strict) {
-        if (Log.IsLogged(LogEventTypes.Info))
-          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+        if (OrmLog.IsLogged(LogEventTypes.Info))
+          OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             Session!=null ? Session.ToString() : "None (DisconnectedState)", 
             key, version, existingVersion);
         throw new VersionConflictException(string.Format(
@@ -690,7 +690,7 @@ namespace Xtensive.Orm
     private void AttachInternal(Session session)
     {
       logIndentScope = session.IsDebugEventLoggingEnabled 
-        ? Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
+        ? OrmLog.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
         : null;
 
       if (session.Transaction!=null) {

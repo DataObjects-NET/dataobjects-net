@@ -343,7 +343,7 @@ namespace Xtensive.Orm.Providers
     private SqlExpression VisitOuterParameterReference(int columnIndex, ApplyParameter parameter)
     {
       if (compiler==null)
-        throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, Orm.Log.Instance);
+        throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, Orm.OrmLog.Instance);
 
       ExecutableProvider provider = compiler.OuterReferences[parameter];
 
@@ -424,9 +424,9 @@ namespace Xtensive.Orm.Providers
       if (fixBooleanExpressions)
         booleanExpressionConverter = new BooleanExpressionConverter(driver);
       if (lambda.Parameters.Count!=sourceColumns.Length)
-        throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, Orm.Log.Instance);
+        throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, Orm.OrmLog.Instance);
       if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
-        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, Orm.Log.Instance);
+        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, Orm.OrmLog.Instance);
       sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
     }
   }

@@ -511,7 +511,7 @@ namespace Xtensive.Orm.Upgrade
         if (providerInfo.Supports(ProviderFeatures.PartialIndexes))
           index.Filter = TranslateFilterExpression(originalModelIndex);
         else
-          Log.Warning(
+          UpgradeLog.Warning(
             Strings.LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY,
             providerInfo.ProviderName, originalModelIndex);
       }

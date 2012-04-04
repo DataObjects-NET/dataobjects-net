@@ -202,7 +202,7 @@ namespace Xtensive.Orm
 
     internal void CommitTransaction(Transaction transaction)
     {
-      Log.Debug(Strings.LogSessionXCommittingTransaction, this);
+      OrmLog.Debug(Strings.LogSessionXCommittingTransaction, this);
       
       SystemEvents.NotifyTransactionPrecommitting(transaction);
       Events.NotifyTransactionPrecommitting(transaction);
@@ -224,7 +224,7 @@ namespace Xtensive.Orm
     internal void RollbackTransaction(Transaction transaction)
     {
       try {
-        Log.Debug(Strings.LogSessionXRollingBackTransaction, this);
+        OrmLog.Debug(Strings.LogSessionXRollingBackTransaction, this);
         SystemEvents.NotifyTransactionRollbacking(transaction);
         Events.NotifyTransactionRollbacking(transaction);
       }
@@ -256,12 +256,12 @@ namespace Xtensive.Orm
 
       switch (transaction.State) {
       case TransactionState.Committed:
-        Log.Debug(Strings.LogSessionXCommittedTransaction, this);
+        OrmLog.Debug(Strings.LogSessionXCommittedTransaction, this);
         SystemEvents.NotifyTransactionCommitted(transaction);
         Events.NotifyTransactionCommitted(transaction);
         break;
       case TransactionState.RolledBack:
-        Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
+        OrmLog.Debug(Strings.LogSessionXRolledBackTransaction, this);
         SystemEvents.NotifyTransactionRollbacked(transaction);
         Events.NotifyTransactionRollbacked(transaction);
         break;
@@ -336,7 +336,7 @@ namespace Xtensive.Orm
 
     private TransactionScope OpenTransactionScope(Transaction transaction)
     {
-      Log.Debug(Strings.LogSessionXOpeningTransaction, this);
+      OrmLog.Debug(Strings.LogSessionXOpeningTransaction, this);
       
       SystemEvents.NotifyTransactionOpening(transaction);
       Events.NotifyTransactionOpening(transaction);
@@ -346,7 +346,7 @@ namespace Xtensive.Orm
 
       IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled)
-        logIndentScope = Log.DebugRegion(Strings.LogSessionXTransaction, this);
+        logIndentScope = OrmLog.DebugRegion(Strings.LogSessionXTransaction, this);
       
       SystemEvents.NotifyTransactionOpened(transaction);
       Events.NotifyTransactionOpened(transaction);

@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Building.Builders
       ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
 
       var context = new BuildingContext(builderConfiguration);
-      using (Log.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName()))
+      using (BuildLog.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName()))
         new DomainBuilder(context).Run();
 
       return context.Domain;
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateDomain()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
+      using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
         context.Domain = new Domain(context.Configuration);
       }
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Building.Builders
       var handlers = context.Domain.Handlers;
       var services = context.BuilderConfiguration.Services;
 
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
+      using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         // HandlerFactory
         handlers.Factory = services.HandlerFactory;
 
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateServices()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
+      using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
         var domain = context.Domain;
         var configuration = domain.Configuration;
         var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildModel()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
+      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
         ModelBuilder.Run(context);
         var model = context.Model;
         model.Lock(true);
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void InitializeServices()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
+      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
         var domain = context.Domain;
         var generators = domain.KeyGenerators;
         var initialized = new HashSet<IKeyGenerator>();

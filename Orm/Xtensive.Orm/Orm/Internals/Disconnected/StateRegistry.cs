@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Disconnected
     public void Remap(KeyMapping keyMapping)
     {
       if (origin!=null)
-        throw Exceptions.InternalError("Origin!=null", Log.Instance);
+        throw Exceptions.InternalError("Origin!=null", OrmLog.Instance);
       foreach (var map in keyMapping.Map) {
         var hasToBeReplaced = false;
         foreach (var itemPair in items) {
@@ -210,13 +210,13 @@ namespace Xtensive.Orm.Disconnected
     private void EnsureOriginNotNull()
     {
       if (Origin==null)
-        throw Exceptions.InternalError(Strings.ExOriginIsNull, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExOriginIsNull, OrmLog.Instance);
     }
 
     private void EnsureOriginIsNull()
     {
       if (Origin!=null)
-        throw Exceptions.InternalError(Strings.ExOriginIsNotNull, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExOriginIsNotNull, OrmLog.Instance);
     }
 
     private void InsertIntoEntitySet(Key ownerKey, FieldInfo field, Key itemKey)

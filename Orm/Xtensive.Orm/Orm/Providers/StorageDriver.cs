@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Providers
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
-      isLoggingEnabled = Log.IsLogged(LogEventTypes.Info); // Just to cache this value
+      isLoggingEnabled = SqlLog.IsLogged(LogEventTypes.Info); // Just to cache this value
     }
   }
 }

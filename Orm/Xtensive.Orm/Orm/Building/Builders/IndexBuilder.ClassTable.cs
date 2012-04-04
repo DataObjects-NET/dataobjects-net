@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Building.Builders
             continue;
           var index = BuildInheritedIndex(type, interfaceIndex, false);
           if (IndexBuiltOverInheritedFields(index))
-            Log.Warning(string.Format(Strings.ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields, index.Name));
+            BuildLog.Warning(string.Format(Strings.ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields, index.Name));
           else {
             type.Indexes.Add(index);
             context.Model.RealIndexes.Add(index);

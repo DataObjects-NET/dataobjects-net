@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Building.Builders
         return;
 
       if (!fieldDef.IsPrimitive && attribute.LazyLoad)
-        Log.Warning(
+        BuildLog.Warning(
           Strings.LogExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
       else 
         fieldDef.IsLazyLoad = attribute.LazyLoad;
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Building.Builders
       Validator.ValidateName(mappingName, rule);
 
       if (Comparer.Compare(node.MappingName, mappingName)==0)
-        Log.Warning(
+        BuildLog.Warning(
           Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically, node.MappingName);
       else
         node.MappingName = mappingName;

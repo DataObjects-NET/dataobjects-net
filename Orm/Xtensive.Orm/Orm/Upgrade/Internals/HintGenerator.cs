@@ -560,7 +560,7 @@ namespace Xtensive.Orm.Upgrade
           break;
         default:
           throw Exceptions.InternalError(String.Format(
-            Strings.ExInheritanceSchemaIsInvalid, newType.Hierarchy.InheritanceSchema), Log.Instance);
+            Strings.ExInheritanceSchemaIsInvalid, newType.Hierarchy.InheritanceSchema), UpgradeLog.Instance);
         }
       }
     }
@@ -667,7 +667,7 @@ namespace Xtensive.Orm.Upgrade
         typesToProcess.Add(removedType);
         break;
       default:
-        throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, hierarchy.InheritanceSchema), Log.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, hierarchy.InheritanceSchema), UpgradeLog.Instance);
       }
       foreach (var type in typesToProcess) {
         var sourceTablePath = GetTablePath(type);
@@ -838,7 +838,7 @@ namespace Xtensive.Orm.Upgrade
           break;
         default:
           throw Exceptions.InternalError(String.Format(
-            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), UpgradeLog.Instance);
       }
       hint.AffectedTables = new ReadOnlyList<string>(affectedTables);
     }
@@ -944,7 +944,7 @@ namespace Xtensive.Orm.Upgrade
       if (extractedStorageModel.Tables.Contains(nodeName))
         return true;
 
-      Log.Warning(Strings.ExTableXIsNotFound, nodeName);
+      UpgradeLog.Warning(Strings.ExTableXIsNotFound, nodeName);
       return false;
     }
 
@@ -956,7 +956,7 @@ namespace Xtensive.Orm.Upgrade
       var actualFieldName = nameBuilder.ApplyNamingRules(fieldName);
       if (extractedStorageModel.Tables[nodeName].Columns.Contains(actualFieldName))
         return true;
-      Log.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, nodeName);
+      UpgradeLog.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, nodeName);
       return false;
     }
 
@@ -977,7 +977,7 @@ namespace Xtensive.Orm.Upgrade
             affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t, primitiveField.MappingName)));
             break;
           default:
-            throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+            throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), UpgradeLog.Instance);
         }
       }
       return affectedColumns;

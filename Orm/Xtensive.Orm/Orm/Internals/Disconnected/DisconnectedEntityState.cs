@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Disconnected
     public SerializableEntityState ToSerializable()
     {
       if (!Key.HasExactType && tuple!=null)
-        throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, OrmLog.Instance);
 
       var key = Key.ToString(true);
       var type = Key.TypeReference.Type.UnderlyingType.FullName;

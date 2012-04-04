@@ -470,7 +470,7 @@ namespace Xtensive.Orm.Linq
       }
       var constructorParameters = newExpression.Constructor.GetParameters();
       if (constructorParameters.Length!=arguments.Count)
-        throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, OrmLog.Instance);
       var duplicateMembers = new SetSlim<MemberInfo>();
       var bindings = new Dictionary<MemberInfo, Expression>();
       for (int i = 0; i < constructorParameters.Length; i++) {
@@ -664,7 +664,7 @@ namespace Xtensive.Orm.Linq
       }
 
       if (leftExpressions.Count!=rightExpressions.Count || leftExpressions.Count==0)
-        throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, OrmLog.Instance);
 
       // Combine new binary expression from subexpression pairs.
       Expression resultExpression = null;
@@ -944,10 +944,10 @@ namespace Xtensive.Orm.Linq
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
       if (state.Parameters.Length==0)
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), Log.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
 
       if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), Log.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), OrmLog.Instance);
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
       if (subQuery.Type!=resultType)

@@ -243,7 +243,7 @@
     <Compile Include="Orm\Providers\Expressions\MemberCompilers\VbDateAndTimeCompilers.cs" />
     <Compile Include="Orm\Providers\Expressions\MemberCompilers\VBStringsCompilers.cs" />
     <Compile Include="Orm\Providers\Interfaces\IProviderExecutor.cs" />
-    <Compile Include="Orm\Providers\Log.cs" />
+    <Compile Include="Orm\Logging\SqlLog.cs" />
     <Compile Include="Orm\Providers\ModelMapping.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataExtractor.cs" />
     <Compile Include="Orm\Providers\Requests\ParameterBinding.cs" />
@@ -583,8 +583,8 @@
     <Compile Include="Orm\Building\Definitions\HierarchyDef.cs" />
     <Compile Include="Orm\Building\Definitions\TypeDefCollection.cs" />
     <Compile Include="Orm\Exceptions\DomainBuilderException.cs" />
-    <Compile Include="Orm\Log.cs" />
-    <Compile Include="Orm\Building\Log.cs" />
+    <Compile Include="Orm\Logging\OrmLog.cs" />
+    <Compile Include="Orm\Logging\BuildLog.cs" />
     <Compile Include="Orm\Building\Builders\IndexBuilder.cs" />
     <Compile Include="Orm\Building\Definitions\IndexDef.cs" />
     <Compile Include="Orm\Building\Builders\AttributeProcessor.cs" />
@@ -766,7 +766,7 @@
     <Compile Include="Orm\Upgrade\Hints\CopyFieldHint.cs" />
     <Compile Include="Orm\Upgrade\Internals\DomainModelConverter.cs" />
     <Compile Include="Orm\Upgrade\Internals\HintGenerator.cs" />
-    <Compile Include="Orm\Upgrade\Log.cs" />
+    <Compile Include="Orm\Logging\UpgradeLog.cs" />
     <Compile Include="Orm\Upgrade\Internals\SchemaComparer.cs" />
     <Compile Include="Orm\Upgrade\SchemaComparisonResult.cs" />
     <Compile Include="Orm\Upgrade\SchemaComparisonStatus.cs" />

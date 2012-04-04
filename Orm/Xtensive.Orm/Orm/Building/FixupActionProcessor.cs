@@ -66,10 +66,10 @@ namespace Xtensive.Orm.Building
 
     private void ProcessAll()
     {
-      using (Log.InfoRegion(Strings.LogProcessingFixupActions))
+      using (BuildLog.InfoRegion(Strings.LogProcessingFixupActions))
         while (context.ModelInspectionResult.Actions.Count > 0) {
           var action = context.ModelInspectionResult.Actions.Dequeue();
-          Log.Info(string.Format(Strings.LogExecutingActionX, action));
+          BuildLog.Info(string.Format(Strings.LogExecutingActionX, action));
           action.Run(this);
         }
     }

@@ -4,26 +4,23 @@
 // Created by: Alexey Kochetov
 // Created:    2007.11.13
 
-using System.Reflection;
 using Xtensive.Diagnostics;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Log for this namespace.
   /// </summary>
-  internal sealed class Log: LogTemplate<Log>
+  internal sealed class BuildLog: LogTemplate<BuildLog>
   {
-    // Copy-paste this code!
     /// <summary>
     /// Gets the name of this log.
     /// </summary>
     public static readonly string Name;
 
-    static Log()
+    static BuildLog()
     {
-      string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;
-      Name = className.Substring(0, className.LastIndexOf('.'));
+      Name = "Xtensive.Orm.Building";
     }
   }
 }

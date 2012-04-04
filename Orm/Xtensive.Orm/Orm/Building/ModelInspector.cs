@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building
   {
     public static void Run(BuildingContext context)
     {
-      using (Log.InfoRegion(Strings.LogInspectingModelDefinition)) {
+      using (BuildLog.InfoRegion(Strings.LogInspectingModelDefinition)) {
         InspectHierarchies(context);
         InspectTypes(context);
         InspectInterfaces(context);
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Building
     public static void Inspect(BuildingContext context, HierarchyDef hierarchyDef)
     {
       var root = hierarchyDef.Root;
-      Log.Info(Strings.LogInspectingHierarchyX, root.Name);
+      BuildLog.Info(Strings.LogInspectingHierarchyX, root.Name);
       Validator.ValidateHierarchy(hierarchyDef);
       // Skip open generic hierarchies
       if (root.IsGenericTypeDefinition)
@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Building
 
     public static void Inspect(BuildingContext context, TypeDef typeDef)
     {
-      Log.Info(Strings.LogInspectingTypeX, typeDef.Name);
+      BuildLog.Info(Strings.LogInspectingTypeX, typeDef.Name);
 
       if (typeDef.IsInterface) {
          // Remove open generic interface

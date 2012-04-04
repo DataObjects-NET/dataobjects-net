@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Upgrade
         Get();
       }
       catch (Exception exception) {
-        Log.Warning(exception);
+        UpgradeLog.Warning(exception);
       }
     }
 

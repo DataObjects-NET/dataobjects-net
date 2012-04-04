@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Run(BuildingContext context)
     {
-      using (Log.InfoRegion(Strings.LogValidatingMappingConfiguration)) {
+      using (BuildLog.InfoRegion(Strings.LogValidatingMappingConfiguration)) {
         new StorageMappingValidator(context).ValidateAll();
       }
     }

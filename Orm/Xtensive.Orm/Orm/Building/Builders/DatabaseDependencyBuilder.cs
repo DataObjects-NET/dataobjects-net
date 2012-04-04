@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Run(BuildingContext context)
     {
-      using (Log.InfoRegion(Strings.LogCalculatingDatabaseDependencies)) {
+      using (BuildLog.InfoRegion(Strings.LogCalculatingDatabaseDependencies)) {
         new DatabaseDependencyBuilder(context).Run();
       }
     }

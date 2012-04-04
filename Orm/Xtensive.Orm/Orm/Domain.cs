@@ -232,7 +232,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
 
-      Log.Debug(Strings.LogOpeningSessionX, configuration);
+      OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
 
       var session = new Session(this, configuration, activate);
       NotifySessionOpen(session);
@@ -283,7 +283,7 @@ namespace Xtensive.Orm
       if (disposingState==DisposingState.None) lock (_lock) if (disposingState==DisposingState.None) {
         disposingState = DisposingState.Disposing;
         try {
-          Log.Debug(Strings.LogDomainIsDisposing);
+          OrmLog.Debug(Strings.LogDomainIsDisposing);
           NotifyDisposing();
           Services.DisposeSafely();
         }

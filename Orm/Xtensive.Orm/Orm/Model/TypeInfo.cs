@@ -668,7 +668,7 @@ namespace Xtensive.Orm.Model
     {
       if (!IsLocked)
         throw Exceptions.InternalError(
-          Strings.ExInstanceMustBeLockedBeforeThisOperation, Log.Instance);
+          Strings.ExInstanceMustBeLockedBeforeThisOperation, OrmLog.Instance);
       lock (this) {
         BuildTuplePrototype();
         BuildVersionExtractor();
@@ -703,7 +703,7 @@ namespace Xtensive.Orm.Model
             tuple.SetValue(i, column.DefaultValue);
           }
           catch (Exception e) {
-            Log.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ, 
+            OrmLog.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ, 
               column.DefaultValue, column.Name, Name);
           }
         }

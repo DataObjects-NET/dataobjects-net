@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Run(BuildingContext context)
     {
-      using (Log.InfoRegion(Strings.LogProcessingMappingRules)) {
+      using (BuildLog.InfoRegion(Strings.LogProcessingMappingRules)) {
         new StorageMappingBuilder(context).ProcessAll();
       }
     }
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var type in typesToProcess) {
         var underlyingType = type.UnderlyingType;
         if (verbose)
-          Log.Info(Strings.LogProcessingX, underlyingType.GetShortName());
+          BuildLog.Info(Strings.LogProcessingX, underlyingType.GetShortName());
         var request = new MappingRequest(underlyingType.Assembly, underlyingType.Namespace);
         MappingResult result;
         if (!mappingCache.TryGetValue(request, out result)) {
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Building.Builders
         }
         else {
           if (verbose)
-            Log.Info(Strings.LogReusingCachedMappingInformationForX, underlyingType.GetShortName());
+            BuildLog.Info(Strings.LogReusingCachedMappingInformationForX, underlyingType.GetShortName());
         }
         type.MappingDatabase = result.MappingDatabase;
         type.MappingSchema = result.MappingSchema;
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Building.Builders
       var resultSchema = !string.IsNullOrEmpty(rule.Schema) ? rule.Schema : defaultSchema;
 
       if (verbose)
-        Log.Info(Strings.ApplyingRuleXToY, rule, type.GetShortName());
+        BuildLog.Info(Strings.ApplyingRuleXToY, rule, type.GetShortName());
 
       return new MappingResult(resultDatabase, resultSchema);
     }
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Building.Builders
       defaultDatabase = context.Configuration.DefaultDatabase ?? string.Empty;
       defaultSchema = context.Configuration.DefaultSchema ?? string.Empty;
 
-      verbose = Log.IsLogged(LogEventTypes.Info);
+      verbose = BuildLog.IsLogged(LogEventTypes.Info);
     }
   }
 }

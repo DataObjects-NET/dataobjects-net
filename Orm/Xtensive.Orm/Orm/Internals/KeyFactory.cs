@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Internals
         key = CreateGenericKey(domain, type, accuracy, value, keyIndexes);
       else {
         if (keyIndexes!=null)
-          throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, Log.Instance);
+          throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, OrmLog.Instance);
         key = new LongKey(type, accuracy, value);
       }
       if (!canCache)

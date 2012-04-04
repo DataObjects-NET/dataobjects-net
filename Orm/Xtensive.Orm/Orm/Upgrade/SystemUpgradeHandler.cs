@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Upgrade
         }
 
         if (!found) {
-          Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
+          UpgradeLog.Info(Strings.LogDomainModelIsNotFoundInStorage);
           return;
         }
 
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Upgrade
         context.ExtractedDomainModel = model;
       }
       catch (Exception e) {
-        Log.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
+        UpgradeLog.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
       }
     }
 

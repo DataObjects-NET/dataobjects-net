@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Operations
       var session = context.Session;
       var entity = session.Query.Single(Key);
       if (entity.VersionInfo != Version) {
-        if (Log.IsLogged(LogEventTypes.Info))
-          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+        if (OrmLog.IsLogged(LogEventTypes.Info))
+          OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             session, Key, entity.VersionInfo, Version);
         throw new VersionConflictException(
           string.Format(Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, Key));
