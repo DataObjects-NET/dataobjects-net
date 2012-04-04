@@ -22,8 +22,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     static Log()
     {
-      string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;
-      Name = className.Substring(0, className.LastIndexOf('.'));
+      Name = "Xtensive.Storage.Providers.Sql";
     }
   }
 }

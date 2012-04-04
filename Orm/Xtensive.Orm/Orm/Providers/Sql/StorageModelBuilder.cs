@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Providers.Sql
         if (domainHandler.ProviderInfo.Supports(ProviderFeatures.PartialIndexes))
           index.Filter = TranslateFilterExpression(originalModelIndex);
         else
-          Log.Warning(Strings.LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY,
+          Orm.Log.Warning(Strings.LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY,
             domainHandler.Domain.Configuration.ConnectionInfo.Provider, originalModelIndex);
       }
       return index;
