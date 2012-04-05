@@ -1105,25 +1105,18 @@ namespace Xtensive.Orm.Providers.Sql
 
     private SqlExpression GetDefaultValueExpression(StorageColumnInfo columnInfo)
     {
-      SqlExpression result = null;;
       if (columnInfo.DefaultValue!=null)
-        result = SqlDml.Literal(columnInfo.DefaultValue);
-      else {
-        var type = columnInfo.Type.Type;
-        var typeCode = Type.GetTypeCode(type);
-        switch (typeCode) {
-          case TypeCode.Char:
-            result = SqlDml.Literal('0');
-            break;
-          case TypeCode.String:
-            result = SqlDml.Literal(string.Empty);
-            break;
-          default:
-            result = SqlDml.Literal(Activator.CreateInstance(type));
-            break;
-        }
+        return SqlDml.Literal(columnInfo.DefaultValue);
+      var type = columnInfo.Type.Type;
+      var typeCode = Type.GetTypeCode(type);
+      switch (typeCode) {
+        case TypeCode.Char:
+          return SqlDml.Literal('0');
+        case TypeCode.String:
+          return SqlDml.Literal(string.Empty);
+        default:
+          return type.IsValueType ? SqlDml.Literal(Activator.CreateInstance(type)) : null;
       }
-      return result;
     }
 
     private long? GetCurrentSequenceValue(string sequenceInfoName)
