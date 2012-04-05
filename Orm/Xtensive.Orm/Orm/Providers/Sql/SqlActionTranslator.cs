@@ -1115,7 +1115,7 @@ namespace Xtensive.Orm.Providers.Sql
         case TypeCode.String:
           return SqlDml.Literal(string.Empty);
         default:
-          return type.IsValueType ? SqlDml.Literal(Activator.CreateInstance(type)) : null;
+          return type.IsValueType && !type.IsNullable() ? SqlDml.Literal(Activator.CreateInstance(type)) : null;
       }
     }
 
