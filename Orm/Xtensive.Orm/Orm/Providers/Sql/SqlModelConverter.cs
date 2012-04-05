@@ -263,14 +263,7 @@ namespace Xtensive.Orm.Providers.Sql
         type = sqlValueType.Type.ToClrType();
       }
       catch(ArgumentException) {
-        // TODO: Reimplement this as Firebird-specific override of this method
-        string sqlTypeName = sqlValueType.TypeName.ToLowerInvariant();
-        if (sqlTypeName=="blob sub type 0") // Firebird-specific!
-          type = typeof (string);
-        else if (sqlTypeName=="blob sub type 1") // Firebird-specific!
-          type = typeof (byte[]);
-        else
-          return StorageTypeInfo.Undefined;
+        return StorageTypeInfo.Undefined;
       }
 
       if (column.IsNullable 
