@@ -11,8 +11,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
-  [Serializable]
-  internal class ColumnResolver
+  internal sealed class ColumnResolver
   {
     public DataTable Table;
     private List<ColumnIndexMapping> columnMappings;
