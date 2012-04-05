@@ -1118,15 +1118,6 @@ namespace Xtensive.Orm.Providers.Sql
           case TypeCode.String:
             result = SqlDml.Literal(string.Empty);
             break;
-          case TypeCode.DateTime:
-            result = SqlDml.Literal(DateTime.MinValue);
-            break;
-          case TypeCode.Object:
-            if (type == typeof(Guid))
-              result = SqlDml.Literal(Guid.Empty);
-            else if (type == typeof(TimeSpan))
-              result = SqlDml.Literal(TimeSpan.MinValue);
-            break;
           default:
             result = SqlDml.Literal(Activator.CreateInstance(type));
             break;
