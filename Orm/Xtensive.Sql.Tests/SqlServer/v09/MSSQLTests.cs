@@ -3444,7 +3444,6 @@ namespace Xtensive.Sql.Tests.SqlServer.v09
     public void Test175()
     {
       Sequence s = Catalog.Schemas["Production"].CreateSequence("Generator175");
-      s.DataType = new SqlValueType(SqlType.Int32);
       SqlCreateSequence create = SqlDdl.Create(s);
 
       Console.Write(Compile(create));
@@ -3454,7 +3453,6 @@ namespace Xtensive.Sql.Tests.SqlServer.v09
     public void Test176()
     {
       Sequence s = Catalog.Schemas["Production"].CreateSequence("Generator176");
-      s.DataType = new SqlValueType(SqlType.Decimal, 10, 0);
       s.SequenceDescriptor.IsCyclic = true;
       s.SequenceDescriptor.StartValue = 1000;
       s.SequenceDescriptor.MaxValue = 1000;

@@ -266,7 +266,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         while (reader.Read()) {
           var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
           var sequence = schema.CreateSequence(reader.GetString(1).Trim());
-          sequence.DataType = new SqlValueType(SqlType.Int32);
           var descriptor = sequence.SequenceDescriptor;
           descriptor.MinValue = 0;
           // TODO: Firebird quickfix, we must implement support for arbitrary incr. in comparer

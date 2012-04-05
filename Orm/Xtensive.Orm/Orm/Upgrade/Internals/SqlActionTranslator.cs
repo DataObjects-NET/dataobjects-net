@@ -561,7 +561,6 @@ namespace Xtensive.Orm.Upgrade
           MinValue = sequenceInfo.Seed
         };
         sequence.SequenceDescriptor = descriptor;
-        sequence.DataType = (SqlValueType) sequenceInfo.Type.NativeType;
         RegisterCommand(SqlDdl.Create(sequence));
         createdSequences.Add(sequence);
       }

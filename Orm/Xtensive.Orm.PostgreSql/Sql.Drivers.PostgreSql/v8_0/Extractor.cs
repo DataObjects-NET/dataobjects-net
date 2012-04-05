@@ -404,7 +404,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             }
             else if (relkind=="S") {
               Sequence s = sch.CreateSequence(relname);
-              s.DataType = new SqlValueType(SqlType.Int64);
               sequences.Add(reloid, s);
             }
           }

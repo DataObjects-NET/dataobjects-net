@@ -257,7 +257,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
           var sequence = schema.CreateSequence(reader.GetString(1));
-          sequence.DataType = new SqlValueType(SqlType.Decimal, DefaultPrecision, DefaultScale);
           var descriptor = sequence.SequenceDescriptor;
           descriptor.MinValue = ReadLong(reader, 2);
           descriptor.MaxValue = ReadLong(reader, 3);

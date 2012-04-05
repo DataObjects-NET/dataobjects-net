@@ -200,19 +200,9 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitSequence(Sequence sequence)
     {
-      Type type = null;
-      try {
-        type = sequence.DataType.Type.ToClrType();
-      }
-      catch (ArgumentException) {
-        type = null;
-      }
-      var typeInfo = type!=null ? new StorageTypeInfo(type, null) : StorageTypeInfo.Undefined;
-
       var sequenceInfo = new StorageSequenceInfo(targetModel, resolver.GetNodeName(sequence)) {
         Increment = sequence.SequenceDescriptor.Increment.Value,
         // StartValue = sequence.SequenceDescriptor.StartValue.Value,
-        Type = typeInfo
       };
       return sequenceInfo;
     }

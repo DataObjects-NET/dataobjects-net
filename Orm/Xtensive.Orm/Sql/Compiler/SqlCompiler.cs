@@ -556,12 +556,8 @@ namespace Xtensive.Sql.Compiler
     
     public virtual void Visit(SqlCreateSequence node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.Sequence.DataType, "DataType");
       ArgumentValidator.EnsureArgumentNotNull(node.Sequence.SequenceDescriptor, "SequenceDescriptor");
       using (context.EnterScope(node)) {
-        var dataType = node.Sequence.DataType;
-        if (!SqlValueType.IsExactNumeric(dataType) || dataType.Scale.HasValue && dataType.Scale!=0)
-          throw new SqlCompilerException(Strings.ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale);
         if (node.Sequence.SequenceDescriptor.Increment.HasValue && node.Sequence.SequenceDescriptor.Increment.Value==0)
             throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
         if (string.IsNullOrEmpty(node.Sequence.Name))
