@@ -25,6 +25,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       return new ServerInfoProvider(this);
     }
 
+    protected override Model.Extractor CreateExtractor()
+    {
+      return new Extractor(this);
+    }
+
     public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser)
       : base(coreServerInfo, errorMessageParser)
     {

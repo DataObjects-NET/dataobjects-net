@@ -671,8 +671,12 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context,
-      SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    public virtual string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    {
+      return TranslateSequenceDescriptorDefault(context, descriptor, section);
+    }
+
+    protected string TranslateSequenceDescriptorDefault(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
       switch (section) {
       case SequenceDescriptorSection.StartValue:

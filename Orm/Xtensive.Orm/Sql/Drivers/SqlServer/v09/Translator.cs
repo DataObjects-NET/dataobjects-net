@@ -111,11 +111,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
-                                     SequenceDescriptorSection section)
+    public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
-      switch (section)
-      {
+      return TranslateIdentityDescriptor(context, descriptor, section);
+    }
+
+    protected string TranslateIdentityDescriptor(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    {
+      switch (section) {
         case SequenceDescriptorSection.StartValue:
         case SequenceDescriptorSection.RestartValue:
           if (descriptor.StartValue.HasValue)

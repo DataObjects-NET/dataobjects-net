@@ -10,7 +10,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private const int MaxIdentifierLength = 128;
+    protected const int MaxIdentifierLength = 128;
 
     private readonly string databaseName;
     private readonly string defaultSchemaName;

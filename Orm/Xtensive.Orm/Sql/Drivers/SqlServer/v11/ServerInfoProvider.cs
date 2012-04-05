@@ -10,6 +10,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 {
   internal class ServerInfoProvider : v10.ServerInfoProvider
   {
+    public override SequenceInfo GetSequenceInfo()
+    {
+      var info = new SequenceInfo();
+      info.AllowedDdlStatements = DdlStatements.All;
+      info.Features = SequenceFeatures.Cache;
+      info.MaxIdentifierLength = MaxIdentifierLength;
+      return info;
+    }
+
     public override QueryInfo GetQueryInfo()
     {
       var info = base.GetQueryInfo();

@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return schema;
     }
 
-    private void ExtractCatalogContents()
+    protected virtual void ExtractCatalogContents()
     {
       ExtractSchemas();
       ExtractTypes();
@@ -117,18 +117,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       query += " order by t.schema_id, t.object_id";
       query = AddCatalog(query);
 
-      int currentSchemaId = schemaId;
-      Schema schema = this.schema;
+      var currentSchemaId = schemaId;
+      var currentSchema = schema;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
-          GetSchema(reader.GetInt32(0), ref currentSchemaId, ref schema);
+          GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
           int tableType = reader.GetInt32(3);
           DataTable dataTable;
           if (tableType==0)
-            dataTable = schema.CreateTable(reader.GetString(2));
+            dataTable = currentSchema.CreateTable(reader.GetString(2));
           else
-            dataTable = schema.CreateView(reader.GetString(2));
+            dataTable = currentSchema.CreateView(reader.GetString(2));
           columnResolverIndex[reader.GetInt32(1)] = new ColumnResolver(dataTable);
         }
     }
@@ -446,16 +446,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return new SqlValueType(type, typeName, size, precision, scale);
     }
 
-    private void GetSchema(int id, ref int currentId, ref Schema currentObj)
+    protected void GetSchema(int id, ref int currentId, ref Schema currentObj)
     {
-      if ((schema!=null && id == currentId)) {
+      if ((schema!=null && id==currentId)) {
         currentObj = schema;
         return;
       }
 
-      if (id == currentId) {
+      if (id==currentId)
         return;
-      }
 
       currentObj = schemaIndex[id];
       currentId = id;
