@@ -169,11 +169,9 @@ namespace Xtensive.Orm
     {
       switch (behavior) {
         case TransactionalBehavior.Auto:
-          if ((Configuration.Options & SessionOptions.AutoTransactionOpenMode) ==
-              SessionOptions.AutoTransactionOpenMode)
+          if (Configuration.Supports(SessionOptions.AutoTransactionOpenMode))
             goto case TransactionalBehavior.Open;
-          if ((Configuration.Options & SessionOptions.AutoTransactionSuppressMode) ==
-              SessionOptions.AutoTransactionSuppressMode)
+          if (Configuration.Supports(SessionOptions.AutoTransactionSuppressMode))
             goto case TransactionalBehavior.Suppress;
           goto case TransactionalBehavior.Require;
         case TransactionalBehavior.Require:

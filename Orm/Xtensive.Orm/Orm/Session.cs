@@ -377,7 +377,7 @@ namespace Xtensive.Orm
       Name = configuration.Name;
       identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
-      allowSwitching = (configuration.Options & SessionOptions.AllowSwitching)==SessionOptions.AllowSwitching;
+      allowSwitching = configuration.Supports(SessionOptions.AllowSwitching);
 
       // Handlers
       Handlers = domain.Handlers;
@@ -411,7 +411,7 @@ namespace Xtensive.Orm
       disposableSet = new DisposableSet();
 
       // Handling Disconnected option
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected) {
+      if (Configuration.Supports(SessionOptions.Disconnected)) {
         disposableSet.Add(new DisconnectedState().Attach(this));
         disposableSet.Add(DisconnectedState.Connect());
       }

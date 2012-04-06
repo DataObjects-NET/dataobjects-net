@@ -346,12 +346,12 @@ namespace Xtensive.Orm
     {
       if (thisIsBound) {
         EnsureIsFetched(Field);
-        if (Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+        if (Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       if (otherIsBound) {
         other.EnsureIsFetched(other.Field);
-        if (other.Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+        if (other.Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);

@@ -68,7 +68,7 @@ namespace Xtensive.Orm
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void SaveChanges()
     {
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected)
+      if (Configuration.Supports(SessionOptions.Disconnected))
         DisconnectedState.ApplyChanges();
       else
         Persist(PersistReason.Manual);
@@ -81,7 +81,7 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
     public void CancelChanges()
     {
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected)
+      if (Configuration.Supports(SessionOptions.Disconnected))
         DisconnectedState.CancelChanges();
       else
         throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");

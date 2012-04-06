@@ -224,7 +224,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      return OpenSession(configuration, (configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation);
+      return OpenSession(configuration, configuration.Supports(SessionOptions.AutoActivation));
     }
 
     internal Session OpenSession(SessionConfiguration configuration, bool activate)

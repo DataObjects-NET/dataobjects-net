@@ -268,6 +268,11 @@ namespace Xtensive.Orm.Configuration
         Name, safeUserName, Options, CacheType, CacheSize, DefaultIsolationLevel);
     }
 
+    internal bool Supports(SessionOptions required)
+    {
+      return (options & required)==required;
+    }
+
 
     // Constructors
 

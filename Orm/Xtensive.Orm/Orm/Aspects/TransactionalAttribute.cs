@@ -101,7 +101,7 @@ namespace Xtensive.Orm
       IDisposable sessionScope = null;
       var activate = activateSession.HasValue
         ? activateSession.Value
-        : (session.Configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation;
+        : session.Configuration.Supports(SessionOptions.AutoActivation);
       if (activate)
         sessionScope = session.Activate(true);
       var tx = session.OpenAutoTransaction(Mode);

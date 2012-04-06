@@ -582,7 +582,7 @@ namespace Xtensive.Orm
 
     internal override sealed void SystemBeforeGetValue(FieldInfo field)
     {
-      if ((Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+      if (!Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
         EnsureNotRemoved();
       OrmLog.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
       EnsureIsFetched(field);
