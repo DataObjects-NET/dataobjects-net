@@ -166,11 +166,11 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
+    public override void AddSystemServices(ICollection<ServiceRegistration> r)
     {
-      registrations.Add(new ServiceRegistration(typeof (ISqlExecutor), new SqlExecutor(driver, connection, Session)));
-      registrations.Add(new ServiceRegistration(typeof (IDirectSqlService), this));
-      registrations.Add(new ServiceRegistration(typeof (IProviderExecutor), this));
+      r.Add(new ServiceRegistration(typeof (ISqlExecutor), new SqlExecutor(driver, connection, Session)));
+      r.Add(new ServiceRegistration(typeof (IDirectSqlService), this));
+      r.Add(new ServiceRegistration(typeof (IProviderExecutor), this));
     }
 
     /// <inheritdoc/>

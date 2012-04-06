@@ -151,28 +151,6 @@ namespace Xtensive.Orm.Providers
 
     #endregion
 
-    #region IoC support (Domain.Services)
-
-    /// <summary>
-    /// Creates parent service container 
-    /// for <see cref="Orm.Domain.Services"/> container.
-    /// </summary>
-    /// <returns>Container providing base services.</returns>
-    public IServiceContainer CreateBaseServices()
-    {
-      var registrations = new List<ServiceRegistration>{
-        new ServiceRegistration(typeof (Domain), Domain),
-        new ServiceRegistration(typeof (DomainConfiguration), Domain.Configuration),
-        new ServiceRegistration(typeof (HandlerAccessor), Handlers),
-        new ServiceRegistration(typeof (NameBuilder), Handlers.NameBuilder),
-        new ServiceRegistration(typeof (DomainHandler), this),
-        new ServiceRegistration(typeof (IStorageSequenceAccessor), new StorageSequenceAccessor(Handlers)),
-      };
-      return new ServiceContainer(registrations);
-    }
-
-    #endregion
-
     #region Private / internal methods
 
     private void BuildCompilationService()

@@ -130,10 +130,7 @@ namespace Xtensive.Orm
     /// </summary>
     internal GlobalTemporaryData TemporaryData { get; private set; }
 
-    internal DomainHandler Handler {
-      [DebuggerStepThrough]
-      get { return Handlers.DomainHandler; }
-    }
+    internal DomainHandler Handler { get { return Handlers.DomainHandler; } }
 
     internal HandlerAccessor Handlers { get; private set; }
 
@@ -144,6 +141,20 @@ namespace Xtensive.Orm
     internal ThreadSafeDictionary<object, object> Cache { get; private set; }
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
     internal ICache<Key, Key> KeyCache { get; private set; }
+
+    internal IServiceContainer CreateSystemServices()
+    {
+      var registrations = new List<ServiceRegistration>{
+        new ServiceRegistration(typeof (Domain), this),
+        new ServiceRegistration(typeof (DomainConfiguration), Configuration),
+        new ServiceRegistration(typeof (DomainHandler), Handler),
+        new ServiceRegistration(typeof (HandlerAccessor), Handlers),
+        new ServiceRegistration(typeof (NameBuilder), Handlers.NameBuilder),
+        new ServiceRegistration(typeof (IStorageSequenceAccessor), new StorageSequenceAccessor(Handlers)),
+      };
+
+      return new ServiceContainer(registrations);
+    }
 
     private void NotifySessionOpen(Session session)
     {

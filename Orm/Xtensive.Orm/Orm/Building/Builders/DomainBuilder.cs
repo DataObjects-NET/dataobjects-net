@@ -86,12 +86,11 @@ namespace Xtensive.Orm.Building.Builders
       using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
         var domain = context.Domain;
         var configuration = domain.Configuration;
-        var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
-        var registrations = CreateServiceRegistrations(configuration)
-          .Concat(KeyGeneratorFactory.GetRegistrations(context));
-        var baseServiceContainer = domain.Handler.CreateBaseServices();
-        domain.Services = ServiceContainer.Create(
-          typeof (ServiceContainer), registrations, ServiceContainer.Create(serviceContainerType, baseServiceContainer));
+        var userContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
+        var registrations = CreateServiceRegistrations(configuration).Concat(KeyGeneratorFactory.GetRegistrations(context));
+        var systemContainer = domain.CreateSystemServices();
+        var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
+        domain.Services = new ServiceContainer(registrations, userContainer);
       }
     }
 

@@ -63,35 +63,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
     public abstract void Persist(EntityChangeRegistry registry, bool allowPartialExecution);
 
-    #region IoC support (Domain.Services)
-
     /// <summary>
-    /// Creates parent service container 
-    /// for <see cref="Orm.Session.Services"/> container.
+    /// Adds system session service registration entries.
     /// </summary>
-    /// <returns>Container providing base services.</returns>
-    public virtual IServiceContainer CreateBaseServices()
-    {
-      var registrations = new List<ServiceRegistration>{
-        new ServiceRegistration(typeof (Session), Session),
-        new ServiceRegistration(typeof (SessionConfiguration), Session.Configuration),
-        new ServiceRegistration(typeof (SessionHandler), this),
-      };
-      AddBaseServiceRegistrations(registrations);
-      return new ServiceContainer(registrations, Session.Domain.Services);
-    }
-
-    /// <summary>
-    /// Adds base service registration entries into the list of
-    /// registrations used by <see cref="CreateBaseServices"/>
-    /// method.
-    /// </summary>
-    /// <param name="registrations">The list of service registrations.</param>
-    protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
+    /// <param name="r">The list of service registrations.</param>
+    public virtual void AddSystemServices(ICollection<ServiceRegistration> r)
     {
     }
-
-    #endregion
 
     /// <inheritdoc/>
     public virtual void Dispose()

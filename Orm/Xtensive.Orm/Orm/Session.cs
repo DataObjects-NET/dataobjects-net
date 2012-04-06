@@ -203,6 +203,26 @@ namespace Xtensive.Orm
       return options;
     }
 
+    private IServiceContainer CreateSystemServices()
+    {
+      var registrations = new List<ServiceRegistration>{
+        new ServiceRegistration(typeof (Session), this),
+        new ServiceRegistration(typeof (SessionConfiguration), Configuration),
+        new ServiceRegistration(typeof (SessionHandler), Handler),
+      };
+      Handler.AddSystemServices(registrations);
+      return new ServiceContainer(registrations, Domain.Services);
+    }
+
+    private IServiceContainer CreateServices()
+    {
+      var userContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);
+      var registrations = Domain.Configuration.Types.SessionServices.SelectMany(ServiceRegistration.CreateAll);
+      var systemContainer = CreateSystemServices();
+      var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
+      return new ServiceContainer(registrations, userContainer);
+    }
+
     #endregion
 
     #region IContext<...> methods
@@ -399,13 +419,7 @@ namespace Xtensive.Orm
       Operations = new OperationRegistry(this);
 
       // Creating Services
-      var serviceContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);
-      Services = 
-        ServiceContainer.Create(typeof (ServiceContainer), 
-          from type in Domain.Configuration.Types.SessionServices
-          from registration in ServiceRegistration.CreateAll(type)
-          select registration,
-          ServiceContainer.Create(serviceContainerType, Handler.CreateBaseServices()));
+      Services = CreateServices();
 
       disposableSet = new DisposableSet();
 
