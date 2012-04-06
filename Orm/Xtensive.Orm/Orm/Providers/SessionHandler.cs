@@ -7,18 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading;
-using Xtensive.Core;
-using Xtensive.Disposing;
 using Xtensive.IoC;
-using Xtensive.Orm;
-using Xtensive.Parameters;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Orm.Rse.Providers;
-using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Providers
 {
@@ -97,7 +88,6 @@ namespace Xtensive.Orm.Providers
     /// <param name="registrations">The list of service registrations.</param>
     protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
-      return;
     }
 
     #endregion
@@ -118,7 +108,6 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected virtual void Initialize()
     {
-      prefetchManager = new PrefetchManager(Session);
     }
 
     // Disposing

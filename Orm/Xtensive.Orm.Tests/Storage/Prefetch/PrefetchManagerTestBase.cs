@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       TextField = TitleType.Fields["Text"];
       GraphContainersField = typeof (PrefetchManager).GetField("graphContainers",
         BindingFlags.NonPublic | BindingFlags.Instance);
-      PrefetchProcessorField = typeof (SessionHandler).GetField("prefetchManager",
+      PrefetchProcessorField = typeof (SqlSessionHandler).GetField("prefetchManager",
         BindingFlags.NonPublic | BindingFlags.Instance);
       PrefetchTestHelper.FillDataBase(Domain);
     }

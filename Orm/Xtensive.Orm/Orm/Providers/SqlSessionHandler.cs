@@ -9,10 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Parameters;
 using Xtensive.Sql;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -99,7 +98,6 @@ namespace Xtensive.Orm.Providers
     {
       if (connection.ActiveTransaction!=null)
         driver.CommitTransaction(Session, connection);
-      EndNativeTransaction();
     }
 
     /// <inheritdoc/>
@@ -107,7 +105,12 @@ namespace Xtensive.Orm.Providers
     {
       if (connection.ActiveTransaction!=null)
         driver.RollbackTransaction(Session, connection);
-      EndNativeTransaction();
+    }
+
+    public override void CompletingTransaction(Transaction transaction)
+    {
+      prefetchManager.CancelTasks();
+      commandProcessor.ClearTasks();
     }
 
     #endregion
@@ -125,9 +128,12 @@ namespace Xtensive.Orm.Providers
       driver.EnsureConnectionIsOpen(Session, connection);
     }
 
-    private void EndNativeTransaction()
+    private void EnsureTransactionIsOpened()
     {
-      commandProcessor.ClearTasks();
+      var transaction = Session.Transaction;
+      if (transaction==null)
+        throw new InvalidOperationException(
+          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
     }
 
     #endregion
@@ -177,7 +183,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected override void Initialize()
     {
-      base.Initialize();
+      prefetchManager = new PrefetchManager(Session);
 
       domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;
