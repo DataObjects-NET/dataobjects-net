@@ -381,8 +381,7 @@ namespace Xtensive.Orm
 
       // Handlers
       Handlers = domain.Handlers;
-      Handler = new SqlSessionHandler();
-      Handler.Initialize(Handlers, this);
+      Handler = new SqlSessionHandler(this);
 
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);

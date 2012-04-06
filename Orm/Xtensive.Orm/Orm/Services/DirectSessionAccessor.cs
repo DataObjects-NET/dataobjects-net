@@ -47,7 +47,6 @@ namespace Xtensive.Orm.Services
       var result = new Disposable<Session, SessionHandler>(Session, Session.Handler,
         (disposing, session, oldHandler) => session.Handler = oldHandler);
       Session.Handler = newHandler;
-      newHandler.Session = Session;
       return result;
     }
 

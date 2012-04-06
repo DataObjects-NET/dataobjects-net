@@ -181,7 +181,16 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override void Initialize()
+    public override void Dispose()
+    {
+      if (isDisposed)
+        return;
+      isDisposed = true;
+      driver.CloseConnection(Session, connection);
+    }
+
+    public SqlSessionHandler(Session session)
+      : base(session)
     {
       prefetchManager = new PrefetchManager(Session);
 
@@ -190,15 +199,6 @@ namespace Xtensive.Orm.Providers
 
       connection = driver.CreateConnection(Session);
       commandProcessor = domainHandler.CommandProcessorFactory.CreateCommandProcessor(Session, connection);
-    }
-
-    /// <inheritdoc/>
-    public override void Dispose()
-    {
-      if (isDisposed)
-        return;
-      isDisposed = true;
-      driver.CloseConnection(Session, connection);
     }
   }
 }

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -28,7 +29,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
-    public Session Session { get; internal set; }
+    public Session Session { get; private set; }
 
     /// <summary>
     /// Gets the real session handler (the final handler in chain of all <see cref="ChainingSessionHandler"/>s).
@@ -92,27 +93,15 @@ namespace Xtensive.Orm.Providers
 
     #endregion
 
-    // Initialization
-
-    public void Initialize(HandlerAccessor handlers, Session session)
+    /// <inheritdoc/>
+    public virtual void Dispose()
     {
-      if (Handlers!=null)
-        throw new InvalidOperationException();
+    }
 
-      Handlers = handlers;
+    protected SessionHandler(Session session)
+    {
       Session = session;
-
-      Initialize();
+      Handlers = session.Handlers;
     }
-
-    /// <inheritdoc/>
-    protected virtual void Initialize()
-    {
-    }
-
-    // Disposing
-
-    /// <inheritdoc/>
-    public abstract void Dispose();
   }
 }

@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Providers
 {
   partial class SqlSessionHandler
   {
-    private PrefetchManager prefetchManager;
+    private readonly PrefetchManager prefetchManager;
 
     internal override int PrefetchTaskExecutionCount { get { return prefetchManager.TaskExecutionCount; } }
 
