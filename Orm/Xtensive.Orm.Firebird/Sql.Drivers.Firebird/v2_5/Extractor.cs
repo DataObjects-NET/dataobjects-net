@@ -304,6 +304,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         var sqlType = typeName.Length == 4 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
       }
+
+      if (typeName == "BLOB SUB TYPE 0")
+        return new SqlValueType(SqlType.VarCharMax);
+
+      if (typeName == "BLOB SUB TYPE 1")
+        return new SqlValueType(SqlType.VarBinaryMax);
+
       var typeInfo = Driver.ServerInfo.DataTypes[typeName];
       return typeInfo != null
         ? new SqlValueType(typeInfo.Type)

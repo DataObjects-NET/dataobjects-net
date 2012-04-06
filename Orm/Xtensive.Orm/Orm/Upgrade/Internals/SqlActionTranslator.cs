@@ -713,57 +713,27 @@ namespace Xtensive.Orm.Upgrade
         .Select(pair => new Pair<StorageColumnInfo, object>(
           sourceModel.Resolve(pair.First, true) as StorageColumnInfo,
           pair.Second)).ToArray();
+      
       if (updatedColumns.Length==0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
-      foreach (var pair in updatedColumns)
-        if (pair.Second==null) {
+      
+      foreach (var pair in updatedColumns) {
+        var column = pair.First;
+        var value = pair.Second;
+
+        if (value==null) {
           if (providerInfo.Supports(ProviderFeatures.UpdateDefaultValues))
-            update.Values[table[pair.First.Name]] = SqlDml.DefaultValue;
+            update.Values[table[column.Name]] = SqlDml.DefaultValue;
           else {
-            if (pair.First.Type.IsNullable)
-              update.Values[table[pair.First.Name]] = SqlDml.Null;
-            else {
-              var typeCode = Type.GetTypeCode(pair.First.Type.Type);
-              switch (typeCode) {
-                case TypeCode.Byte:
-                case TypeCode.Decimal:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                  update.Values[table[pair.First.Name]] = SqlDml.Literal(0);
-                  break;
-                case TypeCode.Double:
-                case TypeCode.Single:
-                  update.Values[table[pair.First.Name]] = SqlDml.Literal(0d);
-                  break;
-                case TypeCode.Boolean:
-                  update.Values[table[pair.First.Name]] = SqlDml.Literal(false);
-                  break;
-                case TypeCode.Char:
-                  update.Values[table[pair.First.Name]] = SqlDml.Literal('0');
-                  break;
-                case TypeCode.String:
-                  update.Values[table[pair.First.Name]] = SqlDml.Literal(string.Empty);
-                  break;
-                case TypeCode.DateTime:
-                  update.Values[table[pair.First.Name]] = SqlDml.Literal(DateTime.MinValue);
-                  break;
-                case TypeCode.Object:
-                  if (pair.First.Type.Type == typeof(Guid))
-                    update.Values[table[pair.First.Name]] = SqlDml.Literal(Guid.Empty);
-                  else if (pair.First.Type.Type == typeof(TimeSpan))
-                    update.Values[table[pair.First.Name]] = SqlDml.Literal(TimeSpan.MinValue);
-                  break;
-              }
-            }
+            if (column.Type.IsNullable)
+              update.Values[table[column.Name]] = SqlDml.Null;
+            else
+              update.Values[table[column.Name]] = GetDefaultValueExpression(column);
           }
         }
         else
-          update.Values[table[pair.First.Name]] = SqlDml.Literal(pair.Second);
+          update.Values[table[column.Name]] = SqlDml.Literal(value);
+      }
 
       update.Where = CreateConditionalExpression(hint, table);
 
@@ -1149,10 +1119,18 @@ namespace Xtensive.Orm.Upgrade
 
     private SqlExpression GetDefaultValueExpression(StorageColumnInfo columnInfo)
     {
-      var result = columnInfo.DefaultValue==null
-        ? (SqlExpression) SqlDml.Null
-        : SqlDml.Literal(columnInfo.DefaultValue);
-      return result;
+      if (columnInfo.DefaultValue!=null)
+        return SqlDml.Literal(columnInfo.DefaultValue);
+      var type = columnInfo.Type.Type;
+      var typeCode = Type.GetTypeCode(type);
+      switch (typeCode) {
+        case TypeCode.Char:
+          return SqlDml.Literal('0');
+        case TypeCode.String:
+          return SqlDml.Literal(string.Empty);
+        default:
+          return type.IsValueType && !type.IsNullable() ? SqlDml.Literal(Activator.CreateInstance(type)) : null;
+      }
     }
 
     private long? GetCurrentSequenceValue(StorageSequenceInfo sequenceInfo)
