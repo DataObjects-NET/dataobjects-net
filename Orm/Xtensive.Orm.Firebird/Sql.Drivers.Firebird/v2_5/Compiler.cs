@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class Compiler : SqlCompiler
   {
-    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks*100;
+    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
     protected static readonly long NanosecondsPerSecond = 1000000000;
     protected static readonly long NanosecondsPerMillisecond = 1000000;
     protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void VisitSelectFrom(SqlSelect node)
     {
-      if (node.From != null)
+      if (node.From!=null)
         base.VisitSelectFrom(node);
       else
         context.Output.AppendText("FROM RDB$DATABASE");
@@ -55,14 +55,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         bool needOpeningParenthesis = false;
         bool needClosingParenthesis = false;
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
-        if (needOpeningParenthesis) context.Output.AppendText("(");
+        if (needOpeningParenthesis)
+          context.Output.AppendText("(");
         node.Left.AcceptVisitor(this);
-        if (needClosingParenthesis) context.Output.AppendText(")");
+        if (needClosingParenthesis)
+          context.Output.AppendText(")");
         context.Output.AppendText(translator.Translate(node.NodeType));
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
-        if (needOpeningParenthesis) context.Output.AppendText("(");
+        if (needOpeningParenthesis)
+          context.Output.AppendText("(");
         node.Right.AcceptVisitor(this);
-        if (needClosingParenthesis) context.Output.AppendText(")");
+        if (needClosingParenthesis)
+          context.Output.AppendText(")");
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
       }
     }
@@ -72,19 +76,19 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (node.IntervalPart) {
         case SqlIntervalPart.Day:
-          Visit(CastToLong(node.Operand/NanosecondsPerDay));
+          Visit(CastToLong(node.Operand / NanosecondsPerDay));
           return;
         case SqlIntervalPart.Hour:
-          Visit(CastToLong(node.Operand/(60*60*NanosecondsPerSecond))%24);
+          Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
           return;
         case SqlIntervalPart.Minute:
-          Visit(CastToLong(node.Operand/(60*NanosecondsPerSecond))%60);
+          Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
           return;
         case SqlIntervalPart.Second:
-          Visit(CastToLong(node.Operand/NanosecondsPerSecond)%60);
+          Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
           return;
         case SqlIntervalPart.Millisecond:
-          Visit(CastToLong(node.Operand/NanosecondsPerMillisecond)%MillisecondsPerSecond);
+          Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
           return;
         case SqlIntervalPart.Nanosecond:
           Visit(CastToLong(node.Operand));
@@ -116,7 +120,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void Visit(SqlUnary node)
     {
-      if (node.NodeType == SqlNodeType.BitNot) {
+      if (node.NodeType==SqlNodeType.BitNot) {
         Visit(SqlDml.BitXor(node.Operand, SqlDml.Literal(Int64.MaxValue)));
         return;
       }
@@ -167,7 +171,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(SqlDml.Cast(node.Arguments[0], new SqlValueType("Date")));
           return;
         case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0])/NanosecondsPerMillisecond);
+          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
           return;
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToNanoseconds:
@@ -181,9 +185,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
-                                                    node.Arguments[0] - 2001),
-                                        node.Arguments[1] - 1),
-                           node.Arguments[2] - 1));
+            node.Arguments[0] - 2001),
+            node.Arguments[1] - 1),
+            node.Arguments[2] - 1));
           return;
       }
 
@@ -205,17 +209,17 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     protected static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return CastToLong(DateDiffDay(date2, date1))*NanosecondsPerDay
-             +
-             CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1))*
-             NanosecondsPerMillisecond;
+      return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
+        +
+        CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) *
+          NanosecondsPerMillisecond;
     }
 
     protected static SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
       return DateAddMillisecond(
-        DateAddDay(date, interval/NanosecondsPerDay),
-        (interval/NanosecondsPerMillisecond)%(MillisecondsPerDay));
+        DateAddDay(date, interval / NanosecondsPerDay),
+        (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
 
     protected static SqlCast CastToLong(SqlExpression arg)
@@ -287,6 +291,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     protected internal Compiler(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

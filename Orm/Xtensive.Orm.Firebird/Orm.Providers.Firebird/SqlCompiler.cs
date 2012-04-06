@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers.Firebird
   internal class SqlCompiler : Sql.SqlCompiler
   {
     // Constructors
-    
+
     public SqlCompiler(HandlerAccessor handlers)
       : base(handlers)
     {
