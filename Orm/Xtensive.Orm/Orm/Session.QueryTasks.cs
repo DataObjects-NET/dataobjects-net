@@ -17,7 +17,7 @@ namespace Xtensive.Orm
 
     internal void RegisterDelayedQuery(QueryTask task)
     {
-      if (IsDelayedQueryRunning)
+      if (isDelayedQueryRunning)
         throw new InvalidOperationException();
       queryTasks.Add(task);
     }
@@ -31,17 +31,17 @@ namespace Xtensive.Orm
 
     private bool ProcessDelayedQueries(bool allowPartialExecution)
     {
-      if (IsDelayedQueryRunning || queryTasks.Count==0)
+      if (isDelayedQueryRunning || queryTasks.Count==0)
         return false;
       EnsureTransactionIsStarted();
       try {
-        IsDelayedQueryRunning = true;
+        isDelayedQueryRunning = true;
         Handler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
         return true;
       }
       finally {
         queryTasks.Clear();
-        IsDelayedQueryRunning = false;
+        isDelayedQueryRunning = false;
       }
     }
   }

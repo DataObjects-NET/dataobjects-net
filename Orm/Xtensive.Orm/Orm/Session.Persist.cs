@@ -93,7 +93,7 @@ namespace Xtensive.Orm
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
-      var performPinning = Pinner.RootCount > 0;
+      var performPinning = pinner.RootCount > 0;
       if (performPinning || disableAutoSaveChanges) 
         switch (reason) {
           case PersistReason.NestedTransaction:
@@ -116,8 +116,8 @@ namespace Xtensive.Orm
 
             EntityChangeRegistry itemsToPersist;
             if (performPinning) {
-              Pinner.Process(EntityChangeRegistry);
-              itemsToPersist = Pinner.PersistableItems;
+              pinner.Process(EntityChangeRegistry);
+              itemsToPersist = pinner.PersistableItems;
             }
             else
               itemsToPersist = EntityChangeRegistry;
@@ -134,8 +134,8 @@ namespace Xtensive.Orm
                 item.Update(null);
 
               if (performPinning) {
-                EntityChangeRegistry = Pinner.PinnedItems;
-                Pinner.Reset();
+                EntityChangeRegistry = pinner.PinnedItems;
+                pinner.Reset();
               }
               else
                 EntityChangeRegistry.Clear();
@@ -173,7 +173,7 @@ namespace Xtensive.Orm
       targetEntity.EnsureNotRemoved();
       if (IsDisconnected)
         return new Disposable(b => {return;}); // No need to pin in this case
-      return Pinner.RegisterRoot(targetEntity.State);
+      return pinner.RegisterRoot(targetEntity.State);
     }
 
     /// <summary>

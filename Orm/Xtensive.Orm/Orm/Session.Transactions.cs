@@ -250,7 +250,7 @@ namespace Xtensive.Orm
     internal void CompleteTransaction(Transaction transaction)
     {
       queryTasks.Clear();
-      Pinner.ClearRoots();
+      pinner.ClearRoots();
 
       Transaction = transaction.Outer;
 
