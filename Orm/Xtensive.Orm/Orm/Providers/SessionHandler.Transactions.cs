@@ -63,25 +63,10 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public abstract void RollbackToSavepoint(Transaction transaction);
 
-    /// <summary>
-    /// Gets the name of the savepoint associated with the transaction.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
-    /// <returns>The name of the savepoint</returns>
-    public string GetSavepointName(Transaction transaction)
-    {
-      return transaction.SavepointName;
-    }
-
-
-    /// <summary>
-    /// Ensures the transaction is opened.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Transaction is not opened.</exception>
-    protected void EnsureTransactionIsOpened()
+    private void EnsureTransactionIsOpened()
     {
       var transaction = Session.Transaction;
-      if (transaction == null)
+      if (transaction==null)
         throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
     }
   }
