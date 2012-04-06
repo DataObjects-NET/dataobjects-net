@@ -121,6 +121,17 @@ namespace Xtensive.Orm.Providers
             // not parameter, just inlined constant
             configuration.PlaceholderValues.Add(binding, parameterValue.ToString());
             continue;
+          case QueryParameterBindingType.NonZeroLimitOffset:
+            // Like "LimitOffset" but we handle zero value specially
+            // We replace value with 1 and activate special branch that evaluates "where" part to "false"
+            var stringValue = parameterValue.ToString();
+            if (stringValue=="0") {
+              configuration.PlaceholderValues.Add(binding, "1");
+              configuration.AlternativeBranches.Add(binding);
+            }
+            else
+              configuration.PlaceholderValues.Add(binding, stringValue);
+            continue;
           case QueryParameterBindingType.RowFilter:
             var filterData = (List<Tuple>) parameterValue;
             var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;

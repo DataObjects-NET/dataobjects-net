@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Providers
     Multischema = 1L << 38,
     Multidatabase = 1L << 39,
     PagingRequiresOrderBy = 1L << 40,
+    ZeroLimitIsError = 1L << 41,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,

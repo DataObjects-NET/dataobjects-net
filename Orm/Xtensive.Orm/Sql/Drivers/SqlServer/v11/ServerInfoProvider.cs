@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
     public override QueryInfo GetQueryInfo()
     {
       var info = base.GetQueryInfo();
-      info.Features |= QueryFeatures.Offset;
+      info.Features |= QueryFeatures.Offset | QueryFeatures.ZeroLimitIsError;
       return info;
     }
 

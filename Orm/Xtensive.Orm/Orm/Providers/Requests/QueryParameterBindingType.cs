@@ -31,11 +31,16 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     BooleanConstant,
     /// <summary>
-    /// Indicates that parameter is a argument for paging operators
+    /// Indicates that parameter is an argument for paging operators
     /// and should be inlined in query as constant value.
     /// <see cref="ParameterBinding.TypeMapping"/> is ignored in this case.
     /// </summary>
     LimitOffset,
+    /// <summary>
+    /// Same as <see cref="LimitOffset"/> but 0 value handled differently.
+    /// It's replaced with 1 and alternative query node branch is activated.
+    /// </summary>
+    NonZeroLimitOffset,
     /// <summary>
     /// Indicates that parameter is row filter argument (i.e. a number of parameter vectors).
     /// <see cref="QueryParameterBinding.ValueAccessor"/> returns a collection of <see cref="Tuple"/>s.

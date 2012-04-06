@@ -54,8 +54,15 @@ namespace Xtensive.Orm.Providers
       var bindings = new List<QueryParameterBinding>();
 
       if (take!=null) {
-        var takeBinding = CreateLimitOffsetParameterBinding(take);
+        // Some servers (e.g. SQL Server 2012) don't like Take(0)
+        // We work around it with special hacks:
+        // Limit argument is replaced with 1
+        // and false condition is added to "where" part.
+        var applyZeroLimitHack = providerInfo.Supports(ProviderFeatures.ZeroLimitIsError);
+        var takeBinding = CreateLimitOffsetParameterBinding(take, applyZeroLimitHack);
         bindings.Add(takeBinding);
+        if (applyZeroLimitHack)
+          query.Where &= SqlDml.Variant(takeBinding, SqlDml.Literal(1), SqlDml.Literal(0))!=SqlDml.Literal(0);
         query.Limit = takeBinding.ParameterReference;
       }
 
@@ -118,8 +125,14 @@ namespace Xtensive.Orm.Providers
 
     private static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
     {
-      return new QueryParameterBinding(null,
-        BuildLimitOffsetAccessor(accessor), QueryParameterBindingType.LimitOffset);
+      return CreateLimitOffsetParameterBinding(accessor, false);
+    }
+
+    private static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor, bool nonZero)
+    {
+      var type = nonZero ? QueryParameterBindingType.NonZeroLimitOffset : QueryParameterBindingType.LimitOffset;
+      var valueAccessor = BuildLimitOffsetAccessor(accessor);
+      return new QueryParameterBinding(null, valueAccessor, type);
     }
 
     private static Func<object> BuildLimitOffsetAccessor(Func<int> originalAccessor)

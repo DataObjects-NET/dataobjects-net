@@ -121,6 +121,11 @@ namespace Xtensive.Sql.Info
     PagingRequiresOrderBy = 1 << 20,
 
     /// <summary>
+    /// Indicates whether RDBMS raises error when "limit 0" clause is provided.
+    /// </summary>
+    ZeroLimitIsError = 1 << 21,
+
+    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,
