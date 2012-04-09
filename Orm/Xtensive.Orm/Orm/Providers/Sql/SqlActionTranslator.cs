@@ -1108,15 +1108,7 @@ namespace Xtensive.Orm.Providers.Sql
       if (columnInfo.DefaultValue!=null)
         return SqlDml.Literal(columnInfo.DefaultValue);
       var type = columnInfo.Type.Type;
-      var typeCode = Type.GetTypeCode(type);
-      switch (typeCode) {
-        case TypeCode.Char:
-          return SqlDml.Literal('0');
-        case TypeCode.String:
-          return SqlDml.Literal(string.Empty);
-        default:
-          return type.IsValueType && !type.IsNullable() ? SqlDml.Literal(Activator.CreateInstance(type)) : null;
-      }
+      return type.IsValueType && !type.IsNullable() ? SqlDml.Literal(Activator.CreateInstance(type)) : null;
     }
 
     private long? GetCurrentSequenceValue(string sequenceInfoName)
