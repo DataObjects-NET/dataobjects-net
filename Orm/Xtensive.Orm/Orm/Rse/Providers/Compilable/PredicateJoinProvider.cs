@@ -11,7 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>  
     public PredicateJoinProvider(CompilableProvider left, CompilableProvider right,
       Expression<Func<Tuple, Tuple, bool>> predicate, JoinType joinType)

@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public FullTextColumnInfo(ColumnInfo column)
       : base(column.Name)

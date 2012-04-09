@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade.Model;
 
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Rse
     #region Basic constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name"><see cref="Column.Name"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
     /// <param name="name"><see cref="Column.Name"/> property value.</param>

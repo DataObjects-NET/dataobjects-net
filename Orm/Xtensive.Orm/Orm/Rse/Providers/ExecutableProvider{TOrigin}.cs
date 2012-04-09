@@ -5,7 +5,7 @@
 // Created:    2008.08.13
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>

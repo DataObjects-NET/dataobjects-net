@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Operations
 {
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Operations
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />.
+    /// Initializes a new instance of this class..
     /// </summary>
     /// <param name="key">The key of the entity.</param>
     protected KeyOperation(Key key)

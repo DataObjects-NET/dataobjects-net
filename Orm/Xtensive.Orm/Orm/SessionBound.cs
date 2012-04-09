@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Aspects;
 using Xtensive.IoC;
 using Xtensive.Orm.Model;
@@ -69,7 +69,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected SessionBound() 
       : this(Session.Demand())
@@ -77,7 +77,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/> 
+    /// Initializes a new instance of this class. 
     /// </summary>
     /// <param name="session"><see cref="Orm.Session"/>, to which current instance 
     /// is bound.</param>

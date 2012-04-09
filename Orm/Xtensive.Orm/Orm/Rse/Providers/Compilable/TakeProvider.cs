@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Helpers;
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The <see cref="Count"/> property value.</param>
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The value for <see cref="Count"/> function property.</param>

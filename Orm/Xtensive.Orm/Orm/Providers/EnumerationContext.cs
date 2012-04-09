@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="sessionHandler">The session handler.</param>
     /// <param name="options">A value for <see cref="Options"/>.</param>

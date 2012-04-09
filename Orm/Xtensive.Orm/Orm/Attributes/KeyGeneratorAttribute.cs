@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -45,7 +45,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public KeyGeneratorAttribute()
       : this(typeof(KeyGenerator))
@@ -53,7 +53,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The generator type. Must be inherited from the <see cref="KeyGenerator"/> type</param>
     /// <remarks><paramref name="type"/> can be null.</remarks>
@@ -63,7 +63,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="keyGeneratorKind">Kind of the key generator.</param>
     /// <exception cref="ArgumentOutOfRangeException"><c>keyGeneratorKind</c> cannot be 

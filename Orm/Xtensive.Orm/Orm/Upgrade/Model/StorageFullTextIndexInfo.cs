@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="parent">The parent table.</param>
     /// <param name="name">The index.</param>

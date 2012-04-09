@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Providers.Sql
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public PersistRequestBuilder()
     {

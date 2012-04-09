@@ -5,7 +5,7 @@
 // Created:    2009.12.14
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -34,7 +34,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public FullTextAttribute(string configuration)
     {

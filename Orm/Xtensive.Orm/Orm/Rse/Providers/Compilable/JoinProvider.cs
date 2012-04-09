@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>

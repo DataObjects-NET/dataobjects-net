@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 using Xtensive.Reflection;
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected EnumerationContext()
     {

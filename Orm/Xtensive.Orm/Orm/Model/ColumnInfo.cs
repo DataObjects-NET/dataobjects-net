@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="field">The <see cref="Field"/> property value.</param>
     public ColumnInfo(FieldInfo field)
@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="field"><see cref="Field"/> property value.</param>
     /// <param name="valueType"><see cref="ValueType"/> property value.</param>

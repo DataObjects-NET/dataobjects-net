@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
@@ -1154,7 +1154,7 @@ namespace Xtensive.Orm.Providers.Sql
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="actions">The actions to translate.</param>
     /// <param name="schema">The schema.</param>

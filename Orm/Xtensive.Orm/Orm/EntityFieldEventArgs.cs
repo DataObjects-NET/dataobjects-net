@@ -4,7 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2009.10.08
 
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
@@ -24,7 +24,7 @@ namespace Xtensive.Orm
 
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="entity">The entity.</param>
     /// <param name="field">The field.</param>

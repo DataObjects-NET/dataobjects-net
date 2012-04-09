@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Validation
 {
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Validation
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public RegexConstraint()
     {

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right)
       : this(applyParameter, left, right, false, ApplySequenceType.All, JoinType.Inner)
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
 
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool isInlined, ApplySequenceType applySequenceType, JoinType applyType)
       : base(ProviderType.Apply, left, right)

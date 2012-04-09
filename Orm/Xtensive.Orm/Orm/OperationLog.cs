@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Operations;
 
 
@@ -159,7 +159,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="logType">Type of the log.</param>
     public OperationLog(OperationLogType logType)
@@ -168,7 +168,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="logType">Type of the log.</param>
     /// <param name="operations">The operations to add (using <see cref="Log"/> method).</param>

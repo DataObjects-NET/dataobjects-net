@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Operations
 {
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Operations
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="operation">The <see cref="Operation"/> property value.</param>
     public OperationEventArgs(IOperation operation)

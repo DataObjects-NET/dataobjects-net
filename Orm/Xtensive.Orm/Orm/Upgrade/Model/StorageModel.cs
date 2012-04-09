@@ -5,7 +5,7 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The storage name.</param>
     public StorageModel(string name)
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public StorageModel()
       : base(null, DefaultName)

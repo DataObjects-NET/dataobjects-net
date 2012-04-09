@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Validation
 {
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Validation
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>  
     /// <param name="message">The error message.</param>
     public ConstraintViolationException(string message, Type type, PropertyInfo property, object value)

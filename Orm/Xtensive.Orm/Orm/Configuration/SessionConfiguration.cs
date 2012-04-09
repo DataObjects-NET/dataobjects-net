@@ -8,7 +8,7 @@ using System;
 using System.Transactions;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Configuration
 {
@@ -272,7 +272,7 @@ namespace Xtensive.Orm.Configuration
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public SessionConfiguration()
       : this(WellKnown.Sessions.Default)
@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="sessionOptions">The session options.</param>
     public SessionConfiguration(SessionOptions sessionOptions)
@@ -288,7 +288,7 @@ namespace Xtensive.Orm.Configuration
     {}
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name)
@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Configuration
     {}
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name, SessionOptions sessionOptions) 

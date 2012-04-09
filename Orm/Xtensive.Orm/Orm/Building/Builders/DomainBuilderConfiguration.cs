@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Building.Builders
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
     /// <param name="modules">The collection of modules.</param>

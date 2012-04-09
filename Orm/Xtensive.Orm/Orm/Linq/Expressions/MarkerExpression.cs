@@ -5,7 +5,7 @@
 // Created:    2009.06.22
 
 using System.Linq.Expressions;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq.Expressions
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public MarkerExpression(Expression target, MarkerType markerType)
       : base(ExtendedExpressionType.Marker, target.Type)

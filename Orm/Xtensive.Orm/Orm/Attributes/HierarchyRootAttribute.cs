@@ -5,7 +5,7 @@
 // Created:    2008.01.11
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
@@ -70,7 +70,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public HierarchyRootAttribute()
       : this(InheritanceSchema.Default)
@@ -78,7 +78,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="schema">The inheritance schema for the hierarchy.</param>
     public HierarchyRootAttribute(InheritanceSchema schema)

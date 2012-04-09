@@ -5,7 +5,7 @@
 // Created:    2008.09.11
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Helpers;
 using Xtensive.Orm.Rse;
 
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Rse
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="descriptor"><see cref="AggregateColumnDescriptor"/> property value.</param>
     /// <param name="index"><see cref="SourceIndex"/> property value.</param>

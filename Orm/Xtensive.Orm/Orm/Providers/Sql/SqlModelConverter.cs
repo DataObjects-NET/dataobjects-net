@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
@@ -340,7 +340,7 @@ namespace Xtensive.Orm.Providers.Sql
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="storageSchema">The schema.</param>
     /// <param name="providerInfo">The provider info.</param>

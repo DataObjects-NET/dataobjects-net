@@ -10,7 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
@@ -535,7 +535,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="providerInfo">Information about underlying storage.</param>
     /// <param name="storageModelBuilder">Storage model builder.</param>

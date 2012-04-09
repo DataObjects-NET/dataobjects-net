@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Parameters;
 using Xtensive.Tuples;
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public ApplyParameter(string name)
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ApplyParameter()
       : this(string.Empty)

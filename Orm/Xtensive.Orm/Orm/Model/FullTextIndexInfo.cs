@@ -5,7 +5,7 @@
 // Created:    2009.12.23
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public FullTextIndexInfo(IndexInfo primaryIndex, string name)
       : base(name)

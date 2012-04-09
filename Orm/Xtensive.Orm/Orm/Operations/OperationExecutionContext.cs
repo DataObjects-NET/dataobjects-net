@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Operations
 {
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Operations
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public OperationExecutionContext(Session session)
     {

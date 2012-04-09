@@ -5,7 +5,7 @@
 // Created:    2009.06.07
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -89,7 +89,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="pairTo">The pair to.</param>
     public AssociationAttribute(string pairTo)

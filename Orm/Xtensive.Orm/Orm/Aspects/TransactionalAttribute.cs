@@ -17,7 +17,7 @@ using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
 using Xtensive.Disposing;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Orm.Configuration;
 
@@ -152,14 +152,14 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public TransactionalAttribute()
       : this (TransactionalBehavior.Open)
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="mode">The transaction opening mode.</param>
     public TransactionalAttribute(TransactionalBehavior mode)

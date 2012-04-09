@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="take">The <see cref="Take"/> property value.</param>
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="skip">The value for <see cref="Skip"/> function property.</param>
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="pagingProvider">The paging provider.</param>

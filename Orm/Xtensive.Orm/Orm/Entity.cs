@@ -16,7 +16,7 @@ using Xtensive.Aspects;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Xtensive.Orm.Validation;
@@ -771,7 +771,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected Entity()
     {
@@ -790,7 +790,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     protected Entity(Session session)
@@ -831,7 +831,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="values">The field values that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
@@ -880,7 +880,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="values">The field values that will be used for key building.</param>
@@ -973,7 +973,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>

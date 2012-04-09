@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -223,7 +223,7 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>

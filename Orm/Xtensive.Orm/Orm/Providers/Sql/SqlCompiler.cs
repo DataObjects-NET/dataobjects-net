@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Providers.Sql.Expressions;
 using Xtensive.Reflection;
 using Xtensive.Sql;
@@ -482,7 +482,7 @@ namespace Xtensive.Orm.Providers.Sql
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public SqlCompiler(HandlerAccessor handlers)
     {

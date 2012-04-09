@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="orderingDescriptorResolver">The resolver of
     /// <see cref="ProviderOrderingDescriptor"/>.</param>

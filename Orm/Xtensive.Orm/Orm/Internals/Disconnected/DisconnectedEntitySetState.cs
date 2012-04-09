@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Disconnected
 {
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Disconnected
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="items">The items.</param>
     /// <param name="isFullyLoaded">if set to <see langword="true"/> state is fully loaded.</param>
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Disconnected
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="origin">The origin state.</param>
     public DisconnectedEntitySetState(DisconnectedEntitySetState origin)

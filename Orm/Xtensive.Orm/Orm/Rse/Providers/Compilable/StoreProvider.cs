@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public StoreProvider(Provider source)

@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Disconnected;
 
 
@@ -23,7 +23,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this class.
     /// </summary>
     public ConnectionRequiredException()
       : base(Strings.ExConnectionIsRequired)
@@ -31,7 +31,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="text">Text of message.</param>
     public ConnectionRequiredException(string text)

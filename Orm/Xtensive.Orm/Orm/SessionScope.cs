@@ -6,7 +6,7 @@
 
 using System;
 using System.Threading;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 namespace Xtensive.Orm
@@ -36,7 +36,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session to activate.</param>
     public SessionScope(Session session)

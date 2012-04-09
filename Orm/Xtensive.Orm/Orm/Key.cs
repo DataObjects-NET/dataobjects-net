@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
@@ -514,7 +514,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="accuracy">The typre reference accuracy.</param>

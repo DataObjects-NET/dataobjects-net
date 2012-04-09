@@ -5,7 +5,7 @@
 // Created:    2009.06.01
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Providers
 {
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, int maxIdentifierLength)
     {

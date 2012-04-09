@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Xtensive.Orm.Rse.Providers;
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	Initializes a new instance of this class.
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Linq
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>

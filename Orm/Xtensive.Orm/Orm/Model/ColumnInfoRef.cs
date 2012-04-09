@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Orm.Model
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="columnInfo">The <see cref="ColumnInfo"/> instance.</param>
     public ColumnInfoRef(ColumnInfo columnInfo)
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Model
 
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="typeName">Column type name.</param>
     /// <param name="columnName">Column name.</param>

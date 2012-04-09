@@ -13,7 +13,7 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Operations
 {
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="keys">The keys of entities to remove.</param>
     public EntitiesRemoveOperation(IEnumerable<Key> keys)

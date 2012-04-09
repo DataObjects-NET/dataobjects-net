@@ -6,7 +6,7 @@
 
 using System;
 using System.Text;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 
@@ -50,7 +50,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Value for <see cref="Type"/>.</param>
     /// <param name="field">Value for <see cref="Field"/>.</param>

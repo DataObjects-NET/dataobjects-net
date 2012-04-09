@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Aspects;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Operations
 {

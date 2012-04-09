@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    ///  <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///  Initializes a new instance of this class.
     /// </summary>
     /// <param name="left">The left provider to execute except operation.</param>
     /// <param name="right">The right provider to to execute except operation.</param>
