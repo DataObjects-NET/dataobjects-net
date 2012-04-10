@@ -516,6 +516,9 @@ namespace Xtensive.Orm.Model
         a => a.TargetType.UnderlyingType.IsAssignableFrom(targetType.UnderlyingType));
     }
 
+    /// <summary>
+    /// Gets the associations.
+    /// </summary>
     public NodeCollection<AssociationInfo> Associations
     {
       get { return associations; }
@@ -568,7 +571,7 @@ namespace Xtensive.Orm.Model
             result.Add(item);
     }
 
-    /// <inheritdoc/>
+    
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
@@ -583,7 +586,7 @@ namespace Xtensive.Orm.Model
       CreateMappingInfo();
     }
 
-    /// <inheritdoc/>
+    
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
@@ -626,7 +629,14 @@ namespace Xtensive.Orm.Model
 
     #region Equals, GetHashCode methods
 
-    /// <inheritdoc/>
+    
+    /// <summary>
+    /// Determines whether the specified <see cref="FieldInfo"/> is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The <see cref="FieldInfo"/> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="FieldInfo"/> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
     public bool Equals(FieldInfo obj)
     {
       if (ReferenceEquals(null, obj))
@@ -640,7 +650,14 @@ namespace Xtensive.Orm.Model
         obj.Name == Name;
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(this, obj))
@@ -650,7 +667,7 @@ namespace Xtensive.Orm.Model
       return Equals((FieldInfo) obj);
     }
 
-    /// <inheritdoc/>
+    
     public override int GetHashCode()
     {
       if (cachedHashCode.HasValue)
@@ -679,7 +696,7 @@ namespace Xtensive.Orm.Model
 
     #region ICloneable methods
 
-    /// <inheritdoc/>
+    
     object ICloneable.Clone()
     {
       return Clone();

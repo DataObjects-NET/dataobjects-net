@@ -30,13 +30,13 @@ namespace Xtensive.Orm.Rse.Helpers
       get { return mappings; }
     }
 
-    /// <inheritdoc/>
+    
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
     }
 
-    /// <inheritdoc/>
+    
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (mc.IsTupleAccess(tupleParameter)) {

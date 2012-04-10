@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers.Sql
       
     }
 
-    /// <inheritdoc/>
+    
     public override void Initialize()
     {
       domainHandler = (DomainHandler) Handlers.DomainHandler;

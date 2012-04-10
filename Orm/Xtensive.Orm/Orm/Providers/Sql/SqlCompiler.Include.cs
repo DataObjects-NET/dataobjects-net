@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers.Sql
 {
   partial class SqlCompiler 
   {
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitInclude(IncludeProvider provider)
     {
       var source = Compile(provider.Source);

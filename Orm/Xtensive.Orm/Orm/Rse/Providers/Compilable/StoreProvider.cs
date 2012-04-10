@@ -38,14 +38,14 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public Provider Source { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
 
    
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return string.Format(ToStringFormat, Scope, Name);

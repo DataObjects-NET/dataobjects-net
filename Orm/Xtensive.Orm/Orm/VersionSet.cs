@@ -25,7 +25,7 @@ namespace Xtensive.Orm
     private Dictionary<Ref<Entity>, VersionInfo> versions = 
       new Dictionary<Ref<Entity>, VersionInfo>();
 
-    /// <inheritdoc/>
+    
     public long Count {
       get { return versions.Count; }
     }
@@ -272,14 +272,14 @@ namespace Xtensive.Orm
 
     #region IEnumerable<...> methods
 
-    /// <inheritdoc/>
+    
     public IEnumerator<KeyValuePair<Key, VersionInfo>> GetEnumerator()
     {
       foreach (var pair in versions)
         yield return new KeyValuePair<Key, VersionInfo>(pair.Key, pair.Value);
     }
 
-    /// <inheritdoc/>
+    
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

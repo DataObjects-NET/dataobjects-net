@@ -27,35 +27,56 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     public VersionInfo Version { get; private set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets a value indicating whether to ignore the duplicate of this operation,
+    /// or to throw an <see cref="InvalidOperationException"/>.
+    /// </summary>
     public bool IgnoreIfDuplicate { get { return true; } }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets object identifier.
+    /// </summary>
     public object Identifier
     {
       get { return Key; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the title of the operation.
+    /// </summary>
     public override string Title
     {
       get { return "Validate version"; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the description.
+    /// </summary>
     public override string Description {
       get {
         return "{0}, Version = {1}".FormatWith(base.Description, Version);
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Prepares the self.
+    /// </summary>
+    /// <param name="context">The context.</param>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       context.RegisterKey(Key, false);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Executes the operation itself.
+    /// </summary>
+    /// <param name="context">The operation execution context.</param>
     /// <exception cref="VersionConflictException">Version check failed.</exception>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
@@ -70,7 +91,12 @@ namespace Xtensive.Orm.Operations
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Clones the operation itself.
+    /// </summary>
+    /// <param name="clone"></param>
+    /// <returns></returns>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
@@ -95,14 +121,25 @@ namespace Xtensive.Orm.Operations
 
     // Serialization
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValidateVersionOperation"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     public ValidateVersionOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       Version = (VersionInfo) info.GetValue("Version", typeof (VersionInfo));
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+    /// </summary>
+    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Version", Version);

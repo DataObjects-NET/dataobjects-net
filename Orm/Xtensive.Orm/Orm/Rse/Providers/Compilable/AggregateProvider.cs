@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public MapTransform Transform { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       return Source.Header
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
         .Add(AggregateColumns);
     }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       if (GroupColumnIndexes.Length==0)
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
           GroupColumnIndexes.ToCommaDelimitedString());
     }
 
-    /// <inheritdoc/>
+    
     protected override void Initialize()
     {
       base.Initialize();

@@ -23,11 +23,21 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private readonly ApplyParameter applyParameter;
     private readonly Func<MethodCallExpression, int, Expression> processor;
 
+    /// <summary>
+    /// Visits the expression.
+    /// </summary>
+    /// <param name="e">The expression.</param>
+    /// <returns></returns>
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
     }
 
+    /// <summary>
+    /// Visits the <see cref="MethodCallExpression"/>.
+    /// </summary>
+    /// <param name="mc">MethodCallExpression</param>
+    /// <returns></returns>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       var tupleAccess = mc.AsTupleAccess();
@@ -44,7 +54,12 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return base.VisitMethodCall(mc);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Visits the specified expression.
+    /// </summary>
+    /// <param name="e">The expression.</param>
+    /// <returns></returns>
     public new Expression Visit(Expression e)
     {
       return base.Visit(e);

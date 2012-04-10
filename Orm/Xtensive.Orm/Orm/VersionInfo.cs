@@ -113,14 +113,14 @@ namespace Xtensive.Orm
 
     #region Equals, GetHashCode, ==, !=
 
-    /// <inheritdoc/>
+    
     [DebuggerStepThrough]
     public bool Equals(VersionInfo other)
     {
       return Equals(Value, other.Value);
     }
 
-    /// <inheritdoc/>
+    
     [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
@@ -133,19 +133,33 @@ namespace Xtensive.Orm
       return Equals((VersionInfo) obj);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(VersionInfo left, VersionInfo right)
     {
       return !left.ConflictsWith(right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(VersionInfo left, VersionInfo right)
     {
       return left.ConflictsWith(right);
     }
 
-    /// <inheritdoc/>
+    
     [DebuggerStepThrough]
     public override int GetHashCode()
     {
@@ -160,7 +174,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    /// <inheritdoc/>
+    
     [DebuggerStepThrough]
     public override string ToString()
     {

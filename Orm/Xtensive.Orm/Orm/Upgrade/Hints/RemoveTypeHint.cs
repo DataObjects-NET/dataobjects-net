@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public ReadOnlyList<string> AffectedTables { get; internal set; }
 
-    /// <inheritdoc/>
+    
     public bool Equals(RemoveTypeHint other)
     {
       if (ReferenceEquals(null, other))
@@ -42,13 +42,13 @@ namespace Xtensive.Orm.Upgrade
         && other.Type == Type;
     }
 
-    /// <inheritdoc/>
+    
     public override bool Equals(UpgradeHint other)
     {
       return Equals(other as RemoveTypeHint);
     }
 
-    /// <inheritdoc/>
+    
     public override int GetHashCode()
     {
       unchecked {
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return string.Format(ToStringFormat, Type);

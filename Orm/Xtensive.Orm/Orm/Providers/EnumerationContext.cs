@@ -28,6 +28,10 @@ namespace Xtensive.Orm.Providers
       private readonly Queue<Action> finalizationQueue;
       private readonly TransactionScope transactionScope;
 
+      /// <summary>
+      /// Completes this scope.
+      /// This method can be called multiple times; if so, only the first call makes sense.
+      /// </summary>
       public void Complete()
       {
         if (IsCompleted)
@@ -36,8 +40,14 @@ namespace Xtensive.Orm.Providers
         transactionScope.Complete();
       }
 
+      /// <summary>
+      /// Gets a value indicating whether this instance is <see cref="M:Xtensive.Disposing.ICompletableScope.Complete"/>d.
+      /// </summary>
       public bool IsCompleted { get; private set; }
 
+      /// <summary>
+      /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+      /// </summary>
       public void Dispose()
       {
         while (finalizationQueue.Count > 0) {
@@ -47,6 +57,11 @@ namespace Xtensive.Orm.Providers
         transactionScope.DisposeSafely();
       }
 
+      /// <summary>
+      /// Initializes a new instance of the <see cref="EnumerationFinalizer"/> class.
+      /// </summary>
+      /// <param name="finalizationQueue">The finalization queue.</param>
+      /// <param name="transactionScope">The transaction scope.</param>
       public EnumerationFinalizer(Queue<Action> finalizationQueue, TransactionScope transactionScope)
       {
         this.finalizationQueue = finalizationQueue;
@@ -62,10 +77,19 @@ namespace Xtensive.Orm.Providers
 
     internal MaterializationContext MaterializationContext { get; set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the options of this context.
+    /// </summary>
     public override EnumerationContextOptions Options { get { return options; } }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Should be called before enumeration of your <see cref="IEnumerable{T}"/>.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="IDisposable"/> object.
+    /// </returns>
     public override ICompletableScope BeginEnumeration()
     {
       var session = SessionHandler.Session;
@@ -76,7 +100,10 @@ namespace Xtensive.Orm.Providers
       return tx;
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the global temporary data.
+    /// </summary>
     public override GlobalTemporaryData GlobalTemporaryData {
       get {
         var domain = Domain.Current;
@@ -84,7 +111,10 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the transaction temporary data.
+    /// </summary>
     public override TransactionTemporaryData TransactionTemporaryData {
       get {
         var transaction = Transaction.Current;
@@ -92,13 +122,21 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Factory method. Creates new <see cref="EnumerationContext"/>.
+    /// </summary>
+    /// <returns></returns>
     public override Rse.Providers.EnumerationContext CreateNew()
     {
       return new EnumerationContext(SessionHandler, options);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Creates the active scope.
+    /// </summary>
+    /// <returns></returns>
     protected override Rse.Providers.EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);

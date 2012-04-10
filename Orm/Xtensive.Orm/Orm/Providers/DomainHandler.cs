@@ -161,7 +161,11 @@ namespace Xtensive.Orm.Providers
 
     // Initialization
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializer.
+    /// Invoked right after creation and initial configuration of the handler.
+    /// </summary>
     public override void Initialize()
     {
       Domain = BuildingContext.Demand().Domain;
@@ -171,6 +175,9 @@ namespace Xtensive.Orm.Providers
       BuildCompilationService();
     }
 
+    /// <summary>
+    /// Configures the services.
+    /// </summary>
     public void ConfigureServices()
     {
       BuildQueryPreprocessors();

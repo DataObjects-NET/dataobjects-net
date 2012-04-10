@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Providers.Sql
       return field.MappingInfo.Offset;
     }
 
-    /// <inheritdoc/>
+    
     public override void Initialize()
     {
       DomainHandler = (DomainHandler) Handlers.DomainHandler;

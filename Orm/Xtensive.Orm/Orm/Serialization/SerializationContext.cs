@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Serialization
       return currentContext;
     }
 
-    /// <inheritdoc/>
+    
     protected override SerializationScope CreateActiveScope()
     {
       return new SerializationScope(this);
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Serialization
       return serializationKindGetter.Invoke(entity);
     }
 
-    /// <inheritdoc/>
+    
     public override bool IsActive
     {
       get { return SerializationScope.CurrentContext==this; }

@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public Func<int> Count { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return Count.ToString();

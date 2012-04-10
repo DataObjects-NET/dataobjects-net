@@ -18,7 +18,14 @@ namespace Xtensive.Orm.Building.Definitions
   [Serializable]
   public sealed class FullTextIndexDef : Node
   {
+    /// <summary>
+    /// Gets the type.
+    /// </summary>
     public TypeDef Type { get; private set; }
+
+    /// <summary>
+    /// Gets the fields.
+    /// </summary>
     public List<FullTextFieldDef> Fields { get; private set; }
 
     // Constructors

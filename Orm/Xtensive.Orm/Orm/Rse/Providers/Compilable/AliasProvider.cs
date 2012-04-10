@@ -22,13 +22,13 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public string Alias { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       return base.BuildHeader().Alias(Alias);
     }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return Alias;

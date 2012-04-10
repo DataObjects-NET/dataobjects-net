@@ -36,7 +36,7 @@ namespace Xtensive.Orm
     /// </summary>
     public string Constraint { get; private set; }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       var builder = new StringBuilder();

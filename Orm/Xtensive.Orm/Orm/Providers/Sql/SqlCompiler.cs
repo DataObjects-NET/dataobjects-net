@@ -22,7 +22,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers.Sql
 {
-  /// <inheritdoc/>
+  
   [Serializable]
   public partial class SqlCompiler : Compiler<SqlProvider>
   {
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     protected HandlerAccessor Handlers { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitAlias(AliasProvider provider)
     {
       var source = Compile(provider.Source);
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(sqlSelect, provider, source);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitCalculate(CalculateProvider provider)
     {
       var source = Compile(provider.Source);
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(sqlSelect, allBindings, provider, source);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitDistinct(DistinctProvider provider)
     {
       var source = Compile(provider.Source);
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, source);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitFilter(FilterProvider provider)
     {
       var source = Compile(provider.Source);
@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, bindings, provider, source);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitJoin(JoinProvider provider)
     {
       var left = Compile(provider.Left);
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, left, right);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       var left = Compile(provider.Left);
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, bindings, provider, left, right);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitSeek(SeekProvider provider)
     {
       var compiledSource = Compile(provider.Source);
@@ -275,7 +275,7 @@ namespace Xtensive.Orm.Providers.Sql
       return () => seekKeyAccessor.Invoke().GetValue(index);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitSelect(SelectProvider provider)
     {
       var compiledSource = Compile(provider.Source);
@@ -288,7 +288,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, compiledSource);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitSort(SortProvider provider)
     {
       var compiledSource = Compile(provider.Source);
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, compiledSource);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitStore(StoreProvider provider)
     {
       var source =
@@ -341,7 +341,7 @@ namespace Xtensive.Orm.Providers.Sql
       return new SqlStoreProvider(Handlers, request, descriptor, provider, source);
     }
     
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitExistence(ExistenceProvider provider)
     {
       var source = Compile(provider.Source);
@@ -359,7 +359,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(select, provider, source);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitIntersect(IntersectProvider provider)
     {
       var left = Compile(provider.Left);
@@ -378,7 +378,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, left, right);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitExcept(ExceptProvider provider)
     {
       var left = Compile(provider.Left);
@@ -396,7 +396,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, left, right);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitConcat(ConcatProvider provider)
     {
       var left = Compile(provider.Left);
@@ -414,7 +414,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, left, right);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitUnion(UnionProvider provider)
     {
       var left = Compile(provider.Left);
@@ -448,7 +448,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, provider, source);
     }
 
-    /// <inheritdoc/>
+    
     protected override SqlProvider VisitLock(LockProvider provider)
     {
       var source = Compile(provider.Source);

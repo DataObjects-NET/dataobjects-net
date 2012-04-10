@@ -22,12 +22,25 @@ namespace Xtensive.Orm.Configuration.Internals
     private readonly static Type objectType = typeof (object);
     private const string providersNamespace = "Xtensive.Orm.Providers.";
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets base type.
+    /// </summary>
     public override Type BaseType
     {
       get { return objectType; }
     }
 
+    /// <summary>
+    /// Determines whether the specified type is acceptable for registration.
+    /// </summary>
+    /// <param name="registry">The type registry.</param>
+    /// <param name="registration">The currently processed registration.</param>
+    /// <param name="type">The type to check.</param>
+    /// <returns>
+    ///   <see langword="true"/> if the specified type is acceptable for registration;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     protected override bool IsAcceptable(TypeRegistry registry, TypeRegistration registration, Type type)
     {
       // Disallow implicit (via assembly scan) registration of types in Orm.Providers namespace
@@ -35,7 +48,13 @@ namespace Xtensive.Orm.Configuration.Internals
         && (registration.Type!=null || !type.FullName.StartsWith(providersNamespace));
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Processes the single type registration.
+    /// </summary>
+    /// <param name="registry">The type registry.</param>
+    /// <param name="registration">The registration.</param>
+    /// <param name="type">The type.</param>
     protected override void Process(TypeRegistry registry, TypeRegistration registration, Type type)
     {
       if (type==null || registry.Contains(type))

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sql.Info
 {
@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Info
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="ValueRange&lt;T&gt;"/> class.
     /// </summary>
     /// <param name="minValue">The min value.</param>
     /// <param name="maxValue">The max value.</param>
@@ -64,9 +64,9 @@ namespace Xtensive.Sql.Info
       : this(minValue, maxValue, null)
     {
     }
-    
+
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="ValueRange&lt;T&gt;"/> class.
     /// </summary>
     /// <param name="minValue">The min value.</param>
     /// <param name="maxValue">The max value.</param>

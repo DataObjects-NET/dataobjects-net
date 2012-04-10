@@ -48,13 +48,13 @@ namespace Xtensive.Orm.Serialization
     }
 
 
-    /// <inheritdoc/>
+    
     protected override DeserializationScope CreateActiveScope()
     {
       return new DeserializationScope(this);
     }    
 
-    /// <inheritdoc/>
+    
     public override bool IsActive
     {
       get { return DeserializationScope.CurrentContext==this; }

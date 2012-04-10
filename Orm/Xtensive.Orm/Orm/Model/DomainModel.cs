@@ -43,8 +43,12 @@ namespace Xtensive.Orm.Model
     /// Gets the collection providing information about associations.
     /// </summary>
     public AssociationInfoCollection Associations { get; private set;}
- 
-    /// <inheritdoc/>
+
+
+    /// <summary>
+    /// Updates the internal state of this instance.
+    /// </summary>
+    /// <param name="recursive"><see langword="True"/> if all dependent objects should be updated as well.</param>
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
@@ -55,7 +59,12 @@ namespace Xtensive.Orm.Model
       RealIndexes.UpdateState(true);
       Associations.UpdateState(true);
     }
- 
+
+
+    /// <summary>
+    /// Locks this instance
+    /// </summary>
+    /// <param name="recursive"></param>
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {

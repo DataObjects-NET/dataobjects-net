@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     public readonly List<Tuple> Output;
 
-    /// <inheritdoc/>
+    
     public override void ProcessWith(ISqlTaskProcessor processor)
     {
       processor.ProcessTask(this);

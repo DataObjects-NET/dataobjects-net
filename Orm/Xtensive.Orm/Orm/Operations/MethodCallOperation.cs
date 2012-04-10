@@ -45,12 +45,18 @@ namespace Xtensive.Orm.Operations
       get { return arguments; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the title of the operation.
+    /// </summary>
     public override string Title {
       get { return "Method call"; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the description of the operation.
+    /// </summary>
     public override string Description {
       get {
         return "{0}: {1}({2})".FormatWith(
@@ -58,20 +64,33 @@ namespace Xtensive.Orm.Operations
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Prepares the operation itself.
+    /// </summary>
+    /// <param name="context">The operation execution context.</param>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       if (prepareAction!=null)
         prepareAction.Invoke(context, arguments);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Executes the operation itself.
+    /// </summary>
+    /// <param name="context">The operation execution context.</param>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       executeAction.Invoke(context, arguments);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Clones the operation itself.
+    /// </summary>
+    /// <param name="clone"></param>
+    /// <returns></returns>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)

@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     protected DomainHandler DomainHandler { get { return (DomainHandler) handlers.DomainHandler; } }
 
-    /// <inheritdoc/>
+    
     public override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var sessionContext = (EnumerationContext) context;
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     #region ToString related methods
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       // No need to show parameters - they are meaningless, since provider is always the same.

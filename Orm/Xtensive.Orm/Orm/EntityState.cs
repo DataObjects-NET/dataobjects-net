@@ -239,7 +239,10 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Refreshes this instance.
+    /// </summary>
     protected override void Refresh()
     {
       persistenceState = PersistenceState.Synchronized;
@@ -247,13 +250,16 @@ namespace Xtensive.Orm
       Session.Handler.FetchEntityState(key);
     }
 
-    /// <inheritdoc/>
+    
     void IInvalidatable.Invalidate()
     {
       Invalidate();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Invalidates this instance.
+    /// </summary>
     protected override void Invalidate()
     {
       persistenceState = PersistenceState.Synchronized;
@@ -281,19 +287,39 @@ namespace Xtensive.Orm
 
     #region Equality members
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
     public override bool Equals(object obj)
     {
       return ReferenceEquals(this, obj);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Returns a hash code for this instance.
+    /// </summary>
+    /// <returns>
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// </returns>
     public override int GetHashCode()
     {
       return Key.GetHashCode();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+    /// </summary>
+    /// <param name="other">The <see cref="System.Object"/> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
     public bool Equals(EntityState other)
     {
       return ReferenceEquals(this, other);
@@ -301,7 +327,13 @@ namespace Xtensive.Orm
 
     #endregion
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Returns a <see cref="System.String"/> that represents this instance.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String"/> that represents this instance.
+    /// </returns>
     public override string ToString()
     {
       var tuple = IsTupleLoaded ? (Tuple==null ? Strings.Null : Tuple.ToString()) : Strings.NA;

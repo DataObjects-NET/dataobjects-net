@@ -61,6 +61,13 @@ namespace Xtensive.Orm.Providers
       MaxIdentifierLength = maxIdentifierLength;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProviderInfo"/> class.
+    /// </summary>
+    /// <param name="storageVersion">The storage version.</param>
+    /// <param name="providerFeatures">The provider features.</param>
+    /// <param name="maxIdentifierLength">Length of the max identifier.</param>
+    /// <param name="constantPrimaryIndexName">Name of the constant primary index.</param>
     public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, int maxIdentifierLength, string constantPrimaryIndexName)
     {
       this.storageVersion = storageVersion;

@@ -33,7 +33,11 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Updates the internal state of this instance.
+    /// </summary>
+    /// <param name="recursive"><see langword="True"/> if all dependent objects should be updated as well.</param>
     public override void UpdateState(bool recursive)
     {
       if (MappingName.IsNullOrEmpty())

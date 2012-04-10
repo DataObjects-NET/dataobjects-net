@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
   {
     // Constructors
 
-    /// <inheritdoc/>
+    
     public EnumerationScope(RseEnumerationContext context)
       : base(context)
     {

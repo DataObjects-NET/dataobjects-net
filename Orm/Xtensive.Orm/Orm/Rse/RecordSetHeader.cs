@@ -244,7 +244,7 @@ namespace Xtensive.Orm.Rse
         order);
     }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return Columns.Select(c => c.ToString()).ToCommaDelimitedString();      

@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Upgrade.Model
   [Serializable]
   public sealed class ForeignKeyColumnRef : Ref<StorageColumnInfo, ForeignKeyInfo>
   {
-    /// <inheritdoc/>
+    
     protected override Nesting CreateNesting()
     {
       return new Nesting<ForeignKeyColumnRef, ForeignKeyInfo, ForeignKeyColumnCollection>(
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    /// <inheritdoc/>
+    
     public ForeignKeyColumnRef(ForeignKeyInfo parent)
       : base(parent)
     {
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The foreign key.</param>
     /// <param name="column">The column.</param>
-    /// <inheritdoc/>
+    
     public ForeignKeyColumnRef(ForeignKeyInfo parent, StorageColumnInfo column)
       : base(parent)
     {

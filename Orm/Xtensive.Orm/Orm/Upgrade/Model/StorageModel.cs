@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     private ActionSequence actions;
 
-    /// <inheritdoc/>
+    
     public ActionSequence Actions {
       get { return actions; }
       set {
@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property]
     public SequenceInfoCollection Sequences { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override void Initialize()
     {
       base.Initialize();
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Upgrade.Model
         Sequences=new SequenceInfoCollection(this);
     }
 
-    /// <inheritdoc/>
+    
     protected override Nesting CreateNesting()
     {
       return new Nesting<StorageModel, StorageModel, StorageModel>(this);

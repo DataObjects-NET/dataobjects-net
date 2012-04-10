@@ -465,7 +465,16 @@ namespace Xtensive.Orm
 
     #region IVersionSetProvider members
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Creates <see cref="VersionSet"/> set containing versions
+    /// for specified <paramref name="keys"/>.
+    /// </summary>
+    /// <param name="keys">The keys to create version set for.</param>
+    /// <returns>
+    ///   <see cref="VersionSet"/> containing versions
+    /// for specified <paramref name="keys"/>.
+    /// </returns>
     public VersionSet CreateVersionSet(IEnumerable<Key> keys)
     {
       var result = new VersionSet();
@@ -488,13 +497,17 @@ namespace Xtensive.Orm
 
     #region IEnumerable<...> methods
 
-    /// <inheritdoc/>
+    
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the enumerator.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator<Entity> GetEnumerator()
     {
       EnsureIsAttached();

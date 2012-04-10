@@ -64,7 +64,7 @@ namespace Xtensive.Orm
       set { activateSession = value; }
     }
 
-    /// <inheritdoc/>
+    
     public override void CompileTimeInitialize(MethodBase method, AspectInfo aspectInfo)
     {
       var canActivate = typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) 
@@ -79,7 +79,7 @@ namespace Xtensive.Orm
         Mode = TransactionalBehavior.Suppress;
     }
 
-    /// <inheritdoc/>
+    
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (AspectHelper.IsInfrastructureMethod(method))
@@ -89,7 +89,7 @@ namespace Xtensive.Orm
       return activateSession == null || activateSession.Value;
     }
 
-    /// <inheritdoc/>
+    
     /// <exception cref="InvalidOperationException">Session switching is detected.</exception>
     [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionArgs args)
@@ -110,7 +110,7 @@ namespace Xtensive.Orm
         : (sessionScope == null ? (IDisposable) tx : tx.Join(sessionScope));
     }
 
-    /// <inheritdoc/>
+    
     [DebuggerStepThrough]
     public override void OnSuccess(MethodExecutionArgs args)
     {
@@ -128,7 +128,7 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <inheritdoc/>
+    
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionArgs args)
     {

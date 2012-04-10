@@ -67,19 +67,19 @@ namespace Xtensive.Orm
 
     #region Equality members
 
-    /// <inheritdoc/>
+    
     public bool Equals(Ref<T> other)
     {
       return other.Key==Key;
     }
 
-    /// <inheritdoc/>
+    
     public bool Equals(Key other)
     {
       return other==Key;
     }
 
-    /// <inheritdoc/>
+    
     public override bool Equals(object other)
     {
       if (ReferenceEquals(null, other))
@@ -92,7 +92,7 @@ namespace Xtensive.Orm
       return false;
     }
 
-    /// <inheritdoc/>
+    
     public override int GetHashCode()
     {
       return (Key!=null ? Key.GetHashCode() : 0);
@@ -100,7 +100,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       var key = Key;
@@ -188,13 +188,17 @@ namespace Xtensive.Orm
 
     #region ISerializable members
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     private Ref(SerializationInfo info, StreamingContext context)
     {
       keyOrString = info.GetString("FormattedKey");
     }
-
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    
+    /// <summary>
+    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+    /// </summary>
+    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     #if NET40
     [SecurityCritical]
     #else

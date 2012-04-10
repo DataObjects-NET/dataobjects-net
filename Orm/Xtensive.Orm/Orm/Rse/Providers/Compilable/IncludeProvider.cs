@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
 
     public CombineTransform ResultTransform { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, typeof(bool)));

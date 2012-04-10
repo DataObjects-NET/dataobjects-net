@@ -30,7 +30,13 @@ namespace Xtensive.Orm.Disconnected
     
     #region Transactions
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets a value indicating whether transaction is started.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if transaction is started; otherwise, <c>false</c>.
+    /// </value>
     public override bool TransactionIsStarted {
       get { return disconnectedState.IsLocalTransactionOpen; }
     }
@@ -51,7 +57,11 @@ namespace Xtensive.Orm.Disconnected
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Begins the transaction.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
     public override void BeginTransaction(Transaction transaction)
     {
       disconnectedState.OnTransactionOpened();
@@ -64,7 +74,11 @@ namespace Xtensive.Orm.Disconnected
         virtualTransactions.Push(transaction);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Creates the savepoint.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
     public override void CreateSavepoint(Transaction transaction)
     {
       disconnectedState.OnTransactionOpened();
@@ -77,7 +91,11 @@ namespace Xtensive.Orm.Disconnected
         virtualTransactions.Push(transaction);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Rollbacks to savepoint.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
     public override void RollbackToSavepoint(Transaction transaction)
     {
       disconnectedState.OnTransactionRollbacked();
@@ -90,7 +108,11 @@ namespace Xtensive.Orm.Disconnected
         virtualTransactions.Pop();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Releases the savepoint.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
     public override void ReleaseSavepoint(Transaction transaction)
     {
       disconnectedState.OnTransactionCommited();
@@ -103,7 +125,11 @@ namespace Xtensive.Orm.Disconnected
         virtualTransactions.Pop();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Commits the transaction.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
     public override void CommitTransaction(Transaction transaction)
     {
 //      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
@@ -118,7 +144,11 @@ namespace Xtensive.Orm.Disconnected
       disconnectedState.OnTransactionCommited();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Rollbacks the transaction.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
     public override void RollbackTransaction(Transaction transaction)
     {
 //      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
@@ -225,7 +255,12 @@ namespace Xtensive.Orm.Disconnected
       return UpdateEntitySetStateInSessionCache(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Fetches the state of the entity.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns></returns>
     public override EntityState FetchEntityState(Key key)
     {
       var cachedState = disconnectedState.GetEntityState(key);
@@ -255,7 +290,12 @@ namespace Xtensive.Orm.Disconnected
       return null;
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Persists the specified registry.
+    /// </summary>
+    /// <param name="registry">The registry.</param>
+    /// <param name="allowPartialExecution">if set to <c>true</c> [allow partial execution].</param>
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
       registry.GetItems(PersistenceState.New)
@@ -266,7 +306,12 @@ namespace Xtensive.Orm.Disconnected
         .ForEach(item => disconnectedState.Persist(item, PersistActionKind.Remove));
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Executes the prefetch tasks.
+    /// </summary>
+    /// <param name="skipPersist">if set to <c>true</c> [skip persist].</param>
+    /// <returns></returns>
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
       Session.ExecuteDelayedQueries(skipPersist); // Important!
@@ -274,7 +319,13 @@ namespace Xtensive.Orm.Disconnected
     }
 
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the references to.
+    /// </summary>
+    /// <param name="target">The target.</param>
+    /// <param name="association">The association.</param>
+    /// <returns></returns>
     public override IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
       switch (association.Multiplicity) {

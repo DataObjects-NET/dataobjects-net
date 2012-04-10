@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Providers.Sql
       return registry;
     }
 
-    /// <inheritdoc/>
+    
     public override void Initialize()
     {
       Supported = CheckIsSupported();

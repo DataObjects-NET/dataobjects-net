@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Operations
 
     // Constructors
 
-    /// <inheritdoc/>
+    
     /// <exception cref="ArgumentOutOfRangeException">Type of provided <paramref name="field"/>
     /// must be a descendant of <see cref="EntitySetBase"/> type.</exception>
     protected EntitySetOperation(Key key, FieldInfo field)
@@ -49,7 +49,12 @@ namespace Xtensive.Orm.Operations
             entitySetBaseType.GetShortName());
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntitySetOperation"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     protected EntitySetOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

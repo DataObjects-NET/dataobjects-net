@@ -13,7 +13,7 @@ using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -49,6 +49,12 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public ColumnIndexMap ColumnIndexMap { get; private set; }
 
+    /// <summary>
+    /// Gets or sets the short name.
+    /// </summary>
+    /// <value>
+    /// The short name.
+    /// </value>
     public string ShortName {
       [DebuggerStepThrough]
       get { return shortName; }
@@ -59,6 +65,12 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets or sets the fill factor.
+    /// </summary>
+    /// <value>
+    /// The fill factor.
+    /// </value>
     public double FillFactor {
       [DebuggerStepThrough]
       get { return fillFactor; }
@@ -69,6 +81,12 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets or sets the group.
+    /// </summary>
+    /// <value>
+    /// The group.
+    /// </value>
     public ColumnGroup Group {
       [DebuggerStepThrough]
       get { return columnGroup; }
@@ -224,6 +242,12 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets or sets the value columns map.
+    /// </summary>
+    /// <value>
+    /// The value columns map.
+    /// </value>
     public List<Pair<int, List<int>>> ValueColumnsMap
     {
       get { return valueColumnsMap; }
@@ -320,7 +344,7 @@ namespace Xtensive.Orm.Model
       get { return (attributes & IndexAttributes.Clustered) > 0; }
     }
 
-    /// <inheritdoc/>
+    
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
@@ -356,7 +380,12 @@ namespace Xtensive.Orm.Model
       ColumnIndexMap = new ColumnIndexMap(system, regular, lazy);
     }
 
-    /// <inheritdoc/>
+    
+    /// <summary>
+    /// Locks the instance and (possibly) all dependent objects.
+    /// 
+    /// </summary>
+    /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
@@ -371,6 +400,10 @@ namespace Xtensive.Orm.Model
       underlyingIndexes.Lock();
     }
 
+    /// <summary>
+    /// Clones this instance.
+    /// </summary>
+    /// <returns></returns>
     public IndexInfo Clone()
     {
       var result = new IndexInfo(reflectedType, attributes, declaringIndex);

@@ -22,26 +22,40 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     public string TypeName { get; private set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the title of the operation.
+    /// </summary>
     public override string Title {
       get { return "Create entity"; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the description.
+    /// </summary>
     public override string Description {
       get {
         return "{0}, TypeName = {1}, Key = {2}".FormatWith(Title, TypeName, Key);
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Prepares the self.
+    /// </summary>
+    /// <param name="context">The context.</param>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       // There should be no base method call here!
       context.RegisterKey(context.TryRemapKey(Key), true);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Executes the operation itself.
+    /// </summary>
+    /// <param name="context">The operation execution context.</param>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
@@ -52,7 +66,12 @@ namespace Xtensive.Orm.Operations
       session.CreateOrInitializeExistingEntity(type.UnderlyingType, key);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Clones the operation itself.
+    /// </summary>
+    /// <param name="clone"></param>
+    /// <returns></returns>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
@@ -63,7 +82,11 @@ namespace Xtensive.Orm.Operations
     
     // Constructors
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntityCreateOperation"/> class.
+    /// </summary>
+    /// <param name="key">The key of the entity.</param>
     public EntityCreateOperation(Key key)
       : base(key)
     {
@@ -74,14 +97,25 @@ namespace Xtensive.Orm.Operations
 
     // Serialization
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+    /// </summary>
+    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);
       info.AddValue("TypeName", TypeName);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntityCreateOperation"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     protected EntityCreateOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

@@ -24,7 +24,10 @@ namespace Xtensive.Orm.Operations
   public abstract class KeySetOperation : Operation,
     ISerializable
   {
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the description of the operation.
+    /// </summary>
     public override string Description {
       get {
         return "{0}:\r\n{1}".FormatWith(Title, EnumerableExtensions.ToDelimitedString<Key>(Keys, "\r\n").Indent(2));
@@ -36,7 +39,11 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     public ReadOnlySet<Key> Keys { get; private set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Prepares the operation itself.
+    /// </summary>
+    /// <param name="context">The operation execution context.</param>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       foreach (var key in Keys)
@@ -46,7 +53,11 @@ namespace Xtensive.Orm.Operations
 
     // Constructors
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="KeySetOperation"/> class.
+    /// </summary>
+    /// <param name="key">The key.</param>
     public KeySetOperation(Key key)
       : this(EnumerableUtils.One(key))
     {
@@ -63,7 +74,12 @@ namespace Xtensive.Orm.Operations
 
     // Serialization
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="KeySetOperation"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     protected KeySetOperation(SerializationInfo info, StreamingContext context)
     {
       var formattedKeys = info.GetString("Keys");
@@ -77,8 +93,11 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <summary>
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
     /// </summary>
+    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     #if NET40
     [SecurityCritical]
     #else
@@ -90,8 +109,11 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <summary>
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
     /// </summary>
+    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       var formattedKeys = Keys.Select(key => key.Format()).RevertibleJoin('\\', ';');

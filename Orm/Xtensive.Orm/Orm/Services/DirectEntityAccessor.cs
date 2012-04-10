@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Services
 
     // Constructors
 
-    /// <inheritdoc/>
+    
    [ServiceConstructor]
    public DirectEntityAccessor(Session session)
       : base(session)

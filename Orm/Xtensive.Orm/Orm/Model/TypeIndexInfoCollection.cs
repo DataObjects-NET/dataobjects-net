@@ -44,6 +44,11 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Finds the first.
+    /// </summary>
+    /// <param name="indexAttributes">The index attributes.</param>
+    /// <returns></returns>
     public IndexInfo FindFirst(IndexAttributes indexAttributes)
     {
       var result = Find(indexAttributes);
@@ -55,6 +60,12 @@ namespace Xtensive.Orm.Model
       return null;
     }
 
+    /// <summary>
+    /// Gets the index.
+    /// </summary>
+    /// <param name="fieldName">Name of the field.</param>
+    /// <param name="fieldNames">The field names.</param>
+    /// <returns></returns>
     [DebuggerStepThrough]
     public IndexInfo GetIndex(string fieldName, params string[] fieldNames)
     {
@@ -73,6 +84,12 @@ namespace Xtensive.Orm.Model
       return GetIndex(fields);
     }
 
+    /// <summary>
+    /// Gets the index.
+    /// </summary>
+    /// <param name="field">The field.</param>
+    /// <param name="fields">The fields.</param>
+    /// <returns></returns>
     public IndexInfo GetIndex(FieldInfo field, params FieldInfo[] fields)
     {
       var fieldInfos = new List<FieldInfo> {field};
@@ -80,7 +97,11 @@ namespace Xtensive.Orm.Model
       return GetIndex(fieldInfos);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Updates the state.
+    /// </summary>
+    /// <param name="recursive">if set to <c>true</c> [recursive].</param>
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
@@ -168,7 +189,12 @@ namespace Xtensive.Orm.Model
 
     // Constructors
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TypeIndexInfoCollection"/> class.
+    /// </summary>
+    /// <param name="owner">The owner.</param>
+    /// <param name="name">The name.</param>
     public TypeIndexInfoCollection(Node owner, string name)
       : base(owner, name)
     {

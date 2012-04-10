@@ -25,19 +25,19 @@ namespace Xtensive.Orm.Rse
     /// </summary>    
     public ColumnInfoRef ColumnInfoRef { get; private set; }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return string.Format(ToStringFormat, base.ToString(), ColumnInfoRef);
     }
 
-    /// <inheritdoc/>
+    
     public override Column Clone(int newIndex)
     {
       return new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
     }
 
-    /// <inheritdoc/>
+    
     public override Column Clone(string newName)
     {
       return new MappedColumn(this, newName);

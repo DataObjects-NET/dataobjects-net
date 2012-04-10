@@ -15,9 +15,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// <see cref="Session"/> configuration.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
@@ -45,7 +42,9 @@ namespace Xtensive.Orm.Configuration
 
     #endregion
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    /// <summary>
+    /// Default <see cref="SessionConfiguration"/>.
+    /// </summary>
     public static readonly SessionConfiguration Default;
 
     private SessionOptions options = SessionOptions.Default;
@@ -214,6 +213,9 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    /// <summary>
+    /// Validates this instance
+    /// </summary>
     /// <inheritdoc/>
     public override void Validate()
     {
@@ -222,7 +224,14 @@ namespace Xtensive.Orm.Configuration
         ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(DefaultCommandTimeout.Value, 0, "DefaultCommandTimeout");
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Creates a new instance of this class.
+    /// Used by <see cref="M:Xtensive.Configuration.ConfigurationBase.Clone"/> method implementation.
+    /// </summary>
+    /// <returns>
+    /// New instance of this class.
+    /// </returns>
     protected override ConfigurationBase CreateClone()
     {
       // Currently disabled
@@ -231,7 +240,13 @@ namespace Xtensive.Orm.Configuration
       return new SessionConfiguration(Name, Options);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Copies the properties from the <paramref name="source"/>
+    /// configuration to this one.
+    /// Used by <see cref="M:Xtensive.Configuration.ConfigurationBase.Clone"/> method implementation.
+    /// </summary>
+    /// <param name="source">The configuration to copy properties from.</param>
     protected override void CopyFrom(ConfigurationBase source)
     {
       base.CopyFrom(source);
@@ -259,7 +274,13 @@ namespace Xtensive.Orm.Configuration
       return (SessionConfiguration) base.Clone();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Returns a <see cref="System.String"/> that represents this instance.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String"/> that represents this instance.
+    /// </returns>
     public override string ToString()
     {
       var safeUserName = string.IsNullOrEmpty(UserName) ? "<null>" : UserName;

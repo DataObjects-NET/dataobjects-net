@@ -37,7 +37,7 @@ namespace Xtensive.Orm
     /// </summary>
     public bool IsVoid { get { return this==VoidScopeInstance; } }
 
-    /// <inheritdoc/>
+    
     public override void Dispose()
     {
       if (isDisposed)

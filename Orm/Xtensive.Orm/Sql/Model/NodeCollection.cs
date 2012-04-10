@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sql.Model
 {
@@ -66,9 +66,9 @@ namespace Xtensive.Sql.Model
 
 
     // Constructors
-    
+
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="NodeCollection&lt;TNode&gt;"/> class.
     /// </summary>
     public NodeCollection()
       : this(0)
@@ -77,19 +77,19 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="NodeCollection&lt;TNode&gt;"/> class.
     /// </summary>
-    /// <param name="capacity">The initial collection capacity.</param>
+    /// <param name="capacity">The capacity.</param>
     public NodeCollection(int capacity)
       : base(capacity)
     {
       nameIndex = new Dictionary<string, TNode>(capacity, StringComparer.OrdinalIgnoreCase);
     }
-    
+
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="NodeCollection&lt;TNode&gt;"/> class.
     /// </summary>
-    /// <param name="collection">The collection whose elements are copied to the new list.</param>
+    /// <param name="collection">The collection.</param>
     public NodeCollection(IEnumerable<TNode> collection)
       : base(collection)
     {

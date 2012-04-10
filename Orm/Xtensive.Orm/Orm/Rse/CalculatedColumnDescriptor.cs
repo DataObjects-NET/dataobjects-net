@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     public Expression<Func<Tuple, object>> Expression { get; private set; }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return string.Format(ToStringFormat,

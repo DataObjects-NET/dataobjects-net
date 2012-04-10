@@ -14,13 +14,13 @@ namespace Xtensive.Orm.Internals.FieldAccessors
   {
     private static readonly T @default;
 
-    /// <inheritdoc/>
+    
     public override bool AreSameValues(object oldValue, object newValue)
     {
       return object.Equals(oldValue, newValue);
     }
 
-    /// <inheritdoc/>
+    
     public override T GetValue(Persistent obj)
     {
       var field = Field;
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
       return (T) (object) Key.Parse(obj.Session.Domain, value);
     }
 
-    /// <inheritdoc/>
+    
     public override void SetValue(Persistent obj, T value)
     {
       var field = Field;

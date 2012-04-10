@@ -14,19 +14,19 @@ namespace Xtensive.Orm.Internals
   [Serializable]
   internal sealed class LongKey : Key
   {
-    /// <inheritdoc/>
+    
     protected override Tuple GetValue()
     {
       return value;
     }
 
-    /// <inheritdoc/>
+    
     protected override int CalculateHashCode()
     {
       return Tuple.HashCodeMultiplier ^ value.GetHashCode() ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
     }
 
-    /// <inheritdoc/>
+    
     protected override bool ValueEquals(Key other)
     {
       var otherKey = other as LongKey;

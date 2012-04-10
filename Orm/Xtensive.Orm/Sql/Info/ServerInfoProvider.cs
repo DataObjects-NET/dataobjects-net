@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sql.Info
 {
@@ -145,9 +145,9 @@ namespace Xtensive.Sql.Info
     /// Gets the string indexing base.
     /// </summary>
     public abstract int GetStringIndexingBase();
-    
+
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="ServerInfoProvider"/> class.
     /// </summary>
     /// <param name="driver">The driver.</param>
     protected ServerInfoProvider(SqlDriver driver)

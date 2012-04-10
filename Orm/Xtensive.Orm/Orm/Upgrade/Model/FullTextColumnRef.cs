@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -1200)]
     public ValueColumnRef TypeColumn { get; set; }
 
-    /// <inheritdoc/>
+    
     protected override Nesting CreateNesting()
     {
       return new Nesting<FullTextColumnRef, StorageFullTextIndexInfo, FullTextColumnRefCollection>(this, "Columns");
@@ -31,24 +31,24 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    /// <inheritdoc/>
+    
     public FullTextColumnRef(StorageFullTextIndexInfo parent)
       : base(parent)
     {}
 
-    /// <inheritdoc/>
+    
     public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column)
       : base(parent, column)
     {}
 
-    /// <inheritdoc/>
+    
     public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column, string configuration)
       : base(parent, column)
     {
       Configuration = configuration;
     }
 
-    /// <inheritdoc/>
+    
     public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column, string configuration, ValueColumnRef typeColumn)
       : base(parent, column)
     {

@@ -23,12 +23,16 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public class EntitiesRemoveOperation : KeySetOperation
   {
-    /// <inheritdoc/>
+    
     public override string Title {
       get { return "Remove entities"; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Executes the operation itself.
+    /// </summary>
+    /// <param name="context">The operation execution context.</param>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
@@ -40,7 +44,12 @@ namespace Xtensive.Orm.Operations
       session.Remove(entities);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Clones the operation itself.
+    /// </summary>
+    /// <param name="clone"></param>
+    /// <returns></returns>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
@@ -51,7 +60,11 @@ namespace Xtensive.Orm.Operations
 
     // Constructors
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntitiesRemoveOperation"/> class.
+    /// </summary>
+    /// <param name="key">The key.</param>
     public EntitiesRemoveOperation(Key key)
       : base(key)
     {
@@ -68,7 +81,12 @@ namespace Xtensive.Orm.Operations
 
     // Serialization
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntitiesRemoveOperation"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     public EntitiesRemoveOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

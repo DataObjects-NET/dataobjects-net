@@ -24,7 +24,10 @@ namespace Xtensive.Orm
     /// </summary>
     public int CacheSize { get; protected set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the sequence increment.
+    /// </summary>
     public override long? SequenceIncrement { 
       get {
         if (WellKnown.SupportedIntegerTypes.Contains(typeof (TKeyType)))
@@ -39,7 +42,12 @@ namespace Xtensive.Orm
     /// </summary>
     protected Queue<TKeyType> CachedKeys { get; private set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Tries the generate key.
+    /// </summary>
+    /// <param name="temporaryKey">if set to <c>true</c> [temporary key].</param>
+    /// <returns></returns>
     public override Tuple TryGenerateKey(bool temporaryKey)
     {
       if (temporaryKey)
@@ -80,7 +88,11 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CachingKeyGenerator&lt;TKeyType&gt;"/> class.
+    /// </summary>
+    /// <param name="configuration">The configuration.</param>
     [ServiceConstructor]
     public CachingKeyGenerator(DomainConfiguration configuration)
     {

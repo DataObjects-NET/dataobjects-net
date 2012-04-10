@@ -26,6 +26,12 @@ namespace Xtensive.Orm.Model
     private readonly Dictionary<TypeInfo, object> reversedMap = new Dictionary<TypeInfo, object>();
     private FieldInfo field;
 
+    /// <summary>
+    /// Gets or sets the field.
+    /// </summary>
+    /// <value>
+    /// The field.
+    /// </value>
     public FieldInfo Field
     {
       get { return field; }
@@ -38,16 +44,25 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets the column.
+    /// </summary>
     public ColumnInfo Column
     {
       get { return Field.Column; }
     }
 
+    /// <summary>
+    /// Gets the default type.
+    /// </summary>
     public TypeInfo Default
     {
       get { return @default; }
     }
 
+    /// <summary>
+    /// Gets the <see cref="Xtensive.Orm.Model.TypeInfo"/> with the specified type discriminator value.
+    /// </summary>
     public TypeInfo this[object typeDiscriminatorValue]
     {
       get
@@ -59,6 +74,9 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets the <see cref="System.Object"/> with the specified type info.
+    /// </summary>
     public object this[TypeInfo typeInfo]
     {
       get
@@ -70,6 +88,11 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Registers the type mapping.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="typeDiscriminatorValue">The type discriminator value.</param>
     public void RegisterTypeMapping(TypeInfo type, object typeDiscriminatorValue)
     {
       this.EnsureNotLocked();
@@ -77,6 +100,10 @@ namespace Xtensive.Orm.Model
       reversedMap.Add(type, typeDiscriminatorValue);
     }
 
+    /// <summary>
+    /// Registers the default type.
+    /// </summary>
+    /// <param name="type">The type.</param>
     public void RegisterDefaultType(TypeInfo type)
     {
       this.EnsureNotLocked();
@@ -86,13 +113,17 @@ namespace Xtensive.Orm.Model
       @default = type;
     }
 
-    /// <inheritdoc/>
+    
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the enumerator.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator<Pair<object, TypeInfo>> GetEnumerator()
     {
       return map

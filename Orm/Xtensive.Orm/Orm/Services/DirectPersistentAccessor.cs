@@ -239,7 +239,7 @@ namespace Xtensive.Orm.Services
 
     // Constructors
 
-    /// <inheritdoc/>
+    
    [ServiceConstructor]
    public DirectPersistentAccessor(Session session)
       : base(session)

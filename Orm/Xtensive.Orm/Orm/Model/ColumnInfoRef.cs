@@ -67,19 +67,40 @@ namespace Xtensive.Orm.Model
 
     #region Equality members, ==, !=
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(ColumnInfoRef x, ColumnInfoRef y)
     {
       return !Equals(x, y);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(ColumnInfoRef x, ColumnInfoRef y)
     {
       return Equals(x, y);
     }
 
-    /// <inheritdoc/>
+    
+    /// <summary>
+    /// Determines whether the specified <see cref="ColumnInfoRef"/> is equal to this instance.
+    /// </summary>
+    /// <param name="other">The <see cref="ColumnInfoRef"/> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="ColumnInfoRef"/> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
     public bool Equals(ColumnInfoRef other)
     {
       if (ReferenceEquals(other, null))
@@ -88,7 +109,14 @@ namespace Xtensive.Orm.Model
         FieldName==other.FieldName && TypeName==other.TypeName;
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(this, obj))
@@ -96,7 +124,13 @@ namespace Xtensive.Orm.Model
       return Equals(obj as ColumnInfoRef);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Returns a hash code for this instance.
+    /// </summary>
+    /// <returns>
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// </returns>
     public override int GetHashCode()
     {
       return unchecked( FieldName.GetHashCode() + 29*TypeName.GetHashCode() );
@@ -104,7 +138,7 @@ namespace Xtensive.Orm.Model
 
     #endregion
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return string.Format("{0}.{1} ({2})", TypeName, FieldName, ColumnName);

@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Internals
       BindToCurrentTransaction();
     }
 
-    /// <inheritdoc/>
+    
     protected override void Invalidate()
     {
       TotalItemCount = null;
@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Internals
       Invalidate();
     }
 
-    /// <inheritdoc/>
+    
     protected override void Refresh()
     {
       FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
@@ -144,13 +144,13 @@ namespace Xtensive.Orm.Internals
 
     #region GetEnumerator<...> methods
 
-    /// <inheritdoc/>
+    
     public IEnumerator<Key> GetEnumerator()
     {
       return FetchedKeys.GetEnumerator();
     }
 
-    /// <inheritdoc/>
+    
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

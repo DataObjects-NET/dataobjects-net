@@ -35,13 +35,13 @@ namespace Xtensive.Orm.Providers.Sql
 
     #region IHasNamedResult members
 
-    /// <inheritdoc/>
+    
     public TemporaryDataScope Scope
     {
       get { return Origin.Scope; }
     }
 
-    /// <inheritdoc/>
+    
     public string Name
     {
       get { return Origin.Name; }
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     #endregion
 
-    /// <inheritdoc/>
+    
     public override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);

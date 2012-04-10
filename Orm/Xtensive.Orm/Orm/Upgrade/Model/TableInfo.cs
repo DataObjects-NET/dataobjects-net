@@ -72,13 +72,13 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    /// <inheritdoc/>
+    
     protected override Nesting CreateNesting()
     {
       return new Nesting<TableInfo, StorageModel, TableInfoCollection>(this, "Tables");
     }
 
-    /// <inheritdoc/>
+    
     protected override void Initialize()
     {
       base.Initialize();
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    /// <inheritdoc/>
+    
     public TableInfo(StorageModel parent, string name)
       : base(parent, name)
     {

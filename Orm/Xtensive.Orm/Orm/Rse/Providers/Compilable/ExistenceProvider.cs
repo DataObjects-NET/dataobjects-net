@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public string ExistenceColumnName { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       return new RecordSetHeader(

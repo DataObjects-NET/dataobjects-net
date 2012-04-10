@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Services
 
     // Constructors
 
-    /// <inheritdoc/>
+    
     [ServiceConstructor]
     public QueryFormatter(Session session)
       : base(session)

@@ -80,13 +80,13 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     public long? Current { get; set; }
 
-    /// <inheritdoc/>
+    
     protected override Nesting CreateNesting()
     {
       return new Nesting<StorageSequenceInfo, StorageModel, SequenceInfoCollection>(this, "Sequences");
     }
 
-    /// <inheritdoc/>
+    
     /// <exception cref="ValidationException"><c>ValidationException</c>.</exception>
     protected override void ValidateState()
     {

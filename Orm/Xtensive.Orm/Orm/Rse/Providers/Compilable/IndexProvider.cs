@@ -26,13 +26,13 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public IndexInfoRef Index { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       return indexHeader;
     }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return Index.ToString();

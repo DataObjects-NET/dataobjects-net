@@ -54,7 +54,12 @@ namespace Xtensive.Orm.Model
 
     // Constructors
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IndexInfoCollection"/> class.
+    /// </summary>
+    /// <param name="owner">The owner.</param>
+    /// <param name="name">The name.</param>
     public IndexInfoCollection(Node owner, string name)
       : base(owner, name)
     {

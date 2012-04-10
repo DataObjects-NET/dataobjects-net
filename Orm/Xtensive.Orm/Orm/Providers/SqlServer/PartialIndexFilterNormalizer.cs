@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Providers.SqlServer
 {
   public class PartialIndexFilterNormalizer : Sql.PartialIndexFilterNormalizer
   {
-    /// <inheritdoc/>
+    
     public override string Normalize(string expression)
     {
       var builder = new StringBuilder(expression);

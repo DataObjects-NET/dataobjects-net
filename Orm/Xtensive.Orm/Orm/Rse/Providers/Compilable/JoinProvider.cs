@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public Pair<Column>[] EqualColumns { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return string.Format(ToStringFormat,
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
         EqualColumns.Select(p => p.First.Name + " == " + p.Second.Name).ToCommaDelimitedString());
     }
 
-    /// <inheritdoc/>
+    
     protected override void Initialize()
     {
       base.Initialize();

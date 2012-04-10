@@ -26,22 +26,36 @@ namespace Xtensive.Orm
     private readonly List<IOperation> operations = new List<IOperation>();
     private HashSet<IUniqueOperation> uniqueOperations;
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the number of elements contained in a collection.
+    /// </summary>
     public long Count {
       get { return operations.Count; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets operation log type.
+    /// </summary>
     public OperationLogType LogType { get; private set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Logs the specified operation.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
     public void Log(IOperation operation)
     {
       operations.Add(operation);
       TryAppendUniqueOperation(operation);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Logs the specified sequence of operations.
+    /// </summary>
+    /// <param name="source">The source sequence.</param>
     public void Log(IEnumerable<IOperation> source)
     {
       foreach (var operation in source) {
@@ -50,13 +64,26 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Applies this operation sequence to the <see cref="Session.Current"/> session.
+    /// </summary>
+    /// <returns>
+    /// Key mapping.
+    /// </returns>
     public KeyMapping Replay()
     {
       return Replay(Session.Demand());
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Applies this operation sequence to the specified session.
+    /// </summary>
+    /// <param name="session">The session to apply the sequence to.</param>
+    /// <returns>
+    /// Key mapping.
+    /// </returns>
     public KeyMapping Replay(Session session)
     {
       if (session.Operations.IsRegisteringOperation)
@@ -108,13 +135,26 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Replays the operations contained in sequence on <paramref name="target"/> object.
+    /// </summary>
+    /// <param name="target">The target object to replay the sequence at.</param>
+    /// <returns>
+    /// The result of execution.
+    /// </returns>
     public object Replay(object target)
     {
       return Replay((Session) target);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Returns a <see cref="System.String"/> that represents this instance.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String"/> that represents this instance.
+    /// </returns>
     public override string ToString()
     {
       var sb = new StringBuilder("{0}:\r\n".FormatWith(Strings.Operations));
@@ -125,13 +165,17 @@ namespace Xtensive.Orm
 
     #region IEnumerable<...> implementation
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the enumerator.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator<IOperation> GetEnumerator()
     {
       return operations.GetEnumerator();
     }
 
-    /// <inheritdoc/>
+    
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

@@ -36,7 +36,13 @@ namespace Xtensive.Orm.Metadata
     [Field(Length = 64)]
     public string Version { get; set; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Returns a <see cref="System.String"/> that represents this instance.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String"/> that represents this instance.
+    /// </returns>
     public override string ToString()
     {
       return string.Format(Strings.MetadataAssemblyFormat, Name, Version);

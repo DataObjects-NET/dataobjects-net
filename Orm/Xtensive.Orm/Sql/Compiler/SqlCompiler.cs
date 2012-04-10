@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
@@ -1558,7 +1558,7 @@ namespace Xtensive.Sql.Compiler
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlCompiler"/> class.
     /// </summary>
     /// <param name="driver">The driver.</param>
     protected SqlCompiler(SqlDriver driver)

@@ -12,12 +12,12 @@ namespace Xtensive.Orm.Internals.FieldAccessors
 {
   internal class EntityFieldAccessor<T> : FieldAccessor<T>
   {
-    /// <inheritdoc/>
+    
     public override bool AreSameValues(object oldValue, object newValue)
     {
       return ReferenceEquals(oldValue, newValue);
     }
-    /// <inheritdoc/>
+    
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, T value)
     {
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
       }
     }
 
-    /// <inheritdoc/>
+    
     public override T GetValue(Persistent obj)
     {
       var field = Field;

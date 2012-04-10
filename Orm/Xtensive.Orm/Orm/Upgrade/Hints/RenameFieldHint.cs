@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public string NewFieldName { get; private set; }
 
-    /// <inheritdoc/>
+    
     public bool Equals(RenameFieldHint other)
     {
       if (ReferenceEquals(null, other))
@@ -48,13 +48,13 @@ namespace Xtensive.Orm.Upgrade
         && other.NewFieldName==NewFieldName;
     }
 
-    /// <inheritdoc/>
+    
     public override bool Equals(UpgradeHint other)
     {
       return Equals(other as RenameFieldHint);
     }
 
-    /// <inheritdoc/>
+    
     public override int GetHashCode()
     {
       unchecked {
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return string.Format(ToStringFormat, TargetType.FullName, OldFieldName, NewFieldName);

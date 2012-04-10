@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public ApplySequenceType SequenceType { get; private set;}
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       switch (ApplyType) {
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       }
     }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return string.Format("{0} apply", ApplyType);

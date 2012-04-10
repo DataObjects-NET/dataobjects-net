@@ -5,7 +5,7 @@
 // Created:    2008.01.11
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -15,7 +15,12 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class HierarchyInfoCollection : NodeCollection<HierarchyInfo>
   {
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HierarchyInfoCollection"/> class.
+    /// </summary>
+    /// <param name="owner">The owner.</param>
+    /// <param name="name">The name.</param>
     public HierarchyInfoCollection(Node owner, string name)
       : base(owner, name)
     {

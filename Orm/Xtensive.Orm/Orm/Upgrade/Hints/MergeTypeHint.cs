@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public Type OldType { get; private set; }
 
-    /// <inheritdoc/>
+    
     public bool Equals(MergeTypeHint other)
     {
       if (ReferenceEquals(null, other))
@@ -44,13 +44,13 @@ namespace Xtensive.Orm.Upgrade
         && other.OldType==OldType;
     }
 
-    /// <inheritdoc/>
+    
     public override bool Equals(UpgradeHint other)
     {
       return Equals(other as MergeTypeHint);
     }
 
-    /// <inheritdoc/>
+    
     public override int GetHashCode()
     {
       unchecked {
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return string.Format(ToStringFormat, OldType.GetFullName(), NewType.GetFullName());

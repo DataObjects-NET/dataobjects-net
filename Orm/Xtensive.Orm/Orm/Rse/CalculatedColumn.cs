@@ -27,20 +27,20 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     public Expression<Func<Tuple, object>> Expression { get; private set; }
 
-    /// <inheritdoc/>
+    
     public override string ToString()
     {
       return string.Format(ToStringFormat,
         base.ToString(), Expression.ToString(true));
     }
 
-    /// <inheritdoc/>
+    
     public override Column Clone(int newIndex)
     {
       return new CalculatedColumn(this, newIndex);
     }
 
-    /// <inheritdoc/>
+    
     public override Column Clone(string newName)
     {
       return new CalculatedColumn(this, newName);

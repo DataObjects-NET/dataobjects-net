@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public Func<int> Take { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return "[" + Skip + "; " + Take +"]";

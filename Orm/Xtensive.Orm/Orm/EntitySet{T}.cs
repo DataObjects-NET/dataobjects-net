@@ -163,7 +163,7 @@ namespace Xtensive.Orm
 
     #region ICollection<T> members
 
-    /// <inheritdoc/>
+    
     [Infrastructure] // Proxy
     int ICollection<TItem>.Count
     {
@@ -171,7 +171,13 @@ namespace Xtensive.Orm
       get { return checked ((int) Count); }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is read only.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is read only; otherwise, <c>false</c>.
+    /// </value>
     [Infrastructure]
     public bool IsReadOnly
     {
@@ -179,14 +185,18 @@ namespace Xtensive.Orm
       get { return false; }
     }
 
-    /// <inheritdoc/>
+    
     [Infrastructure] // Proxy
     void ICollection<TItem>.Add(TItem item)
     {
       base.Add(item);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the enumerator.
+    /// </summary>
+    /// <returns></returns>
     [Infrastructure] // Proxy
     public IEnumerator<TItem> GetEnumerator()
     {
@@ -194,14 +204,19 @@ namespace Xtensive.Orm
         yield return (TItem) item;
     }
 
-    /// <inheritdoc/>
+    
     [Infrastructure] // Proxy
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Copies to.
+    /// </summary>
+    /// <param name="array">The array.</param>
+    /// <param name="arrayIndex">Index of the array.</param>
     public void CopyTo(TItem[] array, int arrayIndex)
     {
       foreach (TItem item in this)
@@ -216,7 +231,7 @@ namespace Xtensive.Orm
     /// Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable"/>.
     /// </summary>
     /// <value></value>
-    /// <inheritdoc/>
+    
     [Infrastructure]
     public Expression Expression
     {
@@ -232,17 +247,34 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the type of the element(s) that are returned when the expression tree associated with this instance of <see cref="T:System.Linq.IQueryable"/> is executed.
+    /// </summary>
+    /// <returns>A <see cref="T:System.Type"/> that represents the type of the element(s) that are returned when the expression tree associated with this object is executed.</returns>
     [Infrastructure]
     public Type ElementType { get { return typeof (TItem); } }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets the query provider that is associated with this data source.
+    /// </summary>
+    /// <returns>The <see cref="T:System.Linq.IQueryProvider"/> that is associated with this data source.</returns>
     [Infrastructure]
     public IQueryProvider Provider { get { return Session.Query.Provider; } }
 
     #endregion
-    
-    /// <inheritdoc/>
+
+
+    /// <summary>
+    /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
+    /// returning count of items associated with this instance.
+    /// </summary>
+    /// <param name="field">The field containing <see cref="EntitySet{TItem}"/>.</param>
+    /// <returns>
+    /// The created delegate which returns an <see cref="IQueryable{T}"/>
+    /// returning count of items associated with this instance.
+    /// </returns>
     [Infrastructure]
     protected sealed override Func<QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {

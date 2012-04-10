@@ -28,14 +28,14 @@ namespace Xtensive.Orm.Rse.Providers.Executable
 
     #endregion
 
-    /// <inheritdoc/>
+    
     public override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       CachedSource = Origin.CompiledSource.Invoke();
     }
 
-    /// <inheritdoc/>
+    
     public override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return CachedSource;

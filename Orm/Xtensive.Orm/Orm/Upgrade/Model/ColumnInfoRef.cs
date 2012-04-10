@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="parent">The parent index.</param>
-    /// <inheritdoc/>
+    
     protected ColumnInfoRef(TParent parent)
       : base(parent)
     {

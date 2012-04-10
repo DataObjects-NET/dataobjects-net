@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ConvertEnum(c);
     }
 
-    /// <inheritdoc/>
+    
     public new Expression Visit(Expression e)
     {
       return base.Visit(e);

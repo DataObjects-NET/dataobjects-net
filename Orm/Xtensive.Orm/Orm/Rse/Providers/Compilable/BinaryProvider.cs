@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public CompilableProvider Right { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       return Left.Header.Join(Right.Header);

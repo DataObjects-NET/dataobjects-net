@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     private static readonly bool isString    = (typeof (T)==typeof (string));
     private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
 
-    /// <inheritdoc/>
+    
     public override bool AreSameValues(object oldValue, object newValue)
     {
       if (isValueType || isString)
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
       return false;
     }
 
-    /// <inheritdoc/>
+    
     public override T GetValue(Persistent obj)
     {
       var field = Field;
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
       return value;
     }
 
-    /// <inheritdoc/>
+    
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, T value)
     {

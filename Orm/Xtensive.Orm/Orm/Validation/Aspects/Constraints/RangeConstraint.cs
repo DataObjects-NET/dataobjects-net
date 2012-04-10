@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     public object Max { get; set; }
 
-    /// <inheritdoc/>
+    
     public override bool CheckValue(object value)
     {
       var comparer = GetCachedComparer();
@@ -55,13 +55,13 @@ namespace Xtensive.Orm.Validation
           comparer.Invoke(value, Max) <= 0;
     }
 
-    /// <inheritdoc/>
+    
     public override bool IsSupported(Type valueType)
     {
       return valueType==Property.PropertyType;
     }
 
-    /// <inheritdoc/>
+    
     protected override void ValidateSelf(bool compileTime)
     {
       if (Max==null && Min==null)
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Validation
           string.Format(Strings.ExComparerForTypeXIsNotFound, Property.PropertyType));
     }
 
-    /// <inheritdoc/>
+    
     protected override string GetDefaultMessage()
     {
       if (Max == null && Min == null)
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Validation
       return Strings.ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax;
     }
 
-    /// <inheritdoc/>
+    
     protected override void AddCustomMessageParameters(Dictionary<string, object> parameters)
     {
       if (Min != null)
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Validation
 
     #endregion
 
-    /// <inheritdoc/>
+    
     protected override void Initialize()
     {
       if (Max!=null)
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Validation
 
     // Constructors
 
-    /// <inheritdoc/>
+    
     void IDeserializationCallback.OnDeserialization(object sender)
     {
       if (cachedComparer.SyncRoot==null)

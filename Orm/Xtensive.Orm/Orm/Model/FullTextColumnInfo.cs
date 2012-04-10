@@ -16,9 +16,33 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class FullTextColumnInfo : Node
   {
+    /// <summary>
+    /// Gets the column.
+    /// </summary>
     public ColumnInfo Column { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the configuration.
+    /// </summary>
+    /// <value>
+    /// The configuration.
+    /// </value>
     public string Configuration { get; set; }
+
+    /// <summary>
+    /// Gets or sets the type column.
+    /// </summary>
+    /// <value>
+    /// The type column.
+    /// </value>
     public ColumnInfo TypeColumn { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is analyzed.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if this instance is analyzed; otherwise, <c>false</c>.
+    /// </value>
     public bool IsAnalyzed { get; set; }
 
 

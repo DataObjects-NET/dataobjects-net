@@ -5,7 +5,7 @@
 using System;
 using System.Data.Common;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sql.Model
 {
@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="Extractor"/> class.
     /// </summary>
     /// <param name="driver">The driver.</param>
     protected Extractor(SqlDriver driver)

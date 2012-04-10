@@ -34,7 +34,11 @@ namespace Xtensive.Orm.Model
       get { return columns; }
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Locks the instance and (possibly) all dependent objects. 
+    /// </summary>
+    /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);

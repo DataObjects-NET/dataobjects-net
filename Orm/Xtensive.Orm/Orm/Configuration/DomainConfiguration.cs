@@ -365,12 +365,22 @@ namespace Xtensive.Orm.Configuration
       base.Lock(recursive);
     }
 
+
+    /// <summary>
+    /// </summary>
     /// <inheritdoc/>
     public override void Validate()
     {
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Creates a new instance of this class.
+    /// Used by <see cref="M:Xtensive.Configuration.ConfigurationBase.Clone"/> method implementation.
+    /// </summary>
+    /// <returns>
+    /// New instance of this class.
+    /// </returns>
     protected override ConfigurationBase CreateClone()
     {
       return new DomainConfiguration();
@@ -382,7 +392,6 @@ namespace Xtensive.Orm.Configuration
     /// Used by <see cref="ConfigurationBase.Clone"/> method implementation.
     /// </summary>
     /// <param name="source">The configuration to copy properties from.</param>
-    /// <inheritdoc/>
     protected override void CopyFrom(ConfigurationBase source)
     {
       base.CopyFrom(source);

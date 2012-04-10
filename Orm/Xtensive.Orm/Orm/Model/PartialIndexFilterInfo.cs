@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -47,7 +47,12 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    /// <inheritdoc/>
+    
+    /// <summary>
+    /// Locks the instance and (possibly) all dependent objects.
+    /// 
+    /// </summary>
+    /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
     public override void Lock(bool recursive)
     {
       if (IsLocked)

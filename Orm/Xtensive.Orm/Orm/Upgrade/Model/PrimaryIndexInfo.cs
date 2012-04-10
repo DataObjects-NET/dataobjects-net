@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Upgrade.Model
         new ValueColumnRef(this, column);
     }
 
-    /// <inheritdoc/>
+    
     /// <exception cref="ValidationException">Validation error.</exception>
     protected override void ValidateState()
     {
@@ -74,13 +74,13 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    /// <inheritdoc/>
+    
     protected override Nesting CreateNesting()
     {
       return new Nesting<PrimaryIndexInfo, TableInfo, PrimaryIndexInfo>(this, "PrimaryIndex");
     }
 
-    /// <inheritdoc/>
+    
     protected override void Initialize()
     {
       base.Initialize();

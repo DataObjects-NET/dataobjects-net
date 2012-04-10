@@ -15,13 +15,13 @@ namespace Xtensive.Orm.Upgrade
   public abstract class UpgradeHint :
     IEquatable<UpgradeHint>
   {
-    /// <inheritdoc/>
+    
     public virtual bool Equals(UpgradeHint other)
     {
       return ReferenceEquals(this, other);
     }
 
-    /// <inheritdoc/>
+    
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Upgrade
       return Equals((UpgradeHint) obj);
     }
 
-    /// <inheritdoc/>
+    
     public override int GetHashCode()
     {
       return base.GetHashCode();

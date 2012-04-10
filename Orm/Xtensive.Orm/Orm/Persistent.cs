@@ -84,7 +84,10 @@ namespace Xtensive.Orm
     [Infrastructure]
     protected internal abstract Tuple Tuple { get; }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Occurs when a property value changes.
+    /// </summary>
     [Infrastructure]
     public abstract event PropertyChangedEventHandler PropertyChanged;
 
@@ -504,11 +507,25 @@ namespace Xtensive.Orm
       }
     }
 
+    /// <summary>
+    /// Determines whether [is field available] [the specified name].
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns>
+    ///   <c>true</c> if [is field available] [the specified name]; otherwise, <c>false</c>.
+    /// </returns>
     protected bool IsFieldAvailable(string name)
     {
       return IsFieldAvailable(TypeInfo.Fields[name]);
     }
 
+    /// <summary>
+    /// Determines whether [is field available] [the specified field].
+    /// </summary>
+    /// <param name="field">The field.</param>
+    /// <returns>
+    ///   <c>true</c> if [is field available] [the specified field]; otherwise, <c>false</c>.
+    /// </returns>
     protected bool IsFieldAvailable(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -709,14 +726,27 @@ namespace Xtensive.Orm
 
     #region Equals & GetHashCode (just to ensure they're marked as [Infrastructure])
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
     [Infrastructure]
     public override bool Equals(object obj)
     {
       return base.Equals(obj);
     }
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Returns a hash code for this instance.
+    /// </summary>
+    /// <returns>
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// </returns>
     [Infrastructure]
     public override int GetHashCode()
     {
@@ -732,7 +762,7 @@ namespace Xtensive.Orm
     /// </summary>
     protected internal abstract bool CanBeValidated { get; }
 
-    /// <inheritdoc/>
+    
     [Infrastructure]
     void IValidationAware.OnValidate()
     {
@@ -749,7 +779,7 @@ namespace Xtensive.Orm
       OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
     }
 
-    /// <inheritdoc/>
+    
     [Infrastructure]
     ValidationContext IValidationAware.Context
     {
@@ -762,7 +792,7 @@ namespace Xtensive.Orm
 
     #region IDataErrorInfo members
 
-    /// <inheritdoc/>
+    
     [Transactional(TransactionalBehavior.Auto)]
     string IDataErrorInfo.this[string columnName] {
       get {
@@ -770,7 +800,7 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <inheritdoc/>
+    
     [Transactional(TransactionalBehavior.Auto)]
     string IDataErrorInfo.Error {
       get { 

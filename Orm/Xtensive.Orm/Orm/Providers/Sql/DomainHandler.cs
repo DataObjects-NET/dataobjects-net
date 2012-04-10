@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     public StorageDriver Driver { get; private set; }
 
-    /// <inheritdoc/>
+    
     protected override IEnumerable<Type> GetProviderCompilerContainers()
     {
       return new[] {
@@ -82,13 +82,13 @@ namespace Xtensive.Orm.Providers.Sql
       };
     }
 
-    /// <inheritdoc/>
+    
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);
     }
 
-    /// <inheritdoc/>
+    
     protected override IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler)
     {
       var result = new CompositePostCompiler(new SqlSelectCorrector());
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Providers.Sql
       return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
     
-    /// <inheritdoc/>
+    
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public override void BuildMapping()
     {
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Providers.Sql
       return Driver.ProviderInfo;
     }
 
-    /// <inheritdoc/>
+    
     protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
       var applyCorrector = new ApplyProviderCorrector(
@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Providers.Sql
         new OrderingCorrector(ResolveOrderingDescriptor));
     }
 
-    /// <inheritdoc/>
+    
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
       registrations.Add(new ServiceRegistration(typeof (ICachingKeyGeneratorService), new CachingKeyGeneratorService(Handlers)));
@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     // Initialization
 
-    /// <inheritdoc/>
+    
     public override void Initialize()
     {
       var configuration = Handlers.Domain.Configuration;

@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     public long Max { get; set;}
 
-    /// <inheritdoc/>
+    
     public override bool CheckValue(object value)
     {
       if (value==null)
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Validation
       return length >= Min && length <= Max;
     }
 
-    /// <inheritdoc/>
+    
     public override bool IsSupported(Type valueType)
     {
       return
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Validation
             typeof (ICollection).IsAssignableFrom(valueType);
     }
 
-    /// <inheritdoc/>
+    
     protected override void ValidateSelf(bool compileTime)
     {
       if (Max==long.MaxValue && Min==0)
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Validation
           string.Concat(Strings.ExMaxOrMinPropertyMustBeSpecified));
     }
 
-    /// <inheritdoc/>
+    
     protected override string GetDefaultMessage()
     {
       if (Min==0)
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Validation
       return Strings.ConstraintMessageValueLengthCanNotBeLessThanMinAndGreaterThenMax;
     }
 
-    /// <inheritdoc/>
+    
     protected override void AddCustomMessageParameters(Dictionary<string, object> parameters)
     {
       if (Min != 0)

@@ -58,7 +58,7 @@ namespace Xtensive.Orm
       set { activateSession = value; }
     }
 
-    /// <inheritdoc/>
+    
     public override bool CompileTimeValidate(object target)
     {
       var member = target as MemberInfo;
@@ -70,7 +70,7 @@ namespace Xtensive.Orm
       return true;
     }
 
-    /// <inheritdoc/>
+    
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
     {
       yield return new AspectInstance(targetElement, new TransactionalAttribute(this));

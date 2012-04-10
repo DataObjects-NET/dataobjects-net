@@ -50,13 +50,13 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       return OrderKeyExtractorTransform.Apply(TupleTransformType.Auto, tuple); ;
     }
 
-    /// <inheritdoc/>
+    
     protected override RecordSetHeader BuildHeader()
     {
       return Source.Header.Sort(Order);
     }
 
-    /// <inheritdoc/>
+    
     protected override string ParametersToString()
     {
       return Order
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
         .ToCommaDelimitedString();
     }
 
-    /// <inheritdoc/>
+    
     protected override void Initialize()
     {
       base.Initialize();

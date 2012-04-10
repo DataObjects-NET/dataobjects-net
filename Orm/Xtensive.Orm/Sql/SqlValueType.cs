@@ -4,7 +4,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sql
 {
@@ -152,16 +152,16 @@ namespace Xtensive.Sql
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlValueType"/> class.
     /// </summary>
     /// <param name="type">The type.</param>
     public SqlValueType(SqlType type)
       : this(type, null, null, null, null)
     {
     }
- 
+
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlValueType"/> class.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="length">The length.</param>
@@ -171,7 +171,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlValueType"/> class.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="precision">The precision.</param>
@@ -182,7 +182,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlValueType"/> class.
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
     public SqlValueType(string typeName)
@@ -191,7 +191,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlValueType"/> class.
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
     /// <param name="length">The length.</param>
@@ -201,7 +201,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlValueType"/> class.
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
     /// <param name="precision">The precision.</param>
@@ -212,7 +212,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of the <see cref="SqlValueType"/> class.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="typeName">Name of the type.</param>

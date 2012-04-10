@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
   {
     private readonly bool throwOnCorrectionFault;
 
-    /// <inheritdoc/>
+    
     public CompilableProvider Process(CompilableProvider rootProvider)
     {
       return new ApplyProviderCorrectorRewriter(throwOnCorrectionFault).Rewrite(rootProvider);

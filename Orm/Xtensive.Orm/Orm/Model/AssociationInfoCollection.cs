@@ -48,7 +48,12 @@ namespace Xtensive.Orm.Model
 
     // Constructors
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AssociationInfoCollection"/> class.
+    /// </summary>
+    /// <param name="owner">The owner.</param>
+    /// <param name="name">The name.</param>
     public AssociationInfoCollection(Node owner, string name)
       : base(owner, name)
     {

@@ -40,13 +40,13 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// </summary>
     public readonly bool FetchLazyFields;
 
-    /// <inheritdoc/>
+    
     public bool Equals(PrefetchFieldDescriptor other)
     {
       return Equals(other.Field, Field);
     }
 
-    /// <inheritdoc/>
+    
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return Equals((PrefetchFieldDescriptor) obj);
     }
 
-    /// <inheritdoc/>
+    
     public override int GetHashCode()
     {
       return Field.GetHashCode();
