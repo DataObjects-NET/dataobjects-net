@@ -5,7 +5,7 @@
 // Created:    2009.11.25
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -35,7 +35,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="value">The value.</param>
     public TypeDiscriminatorValueAttribute(object value)

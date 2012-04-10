@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Operations
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.
+    /// Initializes a new instance of this class..
     /// </summary>
     /// <param name="key">The key of the changed entity.</param>
     /// <param name="field">The field involved into the operation.</param>
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.
+    /// Initializes a new instance of this class..
     /// </summary>
     /// <param name="key">The key of the changed entity.</param>
     /// <param name="field">The field involved into the operation.</param>

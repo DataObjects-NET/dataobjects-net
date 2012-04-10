@@ -5,7 +5,7 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Upgrade.Model
 {
@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <inheritdoc/>
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The column.</param>

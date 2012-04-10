@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Orm.Model
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="typeInfo"><see cref="TypeInfo"/> object to make reference for.</param>
     public TypeInfoRef(TypeInfo typeInfo)

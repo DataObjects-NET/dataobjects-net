@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Serialization
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="serializationKind">Default <see cref="SerializationKind"/>.</param>
     public SerializationContext(SerializationKind serializationKind)
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Serialization
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="serializationKindGetter">The <see cref="SerializationKind"/> getter.</param>
     public SerializationContext(Func<Entity, SerializationKind> serializationKindGetter)

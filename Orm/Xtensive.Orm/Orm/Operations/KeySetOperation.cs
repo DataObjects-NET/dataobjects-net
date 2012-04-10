@@ -12,7 +12,7 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using System.Linq;
 
 namespace Xtensive.Orm.Operations
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="keys">The sequence of keys.</param>
     public KeySetOperation(IEnumerable<Key> keys)

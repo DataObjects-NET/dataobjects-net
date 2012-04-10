@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Linq;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Rse
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     /// <param name="type">The <see cref="Type"/> property value.</param>

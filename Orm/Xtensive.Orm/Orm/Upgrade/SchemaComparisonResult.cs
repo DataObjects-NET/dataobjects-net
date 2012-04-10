@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="schemaComparisonStatus">The comparison status.</param>
     /// <param name="hasColumnTypeChanges">Indicates whether there are column type changes.</param>

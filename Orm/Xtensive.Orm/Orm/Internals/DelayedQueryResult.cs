@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Aspects;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Parameters;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Internals
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session"></param>
     /// <param name="translatedQuery">The translated query.</param>

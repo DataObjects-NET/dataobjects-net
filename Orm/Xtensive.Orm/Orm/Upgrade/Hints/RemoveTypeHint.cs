@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Value for <see cref="Type"/>.</param>
     public RemoveTypeHint(string type)

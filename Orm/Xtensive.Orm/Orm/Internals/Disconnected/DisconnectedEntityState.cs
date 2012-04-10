@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Building.Definitions;
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Disconnected
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="key">The key.</param>
     public DisconnectedEntityState(Key key)
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Disconnected
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="origin">The origin state.</param>
     public DisconnectedEntityState(DisconnectedEntityState origin)

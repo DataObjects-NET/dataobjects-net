@@ -8,7 +8,7 @@ using System;
 using System.Data.Common;
 using Xtensive.Aspects;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 using Xtensive.Orm.Providers;
 
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Services
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session this instance is bound to.</param>
     [ServiceConstructor]

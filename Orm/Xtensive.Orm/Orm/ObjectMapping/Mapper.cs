@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.ObjectMapping;
 using Xtensive.ObjectMapping.Model;
 using Xtensive.Orm.Operations;
@@ -202,7 +202,7 @@ namespace Xtensive.Orm.ObjectMapping
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="mappingDescription">The mapping description.</param>
@@ -213,7 +213,7 @@ namespace Xtensive.Orm.ObjectMapping
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="mappingDescription">The mapping description.</param>

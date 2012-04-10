@@ -5,7 +5,7 @@
 // Created:    2009.07.09
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Internals
 {
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Internals
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="entityState">The value of the <see cref="EntityState"/> field.</param>
     /// <param name="persistActionKind">The value of the <see cref="ActionKind"/> field.</param>

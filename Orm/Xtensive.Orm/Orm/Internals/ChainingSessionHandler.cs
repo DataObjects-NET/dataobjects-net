@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Internals
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="chainedHandler">The handler to be chained.</param>
     protected ChainingSessionHandler(SessionHandler chainedHandler)

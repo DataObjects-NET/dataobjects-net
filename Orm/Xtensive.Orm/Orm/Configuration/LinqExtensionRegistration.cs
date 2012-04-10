@@ -8,7 +8,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Configuration
 {
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Configuration
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="member">Value for <see cref="Member"/>.</param>
     /// <param name="substitution">Value for <see cref="Substitution"/>.</param>
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="member">Value for <see cref="Member"/>.</param>
     /// <param name="compiler">Value for <see cref="Compiler"/>.</param>

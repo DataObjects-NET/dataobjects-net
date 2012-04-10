@@ -12,7 +12,7 @@ using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Aspects;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Orm.Configuration;
 
@@ -81,7 +81,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public TransactionalTypeAttribute()
       : this(TransactionalBehavior.Open)
@@ -89,7 +89,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="mode">The transactional behavior.</param>
     public TransactionalTypeAttribute(TransactionalBehavior mode)

@@ -5,7 +5,7 @@
 // Created:    2009.11.12
 
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql.Dml;
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Providers
     public SqlSelect QueryStatement { get; set; }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">A value for <see cref="Name"/>.</param>
     public TemporaryTableDescriptor(string name)

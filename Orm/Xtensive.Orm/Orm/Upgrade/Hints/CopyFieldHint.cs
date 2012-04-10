@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
     /// <param name="sourceField">Value for <see cref="SourceField"/>.</param>
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
     /// <param name="field">Value for <see cref="SourceField"/> and <see cref="TargetField"/>.</param>
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
     /// <param name="sourceField">Value for <see cref="SourceField"/>.</param>
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
     /// <param name="field">Value for <see cref="SourceField"/> and <see cref="TargetField"/>.</param>

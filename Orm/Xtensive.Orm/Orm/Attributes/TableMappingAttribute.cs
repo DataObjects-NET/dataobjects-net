@@ -5,7 +5,7 @@
 // Created:    2007.07.04
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -31,7 +31,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name"><see cref="Name"/> property value.</param>
     public TableMappingAttribute(string name)

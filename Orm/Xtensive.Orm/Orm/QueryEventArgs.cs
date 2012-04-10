@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -18,7 +18,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// <param name="expression">Executed expression.</param>
     /// </summary>
     public QueryEventArgs(Expression expression)

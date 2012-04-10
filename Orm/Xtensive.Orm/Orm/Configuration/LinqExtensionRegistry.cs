@@ -13,7 +13,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Configuration
 {
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Configuration
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public LinqExtensionRegistry()
     {

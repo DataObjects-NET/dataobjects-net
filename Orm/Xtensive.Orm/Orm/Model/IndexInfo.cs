@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using Xtensive.Collections;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -407,7 +407,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="declaringType">The <see cref="TypeInfo"/> that declares this instance.</param>
     /// <param name="indexAttributes"><see cref="IndexAttributes"/> attributes for this instance.</param>
@@ -421,7 +421,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="reflectedType">Reflected type.</param>
     /// <param name="ancestorIndex">The ancestors index.</param>
@@ -440,7 +440,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="reflectedType">Reflected type.</param>
     /// <param name="indexAttributes">The index attributes.</param>

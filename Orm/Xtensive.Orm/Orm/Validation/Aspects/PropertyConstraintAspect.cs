@@ -15,7 +15,7 @@ using PostSharp.Extensibility;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Orm.Validation;
 using Xtensive.Threading;
@@ -310,7 +310,7 @@ namespace Xtensive.Orm.Validation
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this class.
     /// </summary>
     protected PropertyConstraintAspect()
     {

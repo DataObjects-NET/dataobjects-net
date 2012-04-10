@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="handlers">The handlers.</param>
     /// <param name="request">The request.</param>

@@ -12,7 +12,7 @@ using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Disposing;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -793,7 +793,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public DisconnectedState()
     {

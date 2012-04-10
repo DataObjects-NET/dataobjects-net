@@ -10,7 +10,7 @@ using System.Configuration;
 using System.Linq;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Configuration.Elements;
 
 using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
@@ -622,7 +622,7 @@ namespace Xtensive.Orm.Configuration
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="connectionUrl">The string containing connection URL for <see cref="Domain"/>.</param>
     public DomainConfiguration(string connectionUrl)
@@ -632,7 +632,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="connectionUrl">The connection URL.</param>
     public DomainConfiguration(UrlInfo connectionUrl)
@@ -642,7 +642,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="connectionString">The connection string.</param>
@@ -653,7 +653,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="connectionInfo">The connection info.</param>
     public DomainConfiguration(ConnectionInfo connectionInfo)
@@ -663,7 +663,7 @@ namespace Xtensive.Orm.Configuration
     }
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public DomainConfiguration()
     {

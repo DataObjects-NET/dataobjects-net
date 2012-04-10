@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Operations
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Operations
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="executeAction">The <see cref="Operation.Execute"/> method action.</param>
     /// <param name="arguments">The action arguments.</param>
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="prepareAction">The <see cref="Operation.Prepare"/> method action.</param>
     /// <param name="executeAction">The <see cref="Operation.Execute"/> method action.</param>

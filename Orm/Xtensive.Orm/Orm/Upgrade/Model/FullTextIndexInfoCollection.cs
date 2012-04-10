@@ -5,7 +5,7 @@
 // Created:    2010.01.25
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Upgrade.Model
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="table">The table.</param>
     public FullTextIndexInfoCollection(TableInfo table)

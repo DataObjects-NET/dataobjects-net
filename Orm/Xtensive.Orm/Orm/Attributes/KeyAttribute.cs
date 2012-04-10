@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -41,7 +41,7 @@ namespace Xtensive.Orm
     public Direction Direction { get; set; }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public KeyAttribute()
       : this(0)
@@ -49,7 +49,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="position">The <see cref="Position">position</see> of persistent property inside primary key.</param>
     public KeyAttribute(int position)
@@ -58,7 +58,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="direction">The <see cref="Direction">sort direction</see>.</param>
     public KeyAttribute(Direction direction)
@@ -67,7 +67,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="position">The <see cref="Position">position</see> of persistent property inside primary key.</param>
     /// <param name="direction">The <see cref="Direction">sort direction</see>.</param>

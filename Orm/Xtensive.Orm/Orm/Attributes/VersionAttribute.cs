@@ -5,7 +5,7 @@
 // Created:    2009.08.13
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -22,7 +22,7 @@ namespace Xtensive.Orm
     public VersionMode Mode { get; private set; }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <remarks><see cref="Mode"/> is set to <see cref="VersionMode.Auto"/>.</remarks>
     public VersionAttribute()
@@ -30,7 +30,7 @@ namespace Xtensive.Orm
     {}
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="mode">The version check mode.</param>
     public VersionAttribute(VersionMode mode)

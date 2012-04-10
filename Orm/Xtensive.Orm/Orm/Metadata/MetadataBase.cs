@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Metadata
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Metadata
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="id">The identifier.</param>
     protected MetadataBase(int id)
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Metadata
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The identifier.</param>
     protected MetadataBase(string name)

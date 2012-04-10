@@ -7,7 +7,7 @@
 using System;
 using System.Globalization;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using System.Text;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Validation;
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="nativeType">The native type.</param>
@@ -217,7 +217,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
@@ -240,7 +240,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
@@ -282,7 +282,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
@@ -297,7 +297,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>

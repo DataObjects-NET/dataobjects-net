@@ -10,7 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Orm.Rse;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ExpressionEvaluator(Expression e)
     {

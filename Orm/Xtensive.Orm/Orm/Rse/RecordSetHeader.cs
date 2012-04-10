@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Threading;
@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Rse
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
     /// <param name="columns">Result columns.</param>    
@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
     /// <param name="columns">Result columns.</param>    
@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
     /// <param name="columns">Result columns.</param>    
@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
     /// <param name="columns">Result columns.</param>    

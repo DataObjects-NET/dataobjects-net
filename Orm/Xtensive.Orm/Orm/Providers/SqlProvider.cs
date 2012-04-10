@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
     
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	Initializes a new instance of this class.
     /// </summary>
     /// <param name="origin">The origin.</param>
     /// <param name="handlers">The handlers.</param>
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="permanentReference">The permanent reference.</param>

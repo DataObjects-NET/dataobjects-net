@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Aspects;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Internals
 {
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Internals
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session"><see cref="Session"/>, to which current instance 
     /// is bound.</param>

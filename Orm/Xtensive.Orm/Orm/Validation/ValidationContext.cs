@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Internals.DocTemplates;
+
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Validation
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Validation
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ValidationContext()
     {

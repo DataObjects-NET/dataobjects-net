@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -19,7 +19,7 @@ namespace Xtensive.Orm
     public DbCommand Command { get; private set; }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// <param name="command">Executed command.</param>
     /// </summary>
     public DbCommandEventArgs(DbCommand command)

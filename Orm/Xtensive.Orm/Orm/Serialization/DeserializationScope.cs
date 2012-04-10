@@ -5,7 +5,7 @@
 // Created:    2009.03.30
 
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 namespace Xtensive.Orm.Serialization
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Serialization
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="context">The context.</param>
     public DeserializationScope(DeserializationContext context) 

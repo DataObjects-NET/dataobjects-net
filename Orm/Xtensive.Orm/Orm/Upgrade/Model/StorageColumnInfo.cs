@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="table">The parent table.</param>
     /// <param name="name">The name.</param>
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="table">The parent table.</param>
     /// <param name="name">The column name.</param>

@@ -11,7 +11,7 @@ using System.Globalization;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Operations;
 
 namespace Xtensive.Orm
@@ -158,7 +158,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected Operation()
     {

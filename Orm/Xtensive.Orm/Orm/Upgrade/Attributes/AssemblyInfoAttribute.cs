@@ -5,7 +5,7 @@
 // Created:    2009.04.30
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The name of the assembly.</param>
     public AssemblyInfoAttribute(string name)
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The name of the assembly.</param>
     /// <param name="version">The version of the assembly.</param>

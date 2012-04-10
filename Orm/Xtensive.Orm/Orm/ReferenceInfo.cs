@@ -5,7 +5,7 @@
 // Created:    2009.09.10
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
@@ -35,7 +35,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="referencingEntity">The referencing entity.</param>
     /// <param name="referencedEntity">The referenced entity.</param>

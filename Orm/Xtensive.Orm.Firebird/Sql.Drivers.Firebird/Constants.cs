@@ -8,10 +8,10 @@ using System;
 
 namespace Xtensive.Sql.Drivers.Firebird
 {
-    internal static class Constants
-    {
-        public const string DefaultSchemaName = ""; // "Firebird";
+  internal static class Constants
+  {
+    public const string DefaultSchemaName = ""; // "Firebird";
 
-        public const string DateTimeFormatString = @"''\'yyyy\.MM\.dd HH\:mm\:ss\:FFF\'''";
-    }
+    public const string DateTimeFormatString = @"''\'yyyy\.MM\.dd HH\:mm\:ss\:FFF\'''";
+  }
 }

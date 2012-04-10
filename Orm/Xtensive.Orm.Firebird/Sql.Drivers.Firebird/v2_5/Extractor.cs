@@ -48,7 +48,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       theCatalog.CreateSchema(targetSchema);
       ExtractCatalogContents();
       return theCatalog.Schemas[0];
-//            return theCatalog.Schemas[targetSchema];
+      //            return theCatalog.Schemas[targetSchema];
     }
 
     private void ExtractCatalogContents()
@@ -78,15 +78,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
           string tableName = reader.GetString(1).Trim();
           int tableType = reader.GetInt16(2);
-          bool isTemporary = tableType == 4 || tableType == 5;
+          bool isTemporary = tableType==4 || tableType==5;
           if (isTemporary) {
             var table = schema.CreateTemporaryTable(tableName);
-            table.PreserveRows = tableType == 4;
+            table.PreserveRows = tableType==4;
             table.IsGlobal = true;
           }
-          else {
+          else
             schema.CreateTable(tableName);
-          }
         }
       }
     }
@@ -160,7 +159,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         while (reader.Read()) {
           SqlExpression expression = null;
           indexName = reader.GetString(2).Trim();
-          if (indexName != lastIndexName) {
+          if (indexName!=lastIndexName) {
             var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
             table = schema.Tables[reader.GetString(1).Trim()];
             index = table.CreateIndex(indexName);
@@ -170,7 +169,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             if (!reader.IsDBNull(8)) // expression index
               expression = SqlDml.Native(reader.GetString(8).Trim());
           }
-          if (expression == null) {
+          if (expression==null) {
             var column = table.TableColumns[reader.GetString(6).Trim()];
             bool isDescending = ReadBool(reader, 4);
             index.CreateIndexColumn(column, !isDescending);
@@ -230,7 +229,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             CreateIndexBasedConstraint(table, constraintName, constraintType, columns);
             columns.Clear();
           }
-          if (columns.Count == 0) {
+          if (columns.Count==0) {
             var schema = theCatalog.DefaultSchema; // theCatalog.Schemas[reader.GetString(0)];
             table = schema.Tables[reader.GetString(1).Trim()];
             constraintName = reader.GetString(2).Trim();
@@ -292,27 +291,27 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
       string typeName = row[typeNameIndex].ToString().Trim().ToUpper();
-      if (typeName == "NUMERIC" || typeName == "DECIMAL") {
+      if (typeName=="NUMERIC" || typeName=="DECIMAL") {
         int precision = Convert.ToInt32(row[precisionIndex]);
         int scale = Convert.ToInt32(row[scaleIndex]);
         return new SqlValueType(SqlType.Decimal, precision, scale);
       }
       if (typeName.StartsWith("TIMESTAMP"))
         return new SqlValueType(SqlType.DateTime);
-      if (typeName == "VARCHAR" || typeName == "CHAR") {
+      if (typeName=="VARCHAR" || typeName=="CHAR") {
         int length = Convert.ToInt32(row[charLengthIndex]);
-        var sqlType = typeName.Length == 4 ? SqlType.Char : SqlType.VarChar;
+        var sqlType = typeName.Length==4 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
       }
 
-      if (typeName == "BLOB SUB TYPE 0")
+      if (typeName=="BLOB SUB TYPE 0")
         return new SqlValueType(SqlType.VarCharMax);
 
-      if (typeName == "BLOB SUB TYPE 1")
+      if (typeName=="BLOB SUB TYPE 1")
         return new SqlValueType(SqlType.VarBinaryMax);
 
       var typeInfo = Driver.ServerInfo.DataTypes[typeName];
-      return typeInfo != null
+      return typeInfo!=null
         ? new SqlValueType(typeInfo.Type)
         : new SqlValueType(typeName);
     }
@@ -321,14 +320,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       Table table, string constraintName, string constraintType, List<TableColumn> columns)
     {
       switch (constraintType.Trim()) {
-      case "PRIMARY KEY":
-        table.CreatePrimaryKey(constraintName, columns.ToArray());
-        return;
-      case "UNIQUE":
-        table.CreateUniqueConstraint(constraintName, columns.ToArray());
-        return;
-      default:
-        throw new ArgumentOutOfRangeException("constraintType");
+        case "PRIMARY KEY":
+          table.CreatePrimaryKey(constraintName, columns.ToArray());
+          return;
+        case "UNIQUE":
+          table.CreateUniqueConstraint(constraintName, columns.ToArray());
+          return;
+        default:
+          throw new ArgumentOutOfRangeException("constraintType");
       }
     }
 
@@ -336,12 +335,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       short value = row.IsDBNull(index) ? (short) 0 : Convert.ToInt16(row.GetString(index) ?? "0");
       switch (value) {
-      case 1:
-        return true;
-      case 0:
-        return false;
-      default:
-        throw new ArgumentOutOfRangeException(string.Format(Strings.ExInvalidBooleanSmallintValue, value));
+        case 1:
+          return true;
+        case 0:
+          return false;
+        default:
+          throw new ArgumentOutOfRangeException(string.Format(Strings.ExInvalidBooleanSmallintValue, value));
       }
     }
 
@@ -353,29 +352,29 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private static void ReadConstraintProperties(Constraint constraint,
       IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
     {
-      constraint.IsDeferrable = ReadStringOrNull(row, isDeferrableIndex) == "YES";
-      constraint.IsInitiallyDeferred = ReadStringOrNull(row, isInitiallyDeferredIndex) == "YES";
+      constraint.IsDeferrable = ReadStringOrNull(row, isDeferrableIndex)=="YES";
+      constraint.IsInitiallyDeferred = ReadStringOrNull(row, isInitiallyDeferredIndex)=="YES";
     }
 
     private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
     {
       var deleteRule = ReadStringOrNull(row, deleteRuleIndex);
       switch (deleteRule) {
-      case "CASCADE":
-        foreignKey.OnDelete = ReferentialAction.Cascade;
-        return;
-      case "SET NULL":
-        foreignKey.OnDelete = ReferentialAction.SetNull;
-        return;
-      case "NO ACTION":
-        foreignKey.OnDelete = ReferentialAction.NoAction;
-        return;
-      case "RESTRICT": // behaves like NO ACTION
-        foreignKey.OnDelete = ReferentialAction.NoAction;
-        return;
-      case "SET DEFAULT":
-        foreignKey.OnDelete = ReferentialAction.SetDefault;
-        return;
+        case "CASCADE":
+          foreignKey.OnDelete = ReferentialAction.Cascade;
+          return;
+        case "SET NULL":
+          foreignKey.OnDelete = ReferentialAction.SetNull;
+          return;
+        case "NO ACTION":
+          foreignKey.OnDelete = ReferentialAction.NoAction;
+          return;
+        case "RESTRICT": // behaves like NO ACTION
+          foreignKey.OnDelete = ReferentialAction.NoAction;
+          return;
+        case "SET DEFAULT":
+          foreignKey.OnDelete = ReferentialAction.SetDefault;
+          return;
       }
     }
 

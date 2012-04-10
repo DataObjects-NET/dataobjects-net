@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using System.Linq;
 using Xtensive.Linq;
 using Xtensive.Reflection;
@@ -236,7 +236,7 @@ namespace Xtensive.Orm.Configuration
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="processor">The registry action processor.</param>
     public DomainTypeRegistry(ITypeRegistrationProcessor processor)
