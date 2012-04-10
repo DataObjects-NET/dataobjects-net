@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     public AggregateType AggregateType { get; private set; }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat,

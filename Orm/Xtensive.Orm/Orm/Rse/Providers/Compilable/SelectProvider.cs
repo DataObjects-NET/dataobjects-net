@@ -31,13 +31,13 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       get { return columnIndexes.Copy(); }
     }
 
-    
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return base.BuildHeader().Select(ColumnIndexes);
     }
 
-    
+    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return Header.Columns.Select(c => c.Name).ToCommaDelimitedString();

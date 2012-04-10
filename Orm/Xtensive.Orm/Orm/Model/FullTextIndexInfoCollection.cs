@@ -62,17 +62,13 @@ namespace Xtensive.Orm.Model
 
     #region IEnumerable<...> members
 
-
-    /// <summary>
-    /// Gets the enumerator.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public IEnumerator<FullTextIndexInfo> GetEnumerator()
     {
       return container.ToList().GetEnumerator();
     }
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

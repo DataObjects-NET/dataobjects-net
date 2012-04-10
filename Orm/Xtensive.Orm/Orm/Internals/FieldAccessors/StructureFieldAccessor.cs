@@ -13,12 +13,12 @@ namespace Xtensive.Orm.Internals.FieldAccessors
 {
   internal class StructureFieldAccessor<T> : CachingFieldAccessor<T>
   {
-    
+    /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
     {
       return ReferenceEquals(oldValue, newValue);
     }
-    
+    /// <inheritdoc/>
     public override void SetValue(Persistent obj, T value)
     {
       var field = Field;

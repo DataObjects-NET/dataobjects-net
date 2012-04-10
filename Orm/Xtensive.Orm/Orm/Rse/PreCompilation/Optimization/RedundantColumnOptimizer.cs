@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Optimization
   public class RedundantColumnOptimizer: IPreCompiler
   {
 
-    
+    /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
       return new RedundantColumnRemover(rootProvider).RemoveRedundantColumns();

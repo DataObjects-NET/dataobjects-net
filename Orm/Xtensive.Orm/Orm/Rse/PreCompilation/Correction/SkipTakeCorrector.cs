@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction
     private readonly bool takeSupported;
     private readonly bool skipSupported;
 
-    
+    /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
       return new SkipTakeRewriter(rootProvider, takeSupported, skipSupported).Rewrite();

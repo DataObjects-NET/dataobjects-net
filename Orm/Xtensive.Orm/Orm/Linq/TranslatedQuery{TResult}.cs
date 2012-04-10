@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     public List<Parameter<Tuple>> TupleParameters { get; private set; }
 
-    
+    /// <inheritdoc/>
     public override sealed Delegate UntypedMaterializer
     {
       get { return Materializer; }

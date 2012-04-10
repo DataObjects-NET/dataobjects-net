@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Validation
   [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(PropertyConstraintAspect))]
   public sealed class InconsistentRegionAttribute : OnMethodBoundaryAspect
   {
-    
+    /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, method.DeclaringType, true, typeof(IValidationAware)))
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Validation
       return true;
     }
 
-    
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionArgs eventArgs)
     {
@@ -59,14 +59,14 @@ namespace Xtensive.Orm.Validation
       eventArgs.MethodExecutionTag = region;
     }
 
-    
+    /// <inheritdoc/>
     public override void OnSuccess(MethodExecutionArgs eventArgs)
     {
       var region = (ICompletableScope) eventArgs.MethodExecutionTag;
       region.Complete();
     }
 
-    
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionArgs eventArgs)
     {

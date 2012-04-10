@@ -64,17 +64,13 @@ namespace Xtensive.Orm.Configuration
       registrations.Add(member, registration);
     }
 
-
-    /// <summary>
-    /// Gets the enumerator.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public IEnumerator<LinqExtensionRegistration> GetEnumerator()
     {
       return registrations.Values.GetEnumerator();
     }
 
-    
+    /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

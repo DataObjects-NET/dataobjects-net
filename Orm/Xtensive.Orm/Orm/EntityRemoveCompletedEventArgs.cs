@@ -23,10 +23,10 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EntityRemoveCompletedEventArgs"/> class.
+    /// <inheritdoc/>
     /// </summary>
     /// <param name="entity">The entity.</param>
-    /// <param name="exception">The exception.</param>
+    /// <param name="exception">The <see cref="Exception"/> initial value.</param>
     public EntityRemoveCompletedEventArgs(Entity entity, Exception exception)
       : base(entity)
     {

@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     #region IContext<...> methods
 
-    
+    /// <inheritdoc/>
     public override bool IsActive
     {
       get { return EnumerationScope.CurrentContext==this; }

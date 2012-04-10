@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// </summary>
     public MapTransform ResizeTransform { get; private set; }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
-    
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return Source.Header.Add(SystemColumn);

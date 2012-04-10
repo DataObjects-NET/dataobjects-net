@@ -74,13 +74,13 @@ namespace Xtensive.Orm.Services
       return state==null ? false : state.Contains(key);
     }
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
-    
+    /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
       var state = EntitySet.State;

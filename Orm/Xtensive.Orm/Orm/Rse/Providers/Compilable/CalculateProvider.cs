@@ -35,19 +35,19 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     public MapTransform ResizeTransform { get; private set; }
 
 
-    
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return Source.Header.Add(CalculatedColumns);
     }
 
-    
+    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return CalculatedColumns.ToCommaDelimitedString();
     }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();

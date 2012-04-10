@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Providers.Sql
     private CommandProcessor commandProcessor;
     private bool isDisposed;
 
-    
+    /// <inheritdoc/>
     public override bool TransactionIsStarted {
       get { return connection!=null && connection.ActiveTransaction!=null; }
     }
@@ -60,14 +60,14 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    
+    /// <inheritdoc/>
     public override void SetCommandTimeout(int? commandTimeout)
     {
       if (connection!=null)
         connection.CommandTimeout = commandTimeout;
     }
 
-    
+    /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       EnsureConnectionIsOpen();
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     #region Transaction control methods
 
-    
+    /// <inheritdoc/>
     public override void BeginTransaction(Transaction transaction)
     {
       EnsureConnectionIsOpen();
@@ -103,28 +103,28 @@ namespace Xtensive.Orm.Providers.Sql
         Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
     }
 
-    
+    /// <inheritdoc/>
     public override void CreateSavepoint(Transaction transaction)
     {
       EnsureConnectionIsOpen();
       driver.MakeSavepoint(Session, connection, transaction.SavepointName);
     }
 
-    
+    /// <inheritdoc/>
     public override void RollbackToSavepoint(Transaction transaction)
     {
       EnsureConnectionIsOpen();
       driver.RollbackToSavepoint(Session, connection, transaction.SavepointName);
     }
 
-    
+    /// <inheritdoc/>
     public override void ReleaseSavepoint(Transaction transaction)
     {
       EnsureConnectionIsOpen();
       driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
     }
 
-    
+    /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
       if (Connection.ActiveTransaction!=null)
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Providers.Sql
       EndNativeTransaction();
     }
 
-    
+    /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
       if (Connection.ActiveTransaction!=null)
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Providers.Sql
     
     #region Insert, Update, Delete
 
-    
+    /// <inheritdoc/>
     public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
       foreach (var action in persistActions)
@@ -214,13 +214,13 @@ namespace Xtensive.Orm.Providers.Sql
 
     #endregion
 
-    
+    /// <inheritdoc/>
     protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
     {
       registrations.AddRange(baseServiceRegistrations);
     }
 
-    
+    /// <inheritdoc/>
     public override void Initialize()
     {
       base.Initialize();
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Providers.Sql
       driver = domainHandler.Driver;
     }
 
-    
+    /// <inheritdoc/>
     public override void Dispose()
     {
       if (isDisposed)

@@ -30,12 +30,7 @@ namespace Xtensive.Orm.Operations
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
     }
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntityOperation"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected EntityOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

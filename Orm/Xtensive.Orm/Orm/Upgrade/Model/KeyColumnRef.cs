@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Upgrade.Model
   [Serializable]
   public sealed class KeyColumnRef : KeyColumnRef<StorageIndexInfo>
   {
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<KeyColumnRef, StorageIndexInfo, KeyColumnRefCollection>(this, "KeyColumns");
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     public KeyColumnRef(StorageIndexInfo parent)
       : base(parent)
     {

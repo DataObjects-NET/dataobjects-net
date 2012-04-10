@@ -33,68 +33,42 @@ namespace Xtensive.Orm
     private ReadOnlyList<IOperation> followingOperations = EmptyOperations;
     private ReadOnlyList<IOperation> undoOperations = EmptyOperations;
 
-
-    /// <summary>
-    /// Gets the title of the operation.
-    /// </summary>
+    /// <inheritdoc/>
     public abstract string Title { get; }
 
-
-    /// <summary>
-    /// Gets the description of the operation.
-    /// </summary>
+    /// <inheritdoc/>
     public virtual string Description { 
       get { return Title; }
     }
 
-
-    /// <summary>
-    /// Gets the type of the operation.
-    /// </summary>
+    /// <inheritdoc/>
     public OperationType Type { get; internal set; }
 
-
-    /// <summary>
-    /// Gets the list of preconditions.
-    /// </summary>
+    /// <inheritdoc/>
     public ReadOnlyList<IOperation> PrecedingOperations {
       get { return precedingOperations; }
       internal set { precedingOperations = value; }
     }
 
-
-    /// <summary>
-    /// Gets the list of nested operations.
-    /// </summary>
+    /// <inheritdoc/>
     public ReadOnlyList<IOperation> FollowingOperations {
       get { return followingOperations; }
       internal set { followingOperations = value; }
     }
 
-
-    /// <summary>
-    /// Gets the list of undo operations.
-    /// </summary>
+    /// <inheritdoc/>
     public ReadOnlyList<IOperation> UndoOperations {
       get { return undoOperations; }
       internal set { undoOperations = value; }
     }
 
-
-    /// <summary>
-    /// Gets or sets the identified entities.
-    /// Value of this property can be assigned just once.
-    /// </summary>
+    /// <inheritdoc/>
     public ReadOnlyDictionary<string, Key> IdentifiedEntities {
       get { return identifiedEntities; }
       set { identifiedEntities = value; }
     }
 
-
-    /// <summary>
-    /// Prepares the operation using specified execution context.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
+    /// <inheritdoc/>
     public void Prepare(OperationExecutionContext context)
     {
       foreach (var operation in PrecedingOperations)
@@ -104,11 +78,7 @@ namespace Xtensive.Orm
         operation.Prepare(context);
     }
 
-
-    /// <summary>
-    /// Executes the operation using specified execution context.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
+    /// <inheritdoc/>
     public void Execute(OperationExecutionContext context)
     {
       foreach (var operation in PrecedingOperations)
@@ -118,17 +88,7 @@ namespace Xtensive.Orm
         operation.Execute(context);
     }
 
-
-    /// <summary>
-    /// Clones the operation, <see cref="PrecedingOperations"/>,
-    /// <see cref="FollowingOperations"/> and <see cref="UndoOperations"/>.
-    /// </summary>
-    /// <param name="withIdentifiedEntities">if set to <see langword="true"/>
-    /// 	<see cref="IdentifiedEntities"/>
-    /// must be cloned as well.</param>
-    /// <returns>
-    /// Clone of the current operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IOperation Clone(bool withIdentifiedEntities)
     {
       var clone = CloneSelf(null);
@@ -164,13 +124,7 @@ namespace Xtensive.Orm
     /// </summary>
     protected abstract Operation CloneSelf(Operation clone);
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       // Shouldn't be moved to resources

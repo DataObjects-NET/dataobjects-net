@@ -24,19 +24,11 @@ namespace Xtensive.Orm.Model
     private readonly Dictionary<FieldInfo, HashSet<FieldInfo>> reversedMap = new Dictionary<FieldInfo, HashSet<FieldInfo>>();
     internal static FieldMap Empty;
 
-    /// <summary>
-    /// Gets the <see cref="Xtensive.Orm.Model.FieldInfo"/> with the specified interface field.
-    /// </summary>
     public FieldInfo this[FieldInfo interfaceField]
     {
       get { return map[interfaceField]; }
     }
 
-    /// <summary>
-    /// Gets the implemented interface fields.
-    /// </summary>
-    /// <param name="typeField">The type field.</param>
-    /// <returns></returns>
     public IEnumerable<FieldInfo> GetImplementedInterfaceFields(FieldInfo typeField)
     {
       HashSet<FieldInfo> value;
@@ -45,31 +37,16 @@ namespace Xtensive.Orm.Model
       return value;
     }
 
-    /// <summary>
-    /// Gets the count.
-    /// </summary>
     public int Count
     {
       get { return map.Count; }
     }
 
-    /// <summary>
-    /// Determines whether the specified interface field contains key.
-    /// </summary>
-    /// <param name="interfaceField">The interface field.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified interface field contains key; otherwise, <c>false</c>.
-    /// </returns>
     public bool ContainsKey(FieldInfo interfaceField)
     {
       return map.ContainsKey(interfaceField);
     }
 
-    /// <summary>
-    /// Adds the specified interface field.
-    /// </summary>
-    /// <param name="interfaceField">The interface field.</param>
-    /// <param name="typeField">The type field.</param>
     public void Add(FieldInfo interfaceField, FieldInfo typeField)
     {
       this.EnsureNotLocked();
@@ -82,11 +59,6 @@ namespace Xtensive.Orm.Model
         reversedMap.Add(typeField, new HashSet<FieldInfo> {interfaceField});
     }
 
-    /// <summary>
-    /// Overrides the specified interface field.
-    /// </summary>
-    /// <param name="interfaceField">The interface field.</param>
-    /// <param name="typeField">The type field.</param>
     public void Override(FieldInfo interfaceField, FieldInfo typeField)
     {
       this.EnsureNotLocked();
@@ -97,12 +69,6 @@ namespace Xtensive.Orm.Model
       reversedMap.Add(typeField, interfaceFields);
     }
 
-    /// <summary>
-    /// Tries the get value.
-    /// </summary>
-    /// <param name="interfaceField">The interface field.</param>
-    /// <param name="typeField">The type field.</param>
-    /// <returns></returns>
     public bool TryGetValue(FieldInfo interfaceField, out FieldInfo typeField)
     {
       return map.TryGetValue(interfaceField, out typeField);

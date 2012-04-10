@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     public RegexOptions Options { get; set; }
 
-    
+    /// <inheritdoc/>
     public override bool CheckValue(object value)
     {
       string stringValue = (string) value;
@@ -45,32 +45,32 @@ namespace Xtensive.Orm.Validation
           regex.IsMatch(stringValue);
     }
 
-    
+    /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
       return valueType==typeof (string);
     }
 
-    
+    /// <inheritdoc/>
     protected override void ValidateSelf(bool compileTime)
     {
       if (string.IsNullOrEmpty(Pattern))
         throw new ArgumentException(Strings.ExExpressionPatternIsNotSpecified);
     }
 
-    
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       return Strings.PropertyValueDoesNotMatchRegexPattern;
     }
 
-    
+    /// <inheritdoc/>
     protected override void AddCustomMessageParameters(Dictionary<string, object> parameters)
     {
       parameters.Add(PatternParameter, Pattern);
     }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();

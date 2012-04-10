@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
 
     public HashSet<Edge<TValue>> IncomingEdges { get; private set; }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return Value.ToString();

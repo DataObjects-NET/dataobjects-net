@@ -34,10 +34,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ConnectionStringElementName = "connectionString";
     private const string ConnectionUrlElementName = "connectionUrl";
 
-    
-    /// <summary>
-    /// Gets identifier for this instance.
-    /// </summary>
+    /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
 
     /// <summary>
@@ -151,24 +148,12 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[EntityChangeRegistrySizeElementName] = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the connection string.
-    /// </summary>
-    /// <value>
-    /// The connection string.
-    /// </value>
     [ConfigurationProperty(ConnectionStringElementName, DefaultValue = null)]
     public string ConnectionString {
       get { return (string) this[ConnectionStringElementName]; }
       set { this[ConnectionStringElementName] = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the connection URL.
-    /// </summary>
-    /// <value>
-    /// The connection URL.
-    /// </value>
     [ConfigurationProperty(ConnectionUrlElementName, DefaultValue = null)]
     public string ConnectionUrl {
       get { return (string) this[ConnectionUrlElementName]; }

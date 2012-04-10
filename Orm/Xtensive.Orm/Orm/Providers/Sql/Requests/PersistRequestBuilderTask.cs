@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// <value></value>
     public PersistRequestKind Kind { get; private set; }
 
-    
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (obj==null)
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Providers.Sql
       return false;
     }
 
-    
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       if (hashCode==0)

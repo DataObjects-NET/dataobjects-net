@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction
   {
     private readonly Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver;
 
-    
+    /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
       return OrderingRewriter.Rewrite(rootProvider, orderingDescriptorResolver);

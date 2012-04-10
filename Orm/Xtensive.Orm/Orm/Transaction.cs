@@ -136,7 +136,7 @@ namespace Xtensive.Orm
     
     #region IHasExtensions Members
 
-    
+    /// <inheritdoc/>
     public IExtensionCollection Extensions {
       get {
         if (extensions==null)

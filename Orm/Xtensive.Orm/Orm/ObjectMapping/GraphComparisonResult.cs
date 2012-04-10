@@ -97,10 +97,7 @@ namespace Xtensive.Orm.ObjectMapping
       versionInfoProvider = GetVersionInfo;
     }
 
-
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
+    /// <inheritdoc/>
     public void Dispose()
     {
       stream.DisposeSafely();

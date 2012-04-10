@@ -62,14 +62,11 @@ namespace Xtensive.Orm
     [Infrastructure]
     public Entity Owner { get { return owner; } }
 
-    
+    /// <inheritdoc/>
     [Infrastructure] // Proxy
     Persistent IFieldValueAdapter.Owner { get { return Owner; } }
 
-
-    /// <summary>
-    /// Gets the field this adapter handles.
-    /// </summary>
+    /// <inheritdoc/>
     [Infrastructure]
     public FieldInfo Field { get; private set; }
 
@@ -325,10 +322,7 @@ namespace Xtensive.Orm
 
     #region INotifyXxxChanged & event support related methods
 
-
-    /// <summary>
-    /// Occurs when a property value changes.
-    /// </summary>
+    /// <inheritdoc/>
     [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged {
       add {
@@ -341,10 +335,7 @@ namespace Xtensive.Orm
       }
     }
 
-
-    /// <summary>
-    /// Occurs when the collection changes.
-    /// </summary>
+    /// <inheritdoc/>
     [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged {
       add {
@@ -781,7 +772,7 @@ namespace Xtensive.Orm
 
     #region IValidationAware implementation
 
-    
+    /// <inheritdoc/>
     [Infrastructure]
     void IValidationAware.OnValidate()
     {
@@ -796,7 +787,7 @@ namespace Xtensive.Orm
       OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
     }
 
-    
+    /// <inheritdoc/>
     [Infrastructure]
     ValidationContext IValidationAware.Context {
       get {

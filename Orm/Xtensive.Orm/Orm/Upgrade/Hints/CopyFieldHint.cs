@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public string TargetField { get; private set; }
 
-    
+    /// <inheritdoc/>
     public bool Equals(CopyFieldHint other)
     {
       if (ReferenceEquals(null, other))
@@ -55,13 +55,13 @@ namespace Xtensive.Orm.Upgrade
         && other.TargetField==TargetField;
     }
 
-    
+    /// <inheritdoc/>
     public override bool Equals(UpgradeHint other)
     {
       return Equals(other as CopyFieldHint);
     }
 
-    
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat,

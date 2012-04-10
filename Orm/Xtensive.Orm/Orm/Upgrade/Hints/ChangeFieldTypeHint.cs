@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public ReadOnlyList<string> AffectedColumns { get; internal set; }
 
-    
+    /// <inheritdoc/>
     public bool Equals(ChangeFieldTypeHint other)
     {
       if (ReferenceEquals(null, other))
@@ -49,13 +49,13 @@ namespace Xtensive.Orm.Upgrade
         && StringComparer.OrdinalIgnoreCase.Compare(other.FieldName, FieldName) == 0;
     }
 
-    
+    /// <inheritdoc/>
     public override bool Equals(UpgradeHint other)
     {
       return Equals(other as ChangeFieldTypeHint);
     }
 
-    
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, Type, FieldName);

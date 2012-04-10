@@ -36,7 +36,7 @@ namespace Xtensive.Orm
       base.Invalidate();
     }
 
-    
+    /// <inheritdoc/>
     protected override void Refresh()
     {
       State = calculator();

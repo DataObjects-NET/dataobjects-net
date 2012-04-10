@@ -56,12 +56,7 @@ namespace Xtensive.Orm.Linq
       return Expression.Constant(func(), type);
     }
 
-
-    /// <summary>
-    /// Visits the specified expression.
-    /// </summary>
-    /// <param name="e">The expression.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override Expression Visit(Expression e)
     {
       if (e!=null) {
@@ -78,12 +73,7 @@ namespace Xtensive.Orm.Linq
       return e;
     }
 
-
-    /// <summary>
-    /// Visits the expression.
-    /// </summary>
-    /// <param name="e">The expression.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
     {
       return e;

@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.12.25
 
-
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sql
 {
@@ -19,7 +19,7 @@ namespace Xtensive.Sql
     public SqlDriver Driver { get; private set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SqlDriverBound"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="driver">The driver.</param>
     public SqlDriverBound(SqlDriver driver)

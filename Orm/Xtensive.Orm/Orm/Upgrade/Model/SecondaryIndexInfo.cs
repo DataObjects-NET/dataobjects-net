@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Upgrade.Model
         new PrimaryKeyColumnRef(this, kcr.Value, kcr.Direction);
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="ValidationException">Empty secondary key columns collection.</exception>
     protected override void ValidateState()
     {
@@ -125,13 +125,13 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<SecondaryIndexInfo, TableInfo, SecondaryIndexInfoCollection>(this, "SecondaryIndexes");
     }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();

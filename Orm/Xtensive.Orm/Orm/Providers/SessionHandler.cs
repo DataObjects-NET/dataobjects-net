@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Providers
 
     #region IHasServices members
 
-    
+    /// <inheritdoc/>
     public virtual T GetService<T>()
       where T : class
     {
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Providers
 
     // Initialization
 
-    
+    /// <inheritdoc/>
     public override void Initialize()
     {
       prefetchManager = new PrefetchManager(Session);
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Providers
 
     // Disposing
 
-    
+    /// <inheritdoc/>
     public abstract void Dispose();
   }
 }

@@ -18,14 +18,14 @@ namespace Xtensive.Orm.Upgrade.Model
   public abstract class NodeBase<TParent> : Node<TParent, StorageModel>
     where TParent : Node
   {
-//    
+//    /// <inheritdoc/>
 //    protected override void PerformCreate()
 //    {
 //      base.PerformCreate();
 //      Log.Info("Created: {0}", this);
 //    }
 //
-//    
+//    /// <inheritdoc/>
 //    protected override void PerformMove(Node newParent, string newName, int newIndex)
 //    {
 //      using (Log.InfoRegion("Moving: {0}", this))
@@ -40,14 +40,14 @@ namespace Xtensive.Orm.Upgrade.Model
 //      }
 //    }
 //
-//    
+//    /// <inheritdoc/>
 //    protected override void PerformShift(int offset)
 //    {
 //      Log.Info("Shifting: {0}, from {1} to {2}", this, Index, Index + offset);
 //      base.PerformShift(offset);
 //    }
 //
-//    
+//    /// <inheritdoc/>
 //    protected override void ValidateRemove()
 //    {
 //      base.ValidateRemove();

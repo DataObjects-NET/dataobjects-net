@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers.Sql
   {
     // Implementation of IQueryExecutor
 
-    
+    /// <inheritdoc/>
     IEnumerator<Tuple> IQueryExecutor.ExecuteTupleReader(QueryRequest request)
     {
       EnsureConnectionIsOpen();
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    
+    /// <inheritdoc/>
     int IQueryExecutor.ExecuteNonQuery(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Providers.Sql
         return driver.ExecuteNonQuery(Session, command);
     }
 
-    
+    /// <inheritdoc/>
     object IQueryExecutor.ExecuteScalar(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Providers.Sql
         return driver.ExecuteScalar(Session, command);
     }
 
-    
+    /// <inheritdoc/>
     int IQueryExecutor.ExecuteNonQuery(string commandText)
     {
       EnsureConnectionIsOpen();
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers.Sql
         return driver.ExecuteNonQuery(Session, command);
     }
 
-    
+    /// <inheritdoc/>
     object IQueryExecutor.ExecuteScalar(string commandText)
     {
       EnsureConnectionIsOpen();
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Providers.Sql
         return driver.ExecuteScalar(Session, command);
     }
 
-    
+    /// <inheritdoc/>
     void IQueryExecutor.Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       EnsureConnectionIsOpen();
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers.Sql
       commandProcessor.ExecuteTasks();
     }
 
-    
+    /// <inheritdoc/>
     void IQueryExecutor.Clear(TemporaryTableDescriptor descriptor)
     {
       EnsureConnectionIsOpen();

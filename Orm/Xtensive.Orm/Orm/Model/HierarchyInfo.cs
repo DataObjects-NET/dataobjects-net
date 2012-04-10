@@ -44,11 +44,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public TypeDiscriminatorMap TypeDiscriminatorMap { get; private set; }
 
-
-    /// <summary>
-    /// Updates the internal state of this instance.
-    /// </summary>
-    /// <param name="recursive"><see langword="True"/> if all dependent objects should be updated as well.</param>
+    /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
@@ -62,11 +58,7 @@ namespace Xtensive.Orm.Model
         TypeDiscriminatorMap.UpdateState();
     }
 
-    /// <summary>
-    /// Locks the instance and (possibly) all dependent objects.
-    /// 
-    /// </summary>
-    /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);

@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     public ForeignKeyColumnCollection(Node parent, string name)
       : base(parent, name)
     {

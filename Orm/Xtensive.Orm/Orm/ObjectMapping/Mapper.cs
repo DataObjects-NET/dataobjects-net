@@ -30,11 +30,7 @@ namespace Xtensive.Orm.ObjectMapping
     private Dictionary<object, Key> newObjectKeys;
     private Dictionary<object, Key> existingObjectKeys;
 
-
-    /// <summary>
-    /// Called when object is modified.
-    /// </summary>
-    /// <param name="mappingOperation">The mapping operation.</param>
+    /// <inheritdoc/>
     protected override void OnObjectModified(MappingOperation mappingOperation)
     {
       IOperation operation;
@@ -58,12 +54,7 @@ namespace Xtensive.Orm.ObjectMapping
       comparisonResult.Log(operation);
     }
 
-
-    /// <summary>
-    /// Initializes the comparison.
-    /// </summary>
-    /// <param name="originalTarget">The original target.</param>
-    /// <param name="modifiedTarget">The modified target.</param>
+    /// <inheritdoc/>
     protected override void InitializeComparison(object originalTarget, object modifiedTarget)
     {
       comparisonResult = new OperationLog(OperationLogType.SystemOperationLog);
@@ -73,13 +64,7 @@ namespace Xtensive.Orm.ObjectMapping
         existingObjectKeys.Clear();
     }
 
-
-    /// <summary>
-    /// Gets the comparison result.
-    /// </summary>
-    /// <param name="originalObjects">The original objects.</param>
-    /// <param name="modifiedObjects">The modified objects.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override GraphComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
       Dictionary<object, object> modifiedObjects)
     {

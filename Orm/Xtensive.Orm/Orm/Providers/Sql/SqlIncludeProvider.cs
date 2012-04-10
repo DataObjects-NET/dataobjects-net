@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
 
-    
+    /// <inheritdoc/>
     public override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    
+    /// <inheritdoc/>
     public override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);

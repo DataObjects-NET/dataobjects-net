@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Rse.Providers
       return result;
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitTake(TakeProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new TakeProvider(source, provider.Count);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitSkip(SkipProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new SkipProvider(source, provider.Count);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitPaging(PagingProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new PagingProvider(source, provider);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitSelect(SelectProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new SelectProvider(source, columnIndexes ?? provider.ColumnIndexes);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitSeek(SeekProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -90,13 +90,13 @@ namespace Xtensive.Orm.Rse.Providers
       return new SeekProvider(source, provider.Key);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitRaw(RawProvider provider)
     {
       return provider;
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitSort(SortProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<int>)order);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitJoin(JoinProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Rse.Providers
         equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitFilter(FilterProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new FilterProvider(source, (Expression<Func<Tuple, bool>>) predicate);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitDistinct(DistinctProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new DistinctProvider(source);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitCalculate(CalculateProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitAlias(AliasProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new AliasProvider(source, provider.Alias);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitAggregate(AggregateProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -202,7 +202,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new AggregateProvider(source, result.First, result.Second);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitStore(StoreProvider provider)
     {
       var compilableSource = provider.Source as CompilableProvider;
@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new StoreProvider(source, provider.Scope, provider.Name);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitIndex(IndexProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Rse.Providers
       return provider;
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitFreeText(FreeTextProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -232,7 +232,7 @@ namespace Xtensive.Orm.Rse.Providers
       return provider;
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -244,7 +244,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.JoinType);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitExistence(ExistenceProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new ExistenceProvider(source, provider.ExistenceColumnName);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitApply(ApplyProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -267,7 +267,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitIntersect(IntersectProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new IntersectProvider(left, right);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitExcept(ExceptProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -291,7 +291,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new ExceptProvider(left, right);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitConcat(ConcatProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new ConcatProvider(left, right);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitUnion(UnionProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -315,7 +315,7 @@ namespace Xtensive.Orm.Rse.Providers
       return new UnionProvider(left, right);
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitLock(LockProvider provider)
     {
       OnRecursionEntrance(provider);
@@ -359,13 +359,13 @@ namespace Xtensive.Orm.Rse.Providers
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     public CompilableProviderVisitor()
       : this(DefaultExpressionTranslator)
     {
     }
 
-    
+    /// <inheritdoc/>
     /// <param name="expressionTranslator">Expression translator.</param>
     public CompilableProviderVisitor(Func<Provider, Expression, Expression> expressionTranslator)
     {

@@ -219,10 +219,10 @@ namespace Xtensive.Orm
       return currentSession;
     }
 
-    
+    /// <inheritdoc/>
     public bool IsActive { get { return Current==this; } }
 
-    
+    /// <inheritdoc/>
     public SessionScope Activate()
     {
       var currentSession = SessionScope.CurrentSession; // Not Session.Current -
@@ -271,7 +271,7 @@ namespace Xtensive.Orm
         : new SessionScope(null);
     }
 
-    
+    /// <inheritdoc/>
     IDisposable IContext.Activate()
     {
       return Activate();
@@ -281,7 +281,7 @@ namespace Xtensive.Orm
 
     #region IHasExtensions members
 
-    
+    /// <inheritdoc/>
     public IExtensionCollection Extensions {
       get {
         if (extensions==null)
@@ -294,7 +294,7 @@ namespace Xtensive.Orm
 
     #region IVersionSetProvider members
 
-    
+    /// <inheritdoc/>
     VersionSet IVersionSetProvider.CreateVersionSet(IEnumerable<Key> keys)
     {
       using (Activate())
@@ -340,7 +340,7 @@ namespace Xtensive.Orm
       }
     }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       string name = Name;
@@ -414,7 +414,7 @@ namespace Xtensive.Orm
     // IDisposable implementation
 
     /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
     /// </summary>
     public void Dispose()
     {

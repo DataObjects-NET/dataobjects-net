@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Optimization
       return new SelectProvider(source, indexColumns.ToArray());
     }
 
-    
+    /// <inheritdoc/>
     protected override Provider VisitFreeText(FreeTextProvider provider)
     {
       mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();

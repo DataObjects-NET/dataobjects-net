@@ -15,14 +15,7 @@ namespace Xtensive.Orm.Building.Definitions
   /// </summary>
   public class HierarchyDefCollection : CollectionBase<HierarchyDef>
   {
-
-    /// <summary>
-    /// Determines whether this instance contains the specified item.
-    /// </summary>
-    /// <param name="item">The item.</param>
-    /// <returns>
-    ///   <c>true</c> if this instance contains the specified item; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc/>
     public override bool Contains(HierarchyDef item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");

@@ -25,14 +25,14 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     public Key Key { get; private set; }
 
-    
+    /// <inheritdoc/>
     public override string Description {
       get {
         return "{0}, Key = {1}".FormatWith(Title, Key);
       }
     }
 
-    
+    /// <inheritdoc/>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       context.RegisterKey(context.TryRemapKey(Key), false);
@@ -52,13 +52,9 @@ namespace Xtensive.Orm.Operations
 
     // Serialization
 
-
     /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
     /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     #if NET40
     [SecurityCritical]
     #else
@@ -70,17 +66,14 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
     /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Key", Key.Format());
     }
 
-    
+    /// <inheritdoc/>
     protected KeyOperation(SerializationInfo info, StreamingContext context)
     {
       Key = Key.Parse(Domain.Demand(), info.GetString("Key"));

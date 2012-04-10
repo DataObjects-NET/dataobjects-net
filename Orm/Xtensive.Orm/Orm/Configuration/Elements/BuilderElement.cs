@@ -16,10 +16,7 @@ namespace Xtensive.Orm.Configuration.Elements
   {
     private const string TypeElementName = "type";
 
-
-    /// <summary>
-    /// Gets identifier for this instance.
-    /// </summary>
+    /// <inheritdoc/>
     public override object Identifier {
       get { return Type; }
     }

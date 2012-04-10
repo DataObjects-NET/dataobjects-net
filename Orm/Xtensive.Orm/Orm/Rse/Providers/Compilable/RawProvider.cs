@@ -42,13 +42,13 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       }
     }
 
-    
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
 
-    
+    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return Source.ToString(true);

@@ -17,9 +17,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string NamespaceElementName = "namespace";
     private const string SynonymElementName = "synonym";
 
-    /// <summary>
-    /// Gets identifier for this instance.
-    /// </summary>
+    /// <inheritdoc/>
     public override object Identifier
     {
       get { return Namespace; }

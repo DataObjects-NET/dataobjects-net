@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
   [Serializable]  
   public sealed class SortProvider : OrderProviderBase
   {
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();

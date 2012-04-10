@@ -131,13 +131,13 @@ namespace Xtensive.Orm.Upgrade
 
     #region IContext<...> methods
 
-    
+    /// <inheritdoc/>
     public override bool IsActive
     {
       get { return UpgradeScope.CurrentContext==this; }
     }
 
-    
+    /// <inheritdoc/>
     protected override UpgradeScope CreateActiveScope()
     {
       return new UpgradeScope(this);

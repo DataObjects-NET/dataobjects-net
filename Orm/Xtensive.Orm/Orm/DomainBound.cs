@@ -30,7 +30,7 @@ namespace Xtensive.Orm
 
     #region IContextBound<Domain> Members
 
-    
+    /// <inheritdoc/>
     Domain IContextBound<Domain>.Context
     {
       get { return domain; }

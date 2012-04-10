@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="ValidationException">Invalid <see cref="Direction"/> value 
     /// (<see cref="Core.Direction.None"/>).</exception>
     protected override void ValidateState()
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     public KeyColumnRef(TParent parent)
       : base(parent)
     {

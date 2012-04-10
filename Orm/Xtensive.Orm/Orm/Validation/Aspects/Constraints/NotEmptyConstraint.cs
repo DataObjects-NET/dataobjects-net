@@ -20,19 +20,19 @@ namespace Xtensive.Orm.Validation
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class NotEmptyConstraint : PropertyConstraintAspect
   {
-    
+    /// <inheritdoc/>
     public override bool CheckValue(object value)
     {
       return (string) value!=string.Empty;
     }
 
-    
+    /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
       return valueType==typeof (string);
     }
 
-    
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueCanNotBeEmpty;

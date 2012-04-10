@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Upgrade
     private string assemblyName;
     private string assemblyVersion;
 
-    
+    /// <inheritdoc/>
     public virtual bool IsEnabled {
       get {
         // Must be disabled for Xtensive.Storage,
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    
+    /// <inheritdoc/>
     public virtual Assembly Assembly {
       get {
         if (assembly!=null)
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    
+    /// <inheritdoc/>
     public virtual string AssemblyName {
       get {
         if (assemblyName!=null)
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    
+    /// <inheritdoc/>
     public virtual string AssemblyVersion {
       get {
         if (assemblyVersion!=null)
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Upgrade
 
     public UpgradeContext UpgradeContext { get; private set; }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnBeforeStage()
     {
@@ -89,12 +89,12 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    
+    /// <inheritdoc/>
     public virtual void OnSchemaReady()
     {
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnStage()
     {
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Upgrade
       // Doing nothing
     }
 
-    
+    /// <inheritdoc/>
     public virtual bool CanUpgradeFrom(string oldVersion)
     {
       return oldVersion==null || oldVersion==AssemblyVersion;

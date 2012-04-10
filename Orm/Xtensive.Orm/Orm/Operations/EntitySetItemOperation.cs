@@ -25,21 +25,14 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     public Key ItemKey { get; set; }
 
-
-    /// <summary>
-    /// Gets the description.
-    /// </summary>
+    /// <inheritdoc/>
     public override string Description {
       get {
         return "{0}, Item Key = {1}".FormatWith(base.Description, ItemKey);
       }
     }
 
-
-    /// <summary>
-    /// Prepares the self.
-    /// </summary>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       base.PrepareSelf(context);
@@ -64,25 +57,14 @@ namespace Xtensive.Orm.Operations
 
     // Serialization
 
-
-    /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
+    /// <inheritdoc/>
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);
       info.AddValue("ItemKey", ItemKey.Format());
     }
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntitySetItemOperation"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected EntitySetItemOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

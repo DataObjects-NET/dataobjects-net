@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Rse
     public ExecutableProvider Source { get; private set; }
     public RecordSetHeader Header { get { return Source.Header; } }
 
-    
+    /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
       if (Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator))
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Rse
       }
     }
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

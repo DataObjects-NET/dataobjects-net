@@ -16,30 +16,18 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public class EntitySetClearOperation : EntitySetOperation
   {
-
-    /// <summary>
-    /// Gets the title of the operation.
-    /// </summary>
+    /// <inheritdoc/>
     public override string Title {
       get { return "Clear entity set"; }
     }
 
-
-    /// <summary>
-    /// Executes the operation itself.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
+    /// <inheritdoc/>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       GetEntitySet(context).Clear();
     }
 
-
-    /// <summary>
-    /// Clones the operation itself.
-    /// </summary>
-    /// <param name="clone"></param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
@@ -50,25 +38,13 @@ namespace Xtensive.Orm.Operations
 
     // Constructors
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntitySetClearOperation"/> class.
-    /// </summary>
-    /// <param name="key"></param>
-    /// <param name="field"></param>
-    /// <exception cref="ArgumentOutOfRangeException">Type of provided <paramref name="field"/>
-    /// must be a descendant of <see cref="EntitySetBase"/> type.</exception>
+    /// <inheritdoc/>
     public EntitySetClearOperation(Key key, FieldInfo field)
       : base(key, field)
     {
     }
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntitySetClearOperation"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected EntitySetClearOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

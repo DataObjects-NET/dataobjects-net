@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Providers
 
     // Initialization
 
-    
+    /// <inheritdoc/>
     public override void Initialize()
     {
     }

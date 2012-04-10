@@ -40,10 +40,10 @@ namespace Xtensive.Orm.Rse.Compilation
     /// </summary>
     protected CompilableProvider RootProvider { get { return rootProvider; } }
 
-    
+    /// <inheritdoc/>
     public BindingCollection<ApplyParameter, ExecutableProvider> OuterReferences { get; private set; }
 
-    
+    /// <inheritdoc/>
     ExecutableProvider ICompiler.Compile(CompilableProvider provider)
     {
       return Compile(provider);

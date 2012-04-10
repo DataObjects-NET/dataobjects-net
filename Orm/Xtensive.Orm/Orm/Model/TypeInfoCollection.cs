@@ -358,12 +358,6 @@ namespace Xtensive.Orm.Model
       return Find(criteria, MatchType.Partial);
     }
 
-    /// <summary>
-    /// Finds the specified criteria.
-    /// </summary>
-    /// <param name="criteria">The criteria.</param>
-    /// <param name="matchType">Type of the match.</param>
-    /// <returns></returns>
     public ICountable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
     {
       if (criteria == TypeAttributes.None)
@@ -382,12 +376,7 @@ namespace Xtensive.Orm.Model
 
     #endregion
 
-
-    /// <summary>
-    /// Called when value is inserted.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <param name="index">The index.</param>
+    /// <inheritdoc/>
     protected override void OnInserted(TypeInfo value, int index)
     {
       base.OnInserted(value, index);
@@ -468,13 +457,8 @@ namespace Xtensive.Orm.Model
 
 
     // Constructors
-
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TypeInfoCollection"/> class.
-    /// </summary>
-    /// <param name="owner">The owner.</param>
-    /// <param name="name">The name.</param>
+    
+    /// <inheritdoc/>
     public TypeInfoCollection(Node owner, string name)
       : base(owner, name)
     {

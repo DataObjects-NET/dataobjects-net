@@ -23,13 +23,13 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     private static ThreadSafeDictionary<Type, Biconverter<T, object>> converters =
       ThreadSafeDictionary<Type, Biconverter<T, object>>.Create(new object());
 
-    
+    /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
     {
       return object.Equals(oldValue, newValue);
     }
 
-    
+    /// <inheritdoc/>
     public override T GetValue(Persistent obj)
     {
       var field = Field;
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
         return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), value);
     }
 
-    
+    /// <inheritdoc/>
     public override void SetValue(Persistent obj, T value)
     {
       var field = Field;

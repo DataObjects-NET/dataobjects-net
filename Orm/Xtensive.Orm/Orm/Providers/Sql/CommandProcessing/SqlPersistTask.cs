@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     public readonly Tuple Tuple;
 
-    
+    /// <inheritdoc/>
     public override void ProcessWith(ISqlTaskProcessor processor)
     {
       processor.ProcessTask(this);

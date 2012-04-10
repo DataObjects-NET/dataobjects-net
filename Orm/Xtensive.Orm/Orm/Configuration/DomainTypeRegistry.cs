@@ -220,11 +220,7 @@ namespace Xtensive.Orm.Configuration
 
     #region ICloneable members
 
-
-    /// <summary>
-    /// Clones this instance.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public override object Clone()
     {
       return new DomainTypeRegistry(this);
@@ -244,11 +240,7 @@ namespace Xtensive.Orm.Configuration
     {
     }
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DomainTypeRegistry"/> class.
-    /// </summary>
-    /// <param name="source">The type registry to clone the state of.</param>
+    /// <inheritdoc/>
     protected DomainTypeRegistry(TypeRegistry source)
       : base(source)
     {

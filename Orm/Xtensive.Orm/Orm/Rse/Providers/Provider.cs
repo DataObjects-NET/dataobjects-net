@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     #region ToString method
 
-    
+    /// <inheritdoc/>
     public sealed override string ToString()
     {
       var sb = new StringBuilder();

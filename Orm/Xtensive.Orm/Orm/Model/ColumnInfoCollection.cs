@@ -19,11 +19,6 @@ namespace Xtensive.Orm.Model
   public sealed class ColumnInfoCollection : NodeCollection<ColumnInfo>,
     IFilterable<ColumnAttributes, ColumnInfo>
   {
-    /// <summary>
-    /// Inserts the specified item.
-    /// </summary>
-    /// <param name="index">The index.</param>
-    /// <param name="item">The item.</param>
     public override void Insert(int index, ColumnInfo item)
     {
       throw new NotSupportedException();
@@ -31,22 +26,11 @@ namespace Xtensive.Orm.Model
 
     #region IFilterable<ColumnAttributes,ColumnInfo> Members
 
-    /// <summary>
-    /// Finds the specified criteria.
-    /// </summary>
-    /// <param name="criteria">The criteria.</param>
-    /// <returns></returns>
     public ICountable<ColumnInfo> Find(ColumnAttributes criteria)
     {
       return Find(criteria, MatchType.Partial);
     }
 
-    /// <summary>
-    /// Finds the specified criteria.
-    /// </summary>
-    /// <param name="criteria">The criteria.</param>
-    /// <param name="matchType">Type of the match.</param>
-    /// <returns></returns>
     public ICountable<ColumnInfo> Find(ColumnAttributes criteria, MatchType matchType)
     {
       // We don't have any instance that has attributes == FieldAttributes.None
@@ -68,13 +52,8 @@ namespace Xtensive.Orm.Model
 
     
     // Constructors
-
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ColumnInfoCollection"/> class.
-    /// </summary>
-    /// <param name="owner">The owner.</param>
-    /// <param name="name">The name.</param>
+    
+    /// <inheritdoc/>
     public ColumnInfoCollection(Node owner, string name)
       : base(owner, name)
     {

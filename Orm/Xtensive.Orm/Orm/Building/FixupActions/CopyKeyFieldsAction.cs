@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building.FixupActions
       FixupActionProcessor.Process(this);
     }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("Copy key fields from '{0}' hierarchy root to '{1}' type.", Source.Name, Type.Name);

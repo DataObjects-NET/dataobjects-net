@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Validation
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class FutureConstraint : PropertyConstraintAspect
   {
-    
+    /// <inheritdoc/>
     public override bool CheckValue(object value)
     {
       if (value==null)
@@ -28,14 +28,14 @@ namespace Xtensive.Orm.Validation
       return (DateTime) value > DateTime.Now;
     }
 
-    
+    /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
       return valueType == typeof (DateTime)
         || valueType == typeof (DateTime?);
     }
 
-    
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueMustBeInTheFuture;

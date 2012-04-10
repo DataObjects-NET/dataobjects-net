@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers.Sql
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     protected override SqlProvider VisitIndex(IndexProvider provider)
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);

@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
 
     #region Equals, GetHashCode methods
 
-    
+    /// <inheritdoc/>
     public bool Equals(ProviderAttribute obj)
     {
       if (ReferenceEquals(null, obj))
@@ -38,14 +38,7 @@ namespace Xtensive.Orm.Providers
       return Equals(obj.Protocol, Protocol);
     }
 
-
-    /// <summary>
-    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
-    /// </summary>
-    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
@@ -55,13 +48,7 @@ namespace Xtensive.Orm.Providers
       return Equals(obj as ProviderAttribute);
     }
 
-
-    /// <summary>
-    /// Returns a hash code for this instance.
-    /// </summary>
-    /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-    /// </returns>
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -75,20 +62,11 @@ namespace Xtensive.Orm.Providers
     
     // Constructors
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProviderAttribute"/> class.
-    /// </summary>
-    /// <param name="protocol">The protocol.</param>
     public ProviderAttribute(string protocol)
     {
       Protocol = protocol;
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProviderAttribute"/> class.
-    /// </summary>
-    /// <param name="protocol">The protocol.</param>
-    /// <param name="description">The description.</param>
     public ProviderAttribute(string protocol, string description)
     {
       Protocol = protocol;

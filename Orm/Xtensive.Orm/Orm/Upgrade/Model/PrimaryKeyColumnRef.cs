@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Upgrade.Model
   [Serializable]
   public sealed class PrimaryKeyColumnRef : KeyColumnRef<SecondaryIndexInfo>
   {
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<PrimaryKeyColumnRef, SecondaryIndexInfo,
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     public PrimaryKeyColumnRef(SecondaryIndexInfo parent)
       : base(parent)
     {

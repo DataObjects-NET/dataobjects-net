@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     public Session Session { get { return session; } }
     
-    
+    /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
       Type elementType = SequenceHelper.GetElementType(expression.Type);
@@ -43,19 +43,13 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-
-    /// <summary>
-    /// Creates the query.
-    /// </summary>
-    /// <typeparam name="TElement">The type of the element.</typeparam>
-    /// <param name="expression">The expression.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
     {
       return new Queryable<TElement>(this, expression);
     }
 
-    
+    /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
       var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
@@ -71,13 +65,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-
-    /// <summary>
-    /// Executes the specified expression.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="expression">The expression.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public TResult Execute<TResult>(Expression expression)
     {
       expression = session.Events.NotifyQueryExecuting(expression);

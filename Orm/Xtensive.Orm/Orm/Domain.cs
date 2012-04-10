@@ -257,10 +257,7 @@ namespace Xtensive.Orm
 
     #region IHasExtensions members
 
-
-    /// <summary>
-    /// Gets the collection of extensions bound to the current instance.
-    /// </summary>
+    /// <inheritdoc/>
     public IExtensionCollection Extensions {
       get {
         if (extensions==null) lock (_lock) if (extensions==null)
@@ -303,10 +300,7 @@ namespace Xtensive.Orm
       PrefetchActionMap = new Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
     }
 
-
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
+    /// <inheritdoc/>
     public void Dispose()
     {
       if (disposingState==DisposingState.None) lock (_lock) if (disposingState==DisposingState.None) {

@@ -51,12 +51,6 @@ namespace Xtensive.Orm.Linq
       return lambda;
     }
 
-
-    /// <summary>
-    /// Visits <see cref="MemberExpression"/>
-    /// </summary>
-    /// <param name="m">MemberExpression</param>
-    /// <returns></returns>
     /// <inheritdoc/>
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
@@ -64,22 +58,12 @@ namespace Xtensive.Orm.Linq
       return base.VisitMemberAccess(m);
     }
 
-
-    /// <summary>
-    /// Visits the expression.
-    /// </summary>
-    /// <param name="e">The expression.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
     }
 
-    /// <summary>
-    /// Visits the <see cref="ConstantExpression"/>.
-    /// </summary>
-    /// <param name="c">ConstantExpression</param>
-    /// <returns></returns>
     protected override Expression VisitConstant(ConstantExpression c)
     {
       switch (c.GetMemberType()) {

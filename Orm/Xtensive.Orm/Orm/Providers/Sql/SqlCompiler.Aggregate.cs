@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Providers.Sql
 {
   partial class SqlCompiler 
   {
-    
+    /// <inheritdoc/>
     protected override SqlProvider VisitAggregate(AggregateProvider provider)
     {
       var source = Compile(provider.Source);

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Validation
     private const string EmailPattern = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
     private Regex emailRegex;
 
-    
+    /// <inheritdoc/>
     public override bool CheckValue(object value)
     {
       string stringValue = (string) value;
@@ -33,19 +33,19 @@ namespace Xtensive.Orm.Validation
           emailRegex.IsMatch(stringValue);
     }
 
-    
+    /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
       return valueType==typeof(string);
     }
 
-    
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueFormatIsIncorrect;
     }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();

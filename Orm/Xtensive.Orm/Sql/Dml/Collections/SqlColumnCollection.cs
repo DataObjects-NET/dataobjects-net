@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Core;
-
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dml
 {
@@ -88,15 +88,14 @@ namespace Xtensive.Sql.Dml
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SqlColumnCollection"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SqlColumnCollection()
     {}
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SqlColumnCollection"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="list">The list.</param>
     public SqlColumnCollection(IList<SqlColumn> list)
       : base(list)
     {}

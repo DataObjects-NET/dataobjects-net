@@ -29,7 +29,7 @@ namespace Xtensive.Orm
       }
     }
 
-    
+    /// <inheritdoc/>
     public Expression BuildRootExpression(Type entityType)
     {
       return CreateInvoker(entityType).Invoke(this);

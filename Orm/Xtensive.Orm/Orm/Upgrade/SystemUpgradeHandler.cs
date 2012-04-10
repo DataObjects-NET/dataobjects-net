@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   public sealed class SystemUpgradeHandler : UpgradeHandler
   {
-    
+    /// <inheritdoc/>
     public override bool IsEnabled {
       get {
         // Enabled just for Xtensive.Storage
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    
+    /// <inheritdoc/>
     public override void OnStage()
     {
       var context = UpgradeContext;

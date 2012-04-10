@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.15
 
-
+using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -30,7 +30,7 @@ namespace Xtensive.Sql.Compiler
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SqlCompilerConfiguration"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SqlCompilerConfiguration()
     {

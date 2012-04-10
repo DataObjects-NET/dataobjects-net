@@ -47,33 +47,19 @@ namespace Xtensive.Orm.Model
 
     #region Equality members, ==, !=
 
-    /// <summary>
-    /// Implements the operator !=.
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <returns>
-    /// The result of the operator.
-    /// </returns>
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
     public static bool operator !=(TypeInfoRef x, TypeInfoRef y)
     {
       return !Equals(x, y);
     }
 
-    /// <summary>
-    /// Implements the operator ==.
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <returns>
-    /// The result of the operator.
-    /// </returns>
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
     public static bool operator ==(TypeInfoRef x, TypeInfoRef y)
     {
       return Equals(x, y);
     }
 
-    
+    /// <inheritdoc/>
     public bool Equals(TypeInfoRef other)
     {
       if (ReferenceEquals(other, null))
@@ -82,14 +68,7 @@ namespace Xtensive.Orm.Model
         TypeName==other.TypeName;
     }
 
-
-    /// <summary>
-    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
-    /// </summary>
-    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(this, obj))
@@ -97,13 +76,7 @@ namespace Xtensive.Orm.Model
       return Equals(obj as TypeInfoRef);
     }
 
-
-    /// <summary>
-    /// Returns a hash code for this instance.
-    /// </summary>
-    /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-    /// </returns>
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       return unchecked( TypeName.GetHashCode() );
@@ -111,13 +84,7 @@ namespace Xtensive.Orm.Model
 
     #endregion
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, TypeName);

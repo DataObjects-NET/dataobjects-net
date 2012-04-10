@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Providers.Sql
   {
     // Implementation of IDirectSqlService
 
-    
+    /// <inheritdoc/>
     DbConnection IDirectSqlService.Connection {
       get {
         var sqlConnection = Connection;
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    
+    /// <inheritdoc/>
     DbTransaction IDirectSqlService.Transaction {
       get {
         var sqlConnection = Connection;
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers.Sql
       }
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Connection is not open.</exception>
     DbCommand IDirectSqlService.CreateCommand()
     {

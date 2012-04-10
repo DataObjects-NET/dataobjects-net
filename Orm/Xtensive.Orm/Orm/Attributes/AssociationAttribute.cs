@@ -83,10 +83,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AssociationAttribute"/> class.
-    /// </summary>
+    /// <inheritdoc/>
     public AssociationAttribute()
     {
     }

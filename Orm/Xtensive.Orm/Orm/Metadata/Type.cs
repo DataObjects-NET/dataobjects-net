@@ -36,13 +36,7 @@ namespace Xtensive.Orm.Metadata
     [Field(Length = 500)]
     public string Name { get; set; }
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(Strings.MetadataTypeFormat, Name, Id);

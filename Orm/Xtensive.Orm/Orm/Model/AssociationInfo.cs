@@ -199,11 +199,7 @@ namespace Xtensive.Orm.Model
       throw new InvalidOperationException(Strings.ExCanNotExtractForeignKey);
     }
 
-
-    /// <summary>
-    /// Updates the internal state of this instance.
-    /// </summary>
-    /// <param name="recursive"><see langword="True"/> if all dependent objects should be updated as well.</param>
+    /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);

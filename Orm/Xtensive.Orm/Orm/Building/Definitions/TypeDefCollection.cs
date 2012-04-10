@@ -123,31 +123,18 @@ namespace Xtensive.Orm.Building.Definitions
       }
     }
 
-    /// <summary>
-    /// Called when the item is inserted.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <param name="index">The index.</param>
     protected override void OnInserted(TypeDef value, int index)
     {
       base.OnInserted(value, index);
       typeIndex[value.UnderlyingType] = value;
     }
 
-    /// <summary>
-    /// Called when the instanse is cleared.
-    /// </summary>
     protected override void OnCleared()
     {
       base.OnCleared();
       typeIndex.Clear();
     }
 
-    /// <summary>
-    /// Called when the item is removed.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <param name="index">The index.</param>
     protected override void OnRemoved(TypeDef value, int index)
     {
       base.OnRemoved(value, index);

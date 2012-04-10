@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     private readonly HandlerAccessor handlers;
 
-    
+    /// <inheritdoc/>
     public IEnumerable<TFieldType> NextBulk<TFieldType>(CachingKeyGenerator<TFieldType> generator)
     {
       var info = GetKeyGeneratorInfo(generator);

@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Rse
       set { parameter.Value = value; }
     }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return Name;

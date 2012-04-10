@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     protected Ref(TParent parent)
       : base(parent, null)
     {

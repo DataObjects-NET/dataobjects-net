@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Services
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     [ServiceConstructor]
     public TransactionMonitor(Session session)
       : base(session)

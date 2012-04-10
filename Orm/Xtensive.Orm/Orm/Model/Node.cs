@@ -58,16 +58,10 @@ namespace Xtensive.Orm.Model
 
     #region IChangeNotifier Members
 
-
-    /// <summary>
-    /// Occurs when this instance is about to be changed.
-    /// </summary>
+    /// <inheritdoc/>
     public event EventHandler<ChangeNotifierEventArgs> Changing;
 
-
-    /// <summary>
-    /// Occurs when this instance is changed.
-    /// </summary>
+    /// <inheritdoc/>
     public event EventHandler<ChangeNotifierEventArgs> Changed;
 
     #endregion
@@ -107,13 +101,7 @@ namespace Xtensive.Orm.Model
       UpdateState(false);
     }
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(Strings.NodeFormat, 

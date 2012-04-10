@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     public virtual void UpdateState(bool recursive)
     {
       if (this==Empty)
@@ -128,41 +128,23 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    /// <summary>
-    /// Gets the exception message.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
     protected virtual string GetExceptionMessage(string key)
     {
       return string.Format(Strings.ExItemWithKeyXWasNotFound, key);
     }
 
-    /// <summary>
-    /// Called when value is inserted.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <param name="index">The index.</param>
     protected override void OnInserted(TNode value, int index)
     {
       base.OnInserted(value, index);
       NameIndex.Add(value.Name, value);
     }
 
-    /// <summary>
-    /// Called when value is removed.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <param name="index">The index.</param>
     protected override void OnRemoved(TNode value, int index)
     {
       base.OnRemoved(value, index);
       NameIndex.Remove(value.Name);
     }
 
-    /// <summary>
-    /// Called when this instance is cleared.
-    /// </summary>
     protected override void OnCleared()
     {
       base.OnCleared();
@@ -182,12 +164,7 @@ namespace Xtensive.Orm.Model
       NameIndex.Add(tNode.Name, tNode);
     }
 
-    
-    /// <summary>
-    /// Locks the instance and (possibly) all dependent objects.
-    /// 
-    /// </summary>
-    /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);

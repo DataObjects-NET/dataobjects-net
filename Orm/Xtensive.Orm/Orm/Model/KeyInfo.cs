@@ -114,11 +114,7 @@ namespace Xtensive.Orm.Model
       }
     }
 
-
-    /// <summary>
-    /// Updates the state.
-    /// </summary>
-    /// <param name="recursive">if set to <c>true</c> [recursive].</param>
+    /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
@@ -128,12 +124,7 @@ namespace Xtensive.Orm.Model
         Sequence.UpdateState(true);
     }
  
-    
-    /// <summary>
-    /// Locks the instance and (possibly) all dependent objects.
-    /// 
-    /// </summary>
-    /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Hierarchy must be set before locking this instance.</exception>
     public override void Lock(bool recursive)
     {

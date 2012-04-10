@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
 
     public EdgeWeight Weight { get; private set; }
 
-    
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
       }
     }
 
-    
+    /// <inheritdoc/>
     public bool Equals(Edge<TValue> obj)
     {
       if (ReferenceEquals(null, obj))
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
       return Equals(obj.Tail, Tail) && Equals(obj.Head, Head) && obj.Kind == Kind && obj.Weight == Weight;
     }
 
-    
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
@@ -49,19 +49,19 @@ namespace Xtensive.Orm.Building.DependencyGraph
       return Equals((Edge<TValue>) obj);
     }
 
-    
+    /// <inheritdoc/>
     public static bool operator ==(Edge<TValue> left, Edge<TValue> right)
     {
       return Equals(left, right);
     }
 
-    
+    /// <inheritdoc/>
     public static bool operator !=(Edge<TValue> left, Edge<TValue> right)
     {
       return !Equals(left, right);
     }
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("{0} -> {1}, ({2}, {3})", Tail, Head, Kind, Weight);

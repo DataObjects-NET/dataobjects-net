@@ -15,14 +15,14 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class FullTextColumnInfoCollection : NodeCollection<FullTextColumnInfo>
   {
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException"></exception>
     public override void Insert(int index, FullTextColumnInfo value)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException"></exception>
     public override void RemoveAt(int index)
     {
@@ -32,12 +32,7 @@ namespace Xtensive.Orm.Model
 
     // Constructors
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FullTextColumnInfoCollection"/> class.
-    /// </summary>
-    /// <param name="owner">The owner.</param>
-    /// <param name="name">The name.</param>
+    /// <inheritdoc/>
     public FullTextColumnInfoCollection(Node owner, string name)
       : base(owner, name)
     {

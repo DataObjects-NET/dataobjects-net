@@ -72,23 +72,14 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
-
-    /// <summary>
-    /// Inserts the specified index.
-    /// </summary>
-    /// <param name="index">The index.</param>
-    /// <param name="item">The item.</param>
+    /// <inheritdoc/>
     public override void Insert(int index, SessionConfiguration item)
     {
       EnsureItemIsValid(item);
       base.Insert(index, item);
     }
 
-
-    /// <summary>
-    /// Adds the specified item.
-    /// </summary>
-    /// <param name="item">The item.</param>
+    /// <inheritdoc/>
     public override void Add(SessionConfiguration item)
     {
       EnsureItemIsValid(item);
@@ -105,14 +96,7 @@ namespace Xtensive.Orm.Configuration
 
     #region Equality members
 
-
-    /// <summary>
-    /// Determines whether the specified <see cref="object"/> is equal to this instance.
-    /// </summary>
-    /// <param name="obj">The <see cref="object"/> to compare with this instance.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
@@ -125,14 +109,7 @@ namespace Xtensive.Orm.Configuration
       return Equals(scc);
     }
 
-
-    /// <summary>
-    /// Determines whether the specified <see cref="object"/> is equal to this instance.
-    /// </summary>
-    /// <param name="obj">The <see cref="object"/> to compare with this instance.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc/>
     public bool Equals(SessionConfigurationCollection obj)
     {
       if (ReferenceEquals(null, obj))
@@ -151,13 +128,7 @@ namespace Xtensive.Orm.Configuration
       return true;
     }
 
-
-    /// <summary>
-    /// Returns a hash code for this instance.
-    /// </summary>
-    /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-    /// </returns>
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -171,10 +142,6 @@ namespace Xtensive.Orm.Configuration
  
     #endregion
 
-
-    /// <summary>
-    /// </summary>
-    /// <param name="recursive"></param>
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -189,13 +156,7 @@ namespace Xtensive.Orm.Configuration
       base.Lock(recursive);
     }
 
-
-    /// <summary>
-    /// Creates a new object that is a copy of the current instance.
-    /// </summary>
-    /// <returns>
-    /// A new object that is a copy of this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public object Clone()
     {
       var result = new SessionConfigurationCollection();

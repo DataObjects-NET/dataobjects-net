@@ -15,13 +15,13 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public class SystemColumn : Column
   {
-    
+    /// <inheritdoc/>
     public override Column Clone(int newIndex)
     {
       return new SystemColumn(this, newIndex);
     }
 
-    
+    /// <inheritdoc/>
     public override Column Clone(string newName)
     {
       return new SystemColumn(this, newName);

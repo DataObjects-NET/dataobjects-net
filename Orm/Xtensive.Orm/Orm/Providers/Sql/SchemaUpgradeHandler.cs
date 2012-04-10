@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers.Sql
     protected SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
     protected StorageDriver Driver { get { return DomainHandler.Driver; } }
 
-    
+    /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageModel sourceSchema, StorageModel targetSchema)
     {
       var queryExecutor = SessionHandler.GetService<IQueryExecutor>(true);
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers.Sql
       result.ProcessWith(Execute, ExecuteNonTransactionally);
     }
 
-    
+    /// <inheritdoc/>
     protected override StorageModel ExtractSchema()
     {
       var schema = (Schema) GetNativeExtractedSchema(); // Must rely on this method to avoid multiple extractions
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Providers.Sql
       return converter.GetConversionResult();
     }
 
-    
+    /// <inheritdoc/>
     protected override object ExtractNativeSchema()
     {
       var schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
@@ -92,13 +92,13 @@ namespace Xtensive.Orm.Providers.Sql
       return schema;
     }
 
-    
+    /// <inheritdoc/>
     protected override Orm.Upgrade.StorageModelBuilder GetStorageModelBuilder()
     {
       return new StorageModelBuilder(DomainHandler, indexFilterNormalizer);
     }
 
-    
+    /// <inheritdoc/>
     public override void Initialize()
     {
       base.Initialize();

@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Rse
 
     #region Equals, GetHashCode, ==, !=
 
-    
+    /// <inheritdoc/>
     public bool Equals(Column other)
     {
       if (other==null)
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Rse
       return Name==other.Name;
     }
 
-    
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(this, obj))
@@ -50,33 +50,19 @@ namespace Xtensive.Orm.Rse
       return Equals(obj as Column);
     }
 
-    
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       return Name.GetHashCode();
     }
 
-    /// <summary>
-    /// Implements the operator ==.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>
-    /// The result of the operator.
-    /// </returns>
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
     public static bool operator ==(Column left, Column right)
     {
       return Equals(left, right);
     }
 
-    /// <summary>
-    /// Implements the operator !=.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>
-    /// The result of the operator.
-    /// </returns>
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
     public static bool operator !=(Column left, Column right)
     {
       return !Equals(left, right);
@@ -84,7 +70,7 @@ namespace Xtensive.Orm.Rse
 
     #endregion
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, Type.Name, Name, Index);

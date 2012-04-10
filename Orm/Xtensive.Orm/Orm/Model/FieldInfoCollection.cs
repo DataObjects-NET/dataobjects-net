@@ -22,24 +22,13 @@ namespace Xtensive.Orm.Model
   {
     internal new static FieldInfoCollection Empty;
 
-
-    /// <summary>
-    /// Finds the specified criteria.
-    /// </summary>
-    /// <param name="criteria">The criteria.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public ICountable<FieldInfo> Find(FieldAttributes criteria)
     {
       return Find(criteria, MatchType.Partial);
     }
 
-
-    /// <summary>
-    /// Finds the specified criteria.
-    /// </summary>
-    /// <param name="criteria">The criteria.</param>
-    /// <param name="matchType">Type of the match.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public ICountable<FieldInfo> Find(FieldAttributes criteria, MatchType matchType)
     {
       // We don't have any instance that has attributes == FieldAttributes.None
@@ -57,11 +46,7 @@ namespace Xtensive.Orm.Model
       }
     }
 
-
-    /// <summary>
-    /// Updates the state.
-    /// </summary>
-    /// <param name="recursive">if set to <c>true</c> [recursive].</param>
+    /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
       if (this==Empty)
@@ -69,11 +54,6 @@ namespace Xtensive.Orm.Model
       base.UpdateState(recursive);
     }
 
-    /// <summary>
-    /// Gets the exception message.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
     protected override string GetExceptionMessage(string key)
     {
       return string.Format(Strings.ExItemWithKeyXWasNotFound
@@ -82,12 +62,7 @@ namespace Xtensive.Orm.Model
 
     // Constructors
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FieldInfoCollection"/> class.
-    /// </summary>
-    /// <param name="owner">The owner.</param>
-    /// <param name="name">The name.</param>
+    /// <inheritdoc/>
     public FieldInfoCollection(Node owner, string name)
       : base(owner, name)
     {

@@ -146,14 +146,7 @@ namespace Xtensive.Orm
 
     #region Equals, GetHashCode, ==, != 
 
-    
-    /// <summary>
-    /// Determines whether the specified <see cref="Key"/> is equal to this instance.
-    /// </summary>
-    /// <param name="other">The <see cref="Key"/> to compare with this instance.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified <see cref="Key"/> is equal to this instance; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc/>
     public bool Equals(Key other)
     {
       if (ReferenceEquals(other, null))
@@ -171,14 +164,7 @@ namespace Xtensive.Orm
       return ValueEquals(other);
     }
 
-
-    /// <summary>
-    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
-    /// </summary>
-    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
-    /// <returns>
-    ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (obj==null)
@@ -189,41 +175,21 @@ namespace Xtensive.Orm
       return Equals(other);
     }
 
-    /// <summary>
-    /// Implements the operator ==.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>
-    /// The result of the operator.
-    /// </returns>
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
     [DebuggerStepThrough]
     public static bool operator ==(Key left, Key right)
     {
       return Equals(left, right);
     }
 
-    /// <summary>
-    /// Implements the operator !=.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>
-    /// The result of the operator.
-    /// </returns>
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
     [DebuggerStepThrough]
     public static bool operator !=(Key left, Key right)
     {
       return !Equals(left, right);
     }
 
-
-    /// <summary>
-    /// Returns a hash code for this instance.
-    /// </summary>
-    /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-    /// </returns>
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       if (hashCode.HasValue)
@@ -318,13 +284,7 @@ namespace Xtensive.Orm
 
     #region ToString() method
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       if (HasExactType)

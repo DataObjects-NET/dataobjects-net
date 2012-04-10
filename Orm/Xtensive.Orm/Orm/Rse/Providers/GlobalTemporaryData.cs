@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Rse.Providers
       get { return EnumerationContext.Current.GlobalTemporaryData; }
     }
 
-    
+    /// <inheritdoc/>
     public override object Get(string name)
     {
       lock (_lock) {
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Rse.Providers
       }
     }
 
-    
+    /// <inheritdoc/>
     public override void Set(string name, object value)
     {
       lock (_lock) {

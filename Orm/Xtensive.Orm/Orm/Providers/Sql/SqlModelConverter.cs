@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     #region SqlModelVisitor<IPathNode> implementation
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitSchema(Schema schema)
     {
       // Build tables, columns and indexes.
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Providers.Sql
       return null;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode Visit(Node node)
     {
       if (!ProviderInfo.Supports(ProviderFeatures.Sequences)) {
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers.Sql
       return base.Visit(node);
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitTable(Table table)
     {
       var tableInfo = new TableInfo(StorageModel, table.Name);
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Providers.Sql
       return tableInfo;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitTableColumn(TableColumn tableColumn)
     {
       var tableInfo = StorageModel.Tables[tableColumn.Table.Name];
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Providers.Sql
       return columnInfo;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitForeignKey(ForeignKey key)
     {
       var referencingTable = StorageModel.Tables[key.Table.Name];
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Providers.Sql
       return foreignKeyInfo;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitPrimaryKey(PrimaryKey key)
     {
       var tableInfo = StorageModel.Tables[key.Table.Name];
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Providers.Sql
       return primaryIndexInfo;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitFullTextIndex(FullTextIndex index)
     {
       var tableInfo = StorageModel.Tables[index.DataTable.Name];
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Providers.Sql
       return ftIndex;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitIndex(Index index)
     {
       var tableInfo = StorageModel.Tables[index.DataTable.Name];
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Providers.Sql
       return secondaryIndexInfo;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitSequence(Sequence sequence)
     {
       Type type = null;
@@ -359,147 +359,147 @@ namespace Xtensive.Orm.Providers.Sql
 
     #region Not supported
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitUniqueConstraint(UniqueConstraint constraint)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitIndexColumn(IndexColumn indexColumn)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCatalog(Catalog catalog)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCharacterSet(CharacterSet characterSet)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCollation(Collation collation)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDataTable(DataTable dataTable)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDataTableColumn(DataTableColumn dataTableColumn)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDomain(Xtensive.Sql.Model.Domain domain)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitHashPartition(HashPartition hashPartition)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitListPartition(ListPartition listPartition)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartition(Partition partition)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartitionDescriptor(PartitionDescriptor partitionDescriptor)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartitionFunction(PartitionFunction partitionFunction)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartitionSchema(PartitionSchema partitionSchema)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTableConstraint(TableConstraint constraint)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDomainConstraint(DomainConstraint constraint)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitConstraint(Constraint constraint)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCheckConstraint(CheckConstraint constraint)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitRangePartition(RangePartition rangePartition)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitSequenceDescriptor(SequenceDescriptor sequenceDescriptor)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTemporaryTable(TemporaryTable temporaryTable)
     {
@@ -507,21 +507,21 @@ namespace Xtensive.Orm.Providers.Sql
       return null;
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTranslation(Translation translation)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitView(View view)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitViewColumn(ViewColumn viewColumn)
     {

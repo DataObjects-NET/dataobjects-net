@@ -58,13 +58,7 @@ namespace Xtensive.Orm
       session.RemapEntityKeys(this);
     }
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       return "{0}:\r\n".FormatWith(Strings.KeyMapping) + (
@@ -89,7 +83,7 @@ namespace Xtensive.Orm
 
     // Serialization
 
-    
+    /// <inheritdoc/>
     #if NET40
     [SecurityCritical]
     #else
@@ -104,11 +98,7 @@ namespace Xtensive.Orm
       info.AddValue("Map", serializedMapping, typeof(Dictionary<Ref<Entity>, Ref<Entity>>));
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="KeyMapping"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true"/>
     protected KeyMapping(SerializationInfo info, StreamingContext context)
     {
       var serializedMapping = (Dictionary<Ref<Entity>, Ref<Entity>>)

@@ -28,13 +28,13 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -2000)]
     public string FullTextCatalog { get; set; }
 
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<StorageFullTextIndexInfo, TableInfo, FullTextIndexInfoCollection>(this, "FullTextIndexes");
     }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <exception cref="ValidationException"></exception>
-    
+    /// <inheritdoc/>
     protected override void ValidateState()
     {
       using (var ea = new ExceptionAggregator()) {

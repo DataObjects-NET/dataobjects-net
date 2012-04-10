@@ -19,16 +19,12 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public sealed class KeyGenerateOperation : KeyOperation
   {
-    
+    /// <inheritdoc/>
     public override string Title {
       get { return "Generate Key"; }
     }
 
-
-    /// <summary>
-    /// Prepares the self.
-    /// </summary>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       if (context.KeyMapping.ContainsKey(Key))
@@ -91,21 +87,12 @@ namespace Xtensive.Orm.Operations
       }
     }
 
-
-    /// <summary>
-    /// Executes the operation itself.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
+    /// <inheritdoc/>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
     }
 
-
-    /// <summary>
-    /// Clones the operation itself.
-    /// </summary>
-    /// <param name="clone"></param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
@@ -116,23 +103,14 @@ namespace Xtensive.Orm.Operations
 
     // Constructors
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="KeyGenerateOperation"/> class.
-    /// </summary>
-    /// <param name="key">The key of the entity.</param>
+    /// <inheritdoc/>
     public KeyGenerateOperation(Key key)
       : base(key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
     }
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="KeyGenerateOperation"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected KeyGenerateOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

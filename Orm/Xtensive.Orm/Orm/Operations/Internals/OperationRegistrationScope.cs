@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Operations
     public long CurrentIdentifier;
     private bool oldIsSystemOperationRegistrationEnabled;
 
-    
+    /// <inheritdoc/>
     public void RegisterEntityIdentifier(Key key, string identifier)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");

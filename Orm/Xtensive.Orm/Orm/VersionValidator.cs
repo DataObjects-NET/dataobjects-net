@@ -370,10 +370,8 @@ namespace Xtensive.Orm
     }
 
     // Dispose
-
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
+    
+    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
     public void Dispose()
     {
       try {

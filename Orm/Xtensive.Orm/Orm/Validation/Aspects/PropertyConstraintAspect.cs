@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Validation
     /// <see cref="MessageResourceName"/>
     public Type MessageResourceType { get; set; }
 
-    
+    /// <inheritdoc/>
     [MethodExecutionAdviceOptimization(MethodExecutionAdviceOptimizations.IgnoreAllEventArgsMembers & ~(MethodExecutionAdviceOptimizations.IgnoreGetInstance | MethodExecutionAdviceOptimizations.IgnoreGetArguments))]
     public sealed override void OnEntry(MethodExecutionArgs args)
     {
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Validation
 
     }
 
-    
+    /// <inheritdoc/>
     public override sealed bool CompileTimeValidate(MethodBase target)
     {
       var methodInfo = target as MethodInfo;

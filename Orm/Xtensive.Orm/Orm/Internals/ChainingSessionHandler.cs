@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -32,179 +31,98 @@ namespace Xtensive.Orm.Internals
       get { return ChainedHandler.PrefetchTaskExecutionCount; }
     }
 
-
-    /// <summary>
-    /// Gets a value indicating whether [transaction is started].
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if [transaction is started]; otherwise, <c>false</c>.
-    /// </value>
+    /// <inheritdoc/>
     public override bool TransactionIsStarted { get { return ChainedHandler.TransactionIsStarted; } }
 
-    /// <summary>
-    /// Sets command timeout for all <see cref="IDbCommand"/> created within current instance.
-    /// </summary>
-    /// <param name="commandTimeout">The command timeout.</param>
     public override void SetCommandTimeout(int? commandTimeout)
     {
       ChainedHandler.SetCommandTimeout(commandTimeout);
     }
 
-
-    /// <summary>
-    /// Begins the transaction.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <inheritdoc/>
     public override void BeginTransaction(Transaction transaction)
     {
       ChainedHandler.BeginTransaction(transaction);
     }
 
-
-    /// <summary>
-    /// Completings the transaction.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <inheritdoc/>
     public override void CompletingTransaction(Transaction transaction)
     {
       ChainedHandler.CompletingTransaction(transaction);
     }
 
-
-    /// <summary>
-    /// Commits the transaction.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
       ChainedHandler.CommitTransaction(transaction);
     }
 
-
-    /// <summary>
-    /// Rollbacks the transaction.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
       ChainedHandler.RollbackTransaction(transaction);
     }
 
-
-    /// <summary>
-    /// Creates the savepoint.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <inheritdoc/>
     public override void CreateSavepoint(Transaction transaction)
     {
       ChainedHandler.CreateSavepoint(transaction);
     }
 
-
-    /// <summary>
-    /// Rollbacks to savepoint.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <inheritdoc/>
     public override void RollbackToSavepoint(Transaction transaction)
     {
       ChainedHandler.RollbackToSavepoint(transaction);
     }
 
-
-    /// <summary>
-    /// Releases the savepoint.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <inheritdoc/>
     public override void ReleaseSavepoint(Transaction transaction)
     {
       ChainedHandler.ReleaseSavepoint(transaction);
     }
 
-
-    /// <summary>
-    /// Executes the specified query tasks.
-    /// </summary>
-    /// <param name="queryTasks">The query tasks to execute.</param>
-    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
+    /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       ChainedHandler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
-
-    /// <summary>
-    /// Persists the specified registry.
-    /// </summary>
-    /// <param name="registry">The registry.</param>
-    /// <param name="allowPartialExecution">if set to <c>true</c> [allow partial execution].</param>
+    /// <inheritdoc/>
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
       ChainedHandler.Persist(registry, allowPartialExecution);
     }
 
-
-    /// <summary>
-    /// Persists the specified persist actions.
-    /// </summary>
-    /// <param name="persistActions">The persist actions.</param>
-    /// <param name="allowPartialExecution">if set to <c>true</c> [allow partial execution].</param>
+    /// <inheritdoc/>
     public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
       ChainedHandler.Persist(persistActions, allowPartialExecution);
     }
 
-    /// <summary>
-    /// Prefetches the specified key.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="type">The type.</param>
-    /// <param name="descriptors">The descriptors.</param>
-    /// <returns></returns>
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return ChainedHandler.Prefetch(key, type, descriptors);
     }
 
-
-    /// <summary>
-    /// Executes the prefetch tasks.
-    /// </summary>
-    /// <param name="skipPersist">if set to <c>true</c> [skip persist].</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
       return ChainedHandler.ExecutePrefetchTasks(skipPersist);
     }
 
-
-    /// <summary>
-    /// Fetches the state of the entity.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public override EntityState FetchEntityState(Key key)
     {
       return ChainedHandler.FetchEntityState(key);
     }
 
-
-    /// <summary>
-    /// Fetches the field.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="field">The field.</param>
+    /// <inheritdoc/>
     public override void FetchField(Key key, Model.FieldInfo field)
     {
       ChainedHandler.FetchField(key, field);
     }
 
-
-    /// <summary>
-    /// Fetches the entity set.
-    /// </summary>
-    /// <param name="ownerKey">The owner key.</param>
-    /// <param name="field">The field.</param>
-    /// <param name="itemCountLimit">The item count limit.</param>
+    /// <inheritdoc/>
     public override void FetchEntitySet(Key ownerKey, Model.FieldInfo field, int? itemCountLimit)
     {
       ChainedHandler.FetchEntitySet(ownerKey, field, itemCountLimit);
@@ -232,24 +150,13 @@ namespace Xtensive.Orm.Internals
       return ChainedHandler.TryGetEntityState(key, out entityState);
     }
 
-
-    /// <summary>
-    /// Gets the service.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public override T GetService<T>()
     {
       return ChainedHandler.GetService<T>();
     }
 
-
-    /// <summary>
-    /// Creates enumeration context.
-    /// </summary>
-    /// <returns>
-    /// Created context.
-    /// </returns>
+    /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       return ChainedHandler.CreateEnumerationContext();
@@ -268,10 +175,7 @@ namespace Xtensive.Orm.Internals
       this.ChainedHandler = chainedHandler;
     }
 
-
-    /// <summary>
-    /// Releases unmanaged and - optionally - managed resources
-    /// </summary>
+    /// <inheritdoc/>
     public override void Dispose()
     {
       ChainedHandler.Dispose();

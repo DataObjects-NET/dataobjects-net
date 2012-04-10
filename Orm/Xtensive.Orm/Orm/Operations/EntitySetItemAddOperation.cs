@@ -16,19 +16,12 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public class EntitySetItemAddOperation : EntitySetItemOperation
   {
-
-    /// <summary>
-    /// Gets the title of the operation.
-    /// </summary>
+    /// <inheritdoc/>
     public override string Title {
       get { return "Add item to entity set"; }
     }
 
-
-    /// <summary>
-    /// Executes the operation itself.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
+    /// <inheritdoc/>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
@@ -36,12 +29,7 @@ namespace Xtensive.Orm.Operations
       GetEntitySet(context).Add(item);
     }
 
-
-    /// <summary>
-    /// Clones the operation itself.
-    /// </summary>
-    /// <param name="clone"></param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
@@ -51,24 +39,13 @@ namespace Xtensive.Orm.Operations
     
     // Constructors
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntitySetItemAddOperation"/> class.
-    /// </summary>
-    /// <param name="key">The key of the entity.</param>
-    /// <param name="field">The field involved into the operation.</param>
-    /// <param name="itemKey">The item key.</param>
+    /// <inheritdoc/>
     public EntitySetItemAddOperation(Key key, FieldInfo field, Key itemKey)
       : base(key, field, itemKey)
     {
     }
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntitySetItemAddOperation"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected EntitySetItemAddOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

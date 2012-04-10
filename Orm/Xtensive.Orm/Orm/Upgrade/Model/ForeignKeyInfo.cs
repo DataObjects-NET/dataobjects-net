@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="ValidationException">Validations errors.</exception>
     protected override void ValidateState()
     {
@@ -121,13 +121,13 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<ForeignKeyInfo, TableInfo, ForeignKeyCollection>(this, "ForeignKeys");
     }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent table.</param>
     /// <param name="name">The name of foreign key.</param>
-    
+    /// <inheritdoc/>
     public ForeignKeyInfo(TableInfo parent, string name)
       : base(parent, name)
     {

@@ -23,13 +23,13 @@ namespace Xtensive.Orm.Rse.Helpers
     protected readonly Action<ApplyParameter, int> registerOuterColumn;
     protected List<int> mappings;
 
-    
+    /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
     }
 
-    
+    /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (mc.IsTupleAccess(tupleParameter)) {

@@ -77,13 +77,13 @@ namespace Xtensive.Orm
     private Persistent owner;
     private Entity entity;
 
-    
+    /// <inheritdoc/>
     public override TypeInfo TypeInfo {
       [DebuggerStepThrough]
       get { return typeInfo; }
     }
 
-    
+    /// <inheritdoc/>
     [Infrastructure]
     public Persistent Owner
     {
@@ -94,7 +94,7 @@ namespace Xtensive.Orm
       }
     }
 
-    
+    /// <inheritdoc/>
     [Infrastructure]
     public FieldInfo Field { get; private set; }
 
@@ -122,18 +122,18 @@ namespace Xtensive.Orm
       }
     }
 
-    
+    /// <inheritdoc/>
     protected internal override sealed Tuple Tuple {
       [DebuggerStepThrough]
       get { return tuple; }
     }
 
-     
+    /// <inheritdoc/> 
     protected internal override sealed bool CanBeValidated {
       get { return IsBoundToEntity; }
     }
 
-    
+    /// <inheritdoc/>
     public override sealed event PropertyChangedEventHandler PropertyChanged {
       add {
         Session.EntityEvents.AddSubscriber(GetOwnerEntityKey(Owner), Field,
@@ -292,7 +292,7 @@ namespace Xtensive.Orm
       Owner.SystemSetValueCompleted(ownerField, oldValue, newValue, exception);
     }
 
-    
+    /// <inheritdoc/>
     protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerEntityKey(Owner);
@@ -318,7 +318,7 @@ namespace Xtensive.Orm
       return !(left==rigth);
     }
 
-    
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (obj==null || !(obj is Structure)) {
@@ -327,7 +327,7 @@ namespace Xtensive.Orm
       return Equals((Structure) obj);
     }
 
-    
+    /// <inheritdoc/>
     public bool Equals(Structure other)
     {
       if (other==null)
@@ -357,7 +357,7 @@ namespace Xtensive.Orm
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
-    
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       return Tuple.GetHashCode();
@@ -479,11 +479,7 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Structure"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     [Infrastructure]
     protected Structure(SerializationInfo info, StreamingContext context)
     {

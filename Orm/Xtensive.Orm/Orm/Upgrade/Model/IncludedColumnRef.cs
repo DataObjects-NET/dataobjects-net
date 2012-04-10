@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Upgrade.Model
   [Serializable]
   public sealed class IncludedColumnRef : ColumnInfoRef<SecondaryIndexInfo>
   {
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<IncludedColumnRef, SecondaryIndexInfo, IncludedColumnRefCollection>(
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     public IncludedColumnRef(SecondaryIndexInfo parent)
       : base(parent)
     {

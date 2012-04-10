@@ -41,10 +41,6 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
 
-
-    /// <summary>
-    /// Gets the identifier for this instance.
-    /// </summary>
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
 

@@ -20,19 +20,19 @@ namespace Xtensive.Orm.Validation
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class NotNullConstraint : PropertyConstraintAspect
   {
-    
+    /// <inheritdoc/>
     public override bool CheckValue(object value)
     {
       return value != null;
     }
 
-    
+    /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
       return true;
     }
 
-    
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueCanNotBeNull;

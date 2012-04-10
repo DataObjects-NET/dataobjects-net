@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Upgrade.Model
   {
     // Constructors
 
-    
+    /// <inheritdoc/>
     protected NodeCollectionBase(Node parent, string name)
       : base(parent, name)
     {

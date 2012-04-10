@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Upgrade.Model
   [Serializable]
   public sealed class ValueColumnRef : ColumnInfoRef<PrimaryIndexInfo>
   {
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<ValueColumnRef, PrimaryIndexInfo, ValueColumnRefCollection>(
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     public ValueColumnRef(PrimaryIndexInfo parent)
       : base(parent)
     {

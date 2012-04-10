@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 using Xtensive.Aspects;
 using Xtensive.Caching;
 using Xtensive.Core;
-
+using Xtensive.Internals.DocTemplates;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
@@ -539,7 +539,7 @@ namespace Xtensive.Orm.Providers
     // Initializers
 
     /// <summary>
-    /// Initializes the specified naming convention.
+    /// <see cref="ClassDocTemplate.Initialize" copy="true"/>
     /// </summary>
     /// <param name="namingConvention">The naming convention.</param>
     protected internal virtual void Initialize(NamingConvention namingConvention)

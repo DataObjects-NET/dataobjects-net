@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Upgrade
         nonTransactionalProcessor.Invoke(NonTransactionalEpilogCommands);
     }
 
-    
+    /// <inheritdoc/>
     public IEnumerator<string> GetEnumerator()
     {
       var commands = new List<string>(Count);
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Upgrade
       return commands.GetEnumerator();
     }
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

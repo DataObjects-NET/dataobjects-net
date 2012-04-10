@@ -74,10 +74,6 @@ namespace Xtensive.Orm.Configuration
 
     #region ILockable methods
 
-
-    /// <summary>
-    /// </summary>
-    /// <param name="recursive"></param>
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -89,13 +85,7 @@ namespace Xtensive.Orm.Configuration
 
     #region ICloneable members
 
-
-    /// <summary>
-    /// Creates a new object that is a copy of the current instance.
-    /// </summary>
-    /// <returns>
-    /// A new object that is a copy of this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public object Clone()
     {
       this.EnsureNotLocked();

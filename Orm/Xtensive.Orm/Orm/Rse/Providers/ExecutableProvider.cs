@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     #region IHasServices methods
 
-    
+    /// <inheritdoc/>
     /// <remarks>
     /// The implementation of this method checks if specified service <typeparamref name="T"/>
     /// was registered by <see cref="AddService{T}"/>, and returns <c>this as T</c>, if this is <see langword="true" />;
@@ -129,7 +129,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     #region ICachingProvider methods
 
-    
+    /// <inheritdoc/>
     bool ICachingProvider.IsResultCached(EnumerationContext context) 
     {
       var cp = GetService<ICachingProvider>();
@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Rse.Providers
       return GetCachedResult(context, cp)!=null;
     }
 
-    
+    /// <inheritdoc/>
     void ICachingProvider.EnsureResultIsCached(EnumerationContext context) 
     {
       ArgumentValidator.EnsureArgumentNotNull(context, "context");
@@ -185,13 +185,13 @@ namespace Xtensive.Orm.Rse.Providers
 
     #region IEnumerable<...> methods
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
-    
+    /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
       const string enumerationMarker = "Enumerated";

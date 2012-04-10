@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Services
 
     #region IEnuemrable<...> members
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       var allCached = 
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Services
       return allCached.GetEnumerator();
     }
 
-    
+    /// <inheritdoc/>
     public IEnumerator<Entity> GetEnumerator()
     {
       var allCached = 

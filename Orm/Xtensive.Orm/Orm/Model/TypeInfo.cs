@@ -221,9 +221,6 @@ namespace Xtensive.Orm.Model
       get { return indexes; }
     }
 
-    /// <summary>
-    /// Gets the affected indexes.
-    /// </summary>
     public NodeCollection<IndexInfo> AffectedIndexes
     {
       [DebuggerStepThrough]
@@ -284,9 +281,6 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    /// <summary>
-    /// Gets the key.
-    /// </summary>
     public KeyInfo Key
     {
       get { return IsLocked ? key : GetKey(); }
@@ -547,7 +541,7 @@ namespace Xtensive.Orm.Model
         .ToList();
     }
 
-    
+    /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
@@ -625,12 +619,7 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    
-    /// <summary>
-    /// Locks the instance and (possibly) all dependent objects.
-    /// 
-    /// </summary>
-    /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
@@ -772,13 +761,7 @@ namespace Xtensive.Orm.Model
 
     #endregion
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       return Name;

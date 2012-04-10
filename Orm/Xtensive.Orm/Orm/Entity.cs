@@ -120,11 +120,7 @@ namespace Xtensive.Orm
       get { return State.Key; }
     }
 
-
-    /// <summary>
-    /// Gets <see cref="VersionInfo"/> object describing
-    /// current version of the <see cref="Entity"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public VersionInfo VersionInfo {
       get {
         if (IsRemoved)
@@ -159,20 +155,14 @@ namespace Xtensive.Orm
       }
     }
 
-
-    /// <summary>
-    /// Gets <see cref="Xtensive.Orm.Model.TypeInfo"/> object describing structure of persistent object.
-    /// </summary>
+    /// <inheritdoc/>
     public override sealed TypeInfo TypeInfo
     {
       [DebuggerStepThrough]
       get { return State.Type; }
     }
 
-
-    /// <summary>
-    /// Gets the underlying tuple.
-    /// </summary>
+    /// <inheritdoc/>
     protected internal override sealed Tuple Tuple
     {
       [DebuggerStepThrough]
@@ -189,11 +179,7 @@ namespace Xtensive.Orm
       get { return State.PersistenceState; }
     }
 
-
-    /// <summary>
-    /// Gets a value indicating whether this entity is removed.
-    /// </summary>
-    /// <seealso cref="Remove"/>
+    /// <inheritdoc/>
     public bool IsRemoved {
       get {
         if (Session == null || state == null || state.TryGetEntity()!=this)
@@ -216,7 +202,7 @@ namespace Xtensive.Orm
 
     #region IIdentified members
 
-    
+    /// <inheritdoc/>
     [Infrastructure] // Proxy
       Key IIdentified<Key>.Identifier
     {
@@ -224,7 +210,7 @@ namespace Xtensive.Orm
       get { return Key; }
     }
 
-    
+    /// <inheritdoc/>
     [Infrastructure] // Proxy
       object IIdentified.Identifier
     {
@@ -236,14 +222,14 @@ namespace Xtensive.Orm
 
     #region IHasVersion members
 
-    
+    /// <inheritdoc/>
     [Infrastructure]
     VersionInfo IHasVersion<VersionInfo>.Version {
       [DebuggerStepThrough]
       get { return VersionInfo; }
     }
 
-    
+    /// <inheritdoc/>
     [Infrastructure]
     object IHasVersion.Version {
       [DebuggerStepThrough]
@@ -254,10 +240,7 @@ namespace Xtensive.Orm
 
     #region Public members
 
-
-    /// <summary>
-    /// Occurs when [property changed].
-    /// </summary>
+    /// <inheritdoc/>
     public override sealed event PropertyChangedEventHandler PropertyChanged
     {
       add {
@@ -291,12 +274,7 @@ namespace Xtensive.Orm
       Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this));
     }
 
-
-    /// <summary>
-    /// Locks this instance in the storage.
-    /// </summary>
-    /// <param name="lockMode">The lock mode.</param>
-    /// <param name="lockBehavior">The lock behavior.</param>
+    /// <inheritdoc/>
     public void Lock(LockMode lockMode, LockBehavior lockBehavior)
     {
       using (new ParameterContext().Activate()) {
@@ -318,13 +296,7 @@ namespace Xtensive.Orm
       }
     }
 
-
-    /// <summary>
-    /// Identifies the entity by identifier of specified type.
-    /// This identifier is used by <see cref="Xtensive.Orm.Operations"/> framework
-    /// to bind it with the identical entity while replaying the operation.
-    /// </summary>
-    /// <param name="identifierType">Type of the identifier.</param>
+    /// <inheritdoc/>
     public void IdentifyAs(EntityIdentifierType identifierType)
     {
       var operations = Session.Operations;
@@ -343,14 +315,7 @@ namespace Xtensive.Orm
       }
     }
 
-
-    /// <summary>
-    /// Identifies the entity by specified identifier.
-    /// This identifier is used by <see cref="Xtensive.Orm.Operations"/> framework
-    /// to bind it with the identical entity while replaying the operation.
-    /// </summary>
-    /// <param name="identifier">The entity identifier.
-    /// <see langword="null"/> indicates no identifier must be associated with the entity.</param>
+    /// <inheritdoc/>
     public void IdentifyAs(string identifier)
     {
       var operations = Session.Operations;
@@ -363,10 +328,7 @@ namespace Xtensive.Orm
 
     #region Protected event-like methods
 
-
-    /// <summary>
-    /// Gets a value indicating whether validation can be performed for this entity.
-    /// </summary>
+    /// <inheritdoc/>
     protected internal override bool CanBeValidated {
       get { return !IsRemoved; }
     }
@@ -762,14 +724,7 @@ namespace Xtensive.Orm
       }
     }
 
-
-    /// <summary>
-    /// Gets the subscription for the specified event key.
-    /// </summary>
-    /// <param name="eventKey">The event key.</param>
-    /// <returns>
-    /// Event subscription (delegate) for the specified event key.
-    /// </returns>
+    /// <inheritdoc/>
     protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       if (state==null || state.TryGetEntity()!=this)
@@ -806,13 +761,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       return Key.ToString();
@@ -981,7 +930,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Initializes a new instance of this class.
+    /// <see cref="ClassDocTemplate()" copy="true"/>
     /// Used internally to initialize the entity on materialization.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
@@ -1004,7 +953,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Initializes a new instance of this class.
+    /// <see cref="ClassDocTemplate()" copy="true"/>
     /// Used internally to initialize the entity on materialization.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>

@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="parent">The parent table.</param>
     /// <param name="name">The index.</param>
-    
+    /// <inheritdoc/>
     protected StorageIndexInfo(TableInfo parent, string name)
       : base(parent, name)
     {

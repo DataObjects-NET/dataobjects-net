@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="ValidationException">Validation error.</exception>
     protected override void ValidateState()
     {
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Upgrade.Model
       }
     }
 
-    
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<StorageColumnInfo, TableInfo, ColumnInfoCollection>(this, "Columns");

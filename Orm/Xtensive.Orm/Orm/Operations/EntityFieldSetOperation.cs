@@ -36,29 +36,19 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     public Key ValueKey { get; set; }
 
-
-    /// <summary>
-    /// Gets the title of the operation.
-    /// </summary>
+    /// <inheritdoc/>
     public override string Title {
       get { return "Set field"; }
     }
 
-
-    /// <summary>
-    /// Gets the description.
-    /// </summary>
+    /// <inheritdoc/>
     public override string Description {
       get {
         return "{0}, Value = {1}".FormatWith(base.Description, Value ?? ValueKey);
       }
     }
 
-
-    /// <summary>
-    /// Prepares the self.
-    /// </summary>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected override void PrepareSelf(OperationExecutionContext context)
     {
       base.PrepareSelf(context);
@@ -66,11 +56,7 @@ namespace Xtensive.Orm.Operations
       context.RegisterKey(context.TryRemapKey(ValueKey), false);
     }
 
-
-    /// <summary>
-    /// Executes the operation itself.
-    /// </summary>
-    /// <param name="context">The operation execution context.</param>
+    /// <inheritdoc/>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
@@ -81,12 +67,7 @@ namespace Xtensive.Orm.Operations
       entity.SetFieldValue(Field, value);
     }
 
-
-    /// <summary>
-    /// Clones the operation itself.
-    /// </summary>
-    /// <param name="clone"></param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone == null) {
@@ -132,12 +113,7 @@ namespace Xtensive.Orm.Operations
     
     // Serialization
 
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntityFieldSetOperation"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
+    /// <inheritdoc/>
     protected EntityFieldSetOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
@@ -159,13 +135,7 @@ namespace Xtensive.Orm.Operations
         Value = info.GetValue("value", Field.ValueType);
     }
 
-
-    /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
+    /// <inheritdoc/>
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);

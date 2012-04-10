@@ -117,7 +117,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    
+    /// <inheritdoc/>
     protected TransactionalStateContainer(Session session)
       : base(session)
     {

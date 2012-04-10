@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Providers
   {
     // Constructors
 
-    
+    /// <inheritdoc/>
     protected CompilableProvider(ProviderType type, params Provider[] sources)
       : base(type, sources)
     {

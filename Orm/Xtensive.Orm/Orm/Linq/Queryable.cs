@@ -22,33 +22,25 @@ namespace Xtensive.Orm.Linq
     private readonly QueryProvider provider;
     private readonly Expression expression;
 
-
-    /// <summary>
-    /// Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable"/>.
-    /// </summary>
-    /// <returns>The <see cref="T:System.Linq.Expressions.Expression"/> that is associated with this instance of <see cref="T:System.Linq.IQueryable"/>.</returns>
+    /// <inheritdoc/>
     public Expression Expression { get { return expression; } }
 
-
-    /// <summary>
-    /// Gets the type of the element(s) that are returned when the expression tree associated with this instance of <see cref="T:System.Linq.IQueryable"/> is executed.
-    /// </summary>
-    /// <returns>A <see cref="T:System.Type"/> that represents the type of the element(s) that are returned when the expression tree associated with this object is executed.</returns>
+    /// <inheritdoc/>
     public Type ElementType { get { return typeof (T); } }
 
-    
+    /// <inheritdoc/>
     IQueryProvider IQueryable.Provider { get { return provider; } }
 
     #region IEnumerable<...> members
 
-    
+    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
       var result = provider.Execute<IEnumerable<T>>(expression);
       return result.GetEnumerator();
     }
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -56,13 +48,7 @@ namespace Xtensive.Orm.Linq
 
     #endregion
 
-
-    /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
-    /// </returns>
+    /// <inheritdoc/>
     public override string ToString()
     {
       return expression.ToString();

@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Providers.Sql
 {
   partial class SqlCompiler 
   {
-    
+    /// <inheritdoc/>
     protected override SqlProvider VisitTake(TakeProvider provider)
     {
       var compiledSource = Compile(provider.Source);
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, binding, provider, compiledSource);
     } 
 
-    
+    /// <inheritdoc/>
     protected override SqlProvider VisitSkip(SkipProvider provider)
     {
       var compiledSource = Compile(provider.Source);
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers.Sql
       return CreateProvider(query, binding, provider, compiledSource);
     }
 
-    
+    /// <inheritdoc/>
     protected override SqlProvider VisitPaging(PagingProvider provider)
     {
       var compiledSource = Compile(provider.Source);

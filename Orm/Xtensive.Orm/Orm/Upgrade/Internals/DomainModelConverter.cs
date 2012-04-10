@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Upgrade
       return storageModel;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode Visit(Orm.Model.Node node)
     {
       var indexInfo = node as IndexInfo;
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Upgrade
       return base.Visit(node);
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitDomainModel(DomainModel domainModel)
     {
       // Build tables, columns and primary indexes
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Upgrade
       return storageModel;
     }
 
-    
+    /// <inheritdoc/>
     protected IPathNode VisitIndexInfo(IndexInfo primaryIndex, IndexInfo index)
     {
       TableInfo table = currentTable;
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Upgrade
       return secondaryIndex;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitColumnInfo(ColumnInfo column)
     {
       var nonNullableType = column.ValueType;
@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Upgrade
       };
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitAssociationInfo(AssociationInfo association)
     {
       // Skip associations that do not impose constraints
@@ -246,7 +246,7 @@ namespace Xtensive.Orm.Upgrade
       return null;
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitKeyInfo(KeyInfo keyInfo)
     {
       if (keyInfo.Sequence==null || !keyInfo.IsFirstAmongSimilarKeys)
@@ -263,14 +263,14 @@ namespace Xtensive.Orm.Upgrade
       return sequence;
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Thrown always by this method.</exception>
     protected override IPathNode VisitSequenceInfo(Orm.Model.SequenceInfo info)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
       var table = GetTable(fullTextIndex.PrimaryIndex.ReflectedType);
@@ -324,35 +324,35 @@ namespace Xtensive.Orm.Upgrade
 
     #region Not supported
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitKeyField(KeyField keyField)
     {
       throw new NotSupportedException(String.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitFieldInfo(FieldInfo field)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitHierarchyInfo(HierarchyInfo hierarchy)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTypeInfo(TypeInfo type)
     {
       throw new NotSupportedException();
     }
 
-    
+    /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitIndexInfo(IndexInfo index)
     {

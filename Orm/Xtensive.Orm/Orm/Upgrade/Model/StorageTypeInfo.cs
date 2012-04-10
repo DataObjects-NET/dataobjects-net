@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     public object NativeType { get; private set;  }
 
-    
+    /// <inheritdoc/>
     public void Validate()
     {
       // TODO: Implement
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     #region Implementation of ICloneable
 
-    
+    /// <inheritdoc/>
     public object Clone()
     {
       if (IsTypeUndefined)
@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     #region Equality members
 
-    
+    /// <inheritdoc/>
     public bool Equals(StorageTypeInfo other)
     {
       if (IsTypeUndefined)
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Upgrade.Model
       return isEqual;
     }
 
-    
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (IsTypeUndefined)
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Upgrade.Model
       return Equals((StorageTypeInfo) obj);
     }
 
-    
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     #endregion
 
-    
+    /// <inheritdoc/>
     public override string ToString()
     {
       if (IsTypeUndefined)

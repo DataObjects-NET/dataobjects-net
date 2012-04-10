@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Internals
     public List<Tuple> Result { get; set; }
 
     /// <exception cref="InvalidOperationException">Query task is not executed yet.</exception>
-    
+    /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
       if (Result == null)
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Internals
       return Result.GetEnumerator();
     }
 
-    
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
