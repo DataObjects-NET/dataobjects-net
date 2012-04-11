@@ -479,7 +479,11 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Structure"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     [Infrastructure]
     protected Structure(SerializationInfo info, StreamingContext context)
     {

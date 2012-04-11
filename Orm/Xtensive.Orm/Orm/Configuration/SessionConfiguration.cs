@@ -15,9 +15,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// <see cref="Session"/> configuration.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
@@ -45,7 +42,9 @@ namespace Xtensive.Orm.Configuration
 
     #endregion
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    /// <summary>
+    /// Default <see cref="SessionConfiguration"/>.
+    /// </summary>
     public static readonly SessionConfiguration Default;
 
     private SessionOptions options = SessionOptions.Default;

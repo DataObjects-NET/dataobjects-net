@@ -175,14 +175,28 @@ namespace Xtensive.Orm
       return Equals(other);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     [DebuggerStepThrough]
     public static bool operator ==(Key left, Key right)
     {
       return Equals(left, right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     [DebuggerStepThrough]
     public static bool operator !=(Key left, Key right)
     {

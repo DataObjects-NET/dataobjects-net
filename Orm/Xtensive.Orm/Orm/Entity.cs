@@ -930,10 +930,12 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate()" copy="true"/>
-    /// Used internally to initialize the entity on materialization.
+    /// Initializes a new instance of the <see cref="Entity"/> class.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
+    /// <remarks>
+    /// Used internally to initialize the entity on materialization.
+    /// </remarks>
     [Infrastructure]
     protected Entity(EntityState state)
     {
@@ -953,10 +955,13 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate()" copy="true"/>
-    /// Used internally to initialize the entity on materialization.
+    /// Initializes a new instance of the <see cref="Entity"/> class.
     /// </summary>
+    /// <param name="session">The session.</param>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
+    /// <remarks>
+    /// Used internally to initialize the entity on materialization.
+    /// </remarks>
     [Infrastructure]
     protected Entity(Session session, EntityState state)
       : base(session)
