@@ -695,10 +695,6 @@ namespace Xtensive.Orm
 
       if (session.Transaction!=null) {
         session.Persist(PersistReason.DisconnectedStateAttach);
-        if (!session.Transaction.IsActuallyStarted) {
-          session.BeginTransaction(session.Transaction);
-          session.EnsureTransactionIsStarted();
-        }
         session.Invalidate();
       }
 

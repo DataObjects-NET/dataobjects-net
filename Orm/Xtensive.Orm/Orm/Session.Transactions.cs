@@ -191,11 +191,12 @@ namespace Xtensive.Orm
 
     internal void BeginTransaction(Transaction transaction)
     {
-      var isSystemTransaction = transaction.Session.Configuration.Type
-        .In(SessionType.KeyGenerator, SessionType.System);
-
-      if (isSystemTransaction || transaction.IsNested || IsDisconnected)
-        StartTransaction(transaction);
+      if (transaction.IsNested) {
+        Persist(PersistReason.NestedTransaction);
+        Handler.CreateSavepoint(transaction);
+      }
+      else
+        Handler.BeginTransaction(transaction);
     }
 
     internal void CommitTransaction(Transaction transaction)
@@ -211,8 +212,6 @@ namespace Xtensive.Orm
       Persist(PersistReason.Commit);
 
       Handler.CompletingTransaction(transaction);
-      if (!transaction.IsActuallyStarted)
-        return;
       if (transaction.IsNested)
         Handler.ReleaseSavepoint(transaction);
       else
@@ -232,11 +231,10 @@ namespace Xtensive.Orm
         }
         finally {
           try {
-            if (transaction.IsActuallyStarted)
-              if (transaction.IsNested)
-                Handler.RollbackToSavepoint(transaction);
-              else
-                Handler.RollbackTransaction(transaction);
+            if (transaction.IsNested)
+              Handler.RollbackToSavepoint(transaction);
+            else
+              Handler.RollbackTransaction(transaction);
           }
           finally {
             ClearChangeRegistry();
@@ -273,8 +271,6 @@ namespace Xtensive.Orm
       var transaction = Transaction;
       if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      if (!transaction.IsActuallyStarted)
-        StartTransaction(transaction);
     }
 
     /// <exception cref="InvalidOperationException">Can't create a transaction
@@ -289,19 +285,6 @@ namespace Xtensive.Orm
       if (sdRequested==SD.IsolationLevel.Snapshot && sdCurrent==SD.IsolationLevel.Serializable)
         return; // The only good case here
       throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
-    }
-
-    private void StartTransaction(Transaction transaction)
-    {
-      transaction.IsActuallyStarted = true;
-      if (transaction.IsNested) {
-        if (!transaction.Outer.IsActuallyStarted)
-          StartTransaction(transaction.Outer);
-        Persist(PersistReason.NestedTransaction);
-        Handler.CreateSavepoint(transaction);
-      }
-      else
-        Handler.BeginTransaction(transaction);
     }
 
     private string GetNextSavepointName()

@@ -48,7 +48,6 @@ namespace Xtensive.Orm.Services
     /// <see cref="IDirectSqlService.Transaction" copy="true" />
     public DbTransaction Transaction {
       get {
-        TryStartTransaction();
         return service.Transaction;
       }
     }
@@ -56,14 +55,7 @@ namespace Xtensive.Orm.Services
     /// <see cref="IDirectSqlService.CreateCommand" copy="true" />
     public DbCommand CreateCommand()
     {
-      TryStartTransaction();
       return service.CreateCommand();
-    }
-
-    private void TryStartTransaction()
-    {
-      if (Session.Transaction!=null)
-        Session.EnsureTransactionIsStarted();
     }
 
 

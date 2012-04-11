@@ -104,9 +104,6 @@ namespace Xtensive.Orm.Services
     {
       ArgumentValidator.EnsureArgumentNotNull(request, "request");
 
-      if (Session.Transaction!=null)
-        Session.EnsureTransactionIsStarted();
-
       var command = commandFactory.CreateCommand();
       command.AddPart(commandFactory.CreateQueryPart(request.RealRequest));
       return new QueryCommand(driver, Session, command.Prepare());

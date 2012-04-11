@@ -129,14 +129,6 @@ namespace Xtensive.Orm.Providers
       driver.EnsureConnectionIsOpen(Session, connection);
     }
 
-    private void EnsureTransactionIsOpened()
-    {
-      var transaction = Session.Transaction;
-      if (transaction==null)
-        throw new InvalidOperationException(
-          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
-    }
-
     #endregion
 
     /// <inheritdoc/>

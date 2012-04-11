@@ -148,8 +148,6 @@ namespace Xtensive.Orm
     #endregion
 
     internal string SavepointName { get; private set; }
-    
-    internal bool IsActuallyStarted { get; set; }
 
     /// <summary>
     /// Indicates whether changes made in this transaction are visible "as is"
@@ -172,7 +170,7 @@ namespace Xtensive.Orm
       var outermost = t.Outermost;
       while (t!=outermost && t!=otherTransaction && t.State==TransactionState.Committed)
         t = t.Outer;
-      return t.State.IsActive();      
+      return t.State.IsActive();
     }
   
     #region Private / internal methods
