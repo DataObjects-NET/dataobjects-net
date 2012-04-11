@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Providers
     private readonly SqlConnection connection;
     private readonly CommandProcessor commandProcessor;
 
+    private Transaction pendingTransaction;
     private bool isDisposed;
 
     /// <inheritdoc/>
@@ -40,7 +41,7 @@ namespace Xtensive.Orm.Providers
     {
       get
       {
-        EnsureConnectionIsOpen();
+        Prepare();
         return connection;
       }
     }
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Providers
     {
       get
       {
-        EnsureConnectionIsOpen();
+        Prepare();
         return commandProcessor.Factory;
       }
     }
@@ -68,35 +69,13 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void BeginTransaction(Transaction transaction)
     {
-      EnsureConnectionIsOpen();
-      driver.BeginTransaction(
-        Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
-    }
-
-    /// <inheritdoc/>
-    public override void CreateSavepoint(Transaction transaction)
-    {
-      EnsureConnectionIsOpen();
-      driver.MakeSavepoint(Session, connection, transaction.SavepointName);
-    }
-
-    /// <inheritdoc/>
-    public override void RollbackToSavepoint(Transaction transaction)
-    {
-      EnsureConnectionIsOpen();
-      driver.RollbackToSavepoint(Session, connection, transaction.SavepointName);
-    }
-
-    /// <inheritdoc/>
-    public override void ReleaseSavepoint(Transaction transaction)
-    {
-      EnsureConnectionIsOpen();
-      driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
+      pendingTransaction = transaction;
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
+      pendingTransaction = null;
       if (connection.ActiveTransaction!=null)
         driver.CommitTransaction(Session, connection);
     }
@@ -104,8 +83,30 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
+      pendingTransaction = null;
       if (connection.ActiveTransaction!=null)
         driver.RollbackTransaction(Session, connection);
+    }
+
+    /// <inheritdoc/>
+    public override void CreateSavepoint(Transaction transaction)
+    {
+      Prepare();
+      driver.MakeSavepoint(Session, connection, transaction.SavepointName);
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(Transaction transaction)
+    {
+      Prepare();
+      driver.RollbackToSavepoint(Session, connection, transaction.SavepointName);
+    }
+
+    /// <inheritdoc/>
+    public override void ReleaseSavepoint(Transaction transaction)
+    {
+      Prepare();
+      driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
     }
 
     public override void CompletingTransaction(Transaction transaction)
@@ -124,9 +125,14 @@ namespace Xtensive.Orm.Providers
       commandProcessor.RegisterTask(new SqlLoadTask(request, task.Result, task.ParameterContext));
     }
 
-    private void EnsureConnectionIsOpen()
+    private void Prepare()
     {
       driver.EnsureConnectionIsOpen(Session, connection);
+      if (pendingTransaction==null)
+        return;
+      var transaction = pendingTransaction;
+      pendingTransaction = null;
+      driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
     }
 
     #endregion
@@ -134,7 +140,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
-      EnsureConnectionIsOpen();
+      Prepare();
 
       var nonBatchedTasks = new List<QueryTask>();
       foreach (var task in queryTasks) {
@@ -169,6 +175,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
+      Prepare();
       domainHandler.Persister.Persist(registry, commandProcessor);
       commandProcessor.ExecuteTasks(allowPartialExecution);
     }

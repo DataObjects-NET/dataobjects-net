@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     DbConnection IDirectSqlService.Connection {
       get {
-        EnsureConnectionIsOpen();
+        Prepare();
         return connection.UnderlyingConnection;
       }
     }
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     DbTransaction IDirectSqlService.Transaction {
       get {
-        EnsureConnectionIsOpen();
+        Prepare();
         return connection.ActiveTransaction;
       }
     }
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Providers
     /// <exception cref="InvalidOperationException">Connection is not open.</exception>
     DbCommand IDirectSqlService.CreateCommand()
     {
-      EnsureConnectionIsOpen();
+      Prepare();
       return connection.CreateCommand();
     }
   }

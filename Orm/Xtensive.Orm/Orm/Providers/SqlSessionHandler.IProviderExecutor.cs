@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     IEnumerator<Tuple> IProviderExecutor.ExecuteTupleReader(QueryRequest request)
     {
-      EnsureConnectionIsOpen();
+      Prepare();
       var enumerator = commandProcessor.ExecuteTasksWithReader(request);
       using (enumerator) {
         while (enumerator.MoveNext())
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     void IProviderExecutor.Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
-      EnsureConnectionIsOpen();
+      Prepare();
       foreach (var tuple in tuples)
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
       commandProcessor.ExecuteTasks();
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     void IProviderExecutor.Clear(IPersistDescriptor descriptor)
     {
-      EnsureConnectionIsOpen();
+      Prepare();
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
       commandProcessor.ExecuteTasks();
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     void IProviderExecutor.Overwrite(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
-      EnsureConnectionIsOpen();
+      Prepare();
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
       foreach (var tuple in tuples)
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
