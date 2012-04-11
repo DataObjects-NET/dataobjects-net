@@ -23,10 +23,11 @@ namespace Xtensive.Orm.Providers
     IProviderExecutor,
     IDirectSqlService
   {
-    private StorageDriver driver;
-    private DomainHandler domainHandler;
-    private SqlConnection connection;
-    private CommandProcessor commandProcessor;
+    private readonly StorageDriver driver;
+    private readonly DomainHandler domainHandler;
+    private readonly SqlConnection connection;
+    private readonly CommandProcessor commandProcessor;
+
     private bool isDisposed;
 
     /// <inheritdoc/>
@@ -189,16 +190,16 @@ namespace Xtensive.Orm.Providers
       driver.CloseConnection(Session, connection);
     }
 
-    public SqlSessionHandler(Session session)
+    public SqlSessionHandler(Session session, SqlConnection connection)
       : base(session)
     {
-      prefetchManager = new PrefetchManager(Session);
+      this.connection = connection;
 
       domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;
 
-      connection = driver.CreateConnection(Session);
       commandProcessor = domainHandler.CommandProcessorFactory.CreateCommandProcessor(Session, connection);
+      prefetchManager = new PrefetchManager(Session);
     }
   }
 }

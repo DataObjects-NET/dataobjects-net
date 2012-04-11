@@ -401,7 +401,8 @@ namespace Xtensive.Orm
 
       // Handlers
       Handlers = domain.Handlers;
-      Handler = new SqlSessionHandler(this);
+      var connection = Handlers.StorageDriver.CreateConnection(this);
+      Handler = new SqlSessionHandler(this, connection);
 
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
