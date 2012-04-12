@@ -192,10 +192,12 @@ namespace Xtensive.Storage.Providers.Sql
       var storageExceptionInfo = GetStorageExceptionInfo(sqlExceptionInfo);
       var builder = new StringBuilder(Strings.SqlErrorOccured);
 
-      var storageErrorDetails = storageExceptionInfo.ToString();
-      if (!string.IsNullOrEmpty(storageErrorDetails)) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.StorageErrorDetailsX, storageErrorDetails);
+      if (storageExceptionInfo!=null) {
+        var storageErrorDetails = storageExceptionInfo.ToString();
+        if (!string.IsNullOrEmpty(storageErrorDetails)) {
+          builder.AppendLine();
+          builder.AppendFormat(Strings.StorageErrorDetailsX, storageErrorDetails);
+        }
       }
       var sqlErrorDetails = sqlExceptionInfo.ToString();
       if (!string.IsNullOrEmpty(sqlErrorDetails)) {
