@@ -56,13 +56,27 @@ namespace Xtensive.Orm.Rse
       return Name.GetHashCode();
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(Column left, Column right)
     {
       return Equals(left, right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(Column left, Column right)
     {
       return !Equals(left, right);

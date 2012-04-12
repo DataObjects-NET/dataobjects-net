@@ -441,7 +441,7 @@ namespace Xtensive.Orm
     // IDisposable implementation
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose()
     {

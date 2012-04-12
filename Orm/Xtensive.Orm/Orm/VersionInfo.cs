@@ -133,13 +133,27 @@ namespace Xtensive.Orm
       return Equals((VersionInfo) obj);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(VersionInfo left, VersionInfo right)
     {
       return !left.ConflictsWith(right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(VersionInfo left, VersionInfo right)
     {
       return left.ConflictsWith(right);

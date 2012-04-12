@@ -95,13 +95,27 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(IndexInfoRef x, IndexInfoRef y)
     {
       return Equals(x, y);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(IndexInfoRef x, IndexInfoRef y)
     {
       return !Equals(x, y);
