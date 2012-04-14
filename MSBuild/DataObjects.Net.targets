@@ -9,6 +9,10 @@
   <XtensiveOrmPath>$(MSBuildThisFileDirectory)</XtensiveOrmPath>
 </PropertyGroup>
 
+<PropertyGroup Condition="'$(XtensiveOrmPath)'!='' and '$(XtensiveOrmNoPostSharp)'==''">
+  <XtensiveOrmNoPostSharp Condition="!Exists('$(XtensiveOrmPath)Tools\PostSharp\PostSharp.targets')">true</XtensiveOrmNoPostSharp>
+</PropertyGroup>
+
 <Target Name="DetectXtensiveOrmPath"
         DependsOnTargets="ResolveAssemblyReferences"
         Condition="'$(XtensiveOrmPath)'==''">
