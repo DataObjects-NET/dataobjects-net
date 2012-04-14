@@ -25,7 +25,7 @@
   </PropertyGroup>
 </Target>
 
-<Target Name="CheckXtensiveOrmPath" DependsOnTargets="DetectXtensiveOrmPath">
+<Target Name="GetXtensiveOrmPath" DependsOnTargets="DetectXtensiveOrmPath">
   <Error Condition="'$(XtensiveOrmPath)'==''"
          Text="XtensiveOrmPath property is not set" />
   <Error Condition="!Exists('$(XtensiveOrmPath)')"
@@ -33,10 +33,10 @@
   <PropertyGroup>
     <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
   </PropertyGroup>
-  <Message Importance="low" Text="Detected XtensiveOrmPath '$(XtensiveOrmPath)'"/>
+  <Message Importance="low" Text="GetXtensiveOrmPath = '$(XtensiveOrmPath)'"/>
 </Target>
 
-<Target Name="RegisterXtensiveAspectsWeaver" DependsOnTargets="CheckXtensiveOrmPath">
+<Target Name="RegisterXtensiveAspectsWeaver" DependsOnTargets="GetXtensiveOrmPath">
   <PropertyGroup>
     <XtensiveAspectsWeaverPath>$(XtensiveOrmPath)Tools</XtensiveAspectsWeaverPath>
     <PostSharpSearchPath>$(PostSharpSearchPath);$(XtensiveAspectsWeaverPath)</PostSharpSearchPath>
