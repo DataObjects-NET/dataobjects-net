@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Copyright (C) 2011-2012 Xtensive LLC.
+  All rights reserved.
+  For conditions of distribution and use, see license.
+-->
+
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-<PropertyGroup Condition="'$(XtensiveOrmNoWeaver)'!='true'">
+<PropertyGroup>
+  <!-- Register configuration target for execution before PostSharp -->
   <PostSharp21DependsOn>$(PostSharp21DependsOn);RegisterXtensiveAspectsWeaver</PostSharp21DependsOn>
+  
+  <!-- Autodetect root folder (requires MSBuild 4.0 or later) -->
+  <XtensiveOrmPath Condition="'$(XtensiveOrmPath)'==''">$(MSBuildThisFileDirectory)</XtensiveOrmPath>
+  
+  <!-- Enable integrated PostSharp unless explicitly disabled by user -->
+  <XtensiveOrmIntegratedPostSharp Condition="'$(XtensiveOrmIntegratedPostSharp)'==''">true</XtensiveOrmIntegratedPostSharp>
 </PropertyGroup>
 
-<PropertyGroup Condition="'$(XtensiveOrmPath)'==''">
-  <XtensiveOrmPath>$(MSBuildThisFileDirectory)</XtensiveOrmPath>
-</PropertyGroup>
-
-<PropertyGroup Condition="'$(XtensiveOrmPath)'!='' and '$(XtensiveOrmNoPostSharp)'==''">
-  <XtensiveOrmNoPostSharp Condition="!Exists('$(XtensiveOrmPath)Tools\PostSharp\PostSharp.targets')">true</XtensiveOrmNoPostSharp>
-</PropertyGroup>
-
+<!-- Autodetect root folder by inspecting reference to Xtensive.Aspects
+     This works only if MSBuild 3.5 is used and user did not provide that path -->
 <Target Name="DetectXtensiveOrmPath"
         DependsOnTargets="ResolveAssemblyReferences"
         Condition="'$(XtensiveOrmPath)'==''">
@@ -24,12 +32,13 @@
   <Message Condition="Exists('$(XtensiveAspectsReferencePath)')"
            Importance="low"
            Text="Found Xtensive.Aspects.dll in '$(XtensiveAspectsReferencePath)'" />
-  <PropertyGroup Condition="'$(XtensiveOrmPath)'=='' and Exists('$(XtensiveAspectsReferencePath)')">
-    <XtensiveOrmPath>$(XtensiveAspectsReferencePath)..\..\</XtensiveOrmPath>
+  <PropertyGroup>
+    <XtensiveOrmPath Condition="Exists('$(XtensiveAspectsReferencePath)')">$(XtensiveAspectsReferencePath)..\..\</XtensiveOrmPath>
   </PropertyGroup>
 </Target>
 
-<Target Name="GetXtensiveOrmPath" DependsOnTargets="DetectXtensiveOrmPath">
+<!-- Validate that root path is set optionally triggering detection target -->
+<Target Name="ValidateXtensiveOrmPath" DependsOnTargets="DetectXtensiveOrmPath">
   <Error Condition="'$(XtensiveOrmPath)'==''"
          Text="XtensiveOrmPath property is not set" />
   <Error Condition="!Exists('$(XtensiveOrmPath)')"
@@ -37,10 +46,11 @@
   <PropertyGroup>
     <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
   </PropertyGroup>
-  <Message Importance="low" Text="GetXtensiveOrmPath = '$(XtensiveOrmPath)'"/>
+  <Message Importance="low" Text="Using XtensiveOrmPath = '$(XtensiveOrmPath)'"/>
 </Target>
 
-<Target Name="RegisterXtensiveAspectsWeaver" DependsOnTargets="GetXtensiveOrmPath">
+<!-- Add tools folder to PostSharp plugin search path path -->
+<Target Name="RegisterXtensiveAspectsWeaver" DependsOnTargets="ValidateXtensiveOrmPath">
   <PropertyGroup>
     <XtensiveAspectsWeaverPath>$(XtensiveOrmPath)Tools</XtensiveAspectsWeaverPath>
     <PostSharpSearchPath>$(PostSharpSearchPath);$(XtensiveAspectsWeaverPath)</PostSharpSearchPath>
@@ -48,7 +58,8 @@
   <Message Importance="low" Text="Added '$(XtensiveAspectsWeaverPath)' to PostSharpSearchPath"/>
 </Target>
 
-<Import Condition="'$(XtensiveOrmNoPostSharp)'!='true'"
+<!-- Import integrated PostSharp if required -->
+<Import Condition="'$(XtensiveOrmIntegratedPostSharp)'=='true'"
         Project="Tools\PostSharp\PostSharp.targets" />
 
 </Project>
