@@ -601,10 +601,10 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeTruncate, source);
     }
 
-    public static SqlFunctionCall IntervalConstruct(SqlExpression milliseconds)
+    public static SqlFunctionCall IntervalConstruct(SqlExpression nanoseconds)
     {
-      ArgumentValidator.EnsureArgumentNotNull(milliseconds, "milliseconds");
-      return new SqlFunctionCall(SqlFunctionType.IntervalConstruct, milliseconds);
+      ArgumentValidator.EnsureArgumentNotNull(nanoseconds, "nanoseconds");
+      return new SqlFunctionCall(SqlFunctionType.IntervalConstruct, nanoseconds);
     }
 
     public static SqlFunctionCall IntervalToMilliseconds(SqlExpression source)

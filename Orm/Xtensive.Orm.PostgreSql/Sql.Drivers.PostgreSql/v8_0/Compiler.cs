@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = SqlDml.Native("interval '1 month'");
     private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
-    private static readonly SqlNative OneMillisecondInterval = SqlDml.Native("interval '0.001 second'");
+    private static readonly SqlNative OneSecondInterval = SqlDml.Native("interval '1 second'");
 
     public override void Visit(SqlDeclareCursor node)
     {
@@ -38,6 +38,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override void Visit(SqlFunctionCall node)
     {
+      const double nanosecondsPerSecond = 1000000000.0;
+
       switch (node.FunctionType) {
       case SqlFunctionType.PadLeft:
       case SqlFunctionType.PadRight:
@@ -50,7 +52,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         SqlDml.Power(node.Arguments[0], 2).AcceptVisitor(this);
         return;
       case SqlFunctionType.IntervalConstruct:
-        (node.Arguments[0] * OneMillisecondInterval).AcceptVisitor(this);
+        ((node.Arguments[0] / SqlDml.Literal(nanosecondsPerSecond)) * OneSecondInterval).AcceptVisitor(this);
         return;
       case SqlFunctionType.IntervalToMilliseconds:
         SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
