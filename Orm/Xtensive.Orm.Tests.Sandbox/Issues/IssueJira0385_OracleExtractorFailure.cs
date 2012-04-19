@@ -21,6 +21,9 @@ namespace Xtensive.Orm.Tests.Issues
       public int Id { get; private set; }
 
       [Field]
+      public double? Duration { get; set; }
+
+      [Field]
       public DateTime DateFrom { get; set; }
 
       [Field]

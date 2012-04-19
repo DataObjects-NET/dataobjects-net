@@ -226,9 +226,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
         ValueRange.Decimal, 38, "number");
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
-        ValueRange.Float, "float");
+        ValueRange.Float, "real");
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
-        ValueRange.Double, "double precision");
+        ValueRange.Double, "double precision", "float");
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         ValueRange.DateTime, "timestamp");
       types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,

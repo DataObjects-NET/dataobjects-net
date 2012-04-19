@@ -14,9 +14,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v10
     {
       var types = base.GetDataTypesInfo();
       types.Float = DataTypeInfo.Range(SqlType.Float, types.Float.Features,
-        ValueRange.Float, "binary_float", "float");
+        ValueRange.Float, "binary_float", "real");
       types.Double = DataTypeInfo.Range(SqlType.Double, types.Double.Features,
-        ValueRange.Double, "binary_double", "double precision");
+        ValueRange.Double, "binary_double", "double precision", "float");
       return types;
     }
 
