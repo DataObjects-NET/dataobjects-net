@@ -49,7 +49,7 @@
   <Message Importance="low" Text="Using XtensiveOrmPath = '$(XtensiveOrmPath)'"/>
 </Target>
 
-<!-- Add tools folder to PostSharp plugin search path path -->
+<!-- Add tools folder to PostSharp plugin search path -->
 <Target Name="RegisterXtensiveAspectsWeaver" DependsOnTargets="ValidateXtensiveOrmPath">
   <PropertyGroup>
     <XtensiveAspectsWeaverPath>$(XtensiveOrmPath)Tools</XtensiveAspectsWeaverPath>
