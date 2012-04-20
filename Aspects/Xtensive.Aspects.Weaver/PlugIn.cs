@@ -128,14 +128,9 @@ namespace Xtensive.Aspects.Weaver
       return false;
     }
 
-    private  void TryCheckLicense(LicenseInfo licenseInfo)
+    private void TryCheckLicense(LicenseInfo licenseInfo)
     {
-      var checkRequired =
-        licenseInfo!=null
-        && licenseInfo.IsValid
-        && licenseInfo.LicenseType!=LicenseType.Ultimate
-        && licenseValidator.WeaverLicenseCheckIsRequired();
-
+      var checkRequired = licenseInfo.IsValid && licenseValidator.WeaverLicenseCheckIsRequired();
       if (!checkRequired)
         return;
 
@@ -143,7 +138,7 @@ namespace Xtensive.Aspects.Weaver
       var request = new InternetCheckRequest(
         companyLicenseData, licenseInfo.ExpireOn, licenseValidator.ProductVersion, licenseValidator.HardwareId);
       var result = InternetActivator.Check(request);
-      if (result.IsValid==false) {
+      if (result.IsValid==false && licenseInfo.RequiresHardwareLicense) {
         licenseValidator.InvalidateHardwareLicense();
         licenseInfo.HardwareKeyIsValid = false;
       }
