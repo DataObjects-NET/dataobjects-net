@@ -44,7 +44,7 @@ namespace Xtensive.Aspects.Weaver
     {
       base.Initialize();
 
-      licenseValidator = new LicenseValidator();
+      licenseValidator = new LicenseValidator(GetWeaverAssemblyLocation());
 
       var licenseInfo = licenseValidator.ReloadLicense();
       if (!ValidateTargetAssembly(licenseInfo))
@@ -152,7 +152,7 @@ namespace Xtensive.Aspects.Weaver
 
     private static void RunLicenseManager()
     {
-      var managerDir = Path.GetDirectoryName(Platform.Current.GetAssemblyLocation(typeof (PlugIn).Assembly));
+      var managerDir = Path.GetDirectoryName(GetWeaverAssemblyLocation());
       var managerExe = Path.Combine(managerDir, XtensiveLicensingManagerExe);
       var canRunManager =
         Environment.UserInteractive
@@ -162,7 +162,12 @@ namespace Xtensive.Aspects.Weaver
         Process.Start(new ProcessStartInfo(managerExe) {UseShellExecute = false});
     }
 
-    
+    private static string GetWeaverAssemblyLocation()
+    {
+      return Platform.Current.GetAssemblyLocation(typeof (PlugIn).Assembly);
+    }
+
+
     // Constructors
 
     public PlugIn()
