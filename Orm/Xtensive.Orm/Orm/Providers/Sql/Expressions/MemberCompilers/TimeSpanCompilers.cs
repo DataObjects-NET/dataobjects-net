@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
       SqlExpression seconds,
       SqlExpression milliseconds)
     {
-      var nanoseconds = NanosecondsPerMillisecond * (
-        milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days))));
+      var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days)));
+      var nanoseconds = NanosecondsPerMillisecond * SqlDml.Cast(m, SqlType.Int64);
       return SqlDml.IntervalConstruct(nanoseconds);
     }
 
