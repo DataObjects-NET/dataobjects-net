@@ -5,7 +5,7 @@
   <Major>4</Major>
   <Minor>5</Minor>
   <Patch>1</Patch>
-  <Modifier>RC2</Modifier>
+  <Modifier>CPV</Modifier>
   <BuildNumberBase>8751</BuildNumberBase>
 </PropertyGroup>
 
