@@ -23,12 +23,12 @@ namespace Xtensive.Orm.Tests.Storage
       [Field]
       public string Title { get; set; }
 
-      [Field]
+      [Version(VersionMode.Skip), Field]
       public string Description { get; set; }
 
       protected override bool UpdateVersion(Entity changedEntity, Orm.Model.FieldInfo changedField)
       {
-        if (changedField.Name=="Description")
+        if (changedField.SkipVersion)
           return false;
         return base.UpdateVersion(changedEntity, changedField);
       }
