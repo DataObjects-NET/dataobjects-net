@@ -28,6 +28,12 @@ namespace Xtensive.Orm.Tests.Upgrade
       public DateTime RegistrationDate { get; set; }
     }
 
+    public class RefStruct : Structure
+    {
+      [Field]
+      public Client Client { get; set; }
+    }
+
     [HierarchyRoot]
     public class ClientRef : Entity
     {
@@ -35,7 +41,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       public int Id { get; set; }
 
       [Field]
-      public Client Client { get; set; }
+      public RefStruct Ref { get; set; }
     }
 
     public class Upgrader : UpgradeHandler
@@ -65,6 +71,12 @@ namespace Xtensive.Orm.Tests.Upgrade
       public DateTime RegistrationDate { get; set; }
     }
 
+    public class RefStruct : Structure
+    {
+      [Field]
+      public Client Client { get; set; }
+    }
+
     [HierarchyRoot]
     public class ClientRef : Entity
     {
@@ -72,7 +84,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       public int Id { get; set; }
 
       [Field]
-      public Client Client { get; set; }
+      public RefStruct Ref { get; set; }
     }
 
     public class Upgrader : UpgradeHandler
@@ -89,7 +101,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         hints.Add(RenameTypeHint.Create<Contractor>(oldClientType));
         hints.Add(RenameTypeHint.Create<ClientRef>(oldClientRefType));
-      }
+      }
+
       public override bool CanUpgradeFrom(string oldVersion)
       {
         return true;
@@ -115,7 +128,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var session = domain1.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var client = new Model1.Client {Name = "TheClient", RegistrationDate = DateTime.Today};
-        var clientRef = new Model1.ClientRef {Client = client};
+        var clientRef = new Model1.ClientRef {Ref = {Client = client}};
         tx.Complete();
       }
 
@@ -127,7 +140,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         Assert.That(client.RegistrationDate, Is.EqualTo(DateTime.Today));
 
         var clientRef = Query.All<Model2.ClientRef>().Single();
-        Assert.That(clientRef.Client, Is.EqualTo(client));
+        Assert.That(clientRef.Ref.Client, Is.EqualTo(client));
       }
     }
   }
