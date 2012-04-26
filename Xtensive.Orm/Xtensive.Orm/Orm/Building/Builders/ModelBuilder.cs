@@ -263,10 +263,7 @@ namespace Xtensive.Orm.Building.Builders
           if (association.IsPaired)
             continue;
           if (!association.OnOwnerRemove.HasValue)
-            association.OnOwnerRemove = 
-              association.OwnerField.IsNullable
-              ? OnRemoveAction.Clear
-              : OnRemoveAction.None;
+            association.OnOwnerRemove = OnRemoveAction.None;
           if (!association.OnTargetRemove.HasValue)
             association.OnTargetRemove = OnRemoveAction.Deny;
         }
