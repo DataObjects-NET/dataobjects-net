@@ -20,7 +20,10 @@ namespace Xtensive.Orm.Tests.Model
       public int Id { get; private set; }
 
       [Field, Association(OnTargetRemove = OnRemoveAction.Cascade)]
-      public Target T { get; set; }
+      public Target T1 { get; set; }
+
+      [Field]
+      public EntitySet<Target> T2 { get; set; }
     }
 
     [HierarchyRoot]
@@ -33,6 +36,9 @@ namespace Xtensive.Orm.Tests.Model
 
   public class OnRemoveActionForNonPairedAssociationsTest : AutoBuildTest
   {
+    private Key o1Key;
+    private Key o2Key;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -40,13 +46,38 @@ namespace Xtensive.Orm.Tests.Model
       return configuration;
     }
 
-    [Test]
-    public void MainTest()
+    protected override void PopulateData()
     {
-      var owner = Domain.Model.Types[typeof (Owner)];
-      var association = owner.GetOwnerAssociations().Single();
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var o1 = new Owner {T1 = new Target()};
+        var o2 = new Owner {T2 = {new Target()}};
+        o1Key = o1.Key;
+        o2Key = o2.Key;
+        tx.Complete();
+      }
+    }
 
-      Assert.That(association.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+    [Test]
+    public void RemoveO1Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var o1 = Query.Single<Owner>(o1Key);
+        o1.Remove();
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void RemoveO2Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var o2 = Query.Single<Owner>(o2Key);
+        o2.Remove();
+        tx.Complete();
+      }
     }
   }
 }
