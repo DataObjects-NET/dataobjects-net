@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3
     [SetUp]
     public void SetUp()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("1", DomainUpgradeMode.Recreate);
       FillData();
     }

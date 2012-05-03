@@ -45,6 +45,11 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
   {
     private Key key;
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();

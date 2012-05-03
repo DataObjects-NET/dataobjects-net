@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     [SetUp]
     public void SetUp()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("1", DomainUpgradeMode.Recreate);
       storedModel = domain.Model.ToStoredModel();
       storedModel.UpdateReferences();

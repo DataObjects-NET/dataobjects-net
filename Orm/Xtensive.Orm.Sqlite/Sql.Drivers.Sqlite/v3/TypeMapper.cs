@@ -16,6 +16,7 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 {
   internal class TypeMapper : Sql.TypeMapper
   {
+		private const int BooleanPrecision = 1;
     private ValueRange<DateTime> dateTimeRange;
 
     public override bool IsLiteralCastRequired(Type type)
@@ -65,6 +66,12 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 //      else
 //        base.SetByteArrayParameterValue(parameter, value);
 //    }
+
+		public override object ReadBoolean(DbDataReader reader, int index)
+    {
+			var value = reader.GetDecimal(index);
+			return SQLiteConvert.ToBoolean(value);
+    }
 
     public override void SetSByteParameterValue(DbParameter parameter, object value)
     {

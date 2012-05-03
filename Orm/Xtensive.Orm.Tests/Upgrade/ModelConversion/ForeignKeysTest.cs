@@ -20,6 +20,11 @@ namespace Xtensive.Orm.Tests.Upgrade
   {
     private Domain domain;
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+    }
+
     [Test]
     public void MainTest()
     {

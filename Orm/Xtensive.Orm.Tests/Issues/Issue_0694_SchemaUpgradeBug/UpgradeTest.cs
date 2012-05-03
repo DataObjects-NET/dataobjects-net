@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
     [SetUp]
     public void SetUp()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {

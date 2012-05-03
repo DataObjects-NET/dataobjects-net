@@ -106,6 +106,8 @@ namespace Xtensive.Orm.Tests
         return  StorageProvider.MySql;
       case WellKnown.Provider.Firebird:
         return  StorageProvider.Firebird;
+      case WellKnown.Provider.Sqlite:
+        return  StorageProvider.Sqlite;
       default:
         throw new ArgumentOutOfRangeException("provider");
       }

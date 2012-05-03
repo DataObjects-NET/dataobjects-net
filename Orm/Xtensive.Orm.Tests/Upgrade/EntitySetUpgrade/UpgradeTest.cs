@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
     [SetUp]
     public void SetUp()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {

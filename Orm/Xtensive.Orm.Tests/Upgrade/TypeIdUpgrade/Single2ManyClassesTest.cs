@@ -15,6 +15,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
     [Test]
     public void CombinedTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Model.Person));

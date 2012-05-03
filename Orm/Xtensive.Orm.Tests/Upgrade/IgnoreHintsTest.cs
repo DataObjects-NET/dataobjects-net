@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void MainTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain(DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {

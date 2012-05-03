@@ -118,9 +118,9 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 						tableColumn.IsNullable = ReadInt(reader, 3)==0;
 
 						//Default Value
-						var defaultValue = ReadStringOrNull(reader, 4);
-						if (!string.IsNullOrEmpty(defaultValue))
-							tableColumn.DefaultValue = defaultValue;
+            var defaultValue = ReadStringOrNull(reader, 4);
+            if (!string.IsNullOrEmpty(defaultValue) && string.Compare("NULL", defaultValue, StringComparison.OrdinalIgnoreCase) != 0)
+              tableColumn.DefaultValue = defaultValue;
 
 						// Auto Increment
 						var autoInc = GetIncrementValue(tableName);

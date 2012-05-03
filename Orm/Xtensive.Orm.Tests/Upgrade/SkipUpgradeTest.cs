@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void CombinedTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
       var configurationTemplate = DomainConfigurationFactory.Create();
       configurationTemplate.Types.Register(typeof (BuildAgent).Assembly, typeof (BuildAgent).Namespace);
 

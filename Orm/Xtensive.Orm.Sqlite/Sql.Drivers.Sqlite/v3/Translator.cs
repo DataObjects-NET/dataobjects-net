@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 		/// <inheritdoc/>
 		public override string TimeSpanFormatString
 		{
-			get { return string.Empty; }
+			get { return @"{0}{1}"; }
 		}
 
 		public override string FloatFormatString
@@ -103,6 +103,57 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 			return base.Translate(functionType);
 		}
 
+    public override string Translate(SqlCompilerContext context, object literalValue)
+    {
+      var literalType = literalValue.GetType();
+      if (literalType == typeof(TimeSpan))
+        return TimeSpanToString(((TimeSpan) literalValue), TimeSpanFormatString);
+      else if (literalType == typeof(Boolean))
+        return ((Boolean)literalValue) ? "1" : "0";
+      else if (literalType == typeof(Guid))
+        return string.Format("'{0}'", ((Guid) literalValue)); 
+      else        
+        return base.Translate(context, literalValue);
+    }
+
+    public static string TimeSpanToString(TimeSpan value, string format)
+    {
+      int days = value.Days;
+      int hours = value.Hours;
+      int minutes = value.Minutes;
+      int seconds = value.Seconds;
+      int milliseconds = value.Milliseconds;
+
+      bool negative = false;
+
+      if (days < 0) {
+        days = -days;
+        negative = true;
+      }
+
+      if (hours < 0) {
+        hours = -hours;
+        negative = true;
+      }
+
+      if (minutes < 0) {
+        minutes = -minutes;
+        negative = true;
+      }
+
+      if (seconds < 0) {
+        seconds = -seconds;
+        negative = true;
+      }
+
+      if (milliseconds < 0) {
+        milliseconds = -milliseconds;
+        negative = true;
+      }
+
+      return String.Format(format, negative ? "-" : string.Empty, value.Ticks);
+    }
+
 		/// <inheritdoc/>
 		public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
 		{
@@ -114,7 +165,7 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 			case AlterTableSection.Exit:
 				return string.Empty;
 			default:
-				throw new NotSupportedException();
+			  throw new NotSupportedException();
 			}
 		}
 
@@ -139,8 +190,14 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 		/// <inheritdoc/>
 		public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
 		{
-			return string.Empty;
-		}
+      //switch (section) {
+      //  case SequenceDescriptorSection.Increment:
+      //    if (descriptor.Increment.HasValue)
+      //      return "AUTOINCREMENT";
+      //    return string.Empty;
+      //}
+      return string.Empty;
+    }
 
 		/// <inheritdoc/>
 		public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
@@ -399,7 +456,7 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 			case TableColumnSection.Exit:
 				return string.Empty;
 			case TableColumnSection.GeneratedExit:
-				return string.Empty;
+			    return string.Empty;
 			default:
 				return base.Translate(context, column, section);
 			}
@@ -462,7 +519,7 @@ namespace Xtensive.Sql.Drivers.SQLite.v3
 		{
 			switch (Type.GetTypeCode(type)) {
 			case TypeCode.Boolean:
-				return "bool";
+				return "bit";
 			case TypeCode.Byte:
 			case TypeCode.SByte:
 			case TypeCode.Int16:

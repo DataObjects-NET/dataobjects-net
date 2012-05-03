@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CountAfterFilterTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle | StorageProvider.Sqlite);
       var result =
         Session.Query.All<Customer>().Where(c => Session.Query.All<Order>()
           .Where(o => o.Customer==c)
