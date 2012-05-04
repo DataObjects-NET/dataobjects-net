@@ -83,5 +83,14 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.AreEqual(1000, defaultSession.EntityChangeRegistrySize);
       Assert.AreEqual(1000, defaultSession.Clone().EntityChangeRegistrySize);
     }
+
+    [Test]
+    public void SchemaSyncExceptionFormatTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithBriefSchemaSyncExceptions");
+      Assert.That(configuration.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
+      var clone = configuration.Clone();
+      Assert.That(clone.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
+    }
   }
 }

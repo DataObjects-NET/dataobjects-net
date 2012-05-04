@@ -285,6 +285,7 @@ namespace Xtensive.Orm.Building.Builders
       var context = BuildingContext.Demand();
       var domain = context.Domain;
       var upgradeHandler = domain.Handlers.SchemaUpgradeHandler;
+      var briefExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
 
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var schemas = BuildSchemasAsync(domain, upgradeHandler);
@@ -307,7 +308,7 @@ namespace Xtensive.Orm.Building.Builders
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
           var emptySchema = new StorageModel();
-          result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model);
+          result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model, briefExceptionFormat);
           if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
@@ -318,7 +319,7 @@ namespace Xtensive.Orm.Building.Builders
           }
         }
 
-        result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, schemaUpgradeMode, context.Model);
+        result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, schemaUpgradeMode, context.Model, briefExceptionFormat);
         if (!schemaUpgradeMode.In(SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate))
           Upgrade.Log.Info(result.ToString());
         if (Log.IsLogged(LogEventTypes.Info))

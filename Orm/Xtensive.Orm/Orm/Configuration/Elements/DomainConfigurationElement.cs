@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
+    private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -169,6 +170,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.SchemaSyncExceptionFormat" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(SchemaSyncExceptionFormatElementName, DefaultValue = "Default")]
+    public string SchemaSyncExceptionFormat
+    {
+      get { return (string) this[SchemaSyncExceptionFormatElementName]; }
+      set { this[SchemaSyncExceptionFormatElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.ForeignKeyMode" copy="true"/>
     /// </summary>
     [ConfigurationProperty(ForeignKeyModeElementName, DefaultValue = "Default")]
@@ -262,6 +273,7 @@ namespace Xtensive.Orm.Configuration.Elements
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
+        SchemaSyncExceptionFormat = (SchemaSyncExceptionFormat) Enum.Parse(typeof (SchemaSyncExceptionFormat), SchemaSyncExceptionFormat, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
         ForcedServerVersion = ForcedServerVersion,

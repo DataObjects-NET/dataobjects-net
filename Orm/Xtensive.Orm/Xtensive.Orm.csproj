@@ -113,6 +113,7 @@
     <Compile Include="Orm\Attributes\FullTextAttribute.cs" />
     <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
+    <Compile Include="Orm\Configuration\SchemaSyncExceptionFormat.cs" />
     <Compile Include="Orm\DbCommandEventArgs.cs" />
     <Compile Include="Orm\Exceptions\StorageExceptionInfo.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistration.cs" />

@@ -89,6 +89,7 @@ namespace Xtensive.Orm.Configuration
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion;
+    private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -298,6 +299,22 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets <see cref="SchemaSynchronizationException"/> format.
+    /// Default value is <see cref="Orm.Configuration.SchemaSyncExceptionFormat.Detailed"/>.
+    /// To get old format that was used in DataObjects.Net prior to version 4.5
+    /// set this to <see cref="Orm.Configuration.SchemaSyncExceptionFormat.Brief"/>.
+    /// </summary>
+    public SchemaSyncExceptionFormat SchemaSyncExceptionFormat
+    {
+      get { return schemaSyncExceptionFormat; }
+      set
+      {
+        this.EnsureNotLocked();
+        schemaSyncExceptionFormat = value;
+      }
+    }
+
+    /// <summary>
     /// Gets available session configurations.
     /// </summary>
     public SessionConfigurationCollection Sessions
@@ -405,6 +422,7 @@ namespace Xtensive.Orm.Configuration
       serviceContainerType = configuration.serviceContainerType;
       includeSqlInExceptions = configuration.includeSqlInExceptions;
       forcedServerVersion = configuration.forcedServerVersion;
+      schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
     }
 
     /// <summary>
