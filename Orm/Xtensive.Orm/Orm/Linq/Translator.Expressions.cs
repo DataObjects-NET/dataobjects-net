@@ -468,7 +468,7 @@ namespace Xtensive.Orm.Linq
           ? Expression.New(newExpression.Constructor, arguments)
           : Expression.New(newExpression.Constructor, arguments, newExpression.Members);
       }
-      var constructorParameters = newExpression.Constructor.GetParameters();
+      var constructorParameters = newExpression.GetConstructorParameters();
       if (constructorParameters.Length!=arguments.Count)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, Log.Instance);
       var duplicateMembers = new SetSlim<MemberInfo>();
@@ -982,7 +982,6 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
-      var constructor = mi.NewExpression.Constructor;
       var newExpression = mi.NewExpression;
       var arguments = VisitNewExpressionArguments(newExpression);
       var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();

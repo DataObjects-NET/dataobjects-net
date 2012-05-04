@@ -6,13 +6,13 @@
 
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Orm.Tests.Linq.DoubleAggregateTestModel;
+using Xtensive.Orm.Tests.Linq.DoubleAggregateToStructTestModel;
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  namespace DoubleAggregateTestModel
+  namespace DoubleAggregateToStructTestModel
   {
-    public class GroupInfo
+    public struct GroupInfo
     {
       public int Key { get; set; }
 
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
   }
 
-  public class DoubleAggregateTest : AutoBuildTest
+  public class DoubleAggregateToStructTest : AutoBuildTest
   {
     protected override Configuration.DomainConfiguration BuildConfiguration()
     {
