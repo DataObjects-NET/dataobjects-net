@@ -111,14 +111,19 @@ ORDER BY
     indexes.PCT_FREE,
     columns.COLUMN_POSITION,
     columns.COLUMN_NAME,
-    columns.DESCEND
+    columns.DESCEND,
+    expressions.COLUMN_EXPRESSION
 FROM
     SYS.ALL_IND_COLUMNS columns
     JOIN SYS.ALL_INDEXES indexes
         ON ((indexes.INDEX_NAME = columns.INDEX_NAME)
         AND (indexes.OWNER = columns.INDEX_OWNER))
+    LEFT JOIN SYS.ALL_IND_EXPRESSIONS expressions
+        ON ((columns.INDEX_NAME = expressions.INDEX_NAME)
+        AND (columns.INDEX_OWNER = expressions.INDEX_OWNER)
+        AND (columns.COLUMN_POSITION = expressions.COLUMN_POSITION))
 WHERE
-    indexes.INDEX_TYPE IN ('NORMAL', 'BITMAP')
+    indexes.INDEX_TYPE IN ('NORMAL', 'BITMAP', 'FUNCTION-BASED NORMAL', 'FUNCTION-BASED BITMAP')
     AND (indexes.TABLE_NAME {TABLE_FILTER})
     AND (indexes.TABLE_OWNER {SCHEMA_FILTER})
     AND ({INDEXES_FILTER})

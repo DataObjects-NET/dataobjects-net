@@ -33,7 +33,8 @@ namespace Xtensive.Orm.Upgrade
     public static SchemaComparisonResult Compare(
       StorageModel sourceSchema, StorageModel targetSchema, 
       HintSet schemaHints, SetSlim<UpgradeHint> upgradeHints,
-      SchemaUpgradeMode schemaUpgradeMode, DomainModel model)
+      SchemaUpgradeMode schemaUpgradeMode, DomainModel model,
+      bool briefExceptionFormat)
     {
       if (schemaHints == null)
         schemaHints = new HintSet(sourceSchema, targetSchema);
@@ -100,6 +101,14 @@ namespace Xtensive.Orm.Upgrade
         !createTableActions.Any() && 
         !createColumnActions.Any() && 
         !columnTypeChangeActions.Any();
+
+      if (briefExceptionFormat)
+        unsafeActions =
+          createTableActions.Cast<NodeAction>()
+            .Concat(createColumnActions.Cast<NodeAction>())
+            .Concat(columnTypeChangeActions.Cast<NodeAction>())
+            .ToList();
+
       return new SchemaComparisonResult(
         comparisonStatus, 
         columnTypeChangeActions.Any(), 

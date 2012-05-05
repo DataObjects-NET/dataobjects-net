@@ -99,6 +99,7 @@ namespace Xtensive.Orm.Configuration
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion;
     private bool buildInParallel = DefaultBuildInParallel;
+    private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
@@ -340,7 +341,23 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets available session configurations.
+    /// Gets or sets <see cref="SchemaSynchronizationException"/> format.
+    /// Default value is <see cref="Orm.Configuration.SchemaSyncExceptionFormat.Detailed"/>.
+    /// To get old format that was used in DataObjects.Net prior to version 4.5
+    /// set this to <see cref="Orm.Configuration.SchemaSyncExceptionFormat.Brief"/>.
+    /// </summary>
+    public SchemaSyncExceptionFormat SchemaSyncExceptionFormat
+    {
+      get { return schemaSyncExceptionFormat; }
+      set
+      {
+        this.EnsureNotLocked();
+        schemaSyncExceptionFormat = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets available session configurations.
     /// </summary>
     public SessionConfigurationCollection Sessions
     {
@@ -557,6 +574,7 @@ namespace Xtensive.Orm.Configuration
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
       forcedServerVersion = configuration.forcedServerVersion;
       buildInParallel = configuration.buildInParallel;
+      schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
       databaseAliases = (DatabaseAliasCollection) configuration.DatabaseAliases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();

@@ -262,6 +262,8 @@ namespace Xtensive.Orm.Building.Builders
           foreach (var association in inheritedAssociations) {
             if (!refField.Associations.Contains(association.Name))
               refField.Associations.Add(association);
+            if (!context.Model.Associations.Contains(association))
+              context.Model.Associations.Add(association);
           }
         }
       }
@@ -289,10 +291,7 @@ namespace Xtensive.Orm.Building.Builders
           if (association.IsPaired)
             continue;
           if (!association.OnOwnerRemove.HasValue)
-            association.OnOwnerRemove = 
-              association.OwnerField.IsNullable
-              ? OnRemoveAction.Clear
-              : OnRemoveAction.None;
+            association.OnOwnerRemove = association.OwnerField.IsEntitySet ? OnRemoveAction.Clear : OnRemoveAction.None;
           if (!association.OnTargetRemove.HasValue)
             association.OnTargetRemove = OnRemoveAction.Deny;
         }

@@ -85,6 +85,15 @@ namespace Xtensive.Orm.Tests.Configuration
     }
 
     [Test]
+    public void SchemaSyncExceptionFormatTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithBriefSchemaSyncExceptions");
+      Assert.That(configuration.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
+      var clone = configuration.Clone();
+      Assert.That(clone.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
+    }
+    
+    [Test]
     public void AdvancedMappingTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "AdvancedMappingTest");

@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version1
 {
-  public class UpgradeHandler : Upgrade.UpgradeHandler
+  public class UpgradeHandler : Orm.Upgrade.UpgradeHandler
   {
     public override bool CanUpgradeFrom(string oldVersion)
     {

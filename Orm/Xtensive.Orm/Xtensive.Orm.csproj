@@ -121,6 +121,7 @@
     <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
     <Compile Include="Orm\Building\Builders\IModelFilter.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
+    <Compile Include="Orm\Configuration\SchemaSyncExceptionFormat.cs" />
     <Compile Include="Orm\Configuration\DatabaseAlias.cs" />
     <Compile Include="Orm\Configuration\DatabaseAliasCollection.cs" />
     <Compile Include="Orm\Configuration\Elements\KeyGeneratorConfigurationElement.cs" />

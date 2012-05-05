@@ -8,7 +8,7 @@ using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version2
 {
-  public class UpgradeHandler : Upgrade.UpgradeHandler
+  public class UpgradeHandler : Orm.Upgrade.UpgradeHandler
   {
     public override bool CanUpgradeFrom(string oldVersion)
     {
@@ -28,5 +28,6 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version2
     protected override string DetectAssemblyVersion()
     {
       return "2";
-    }  }
+    }
+  }
 }

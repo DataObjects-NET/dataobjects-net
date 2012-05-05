@@ -277,8 +277,9 @@ namespace Xtensive.Orm.Upgrade
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
           return; // Skipping comparison completely
 
+        var breifExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
-          hints, context.Hints, schemaUpgradeMode, domain.Model);
+          hints, context.Hints, schemaUpgradeMode, domain.Model, breifExceptionFormat);
         var shouldDumpSchema = !schemaUpgradeMode.In(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema)

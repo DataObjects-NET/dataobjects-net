@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
     private const string BuildInParallelElementName = "buildInParallel";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
+    private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -171,6 +172,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (string) this[UpgradeModeElementName]; }
       set { this[UpgradeModeElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.SchemaSyncExceptionFormat" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(SchemaSyncExceptionFormatElementName, DefaultValue = "Default")]
+    public string SchemaSyncExceptionFormat
+    {
+      get { return (string) this[SchemaSyncExceptionFormatElementName]; }
+      set { this[SchemaSyncExceptionFormatElementName] = value; }
     }
 
     /// <summary>
@@ -329,6 +340,7 @@ namespace Xtensive.Orm.Configuration.Elements
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
         KeyGeneratorMode = (KeyGeneratorMode) Enum.Parse(typeof (KeyGeneratorMode), KeyGeneratorMode, true),
+        SchemaSyncExceptionFormat = (SchemaSyncExceptionFormat) Enum.Parse(typeof (SchemaSyncExceptionFormat), SchemaSyncExceptionFormat, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
         BuildInParallel = BuildInParallel,

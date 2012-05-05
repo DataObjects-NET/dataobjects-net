@@ -16,11 +16,13 @@ namespace Xtensive.Orm.Providers
   internal static class TimeSpanCompilers
   {
     private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
+
     private static readonly double MillisecondsPerDay = TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly double MillisecondsPerHour = TimeSpan.FromHours(1).TotalMilliseconds;
     private static readonly double MillisecondsPerMinute = TimeSpan.FromMinutes(1).TotalMilliseconds;
     private static readonly double MillisecondsPerSecond = TimeSpan.FromSeconds(1).TotalMilliseconds;
     private static readonly double MillisecondsPerTick = TimeSpan.FromTicks(1).TotalMilliseconds;
+
     private const int NanosecondsPerTick = 100;
     private const int NanosecondsPerMillisecond = 1000000;
 
@@ -33,9 +35,9 @@ namespace Xtensive.Orm.Providers
       SqlExpression seconds,
       SqlExpression milliseconds)
     {
-      // to be optimized
-      return SqlDml.IntervalConstruct(
-        milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days))));
+      var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days)));
+      var nanoseconds = NanosecondsPerMillisecond * SqlDml.Cast(m, SqlType.Int64);
+      return SqlDml.IntervalConstruct(nanoseconds);
     }
 
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
@@ -158,7 +160,7 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
-      return ExpressionTranslationHelpers.ToLong(SqlDml.IntervalToNanoseconds(_this) / 100);
+      return ExpressionTranslationHelpers.ToLong(SqlDml.IntervalToNanoseconds(_this) / NanosecondsPerTick);
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
