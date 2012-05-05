@@ -4,9 +4,9 @@
 <PropertyGroup>
   <Major>4</Major>
   <Minor>5</Minor>
-  <Patch>1</Patch>
-  <Modifier>Final</Modifier>
-  <BuildNumberBase>8751</BuildNumberBase>
+  <Patch>2</Patch>
+  <Modifier>RC</Modifier>
+  <BuildNumberBase>8828</BuildNumberBase>
 </PropertyGroup>
 
 </Project>
