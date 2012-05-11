@@ -53,7 +53,12 @@ namespace Xtensive.Orm.Building
 
     private static void InspectTypes()
     {
-      foreach (var typeDef in BuildingContext.Demand().ModelDef.Types)
+      // Process interfaces first because AddForeignKeyIndexAction implicitly requires
+      // all FK indexes on interfaces to be created before in can handle their implementors.
+
+      var typesToProcess = BuildingContext.Demand().ModelDef.Types.OrderBy(t => t.IsInterface ? 0 : 1);
+
+      foreach (var typeDef in typesToProcess)
         Inspect(typeDef);
     }
 
