@@ -23,7 +23,7 @@ namespace Xtensive.Orm
     private const string SavepointNameFormat = "s{0}";
 
     private int nextSavepoint;
-    
+
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
@@ -55,7 +55,7 @@ namespace Xtensive.Orm
     {
       return OpenTransaction(TransactionOpenMode.Default, isolationLevel, false);
     }
-    
+
     /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
@@ -101,8 +101,8 @@ namespace Xtensive.Orm
       case TransactionOpenMode.New:
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        return transaction!=null 
-          ? CreateNestedTransaction(isolationLevel, isAutomatic) 
+        return transaction!=null
+          ? CreateNestedTransaction(isolationLevel, isAutomatic)
           : CreateOutermostTransaction(isolationLevel, isAutomatic);
       default:
         throw new ArgumentOutOfRangeException("mode");
@@ -169,26 +169,26 @@ namespace Xtensive.Orm
     public TransactionScope OpenAutoTransaction(TransactionalBehavior behavior, IsolationLevel isolationLevel)
     {
       switch (behavior) {
-        case TransactionalBehavior.Auto:
-          if ((Configuration.Options & SessionOptions.AutoTransactionOpenMode) ==
-              SessionOptions.AutoTransactionOpenMode)
-            goto case TransactionalBehavior.Open;
-          if ((Configuration.Options & SessionOptions.AutoTransactionSuppressMode) ==
-              SessionOptions.AutoTransactionSuppressMode)
-            goto case TransactionalBehavior.Suppress;
-          goto case TransactionalBehavior.Require;
-        case TransactionalBehavior.Require:
-          return TransactionScope.VoidScopeInstance;
-        case TransactionalBehavior.Open:
-          if (IsDisconnected && Transaction!=null && !Transaction.IsDisconnected)
-            goto case TransactionalBehavior.New;
-          return OpenTransaction(TransactionOpenMode.Auto, isolationLevel, true);
-        case TransactionalBehavior.New:
-          return OpenTransaction(TransactionOpenMode.New, isolationLevel, true);
-        case TransactionalBehavior.Suppress:
-          return TransactionScope.VoidScopeInstance;
-        default:
-          throw new ArgumentOutOfRangeException();
+      case TransactionalBehavior.Auto:
+        if ((Configuration.Options & SessionOptions.AutoTransactionOpenMode)==
+          SessionOptions.AutoTransactionOpenMode)
+          goto case TransactionalBehavior.Open;
+        if ((Configuration.Options & SessionOptions.AutoTransactionSuppressMode)==
+          SessionOptions.AutoTransactionSuppressMode)
+          goto case TransactionalBehavior.Suppress;
+        goto case TransactionalBehavior.Require;
+      case TransactionalBehavior.Require:
+        return TransactionScope.VoidScopeInstance;
+      case TransactionalBehavior.Open:
+        if (IsDisconnected && Transaction!=null && !Transaction.IsDisconnected)
+          goto case TransactionalBehavior.New;
+        return OpenTransaction(TransactionOpenMode.Auto, isolationLevel, true);
+      case TransactionalBehavior.New:
+        return OpenTransaction(TransactionOpenMode.New, isolationLevel, true);
+      case TransactionalBehavior.Suppress:
+        return TransactionScope.VoidScopeInstance;
+      default:
+        throw new ArgumentOutOfRangeException();
       }
     }
 
@@ -205,10 +205,10 @@ namespace Xtensive.Orm
     {
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXCommittingTransaction, this);
-      
+
       SystemEvents.NotifyTransactionPrecommitting(transaction);
       Events.NotifyTransactionPrecommitting(transaction);
-      
+
       SystemEvents.NotifyTransactionCommitting(transaction);
       Events.NotifyTransactionCommitting(transaction);
 
@@ -237,17 +237,36 @@ namespace Xtensive.Orm
         }
         finally {
           try {
-            if (transaction.IsActuallyStarted)
-              if (transaction.IsNested)
-                Handler.RollbackToSavepoint(transaction);
+            if (transaction.IsActuallyStarted) {
+              if ((Configuration.Options & SessionOptions.SuppressRollbackExceptions)==SessionOptions.SuppressRollbackExceptions)
+                RollbackWithSuppression(transaction);
               else
-                Handler.RollbackTransaction(transaction);
+                Rollback(transaction);
+            }
           }
           finally {
             ClearChangeRegistry();
           }
         }
       }
+    }
+
+    private void RollbackWithSuppression(Transaction transaction)
+    {
+      try {
+        Rollback(transaction);
+      }
+      catch(Exception e) {
+        Log.Warning(e);
+      }
+    }
+
+    private void Rollback(Transaction transaction)
+    {
+      if (transaction.IsNested)
+        Handler.RollbackToSavepoint(transaction);
+      else
+        Handler.RollbackTransaction(transaction);
     }
 
     internal void CompleteTransaction(Transaction transaction)
