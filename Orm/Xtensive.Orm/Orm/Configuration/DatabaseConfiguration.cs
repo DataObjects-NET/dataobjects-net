@@ -16,9 +16,10 @@ namespace Xtensive.Orm.Configuration
   {
     private string name;
     private string alias;
+    private int typeIdSeed;
 
     /// <summary>
-    /// Gets database name (i.e. physical database name).
+    /// Gets or sets database name (i.e. physical database name).
     /// </summary>
     public string Name
     {
@@ -32,7 +33,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets database alias (i.e. logical database name).
+    /// Gets or sets database alias (i.e. logical database name).
     /// </summary>
     public string Alias
     {
@@ -41,6 +42,21 @@ namespace Xtensive.Orm.Configuration
       {
         this.EnsureNotLocked();
         alias = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets type ID initial value
+    /// for types mapped to this database.
+    /// </summary>
+    public int TypeIdSeed
+    {
+      get { return typeIdSeed; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, 0, "value");
+        this.EnsureNotLocked();
+        typeIdSeed = value;
       }
     }
 

@@ -16,13 +16,14 @@ namespace Xtensive.Orm.Configuration
   {
     /// <summary>
     /// Adds database configuration with the specified <paramref name="name"/>
-    /// and specified <paramref name="alias"/>.
+    /// and starts <see cref="IDatabaseConfigurationFlow"/>.
     /// </summary>
     /// <param name="name">Database name.</param>
-    /// <param name="alias">Alias name.</param>
-    public void Add(string name, string alias)
+    public IDatabaseConfigurationFlow Add(string name)
     {
-      Add(new DatabaseConfiguration(name) {Alias = alias});
+      var configuration = new DatabaseConfiguration(name);
+      Add(configuration);
+      return new DatabaseConfigurationFlow(configuration);
     }
 
     /// <inheritdoc />

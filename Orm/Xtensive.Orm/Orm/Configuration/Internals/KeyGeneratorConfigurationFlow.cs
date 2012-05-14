@@ -30,7 +30,6 @@ namespace Xtensive.Orm.Configuration
 
     // Constructors
 
-
     public KeyGeneratorConfigurationFlow(KeyGeneratorConfiguration configuration)
     {
       this.configuration = configuration;
