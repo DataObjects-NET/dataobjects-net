@@ -25,15 +25,23 @@ namespace Xtensive.Orm.Configuration
       Add(new DatabaseAlias(name, database));
     }
 
-
-    // Constructors
-
     /// <inheritdoc />
     public object Clone()
     {
-      var clone = new DatabaseAliasCollection();
-      clone.AddRange(this);
-      return clone;
+      var result = new DatabaseAliasCollection();
+      foreach (var alias in this)
+        result.Add(alias.Clone());
+      return result;
+    }
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      if (recursive)
+        foreach (var alias in this)
+          alias.Lock(true);
+
+      base.Lock(recursive);
     }
   }
 }

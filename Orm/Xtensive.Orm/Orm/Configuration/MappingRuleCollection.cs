@@ -53,9 +53,20 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc />
     public object Clone()
     {
-      var clone = new MappingRuleCollection();
-      clone.AddRange(this);
-      return clone;
+      var result = new MappingRuleCollection();
+      foreach (var rule in this)
+        result.Add(rule.Clone());
+      return result;
+    }
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      if (recursive)
+        foreach (var rule in this)
+          rule.Lock(true);
+
+      base.Lock(recursive);
     }
   }
 }

@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm.Model
 {
@@ -42,7 +41,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Creates new instance of this class.
     /// </summary>
     /// <param name="name">Node name.</param>
     public DatabaseInfo(string name)

@@ -15,16 +15,6 @@ namespace Xtensive.Orm.Configuration
   /// </summary>
   public sealed class KeyGeneratorConfigurationCollection : CollectionBaseSlim<KeyGeneratorConfiguration>, ICloneable
   {
-    /// <inheritdoc/>
-    public override void Lock(bool recursive)
-    {
-      if (recursive)
-        foreach (var generator in this)
-          generator.Lock(true);
-
-      base.Lock(recursive);
-    }
-
     /// <summary>
     /// Adds new <see cref="KeyGeneratorConfiguration"/> to this collection
     /// and starts <see cref="IKeyGeneratorConfigurationFlow"/>.
@@ -51,16 +41,23 @@ namespace Xtensive.Orm.Configuration
       return Add(typeof (TKeyType).GetShortName());
     }
 
-    /// <summary>
-    /// Clones this inctance
-    /// </summary>
-    /// <returns>Clone of this instance.</returns>
+    /// <inheritdoc/>
     public object Clone()
     {
-      var clone = new KeyGeneratorConfigurationCollection();
+      var result = new KeyGeneratorConfigurationCollection();
       foreach (var generator in this)
-        clone.Add(new KeyGeneratorConfiguration(generator));
-      return clone;
+        result.Add(generator.Clone());
+      return result;
+    }
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      if (recursive)
+        foreach (var generator in this)
+          generator.Lock(true);
+
+      base.Lock(recursive);
     }
   }
 }

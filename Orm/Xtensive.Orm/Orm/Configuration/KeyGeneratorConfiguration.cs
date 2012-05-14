@@ -6,7 +6,6 @@
 
 using Xtensive.Core;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm.Configuration
 {
@@ -55,7 +54,6 @@ namespace Xtensive.Orm.Configuration
       get { return seed; }
       set
       {
-        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, 0, "value");
         this.EnsureNotLocked();
         seed = value;
       }
@@ -76,23 +74,27 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Clones this instance.
     /// </summary>
+    /// <returns>Cloned instance.</returns>
+    public KeyGeneratorConfiguration Clone()
+    {
+      return new KeyGeneratorConfiguration(name) {
+        seed = seed,
+        database = database,
+        cacheSize = cacheSize,
+      };
+    }
+
+    /// <summary>
+    /// Creates new instance of this class
+    /// </summary>
+    /// <param name="name">Name of the key generator.</param>
     public KeyGeneratorConfiguration(string name)
     {
       Name = name;
       Seed = 0;
       CacheSize = DomainConfiguration.DefaultKeyGeneratorCacheSize;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public KeyGeneratorConfiguration(KeyGeneratorConfiguration other)
-    {
-      name = other.name;
-      seed = other.seed;
-      cacheSize = other.cacheSize;
     }
   }
 }

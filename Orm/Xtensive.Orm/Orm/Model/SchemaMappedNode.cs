@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm.Model
 {
@@ -49,15 +48,16 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Creates new instance of this class.
     /// </summary>
     protected SchemaMappedNode()
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Creates new instance of this class.
     /// </summary>
+    /// <param name="name">Node name</param>
     protected SchemaMappedNode(string name)
       : base(name)
     {
