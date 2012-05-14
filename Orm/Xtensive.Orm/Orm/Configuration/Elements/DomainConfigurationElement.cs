@@ -35,9 +35,8 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string DefaultDatabaseElementName = "defaultDatabase";
     private const string SessionsElementName = "sessions";
     private const string MappingRulesElementName = "mappingRules";
-    private const string DatabaseAliasesElementName = "databaseAliases";
+    private const string DatabasesElementName = "databases";
     private const string KeyGeneratorsElementName = "keyGenerators";
-    private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
     private const string KeyGeneratorModeElementName = "keyGeneratorMode";
@@ -235,20 +234,20 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.DatabaseAliases" copy="true"/>
+    /// <see cref="DomainConfiguration.Databases" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(DatabaseAliasesElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseAliasElement>), AddItemName = "alias")]
-    public ConfigurationCollection<DatabaseAliasElement> DatabaseAliases
+    [ConfigurationProperty(DatabasesElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "database")]
+    public ConfigurationCollection<DatabaseConfigurationElement> Databases
     {
-      get { return (ConfigurationCollection<DatabaseAliasElement>) this[DatabaseAliasesElementName]; }
+      get { return (ConfigurationCollection<DatabaseConfigurationElement>) this[DatabasesElementName]; }
     }
 
     /// <summary>
     /// <see cref="DomainConfiguration.KeyGenerators" copy="true"/>
     /// </summary>
     [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseAliasElement>), AddItemName = "keyGenerator")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "keyGenerator")]
     public ConfigurationCollection<KeyGeneratorConfigurationElement> KeyGenerators
     {
       get { return (ConfigurationCollection<KeyGeneratorConfigurationElement>) this[KeyGeneratorsElementName]; }
@@ -352,8 +351,8 @@ namespace Xtensive.Orm.Configuration.Elements
         config.Sessions.Add(element.ToNative());
       foreach (var element in MappingRules)
         config.MappingRules.Add(element.ToNative());
-      foreach (var element in DatabaseAliases)
-        config.DatabaseAliases.Add(element.ToNative());
+      foreach (var element in Databases)
+        config.Databases.Add(element.ToNative());
       foreach (var element in KeyGenerators)
         config.KeyGenerators.Add(element.ToNative());
 

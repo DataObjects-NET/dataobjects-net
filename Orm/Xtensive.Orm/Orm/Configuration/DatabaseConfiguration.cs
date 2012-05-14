@@ -12,12 +12,13 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Database alias entry.
   /// </summary>
-  public sealed class DatabaseAlias : LockableBase
+  public sealed class DatabaseConfiguration : LockableBase
   {
     private string name;
+    private string alias;
 
     /// <summary>
-    /// Gets name of this alias (i.e. logical database name).
+    /// Gets database name (i.e. physical database name).
     /// </summary>
     public string Name
     {
@@ -30,35 +31,34 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
-    private string database;
-
     /// <summary>
-    /// Gets database this alias targets (i.e. physical database name).
+    /// Gets database alias (i.e. logical database name).
     /// </summary>
-    public string Database
+    public string Alias
     {
-      get { return database; }
+      get { return alias; }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
         this.EnsureNotLocked();
-        database = value;
+        alias = value;
       }
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
-      return string.Format("{0} -> {1}", Name, Database);
+      if (string.IsNullOrEmpty(alias))
+        return Name;
+      return string.Format("{0} -> {1}", Alias, Name);
     }
 
     /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>Cloned instance.</returns>
-    public DatabaseAlias Clone()
+    public DatabaseConfiguration Clone()
     {
-      return new DatabaseAlias(name, database);
+      return new DatabaseConfiguration(name) {alias = alias};
     }
 
     // Constructors
@@ -66,15 +66,11 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Creates new instance of this class.
     /// </summary>
-    /// <param name="name">Alias name.</param>
-    /// <param name="database">Database name (alias target).</param>
-    public DatabaseAlias(string name, string database)
+    /// <param name="name">Database name.</param>
+    public DatabaseConfiguration(string name)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(database, "database");
-
       Name = name;
-      Database = database;
     }
   }
 }

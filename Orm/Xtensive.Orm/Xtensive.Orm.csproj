@@ -122,8 +122,8 @@
     <Compile Include="Orm\Building\Builders\IModelFilter.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
     <Compile Include="Orm\Configuration\SchemaSyncExceptionFormat.cs" />
-    <Compile Include="Orm\Configuration\DatabaseAlias.cs" />
-    <Compile Include="Orm\Configuration\DatabaseAliasCollection.cs" />
+    <Compile Include="Orm\Configuration\DatabaseConfiguration.cs" />
+    <Compile Include="Orm\Configuration\DatabaseConfigurationCollection.cs" />
     <Compile Include="Orm\Configuration\Elements\KeyGeneratorConfigurationElement.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IKeyGeneratorConfigurationFlow.cs" />
     <Compile Include="Orm\Configuration\Internals\KeyGeneratorConfigurationFlow.cs" />
@@ -132,7 +132,7 @@
     <Compile Include="Orm\Configuration\MappingRule.cs" />
     <Compile Include="Orm\Configuration\MappingRuleCollection.cs" />
     <Compile Include="Orm\Configuration\Internals\MappingRuleConstructionFlow.cs" />
-    <Compile Include="Orm\Configuration\Elements\DatabaseAliasElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\DatabaseConfigurationElement.cs" />
     <Compile Include="Orm\Configuration\Elements\MappingRuleElement.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IMappingRuleConstructionFlow.cs" />
     <Compile Include="Orm\DbCommandEventArgs.cs" />

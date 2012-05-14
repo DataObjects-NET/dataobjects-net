@@ -10,25 +10,25 @@ using Xtensive.Collections;
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
-  /// <see cref="DatabaseAlias"/> collection.
+  /// <see cref="DatabaseConfiguration"/> collection.
   /// </summary>
-  public sealed class DatabaseAliasCollection : CollectionBaseSlim<DatabaseAlias>, ICloneable
+  public sealed class DatabaseConfigurationCollection : CollectionBaseSlim<DatabaseConfiguration>, ICloneable
   {
     /// <summary>
-    /// Adds alias with the specified <paramref name="name"/>
-    /// targeting specified <paramref name="database"/>.
+    /// Adds database configuration with the specified <paramref name="name"/>
+    /// and specified <paramref name="alias"/>.
     /// </summary>
-    /// <param name="name">Alias name.</param>
-    /// <param name="database">Alias target.</param>
-    public void Add(string name, string database)
+    /// <param name="name">Database name.</param>
+    /// <param name="alias">Alias name.</param>
+    public void Add(string name, string alias)
     {
-      Add(new DatabaseAlias(name, database));
+      Add(new DatabaseConfiguration(name) {Alias = alias});
     }
 
     /// <inheritdoc />
     public object Clone()
     {
-      var result = new DatabaseAliasCollection();
+      var result = new DatabaseConfigurationCollection();
       foreach (var alias in this)
         result.Add(alias.Clone());
       return result;

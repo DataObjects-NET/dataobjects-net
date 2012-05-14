@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Configuration
     private bool buildInParallel = DefaultBuildInParallel;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
-    private DatabaseAliasCollection databaseAliases = new DatabaseAliasCollection();
+    private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
 
     private bool? isMultidatabase;
@@ -373,14 +373,14 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets registered database aliases.
     /// </summary>
-    public DatabaseAliasCollection DatabaseAliases
+    public DatabaseConfigurationCollection Databases
     {
-      get { return databaseAliases; }
+      get { return databases; }
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         this.EnsureNotLocked();
-        databaseAliases = value;
+        databases = value;
       }
     }
 
@@ -493,7 +493,7 @@ namespace Xtensive.Orm.Configuration
       types.Lock(true);
       sessions.Lock(true);
       linqExtensions.Lock(true);
-      databaseAliases.Lock(true);
+      databases.Lock(true);
       mappingRules.Lock(true);
       keyGenerators.Lock(true);
 
@@ -560,7 +560,7 @@ namespace Xtensive.Orm.Configuration
       forcedServerVersion = configuration.forcedServerVersion;
       buildInParallel = configuration.buildInParallel;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
-      databaseAliases = (DatabaseAliasCollection) configuration.DatabaseAliases.Clone();
+      databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
     }

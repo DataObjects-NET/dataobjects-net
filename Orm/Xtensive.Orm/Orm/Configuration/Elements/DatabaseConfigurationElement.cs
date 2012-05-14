@@ -12,16 +12,16 @@ namespace Xtensive.Orm.Configuration.Elements
   /// <summary>
   /// Database alias element within a configuration file.
   /// </summary>
-  public class DatabaseAliasElement : ConfigurationCollectionElementBase
+  public class DatabaseConfigurationElement : ConfigurationCollectionElementBase
   {
     private const string NameElementName = "name";
-    private const string DatabaseElementName = "database";
+    private const string AliasElementName = "alias";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
 
     /// <summary>
-    /// <see cref="DatabaseAlias.Name" copy="true"/>
+    /// <see cref="DatabaseConfiguration.Name" copy="true"/>
     /// </summary>
     [ConfigurationProperty(NameElementName, IsKey = true)]
     public string Name
@@ -31,22 +31,22 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DatabaseAlias.Database" copy="true"/>
+    /// <see cref="DatabaseConfiguration.Alias" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(DatabaseElementName)]
-    public string Database
+    [ConfigurationProperty(AliasElementName)]
+    public string Alias
     {
-      get { return (string) this[DatabaseElementName]; }
-      set { this[DatabaseElementName] = value; }
+      get { return (string) this[AliasElementName]; }
+      set { this[AliasElementName] = value; }
     }
 
     /// <summary>
-    /// Converts this instance to corresponding <see cref="DatabaseAlias"/>.
+    /// Converts this instance to corresponding <see cref="DatabaseConfiguration"/>.
     /// </summary>
     /// <returns>Result of conversion.</returns>
-    public DatabaseAlias ToNative()
+    public DatabaseConfiguration ToNative()
     {
-      return new DatabaseAlias(Name, Database);
+      return new DatabaseConfiguration(Name) {Alias = Alias};
     }
   }
 }

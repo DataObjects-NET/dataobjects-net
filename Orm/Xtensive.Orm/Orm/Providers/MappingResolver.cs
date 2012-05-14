@@ -202,8 +202,9 @@ namespace Xtensive.Orm.Providers
 
       public MultidatabaseResolver(DomainConfiguration configuration)
       {
-        aliasMap = configuration.DatabaseAliases
-          .ToDictionary(alias => alias.Name, alias => alias.Database);
+        aliasMap = configuration.Databases
+          .Where(item => !string.IsNullOrEmpty(item.Alias))
+          .ToDictionary(item => item.Alias, item => item.Name);
 
         defaultDatabase = configuration.DefaultDatabase;
         defaultSchema = configuration.DefaultSchema;
