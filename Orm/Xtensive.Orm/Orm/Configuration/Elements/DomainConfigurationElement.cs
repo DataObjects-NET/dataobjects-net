@@ -339,7 +339,6 @@ namespace Xtensive.Orm.Configuration.Elements
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
-        KeyGeneratorMode = (KeyGeneratorMode) Enum.Parse(typeof (KeyGeneratorMode), KeyGeneratorMode, true),
         SchemaSyncExceptionFormat = (SchemaSyncExceptionFormat) Enum.Parse(typeof (SchemaSyncExceptionFormat), SchemaSyncExceptionFormat, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,

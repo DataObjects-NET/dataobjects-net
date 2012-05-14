@@ -41,7 +41,6 @@ namespace Xtensive.Orm.Providers
     private readonly NamingConvention namingConvention;
     private readonly bool isMultidatabase;
     private readonly string defaultDatabase;
-    private readonly KeyGeneratorMode keyGeneratorMode;
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -543,14 +542,7 @@ namespace Xtensive.Orm.Providers
 
       // KeyGeneratorKind.Default:
 
-      switch (keyGeneratorMode) {
-      case KeyGeneratorMode.PerKeyType:
-        return key.SingleColumnType.GetShortName();
-      case KeyGeneratorMode.PerHierarchy:
-        return hierarchyDef.Root.UnderlyingType.GetShortName();
-      default:
-        throw new ArgumentOutOfRangeException("keyGeneratorMode");
-      }
+      return key.SingleColumnType.GetShortName();
     }
 
     /// <summary>
@@ -611,7 +603,6 @@ namespace Xtensive.Orm.Providers
       namingConvention = configuration.NamingConvention;
       isMultidatabase = configuration.IsMultidatabase;
       defaultDatabase = configuration.DefaultDatabase;
-      keyGeneratorMode = configuration.KeyGeneratorMode;
       maxIdentifierLength = providerInfo.MaxIdentifierLength;
 
       TypeIdColumnName = ApplyNamingRules(WellKnown.TypeIdFieldName);

@@ -475,23 +475,11 @@ namespace Xtensive.Orm.Building.Builders
         Seed = seed + cacheSize, // Preallocate keys for the first access
         Increment = cacheSize,
         MappingDatabase = hierarchyDef.Root.MappingDatabase,
-        MappingSchema = GetMappingSchema(hierarchyDef),
+        MappingSchema = context.Configuration.DefaultSchema,
         MappingName = context.NameBuilder.BuildSequenceName(key),
       };
 
       return sequence;
-    }
-
-    private string GetMappingSchema(HierarchyDef hierarchyDef)
-    {
-      switch (context.Configuration.KeyGeneratorMode) {
-      case KeyGeneratorMode.PerKeyType:
-        return context.Configuration.DefaultSchema;
-      case KeyGeneratorMode.PerHierarchy:
-        return hierarchyDef.Root.MappingSchema;
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
     }
 
     private bool IsSequenceBacked(KeyInfo key)
