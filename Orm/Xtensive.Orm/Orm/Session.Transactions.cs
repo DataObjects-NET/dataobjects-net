@@ -249,7 +249,7 @@ namespace Xtensive.Orm
         Rollback(transaction);
       }
       catch(Exception e) {
-        Log.Warning(e);
+        OrmLog.Warning(e);
       }
     }
 

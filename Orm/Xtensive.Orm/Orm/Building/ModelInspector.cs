@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Building
       var typesToProcess = context.ModelDef.Types.OrderBy(t => t.IsInterface ? 0 : 1);
 
       foreach (var typeDef in typesToProcess)
-        Inspect(typeDef);
+        Inspect(context, typeDef);
     }
 
     private static void InspectInterfaces(BuildingContext context)
