@@ -15,12 +15,6 @@ namespace Xtensive.Orm.Configuration
   public enum SessionOptions
   {
     /// <summary>
-    /// Default option set.
-    /// The same as <see cref="ServerProfile"/>.
-    /// </summary>
-    Default = ServerProfile,
-
-    /// <summary>
     /// None of <see cref="SessionOptions"/> is on.
     /// Value is <see langword="0x0"/>.
     /// </summary>
@@ -50,28 +44,28 @@ namespace Xtensive.Orm.Configuration
     /// this feature on Support@x-tensive.com</see> for further details and examples.
     /// </para>
     /// </remarks>
-    AllowSwitching = 0x10,
+    AllowSwitching = 1 << 4,
 
     /// <summary>
     /// Enables automatic activation of session on all public members of <see cref="ISessionBound"/> implementors 
     /// (e.g. <see cref="Entity"/>, <see cref="Structure"/> and their inheritors).
     /// </summary>
-    AutoActivation = 0x20,
+    AutoActivation = 1 << 5,
 
     /// <summary>
     /// <see cref="DisconnectedState"/> will be created and attached in the session constructor.
     /// </summary>
-    Disconnected = 0x40,
+    Disconnected = 1 << 6,
 
     /// <summary>
-    /// as <see cref="TransactionalBehavior.Suppress"/> when processing <see cref="TransactionalAttribute"/>.
+    /// Enables <see cref="TransactionalBehavior.Suppress"/> for automatic transactions.
     /// </summary>
-    AutoTransactionSuppressMode = 0x80,
+    AutoTransactionSuppressMode = 1 << 7,
 
     /// <summary>
-    /// Consider <see cref="TransactionalBehavior.Auto"/> option 
+    /// Enables <see cref="TransactionalBehavior.Auto"/> for automatic transactions.
     /// </summary>
-    AutoTransactionOpenMode = 0x100,
+    AutoTransactionOpenMode = 1 << 8,
 
     /// <summary>
     /// Enables reading of fields of removed objects.
@@ -79,7 +73,15 @@ namespace Xtensive.Orm.Configuration
     /// few other system properties of removed objects can be accessed.
     /// This option allows to read all the properties of removed objects, which values are available.
     /// </summary>
-    ReadRemovedObjects = 0x200,
+    ReadRemovedObjects = 1 << 9,
+
+    /// <summary>
+    /// Enables suppression of any exception occured during transaction rollback.
+    /// This option is useful if exception hiding occurs due to exceptions in <see cref="TransactionScope.Dispose"/>.
+    /// Any exception thrown in <see cref="SessionEventAccessor.TransactionRollbacking"/> event
+    /// will not be affected by this option.
+    /// </summary>
+    SuppressRollbackExceptions = 1 << 11,
 
     // Profiles
 
@@ -87,7 +89,7 @@ namespace Xtensive.Orm.Configuration
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
     /// Includes only <see cref="None"/> flag.
     /// </summary>
-    ServerProfile = None | 0x400,
+    ServerProfile = None | (1 << 10),
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
@@ -104,5 +106,11 @@ namespace Xtensive.Orm.Configuration
     /// <see cref="AutoActivation"/> flags.
     /// </summary>
     LegacyProfile = AutoTransactionOpenMode | AutoActivation,
+
+    /// <summary>
+    /// Default option set.
+    /// The same as <see cref="ServerProfile"/>.
+    /// </summary>
+    Default = ServerProfile,
   }
 }

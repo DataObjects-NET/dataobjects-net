@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Metadata
     /// Gets or sets the name of the extension.
     /// </summary>
     [Key]
-    [Field(Length = 500)]
+    [Field(Length = 1024)]
     public string Name { get; private set; }
 
     /// <summary>
