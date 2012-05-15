@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0028_StructureOnSetError_Model
   }
 }
 
-namespace Xtensive.Orm.Tests.Sandbox.Issues
+namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJIRA0028_StructureOnSetError : AutoBuildTest
   {
