@@ -13,13 +13,13 @@ using Xtensive.Sql.Tests;
 
 namespace Xtensive.Sql.Tests.Sqlite.v3
 {
-	[TestFixture]
-	[Explicit]
-	public class TypeMappingTest : Xtensive.Sql.Tests.TypeMappingTest
-	{
-		protected override string Url
-		{
-			get { return TestUrl.Sqlite3; }
-		}
-	}
+  [TestFixture]
+  [Explicit]
+  public class TypeMappingTest : Xtensive.Sql.Tests.TypeMappingTest
+  {
+    protected override string Url
+    {
+      get { return TestUrl.Sqlite3; }
+    }
+  }
 }
