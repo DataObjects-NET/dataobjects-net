@@ -6,17 +6,20 @@
 
 using Xtensive.Core;
 using Xtensive.Helpers;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
-  /// Database alias entry.
+  /// Database configuration entry.
   /// </summary>
   public sealed class DatabaseConfiguration : LockableBase
   {
     private string name;
     private string alias;
-    private int typeIdSeed;
+
+    private int minTypeId;
+    private int maxTypeId;
 
     /// <summary>
     /// Gets or sets database name (i.e. physical database name).
@@ -46,17 +49,33 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets type ID initial value
+    /// Gets or sets type ID minimal value
     /// for types mapped to this database.
+    /// Default value is 100.
     /// </summary>
-    public int TypeIdSeed
+    public int MinTypeId
     {
-      get { return typeIdSeed; }
+      get { return minTypeId; }
       set
       {
-        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, 0, "value");
+        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, TypeInfo.MinTypeId, "value");
         this.EnsureNotLocked();
-        typeIdSeed = value;
+        minTypeId = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets type ID maximal value
+    /// for types mapped to this database.
+    /// Default value is <see cref="int.MaxValue"/>.
+    /// </summary>
+    public int MaxTypeId
+    {
+      get { return maxTypeId; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, TypeInfo.MinTypeId, "value");
+        maxTypeId = value;
       }
     }
 
@@ -74,7 +93,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Cloned instance.</returns>
     public DatabaseConfiguration Clone()
     {
-      return new DatabaseConfiguration(name) {alias = alias};
+      return new DatabaseConfiguration(name) {
+        alias = alias,
+        minTypeId = minTypeId,
+        maxTypeId = maxTypeId,
+      };
     }
 
     // Constructors

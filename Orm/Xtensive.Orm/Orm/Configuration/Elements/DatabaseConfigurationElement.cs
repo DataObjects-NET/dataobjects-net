@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Configuration.Elements
   {
     private const string NameElementName = "name";
     private const string AliasElementName = "alias";
+    private const string MinTypeIdElementName = "minTypeId";
+    private const string MaxTypeIdElementName = "maxTypeId";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -41,12 +43,36 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DatabaseConfiguration.MinTypeId" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MinTypeIdElementName)]
+    public int MinTypeId
+    {
+      get { return (int) this[MinTypeIdElementName]; }
+      set { this[MinTypeIdElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DatabaseConfiguration.MaxTypeId" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MaxTypeIdElementName)]
+    public int MaxTypeId
+    {
+      get { return (int) this[MaxTypeIdElementName]; }
+      set { this[MaxTypeIdElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts this instance to corresponding <see cref="DatabaseConfiguration"/>.
     /// </summary>
     /// <returns>Result of conversion.</returns>
     public DatabaseConfiguration ToNative()
     {
-      return new DatabaseConfiguration(Name) {Alias = Alias};
+      return new DatabaseConfiguration(Name) {
+        Alias = Alias,
+        MinTypeId = MinTypeId,
+        MaxTypeId = MaxTypeId,
+      };
     }
   }
 }

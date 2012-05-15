@@ -16,9 +16,10 @@ namespace Xtensive.Orm.Configuration
       return this;
     }
 
-    public IDatabaseConfigurationFlow WithTypeIdSeed(int value)
+    public IDatabaseConfigurationFlow WithTypeIdRange(int minValue, int maxValue)
     {
-      configuration.TypeIdSeed = value;
+      configuration.MinTypeId = minValue;
+      configuration.MaxTypeId = maxValue;
       return this;
     }
 

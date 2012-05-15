@@ -19,10 +19,11 @@ namespace Xtensive.Orm.Configuration
     IDatabaseConfigurationFlow WithAlias(string alias);
 
     /// <summary>
-    /// Sets <see cref="DatabaseConfiguration.TypeIdSeed"/> for current <see cref="DatabaseConfiguration"/>.
+    /// Sets <see cref="DatabaseConfiguration.MinTypeId"/> for current <see cref="DatabaseConfiguration"/>.
     /// </summary>
-    /// <param name="value">Type ID seed value.</param>
+    /// <param name="minValue">Minimal type ID value.</param>
+    /// <param name="maxValue">Maximal type ID value.</param>
     /// <returns>Configuration flow.</returns>
-    IDatabaseConfigurationFlow WithTypeIdSeed(int value);
+    IDatabaseConfigurationFlow WithTypeIdRange(int minValue, int maxValue);
   }
 }
