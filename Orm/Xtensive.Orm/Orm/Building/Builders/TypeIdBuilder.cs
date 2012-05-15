@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Building.Builders
       var result = domain.Model.Types
         .Where(t => t.TypeId >= minTypeId && t.TypeId <= maxTypeId)
         .Select(t => t.TypeId)
-        .DefaultIfEmpty(TypeInfo.MinTypeId)
+        .DefaultIfEmpty(minTypeId)
         .Max();
       if (result==maxTypeId)
         throw new InvalidOperationException(string.Format(
