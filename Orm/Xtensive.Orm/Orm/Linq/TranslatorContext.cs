@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Linq
       columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
       CustomCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
       Model = domain.Model;
-      ProviderInfo = domain.Handler.ProviderInfo;
+      ProviderInfo = domain.Handlers.ProviderInfo;
       Translator = new Translator(this);
       ParameterExtractor = new ParameterExtractor(Evaluator);
       Bindings = new LinqBindingCollection();

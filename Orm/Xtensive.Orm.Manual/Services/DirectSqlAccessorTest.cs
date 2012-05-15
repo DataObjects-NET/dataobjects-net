@@ -43,12 +43,6 @@ namespace Xtensive.Orm.Manual.Services
 
       using (var session = domain.OpenSession()) {
         var directSql = session.Services.Demand<DirectSqlAccessor>();
-        if (!directSql.IsAvailable) {
-          Console.WriteLine("DirectSqlAccessor is not available - ");
-          Console.WriteLine("indexing storage provider (e.g. memory) is used.");
-          return;
-        }
-
         using (var t = session.OpenTransaction()) {
           var article = new Article(session) {Title = "Some title", Content = "Some content"};
           session.SaveChanges(); // Ensures changes are flushed

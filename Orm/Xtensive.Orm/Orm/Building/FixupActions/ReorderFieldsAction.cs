@@ -4,19 +4,17 @@
 // Created by: Dmitri Maximov
 // Created:    2009.05.28
 
-using System;
 using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  [Serializable]
   internal class ReorderFieldsAction : HierarchyAction
   {
     public TypeDef Target { get; private set; }
 
-    public override void Run()
+    public override void Run(FixupActionProcessor processor)
     {
-      FixupActionProcessor.Process(this);
+      processor.Process(this);
     }
 
     public override string ToString()

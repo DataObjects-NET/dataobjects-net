@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Testing;

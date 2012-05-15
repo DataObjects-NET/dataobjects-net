@@ -5,7 +5,7 @@
 // Created:    2008.12.30
 
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 namespace Xtensive.Orm.Upgrade
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="context">The context.</param>
     internal UpgradeScope(UpgradeContext context) 

@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -68,8 +68,8 @@ namespace Xtensive.Orm
     {
       var result = ValidateVersion(key, version);
       if (throwOnFailure && !result) {
-        if (Log.IsLogged(LogEventTypes.Info))
-          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+        if (OrmLog.IsLogged(LogEventTypes.Info))
+          OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             Session, key, version, expectedVersionProvider.Invoke(key));
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
@@ -370,8 +370,10 @@ namespace Xtensive.Orm
     }
 
     // Dispose
-    
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
     public void Dispose()
     {
       try {

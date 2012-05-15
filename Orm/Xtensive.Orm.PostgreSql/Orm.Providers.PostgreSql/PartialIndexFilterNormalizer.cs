@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
-  public class PartialIndexFilterNormalizer : Sql.PartialIndexFilterNormalizer
+  public class PartialIndexFilterNormalizer : Providers.PartialIndexFilterNormalizer
   {
     /// <inheritdoc/>
     public override string Normalize(string expression)

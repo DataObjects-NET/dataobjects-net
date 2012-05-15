@@ -29,10 +29,7 @@ namespace Xtensive.Orm.Providers
     /// Clears transaction-related caches.
     /// This method is called for non-actual transactions as well.
     /// </summary>    
-    public virtual void CompletingTransaction(Transaction transaction)
-    {
-      prefetchManager.CancelTasks();
-    }
+    public abstract void CompletingTransaction(Transaction transaction);
 
     /// <summary>
     /// Commits the transaction.
@@ -62,27 +59,5 @@ namespace Xtensive.Orm.Providers
     /// Rollbacks to savepoint.
     /// </summary>
     public abstract void RollbackToSavepoint(Transaction transaction);
-
-    /// <summary>
-    /// Gets the name of the savepoint associated with the transaction.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
-    /// <returns>The name of the savepoint</returns>
-    public string GetSavepointName(Transaction transaction)
-    {
-      return transaction.SavepointName;
-    }
-
-
-    /// <summary>
-    /// Ensures the transaction is opened.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Transaction is not opened.</exception>
-    protected void EnsureTransactionIsOpened()
-    {
-      var transaction = Session.Transaction;
-      if (transaction == null)
-        throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
-    }
   }
 }

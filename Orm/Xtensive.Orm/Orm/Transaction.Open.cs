@@ -279,11 +279,9 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       switch (behavior) {
         case TransactionalBehavior.Auto:
-          if ((session.Configuration.Options & SessionOptions.AutoTransactionOpenMode) ==
-              SessionOptions.AutoTransactionOpenMode)
+          if (session.Configuration.Supports(SessionOptions.AutoTransactionOpenMode))
             goto case TransactionalBehavior.Open;
-          if ((session.Configuration.Options & SessionOptions.AutoTransactionSuppressMode) ==
-              SessionOptions.AutoTransactionSuppressMode)
+          if (session.Configuration.Supports(SessionOptions.AutoTransactionSuppressMode))
             goto case TransactionalBehavior.Suppress;
           goto case TransactionalBehavior.Require;
         case TransactionalBehavior.Require:

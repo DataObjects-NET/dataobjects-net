@@ -35,6 +35,18 @@ namespace Xtensive.Orm.Model.Stored
     public string HierarchyRoot;
 
     /// <summary>
+    /// <see cref="SchemaMappedNode.MappingDatabase"/>
+    /// </summary>
+    [DefaultValue("")]
+    public string MappingSchema;
+
+    /// <summary>
+    /// <see cref="SchemaMappedNode.MappingDatabase"/>
+    /// </summary>
+    [DefaultValue("")]
+    public string MappingDatabase;
+
+    /// <summary>
     /// <see cref="TypeInfo.Hierarchy"/>.
     /// </summary>
     [XmlIgnore]

@@ -5,16 +5,22 @@
 // Created:    2009.04.23
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Reflection;
-using Xtensive.Modelling.Actions;
+using Xtensive.Diagnostics;
+using Xtensive.IoC;
+using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
-
+using Xtensive.Reflection;
+using Xtensive.Sorting;
+using Xtensive.Sql;
 using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Upgrade
@@ -22,8 +28,13 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Builds domain in extended modes.
   /// </summary>
-  public static class UpgradingDomainBuilder
+  public sealed class UpgradingDomainBuilder
   {
+    private readonly UpgradeContext context;
+    private readonly DomainUpgradeMode upgradeMode;
+
+    private FutureResult<SqlWorkerResult> workerResult;
+
     /// <summary>
     /// Builds the new <see cref="Domain"/> by the specified configuration.
     /// </summary>
@@ -36,106 +47,201 @@ namespace Xtensive.Orm.Upgrade
     public static Domain Build(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+
       if (configuration.ConnectionInfo==null)
         throw new ArgumentNullException("configuration.ConnectionInfo", Strings.ExConnectionInfoIsMissing);
-      configuration.Lock();
+
+      if (!configuration.IsLocked)
+        configuration.Lock();
       var context = new UpgradeContext(configuration);
+
       using (context.Activate()) {
-        // 1st Domain
-        try {
-          BuildStageDomain(UpgradeStage.Initializing).DisposeSafely();
-        }
-        catch (Exception e) {
-          if (GetInnermostException(e) is SchemaSynchronizationException) {
-            if (context.SchemaUpgradeActions.OfType<RemoveNodeAction>().Any())
-              throw; // There must be no any removes to proceed further 
-                     // (i.e. schema should be clean)
-          }
-          else
-            throw;
-        }
+        return new UpgradingDomainBuilder(context).Run();
+      }
+    }
 
-        // 2nd Domain
-        BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
+    private Domain Run()
+    {
+      BuildServices();
 
-        // 3rd Domain
-        var domain = BuildStageDomain(UpgradeStage.Final);
+      workerResult = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
+
+      using (workerResult) {
+        var domain = upgradeMode.IsMultistage()
+          ? BuildMultistageDomain()
+          : BuildSingleStageDomain();
         foreach (var module in context.Modules)
           module.OnBuilt(domain);
         return domain;
       }
     }
 
-    /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
-    private static Domain BuildStageDomain(UpgradeStage stage)
+    private FutureResult<T> CreateResult<T>(Func<T> action)
     {
-      var context = UpgradeContext.Current;
-      var configuration = context.Configuration = context.OriginalConfiguration.Clone();
-      context.Stage = stage;
-      // Raising "Before upgrade" event
-      foreach (var handler in context.OrderedUpgradeHandlers)
-        handler.OnBeforeStage();
-
-      var schemaUpgradeMode = GetUpgradeMode(stage, configuration.UpgradeMode);
-      if (schemaUpgradeMode==null)
-        return null;
-      return DomainBuilder.BuildDomain(
-        configuration, CreateBuilderConfiguration(schemaUpgradeMode.Value));
+      return new FutureResult<T>(action, context.Configuration.BuildInParallel);
     }
 
-    private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
+    private Domain BuildMultistageDomain()
     {
-      var context = UpgradeContext.Current;
-      return new DomainBuilderConfiguration(schemaUpgradeMode, context.Modules, context.Services) {
-        TypeFilter = type => {
-          var assembly = type.Assembly;
-          var handlers = context.UpgradeHandlers;
-          return handlers.ContainsKey(assembly)
-            && DomainTypeRegistry.IsPersistentType(type)
-            && handlers[assembly].IsTypeAvailable(type, context.Stage);
-        },
-        FieldFilter = field => {
-          var assembly = field.DeclaringType.Assembly;
-          var handlers = context.UpgradeHandlers;
-          return handlers.ContainsKey(assembly)
-            && handlers[assembly].IsFieldAvailable(field, context.Stage);
-        },
-        SchemaReadyHandler = (extractedSchema, targetSchema) => {
-          context.SchemaHints = new HintSet(extractedSchema, targetSchema);
-          if (context.Stage==UpgradeStage.Upgrading)
-            BuildSchemaHints(extractedSchema, targetSchema);
-          return context.SchemaHints;
-        },
-        UpgradeActionsReadyHandler = (schemaDifference, schemaUpgradeActions) => {
-          context.SchemaDifference = schemaDifference;
-          context.SchemaUpgradeActions = schemaUpgradeActions;
-        },
-        UpgradeHandler = () => {
-          foreach (var handler in context.OrderedUpgradeHandlers)
-            handler.OnStage();
-        },
-        TypeIdProvider = (type => ProvideTypeId(context, type)),
+      Domain finalDomain;
+      using (var finalDomainResult = CreateResult(CreateBuilder(UpgradeStage.Final))) {
+        using (var upgradeDomain = CreateBuilder(UpgradeStage.Upgrading).Invoke()) {
+          PerformUpgrade(upgradeDomain, UpgradeStage.Upgrading);
+        }
+        finalDomain = finalDomainResult.Get();
+      }
+      PerformUpgrade(finalDomain, UpgradeStage.Final);
+      return finalDomain;
+    }
+
+    private Domain BuildSingleStageDomain()
+    {
+      var domain = CreateBuilder(UpgradeStage.Final).Invoke();
+      PerformUpgrade(domain, UpgradeStage.Final);
+      return domain;
+    }
+
+    private void BuildServices()
+    {
+      var configuration = context.Configuration;
+      var descriptor = ProviderDescriptor.Get(configuration.ConnectionInfo.Provider);
+      var driverFactory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
+      var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
+      var driver = StorageDriver.Create(driverFactory, configuration);
+
+      var serviceAccessor = new UpgradeServiceAccessor {
+        Configuration = configuration,
+        HandlerFactory = handlerFactory,
+        Driver = driver,
+        NameBuilder = new NameBuilder(configuration, driver.ProviderInfo),
+        Normalizer = handlerFactory.CreateHandler<PartialIndexFilterNormalizer>(),
+        Resolver = MappingResolver.Get(configuration, driver.ProviderInfo),
       };
+
+      var standardRegistrations = new[] {
+        new ServiceRegistration(typeof (DomainConfiguration), configuration),
+        new ServiceRegistration(typeof (UpgradeContext), context)
+      };
+
+      var modules = configuration.Types.Modules
+        .Select(type => new ServiceRegistration(typeof (IModule), type, false));
+
+      var handlers = configuration.Types.UpgradeHandlers
+        .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
+
+      var registrations = standardRegistrations
+        .Concat(modules)
+        .Concat(handlers);
+
+      using (var serviceContainer = new ServiceContainer(registrations)) {
+        serviceAccessor.Modules = new ReadOnlyList<IModule>(serviceContainer.GetAll<IModule>().ToList());
+        BuildUpgradeHandlers(serviceAccessor, serviceContainer);
+      }
+
+      serviceAccessor.Lock();
+
+      context.Services = serviceAccessor;
+      context.TypeIdProvider = new TypeIdProvider(context);
     }
 
-    private static Exception GetInnermostException(Exception exception)
+    /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
+    private static void BuildUpgradeHandlers(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
-      ArgumentValidator.EnsureArgumentNotNull(exception, "exception");
-      var current = exception;
-      while (current.InnerException!=null)
-        current = current.InnerException;
-      return current;
+      // Getting user handlers
+      var userHandlers =
+        from handler in serviceContainer.GetAll<IUpgradeHandler>()
+        let assembly = handler.Assembly ?? handler.GetType().Assembly
+        where handler.IsEnabled
+        group handler by assembly;
+
+      // Adding user handlers
+      var handlers = new Dictionary<Assembly, IUpgradeHandler>();
+      foreach (var group in userHandlers) {
+        var handler = group.SingleOrDefault();
+        if (handler==null)
+          throw new DomainBuilderException(
+            Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY.FormatWith(
+              typeof (IUpgradeHandler).GetShortName(), group.Key));
+        handlers.Add(group.Key, handler);
+      }
+
+      // Adding default handlers
+      var assembliesWithUserHandlers = handlers.Select(pair => pair.Key);
+      var assembliesWithoutUserHandler = 
+        serviceAccessor.Configuration.Types.PersistentTypes
+          .Select(type => type.Assembly)
+          .Distinct()
+          .Except(assembliesWithUserHandlers);
+
+      foreach (var assembly in assembliesWithoutUserHandler) {
+        var handler = new UpgradeHandler(assembly);
+        handlers.Add(assembly, handler);
+      }
+
+      // Building a list of handlers sorted by dependencies of their assemblies
+      var dependencies = handlers.Keys.ToDictionary(
+        assembly => assembly,
+        assembly => assembly.GetReferencedAssemblies().Select(assemblyName => assemblyName.ToString()).ToHashSet());
+      var sortedHandlers =
+        from pair in 
+          TopologicalSorter.Sort(handlers, 
+            (a0, a1) => dependencies[a1.Key].Contains(a0.Key.GetName().ToString()))
+        select pair.Value;
+
+      // Storing the result
+      serviceAccessor.UpgradeHandlers = 
+        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
+      serviceAccessor.OrderedUpgradeHandlers = 
+        new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
     }
 
-    private static void BuildSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
+    /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
+    private void PerformUpgrade(Domain domain, UpgradeStage stage)
     {
-      var context = UpgradeContext.Demand();
+      context.Stage = stage;
+
+      OnBeforeStage();
+
+      using (var session = domain.OpenSession(SessionType.System))
+      using (session.Activate())
+      using (var upgrader = new SchemaUpgrader(context, session)) {
+        var extractor = new SchemaExtractor(context, session);
+        SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
+        domain.Handler.BuildMapping(extractor.GetSqlSchema());
+        OnStage();
+        upgrader.Complete();
+      }
+    }
+
+    private Func<Domain> CreateBuilder(UpgradeStage stage)
+    {
+      var configuration = new DomainBuilderConfiguration {
+        DomainConfiguration = context.Configuration,
+        Stage = stage,
+        Services = context.Services,
+        ModelFilter = new StageModelFilter(context.UpgradeHandlers, stage)
+      };
+      configuration.Lock();
+      Func<DomainBuilderConfiguration, Domain> builder = DomainBuilder.Run;
+      return builder.Bind(configuration);
+    }
+
+    private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
+    {
+      context.SchemaHints = new HintSet(extractedSchema, targetSchema);
+      if (context.Stage==UpgradeStage.Upgrading)
+        BuildSchemaHints(extractedSchema);
+      return context.SchemaHints;
+    }
+
+    private void BuildSchemaHints(StorageModel extractedSchema)
+    {
       var oldModel = context.ExtractedDomainModel;
       if (oldModel==null)
         return;
-      var newModel = Domain.Demand().Model;
-      var hintGenerator = new HintGenerator(oldModel, newModel, extractedSchema);
-      var hints = hintGenerator.GenerateHints(context.Hints);
+      var handlers = Domain.Demand().Handlers;
+      var hintGenerator = new HintGenerator(handlers, oldModel, extractedSchema, context.Hints);
+      var hints = hintGenerator.Run();
       context.Hints.Clear();
       foreach (var modelHint in hints.ModelHints)
         context.Hints.Add(modelHint);
@@ -144,91 +250,124 @@ namespace Xtensive.Orm.Upgrade
           context.SchemaHints.Add(schemaHint);
         }
         catch (Exception error) {
-          Log.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
+          UpgradeLog.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
         }
       }
     }
 
-    private static int ProvideTypeId(UpgradeContext context, Type type)
+    private void SynchronizeSchema(
+      Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
-      var typeId = ModelTypeInfo.NoTypeId;
-      var oldModel = context.ExtractedDomainModel;
-      if (oldModel==null && context.ExtractedTypeMap==null)
-        return typeId;
+      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+        var extractedSchema = extractor.GetSchema();
+        var targetSchema = domain.StorageModel = GetTargetModel(domain);
 
-      // type has been renamed?
-      var fullName = type.GetFullName();
-      var renamer = context.Hints.OfType<RenameTypeHint>()
-        .SingleOrDefault(hint => hint.NewType.GetFullName()==fullName);
-      if (renamer!=null) {
-        if (context.ExtractedTypeMap.TryGetValue(renamer.OldType, out typeId))
-          return typeId;
-        if (oldModel!=null)
-          return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
+        if (UpgradeLog.IsLogged(LogEventTypes.Info)) {
+          UpgradeLog.Info(Strings.LogExtractedSchema);
+          extractedSchema.Dump();
+          UpgradeLog.Info(Strings.LogTargetSchema);
+          targetSchema.Dump();
+        }
+
+        // Hints
+        var hints = GetSchemaHints(extractedSchema, targetSchema);
+        foreach (var handler in context.OrderedUpgradeHandlers)
+          handler.OnSchemaReady();
+
+        if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
+          return; // Skipping comparison completely
+
+        var breifExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
+        var result = SchemaComparer.Compare(extractedSchema, targetSchema,
+          hints, context.Hints, schemaUpgradeMode, domain.Model, breifExceptionFormat);
+        var shouldDumpSchema = !schemaUpgradeMode.In(
+          SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
+        if (shouldDumpSchema)
+          UpgradeLog.Info(result.ToString());
+
+        if (UpgradeLog.IsLogged(LogEventTypes.Info))
+          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+
+        context.SchemaDifference = (NodeDifference) result.Difference;
+        context.SchemaUpgradeActions = result.UpgradeActions;
+
+        switch (schemaUpgradeMode) {
+          case SchemaUpgradeMode.ValidateExact:
+            if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges)
+              throw new SchemaSynchronizationException(result);
+            break;
+          case SchemaUpgradeMode.ValidateCompatible:
+            if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal
+              && result.SchemaComparisonStatus!=SchemaComparisonStatus.TargetIsSubset)
+              throw new SchemaSynchronizationException(result);
+            break;
+          case SchemaUpgradeMode.PerformSafely:
+            if (result.HasUnsafeActions)
+              throw new SchemaSynchronizationException(result);
+            goto case SchemaUpgradeMode.Perform;
+          case SchemaUpgradeMode.Recreate:
+          case SchemaUpgradeMode.Perform:
+            upgrader.UpgradeSchema(extractor.GetSqlSchema(), extractedSchema, targetSchema, result.UpgradeActions);
+            if (result.UpgradeActions.Any())
+              extractor.ClearCache();
+            break;
+          case SchemaUpgradeMode.ValidateLegacy:
+            if (result.IsCompatibleInLegacyMode!=true)
+              throw new SchemaSynchronizationException(result);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("schemaUpgradeMode");
+        }
       }
-      // type has been preserved
-      if (context.ExtractedTypeMap.TryGetValue(fullName, out typeId))
-        return typeId;
-      if (oldModel!=null) {
-        var oldType = oldModel.Types
-          .SingleOrDefault(t => t.UnderlyingType==fullName);
-        if (oldType!=null)
-          return oldType.TypeId;
-      }
-      return ModelTypeInfo.NoTypeId;
     }
 
-    private static SchemaUpgradeMode GetUpgradingStageUpgradeMode(DomainUpgradeMode upgradeMode)
+    private void OnBeforeStage()
     {
-      switch (upgradeMode) {
-        case DomainUpgradeMode.PerformSafely:
-          return SchemaUpgradeMode.PerformSafely;
-        case DomainUpgradeMode.Perform:
-          return SchemaUpgradeMode.Perform;
-        default:
-          throw new ArgumentOutOfRangeException("upgradeMode");
+      if (workerResult.IsAvailable) {
+        var result = workerResult.Get();
+        context.Metadata = result.Metadata;
+        context.ExtractedSqlModelCache = result.Schema;
       }
+
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnBeforeStage();
     }
 
-    private static SchemaUpgradeMode GetFinalStageUpgradeMode(DomainUpgradeMode upgradeMode)
+    private void OnStage()
     {
-      switch (upgradeMode) {
-        case DomainUpgradeMode.Skip:
-        case DomainUpgradeMode.LegacySkip:
-          return SchemaUpgradeMode.Skip;
-        case DomainUpgradeMode.Validate:
-          return SchemaUpgradeMode.ValidateExact;
-        case DomainUpgradeMode.LegacyValidate:
-          return SchemaUpgradeMode.ValidateLegacy;
-        case DomainUpgradeMode.Recreate:
-          return SchemaUpgradeMode.Recreate;
-        case DomainUpgradeMode.Perform:
-        case DomainUpgradeMode.PerformSafely:
-          // We need Perform here because after Upgrading stage
-          // there may be some recycled columns/tables.
-          // Perform will wipe them out.
-          return SchemaUpgradeMode.Perform;
-        default:
-          throw new ArgumentOutOfRangeException("upgradeMode");
-      }
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnStage();
     }
 
-    private static SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage, DomainUpgradeMode upgradeMode)
+    private StorageModel GetTargetModel(Domain domain)
+    {
+      var normalizer = context.Services.Normalizer;
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, normalizer) {
+        BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
+        BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
+      };
+      return converter.Run();
+    }
+
+    private SchemaUpgradeMode GetUpgradeMode(UpgradeStage stage)
     {
       switch (stage) {
-        case UpgradeStage.Initializing:
-          return upgradeMode.RequiresInitializingStage()
-            ? SchemaUpgradeMode.ValidateCompatible
-            : (SchemaUpgradeMode?) null;
-        case UpgradeStage.Upgrading:
-          return upgradeMode.RequiresUpgradingStage() 
-            ? GetUpgradingStageUpgradeMode(upgradeMode)
-            : (SchemaUpgradeMode?) null;
-        case UpgradeStage.Final:
-          return GetFinalStageUpgradeMode(upgradeMode);
-        default:
-          throw new ArgumentOutOfRangeException("context.Stage");
-      }      
+      case UpgradeStage.Upgrading:
+        return upgradeMode.GetUpgradingStageUpgradeMode();
+      case UpgradeStage.Final:
+        return upgradeMode.GetFinalStageUpgradeMode();
+      default:
+        throw new ArgumentOutOfRangeException("stage");
+      }
+    }
+
+    // Constructors
+
+    private UpgradingDomainBuilder(UpgradeContext context)
+    {
+      this.context = context;
+
+      upgradeMode = context.Configuration.UpgradeMode;
     }
   }
 }

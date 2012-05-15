@@ -25,13 +25,13 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       ExtractCatalogContents();
       return catalog;
     }
 
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       schema = catalog.CreateSchema(schemaName);
       ExtractCatalogContents();

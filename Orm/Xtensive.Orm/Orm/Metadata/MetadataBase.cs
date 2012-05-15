@@ -6,8 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Building;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Metadata
@@ -18,54 +17,44 @@ namespace Xtensive.Orm.Metadata
   [Serializable]
   public abstract class MetadataBase : Entity
   {
-    #region Event handlers
-
     /// <exception cref="Exception">Object is read-only.</exception>
-    protected override void  OnSettingFieldValue(FieldInfo field, object value)
+    protected override void OnSettingFieldValue(FieldInfo field, object value)
     {
-      EnsureIsWritable();
-      base.OnSettingFieldValue(field, value);
+      ThrowObjectIsReadOnly();
     }
 
     /// <exception cref="Exception">Object is read-only.</exception>
     protected override void OnRemove()
     {
-      EnsureIsWritable();
-      base.OnRemove();
+      ThrowObjectIsReadOnly();
     }
 
-    #endregion
-
-    /// <summary>
-    /// Ensures the entity is writable.
-    /// </summary>
-    /// <exception cref="Exception">Object is read-only.</exception>
-    protected void EnsureIsWritable()
+    private void ThrowObjectIsReadOnly()
     {
-      if (BuildingContext.Current==null)
-        throw Exceptions.ObjectIsReadOnly(null);
+      throw Exceptions.ObjectIsReadOnly(null);
     }
 
 
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="id">The identifier.</param>
     protected MetadataBase(int id)
       : base(id)
     {
-      EnsureIsWritable();
+      ThrowObjectIsReadOnly();
     }
+
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The identifier.</param>
     protected MetadataBase(string name)
       : base(name)
     {
-      EnsureIsWritable();
+      ThrowObjectIsReadOnly();
     }
   }
 }

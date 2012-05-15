@@ -6,17 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Orm.Providers.Sql;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Orm.Rse;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.Oracle
 {
-  internal class SqlCompiler : ManualPagingSqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
     protected override string ProcessAliasedName(string name)
     {
@@ -35,21 +31,6 @@ namespace Xtensive.Orm.Providers.Oracle
         }
       }
       return result;
-    }
-
-    protected override SqlProvider VisitInclude(IncludeProvider provider)
-    {
-      var source = Compile(provider.Source);
-      var resultQuery = ExtractSqlSelect(provider, source);
-      var sourceColumns = ExtractColumnExpressions(resultQuery, provider);
-      var parameterAcessor = BuildRowFilterParameterAccessor(
-        provider.FilterDataSource.CachingCompile(), false);
-      QueryParameterBinding binding;
-      var includeExpression = CreateIncludeViaComplexConditionExpression(
-        provider, parameterAcessor, sourceColumns, out binding);
-      includeExpression = GetBooleanColumnExpression(includeExpression);
-      AddInlinableColumn(provider, resultQuery, provider.ResultColumnName, includeExpression);
-      return CreateProvider(resultQuery, binding, provider, source);
     }
 
 

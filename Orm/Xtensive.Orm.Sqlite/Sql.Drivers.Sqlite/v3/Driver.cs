@@ -8,9 +8,9 @@ using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Drivers.SQLite.v3
+namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
-  internal class Driver : SQLite.Driver
+  internal class Driver : Sqlite.Driver
   {
     protected override SqlCompiler CreateCompiler()
     {

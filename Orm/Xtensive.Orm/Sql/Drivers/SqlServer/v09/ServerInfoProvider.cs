@@ -10,7 +10,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private const int MaxIdentifierLength = 128;
+    protected const int MaxIdentifierLength = 128;
 
     private readonly string databaseName;
     private readonly string defaultSchemaName;
@@ -195,13 +195,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
         QueryFeatures.RowNumber |
-        QueryFeatures.ScalarSubquery;
+        QueryFeatures.MultischemaQueries |
+        QueryFeatures.MultidatabaseQueries |
+        QueryFeatures.ScalarSubquery |
+        QueryFeatures.PagingRequiresOrderBy;
       return queryInfo;
     }
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.Savepoints;
+      return ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl;
     }
 
     public override IdentityInfo GetIdentityInfo()

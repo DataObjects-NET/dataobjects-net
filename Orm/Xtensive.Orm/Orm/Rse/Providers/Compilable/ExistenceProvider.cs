@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ExistenceProvider(CompilableProvider source, string existenceColumnName)
       : base(ProviderType.Existence, source)

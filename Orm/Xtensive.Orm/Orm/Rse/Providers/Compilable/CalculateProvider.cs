@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples.Transform;
 using Xtensive.Collections;
 
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>

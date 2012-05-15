@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="oldType">The old type.</param>
     /// <param name="newType">The new type.</param>

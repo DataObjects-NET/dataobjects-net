@@ -413,7 +413,7 @@ namespace Xtensive.Orm.Tests.Storage
         FetchEntitySet(author.Books);
         author.Books.Add(new Book());
         EntitySetState setState;
-        session.Handler.TryGetEntitySetState(key, booksField, out setState);
+        session.Handler.LookupState(key, booksField, out setState);
         Assert.IsNull(setState.TotalItemCount);
         Assert.AreEqual(itemCount + 1, author.Books.Count);
         Assert.AreEqual(itemCount + 1, setState.TotalItemCount);
@@ -434,7 +434,7 @@ namespace Xtensive.Orm.Tests.Storage
         var bookToBeRemoved1 = booksToBeRemoved[1];
         author.Books.Remove(bookToBeRemoved0);
         EntitySetState setState;
-        session.Handler.TryGetEntitySetState(key, booksField, out setState);
+        session.Handler.LookupState(key, booksField, out setState);
         Assert.IsNull(setState.TotalItemCount);
         Assert.AreEqual(itemCount - 1, author.Books.Count);
         Assert.AreEqual(itemCount - 1, setState.TotalItemCount);
@@ -452,7 +452,7 @@ namespace Xtensive.Orm.Tests.Storage
         FetchEntitySet(author.Books);
         author.Books.Add(new Book());
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.TryGetEntitySetState(key, booksField, out setState));
+        Assert.IsTrue(session.Handler.LookupState(key, booksField, out setState));
         Assert.AreEqual(itemCount+1, setState.TotalItemCount);
       }
     }

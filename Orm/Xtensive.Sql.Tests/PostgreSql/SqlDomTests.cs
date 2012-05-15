@@ -53,7 +53,6 @@ namespace Xtensive.Sql.Tests.PostgreSql
         Schema sch1 = MyCatalog.CreateSchema("Sch1");
 
         Sequence t1_seq = sch1.CreateSequence("T1Seq");
-        t1_seq.DataType = new SqlValueType(SqlType.Int64);
 
         Table sch1_t1 = sch1.CreateTable("T1");
 
@@ -231,10 +230,8 @@ namespace Xtensive.Sql.Tests.PostgreSql
 
           //some sequences
           Sequence sch2_seq1 = sch2.CreateSequence("Seq1");
-          sch2_seq1.DataType = new SqlValueType(SqlType.Int64);
 
           Sequence sch2_seq2 = sch2.CreateSequence("Seq2");
-          sch2_seq2.DataType = new SqlValueType(SqlType.Int64);
           sch2_seq2.SequenceDescriptor.StartValue = 100;
           sch2_seq2.SequenceDescriptor.Increment = 10;
           sch2_seq2.SequenceDescriptor.MinValue = 1;

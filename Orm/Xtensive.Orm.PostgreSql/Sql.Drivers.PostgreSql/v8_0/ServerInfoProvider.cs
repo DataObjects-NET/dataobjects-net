@@ -258,6 +258,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         QueryFeatures.MulticolumnIn |
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
+        QueryFeatures.MultischemaQueries |
         QueryFeatures.ScalarSubquery;
       info.ParameterPrefix = "@";
       info.MaxComparisonOperations = 1000000;
@@ -268,7 +269,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.Savepoints;
+      return ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl | ServerFeatures.TransactionalFullTextDdl;
     }
 
     public override IdentityInfo GetIdentityInfo()

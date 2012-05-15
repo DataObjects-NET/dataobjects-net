@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="alias">The <see cref="Alias"/> property value.</param>

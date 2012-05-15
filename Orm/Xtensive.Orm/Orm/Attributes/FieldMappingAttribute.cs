@@ -5,7 +5,7 @@
 // Created:    2009.07.10
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -29,7 +29,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">Field mapping name.</param>
     public FieldMappingAttribute(string name)

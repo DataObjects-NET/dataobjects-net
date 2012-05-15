@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using Oracle.DataAccess.Client;
+using Xtensive.Core;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
 using Constraint=Xtensive.Sql.Model.Constraint;
@@ -29,7 +31,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       targetSchema = null;
 
@@ -39,7 +41,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return theCatalog;
     }
 
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       targetSchema = schemaName.ToUpperInvariant();
       theCatalog.CreateSchema(targetSchema);
@@ -152,7 +154,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     {
       // it's possible to have table and index in different schemas in oracle.
       // we silently ignore this, indexes are always belong to the same schema as its table.
-      using (var reader = ExecuteReader(GetExtractIndexesQuery())) {
+      using (var reader = (OracleDataReader) ExecuteReader(GetExtractIndexesQuery())) {
         int lastColumnPosition = int.MaxValue;
         Table table = null;
         Index index = null;
@@ -163,13 +165,15 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
             table = schema.Tables[reader.GetString(1)];
             index = table.CreateIndex(reader.GetString(2));
             index.IsUnique = ReadBool(reader, 3);
-            index.IsBitmap = reader.GetString(4)=="BITMAP";
+            index.IsBitmap = reader.GetString(4).EndsWith("BITMAP");
             if (!reader.IsDBNull(5)) {
               int pctFree = ReadInt(reader, 5);
               index.FillFactor = (byte) (100 - pctFree);
             }
           }
-          var column = table.TableColumns[reader.GetString(7)];
+          var columnName = reader.IsDBNull(9) ? reader.GetString(7) : reader.GetOracleString(9).Value;
+          columnName = columnName.Trim('"');
+          var column = table.TableColumns[columnName];
           bool isAscending = reader.GetString(8)=="ASC";
           index.CreateIndexColumn(column, isAscending);
           lastColumnPosition = columnPosition;
@@ -257,7 +261,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
           var sequence = schema.CreateSequence(reader.GetString(1));
-          sequence.DataType = new SqlValueType(SqlType.Decimal, DefaultPrecision, DefaultScale);
           var descriptor = sequence.SequenceDescriptor;
           descriptor.MinValue = ReadLong(reader, 2);
           descriptor.MaxValue = ReadLong(reader, 3);
@@ -404,7 +407,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     protected override DbDataReader ExecuteReader(string commandText)
     {
-      return base.ExecuteReader(PerformReplacements(commandText));
+      var realCommandText = PerformReplacements(commandText);
+      using (var command = (OracleCommand) Connection.CreateCommand(realCommandText)) {
+        // This option is required to access LONG columns
+        command.InitialLONGFetchSize = -1;
+        return command.ExecuteReader();
+      }
     }
 
     protected override DbDataReader ExecuteReader(ISqlCompileUnit statement)

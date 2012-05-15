@@ -5,9 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Collections;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Model
@@ -28,7 +26,7 @@ namespace Xtensive.Sql.Model
     /// </summary>
     /// <value></value>
     /// <returns><see langword="True"/> if this instance is read-only; otherwise, <see langword="false"/>.</returns>
-    public override bool IsReadOnly { get { return IsLocked ? true : base.IsReadOnly; } }
+    public override bool IsReadOnly { get { return IsLocked || base.IsReadOnly; } }
 
     /// <inheritdoc/>
     public override void Add(TNode item)
@@ -73,7 +71,6 @@ namespace Xtensive.Sql.Model
     public NodeCollection()
       : this(0)
     {
-      nameIndex = new Dictionary<string, TNode>(0, StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -84,18 +81,6 @@ namespace Xtensive.Sql.Model
       : base(capacity)
     {
       nameIndex = new Dictionary<string, TNode>(capacity, StringComparer.OrdinalIgnoreCase);
-    }
-    
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="collection">The collection whose elements are copied to the new list.</param>
-    public NodeCollection(IEnumerable<TNode> collection)
-      : base(collection)
-    {
-      nameIndex = new Dictionary<string, TNode>(StringComparer.OrdinalIgnoreCase);
-      foreach (var item in collection)
-        nameIndex.Add(item.Name, item);
     }
   }
 }

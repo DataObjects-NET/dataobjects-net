@@ -93,11 +93,11 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Handles action sequence with specified processors.
     /// </summary>
-    /// <param name="transactionalProcessor">Transactional processor.</param>
+    /// <param name="regularProcessor">Transactional processor.</param>
     /// <param name="nonTransactionalProcessor">Non-transactional processor.</param>
-    public void ProcessWith(Action<IEnumerable<string>> transactionalProcessor, Action<IEnumerable<string>> nonTransactionalProcessor)
+    public void ProcessWith(Action<IEnumerable<string>> regularProcessor, Action<IEnumerable<string>> nonTransactionalProcessor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(transactionalProcessor, "transactionalProcessor");
+      ArgumentValidator.EnsureArgumentNotNull(regularProcessor, "regularProcessor");
       ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, "nonTransactionalProcessor");
 
       if (NonTransactionalPrologCommands.Count > 0)
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Upgrade
         .Where(batch => batch.Count > 0);
 
       foreach (var batch in batchSequence)
-        transactionalProcessor.Invoke(batch);
+        regularProcessor.Invoke(batch);
 
       if (NonTransactionalEpilogCommands.Count > 0)
         nonTransactionalProcessor.Invoke(NonTransactionalEpilogCommands);

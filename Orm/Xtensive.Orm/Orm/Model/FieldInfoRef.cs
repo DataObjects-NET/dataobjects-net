@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Orm.Model
@@ -53,13 +53,27 @@ namespace Xtensive.Orm.Model
 
     #region Equality members, ==, !=
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(FieldInfoRef x, FieldInfoRef y)
     {
       return !Equals(x, y);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(FieldInfoRef x, FieldInfoRef y)
     {
       return Equals(x, y);
@@ -101,7 +115,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="fieldInfo"><see cref="FieldInfo"/> object to make reference for.</param>
     public FieldInfoRef(FieldInfo fieldInfo)

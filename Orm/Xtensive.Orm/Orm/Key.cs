@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
@@ -92,8 +92,7 @@ namespace Xtensive.Orm
         if (IsTemporary(domain))
           return TypeReference.Type;
 
-        if (session.IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
+        OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
 
         var entityState = session.Handler.FetchEntityState(this);
         if (entityState==null || entityState.IsNotAvailableOrMarkedAsRemoved)
@@ -121,7 +120,7 @@ namespace Xtensive.Orm
     public bool IsTemporary(Domain domain)
     {
       var keyInfo = TypeReference.Type.Key;
-      var keyGenerator = domain.KeyGenerators[keyInfo];
+      var keyGenerator = domain.KeyGenerators.GetTemporary(keyInfo);
       return keyGenerator!=null && keyGenerator.IsTemporaryKey(Value);
     }
 
@@ -175,14 +174,28 @@ namespace Xtensive.Orm
       return Equals(other);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     [DebuggerStepThrough]
     public static bool operator ==(Key left, Key right)
     {
       return Equals(left, right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     [DebuggerStepThrough]
     public static bool operator !=(Key left, Key right)
     {
@@ -514,7 +527,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="accuracy">The typre reference accuracy.</param>

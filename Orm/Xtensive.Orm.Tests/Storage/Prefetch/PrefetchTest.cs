@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var orderDetailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
         foreach (var order in prefetcher) {
           EntitySetState entitySetState;
-          Assert.IsTrue(session.Handler.TryGetEntitySetState(order.Key, orderDetailsField, out entitySetState));
+          Assert.IsTrue(session.Handler.LookupState(order.Key, orderDetailsField, out entitySetState));
           Assert.IsTrue(entitySetState.IsFullyLoaded);
         }
       }
@@ -478,7 +478,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       FieldInfo employeesField)
     {
       EntitySetState entitySetState;
-      Assert.IsTrue(session.Handler.TryGetEntitySetState(key, employeesField, out entitySetState));
+      Assert.IsTrue(session.Handler.LookupState(key, employeesField, out entitySetState));
       Assert.IsTrue(entitySetState.IsFullyLoaded);
       return entitySetState;
     }

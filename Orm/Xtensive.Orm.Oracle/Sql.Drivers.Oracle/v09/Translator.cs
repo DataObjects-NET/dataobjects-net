@@ -119,12 +119,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override string Translate(SqlCompilerContext context, SqlDropTable node)
     {
-      return "DROP TABLE " + Translate(node.Table) + (node.Cascade ? " CASCADE CONSTRAINTS" : string.Empty);
+      return "DROP TABLE " + Translate(context, node.Table) + (node.Cascade ? " CASCADE CONSTRAINTS" : string.Empty);
     }
 
     public override string Translate(SqlCompilerContext context, SqlDropSequence node)
     {
-      return "DROP SEQUENCE " + Translate(node.Sequence);
+      return "DROP SEQUENCE " + Translate(context, node.Sequence);
     }
     
     public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
@@ -185,7 +185,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         builder.Append("INDEX ");
         builder.Append(Translate(index));
         builder.Append(" ON ");
-        builder.Append(Translate(index.DataTable));
+        builder.Append(Translate(context, index.DataTable));
         return builder.ToString();
       case CreateIndexSection.Exit:
         break;

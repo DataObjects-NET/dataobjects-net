@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 using Xtensive.Orm;
 
@@ -42,14 +42,14 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected DomainBound() 
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="domain"><see cref="Orm.Domain"/>, to which current instance 
     /// is bound.</param>

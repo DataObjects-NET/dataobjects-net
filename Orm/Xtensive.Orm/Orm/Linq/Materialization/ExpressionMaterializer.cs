@@ -246,13 +246,16 @@ namespace Xtensive.Orm.Linq.Materialization
 
     protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var newExpression = Expression.New(expression.Constructor, expression.ConstructorArguments.Select(e => Visit(e)));
+      var newExpression = expression.Constructor==null
+        ? Expression.New(expression.Type) // Value type with default ctor (expression.Constructor is null in that case)
+        : Expression.New(expression.Constructor, expression.ConstructorArguments.Select(Visit));
+
       return expression.Bindings.Count == 0 
         ? newExpression 
         : (Expression) Expression.MemberInit(newExpression, expression
         .Bindings
-        .Where(kvp => Translator.FilterBindings(kvp.Key, kvp.Key.Name, kvp.Value.Type))
-        .Select(kvp => Expression.Bind(kvp.Key, Visit(kvp.Value))).Cast<MemberBinding>());
+        .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
+        .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
     }
 
     protected override Expression VisitStructureExpression(StructureExpression expression)

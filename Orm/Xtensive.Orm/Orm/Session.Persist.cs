@@ -68,7 +68,7 @@ namespace Xtensive.Orm
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void SaveChanges()
     {
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected)
+      if (Configuration.Supports(SessionOptions.Disconnected))
         DisconnectedState.ApplyChanges();
       else
         Persist(PersistReason.Manual);
@@ -81,7 +81,7 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
     public void CancelChanges()
     {
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected)
+      if (Configuration.Supports(SessionOptions.Disconnected))
         DisconnectedState.CancelChanges();
       else
         throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
@@ -93,7 +93,7 @@ namespace Xtensive.Orm
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
-      var performPinning = Pinner.RootCount > 0;
+      var performPinning = pinner.RootCount > 0;
       if (performPinning || disableAutoSaveChanges) 
         switch (reason) {
           case PersistReason.NestedTransaction:
@@ -112,13 +112,12 @@ namespace Xtensive.Orm
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
             EnsureTransactionIsStarted();
-            if (IsDebugEventLoggingEnabled)
-              Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+            OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
 
             EntityChangeRegistry itemsToPersist;
             if (performPinning) {
-              Pinner.Process(EntityChangeRegistry);
-              itemsToPersist = Pinner.PersistableItems;
+              pinner.Process(EntityChangeRegistry);
+              itemsToPersist = pinner.PersistableItems;
             }
             else
               itemsToPersist = EntityChangeRegistry;
@@ -135,14 +134,13 @@ namespace Xtensive.Orm
                 item.Update(null);
 
               if (performPinning) {
-                EntityChangeRegistry = Pinner.PinnedItems;
-                Pinner.Reset();
+                EntityChangeRegistry = pinner.PinnedItems;
+                pinner.Reset();
               }
               else
                 EntityChangeRegistry.Clear();
 
-              if (IsDebugEventLoggingEnabled)
-                Log.Debug(Strings.LogSessionXPersistCompleted, this);
+              OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
           }
           SystemEvents.NotifyPersisted();
@@ -175,7 +173,7 @@ namespace Xtensive.Orm
       targetEntity.EnsureNotRemoved();
       if (IsDisconnected)
         return new Disposable(b => {return;}); // No need to pin in this case
-      return Pinner.RegisterRoot(targetEntity.State);
+      return pinner.RegisterRoot(targetEntity.State);
     }
 
     /// <summary>

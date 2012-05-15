@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Reflection;
@@ -177,5 +178,18 @@ namespace Xtensive.Orm.Linq
 
       return MemberType.Unknown;
     }
- }
+
+    public static ParameterInfo[] GetConstructorParameters(this NewExpression expression)
+    {
+      // Note for stupid ReSharper:
+      // NewExpression.Constructor is perfectly valid null
+      // when value type is created using default (parameterless) constructor
+
+      // ReSharper disable ConditionIsAlwaysTrueOrFalse
+      if (expression.Constructor==null)
+        return new ParameterInfo[0];
+      // ReSharper restore ConditionIsAlwaysTrueOrFalse
+      return expression.Constructor.GetParameters();
+    }
+  }
 }

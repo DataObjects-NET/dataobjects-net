@@ -178,9 +178,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         "NumToYmInterval", units, AnsiString(isYear ? "year" : "month"));
     }
 
-    private static SqlExpression IntervalConstruct(SqlExpression milliseconds)
+    private static SqlExpression IntervalConstruct(SqlExpression nanoseconds)
     {
-      return SqlDml.FunctionCall("NumToDsInterval", milliseconds / 1000, AnsiString("second"));
+      const long nanosecondsPerSecond = 1000000000;
+      return SqlDml.FunctionCall("NumToDsInterval",
+        nanoseconds / SqlDml.Literal(nanosecondsPerSecond), AnsiString("second"));
     }
 
     private static SqlExpression DateTimeConstruct(SqlExpression years, SqlExpression months, SqlExpression days)

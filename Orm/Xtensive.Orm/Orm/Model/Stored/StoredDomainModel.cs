@@ -4,7 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
+using System.IO;
 using System.Xml.Serialization;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Model.Stored
 {
@@ -14,6 +16,8 @@ namespace Xtensive.Orm.Model.Stored
   [XmlRoot("DomainModel", Namespace = "")]
   public sealed class StoredDomainModel
   {
+    private static readonly XmlSerializer Serializer = new XmlSerializer(typeof (StoredDomainModel));
+
     /// <summary>
     /// <see cref="DomainModel.Types"/>.
     /// </summary>
@@ -33,7 +37,38 @@ namespace Xtensive.Orm.Model.Stored
     public StoredHierarchyInfo[] Hierarchies;
 
     /// <summary>
-    /// Updates all references within this model.
+    /// Deserializes <see cref="StoredDomainModel"/> from string.
+    /// </summary>
+    /// <param name="serialized">Serialized instance.</param>
+    /// <returns>Deserialized instance.</returns>
+    public static StoredDomainModel Deserialize(string serialized)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(serialized, "serialized");
+
+      StoredDomainModel result;
+      using (var reader = new StringReader(serialized)) {
+        result = (StoredDomainModel) Serializer.Deserialize(reader);
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Serializes this instance to string.
+    /// </summary>
+    /// <returns>Serialized instance.</returns>
+    public string Serialize()
+    {
+      string result;
+      using (var writer = new StringWriter()) {
+        Serializer.Serialize(writer, this);
+        result = writer.ToString();
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Updates references between nodes.
     /// </summary>
     public void UpdateReferences()
     {

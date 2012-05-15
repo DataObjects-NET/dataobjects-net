@@ -37,7 +37,7 @@ namespace Xtensive.Orm.PairIntegrity
         ExecuteNextPendingAction();
         if (HasPendingActions())
           // Must be empty because of recursion!
-          throw Exceptions.InternalError(Strings.LogSyncContextMustHaveNoPendingActions, Log.Instance);
+          throw Exceptions.InternalError(Strings.LogSyncContextMustHaveNoPendingActions, OrmLog.Instance);
       }
       else {
         while (finalizers.Count > 0) {

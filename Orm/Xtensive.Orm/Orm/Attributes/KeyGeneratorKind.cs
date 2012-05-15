@@ -12,17 +12,26 @@ namespace Xtensive.Orm
   public enum KeyGeneratorKind
   {
     /// <summary>
-    /// No key generator must be provided.
+    /// No key generator is provided for hierarchy.
+    /// Each <see cref="Entity"/> should supply unique key values
+    /// by calling corresponding constructor.
     /// </summary>
     None = 0,
 
     /// <summary>
-    /// Default key generator must be provided.
+    /// Standard key generator is provided for hierarchy.
+    /// <see cref="KeyGeneratorAttribute.Name"/> optionally specifies
+    /// generator name. If name is not specified key type name is used.
+    /// For example if key has <see cref="int"/> type,
+    /// then generator will be named "Int32".
+    /// Standard key generators handle only single column keys.
     /// </summary>
     Default = 1,
 
     /// <summary>
-    /// Custom key generator type.
+    /// Custom key generator is used.
+    /// You should provide <see cref="KeyGeneratorAttribute.Name"/>
+    /// as well.
     /// </summary>
     Custom = 2
   }

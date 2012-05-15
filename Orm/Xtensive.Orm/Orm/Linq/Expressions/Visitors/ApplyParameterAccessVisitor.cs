@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Linq;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Helpers;
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression,int,Expression> processor )
     {

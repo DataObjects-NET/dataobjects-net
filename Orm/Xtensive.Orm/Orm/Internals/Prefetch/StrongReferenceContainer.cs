@@ -5,7 +5,7 @@
 // Created:    2009.10.08
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="reference">The reference to be saved.</param>
     public StrongReferenceContainer(object reference)

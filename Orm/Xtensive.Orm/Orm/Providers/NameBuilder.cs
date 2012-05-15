@@ -6,22 +6,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using Xtensive.Aspects;
-using Xtensive.Caching;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm;
-using Xtensive.Orm.Model;
-using Xtensive.Reflection;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
-using System.Linq;
+using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Providers
@@ -31,25 +27,20 @@ namespace Xtensive.Orm.Providers
   /// Provides names according to a set of naming rules contained in
   /// <see cref="NamingConvention"/>.
   /// </summary>
-  public class NameBuilder : HandlerBase
+  public sealed class NameBuilder
   {
-    private Dictionary<Pair<Type, string>, string> fieldNameCache = new Dictionary<Pair<Type, string>, string>();
-    private readonly object _lock = new object();
-    private HashAlgorithm hashAlgorithm;
     private const string AssociationPattern = "{0}-{1}-{2}";
     private const string GeneratorPattern = "{0}-Generator";
     private const string GenericTypePattern = "{0}({1})";
     private const string ReferenceForeignKeyFormat = "FK_{0}_{1}_{2}";
     private const string HierarchyForeignKeyFormat = "FK_{0}_{1}";
-    private int maxIdentifierLength;
 
-    /// <summary>
-    /// Gets the maximum length of storage entity identifier.
-    /// </summary>
-    protected virtual int MaxIdentifierLength
-    {
-      get { return maxIdentifierLength; }
-    }
+    private readonly Dictionary<Pair<Type, string>, string> fieldNameCache = new Dictionary<Pair<Type, string>, string>();
+    private readonly object _lock = new object();
+    private readonly int maxIdentifierLength;
+    private readonly NamingConvention namingConvention;
+    private readonly bool isMultidatabase;
+    private readonly string defaultDatabase;
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -57,21 +48,17 @@ namespace Xtensive.Orm.Providers
     public string TypeIdColumnName { get; private set; }
 
     /// <summary>
-    /// Gets the naming convention object.
-    /// </summary>
-    public NamingConvention NamingConvention { get; private set; }
-
-    /// <summary>
     /// Gets the name for <see cref="TypeDef"/> object.
     /// </summary>
     /// <param name="type">The <see cref="TypeDef"/> object.</param>
     /// <returns>Type name.</returns>
-    public virtual string BuildTypeName(TypeDef type)
+    public string BuildTypeName(BuildingContext context, TypeDef type)
     {
+      ArgumentValidator.EnsureArgumentNotNull(context, "context");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       if (type.UnderlyingType.IsGenericType)
-        return ApplyNamingRules(BuildGenericTypeName(type.UnderlyingType, type.MappingName));
+        return ApplyNamingRules(BuildGenericTypeName(context, type.UnderlyingType, type.MappingName));
 
       if (!type.MappingName.IsNullOrEmpty())
         return ApplyNamingRules(type.MappingName);
@@ -79,10 +66,10 @@ namespace Xtensive.Orm.Providers
       var underlyingTypeName = type.UnderlyingType.GetShortName();
       var @namespace = type.UnderlyingType.Namespace;
       var result = type.Name.IsNullOrEmpty() ? underlyingTypeName : type.Name;
-      switch (NamingConvention.NamespacePolicy) {
+      switch (namingConvention.NamespacePolicy) {
         case NamespacePolicy.Synonymize: {
           string synonym;
-          if (!NamingConvention.NamespaceSynonyms.TryGetValue(@namespace, out synonym))
+          if (!namingConvention.NamespaceSynonyms.TryGetValue(@namespace, out synonym))
             synonym = @namespace;
           if (!synonym.IsNullOrEmpty())
             result = string.Format("{0}.{1}", synonym, result);
@@ -101,7 +88,7 @@ namespace Xtensive.Orm.Providers
       return ApplyNamingRules(result);
     }
 
-    private string BuildGenericTypeName(Type type, string mappingName)
+    private string BuildGenericTypeName(BuildingContext context, Type type, string mappingName)
     {
       if (!type.IsGenericType || type.IsGenericParameter)
         return type.GetShortName();
@@ -119,18 +106,17 @@ namespace Xtensive.Orm.Providers
       if (type.IsGenericTypeDefinition)
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
-          names[i] = BuildGenericTypeName(argument, null);
+          names[i] = BuildGenericTypeName(context, argument, null);
         }
       else {
-        var context = BuildingContext.Demand();
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
           if (argument.IsSubclassOf(typeof (Persistent))) {
-            var argTypeDef = ModelDefBuilder.ProcessType(argument);
+            var argTypeDef = context.ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }
           else
-            names[i] = BuildGenericTypeName(argument, null);
+            names[i] = BuildGenericTypeName(context, argument, null);
         }
       }
       return ApplyNamingRules(string.Format(GenericTypePattern, typeName, string.Join("-", names)));
@@ -141,7 +127,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="indexInfo">Index to build table name for.</param>
     /// <returns>Table name.</returns>
-    public virtual string BuildTableName(IndexInfo indexInfo)
+    public string BuildTableName(IndexInfo indexInfo)
     {
       return ApplyNamingRules(indexInfo.ReflectedType.Name);
     }
@@ -151,7 +137,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="columnInfo"><see cref="Upgrade.Model.StorageColumnInfo"/> to build column table name for.</param>
     /// <returns>Column name.</returns>
-    public virtual string BuildTableColumnName(ColumnInfo columnInfo)
+    public string BuildTableColumnName(ColumnInfo columnInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnInfo, "columnInfo");
       return ApplyNamingRules(columnInfo.Name);
@@ -161,7 +147,7 @@ namespace Xtensive.Orm.Providers
     /// Builds foreign key name by association.
     /// </summary>
     /// <returns>Foreign key name.</returns>
-    public virtual string BuildReferenceForeignKeyName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
+    public string BuildReferenceForeignKeyName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
     {
       ArgumentValidator.EnsureArgumentNotNull(ownerType, "ownerType");
       ArgumentValidator.EnsureArgumentNotNull(ownerField, "ownerField");
@@ -173,7 +159,7 @@ namespace Xtensive.Orm.Providers
     /// Builds foreign key name for in-hierarchy primary key references.
     /// </summary>
     /// <returns>Foreign key name.</returns>
-    public virtual string BuildHierarchyForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
+    public string BuildHierarchyForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
     {
       ArgumentValidator.EnsureArgumentNotNull(baseType, "baseType");
       ArgumentValidator.EnsureArgumentNotNull(descendantType, "descendantType");
@@ -185,7 +171,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="field">The <see cref="FieldDef"/> object.</param>
     /// <returns>Field name.</returns>
-    public virtual string BuildFieldName(FieldDef field)
+    public string BuildFieldName(FieldDef field)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       string result = field.Name;
@@ -197,15 +183,19 @@ namespace Xtensive.Orm.Providers
     private string BuildFieldNameInternal(PropertyInfo propertyInfo)
     {
       var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
-      string result;
-      if (fieldNameCache.TryGetValue(key, out result))
-        return result;
-      var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>();
-      if (attribute!=null) {
-        result = attribute.Name;
-        fieldNameCache.Add(key, result);
-        return result;
+
+      lock (fieldNameCache) {
+        string result;
+        if (fieldNameCache.TryGetValue(key, out result))
+          return result;
+        var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>();
+        if (attribute!=null) {
+          result = attribute.Name;
+          fieldNameCache.Add(key, result);
+          return result;
+        }
       }
+
       return propertyInfo.Name;
     }
 
@@ -215,11 +205,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="propertyInfo">The property info.</param>
     public string BuildFieldName(PropertyInfo propertyInfo)
     {
-      var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
-      string result;
-      return fieldNameCache.TryGetValue(key, out result) 
-        ? result 
-        : propertyInfo.Name;
+      lock (fieldNameCache) {
+        var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
+        string result;
+        return fieldNameCache.TryGetValue(key, out result)
+          ? result
+          : propertyInfo.Name;
+      }
     }
 
     /// <summary>
@@ -228,7 +220,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="type">The type of interface explicit member implements.</param>
     /// <param name="name">The member name.</param>
     /// <returns>Explicitly implemented field name.</returns>
-    public virtual string BuildExplicitFieldName(TypeInfo type, string name)
+    public string BuildExplicitFieldName(TypeInfo type, string name)
     {
       return type.IsInterface ? type.UnderlyingType.Name + "." + name : name;
     }
@@ -239,7 +231,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="complexField">The complex field.</param>
     /// <param name="childField">The child field.</param>
     /// <returns>Nested field name.</returns>
-    public virtual string BuildNestedFieldName(FieldInfo complexField, FieldInfo childField)
+    public string BuildNestedFieldName(FieldInfo complexField, FieldInfo childField)
     {
       ArgumentValidator.EnsureArgumentNotNull(complexField, "complexField");
       ArgumentValidator.EnsureArgumentNotNull(childField, "childField");
@@ -249,9 +241,8 @@ namespace Xtensive.Orm.Providers
       return string.Concat(nameSource.Name, ".", childField.Name);
     }
 
-
     /// <summary>
-    /// Builds the <see cref="MappingNode.MappingName"/>.
+    /// Builds the <see cref="MappedNode.MappingName"/>.
     /// </summary>
     /// <param name="complexField">The complex field.</param>
     /// <param name="childField">The child field.</param>
@@ -271,7 +262,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="field">The field info.</param>
     /// <param name="baseColumn">The <see cref="ColumnInfo"/> object.</param>
     /// <returns>Column name.</returns>
-    public virtual string BuildColumnName(FieldInfo field, ColumnInfo baseColumn)
+    public string BuildColumnName(FieldInfo field, ColumnInfo baseColumn)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       ArgumentValidator.EnsureArgumentNotNull(baseColumn, "baseColumn");
@@ -286,7 +277,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="column">The <see cref="ColumnInfo"/> object.</param>
     /// <returns>Column name.</returns>
-    public virtual string BuildColumnName(ColumnInfo column)
+    public string BuildColumnName(ColumnInfo column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
       if (column.Name.StartsWith(column.Field.DeclaringType.Name + "."))
@@ -301,7 +292,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="type">The type def.</param>
     /// <param name="index">The <see cref="IndexDef"/> object.</param>
     /// <returns>Index name.</returns>
-    public virtual string BuildIndexName(TypeDef type, IndexDef index)
+    public string BuildIndexName(TypeDef type, IndexDef index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
@@ -335,7 +326,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="type">The type def.</param>
     /// <param name="index">The <see cref="IndexInfo"/> object.</param>
     /// <returns>Index name.</returns>
-    public virtual string BuildIndexName(TypeInfo type, IndexInfo index)
+    public string BuildIndexName(TypeInfo type, IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
       if (!index.Name.IsNullOrEmpty())
@@ -424,7 +415,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="typeInfo">The type info.</param>
     /// <returns>Index name.</returns>
-    public virtual string BuildFullTextIndexName(TypeInfo typeInfo)
+    public string BuildFullTextIndexName(TypeInfo typeInfo)
     {
       var result = string.Format("FT_{0}", typeInfo.MappingName ?? typeInfo.Name);
       return ApplyNamingRules(result);
@@ -437,7 +428,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="filterType">Type that defines filter for partial index.</param>
     /// <param name="filterMember">Member that defines filter for partial index.</param>
     /// <returns>Name for <paramref name="index"/>.</returns>
-    public virtual string BuildPartialIndexName(IndexDef index, Type filterType, string filterMember)
+    public string BuildPartialIndexName(IndexDef index, Type filterType, string filterMember)
     {
       return string.Format("IXP_{0}.{1}", filterType.Name, filterMember);
     }
@@ -447,7 +438,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
     /// <returns>Association name.</returns>
-    public virtual string BuildAssociationName(AssociationInfo target)
+    public string BuildAssociationName(AssociationInfo target)
     {
       return ApplyNamingRules(string.Format(AssociationPattern, 
         target.OwnerType.Name, 
@@ -462,7 +453,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="ownerField">The owner field.</param>
     /// <param name="targetType">Type of the target.</param>
     /// <returns>Association name.</returns>
-    public virtual string BuildAssociationName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
+    public string BuildAssociationName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
     {
       return ApplyNamingRules(string.Format(AssociationPattern, 
         ownerType.Name, 
@@ -476,7 +467,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
     /// <returns>Auxiliary type mapping name.</returns>
-    public virtual string BuildAuxiliaryTypeMappingName(AssociationInfo target)
+    public string BuildAuxiliaryTypeMappingName(AssociationInfo target)
     {
       return ApplyNamingRules(string.Format(AssociationPattern, 
         target.OwnerType.MappingName ?? target.OwnerType.Name, 
@@ -491,9 +482,67 @@ namespace Xtensive.Orm.Providers
     /// <returns>Sequence name.</returns>
     public string BuildSequenceName(KeyInfo keyInfo)
     {
-      return keyInfo.GeneratorName == null
+      return keyInfo.GeneratorBaseName==null
         ? null
-        : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorName));
+        : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorBaseName));
+    }
+
+    /// <summary>
+    /// Builds name for key generator.
+    /// </summary>
+    /// <param name="key">Key to build key generator name for.</param>
+    /// <param name="hierarchyDef">Hierarchy definition.</param>
+    /// <returns>Key generator name</returns>
+    public string BuildKeyGeneratorName(KeyInfo key, HierarchyDef hierarchyDef)
+    {
+      var mappingDatabase = hierarchyDef.Root.MappingDatabase;
+      var databaseSuffixRequired =
+        key.GeneratorKind==KeyGeneratorKind.Default
+        && KeyGeneratorFactory.IsSequenceBacked(key.SingleColumnType)
+        && !string.IsNullOrEmpty(mappingDatabase);
+      var baseName = key.GeneratorBaseName;
+      return databaseSuffixRequired
+        ? FormatKeyGeneratorName(mappingDatabase, baseName)
+        : baseName;
+    }
+
+    /// <summary>
+    /// Builds name for key generator.
+    /// </summary>
+    /// <param name="configuration">Configuration.</param>
+    /// <returns>Key generator name.</returns>
+    public string BuildKeyGeneratorName(KeyGeneratorConfiguration configuration)
+    {
+      if (!isMultidatabase)
+        return configuration.Name;
+      var database = configuration.Database;
+      if (string.IsNullOrEmpty(database))
+        database = defaultDatabase;
+      return FormatKeyGeneratorName(database, configuration.Name);
+    }
+
+    /// <summary>
+    /// Builds base name for key generator.
+    /// </summary>
+    /// <param name="key">Key to build base key generator name for.</param>
+    /// <param name="hierarchyDef">Hierarchy definition.</param>
+    /// <returns>Base key generator name.</returns>
+    public string BuildKeyGeneratorBaseName(KeyInfo key, HierarchyDef hierarchyDef)
+    {
+      if (key.GeneratorKind==KeyGeneratorKind.None)
+        throw new ArgumentOutOfRangeException("key.GeneratorKind");
+
+      if (!string.IsNullOrEmpty(hierarchyDef.KeyGeneratorName))
+        return hierarchyDef.KeyGeneratorName;
+
+      if (key.GeneratorKind==KeyGeneratorKind.Custom)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet,
+          hierarchyDef.Root.UnderlyingType.GetShortName()));
+
+      // KeyGeneratorKind.Default:
+
+      return key.SingleColumnType.GetShortName();
     }
 
     /// <summary>
@@ -501,27 +550,27 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="name">Name to apply the convention to.</param>
     /// <returns>Processed name satisfying naming convention.</returns>
-    public virtual string ApplyNamingRules(string name)
+    public string ApplyNamingRules(string name)
     {
       string result = name;
       result = result.Replace('+', '.');
       result = result.Replace('[', '(');
       result = result.Replace(']', ')');
 
-      if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Uppercase)
+      if (namingConvention.LetterCasePolicy==LetterCasePolicy.Uppercase)
         result = result.ToUpperInvariant();
-      else if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Lowercase)
+      else if (namingConvention.LetterCasePolicy==LetterCasePolicy.Lowercase)
         result = result.ToLowerInvariant();
 
-      if ((NamingConvention.NamingRules & NamingRules.UnderscoreDots) > 0)
+      if ((namingConvention.NamingRules & NamingRules.UnderscoreDots) > 0)
         result = result.Replace('.', '_');
-      if ((NamingConvention.NamingRules & NamingRules.UnderscoreHyphens) > 0)
+      if ((namingConvention.NamingRules & NamingRules.UnderscoreHyphens) > 0)
         result = result.Replace('-', '_');
 
-      if (result.Length <= MaxIdentifierLength)
+      if (result.Length <= maxIdentifierLength)
         return result;
       string hash = GetHash(result);
-      return result.Substring(0, MaxIdentifierLength - hash.Length) + hash;
+      return result.Substring(0, maxIdentifierLength - hash.Length) + hash;
     }
 
     /// <summary>
@@ -531,24 +580,32 @@ namespace Xtensive.Orm.Providers
     /// <returns>Computed hash.</returns>
     protected string GetHash(string name)
     {
-      byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
-      return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
+        byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
+        return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      }
+    }
+
+    private static string FormatKeyGeneratorName(string database, string name)
+    {
+      return string.Format("{0}@{1}", name, database);
     }
 
 
-    // Initializers
+    // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Initialize" copy="true"/>
-    /// </summary>
-    /// <param name="namingConvention">The naming convention.</param>
-    protected internal virtual void Initialize(NamingConvention namingConvention)
+    internal NameBuilder(DomainConfiguration configuration, ProviderInfo providerInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
-      NamingConvention = namingConvention;
-      hashAlgorithm = new MD5CryptoServiceProvider();
-      maxIdentifierLength = Handlers.DomainHandler.ProviderInfo.MaxIdentifierLength;
-      TypeIdColumnName = ApplyNamingRules(Orm.WellKnown.TypeIdFieldName);
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(configuration.NamingConvention, "configuration.NamingConvention");
+      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+
+      namingConvention = configuration.NamingConvention;
+      isMultidatabase = configuration.IsMultidatabase;
+      defaultDatabase = configuration.DefaultDatabase;
+      maxIdentifierLength = providerInfo.MaxIdentifierLength;
+
+      TypeIdColumnName = ApplyNamingRules(WellKnown.TypeIdFieldName);
     }
   }
 }

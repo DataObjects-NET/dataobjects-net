@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq
     public static Expression CreateEntitySetQueryExpression(Expression ownerEntity, FieldInfo field)
     {
       if (!field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof(EntitySet<>)))
-        throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
 
       var elementType = field.ItemType;
       var association = field.Associations.Last();

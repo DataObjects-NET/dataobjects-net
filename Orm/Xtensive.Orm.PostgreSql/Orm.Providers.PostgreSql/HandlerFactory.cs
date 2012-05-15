@@ -11,8 +11,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// <summary>
   /// Storage provider for PostgreSQL.
   /// </summary>
-  [Provider(WellKnown.Provider.PostgreSql, "Storage provider for PostgreSQL.")]
-  public class HandlerFactory : Sql.HandlerFactory
+  [Provider(WellKnown.Provider.PostgreSql, typeof (Xtensive.Sql.Drivers.PostgreSql.DriverFactory))]
+  public class HandlerFactory : Providers.HandlerFactory
   {
   }
 }

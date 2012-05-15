@@ -170,6 +170,22 @@ namespace Xtensive.Sql.Dml
       }
     }
 
+    /// <summary>
+    /// Gets value indicating if <see cref="Limit"/> is specified.
+    /// </summary>
+    public bool HasLimit
+    {
+      get { return !Limit.IsNullReference(); }
+    }
+
+    /// <summary>
+    /// Gets value indicating if <see cref="Offset"/> is specified.
+    /// </summary>
+    public bool HasOffset
+    {
+      get { return !Offset.IsNullReference(); }
+    }
+
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))

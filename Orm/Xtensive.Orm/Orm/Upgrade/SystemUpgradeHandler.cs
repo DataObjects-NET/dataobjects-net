@@ -6,18 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
+using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Reflection;
 using Xtensive.Orm.Building.Builders;
-using Xtensive.Orm.Metadata;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
-
-using M = Xtensive.Orm.Metadata;
-using Type = Xtensive.Orm.Metadata.Type;
+using Xtensive.Orm.Providers;
+using Xtensive.Reflection;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -28,52 +25,59 @@ namespace Xtensive.Orm.Upgrade
   public sealed class SystemUpgradeHandler : UpgradeHandler
   {
     /// <inheritdoc/>
-    public override bool IsEnabled {
-      get {
-        // Enabled just for Xtensive.Storage
+    public override bool IsEnabled
+    {
+      get
+      {
+        // Enabled just for Xtensive.Orm
         return Assembly==GetType().Assembly;
       }
+    }
+
+    public override void OnBeforeStage()
+    {
+      base.OnBeforeStage();
+
+      if (UpgradeContext.Stage!=UpgradeStage.Upgrading)
+        return;
+
+      CheckAssemblies();
+      BuildTypeIdMap();
+      DeserializeDomainModel();
     }
 
     /// <inheritdoc/>
     public override void OnStage()
     {
       var context = UpgradeContext;
-      var upgradeMode = context.OriginalConfiguration.UpgradeMode;
+      var upgradeMode = context.Configuration.UpgradeMode;
+      var session = Session.Demand();
+      var builder = new TypeIdBuilder(session.Domain, context.TypeIdProvider);
+
       switch (context.Stage) {
-      case UpgradeStage.Initializing:
-        TypeIdBuilder.BuildTypeIds(false);
-        if (upgradeMode.IsUpgrading())
+        case UpgradeStage.Upgrading:
           // Perform or PerformSafely
-          CheckMetadata();
-        ExtractDomainModel(false);
-        break;
-      case UpgradeStage.Upgrading:
-        // Perform or PerformSafely
-        TypeIdBuilder.BuildTypeIds(false);
-        UpdateMetadata();
-        break;
-      case UpgradeStage.Final:
-        if (upgradeMode.IsUpgrading()) {
-          // Recreate, Perform or PerformSafely
-          TypeIdBuilder.BuildTypeIds(false);
-          UpdateMetadata();
-        }
-        else if (upgradeMode.IsLegacy()) {
-          // LegacySkip and LegacyValidate
-          TypeIdBuilder.BuildTypeIds(false);
-        }
-        else {
-          // Skip and Validate
-          // We need only system types to extract other TypeIds
-          TypeIdBuilder.BuildTypeIds(true); 
-          ExtractDomainModel(true);
-          // And only after that we can build all TypeIds
-          TypeIdBuilder.BuildTypeIds(false);
-        }
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("context.Stage");
+          builder.BuildTypeIds();
+          UpdateMetadata(session);
+          break;
+        case UpgradeStage.Final:
+          if (upgradeMode.IsUpgrading()) {
+            // Recreate, Perform or PerformSafely
+            builder.BuildTypeIds();
+            UpdateMetadata(session);
+          }
+          else if (upgradeMode.IsLegacy()) {
+            // LegacySkip and LegacyValidate
+            builder.BuildTypeIds();
+          }
+          else {
+            // Skip and Validate
+            BuildTypeIdMap();
+            builder.BuildTypeIds();
+          }
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("context.Stage");
       }
     }
 
@@ -82,138 +86,134 @@ namespace Xtensive.Orm.Upgrade
       return true;
     }
 
-    private void CheckMetadata()
+    private void UpdateMetadata(Session session)
     {
-      CheckAssemblies();
+      var groups = BuildMetadata(session.Domain.Model);
+      var driver = session.Handlers.StorageDriver;
+      var mapping = new MetadataMapping(driver, session.Handlers.NameBuilder);
+      var executor = session.Services.Demand<IProviderExecutor>();
+      var resolver = UpgradeContext.Services.Resolver;
+      var metadataSchema = UpgradeContext.Configuration.DefaultSchema;
+      var sqlModel = UpgradeContext.ExtractedSqlModelCache;
+
+      foreach (var group in groups) {
+        var metadataDatabase = group.Key;
+        var metadata = group.Value;
+        var schema = resolver.GetSchema(sqlModel, metadataDatabase, metadataSchema);
+        var task = new SqlExtractionTask(schema.Catalog.Name, schema.Name);
+        var writer = new MetadataWriter(driver, mapping, task, executor);
+        writer.Write(metadata);
+      }
+
+      var flatMetadata = new MetadataSet();
+      foreach (var metadata in groups.Values)
+        flatMetadata.UnionWith(metadata);
+      UpgradeContext.Metadata = flatMetadata;
     }
 
-    private void UpdateMetadata()
-    {
-      UpdateAssemblies();
-      UpdateTypes();
-      UpdateDomainModel();
-    }
-
-    /// <exception cref="DomainBuilderException">Impossible to upgrade all assemblies.</exception>
     private void CheckAssemblies()
     {
-      foreach (var pair in GetAssemblies()) {
-        var handler = pair.First;
-        var assembly = pair.Second;
-        if (handler==null)
-          throw new DomainBuilderException(string.Format(
-            Strings.ExNoUpgradeHandlerIsFoundForAssemblyXVersionY,
-            assembly.Name, assembly.Version));
-        if (assembly==null) {
-          if (!handler.CanUpgradeFrom(null))
-            throw new DomainBuilderException(string.Format(
-              Strings.ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported,
-              handler.AssemblyName, Strings.ZeroAssemblyVersion, handler.AssemblyVersion));
-          else
-            continue;
-        }
-        if (!handler.CanUpgradeFrom(assembly.Version))
-          throw new DomainBuilderException(string.Format(
-            Strings.ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported,
-            assembly.Name, assembly.Version, handler.AssemblyVersion));
-      }
-    }
+      var oldMetadata = UpgradeContext.Metadata.Assemblies ?? Enumerable.Empty<AssemblyMetadata>();
 
-    /// <exception cref="DomainBuilderException">Impossible to upgrade all assemblies.</exception>
-    private void UpdateAssemblies()
-    {
-      foreach (var pair in GetAssemblies()) {
-        var handler = pair.First;
-        var assembly = pair.Second;
-        if (handler==null)
-          throw new DomainBuilderException(string.Format(
-            Strings.ExNoUpgradeHandlerIsFoundForAssemblyXVersionY,
-            assembly.Name, assembly.Version));
-        if (assembly==null) {
-          assembly = new M.Assembly(handler.AssemblyName) {
-            Version = handler.AssemblyVersion
-          };
-          Log.Info(Strings.LogMetadataAssemblyCreatedX, assembly);
+      var oldAssemblies = oldMetadata
+        .GroupBy(a => a.Name)
+        .ToDictionary(g => g.Key, g => g.ToList());
+
+      var handlers = UpgradeContext.OrderedUpgradeHandlers;
+
+      foreach (var handler in handlers) {
+        List<AssemblyMetadata> assemblies;
+        if (oldAssemblies.TryGetValue(handler.AssemblyName, out assemblies)) {
+          foreach (var assembly in assemblies)
+            if (!handler.CanUpgradeFrom(assembly.Version))
+              throw HandlerCanNotUpgrade(handler, assembly.Version);
         }
         else {
-          var oldVersion = assembly.Version;
-          assembly.Version = handler.AssemblyVersion;
-          Log.Info(Strings.LogMetadataAssemblyUpdatedXFromVersionYToZ, assembly, oldVersion, assembly.Version);
+          if (!handler.CanUpgradeFrom(null))
+            throw HandlerCanNotUpgrade(handler, Strings.ZeroAssemblyVersion);
         }
       }
     }
 
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private void UpdateTypes()
+    private static DomainBuilderException HandlerCanNotUpgrade(IUpgradeHandler handler, string sourceVersion)
     {
-      var session = Session.Demand();
-      var domainModel = session.Domain.Model;
-      session.Query.All<M.Type>().Remove();
-      session.SaveChanges();
-      domainModel.Types
-        .Where(type => type.IsEntity && type.TypeId!=TypeInfo.NoTypeId)
-        .ForEach(type => new M.Type(type.TypeId, type.UnderlyingType.GetFullName()));
+      return new DomainBuilderException(string.Format(
+        Strings.ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported,
+        handler.AssemblyName, sourceVersion, handler.AssemblyVersion));
     }
 
-    private void UpdateDomainModel()
+    private Dictionary<string, MetadataSet> BuildMetadata(DomainModel model)
     {
-      var domainModel = Domain.Demand().Model;
-      var modelHolder = Session.Demand().Query.All<Extension>()
-        .SingleOrDefault(extension => extension.Name==WellKnown.DomainModelExtensionName);
-      if (modelHolder == null)
-        modelHolder = new Extension(WellKnown.DomainModelExtensionName);
-      using (var writer = new StringWriter()) {
-        var serializer = new XmlSerializer(typeof (StoredDomainModel));
-        serializer.Serialize(writer, domainModel.ToStoredModel());
-        modelHolder.Text = writer.GetStringBuilder().ToString();
+      var metadataGroups = model.Databases.ToDictionary(db => db.Name, db => new MetadataSet());
+      if (metadataGroups.Count==0)
+        metadataGroups.Add(string.Empty, new MetadataSet());
+
+      foreach (var group in metadataGroups) {
+        var database = group.Key;
+        var metadata = group.Value;
+        Func<TypeInfo, bool> filter = t => t.MappingDatabase==database;
+        var types = model.Types.Where(filter).ToList();
+        var typeMetadata = GetTypeMetadata(types);
+        var assemblies = types.Select(t => t.UnderlyingType.Assembly).ToHashSet();
+        var assemblyMetadata = GetAssemblyMetadata(assemblies);
+        var serializedModel = model.ToStoredModel(filter).Serialize();
+        var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel);
+        metadata.Assemblies.AddRange(assemblyMetadata);
+        metadata.Types.AddRange(typeMetadata);
+        metadata.Extensions.Add(modelExtension);
       }
+
+      return metadataGroups;
     }
 
-    private IEnumerable<Pair<IUpgradeHandler, Assembly>> GetAssemblies()
+    private IEnumerable<AssemblyMetadata> GetAssemblyMetadata(HashSet<Assembly> assemblies)
     {
-      var assemblies = Session.Demand().Query.All<M.Assembly>().ToDictionary(a => a.Name);
-      var oldNames = assemblies.Keys;
-
-      var handlers = UpgradeContext.UpgradeHandlers.Values.ToDictionary(h => h.AssemblyName);
-      if (oldNames.Contains("Xtensive.Storage"))
-        handlers["Xtensive.Storage"] = new SystemUpgradeHandler();
-      var handledAssemblyNames = handlers.Keys;
-      
-      var commonNames = handledAssemblyNames.Intersect(oldNames);
-      var addedNames = handledAssemblyNames.Except(commonNames);
-      var removedNames = oldNames.Except(commonNames);
-
-      return 
-        addedNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(handlers[n], null))
-          .Concat(commonNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(handlers[n], assemblies[n])))
-          .Concat(removedNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(null, assemblies[n])))
-          .ToArray();
+      var assemblyMetadata = UpgradeContext.OrderedUpgradeHandlers
+        .Where(handler => assemblies.Contains(handler.Assembly))
+        .Select(handler => new AssemblyMetadata(handler.AssemblyName, handler.AssemblyVersion));
+      return assemblyMetadata;
     }
 
-    private void ExtractDomainModel(bool typeIdsOnly)
+    private static IEnumerable<TypeMetadata> GetTypeMetadata(IEnumerable<TypeInfo> types)
+    {
+      return types
+        .Where(t => t.IsEntity && t.TypeId!=TypeInfo.NoTypeId)
+        .Select(type => new TypeMetadata(type.TypeId, type.UnderlyingType.GetFullName()));
+    }
+
+    private void DeserializeDomainModel()
     {
       var context = UpgradeContext;
-      context.ExtractedTypeMap = Session.Demand().Query.All<Type>().ToDictionary(t => t.Name, t => t.Id);
-      if (typeIdsOnly)
-        return;
+      var extensions = context.Metadata.Extensions.Where(e => e.Name==WellKnown.DomainModelExtensionName);
+      try {
+        var found = false;
+        var types = new List<StoredTypeInfo>();
 
-      var modelHolder = Session.Demand().Query.All<Extension>()
-        .SingleOrDefault(e => e.Name==WellKnown.DomainModelExtensionName);
-      if (modelHolder == null) {
-        Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
-        return;
+        foreach (var extension in extensions) {
+          found = true;
+          var part = StoredDomainModel.Deserialize(extension.Value);
+          types.AddRange(part.Types);
+        }
+
+        if (!found) {
+          UpgradeLog.Info(Strings.LogDomainModelIsNotFoundInStorage);
+          return;
+        }
+
+        var model = new StoredDomainModel {Types = types.ToArray()};
+        model.UpdateReferences();
+
+        context.ExtractedDomainModel = model;
       }
-      StoredDomainModel model = null;
-      var serializer = new XmlSerializer(typeof (StoredDomainModel));
-      using (var reader = new StringReader(modelHolder.Text))
-        try {
-          model = (StoredDomainModel) serializer.Deserialize(reader);
-          model.UpdateReferences();
-        }
-        catch (Exception e) {
-          Log.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
-        }
-      context.ExtractedDomainModel = model;
+      catch (Exception e) {
+        UpgradeLog.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
+      }
+    }
+
+    private void BuildTypeIdMap()
+    {
+      var context = UpgradeContext;
+      context.ExtractedTypeMap = context.Metadata.Types.ToDictionary(t => t.Name, t => t.Id);
     }
   }
 }

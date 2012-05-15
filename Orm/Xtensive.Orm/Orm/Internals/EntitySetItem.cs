@@ -5,7 +5,7 @@
 // Created:    2008.09.05
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Internals
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="tuple">The tuple containing key value for this instance.</param>

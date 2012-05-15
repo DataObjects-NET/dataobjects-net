@@ -7,109 +7,66 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Orm;
 using Xtensive.Reflection;
-
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// An abstract base class for any storage factories.
   /// </summary>
-  public abstract class HandlerFactory : DomainBound
+  public abstract class HandlerFactory
   {
-    private readonly Dictionary<Type, Func<object>> constructors = new Dictionary<Type, Func<object>>();
-    private static readonly Type HandlerBaseType = typeof(HandlerBase);
-    private static readonly Type InitializableHandlerBaseType = typeof (InitializableHandlerBase);
+    private static readonly Type HandlerType = typeof (Handler);
+    private static readonly Type DomainBoundHandlerType = typeof (DomainBoundHandler);
+
+    private readonly Dictionary<Type, Type> serviceMapping = new Dictionary<Type, Type>();
 
     /// <summary>
-    /// Creates the handler of type <typeparamref name="T"/>.
+    /// Creates the handler of specified type <typeparamref name="TContract"/>.
     /// </summary>
-    /// <typeparam name="T">Type of the handler to create.</typeparam>
+    /// <typeparam name="TContract">Handler contract</typeparam>
     /// <returns>A newly created handler of requested type;</returns>
-    /// <exception cref="NotSupportedException">Handler for type <typeparamref name="T"/> was not found.</exception>
-    public T CreateHandler<T>()
-      where T: HandlerBase
+    /// <exception cref="NotSupportedException">
+    /// Handler for type <typeparamref name="TContract"/> was not found.</exception>
+    public TContract CreateHandler<TContract>()
+      where TContract : Handler
     {
-      return (T) CreateHandler(typeof (T));
+      Type implementor;
+
+      if (serviceMapping.TryGetValue(typeof (TContract), out implementor))
+        return (TContract) Activator.CreateInstance(implementor);
+
+      throw new NotSupportedException(
+        string.Format(Strings.ExCannotFindHandlerOfTypeX, typeof (TContract).GetShortName()));
     }
-
-    /// <summary>
-    /// Creates the handler of specified type <paramref name="handlerType"/>.
-    /// </summary>
-    /// <param name="handlerType">Type of the handler to create.</param>
-    /// <returns>A newly created handler of requested type;</returns>
-    /// <exception cref="NotSupportedException">Handler for type <paramref name="handlerType"/> was not found.</exception>
-    public HandlerBase CreateHandler(Type handlerType)
-    {
-      HandlerBase handler = TryCreateHandler(handlerType);
-      
-      if (handler==null)
-        throw new NotSupportedException(
-          string.Format(Strings.ExCannotFindHandlerOfTypeX, handlerType.GetShortName()));
-
-      return handler;
-    }
-
-    /// <summary>
-    /// Creates the handler of the specified type.
-    /// </summary>
-    /// <typeparam name="T">Type of the handler to create.</typeparam>
-    /// <returns>
-    /// Created handler or <see langword="null" /> if handler of specified type was now found.
-    /// </returns>
-    public HandlerBase TryCreateHandler<T> ()
-    {
-      return TryCreateHandler(typeof(T));
-    }
-
-    /// <summary>
-    /// Creates the handler of type <paramref name="handlerType"/>.
-    /// </summary>
-    /// <param name="handlerType">Type of the handler to create.</param>
-    /// <returns>
-    /// Created handler or <see langword="null" /> if handler of specified type was now found.
-    /// </returns>
-    public HandlerBase TryCreateHandler(Type handlerType)
-    {
-      Func<object> constructor;
-      if (!constructors.TryGetValue(handlerType, out constructor) || constructor==null)
-        return null;
-
-      var result = (HandlerBase) constructor.Invoke();
-      result.Handlers = Domain.Handlers;
-
-      return result;
-    }
-    
-    #region Private / internal methods
 
     private void RegisterHandlersFrom(Assembly assembly, string @namespace)
     {
-      foreach (Type type in assembly.GetTypes())
-        if (type.Namespace==@namespace && type.IsPublicNonAbstractInheritorOf(HandlerBaseType))
+      foreach (var type in assembly.GetTypes())
+        if (type.Namespace==@namespace && type.IsPublicNonAbstractInheritorOf(HandlerType))
           RegisterHandler(type);
     }
 
     private void RegisterHandler(Type type)
     {
-      var constructorDelegate = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
-      while (type!=HandlerBaseType && type!=InitializableHandlerBaseType && !constructors.ContainsKey(type)) {
-        constructors[type] = constructorDelegate;
-        type = type.BaseType;
+      var contract = type;
+      var implementor = type;
+
+      while (contract!=HandlerType && contract!=DomainBoundHandlerType && !serviceMapping.ContainsKey(contract)) {
+        serviceMapping[contract] = implementor;
+        contract = contract.BaseType;
       }
     }
 
-    internal void Initialize()
+    // Constructors
+
+    protected HandlerFactory()
     {
-      Type type = GetType();
-      while (type!=typeof (HandlerFactory)) {
+      var type = GetType();
+      while (type!=typeof (object)) {
         RegisterHandlersFrom(type.Assembly, type.Namespace);
         type = type.BaseType;
       }
-      RegisterHandlersFrom(typeof (HandlerFactory).Assembly, typeof (HandlerFactory).Namespace);
     }
-
-    #endregion
   }
 }

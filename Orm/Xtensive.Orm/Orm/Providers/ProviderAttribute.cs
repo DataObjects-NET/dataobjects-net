@@ -5,6 +5,7 @@
 // Created:    2008.01.21
 
 using System;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
@@ -12,65 +13,26 @@ namespace Xtensive.Orm.Providers
   /// An attribute that must be applied to <see cref="HandlerFactory"/>
   /// to make it available for the storage.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-  public sealed class ProviderAttribute : Attribute, 
-    IEquatable<ProviderAttribute>
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+  public sealed class ProviderAttribute : Attribute
   {
     /// <summary>
-    /// Gets or sets the protocol the provider is responsible for.
+    /// Gets provider name.
     /// </summary>
-    public string Protocol { get; private set; }
+    public string Name { get; private set; }
 
     /// <summary>
-    /// Gets or sets the description of the provider.
+    /// Gets <see cref="SqlDriverFactory"/> implementation.
     /// </summary>
-    public string Description { get; private set; }
+    public Type DriverFactory { get; private set; }
 
-    #region Equals, GetHashCode methods
 
-    /// <inheritdoc/>
-    public bool Equals(ProviderAttribute obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj.Protocol, Protocol);
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as ProviderAttribute);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (Protocol!=null ? Protocol.GetHashCode() : 0);
-        return result;
-      }
-    }
-
-    #endregion
-    
     // Constructors
 
-    public ProviderAttribute(string protocol)
+    public ProviderAttribute(string name, Type driverFactory)
     {
-      Protocol = protocol;
-    }
-
-    public ProviderAttribute(string protocol, string description)
-    {
-      Protocol = protocol;
-      Description = description;
+      Name = name;
+      DriverFactory = driverFactory;
     }
   }
 }

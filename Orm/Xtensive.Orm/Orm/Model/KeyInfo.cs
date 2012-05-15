@@ -5,12 +5,12 @@
 // Created:    2009.02.13
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Model
 {
@@ -18,12 +18,24 @@ namespace Xtensive.Orm.Model
   /// Describes key for a particular <see cref="hierarchy"/>.
   /// </summary>
   [Serializable]
-  public sealed class KeyInfo : MappingNode
+  public sealed class KeyInfo : Node
   {
     private HierarchyInfo hierarchy;
     private SequenceInfo sequence;
     private object equalityIdentifier;
     private bool isFirstAmongSimilarKeys;
+    private string generatorName;
+    private string generatorBaseName;
+    private KeyGeneratorKind generatorKind;
+    private Type singleColumnType;
+
+    /// <summary>
+    /// Gets single column type if this <see cref="KeyInfo"/>
+    /// has single column (excluding possible TypeId column).
+    /// If this <see cref="KeyInfo"/> has multiple columns
+    /// returns <see langword="null"/>.
+    /// </summary>
+    public Type SingleColumnType { get { return singleColumnType; } }
 
     /// <summary>
     /// Gets the hierarchy this key belongs to.
@@ -48,14 +60,47 @@ namespace Xtensive.Orm.Model
     public ReadOnlyList<ColumnInfo> Columns { get; private set; }
 
     /// <summary>
-    /// Gets the key generator type.
+    /// Gets the key generator name.
+    /// This name is used as service name in IoC.
     /// </summary>
-    public Type GeneratorType { get; private set; }
+    public string GeneratorName
+    {
+      get { return generatorName; }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorName = value;
+      }
+    }
 
     /// <summary>
-    /// Gets the key generator name.
+    /// Gets generator base name.
+    /// This name don't include database suffix
+    /// and is used to build physical table/sequence name.
     /// </summary>
-    public string GeneratorName { get; private set; }
+    public string GeneratorBaseName
+    {
+      get { return generatorBaseName; }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorBaseName = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets <see cref="KeyGeneratorKind"/> for this <see cref="KeyInfo"/>.
+    /// </summary>
+    public KeyGeneratorKind GeneratorKind
+    {
+      get { return generatorKind; }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorKind = value;
+      }
+    }
+
 
     /// <summary>
     /// Gets the tuple descriptor of the key.
@@ -144,29 +189,26 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="fields">The key fields.</param>
     /// <param name="columns">The key columns.</param>
-    /// <param name="generatorType">Type of the key generator.</param>
-    /// <param name="generatorName">Name of the key generator (<see langword="null"/> means unnamed).</param>
     /// <param name="tupleDescriptor">Key tuple descriptor.</param>
     /// <param name="typeIdColumnIndex">Index of the type id column.</param>
-    public KeyInfo(
-      ReadOnlyList<FieldInfo> fields, 
-      ReadOnlyList<ColumnInfo> columns, 
-      Type generatorType, 
-      string generatorName,  
-      TupleDescriptor tupleDescriptor, 
-      int typeIdColumnIndex)
+    public KeyInfo(string name, IList<FieldInfo> fields, IList<ColumnInfo> columns,
+      TupleDescriptor tupleDescriptor, int typeIdColumnIndex)
+      : base(name)
     {
-      Fields = fields;
-      Columns = columns;
-      GeneratorType = generatorType;
-      GeneratorName = generatorName;
+      Fields = new ReadOnlyList<FieldInfo>(fields);
+      Columns = new ReadOnlyList<ColumnInfo>(columns);
+
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;
+
       ContainsForeignKeys = fields.Any(f => f.Parent!=null);
+
+      if (Columns.Where((c, i) => i!=TypeIdColumnIndex).Count()==1)
+        singleColumnType = Columns.Where((c, i) => i!=TypeIdColumnIndex).First().ValueType;
     }
   }
 }

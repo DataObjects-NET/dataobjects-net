@@ -5,7 +5,7 @@
 // Created:    2009.05.15
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="throwOnCorrectionFault">if set to <see langword="true"/> 
     /// then <see cref="InvalidOperationException"/> will be thrown in case of 

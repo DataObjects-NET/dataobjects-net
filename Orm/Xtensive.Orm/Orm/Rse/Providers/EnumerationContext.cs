@@ -8,9 +8,8 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.IoC;
 
+using Xtensive.IoC;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -19,10 +18,8 @@ namespace Xtensive.Orm.Rse.Providers
   /// The single enumeration attempt context for the <see cref="ExecutableProvider"/>.
   /// </summary>
   [Serializable]
-  public abstract class EnumerationContext: Context<EnumerationScope>
+  public abstract class EnumerationContext : Context<EnumerationScope>
   {
-    private const string DefaultName = "Default";
-
     /// <summary>
     /// Gets the current <see cref="EnumerationContext"/>.
     /// </summary>
@@ -35,7 +32,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the options of this context.
     /// </summary>
-    public abstract EnumerationContextOptions Options { get; }
+    protected abstract EnumerationContextOptions Options { get; }
 
     /// <summary>
     /// Should be called before enumeration of your <see cref="IEnumerable{T}"/>.
@@ -55,34 +52,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// Gets the transaction temporary data.
     /// </summary>
     public abstract TransactionTemporaryData TransactionTemporaryData { get; }
-
-    /// <summary>
-    /// Factory method. Creates new <see cref="EnumerationContext"/>.
-    /// </summary>
-    public abstract EnumerationContext CreateNew();
-    
-    /// <summary>
-    /// Caches the value in the current <see cref="EnumerationContext"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the value.</typeparam>
-    /// <param name="key">The cache key.</param>
-    /// <param name="value">The value to cache.</param>
-    public void SetValue<T>(object key, T value)
-    {
-      SetValue(key, DefaultName, value);
-    }
-
-    /// <summary>
-    /// Gets the cached value from the current <see cref="EnumerationContext"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the value.</typeparam>
-    /// <param name="key">The cache key.</param>
-    /// <returns>Cached value with the specified key;
-    /// <see langword="null"/>, if no cached value is found, or it is already expired.</returns>
-    public T GetValue<T>(object key)
-    {
-      return GetValue<T>(key, DefaultName);
-    }
 
     /// <summary>
     /// Caches the value in the current <see cref="EnumerationContext"/>.
@@ -110,9 +79,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       object result;
       cache.TryGetValue(new Pair<object, string>(key, name), out result);
-      return result == null 
-        ? default(T) 
-        : (T) result;
+      return result==null ? default(T) : (T) result;
     }
 
     /// <summary>
@@ -145,8 +112,7 @@ namespace Xtensive.Orm.Rse.Providers
     public void EnsureIsActive()
     {
       if (EnumerationScope.CurrentContext!=this)
-        throw new InvalidOperationException(string.Format(Strings.ExXMustBeActive, 
-          GetType().GetShortName()));
+        throw new InvalidOperationException(string.Format(Strings.ExXMustBeActive, GetType().GetShortName()));
     }
 
     #endregion
@@ -155,7 +121,7 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected EnumerationContext()
     {

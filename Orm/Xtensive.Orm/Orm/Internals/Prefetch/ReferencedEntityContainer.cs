@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         return Task;
 
       EntityState ownerState;
-      var isStateCached = Manager.Owner.TryGetEntityState(ownerKey, out ownerState);
+      var isStateCached = Manager.Owner.LookupState(ownerKey, out ownerState);
       if (isStateCached) {
         if (ownerState == null)
           return null;
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         throw new KeyNotFoundException(
           String.Format(Strings.ExReferencingEntityWithKeyXIsNotFound, ownerKey));
       if (!ownerState.IsTupleLoaded)
-        throw Exceptions.InternalError(Strings.ExReferencingEntityTupleIsNotLoaded, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExReferencingEntityTupleIsNotLoaded, OrmLog.Instance);
       if (!isOwnerTypeKnown && !ownerState.Key.TypeReference.Type.Fields.Contains(ReferencingField))
         return null;
       var foreignKeyTuple = ExtractForeignKeyTuple(ownerState);
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       for (int i = 0; i < result.Count; i++) {
         if (!result.GetFieldState(i).IsAvailable())
           if (isOwnerTypeKnown)
-            throw Exceptions.InternalError(Strings.ExForeignKeyValueHaveNotBeenLoaded, Log.Instance);
+            throw Exceptions.InternalError(Strings.ExForeignKeyValueHaveNotBeenLoaded, OrmLog.Instance);
           else
             return null;
         if (tupleState[i])

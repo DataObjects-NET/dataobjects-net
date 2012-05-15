@@ -5,7 +5,7 @@
 // Created:    2009.04.24
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
 
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Correction
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="isOrderSensitive">value of <see cref="IsOrderSensitive"/>.</param>
     /// <param name="preservesOrder">value of <see cref="PreservesOrder"/>.</param>

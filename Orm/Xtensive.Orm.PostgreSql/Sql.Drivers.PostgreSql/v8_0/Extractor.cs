@@ -69,14 +69,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         }
     }
 
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       ExtractUsers();
       ExtractSchemas(catalog);
       return catalog;
     }
 
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       schema = catalog.CreateSchema(schemaName);
       ExtractUsers();
@@ -404,7 +404,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             }
             else if (relkind=="S") {
               Sequence s = sch.CreateSequence(relname);
-              s.DataType = new SqlValueType(SqlType.Int64);
               sequences.Add(reloid, s);
             }
           }
@@ -761,10 +760,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           Sequence[] seqArray = new Sequence[sequences.Count];
           sequences.Values.CopyTo(seqArray, 0);
           Sequence seq = seqArray[0];
-          query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", 0, Driver.Translator.Translate(seq));
+          query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", 0,
+            Driver.Translator.Translate(null, seq)); // context is not used in PostrgreSQL translator
           for (int i = 1; i < sequences.Count; i++) {
             seq = seqArray[i];
-            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", i, Driver.Translator.Translate(seq));
+            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", i,
+              Driver.Translator.Translate(null, seq)); // context is not used in PostgreSQL translator
           }
           query.Append("\n) all_sequences\nORDER BY id");
         }

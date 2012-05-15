@@ -5,7 +5,7 @@
 // Created:    2009.04.20
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Upgrade.Model
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="parent">The foreign key.</param>
     /// <param name="column">The column.</param>

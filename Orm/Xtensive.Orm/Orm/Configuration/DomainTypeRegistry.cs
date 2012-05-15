@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using System.Linq;
 using Xtensive.Linq;
 using Xtensive.Reflection;
@@ -29,7 +29,8 @@ namespace Xtensive.Orm.Configuration
     internal readonly static Type iSessionServiceType = typeof (ISessionService);
     internal readonly static Type iModuleType = typeof (IModule);
     internal readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
-    internal readonly static Type iKeyGeneratorType = typeof (KeyGenerator);
+    internal readonly static Type iKeyGeneratorType = typeof (IKeyGenerator);
+    internal readonly static Type iTemporaryKeyGeneratorType = typeof (ITemporaryKeyGenerator);
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -77,7 +78,8 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets all the registered <see cref="KeyGenerator"/> implementations.
+    /// Gets all the registered <see cref="IKeyGenerator"/>
+    /// or <see cref="ITemporaryKeyGenerator"/> implementations.
     /// </summary>
     public IEnumerable<Type> KeyGenerators { 
       get {
@@ -202,6 +204,8 @@ namespace Xtensive.Orm.Configuration
         return false;
       if (iKeyGeneratorType.IsAssignableFrom(type))
         return true;
+      if (iTemporaryKeyGeneratorType.IsAssignableFrom(type))
+        return true;
       return false;
     }
 
@@ -232,7 +236,7 @@ namespace Xtensive.Orm.Configuration
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="processor">The registry action processor.</param>
     public DomainTypeRegistry(ITypeRegistrationProcessor processor)

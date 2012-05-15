@@ -49,9 +49,9 @@ namespace Xtensive.Orm.Serialization
       var domain = session.Domain;
       var typeInfo = domain.Model.Types[entity.GetType()];
 
-      var keyGenerator = domain.KeyGenerators[typeInfo.Key];
+      var keyGenerator = domain.KeyGenerators.Get(typeInfo.Key, session.IsDisconnected);
       var keyValue = keyGenerator!=null 
-        ? keyGenerator.GenerateKey(session.IsDisconnected) 
+        ? keyGenerator.GenerateKey(typeInfo.Key, session) 
         : DeserializeKeyFields(typeInfo, info, context);
       var key = Key.Create(domain, typeInfo, TypeReferenceAccuracy.ExactType, keyValue);
 

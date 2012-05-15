@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 
@@ -157,7 +157,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="key">The key of entity this reference points to.</param>
     public Ref(Key key)
@@ -166,7 +166,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="formattedKey">The formatted key of entity this reference points to.</param>
     public Ref(string formattedKey)
@@ -175,7 +175,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="entity">The entity this reference points to.</param>
     public Ref(T entity)
@@ -188,13 +188,17 @@ namespace Xtensive.Orm
 
     #region ISerializable members
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     private Ref(SerializationInfo info, StreamingContext context)
     {
       keyOrString = info.GetString("FormattedKey");
     }
 
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// <summary>
+    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+    /// </summary>
+    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
     #if NET40
     [SecurityCritical]
     #else

@@ -7,18 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-
 
 namespace Xtensive.Orm.Building
 {
-  [Serializable]
-  internal static class FixupActionProcessor
+  internal sealed class FixupActionProcessor
   {
     #region Nested type: GenericArgumentCombinator
 
@@ -61,26 +57,29 @@ namespace Xtensive.Orm.Building
 
     #endregion
 
-    internal readonly static Type iEntityType = typeof (IEntity);
+    private readonly BuildingContext context;
 
-    public static void Run()
+    public static void Run(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
+      new FixupActionProcessor(context).ProcessAll();
+    }
 
-      using (Log.InfoRegion(Strings.LogProcessingFixupActions))
+    private void ProcessAll()
+    {
+      using (BuildLog.InfoRegion(Strings.LogProcessingFixupActions))
         while (context.ModelInspectionResult.Actions.Count > 0) {
           var action = context.ModelInspectionResult.Actions.Dequeue();
-          Log.Info(string.Format(Strings.LogExecutingActionX, action));
-          action.Run();
+          BuildLog.Info(string.Format(Strings.LogExecutingActionX, action));
+          action.Run(this);
         }
     }
 
-    public static void Process(AddTypeIdToKeyFieldsAction action)
+    public void Process(AddTypeIdToKeyFieldsAction action)
     {
       action.Hierarchy.KeyFields.Add(new KeyField(WellKnown.TypeIdFieldName));
     }
 
-    public static void Process(ReorderFieldsAction action)
+    public void Process(ReorderFieldsAction action)
     {
       var target = action.Target;
       var buffer = new List<FieldDef>(target.Fields.Count);
@@ -100,23 +99,19 @@ namespace Xtensive.Orm.Building
       target.Fields.AddRange(buffer);
     }
 
-    public static void Process(RemoveTypeAction action)
+    public void Process(RemoveTypeAction action)
     {
-      var context = BuildingContext.Demand();
       context.DependencyGraph.RemoveNode(action.Type);
       context.ModelDef.Types.Remove(action.Type);
     }
 
-    public static void Process(MakeTypeNonAbstractAction action)
+    public void Process(MakeTypeNonAbstractAction action)
     {
-      var context = BuildingContext.Demand();
       action.Type.IsAbstract = false;
     }
 
-    public static void Process(BuildGenericTypeInstancesAction action)
+    public void Process(BuildGenericTypeInstancesAction action)
     {
-      var context = BuildingContext.Demand();
-
       // Making a copy of already built hierarchy set to avoid recursiveness
       var hierarchies = context.ModelDef.Hierarchies
         .Where(h => !h.Root.IsGenericTypeDefinition)
@@ -132,14 +127,14 @@ namespace Xtensive.Orm.Building
       if (hierarchyToRemove != null) 
         context.ModelDef.Hierarchies.Remove(hierarchyToRemove);
 
-      // Building al possible generic arguemtn substitusions
+      // Building all possible generic argument substitutions
       var arguments = type.UnderlyingType.GetGenericArguments();
       var typeSubstitutions = new Type[arguments.Length][];
       for (var i = 0; i < arguments.Length; i++) {
         var argument = arguments[i];
         var constraints = argument.GetGenericParameterConstraints()
           .ToList();
-        if (constraints.Count == 0 || !constraints.Any(c => iEntityType.IsAssignableFrom(c)))
+        if (constraints.Count == 0 || !constraints.Any(c => typeof (IEntity).IsAssignableFrom(c)))
           return; // No IEntity / Entity constraints
         var queue = new Queue<Type>(
           from hierarchy in hierarchies
@@ -165,12 +160,17 @@ namespace Xtensive.Orm.Building
         typeSubstitutions[i] = types.ToArray();
       }
       foreach (var instanceType in GenericArgumentCombinator.Generate(type.UnderlyingType, typeSubstitutions)) {
-        var typeDef = ModelDefBuilder.ProcessType(instanceType);
+        var typeDef = context.ModelDefBuilder.ProcessType(instanceType);
         typeDef.Attributes |= TypeAttributes.AutoGenericInstance;
+        // Copy schema/database from first generic argument
+        var originatingType = instanceType.GetGenericArguments()[0];
+        var originatingEntity = context.ModelDef.Types[originatingType];
+        typeDef.MappingDatabase = originatingEntity.MappingDatabase;
+        typeDef.MappingSchema = originatingEntity.MappingSchema;
       }
     }
 
-    public static void Process(AddForeignKeyIndexAction action)
+    public void Process(AddForeignKeyIndexAction action)
     {
       var type = action.Type;
       Func<IndexDef, bool> predicate = 
@@ -179,7 +179,6 @@ namespace Xtensive.Orm.Building
         i.KeyFields[0].Key==action.Field.Name;
       if (type.Indexes.Any(predicate))
         return;
-      var context = BuildingContext.Demand();
       var queue = new Queue<TypeDef>();
       var interfaces = new HashSet<TypeDef>();
       queue.Enqueue(type);
@@ -194,11 +193,11 @@ namespace Xtensive.Orm.Building
         return;
 
       var attribute = new IndexAttribute(action.Field.Name);
-      var indexDef = ModelDefBuilder.DefineIndex(type, attribute);
+      var indexDef = context.ModelDefBuilder.DefineIndex(type, attribute);
       type.Indexes.Add(indexDef);
     }
 
-    public static void Process(AddPrimaryIndexAction action)
+    public void Process(AddPrimaryIndexAction action)
     {
       var type = action.Type;
 
@@ -208,7 +207,7 @@ namespace Xtensive.Orm.Building
           type.Indexes.Remove(primaryIndex);
 
       var generatedIndex = new IndexDef(action.Type) {IsPrimary = true};
-      generatedIndex.Name = BuildingContext.Demand().NameBuilder.BuildIndexName(type, generatedIndex);
+      generatedIndex.Name = context.NameBuilder.BuildIndexName(type, generatedIndex);
 
       TypeDef hierarchyRoot;
       if (type.IsInterface) {
@@ -218,7 +217,7 @@ namespace Xtensive.Orm.Building
       else
         hierarchyRoot = type;
 
-      var hierarchyDef = BuildingContext.Demand().ModelDef.FindHierarchy(hierarchyRoot);
+      var hierarchyDef = context.ModelDef.FindHierarchy(hierarchyRoot);
 
       foreach (KeyField pair in hierarchyDef.KeyFields)
         generatedIndex.KeyFields.Add(pair.Name, pair.Direction);
@@ -238,27 +237,27 @@ namespace Xtensive.Orm.Building
       type.Indexes.Add(generatedIndex);
     }
 
-    public static void Process(MarkFieldAsSystemAction action)
+    public void Process(MarkFieldAsSystemAction action)
     {
       action.Field.IsSystem = true;
       if (action.Type.IsEntity && action.Field.Name == WellKnown.TypeIdFieldName)
         action.Field.IsTypeId = true;
     }
 
-    public static void Process(AddTypeIdFieldAction action)
+    public void Process(AddTypeIdFieldAction action)
     {
-      FieldDef fieldDef = ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
+      FieldDef fieldDef = context.ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);
     }
 
-    public static void Process(MarkFieldAsNotNullableAction action)
+    public void Process(MarkFieldAsNotNullableAction action)
     {
       action.Field.IsNullable = false;
     }
 
-    public static void Process(CopyKeyFieldsAction action)
+    public void Process(CopyKeyFieldsAction action)
     {
       var target = action.Type;
       var source = action.Source;
@@ -282,12 +281,17 @@ namespace Xtensive.Orm.Building
       }
     }
 
-    public static void Process(BuildImplementorListAction action)
+    public void Process(BuildImplementorListAction action)
     {
-      var context = BuildingContext.Demand();
-
       var node = context.DependencyGraph.TryGetNode(action.Type);
       node.Value.Implementors.AddRange(node.IncomingEdges.Where(e => e.Kind==EdgeKind.Implementation).Select(e => e.Tail.Value));
+    }
+
+    // Constructors
+
+    private FixupActionProcessor(BuildingContext context)
+    {
+      this.context = context;
     }
   }
 }

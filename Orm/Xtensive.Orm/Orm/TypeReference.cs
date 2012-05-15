@@ -5,7 +5,7 @@
 // Created:    2009.10.09
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
@@ -30,7 +30,7 @@ namespace Xtensive.Orm
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The referenced type.</param>
     /// <param name="accuracy">The type reference accuracy.</param>

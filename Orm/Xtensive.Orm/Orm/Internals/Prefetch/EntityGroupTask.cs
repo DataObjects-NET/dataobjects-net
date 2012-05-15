@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           var fetchedKey = record.GetKey();
           var tuple = record.GetTuple();
           if (tuple!=null) {
-            manager.SaveStrongReference(manager.Owner.RegisterEntityState(fetchedKey, tuple));
+            manager.SaveStrongReference(manager.Owner.UpdateState(fetchedKey, tuple));
             foundedKeys.Add(fetchedKey);
           }
         }
@@ -217,7 +217,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         && (cachedEntityState==null || cachedEntityState.Key.HasExactType && cachedEntityState.Key
           .TypeReference.Type==type))
         // Ensures there will be "removed" EntityState associated with this key
-        manager.SaveStrongReference(manager.Owner.RegisterEntityState(key, null));
+        manager.SaveStrongReference(manager.Owner.UpdateState(key, null));
     }
 
 

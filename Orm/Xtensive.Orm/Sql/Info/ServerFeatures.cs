@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Info
   public enum ServerFeatures
   {
     /// <summary>
-    /// 
+    /// Empty option set.
     /// </summary>
     None = 0x0,
 
@@ -42,5 +42,16 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS supports savepoints.
     /// </summary>
     Savepoints = 0x8,
+
+    /// <summary>
+    /// Indicates whether RDBMS supports transactional DDL
+    /// (except full-text indexes which have separate option).
+    /// </summary>
+    TransactionalDdl = 0x10,
+
+    /// <summary>
+    /// Indicates whether RDBMS supports transactional DDL for full-text indexes.
+    /// </summary>
+    TransactionalFullTextDdl = 0x20,
   }
 }

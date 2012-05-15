@@ -17,7 +17,7 @@ using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
 using Xtensive.Disposing;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Orm.Configuration;
 
@@ -101,7 +101,7 @@ namespace Xtensive.Orm
       IDisposable sessionScope = null;
       var activate = activateSession.HasValue
         ? activateSession.Value
-        : (session.Configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation;
+        : session.Configuration.Supports(SessionOptions.AutoActivation);
       if (activate)
         sessionScope = session.Activate(true);
       var tx = session.OpenAutoTransaction(Mode);
@@ -152,14 +152,14 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public TransactionalAttribute()
       : this (TransactionalBehavior.Open)
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="mode">The transaction opening mode.</param>
     public TransactionalAttribute(TransactionalBehavior mode)

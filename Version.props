@@ -3,10 +3,10 @@
 
 <PropertyGroup>
   <Major>4</Major>
-  <Minor>5</Minor>
+  <Minor>6</Minor>
   <Patch>0</Patch>
-  <Modifier>RC 2</Modifier>
-  <BuildNumberBase>0</BuildNumberBase>
+  <Modifier>SQLite Preview</Modifier>
+  <BuildNumberBase>8321</BuildNumberBase>
 </PropertyGroup>
 
 </Project>

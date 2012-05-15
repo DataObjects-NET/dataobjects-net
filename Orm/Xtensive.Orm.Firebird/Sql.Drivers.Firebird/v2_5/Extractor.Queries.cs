@@ -3,30 +3,31 @@
 // For conditions of distribution and use, see license.
 // Created by: Csaba Beer
 // Created:    2011.01.13
+
 using System;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
-    partial class Extractor
+  internal partial class Extractor
+  {
+    protected virtual string GetExtractSchemasQuery()
     {
-        protected virtual string GetExtractSchemasQuery()
-        {
-            return @"select " + Constants.DefaultSchemaName + @"from rdb$database";
-        }
+      return @"select " + Constants.DefaultSchemaName + @"from rdb$database";
+    }
 
-        protected virtual string GetExtractTablesQuery()
-        {
-            return @"
+    protected virtual string GetExtractTablesQuery()
+    {
+      return @"
 select cast(null as varchar(30)) as schema
       ,trim(rdb$relation_name) as table_name
       ,rdb$relation_type as table_type
 from rdb$relations 
 where rdb$relation_type in (0, 5, 4) and rdb$relation_name not starts with 'RDB$' and rdb$relation_name not starts with 'MON$'";
-        }
+    }
 
-        protected virtual string GetExtractTableColumnsQuery()
-        {
-            return @"
+    protected virtual string GetExtractTableColumnsQuery()
+    {
+      return @"
 select   schema
         ,table_name
         ,ordinal_position
@@ -87,21 +88,21 @@ from     (select   cast(null as varchar(30)) as schema
                       and coll.rdb$character_set_id = fld.rdb$character_set_id)
           where    rr.rdb$relation_type in (0, 4, 5) and rr.rdb$relation_name not starts with 'RDB$' and rr.rdb$relation_name not starts with 'MON$'
           order by table_name, ordinal_position)";
-        }
+    }
 
-        protected virtual string GetExtractViewsQuery()
-        {
-            return @"
+    protected virtual string GetExtractViewsQuery()
+    {
+      return @"
 select cast(null as varchar(30)) as schema
       ,trim(rdb$relation_name) as table_name
       ,rdb$view_source as view_source
 from rdb$relations
 where rdb$relation_type = 1";
-        }
+    }
 
-        protected virtual string GetExtractViewColumnsQuery()
-        {
-            return @"
+    protected virtual string GetExtractViewColumnsQuery()
+    {
+      return @"
 select     cast(null as varchar(30)) as schema
           ,trim(rfr.rdb$relation_name) as table_name
           ,trim(rfr.rdb$field_name) as column_name
@@ -109,11 +110,11 @@ select     cast(null as varchar(30)) as schema
 from       rdb$relations rr join rdb$relation_fields rfr on rfr.rdb$relation_name = rr.rdb$relation_name
 where      rr.rdb$relation_type = 1
 order by   rfr.rdb$relation_name, rfr.rdb$field_position";
-        }
+    }
 
-        protected virtual string GetExtractIndexesQuery()
-        {
-            return @"
+    protected virtual string GetExtractIndexesQuery()
+    {
+      return @"
 select     cast(null as varchar(30)) as schema
           ,trim(ri.rdb$relation_name) as table_name
           ,trim(ri.rdb$index_name) as index_name
@@ -132,11 +133,11 @@ where      ri.rdb$system_flag = 0
                     and rc.rdb$relation_name = ri.rdb$relation_name
                     and rc.rdb$index_name = ri.rdb$index_name)
 order by   ri.rdb$relation_name, ri.rdb$index_id, ris.rdb$field_position";
-        }
+    }
 
-        protected virtual string GetExtractForeignKeysQuery()
-        {
-            return @"
+    protected virtual string GetExtractForeignKeysQuery()
+    {
+      return @"
 select     cast(null as varchar(30)) as schema
           ,trim(co.rdb$relation_name) as table_name
           ,trim(co.rdb$constraint_name) as constraint_name
@@ -164,11 +165,11 @@ from       rdb$relation_constraints co join rdb$ref_constraints ref on co.rdb$co
              and coidxseg.rdb$field_position = refidxseg.rdb$field_position
 where      co.rdb$constraint_type = 'FOREIGN KEY'
 order by   co.rdb$relation_name, co.rdb$constraint_name, coidxseg.rdb$field_position";
-        }
+    }
 
-        protected virtual string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
-        {
-            return @"
+    protected virtual string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
+    {
+      return @"
 select     cast(null as varchar(30)) as schema
           ,trim(rel.rdb$relation_name) as table_name
           ,trim(rel.rdb$constraint_name) as constraint_name
@@ -180,11 +181,11 @@ from       rdb$relation_constraints rel left join rdb$indices idx on rel.rdb$ind
               on idx.rdb$index_name = seg.rdb$index_name
 where      rel.rdb$constraint_type in ('PRIMARY KEY', 'UNIQUE')
 order by   rel.rdb$relation_name, rel.rdb$constraint_name, seg.rdb$field_position";
-        }
+    }
 
-        protected virtual string GetExtractCheckConstraintsQuery()
-        {
-            return @"
+    protected virtual string GetExtractCheckConstraintsQuery()
+    {
+      return @"
 select     cast(null as varchar(30)) as schema
           ,trim(chktb.rdb$relation_name) as table_name
           ,trim(chktb.rdb$constraint_name) as constraint_name
@@ -194,22 +195,22 @@ from       rdb$relation_constraints chktb inner join rdb$check_constraints chk
            inner join rdb$triggers trig
               on chk.rdb$trigger_name = trig.rdb$trigger_name and trig.rdb$trigger_type = 1
 order by   chktb.rdb$relation_name, chktb.rdb$constraint_name";
-        }
+    }
 
-        protected virtual string GetExtractSequencesQuery()
-        {
-            return @"
+    protected virtual string GetExtractSequencesQuery()
+    {
+      return @"
 select   cast(null as varchar(30)) as schema
         ,trim(rdb$generator_name) as sequence_name
 from     rdb$generators
 where    rdb$system_flag = 0";
-        }
+    }
 
-        protected virtual string GetExtractSequenceValueQuery()
-        {
-          return @"
+    protected virtual string GetExtractSequenceValueQuery()
+    {
+      return @"
 select   GEN_ID({0}, 0)
 from     rdb$database";
-        }
     }
+  }
 }

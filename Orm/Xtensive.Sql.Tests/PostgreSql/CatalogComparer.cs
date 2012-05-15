@@ -107,7 +107,6 @@ namespace Xtensive.Sql.Tests.PostgreSql
       Assert.IsNotNull(sq2);
       Assert.IsNotNull(sq2.Name);
       Assert.AreEqual(sq1.Name, sq2.Name);
-      CompareSqlValueTypes(sq1.DataType, sq2.DataType);
       Assert.AreEqual(sq1.Schema.Name, sq2.Schema.Name);
       //When creating the model, these values are not specified, but gets default values by PgSql
       //if(sq1.SequenceDescriptor.Increment!=null)

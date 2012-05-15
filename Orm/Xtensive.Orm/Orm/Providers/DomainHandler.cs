@@ -6,36 +6,31 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
 using Xtensive.IoC;
 using Xtensive.Linq;
-using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.PreCompilation.Correction;
+using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;
+using Xtensive.Orm.Rse.PreCompilation.Optimization;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sorting;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// <see cref="Orm.Domain"/>-level handler.
   /// </summary>
-  public abstract class DomainHandler : InitializableHandlerBase
+  public abstract class DomainHandler : DomainBoundHandler
   {
-    private readonly object syncRoot = new object();
-
     private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
 
     /// <summary>
     /// Gets the domain this handler is bound to.
     /// </summary>
-    public Domain Domain { get; private set; }
-
-    /// <summary>
-    /// Gets the information about provider's capabilities.
-    /// </summary>
-    public ProviderInfo ProviderInfo { get; private set; }
+    public Domain Domain { get { return Handlers.Domain; } }
 
     /// <summary>
     /// Gets the <see cref="Xtensive.Orm.Rse.Compilation.CompilationService"/>
@@ -46,10 +41,33 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the ordered sequence of query preprocessors to apply to any LINQ query.
     /// </summary>
-    /// <value> The ordered sequence of query preprocessors to apply to any LINQ query. </value>
-    /// <exception cref="InvalidOperationException">Cyclic dependency in query preprocessor graph
-    /// is detected.</exception>
     public IEnumerable<IQueryPreprocessor> QueryPreprocessors { get; private set; }
+
+    /// <summary>
+    /// Gets the model mapping.
+    /// </summary>
+    public ModelMapping Mapping { get; private set; }
+
+    /// <summary>
+    /// Gets the temporary table manager.
+    /// </summary>
+    public TemporaryTableManager TemporaryTableManager { get; private set; }
+
+    /// <summary>
+    /// Gets the command processor factory.
+    /// </summary>
+    public CommandProcessorFactory CommandProcessorFactory { get; private set; }
+
+    internal Persister Persister { get; private set; }
+
+    /// <summary>
+    /// Builds the mapping schema.
+    /// </summary>
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
+    public void BuildMapping(SqlExtractionResult model)
+    {
+      Mapping = ModelMappingBuilder.Build(Handlers, model);
+    }
 
     /// <summary>
     /// Gets the member compiler provider by its type parameter.
@@ -64,21 +82,38 @@ namespace Xtensive.Orm.Providers
       return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof (T)];
     }
 
-    // Abstract methods
+    #region Customization members
 
     /// <summary>
     /// Creates the compiler.
     /// </summary>
     /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new compiler.</returns>
-    protected abstract ICompiler CreateCompiler(CompilerConfiguration configuration);
+    protected virtual ICompiler CreateCompiler(CompilerConfiguration configuration)
+    {
+      return new SqlCompiler(Handlers);
+    }
 
     /// <summary>
     /// Creates the <see cref="IPreCompiler"/>.
     /// </summary>
     /// <param name="configuration">Compiler configuration to use.</param>
     /// <returns>A new pre-compiler.</returns>
-    protected abstract IPreCompiler CreatePreCompiler(CompilerConfiguration configuration);
+    protected virtual IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
+    {
+      var providerInfo = Handlers.ProviderInfo;
+
+      var applyCorrector = new ApplyProviderCorrector(
+        !providerInfo.Supports(ProviderFeatures.Apply));
+      var skipTakeCorrector = new SkipTakeCorrector(
+        providerInfo.Supports(ProviderFeatures.NativeTake),
+        providerInfo.Supports(ProviderFeatures.NativeSkip));
+      return new CompositePreCompiler(
+        applyCorrector,
+        skipTakeCorrector,
+        new RedundantColumnOptimizer(),
+        new OrderingCorrector(ResolveOrderingDescriptor));
+    }
 
     /// <summary>
     /// Creates the <see cref="IPostCompiler"/>.
@@ -86,7 +121,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="configuration">Compiler configuration to use.</param>
     /// <param name="compiler">Currently used compiler instance.</param>
     /// <returns>A new post-compiler.</returns>
-    protected abstract IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler);
+    protected virtual IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler)
+    {
+      var result = new CompositePostCompiler(new SqlSelectCorrector(Handlers.ProviderInfo));
+      if (configuration.PrepareRequest)
+        result.Items.Add(new SqlProviderPreparer(Handlers));
+      return result;
+    }
 
     /// <summary>
     /// Gets compiler containers specific to current storage provider.
@@ -94,48 +135,18 @@ namespace Xtensive.Orm.Providers
     /// <returns>Compiler containers for current provider.</returns>
     protected virtual IEnumerable<Type> GetProviderCompilerContainers()
     {
-      return EnumerableUtils<Type>.Empty;
-    }
-
-    /// <summary>
-    /// Builds the mapping schema.
-    /// </summary>
-    public abstract void BuildMapping();
-
-    /// <summary>
-    /// Creates <see cref="ProviderInfo"/>.
-    /// </summary>
-    /// <returns></returns>
-    protected abstract ProviderInfo GetProviderInfo();
-
-    #region IoC support (Domain.Services)
-
-    /// <summary>
-    /// Creates parent service container 
-    /// for <see cref="Orm.Domain.Services"/> container.
-    /// </summary>
-    /// <returns>Container providing base services.</returns>
-    public virtual IServiceContainer CreateBaseServices()
-    {
-      var registrations = new List<ServiceRegistration>{
-        new ServiceRegistration(typeof (Domain), Domain),
-        new ServiceRegistration(typeof (DomainConfiguration), Domain.Configuration),
-        new ServiceRegistration(typeof (HandlerAccessor), Handlers),
-        new ServiceRegistration(typeof (NameBuilder), Handlers.NameBuilder),
-        new ServiceRegistration(typeof (DomainHandler), this),
+      return new[] {
+        typeof (NullableCompilers),
+        typeof (StringCompilers),
+        typeof (DateTimeCompilers),
+        typeof (TimeSpanCompilers),
+        typeof (MathCompilers),
+        typeof (NumericCompilers),
+        typeof (DecimalCompilers),
+        typeof (GuidCompilers),
+        typeof (VbStringsCompilers),
+        typeof (VbDateAndTimeCompilers),
       };
-      AddBaseServiceRegistrations(registrations);
-      return new ServiceContainer(registrations);
-    }
-
-    /// <summary>
-    /// Adds base service registration entries into the list of
-    /// registrations used by <see cref="CreateBaseServices"/>
-    /// method.
-    /// </summary>
-    /// <param name="registrations">The list of service registrations.</param>
-    protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
-    {
     }
 
     #endregion
@@ -147,6 +158,13 @@ namespace Xtensive.Orm.Providers
       CompilationService = new CompilationService(CreateCompiler, CreatePreCompiler, CreatePostCompiler);
     }
 
+    private void BuildMemberCompilerProviders()
+    {
+      memberCompilerProviders = MemberCompilerProviderBuilder.Build(
+        Domain.Configuration,
+        GetProviderCompilerContainers());
+    }
+
     private void BuildQueryPreprocessors()
     {
       var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
@@ -156,23 +174,46 @@ namespace Xtensive.Orm.Providers
       QueryPreprocessors = ordered;
     }
 
+    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
+    {
+      bool isOrderSensitive = provider.Type==ProviderType.Skip 
+        || provider.Type == ProviderType.Take
+        || provider.Type == ProviderType.Seek
+        || provider.Type == ProviderType.Paging
+        || provider.Type == ProviderType.RowNumber;
+      bool preservesOrder = provider.Type==ProviderType.Take
+        || provider.Type == ProviderType.Skip
+        || provider.Type == ProviderType.Seek
+        || provider.Type == ProviderType.RowNumber
+        || provider.Type == ProviderType.Paging
+        || provider.Type == ProviderType.Distinct
+        || provider.Type == ProviderType.Alias;
+      bool isOrderBreaker = provider.Type == ProviderType.Except
+        || provider.Type == ProviderType.Intersect
+        || provider.Type == ProviderType.Union
+        || provider.Type == ProviderType.Concat
+        || provider.Type == ProviderType.Existence;
+      bool isSorter = provider.Type==ProviderType.Sort || provider.Type == ProviderType.Index;
+      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
+    }
+
     #endregion
 
 
     // Initialization
 
-    /// <inheritdoc/>
-    public override void Initialize()
+    internal void BuildHandlers()
     {
-      Domain = BuildingContext.Demand().Domain;
-      ProviderInfo = GetProviderInfo();
-      memberCompilerProviders = MemberCompilerProviderBuilder.Build(
-        Domain.Configuration, GetProviderCompilerContainers());
-      BuildCompilationService();
+      TemporaryTableManager = Handlers.Create<TemporaryTableManager>();
+      CommandProcessorFactory = Handlers.Create<CommandProcessorFactory>();
+      var persistRequestBuilder = Handlers.Create<PersistRequestBuilder>();
+      Persister = new Persister(Handlers, persistRequestBuilder);
     }
 
-    public void ConfigureServices()
+    public void InitializeServices()
     {
+      BuildMemberCompilerProviders();
+      BuildCompilationService();
       BuildQueryPreprocessors();
     }
   }

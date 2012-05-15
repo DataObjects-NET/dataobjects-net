@@ -4,37 +4,32 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.27
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Providers.Sql;
-using Xtensive.Sql.Dml;
-using Xtensive.Sql;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
-  internal class SqlCompiler : Sql.SqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      var domainHandler = DomainHandler;
       var rankColumnName = provider.Header.Columns.Last().Name;
 
-      var stringTypeMapping = domainHandler.Driver.GetTypeMapping(typeof (string));
-      var binding = new QueryParameterBinding(
-        provider.SearchCriteria.Invoke,
-        stringTypeMapping,
-        QueryParameterBindingType.Regular);
+      var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
+      var binding = new QueryParameterBinding(stringTypeMapping,
+        provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
       SqlSelect select = SqlDml.Select();
       var realPrimaryIndex = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var index = realPrimaryIndex.ReflectedType.Indexes.PrimaryIndex;
       var query = BuildProviderQuery(index);
-      var table = domainHandler.Schema.Tables[realPrimaryIndex.ReflectedType.MappingName];
+      var table = domainHandler.Mapping[realPrimaryIndex.ReflectedType];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, table.Columns.Select(column => column.Name).AddOne(rankColumnName).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
       foreach (var column in query.Columns)

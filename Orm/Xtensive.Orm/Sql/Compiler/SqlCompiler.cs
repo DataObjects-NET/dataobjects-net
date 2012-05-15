@@ -556,12 +556,8 @@ namespace Xtensive.Sql.Compiler
     
     public virtual void Visit(SqlCreateSequence node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.Sequence.DataType, "DataType");
       ArgumentValidator.EnsureArgumentNotNull(node.Sequence.SequenceDescriptor, "SequenceDescriptor");
       using (context.EnterScope(node)) {
-        var dataType = node.Sequence.DataType;
-        if (!SqlValueType.IsExactNumeric(dataType) || dataType.Scale.HasValue && dataType.Scale!=0)
-          throw new SqlCompilerException(Strings.ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale);
         if (node.Sequence.SequenceDescriptor.Increment.HasValue && node.Sequence.SequenceDescriptor.Increment.Value==0)
             throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
         if (string.IsNullOrEmpty(node.Sequence.Name))
@@ -962,7 +958,7 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlNextValue node)
     {
       context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
-      context.Output.AppendText(translator.Translate(node.Sequence));
+      context.Output.AppendText(translator.Translate(context, node.Sequence));
       context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
     }
 
@@ -1079,6 +1075,11 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlSelect node)
     {
+      VisitSelectDefault(node);
+    }
+
+    public void VisitSelectDefault(SqlSelect node)
+    {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectHints(node);
@@ -1193,10 +1194,12 @@ namespace Xtensive.Sql.Compiler
       if (!node.Limit.IsNullReference()) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
         node.Limit.AcceptVisitor(this);
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.LimitEnd));
       }
       if (!node.Offset.IsNullReference()) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
         node.Offset.AcceptVisitor(this);
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.OffsetEnd));
       }
     }
 

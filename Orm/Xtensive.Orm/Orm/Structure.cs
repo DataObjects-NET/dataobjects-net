@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using Xtensive.Aspects;
 using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
 using Xtensive.Orm.Configuration;
@@ -346,12 +346,12 @@ namespace Xtensive.Orm
     {
       if (thisIsBound) {
         EnsureIsFetched(Field);
-        if (Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+        if (Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       if (otherIsBound) {
         other.EnsureIsFetched(other.Field);
-        if (other.Entity.IsRemoved && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+        if (other.Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
@@ -387,7 +387,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected Structure()
     {
@@ -397,7 +397,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     protected Structure(Session session)
@@ -409,7 +409,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
     protected Structure(Tuple data)
@@ -429,7 +429,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
@@ -452,7 +452,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// Used internally to initialize the structure on materialization.
     /// </summary>
     /// <param name="owner">The owner of this instance.</param>
@@ -479,7 +479,11 @@ namespace Xtensive.Orm
       }
     }
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Structure"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     [Infrastructure]
     protected Structure(SerializationInfo info, StreamingContext context)
     {

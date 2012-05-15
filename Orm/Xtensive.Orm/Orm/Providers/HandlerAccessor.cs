@@ -4,13 +4,15 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
-using Xtensive.Orm;
+using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Storage handler accessor.
-  /// Provided by protected members, such as <see cref="HandlerBase.Handlers"/> 
+  /// Provided by protected members, such as <see cref="DomainBoundHandler.Handlers"/> 
   /// to provide access to other available handlers.
   /// </summary>
   public sealed class HandlerAccessor
@@ -25,7 +27,17 @@ namespace Xtensive.Orm.Providers
     /// Gets the handler provider 
     /// creating handlers in the <see cref="Domain"/>.
     /// </summary>
-    public HandlerFactory HandlerFactory { get; internal set; }
+    public HandlerFactory Factory { get; internal set; }
+
+    /// <summary>
+    /// Gets the storage driver.
+    /// </summary>
+    public StorageDriver StorageDriver { get; internal set; }
+
+    /// <summary>
+    /// Gets storage provider info.
+    /// </summary>
+    public ProviderInfo ProviderInfo { get { return StorageDriver.ProviderInfo; } }
 
     /// <summary>
     /// Gets the name builder.
@@ -38,15 +50,22 @@ namespace Xtensive.Orm.Providers
     public DomainHandler DomainHandler { get; internal set; }
 
     /// <summary>
-    /// Gets the <see cref="SchemaUpgradeHandler"/> instance.
+    /// Gets the <see cref="MappingResolver"/> instance.
     /// </summary>
-    public SchemaUpgradeHandler SchemaUpgradeHandler { get; internal set; }
+    internal MappingResolver MappingResolver { get; set; }
 
     /// <summary>
-    /// Gets the handler of the current <see cref="Session"/>.
+    /// Gets the <see cref="SequenceQueryBuilder"/> instance.
     /// </summary>
-//    public SessionHandler SessionHandler { get { return Session.Demand().Handler; } }
-//    
+    internal SequenceQueryBuilder SequenceQueryBuilder { get; set; }
+
+    internal THandler Create<THandler>()
+      where THandler : DomainBoundHandler
+    {
+      var handler = Factory.CreateHandler<THandler>();
+      handler.Initialize(this);
+      return handler;
+    }
 
     // Constructors
 

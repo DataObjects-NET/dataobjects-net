@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="field">The field whose value will be fetched.</param>
     public PrefetchFieldDescriptor(FieldInfo field)
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="field">The field whose value will be fetched.</param>
     /// <param name="entitySetItemCountLimit">The maximal count of items 
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="field">The field whose value will be fetched.</param>
     /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="field">The field whose value will be fetched.</param>
     /// <param name="entitySetItemCountLimit">The maximal count of items

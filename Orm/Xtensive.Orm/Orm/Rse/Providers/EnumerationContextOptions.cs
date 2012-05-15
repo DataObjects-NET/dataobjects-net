@@ -16,6 +16,11 @@ namespace Xtensive.Orm.Rse.Providers
   public enum EnumerationContextOptions
   {
     /// <summary>
+    /// Empty option set.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     /// Indicates that <see cref="IEnumerator{T}"/> of the root provider
     /// should be fully read before returning data to user.
     /// </summary>

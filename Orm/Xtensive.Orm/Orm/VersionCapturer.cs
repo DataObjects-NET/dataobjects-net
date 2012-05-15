@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Aspects;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples.Transform;
 using System.Linq;
 
@@ -143,8 +143,10 @@ namespace Xtensive.Orm
     }
 
     // Dispose
-    
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
     public void Dispose()
     {
       DetachEventHandlers();

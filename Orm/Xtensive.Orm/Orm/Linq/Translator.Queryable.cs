@@ -1220,7 +1220,7 @@ namespace Xtensive.Orm.Linq
           algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
           break;
         default:
-          Exceptions.InternalError(String.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), Log.Instance);
+          Exceptions.InternalError(String.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), OrmLog.Instance);
           break;
       }
       using (state.CreateScope()) {
@@ -1282,7 +1282,7 @@ namespace Xtensive.Orm.Linq
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
     {
       if (subquery.Header.Length!=1)
-        throw Exceptions.InternalError(String.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), Log.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), OrmLog.Instance);
       ParameterExpression lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var dataSource = oldResult.ItemProjector.DataSource;

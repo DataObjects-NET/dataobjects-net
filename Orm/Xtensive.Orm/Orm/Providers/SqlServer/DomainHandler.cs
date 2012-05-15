@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using Xtensive.Sql.Drivers.SqlServer;
 using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.SqlServer
@@ -12,13 +11,8 @@ namespace Xtensive.Orm.Providers.SqlServer
   /// <summary>
   /// A domain handler specific to Microsoft SQL Server RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
-    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
-    {
-      return new DriverFactory();
-    }
-
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {

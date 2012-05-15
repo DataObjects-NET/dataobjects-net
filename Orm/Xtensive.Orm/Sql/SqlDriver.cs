@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -59,7 +61,54 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "options");
+      ValidateCompilerConfiguration(configuration);
       return CreateCompiler().Compile(statement, configuration);
+    }
+
+    /// <summary>
+    /// Extracts catalogs/schemas according to the specified <paramref name="tasks"/>.
+    /// </summary>
+    /// <param name="connection">Extraction tasks.</param>
+    /// <param name="tasks">Connection to use.</param>
+    /// <returns>Extracted catalogs.</returns>
+    public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+      ArgumentValidator.EnsureArgumentNotNull(tasks, "tasks");
+
+      if (connection.Driver!=this)
+        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+
+      var taskGroups = tasks
+        .GroupBy(t => t.Catalog)
+        .ToDictionary(g => g.Key, g => g.ToList());
+
+      var result = new SqlExtractionResult();
+
+      foreach (var taskGroup in taskGroups) {
+        var catalogName = taskGroup.Key;
+        var tasksForCatalog = taskGroup.Value;
+        var extractSingle = tasksForCatalog.Count==1 && !tasksForCatalog[0].AllSchemas;
+
+        if (extractSingle) {
+          // Extracting only specified schema
+          var schemaName = tasksForCatalog[0].Schema;
+          var schema = BuildExtractor(connection).ExtractSchema(catalogName, schemaName);
+          var catalog = schema.Catalog;
+          CleanSchemas(catalog, new[]{schemaName}); // Remove the rest, if any
+          result.Catalogs.Add(catalog);
+        }
+        else {
+          // Extracting all schemas
+          var catalog = BuildExtractor(connection).ExtractCatalog(catalogName);
+          var needClean = tasksForCatalog.All(t => !t.AllSchemas);
+          if (needClean)
+            CleanSchemas(catalog, tasksForCatalog.Select(t => t.Schema));
+          result.Catalogs.Add(catalog);
+        }
+      }
+
+      return result;
     }
 
     /// <summary>
@@ -71,7 +120,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Catalog ExtractCatalog(SqlConnection connection)
     {
-      return BuildExtractor(connection).ExtractCatalog();
+      var task = new SqlExtractionTask(CoreServerInfo.DatabaseName);
+      return Extract(connection, new[] {task}).Catalogs.Single();
     }
 
     /// <summary>
@@ -83,7 +133,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractDefaultSchema(SqlConnection connection)
     {
-      return BuildExtractor(connection).ExtractSchema(CoreServerInfo.DefaultSchemaName);
+      return ExtractSchema(connection, CoreServerInfo.DefaultSchemaName);
     }
 
     /// <summary>
@@ -95,7 +145,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
-      return BuildExtractor(connection).ExtractSchema(schemaName);
+      var task = new SqlExtractionTask(CoreServerInfo.DatabaseName, schemaName);
+      return Extract(connection, new[] {task}).Catalogs.SelectMany(catalog => catalog.Schemas).Single();
     }
 
     /// <summary>
@@ -113,9 +164,7 @@ namespace Xtensive.Sql
     /// <returns></returns>
     public SqlConnection CreateConnection(ConnectionInfo connectionInfo)
     {
-      var connectionString = connectionInfo.ConnectionString
-        ?? factory.BuildConnectionString(connectionInfo.ConnectionUrl);
-      return CreateConnection(connectionString);
+      return CreateConnection(factory.GetConnectionString(connectionInfo));
     }
 
     /// <summary>
@@ -199,12 +248,34 @@ namespace Xtensive.Sql
 
     private Extractor BuildExtractor(SqlConnection connection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      if (connection.Driver!=this)
-        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       var extractor = CreateExtractor();
       extractor.Initialize(connection);
       return extractor;
+    }
+
+    private void ValidateCompilerConfiguration(SqlCompilerConfiguration configuration)
+    {
+      var supported = ServerInfo.Query.Features.Supports(QueryFeatures.MultidatabaseQueries);
+      var requested = configuration.DatabaseQualifiedObjects;
+      if (requested && !supported)
+        throw SqlHelper.NotSupported(QueryFeatures.MultidatabaseQueries);
+    }
+
+    private void CleanSchemas(Catalog catalog, IEnumerable<string> allowedSchemas)
+    {
+      // We allow extractors to extract schemas that were not requested
+      // After extraction is complete, this methods removes not-necessary parts
+
+      var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      foreach (var schema in allowedSchemas)
+        allowed.Add(schema);
+
+      var schemasToRemove = catalog.Schemas
+        .Where(s => !allowed.Contains(s.Name))
+        .ToList();
+
+      foreach (var schema in schemasToRemove)
+        catalog.Schemas.Remove(schema);
     }
 
     #endregion

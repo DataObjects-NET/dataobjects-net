@@ -15,95 +15,115 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// There are no features affecting query generation.
     /// </summary>
-    None = 0x0,
+    None = 0,
 
     /// <summary>
     /// Indicates that it is possible to use named query parameters.
     /// </summary>
-    NamedParameters = 0x1,
+    NamedParameters = 1 << 0,
 
     /// <summary>
     /// Indicates that parameter prefix should be used for parameter names
     /// (in the case when <see cref="NamedParameters"/> option is active).
     /// </summary>
-    ParameterPrefix = 0x2,
+    ParameterPrefix = 1 << 2,
 
     /// <summary>
     /// Indicates that RDBMS requires multi-table joins to have explicit order.
     /// (like "(a join b) join c")
     /// </summary>
-    ExplicitJoinOrder = 0x4,
+    ExplicitJoinOrder = 1 << 3,
 
     /// <summary>
     /// Indicates that RDBMS supports batch query execution for DDL statements.
     /// </summary>
-    DdlBatches = 0x8,
+    DdlBatches = 1 << 4,
 
     /// <summary>
     /// Indicates that RDBMS supports batch query execution for DML statements.
     /// </summary>
-    DmlBatches = 0x10,
+    DmlBatches = 1 << 5,
 
     /// <summary>
     /// Indicates that RDBMS supports query optimizer hints.
     /// </summary>
-    Hints = 0x20,
+    Hints = 1 << 6,
 
     /// <summary>
     /// Indicates that RDBMS supports CROSS APPLY and OUTER APPLY operators.
     /// </summary>
-    CrossApply = 0x40,
+    CrossApply = 1 << 7,
 
     /// <summary>
     /// Indicates that RDBMS allows boolean expressions in equality/inequality comparisons,
     /// inside CASE and COALESCE operators.
     /// </summary>
-    FullBooleanExpressionSupport = 0x80,
+    FullBooleanExpressionSupport = 1 << 8,
 
     /// <summary>
     /// Indicates that RDBMS supports UPDATE ... FROM statements.
     /// </summary>
-    UpdateFrom = 0x100,
+    UpdateFrom = 1 << 9,
 
     /// <summary>
     /// Indicates that RDBMS supports DELETE ... FROM statements.
     /// </summary>
-    DeleteFrom = 0x200,
+    DeleteFrom = 1 << 10,
 
     /// <summary>
     /// Indicates that RDBMS supports result limiting operator (LIMIT and TOP).
     /// </summary>
-    Limit = 0x400,
+    Limit = 1 << 11,
 
     /// <summary>
     /// Indicates that RDBMS supports result skipping operator (OFFSET and SKIP).
     /// </summary>
-    Offset = 0x800,
+    Offset = 1 << 12,
 
     /// <summary>
     /// Indicates that RDBMS supports multicolumn IN operator.
     /// </summary>
-    MulticolumnIn = 0x1000,
+    MulticolumnIn = 1 << 13,
 
     /// <summary>
     /// Indicates whether RDBMS supports ROW_NUMBER window function.
     /// </summary>
-    RowNumber = 0x2000,
+    RowNumber = 1 << 14,
 
     /// <summary>
     /// Indicates whether RDBMS supports subqueries that return a scalar result.
     /// </summary>
-    ScalarSubquery = 0x4000,
+    ScalarSubquery = 1 << 15,
 
     /// <summary>
     /// Indicates whether RDBMS supports INSERT INTO Table DEFAULT VALUES syntax.
     /// </summary>
-    InsertDefaultValues = 0x8000,
+    InsertDefaultValues = 1 << 16,
 
     /// <summary>
     /// Indicates whether RDBMS supports UPDATE Table SET COLUMN = DEFAULT syntax.
     /// </summary>
-    UpdateDefaultValues = 0x10000,
+    UpdateDefaultValues = 1 << 17,
+
+    /// <summary>
+    /// Indicates whether RDBMS supports accessing multiple schemasin single statement.
+    /// </summary>
+    MultischemaQueries = 1 << 18,
+
+    /// <summary>
+    /// Indicates whether RDBMS supports accessing multiple databases in single statement.
+    /// </summary>
+    MultidatabaseQueries = 1 << 19,
+
+    /// <summary>
+    /// Indicates whether RDBMS requires "order by" clause when "limit" or "offset" is used.
+    /// </summary>
+    PagingRequiresOrderBy = 1 << 20,
+
+    /// <summary>
+    /// Indicates whether RDBMS raises error when "limit 0" clause is provided.
+    /// </summary>
+    ZeroLimitIsError = 1 << 21,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).

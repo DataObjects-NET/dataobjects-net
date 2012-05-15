@@ -5,7 +5,7 @@
 // Created:    2008.09.09
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Rse
 {
@@ -56,13 +56,27 @@ namespace Xtensive.Orm.Rse
       return Name.GetHashCode();
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(Column left, Column right)
     {
       return Equals(left, right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(Column left, Column right)
     {
       return !Equals(left, right);
@@ -94,7 +108,7 @@ namespace Xtensive.Orm.Rse
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.
+    /// Initializes a new instance of this class..
     /// </summary>
     /// <param name="name"><see cref="Name"/> property value.</param>
     /// <param name="index"><see cref="Index"/> property value.</param>

@@ -4,29 +4,15 @@
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Rse;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.SqlServerCe
 {
-  internal class SqlCompiler : ManualPagingSqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
-    protected override SqlProvider VisitTake(TakeProvider provider)
-    {
-      var compiledSource = Compile(provider.Source);
-
-      var query = ExtractSqlSelect(provider, compiledSource);
-      var binding = CreateLimitOffsetParameterBinding(provider.Count);
-      query.Limit = binding.ParameterReference;
-      return CreateProvider(query, binding, provider, compiledSource);
-    }
-
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var aggregateType = aggregateColumn.Type;

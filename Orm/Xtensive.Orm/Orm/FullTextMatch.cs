@@ -4,7 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.14
 
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {
@@ -29,7 +29,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="rank">The <see cref="Rank"/> property value.</param>
     /// <param name="target">The <see cref="Entity"/> property value.</param>

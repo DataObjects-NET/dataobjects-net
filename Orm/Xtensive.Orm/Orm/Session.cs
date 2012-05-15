@@ -10,13 +10,12 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Xtensive.Core;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Disposing;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
-using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
@@ -24,10 +23,9 @@ using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
-
 using Xtensive.Orm.Rse.Compilation;
-using EnumerationContext=Xtensive.Orm.Rse.Providers.EnumerationContext;
-using IsolationLevel = System.Transactions.IsolationLevel;
+using Xtensive.Orm.Rse.Providers;
+using EnumerationContext = Xtensive.Orm.Rse.Providers.EnumerationContext;
 
 namespace Xtensive.Orm
 {
@@ -50,7 +48,7 @@ namespace Xtensive.Orm
   /// <para>
   /// Sessions are opened (and, optionally, activated) by 
   /// <see cref="Domain.OpenSession()">Domain.OpenSession()</see> method. 
-  /// Existing session can be activated by <see cref="Activate"/> method.
+  /// Existing session can be activated by <see cref="Activate()"/> method.
   /// </para>
   /// </remarks>
   /// <example>
@@ -73,9 +71,14 @@ namespace Xtensive.Orm
 
     private DisposableSet disposableSet;
     private ExtensionCollection extensions;
-    private volatile bool isDisposed;
+
     private readonly bool allowSwitching;
-    private long identifier;
+    private readonly long identifier;
+    private readonly Pinner pinner;
+
+    private int? commandTimeout;
+    private bool isDelayedQueryRunning;
+    private volatile bool isDisposed;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -103,9 +106,7 @@ namespace Xtensive.Orm
     /// Gets or sets a value indicating whether session is disconnected:
     /// a <see cref="DisconnectedState"/> is attached to it (not <see langword="null" />).
     /// </summary>
-    public bool IsDisconnected { 
-      get { return DisconnectedState!=null; } 
-    }
+    public bool IsDisconnected { get { return DisconnectedState!=null; } }
 
     /// <summary>
     /// Gets the attached <see cref="Orm.DisconnectedState"/> object, if any.
@@ -116,8 +117,6 @@ namespace Xtensive.Orm
     /// Gets the operations registry of this <see cref="Session"/>.
     /// </summary>
     public OperationRegistry Operations { get; private set; }
-
-    private int? commandTimeout;
 
     /// <summary>
     /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
@@ -169,11 +168,7 @@ namespace Xtensive.Orm
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
-    internal Pinner Pinner { get; private set; }
-
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
-
-    internal bool IsDelayedQueryRunning { get; private set; }
 
     private void EnsureNotDisposed()
     {
@@ -185,8 +180,47 @@ namespace Xtensive.Orm
     {
       Persist(PersistReason.Query);
       ProcessDelayedQueries(true);
-//      EnsureTransactionIsStarted();
-      return Handler.CreateEnumerationContext();
+      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+    }
+
+    private EnumerationContextOptions GetEnumerationContextOptions()
+    {
+      var options = EnumerationContextOptions.None;
+      switch (Configuration.ReaderPreloading) {
+        case ReaderPreloadingPolicy.Auto:
+          bool marsSupported = Handlers.ProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets);
+          if (!marsSupported)
+            options |= EnumerationContextOptions.GreedyEnumerator;
+          break;
+        case ReaderPreloadingPolicy.Always:
+          options |= EnumerationContextOptions.GreedyEnumerator;
+          break;
+        case ReaderPreloadingPolicy.Never:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("Configuration.ReaderPreloading");
+      }
+      return options;
+    }
+
+    private IServiceContainer CreateSystemServices()
+    {
+      var registrations = new List<ServiceRegistration>{
+        new ServiceRegistration(typeof (Session), this),
+        new ServiceRegistration(typeof (SessionConfiguration), Configuration),
+        new ServiceRegistration(typeof (SessionHandler), Handler),
+      };
+      Handler.AddSystemServices(registrations);
+      return new ServiceContainer(registrations, Domain.Services);
+    }
+
+    private IServiceContainer CreateServices()
+    {
+      var userContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);
+      var registrations = Domain.Configuration.Types.SessionServices.SelectMany(ServiceRegistration.CreateAll);
+      var systemContainer = CreateSystemServices();
+      var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
+      return new ServiceContainer(registrations, userContainer);
     }
 
     #endregion
@@ -355,7 +389,7 @@ namespace Xtensive.Orm
     internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
-      IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogEventTypes.Debug); // Just to cache this value
 
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
@@ -363,13 +397,12 @@ namespace Xtensive.Orm
       Name = configuration.Name;
       identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
-      allowSwitching = (configuration.Options & SessionOptions.AllowSwitching)==SessionOptions.AllowSwitching;
+      allowSwitching = configuration.Supports(SessionOptions.AllowSwitching);
 
       // Handlers
       Handlers = domain.Handlers;
-      Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      Handler.Session = this;
-      Handler.Initialize();
+      var connection = Handlers.StorageDriver.CreateConnection(this);
+      Handler = new SqlSessionHandler(this, connection);
 
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
@@ -383,22 +416,16 @@ namespace Xtensive.Orm
       // Etc.
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
-      Pinner = new Pinner(this);
+      pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
 
       // Creating Services
-      var serviceContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);
-      Services = 
-        ServiceContainer.Create(typeof (ServiceContainer), 
-          from type in Domain.Configuration.Types.SessionServices
-          from registration in ServiceRegistration.CreateAll(type)
-          select registration,
-          ServiceContainer.Create(serviceContainerType, Handler.CreateBaseServices()));
+      Services = CreateServices();
 
       disposableSet = new DisposableSet();
 
       // Handling Disconnected option
-      if ((Configuration.Options & SessionOptions.Disconnected) == SessionOptions.Disconnected) {
+      if (Configuration.Supports(SessionOptions.Disconnected)) {
         disposableSet.Add(new DisconnectedState().Attach(this));
         disposableSet.Add(DisconnectedState.Connect());
       }
@@ -414,15 +441,14 @@ namespace Xtensive.Orm
     // IDisposable implementation
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose()
     {
       if (isDisposed)
         return;
       try {
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXDisposing, this);
+        OrmLog.Debug(Strings.LogSessionXDisposing, this);
         
         SystemEvents.NotifyDisposing();
         Events.NotifyDisposing();
@@ -431,6 +457,9 @@ namespace Xtensive.Orm
         Handler.DisposeSafely();
         disposableSet.DisposeSafely();
         disposableSet = null;
+
+        EntityChangeRegistry.Clear();
+        EntityStateCache.Clear();
       }
       finally {
         isDisposed = true;

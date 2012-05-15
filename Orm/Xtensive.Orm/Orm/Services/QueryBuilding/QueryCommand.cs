@@ -5,7 +5,7 @@
 // Created:    2012.02.27
 
 using System.Data.Common;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Services
 {

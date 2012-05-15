@@ -8,16 +8,13 @@ using System;
 using System.Transactions;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// <see cref="Session"/> configuration.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
@@ -45,7 +42,9 @@ namespace Xtensive.Orm.Configuration
 
     #endregion
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    /// <summary>
+    /// Default <see cref="SessionConfiguration"/>.
+    /// </summary>
     public static readonly SessionConfiguration Default;
 
     private SessionOptions options = SessionOptions.Default;
@@ -268,11 +267,16 @@ namespace Xtensive.Orm.Configuration
         Name, safeUserName, Options, CacheType, CacheSize, DefaultIsolationLevel);
     }
 
+    internal bool Supports(SessionOptions required)
+    {
+      return (options & required)==required;
+    }
+
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public SessionConfiguration()
       : this(WellKnown.Sessions.Default)
@@ -280,7 +284,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="sessionOptions">The session options.</param>
     public SessionConfiguration(SessionOptions sessionOptions)
@@ -288,7 +292,7 @@ namespace Xtensive.Orm.Configuration
     {}
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name)
@@ -296,7 +300,7 @@ namespace Xtensive.Orm.Configuration
     {}
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name, SessionOptions sessionOptions) 

@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     public void RegisterQueryTask()
     {
       EntitySetState state;
-      if (isOwnerCached && manager.Owner.TryGetEntitySetState(ownerKey, ReferencingField, out state))
+      if (isOwnerCached && manager.Owner.LookupState(ownerKey, ReferencingField, out state))
         if (state==null || state.IsFullyLoaded)
           return;
       itemsQueryTask = CreateQueryTask();
@@ -125,20 +125,20 @@ namespace Xtensive.Orm.Internals.Prefetch
             if (i==0)
               auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
             else {
-              manager.SaveStrongReference(manager.Owner.RegisterEntityState(key, tuple));
+              manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
               entityKeys.Add(key);
               if (areToNotifyAboutKeys)
                 referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
             }
           else {
-            manager.SaveStrongReference(manager.Owner.RegisterEntityState(key, tuple));
+            manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
             entityKeys.Add(key);
             if (areToNotifyAboutKeys)
               referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
           }
         }
       }
-      manager.Owner.RegisterEntitySetState(ownerKey, ReferencingField,
+      manager.Owner.UpdateState(ownerKey, ReferencingField,
         ItemCountLimit==null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
     }
 

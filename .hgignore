@@ -22,6 +22,8 @@ _ReSharper.*
 *.xml
 *.mshc
 
+*.orig
+
 *.log
 H2Reg_Log.txt
 

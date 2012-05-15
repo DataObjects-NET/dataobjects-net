@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -234,7 +234,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="ownerField">The referencing field.</param>
     /// <param name="targetType">The referenced type.</param>

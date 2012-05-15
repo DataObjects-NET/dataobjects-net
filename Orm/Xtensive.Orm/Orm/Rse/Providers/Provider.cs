@@ -10,7 +10,7 @@ using System.Text;
 using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Helpers;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The type of the provider.</param>
     /// <param name="sources"><see cref="Sources"/> property value.</param>

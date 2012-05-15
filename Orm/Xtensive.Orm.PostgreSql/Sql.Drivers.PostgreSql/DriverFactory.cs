@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 #if NET40
     [SecuritySafeCritical]
 #endif
-    public override string BuildConnectionString(UrlInfo url)
+    protected override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
 

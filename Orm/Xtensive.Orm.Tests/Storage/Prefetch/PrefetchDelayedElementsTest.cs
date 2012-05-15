@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
-          session.Handler.TryGetEntitySetState(key, ordersField, out state);
+          session.Handler.LookupState(key, ordersField, out state);
           Assert.IsTrue(state.IsFullyLoaded);
           Assert.Greater(state.TotalItemCount, 0);
           foreach (var orderKey in state) {
@@ -392,7 +392,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(ownerKey, ownerType, session,
         PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       EntitySetState setState;
-      session.Handler.TryGetEntitySetState(ownerKey, referencingField, out setState);
+      session.Handler.LookupState(ownerKey, referencingField, out setState);
       Assert.IsTrue(setState.IsFullyLoaded);
       foreach (var itemKey in setState) {
         isOneItemPresentAtLeast = true;

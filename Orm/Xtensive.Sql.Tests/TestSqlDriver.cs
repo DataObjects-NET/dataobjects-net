@@ -6,51 +6,36 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Tests
 {
   public static class TestSqlDriver
   {
-    private static Dictionary<string, Type> factoryRegistry = new Dictionary<string, Type> {
+    private static readonly Dictionary<ConnectionInfo, SqlDriver> DriverCache = new Dictionary<ConnectionInfo, SqlDriver>();
+
+    private static readonly Dictionary<string, Type> FactoryRegistry = new Dictionary<string, Type> {
         {"sqlserver", typeof (Drivers.SqlServer.DriverFactory)},
         {"sqlserverce", typeof (Drivers.SqlServerCe.DriverFactory)},
         {"oracle", typeof (Drivers.Oracle.DriverFactory)},
         {"postgresql", typeof (Drivers.PostgreSql.DriverFactory)},
         {"firebird", typeof (Drivers.Firebird.DriverFactory)},
         {"mysql", typeof (Drivers.MySql.DriverFactory)},
-        {"sqlite", typeof (Drivers.SQLite.DriverFactory)},
+        {"sqlite", typeof (Drivers.Sqlite.DriverFactory)},
       };
 
-    /// <summary>
-    /// Creates the driver from the specified connection URL.
-    /// </summary>
-    /// <param name="connectionUrl">The connection url.</param>
-    /// <returns>Created driver.</returns>
     public static SqlDriver Create(UrlInfo connectionUrl)
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionUrl, "connectionUrl");
       return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
-    /// <summary>
-    /// Creates the driver from the specified connection URL.
-    /// </summary>
-    /// <param name="connectionUrl">The connection url.</param>
-    /// <returns>Created driver.</returns>
     public static SqlDriver Create(string connectionUrl)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl, "connectionUrl");
       return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
-    /// <summary>
-    /// Creates the driver from the specified connection string and driver name.
-    /// </summary>
-    /// <param name="provider">The provider.</param>
-    /// <param name="connectionString">The connection string.</param>
-    /// <returns>Created driver.</returns>
     public static SqlDriver Create(string provider, string connectionString)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(provider, "provider");
@@ -58,11 +43,6 @@ namespace Xtensive.Sql.Tests
       return BuildDriver(new ConnectionInfo(provider, connectionString));
     }
 
-    /// <summary>
-    /// Creates the driver from the specified connection string and driver name.
-    /// </summary>
-    /// <param name="connectionInfo">The connection info.</param>
-    /// <returns>Created driver.</returns>
     public static SqlDriver Create(ConnectionInfo connectionInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
@@ -71,9 +51,16 @@ namespace Xtensive.Sql.Tests
 
     private static SqlDriver BuildDriver(ConnectionInfo connectionInfo)
     {
-      var factoryType = factoryRegistry[connectionInfo.Provider.ToLower()];
-      var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
-      return factory.CreateDriver(connectionInfo);
+      lock (DriverCache) {
+        SqlDriver driver;
+        if (!DriverCache.TryGetValue(connectionInfo, out driver)) {
+          var factoryType = FactoryRegistry[connectionInfo.Provider];
+          var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
+          driver = factory.GetDriver(connectionInfo);
+          DriverCache.Add(connectionInfo, driver);
+        }
+        return driver;
+      }
     }
   }
 }

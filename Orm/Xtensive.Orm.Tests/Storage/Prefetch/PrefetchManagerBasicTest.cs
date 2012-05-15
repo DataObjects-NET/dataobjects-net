@@ -555,7 +555,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.ExecuteTasks();
 
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.TryGetEntitySetState(bookKey, translationTitlesField, out setState));
+        Assert.IsTrue(session.Handler.LookupState(bookKey, translationTitlesField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
         Assert.AreEqual(instanceCount, setState.TotalItemCount);
         var iTitleType = typeof (ITitle).GetTypeInfo();
@@ -608,7 +608,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           field => IsFieldKeyOrSystem(field) || field.Equals(urlField));
 
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.TryGetEntitySetState(publisherKey0, distributorsField, out setState));
+        Assert.IsTrue(session.Handler.LookupState(publisherKey0, distributorsField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
         Assert.AreEqual(4, setState.TotalItemCount);
         foreach (var bookShopKey in bookShopKeys)
@@ -632,7 +632,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           field => IsFieldKeyOrSystem(field) || field.Equals(trademarkField));
 
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.TryGetEntitySetState(bookShopKey0, suppliersField, out setState));
+        Assert.IsTrue(session.Handler.LookupState(bookShopKey0, suppliersField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
         Assert.AreEqual(4, setState.TotalItemCount);
         foreach (var publisherKey in publisherKeys)
@@ -661,7 +661,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.ExecuteTasks();
 
         EntitySetState setState;
-        Assert.IsFalse(session.Handler.TryGetEntitySetState(orderKey, DetailsField, out setState));
+        Assert.IsFalse(session.Handler.LookupState(orderKey, DetailsField, out setState));
       }
     }
 
@@ -777,7 +777,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         
         Assert.AreEqual(bookShopKeys.Count, notificationCount);
         EntitySetState setState;
-        session.Handler.TryGetEntitySetState(publisherKey, distributorsField, out setState);
+        session.Handler.LookupState(publisherKey, distributorsField, out setState);
         var bookShopType = typeof (BookShop).GetTypeInfo(Domain);
         var iBookShopType = typeof (IBookShop).GetTypeInfo(Domain);
         Assert.AreEqual(bookShopKeys.Count, setState.TotalItemCount);

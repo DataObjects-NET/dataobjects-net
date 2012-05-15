@@ -4,6 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
+using System.Linq;
 using NUnit.Framework;
 using System;
 using System.Reflection;
@@ -39,7 +40,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public virtual void SetUp()
     {
       Require.ProviderIsNot(StorageProvider.Sqlite);
-      Schema = BuildDomain().Schema;
+      Schema = BuildDomain().StorageModel;
     }
 
     [Test]

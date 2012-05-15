@@ -13,11 +13,10 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal partial class IndexBuilder
+  partial class IndexBuilder
   {
-    private static void ChooseClusteredIndexes()
+    private void ChooseClusteredIndexes()
     {
-      var context = BuildingContext.Demand();
       foreach (var hierarchy in context.Model.Hierarchies) {
         var chooser = GetClusteredIndexChooser(hierarchy);
         var queue = new Queue<TypeInfo>();
@@ -112,11 +111,11 @@ namespace Xtensive.Orm.Building.Builders
 
       var parentClusteredIndex = clusteredIndexesMap[type.GetAncestor()];
       if (parentClusteredIndex == null)
-        throw Exceptions.InternalError("inheritedIndexes is not empty, but parentClusteredIndex is not specified", Log.Instance);
+        throw Exceptions.InternalError("inheritedIndexes is not empty, but parentClusteredIndex is not specified", BuildLog.Instance);
 
       var winner = inheritedIndexes.FirstOrDefault(i => i.DeclaringIndex==parentClusteredIndex.DeclaringIndex);
       if (winner == null)
-        throw Exceptions.InternalError("matching inherited index is not found", Log.Instance);
+        throw Exceptions.InternalError("matching inherited index is not found", BuildLog.Instance);
       DeclareNonClustered(GetPrimaryIndexForCorrespondingTable(type));
       DeclareNonClustered(inheritedIndexes.Where(i => i != winner));
       return winner;

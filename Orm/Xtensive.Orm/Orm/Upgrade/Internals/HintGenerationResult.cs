@@ -4,21 +4,18 @@
 // Created by: Ivan Galkin
 // Created:    2009.10.14
 
-using System;
 using System.Collections.Generic;
 using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Orm.Upgrade
 {
-  [Serializable]
-  internal struct HintGenerationResult
+  internal sealed class HintGenerationResult
   {
     public List<UpgradeHint> ModelHints { get; private set; }
 
     public List<Hint> SchemaHints { get; private set; }
 
     public HintGenerationResult(List<UpgradeHint> modelHints, List<Hint> schemaHints)
-      : this()
     {
       ModelHints = modelHints;
       SchemaHints = schemaHints;

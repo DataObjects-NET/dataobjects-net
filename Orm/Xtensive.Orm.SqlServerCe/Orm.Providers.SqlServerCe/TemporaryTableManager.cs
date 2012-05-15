@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.11
 
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Providers.SqlServerCe
@@ -12,8 +12,13 @@ namespace Xtensive.Orm.Providers.SqlServerCe
   /// <summary>
   /// A temporary table manager specific to SQL Server CE
   /// </summary>
-  public class TemporaryTableManager : Sql.TemporaryTableManager
+  public class TemporaryTableManager : Providers.TemporaryTableManager
   {
+    protected override bool CheckIsSupported()
+    {
+      return true;
+    }
+
     /// <inheritdoc/>
     protected override Table CreateTemporaryTable(Schema schema, string tableName)
     {

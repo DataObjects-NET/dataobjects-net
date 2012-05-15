@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="dataSource">The <see cref="DataSource"/> property value.</param>
     protected TranslatedQuery(ExecutableProvider dataSource)

@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.24
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Sorting;
 using Xtensive.Orm.Model.Stored;
@@ -22,7 +23,17 @@ namespace Xtensive.Orm.Model
     /// <returns>A result of conversion.</returns>
     public static StoredDomainModel ToStoredModel(this DomainModel model)
     {
-      return new ConverterToStoredModel().Convert(model);
+      return ConverterToStoredModel.Convert(model, null);
+    }
+
+    /// <summary>
+    /// Converts speicified <see cref="DomainModel"/> to corresponding <see cref="StoredDomainModel"/>.
+    /// </summary>
+    /// <param name="model">The model to convert.</param>
+    /// <returns>A result of conversion.</returns>
+    public static StoredDomainModel ToStoredModel(this DomainModel model, Func<TypeInfo, bool> filter)
+    {
+      return ConverterToStoredModel.Convert(model, filter);
     }
 
     /// <summary>

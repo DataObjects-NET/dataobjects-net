@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Disposing;
@@ -22,6 +23,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
   {
     private static bool isEnabled = false;
     private static string runningVersion;
+
+    private static string connectionString;
 
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
     public static IDisposable Enable(string version)
@@ -61,29 +64,45 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
 #pragma warning restore 612,618
     }
 
-    public override void  OnStage()
+    public override void OnBeforeStage()
     {
+      base.OnBeforeStage();
+
       if (runningVersion!="2")
         return;
-      var session = Session.Demand();
-      var directSql = session.Services.Demand<DirectSqlAccessor>();
-      if (!directSql.IsAvailable)
-        return; // IMDB, so there is nothing to uprade
-      if (UpgradeContext.Stage==UpgradeStage.Initializing) {
+
+      if (UpgradeContext.Stage==UpgradeStage.Upgrading) {
         // Relying on Metadata.Type, because
         // only system types are registered in model @ this stage.
-        int baseTypeId = session.Query.All<Metadata.Type>()
-          .Where(t => t.Name==typeof(M1.Base).FullName).Single().Id;
-        int derivedTypeId = session.Query.All<Metadata.Type>()
-          .Where(t => t.Name==typeof(M1.Derived).FullName).Single().Id;
-        var command = directSql.CreateCommand();
-        command.CommandText = @"
-          UPDATE [dbo].[Base] SET [TypeId] = {0} 
-          WHERE ([Base].[TypeId] = {1});
-          ".FormatWith(baseTypeId, derivedTypeId);
-        command.ExecuteNonQuery();
+        var typeMetadata = UpgradeContext.Metadata.Types;
+        int baseTypeId = typeMetadata.Single(t => t.Name==typeof(M1.Base).FullName).Id;
+        int derivedTypeId = typeMetadata.Single(t => t.Name==typeof(M1.Derived).FullName).Id;
+        using (var connection = new SqlConnection(connectionString)) {
+          connection.Open();
+          using (var command = connection.CreateCommand()) {
+            command.CommandText = @"
+              UPDATE [dbo].[Base] SET [TypeId] = {0} 
+              WHERE ([Base].[TypeId] = {1});
+              ".FormatWith(baseTypeId, derivedTypeId);
+            command.ExecuteNonQuery();
+          }
+          connection.Close();
+        }
       }
+    }
+
+    public override void OnStage()
+    {
+      if (runningVersion=="1") {
+        // Save connection string for future operation.
+        connectionString = Session.Demand().Services.Get<DirectSqlAccessor>().Connection.ConnectionString;
+      }
+
+      if (runningVersion!="2")
+        return;
       if (UpgradeContext.Stage==UpgradeStage.Upgrading) {
+        var session = Session.Demand();
+        var directSql = session.Services.Demand<DirectSqlAccessor>();
         var command = directSql.CreateCommand();
         command.CommandText = @"
           UPDATE [dbo].[Base] SET [Text] = [th].[Text] FROM (

@@ -10,7 +10,7 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Orm.Operations
@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Operations
       var session = context.Session;
       var entity = session.Query.Single(Key);
       if (entity.VersionInfo != Version) {
-        if (Log.IsLogged(LogEventTypes.Info))
-          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+        if (OrmLog.IsLogged(LogEventTypes.Info))
+          OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             session, Key, entity.VersionInfo, Version);
         throw new VersionConflictException(
           string.Format(Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, Key));
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Operations
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="key">The key of the <see cref="Entity"/>.</param>
     /// <param name="version">The original version.</param>

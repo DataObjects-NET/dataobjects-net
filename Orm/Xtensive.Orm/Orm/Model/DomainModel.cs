@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Helpers;
 
 namespace Xtensive.Orm.Model
@@ -15,10 +17,8 @@ namespace Xtensive.Orm.Model
   /// A mapping model of storage.
   /// </summary>
   [Serializable]
-  public sealed class DomainModel: Node
+  public sealed class DomainModel : Node
   {
-    internal readonly object unlockKey = new object();
-
     /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
     /// </summary>
@@ -42,8 +42,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the collection providing information about associations.
     /// </summary>
-    public AssociationInfoCollection Associations { get; private set;}
- 
+    public AssociationInfoCollection Associations { get; private set; }
+
+    /// <summary>
+    /// Gets the collection providing information about databases.
+    /// </summary>
+    public NodeCollection<DatabaseInfo> Databases { get; private set; }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -55,7 +60,7 @@ namespace Xtensive.Orm.Model
       RealIndexes.UpdateState(true);
       Associations.UpdateState(true);
     }
- 
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -66,6 +71,7 @@ namespace Xtensive.Orm.Model
       Types.Lock(true);
       RealIndexes.Lock(true);
       Associations.Lock(true);
+      Databases.Lock(true);
       FullTextIndexes.Lock(true);
     }
 
@@ -81,6 +87,7 @@ namespace Xtensive.Orm.Model
       RealIndexes = new IndexInfoCollection(this, "RealIndexes");
       Hierarchies = new HierarchyInfoCollection(this, "Hierarchies");
       Associations = new AssociationInfoCollection(this, "Associations");
+      Databases = new NodeCollection<DatabaseInfo>(this, "Databases");
       FullTextIndexes = new FullTextIndexInfoCollection();
     }
   }

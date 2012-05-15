@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Xtensive.Sql.Drivers.SQLite.Resources {
+namespace Xtensive.Sql.Drivers.Sqlite.Resources {
     using System;
     
     

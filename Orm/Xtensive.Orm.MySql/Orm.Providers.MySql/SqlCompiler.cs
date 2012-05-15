@@ -4,20 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.25
 
-using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Sql;
-using Xtensive.Sql.Dml;
-using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers.MySql
 {
-  internal class SqlCompiler : Sql.SqlCompiler
+  internal class SqlCompiler : Providers.SqlCompiler
   {
-
     // Constructors
     
     public SqlCompiler(HandlerAccessor handlers)

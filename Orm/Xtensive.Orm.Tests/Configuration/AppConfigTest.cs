@@ -83,5 +83,60 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.AreEqual(1000, defaultSession.EntityChangeRegistrySize);
       Assert.AreEqual(1000, defaultSession.Clone().EntityChangeRegistrySize);
     }
+
+    [Test]
+    public void SchemaSyncExceptionFormatTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithBriefSchemaSyncExceptions");
+      Assert.That(configuration.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
+      var clone = configuration.Clone();
+      Assert.That(clone.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
+    }
+    
+    [Test]
+    public void AdvancedMappingTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "AdvancedMappingTest");
+      ValidateAdvancedMappingConfiguration(configuration);
+      var clone = configuration.Clone();
+      ValidateAdvancedMappingConfiguration(clone);
+
+      var bad1 = configuration.Clone();
+      bad1.DefaultDatabase = null;
+      AssertEx.ThrowsInvalidOperationException(bad1.Lock);
+
+      var bad2 = configuration.Clone();
+      bad2.DefaultSchema = null;
+      AssertEx.ThrowsInvalidOperationException(bad2.Lock);
+
+      var good = configuration.Clone();
+      good.DefaultDatabase = null;
+      good.MappingRules.Clear();
+      good.MappingRules.Map(GetType().Namespace).ToSchema("check");
+      good.Lock();
+    }
+
+    private void ValidateAdvancedMappingConfiguration(DomainConfiguration configuration)
+    {
+      Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
+
+      Assert.That(configuration.MappingRules.Count, Is.EqualTo(2));
+      var rule1 = configuration.MappingRules[0];
+      Assert.That(rule1.Namespace, Is.EqualTo("Xtensive.Orm.Tests.Configuration"));
+      Assert.That(rule1.Schema, Is.EqualTo("myschema"));
+      var rule2 = configuration.MappingRules[1];
+      Assert.That(rule2.Assembly, Is.EqualTo(GetType().Assembly));
+      Assert.That(rule2.Database, Is.EqualTo("other"));
+
+      Assert.That(configuration.Databases.Count, Is.EqualTo(2));
+      var alias1 = configuration.Databases[0];
+      Assert.That(alias1.Name, Is.EqualTo("main"));
+      Assert.That(alias1.RealName, Is.EqualTo("DO40-Tests"));
+      var alias2 = configuration.Databases[1];
+      Assert.That(alias2.Name, Is.EqualTo("other"));
+      Assert.That(alias2.RealName, Is.EqualTo("Other-DO40-Tests"));
+
+      configuration.Lock(); // ensure configuration is correct
+    }
   }
 }

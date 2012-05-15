@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Upgrade.Model
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Upgrade.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public FullTextColumnRefCollection(StorageFullTextIndexInfo parent)
       : base(parent, "Columns")

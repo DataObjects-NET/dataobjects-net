@@ -5,76 +5,103 @@
 // Created:    2009.04.14
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-
 
 namespace Xtensive.Orm.Building.Builders
 {  
-  internal static class TypeIdBuilder
+  internal sealed class TypeIdBuilder
   {
-    public static void BuildTypeIds(bool systemTypesOnly)
+    private sealed class TypeIdSequence
     {
-      var context = BuildingContext.Demand();
-      var domain = context.Domain;
-      
-      BuildSystemTypeIds(context);
-      if (!systemTypesOnly)
-        BuildRegularTypeIds(context);
+      private int currentValue;
+      private readonly int minValue;
+      private readonly int maxValue;
+      private readonly string mappingDatabase;
+
+      public int GetNextValue()
+      {
+        if (currentValue==maxValue)
+          throw new InvalidOperationException(string.Format(
+            Strings.TypeIdRangeForDatabaseXYZIsExhausted, mappingDatabase, minValue, maxValue));
+        return ++currentValue;
+      }
+
+      public TypeIdSequence(int currentValue, int minValue, int maxValue, string mappingDatabase)
+      {
+        this.currentValue = currentValue;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.mappingDatabase = mappingDatabase;
+      }
+    }
+
+    private readonly Domain domain;
+    private readonly ITypeIdProvider typeIdProvider;
+
+    public void BuildTypeIds()
+    {
+      AssignTypeIds();
 
       // Updating TypeId index
-      context.Model.Types.RebuildTypeIdIndex();
-      // Updating Type-leve caches
-      var typeLevelCaches = domain.TypeLevelCaches;
-      foreach (var type in domain.Model.Types) {
-        int typeId = type.TypeId;
-        if (typeId!=TypeInfo.NoTypeId) {
-          TypeLevelCache cache;
-          if (!typeLevelCaches.TryGetValue(typeId, out cache))
-            typeLevelCaches.Add(typeId, new TypeLevelCache(type));
-        }
+      domain.Model.Types.RebuildTypeIdIndex();
+    }
+
+    private void AssignTypeIds()
+    {
+      // Load existing type ids
+      foreach (var type in GetTypesWithoutTypeId())
+        type.TypeId = typeIdProvider.GetTypeId(type.UnderlyingType);
+
+      // Provide type ids for remaining types
+      var typeGroups = GetTypesWithoutTypeId()
+        .GroupBy(t => t.MappingDatabase ?? string.Empty)
+        .OrderBy(g => g.Key);
+      foreach (var group in typeGroups) {
+        var sequence = GetTypeIdSequence(group.Key);
+        foreach (var type in group.OrderBy(i => i.Name))
+          type.TypeId = sequence.GetNextValue();
       }
     }
 
-    private static void BuildSystemTypeIds(BuildingContext context)
+    private TypeIdSequence GetTypeIdSequence(string mappingDatabase)
     {
-      foreach (var type in context.SystemTypeIds.Keys) {
-        var typeInfo = context.Model.Types[type];
-        int systemTypeId = context.SystemTypeIds[type];
-// ReSharper disable RedundantCheckBeforeAssignment
-        if (typeInfo.TypeId!=systemTypeId)
-          typeInfo.TypeId = systemTypeId;
-// ReSharper restore RedundantCheckBeforeAssignment
-      }
+      if (domain.Model.Databases.Count==0)
+        // Multidatabase mode is not enabled, use default range
+        return GetTypeIdSequence(TypeInfo.MinTypeId, int.MaxValue, Strings.NA);
+
+      // Query configuration for a particular database
+      var configurationEntry = domain.Model.Databases[mappingDatabase].Configuration;
+      return GetTypeIdSequence(
+        configurationEntry.MinTypeId, configurationEntry.MaxTypeId, configurationEntry.Name);
     }
 
-    private static void BuildRegularTypeIds(BuildingContext context)
+    private TypeIdSequence GetTypeIdSequence(int minTypeId, int maxTypeId, string mappingDatabase)
     {
-      var getTypeId = context.BuilderConfiguration.TypeIdProvider ?? (type => TypeInfo.NoTypeId);
-      var maxTypeId = context.Model.Types
-        .Where(type => type.TypeId >= TypeInfo.MinTypeId)
-        .Select(type => type.TypeId)
-        .DefaultIfEmpty(TypeInfo.MinTypeId)
+      var current = domain.Model.Types
+        .Where(t => t.TypeId >= minTypeId && t.TypeId <= maxTypeId)
+        .Select(t => t.TypeId)
+        .DefaultIfEmpty(minTypeId - 1)
         .Max();
-      var typesToProcess = context.Model.Types
-        .Where(type => type.TypeId == TypeInfo.NoTypeId && type.UnderlyingType != typeof(Structure))
-        .Select(type => new {Type = type, Id = type.IsEntity 
-          ? getTypeId(type.UnderlyingType) 
-          : TypeInfo.NoTypeId })
-        .OrderByDescending(x => x.Type.IsEntity)
-        .ThenBy(x => x.Type.Name)
-        .ToList();
-      var nextTypeId = typesToProcess
-        .Where(x => x.Id != TypeInfo.NoTypeId)
-        .Select(x => x.Id)
-        .AddOne(maxTypeId)
-        .Max() + 1;
-      foreach (var pair in typesToProcess)
-        pair.Type.TypeId = pair.Id == TypeInfo.NoTypeId
-          ? nextTypeId++
-          : pair.Id;
+      return new TypeIdSequence(current, minTypeId, maxTypeId, mappingDatabase);
+    }
+
+    private IEnumerable<TypeInfo> GetTypesWithoutTypeId()
+    {
+      return domain.Model.Types.Where(type => type.IsEntity && type.TypeId==TypeInfo.NoTypeId);
+    }
+
+    // Constructors
+
+    public TypeIdBuilder(Domain domain, ITypeIdProvider typeIdProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
+
+      this.domain = domain;
+      this.typeIdProvider = typeIdProvider;
     }
   }
 }

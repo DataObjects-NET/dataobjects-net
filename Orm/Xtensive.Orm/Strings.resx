@@ -352,8 +352,8 @@
   <data name="ExResultTypeIncorrect" xml:space="preserve">
     <value>Value of '{0}' type cannot be assigned to property of '{1}' type.</value>
   </data>
-  <data name="ExStorageProviderNotFound" xml:space="preserve">
-    <value>Handler provider is not found for "{0}" connection type.</value>
+  <data name="ExStorageProviderXIsNotFound" xml:space="preserve">
+    <value>Storage provider '{0}' is not found.</value>
   </data>
   <data name="ExInvalidKeyParams" xml:space="preserve">
     <value>Unable to create Key. Key params do not correspond to its structure.</value>
@@ -956,7 +956,7 @@ Referenced Entity Key: {4}</value>
     <value>Column with name '{0}' is not found in table '{1}'.</value>
   </data>
   <data name="ExProviderXIsNotSupportedUseOneOfTheFollowingY" xml:space="preserve">
-    <value>Provider "{0}" is not supported. Use one of the following: "{1}".</value>
+    <value>Provider "{0}" is not supported. Use one of the following: {1}.</value>
   </data>
   <data name="ExTypeXDoesNotContainYField" xml:space="preserve">
     <value>Type '{0}' does not contain '{1}' field.</value>
@@ -2328,5 +2328,62 @@ Error: {1}</value>
   </data>
   <data name="UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession">
     <value xml:space="preserve">Unable to invalidate session state: newly created entities are attached to session.</value>
+  </data>
+  <data name="ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive">
+    <value xml:space="preserve">DefaultSchema should be specified when multi-schema mode is active</value>
+  </data>
+  <data name="ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive">
+    <value xml:space="preserve">DefaultSchema and DefaultDatabase should be specified when multi-database mode is active</value>
+  </data>
+  <data name="LogProcessingMappingRules">
+    <value xml:space="preserve">Processing mapping rules</value>
+  </data>
+  <data name="ExXImplementorsDontBelongToAnyHierarchy">
+    <value xml:space="preserve">{0} implementors don't belong to any hierarchy.</value>
+  </data>
+  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ">
+    <value xml:space="preserve">Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn't: {1} &amp; {2}.</value>
+  </data>
+  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ">
+    <value xml:space="preserve">Implementors of {0} interface belong to hierarchies with different key structure: {1} &amp; {2}.</value>
+  </data>
+  <data name="LogValidatingMappingConfiguration">
+    <value xml:space="preserve">Validating mapping configuration</value>
+  </data>
+  <data name="ExTypeDiscriminatorFieldIsNotFoundForXType">
+    <value xml:space="preserve">Type discriminator field is not found for {0} type</value>
+  </data>
+  <data name="ExSingleHierarchyIsMappedToMultipleDatabasesXY">
+    <value xml:space="preserve">Single hierarchy is mapped to multiple databases: {0}, {1}</value>
+  </data>
+  <data name="ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ">
+    <value xml:space="preserve">Interface '{0}' is implemented by types mapped to different databases: {1}, {2}</value>
+  </data>
+  <data name="ExMultischemaModeIsActiveButNoSchemaSpecifiedForX">
+    <value xml:space="preserve">Multi-schema mode is active, but no schema specified for '{0}'</value>
+  </data>
+  <data name="ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX">
+    <value xml:space="preserve">Multi-database mode is active, but no database specified for '{0}'</value>
+  </data>
+  <data name="ExCyclicDependencyBetweenDatabasesFoundX">
+    <value xml:space="preserve">Cyclic dependency between databases found: {0}</value>
+  </data>
+  <data name="LogProcessingX">
+    <value xml:space="preserve">Processing '{0}'</value>
+  </data>
+  <data name="LogReusingCachedMappingInformationForX">
+    <value xml:space="preserve">Reusing cached mapping information for '{0}'</value>
+  </data>
+  <data name="ApplyingRuleXToY">
+    <value xml:space="preserve">Applying rule '{0}' to '{1}'</value>
+  </data>
+  <data name="LogCalculatingDatabaseDependencies">
+    <value xml:space="preserve">Calculating database dependencies</value>
+  </data>
+  <data name="ExTemporaryTablesAreNotSupportedByCurrentStorage">
+    <value xml:space="preserve">Temporary tables are not supported by current storage</value>
+  </data>
+  <data name="TypeIdRangeForDatabaseXYZIsExhausted">
+    <value xml:space="preserve">Type ID range for database '{0}' ({1}, {2}) is exhausted</value>
   </data>
 </root>

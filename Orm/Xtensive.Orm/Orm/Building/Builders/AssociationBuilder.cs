@@ -16,9 +16,8 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal static class AssociationBuilder
   {
-    public static void BuildAssociation(FieldDef fieldDef, FieldInfo field)
+    public static void BuildAssociation(BuildingContext context, FieldDef fieldDef, FieldInfo field)
     {
-      var context = BuildingContext.Demand();
       var referencedType = field.IsEntity ? context.Model.Types[field.ValueType] : context.Model.Types[field.ItemType];
       var multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
       var association = new AssociationInfo(
@@ -32,9 +31,8 @@ namespace Xtensive.Orm.Building.Builders
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
     }
 
-    public static void BuildAssociation(AssociationInfo origin, FieldInfo field)
+    public static void BuildAssociation(BuildingContext context, AssociationInfo origin, FieldInfo field)
     {
-      var context = BuildingContext.Demand();
       var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnOwnerRemove, origin.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
@@ -50,9 +48,8 @@ namespace Xtensive.Orm.Building.Builders
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, pairTo.Second));
     }
 
-    public static void BuildReversedAssociation(AssociationInfo origin, string fieldName)
+    public static void BuildReversedAssociation(BuildingContext context, AssociationInfo origin, string fieldName)
     {
-      var context = BuildingContext.Demand();
       var owner = origin.TargetType;
       var field = owner.Fields[fieldName];
       var multiplicity = origin.Multiplicity;

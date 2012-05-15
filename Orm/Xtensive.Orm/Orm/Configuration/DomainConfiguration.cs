@@ -5,12 +5,13 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Configuration.Elements;
-using Xtensive.Orm.Configuration.Internals;
 
 using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
@@ -66,6 +67,12 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultIncludeSqlInExceptions = true;
 
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.BuildInParallel"/> value: 
+    /// <see langword="true" />.
+    /// </summary>
+    public const bool DefaultBuildInParallel = true;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -74,6 +81,7 @@ namespace Xtensive.Orm.Configuration
     private string name = string.Empty;
     private ConnectionInfo connectionInfo;
     private string defaultSchema = string.Empty;
+    private string defaultDatabase = string.Empty;
     private DomainTypeRegistry types = new DomainTypeRegistry(new DomainTypeRegistrationHandler());
     private LinqExtensionRegistry linqExtensions = new LinqExtensionRegistry();
     private NamingConvention namingConvention = new NamingConvention();
@@ -89,6 +97,14 @@ namespace Xtensive.Orm.Configuration
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion;
+    private bool buildInParallel = DefaultBuildInParallel;
+    private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
+    private MappingRuleCollection mappingRules = new MappingRuleCollection();
+    private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
+    private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
+
+    private bool? isMultidatabase;
+    private bool? isMultischema;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -150,6 +166,19 @@ namespace Xtensive.Orm.Configuration
       set {
         this.EnsureNotLocked();
         defaultSchema = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default database.
+    /// If database aliases are configured, this should be an alias name.
+    /// </summary>
+    public string DefaultDatabase
+    {
+      get { return defaultDatabase; }
+      set {
+        this.EnsureNotLocked();
+        defaultDatabase = value;
       }
     }
 
@@ -298,6 +327,22 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets <see cref="SchemaSynchronizationException"/> format.
+    /// Default value is <see cref="Orm.Configuration.SchemaSyncExceptionFormat.Detailed"/>.
+    /// To get old format that was used in DataObjects.Net prior to version 4.5
+    /// set this to <see cref="Orm.Configuration.SchemaSyncExceptionFormat.Brief"/>.
+    /// </summary>
+    public SchemaSyncExceptionFormat SchemaSyncExceptionFormat
+    {
+      get { return schemaSyncExceptionFormat; }
+      set
+      {
+        this.EnsureNotLocked();
+        schemaSyncExceptionFormat = value;
+      }
+    }
+
+    /// <summary>
     /// Gets available session configurations.
     /// </summary>
     public SessionConfigurationCollection Sessions
@@ -308,6 +353,48 @@ namespace Xtensive.Orm.Configuration
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         this.EnsureNotLocked();
         sessions = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets registered mapping rules.
+    /// </summary>
+    public MappingRuleCollection MappingRules
+    {
+      get { return mappingRules; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        mappingRules = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets registered database aliases.
+    /// </summary>
+    public DatabaseConfigurationCollection Databases
+    {
+      get { return databases; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        databases = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets key generators.
+    /// </summary>
+    public KeyGeneratorConfigurationCollection KeyGenerators
+    {
+      get { return keyGenerators; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        keyGenerators = value;
       }
     }
 
@@ -354,20 +441,83 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets value indicating whether <see cref="Domain.Build"/>
+    /// process should be parallelized whenever possible.
+    /// </summary>
+    public bool BuildInParallel
+    {
+      get { return buildInParallel; }
+      set
+      {
+        this.EnsureNotLocked();
+        buildInParallel = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this configuration is multi-database.
+    /// </summary>
+    public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
+
+    /// <summary>
+    /// Gets a value indicating whether this configuration is multi-schema.
+    /// </summary>
+    public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
+
+    private bool GetIsMultidatabase()
+    {
+      return !string.IsNullOrEmpty(DefaultDatabase)
+        || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Database));
+    }
+
+    private bool GetIsMultischema()
+    {
+      return !string.IsNullOrEmpty(DefaultSchema)
+        || MappingRules.Any(rule => !string.IsNullOrEmpty(rule.Schema))
+        || GetIsMultidatabase();
+    }
+
+    /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
     public override void Lock(bool recursive)
     {
+      var multischema = GetIsMultischema();
+      var multidatabase = GetIsMultidatabase();
+
+      // This couldn't be done in Validate() method
+      // because override sequence of Lock() is so broken.
+      ValidateMappingConfiguration(multischema, multidatabase);
+
       types.Lock(true);
       sessions.Lock(true);
       linqExtensions.Lock(true);
+      databases.Lock(true);
+      mappingRules.Lock(true);
+      keyGenerators.Lock(true);
+
       base.Lock(recursive);
+
+      // Everything locked fine, commit the flags
+      isMultischema = multischema;
+      isMultidatabase = multidatabase;
     }
 
     /// <inheritdoc/>
     public override void Validate()
     {
+    }
+
+    private void ValidateMappingConfiguration(bool multischema, bool multidatabase)
+    {
+      if (multischema && string.IsNullOrEmpty(DefaultSchema))
+        throw new InvalidOperationException(
+          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
+      
+      if (multidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
+        throw new InvalidOperationException(
+          Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
     }
 
     /// <inheritdoc/>
@@ -386,10 +536,13 @@ namespace Xtensive.Orm.Configuration
     protected override void CopyFrom(ConfigurationBase source)
     {
       base.CopyFrom(source);
+
       var configuration = (DomainConfiguration) source;
+
       name = configuration.Name;
       connectionInfo = configuration.ConnectionInfo;
-      defaultSchema = configuration.defaultSchema;
+      defaultSchema = configuration.DefaultSchema;
+      defaultDatabase = configuration.DefaultDatabase;
       types = (DomainTypeRegistry) configuration.Types.Clone();
       linqExtensions = (LinqExtensionRegistry) configuration.LinqExtensions.Clone();
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
@@ -398,13 +551,18 @@ namespace Xtensive.Orm.Configuration
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
-      upgradeMode = configuration.upgradeMode;
-      autoValidation = configuration.autoValidation;
-      validationMode = configuration.validationMode;
-      foreignKeyMode = configuration.foreignKeyMode;
-      serviceContainerType = configuration.serviceContainerType;
-      includeSqlInExceptions = configuration.includeSqlInExceptions;
+      upgradeMode = configuration.UpgradeMode;
+      autoValidation = configuration.AutoValidation;
+      validationMode = configuration.ValidationMode;
+      foreignKeyMode = configuration.ForeignKeyMode;
+      serviceContainerType = configuration.ServiceContainerType;
+      includeSqlInExceptions = configuration.IncludeSqlInExceptions;
       forcedServerVersion = configuration.forcedServerVersion;
+      buildInParallel = configuration.buildInParallel;
+      schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
+      databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
+      mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
+      keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
     }
 
     /// <summary>
@@ -459,11 +617,15 @@ namespace Xtensive.Orm.Configuration
       return domainElement.ToNative();
     }
 
+    internal bool Supports(ForeignKeyMode fkMode)
+    {
+      return (foreignKeyMode & fkMode)==fkMode;
+    }
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="connectionUrl">The string containing connection URL for <see cref="Domain"/>.</param>
     public DomainConfiguration(string connectionUrl)
@@ -473,7 +635,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="connectionUrl">The connection URL.</param>
     public DomainConfiguration(UrlInfo connectionUrl)
@@ -483,7 +645,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="connectionString">The connection string.</param>
@@ -494,7 +656,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="connectionInfo">The connection info.</param>
     public DomainConfiguration(ConnectionInfo connectionInfo)
@@ -504,7 +666,7 @@ namespace Xtensive.Orm.Configuration
     }
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public DomainConfiguration()
     {

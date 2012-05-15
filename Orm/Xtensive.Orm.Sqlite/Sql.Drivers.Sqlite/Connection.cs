@@ -10,9 +10,9 @@ using System.Data.Common;
 using System.Data.SQLite;
 using System.Security;
 
-namespace Xtensive.Sql.Drivers.SQLite
+namespace Xtensive.Sql.Drivers.Sqlite
 {
-    internal class Connection : SqlConnection
+  internal class Connection : SqlConnection
   {
     private SQLiteConnection underlyingConnection;
     private SQLiteTransaction activeTransaction;

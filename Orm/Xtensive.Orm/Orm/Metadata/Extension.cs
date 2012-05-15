@@ -5,7 +5,7 @@
 // Created:    2008.12.24
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Metadata
 {
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Metadata
     /// Gets or sets the name of the extension.
     /// </summary>
     [Key]
-    [Field(Length = 500)]
+    [Field(Length = 1024)]
     public string Name { get; private set; }
 
     /// <summary>
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Metadata
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">A value for <see cref="Name"/>.</param>
     /// <exception cref="Exception">Object is read-only.</exception>

@@ -5,8 +5,6 @@
 // Created:    2009.06.01
 
 using System;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Providers
 {
@@ -16,9 +14,42 @@ namespace Xtensive.Orm.Providers
   [Serializable]
   public sealed class ProviderInfo
   {
-    private readonly Version storageVersion;
-    private readonly ProviderFeatures providerFeatures;
-    private readonly TemporaryTableFeatures temporaryTableFeatures;
+
+    /// <summary>
+    /// Gets provider name.
+    /// </summary>
+    public string ProviderName { get; private set; }
+
+    /// <summary>
+    /// Version of the underlying storage.
+    /// </summary>
+    public Version StorageVersion { get; private set; }
+
+    /// <summary>
+    /// Gets the features.
+    /// </summary>
+    public ProviderFeatures ProviderFeatures { get; private set; }
+
+    /// <summary>
+    /// Gets maximal identifier length.
+    /// </summary>
+    public int MaxIdentifierLength { get; private set; }
+
+    /// <summary>
+    /// Gets the constant name of the primary index.
+    /// </summary>
+    /// <value>The constant name of the primary index.</value>
+    public string ConstantPrimaryIndexName { get; private set; }
+
+    /// <summary>
+    /// Gets default database for current user.
+    /// </summary>
+    public string DefaultDatabase { get; private set; }
+
+    /// <summary>
+    /// Gets default schema for current user.
+    /// </summary>
+    public string DefaultSchema { get; private set; }
 
     /// <summary>
     /// Determines whether the specified features are supported.
@@ -26,60 +57,30 @@ namespace Xtensive.Orm.Providers
     /// <param name="required">The required feature set.</param>
     public bool Supports(ProviderFeatures required)
     {
-      return (providerFeatures & required)==required;
+      return (ProviderFeatures & required)==required;
     }
-
-    /// <summary>
-    /// Determines whether the specified features are supported.
-    /// </summary>
-    /// <param name="required">The required feature set.</param>
-    public bool Supports(TemporaryTableFeatures required)
-    {
-      return (temporaryTableFeatures & required) == required;
-    }
-
-    /// <summary>
-    /// Version of the underlying storage.
-    /// </summary>
-    public Version StorageVersion { get { return storageVersion; } }
-
-    /// <summary>
-    /// Gets the features.
-    /// </summary>
-    public ProviderFeatures ProviderFeatures { get { return providerFeatures; } }
-
-    /// <summary>
-    /// Maximal identifier length.
-    /// </summary>
-    public int MaxIdentifierLength { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the constant name of the primary index.
-    /// </summary>
-    /// <value>The constant name of the primary index.</value>
-    public string ConstantPrimaryIndexName { get; private set; }
-
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, TemporaryTableFeatures temporaryTableFeatures, int maxIdentifierLength)
+    internal ProviderInfo(
+      string providerName,
+      Version storageVersion,
+      ProviderFeatures providerFeatures,
+      int maxIdentifierLength,
+      string constantPrimaryIndexName,
+      string defaultDatabase,
+      string defaultSchema)
     {
-      this.storageVersion = storageVersion;
-      this.providerFeatures = providerFeatures;
-      this.temporaryTableFeatures = temporaryTableFeatures;
-      MaxIdentifierLength = maxIdentifierLength;
-    }
+      ProviderName = providerName;
 
-    public ProviderInfo(Version storageVersion, ProviderFeatures providerFeatures, TemporaryTableFeatures temporaryTableFeatures, int maxIdentifierLength, string constantPrimaryIndexName)
-    {
-      this.storageVersion = storageVersion;
-      this.providerFeatures = providerFeatures;
-      this.temporaryTableFeatures = temporaryTableFeatures;
+      StorageVersion = storageVersion;
+      ProviderFeatures = providerFeatures;
+
       MaxIdentifierLength = maxIdentifierLength;
       ConstantPrimaryIndexName = constantPrimaryIndexName;
+
+      DefaultDatabase = defaultDatabase;
+      DefaultSchema = defaultSchema;
     }
   }
 }

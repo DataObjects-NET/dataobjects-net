@@ -18,24 +18,6 @@ namespace Xtensive.Sql.Model
     private SequenceDescriptor sequenceDescriptor;
 
     /// <summary>
-    /// Gets or sets the data type.
-    /// </summary>
-    /// <value></value>
-    /// <remarks>
-    /// The data type must be exact numeric with scale 0.
-    /// </remarks>
-    public SqlValueType DataType
-    {
-      get { return dataType; }
-      set {
-        this.EnsureNotLocked();
-        if (DataType != null && (!SqlValueType.IsExactNumeric(DataType) || DataType.Scale != 0))
-          throw new ArgumentException(Strings.ExTheDataTypeMustBeExactNumericWithScale0, "value");
-        dataType = value;
-      }
-    }
-
-    /// <summary>
     /// Gets or sets the sequence descriptor.
     /// </summary>
     /// <value>The sequence descriptor.</value>

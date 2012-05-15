@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 using System.Linq;
 
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     // Constructors
 
     /// <summary>
-    ///  <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///  Initializes a new instance of this class.
     /// </summary>
     /// <param name="left">The left provider to intersect.</param>
     /// <param name="right">The right provider to intersect.</param>

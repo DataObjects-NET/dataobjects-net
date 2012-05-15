@@ -11,8 +11,8 @@ namespace Xtensive.Orm.Providers.Firebird
   /// <summary>
   /// Storage provider for Firebird.
   /// </summary>
-  [Provider(WellKnown.Provider.Firebird, "Storage provider for Firebird.")]
-  public class HandlerFactory : Sql.HandlerFactory
+  [Provider(WellKnown.Provider.Firebird, typeof (Xtensive.Sql.Drivers.Firebird.DriverFactory))]
+  public class HandlerFactory : Providers.HandlerFactory
   {
   }
 }

@@ -7,10 +7,11 @@
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel.Northwind;
 using System.Linq;
 using System;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -33,18 +34,18 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
+      var schemaName = Domain.StorageProviderInfo.DefaultSchema;
+
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var domainHandler = (DomainHandler) Domain.Handler;
+          var domainHandler = Domain.Handler;
           string createTableCommandText;
-          if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.SqlServer)
-            createTableCommandText = "CREATE TABLE " + 
-                                   domainHandler.Schema.Name + ".[TestTable] ([TestColumn] [money])";
+          if (Domain.Configuration.ConnectionInfo.Provider==WellKnown.Provider.SqlServer)
+            createTableCommandText = "CREATE TABLE " + schemaName + ".[TestTable] ([TestColumn] [money])";
           else
             createTableCommandText = "CREATE TABLE [TestTable] ([TestColumn] [money])";
-          var sessionHandler = (SessionHandler) session.Handler;
-          var queryExecutor = sessionHandler.GetService<IQueryExecutor>(true);
-          queryExecutor.ExecuteNonQuery(createTableCommandText);
+          var executor = session.Services.Demand<ISqlExecutor>();
+          executor.ExecuteNonQuery(createTableCommandText);
           transactionScope.Complete();
         }
       }
@@ -52,7 +53,16 @@ namespace Xtensive.Orm.Tests.Issues
       var domain = BuildDomain(BuildConfiguration());
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var schema = ((DomainHandler) Domain.Handler).Schema;
+
+          var driver = Domain.Handlers.StorageDriver;
+          var defaultSchema = driver.ProviderInfo.DefaultSchema;
+          var defaultDatabase = driver.ProviderInfo.DefaultDatabase;
+          var connection = ((SqlSessionHandler) session.Handler).Connection;
+
+          var schema = driver
+            .Extract(connection, new[] {new SqlExtractionTask(defaultDatabase, defaultSchema)})
+            .Catalogs.SelectMany(c => c.Schemas).First();
+
           Assert.IsNull(schema.Tables.SingleOrDefault(table => table.Name=="TestTable"));
           transactionScope.Complete();
         }

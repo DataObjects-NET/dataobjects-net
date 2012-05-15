@@ -11,11 +11,10 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+using Xtensive.Orm.Internals;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Model
 {
@@ -24,7 +23,7 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [DebuggerDisplay("{underlyingType}")]
   [Serializable]
-  public sealed class TypeInfo: MappingNode
+  public sealed class TypeInfo : SchemaMappedNode
   {
     /// <summary>
     /// "No <see cref="TypeId"/>" value (<see cref="TypeId"/> is unknown or undefined).
@@ -63,7 +62,6 @@ namespace Xtensive.Orm.Model
     private Tuple                              tuplePrototype;
     private MapTransform                       versionExtractor;
     private List<AssociationInfo>              overridenAssociations;
-
 
     #region IsXxx properties
 
@@ -281,6 +279,9 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets <see cref="KeyInfo"/> for this type.
+    /// </summary>
     public KeyInfo Key
     {
       get { return IsLocked ? key : GetKey(); }
@@ -352,6 +353,8 @@ namespace Xtensive.Orm.Model
         return structureFieldMapping ?? BuildStructureFieldMapping();
       }
     }
+
+    internal FieldAccessorProvider Accessors { get; private set; }
 
     /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
@@ -545,6 +548,7 @@ namespace Xtensive.Orm.Model
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
+
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
       ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
@@ -602,7 +606,6 @@ namespace Xtensive.Orm.Model
       foreach (var ancestorAssociation in overridenAssociations)
         associations.Remove(ancestorAssociation);
 
-
       var sequence = new List<AssociationInfo>(associations.Count);
       sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Deny    && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
       sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny    && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
@@ -630,8 +633,12 @@ namespace Xtensive.Orm.Model
       isLeaf = GetIsLeaf();
       key = GetKey();
 
+      if (IsEntity || IsStructure)
+        Accessors = new FieldAccessorProvider(this);
+
       if (!recursive)
         return;
+
       affectedIndexes.Lock(true);
       indexes.Lock(true);
       columns.Lock(true);
@@ -639,7 +646,7 @@ namespace Xtensive.Orm.Model
       fields.Lock(true);
     }
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
     private KeyInfo GetKey()
     {
@@ -668,7 +675,7 @@ namespace Xtensive.Orm.Model
     {
       if (!IsLocked)
         throw Exceptions.InternalError(
-          Strings.ExInstanceMustBeLockedBeforeThisOperation, Log.Instance);
+          Strings.ExInstanceMustBeLockedBeforeThisOperation, OrmLog.Instance);
       lock (this) {
         BuildTuplePrototype();
         BuildVersionExtractor();
@@ -703,7 +710,7 @@ namespace Xtensive.Orm.Model
             tuple.SetValue(i, column.DefaultValue);
           }
           catch (Exception e) {
-            Log.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ, 
+            OrmLog.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ, 
               column.DefaultValue, column.Name, Name);
           }
         }
@@ -771,7 +778,7 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="typeAttributes">The type attributes.</param>

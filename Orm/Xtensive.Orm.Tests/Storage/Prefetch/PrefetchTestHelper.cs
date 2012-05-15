@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       int expectedCount, Session session)
     {
       EntitySetState setState;
-      session.Handler.TryGetEntitySetState(ownerKey, referencingField, out setState);
+      session.Handler.LookupState(ownerKey, referencingField, out setState);
       Assert.IsTrue(setState.IsFullyLoaded);
       Assert.AreEqual(expectedCount, setState.TotalItemCount);
     }

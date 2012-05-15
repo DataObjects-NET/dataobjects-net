@@ -13,7 +13,7 @@ using System.Security.Permissions;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Orm
@@ -73,7 +73,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public KeyMapping(ReadOnlyDictionary<Key,Key> map)
     {
@@ -98,7 +98,11 @@ namespace Xtensive.Orm
       info.AddValue("Map", serializedMapping, typeof(Dictionary<Ref<Entity>, Ref<Entity>>));
     }
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true"/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="KeyMapping"/> class.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     protected KeyMapping(SerializationInfo info, StreamingContext context)
     {
       var serializedMapping = (Dictionary<Ref<Entity>, Ref<Entity>>)

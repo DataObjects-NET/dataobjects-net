@@ -26,10 +26,10 @@ namespace Xtensive.Orm.Internals
       if (!typeInfo.IsEntity)
         throw new InvalidOperationException(String.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
       var domain = session.Domain;
-      var keyGenerator = domain.KeyGenerators[typeInfo.Key];
+      var keyGenerator = domain.KeyGenerators.Get(typeInfo.Key, session.IsDisconnected);
       if (keyGenerator==null)
         throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
-      var keyValue = keyGenerator.GenerateKey(session.IsDisconnected);
+      var keyValue = keyGenerator.GenerateKey(typeInfo.Key, session);
       var key = Materialize(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
 
       return key;
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Internals
         key = CreateGenericKey(domain, type, accuracy, value, keyIndexes);
       else {
         if (keyIndexes!=null)
-          throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, Log.Instance);
+          throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, OrmLog.Instance);
         key = new LongKey(type, accuracy, value);
       }
       if (!canCache)

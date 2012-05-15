@@ -9,7 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers.Sql;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Tests.Issues.IssueJira0188_MissingFKsForComplexHierarchiesModel;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      schema = ((DomainHandler) domain.Handler).Schema;
+      schema = StorageTestHelper.GetDefaultSchema(domain);
       return domain;
     }
 

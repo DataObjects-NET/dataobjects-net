@@ -16,7 +16,7 @@ using Xtensive.Aspects;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Parameters;
 using Xtensive.Reflection;
 using Xtensive.Orm.Validation;
@@ -454,8 +454,7 @@ namespace Xtensive.Orm
 
     internal void SystemBeforeRemove()
     {
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
+      OrmLog.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
 
       Session.SystemEvents.NotifyEntityRemoving(this);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -500,9 +499,7 @@ namespace Xtensive.Orm
     internal override sealed void SystemBeforeInitialize(bool materialize)
     {
       State.Entity = this;
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXMaterializingYKeyZ,
-          Session, GetType().GetShortName(), State.Key);
+      OrmLog.Debug(Strings.LogSessionXMaterializingYKeyZ, Session, GetType().GetShortName(), State.Key);
 
       if (Session.IsSystemLogicOnly || materialize) 
         return;
@@ -585,10 +582,9 @@ namespace Xtensive.Orm
 
     internal override sealed void SystemBeforeGetValue(FieldInfo field)
     {
-      if ((Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==0)
+      if (!Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
         EnsureNotRemoved();
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
+      OrmLog.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
       EnsureIsFetched(field);
 
       Session.SystemEvents.NotifyFieldValueGetting(this, field);
@@ -634,8 +630,7 @@ namespace Xtensive.Orm
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
     {
       EnsureNotRemoved();
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
+      OrmLog.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
 
@@ -771,7 +766,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     protected Entity()
     {
@@ -790,7 +785,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     protected Entity(Session session)
@@ -831,7 +826,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="values">The field values that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
@@ -880,7 +875,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="values">The field values that will be used for key building.</param>
@@ -930,10 +925,12 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate()" copy="true"/>
-    /// Used internally to initialize the entity on materialization.
+    /// Initializes a new instance of the <see cref="Entity"/> class.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
+    /// <remarks>
+    /// Used internally to initialize the entity on materialization.
+    /// </remarks>
     [Infrastructure]
     protected Entity(EntityState state)
     {
@@ -953,10 +950,13 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate()" copy="true"/>
-    /// Used internally to initialize the entity on materialization.
+    /// Initializes a new instance of the <see cref="Entity"/> class.
     /// </summary>
+    /// <param name="session">The session.</param>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
+    /// <remarks>
+    /// Used internally to initialize the entity on materialization.
+    /// </remarks>
     [Infrastructure]
     protected Entity(Session session, EntityState state)
       : base(session)
@@ -973,7 +973,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>

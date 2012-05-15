@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using System.Runtime.Serialization;
@@ -133,13 +133,27 @@ namespace Xtensive.Orm
       return Equals((VersionInfo) obj);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator ==(VersionInfo left, VersionInfo right)
     {
       return !left.ConflictsWith(right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>
+    /// The result of the operator.
+    /// </returns>
     public static bool operator !=(VersionInfo left, VersionInfo right)
     {
       return left.ConflictsWith(right);
@@ -171,7 +185,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="version">The version tuple.</param>
     public VersionInfo(Tuple version)

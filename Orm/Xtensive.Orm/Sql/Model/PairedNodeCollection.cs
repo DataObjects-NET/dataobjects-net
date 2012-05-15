@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Helpers;
 
@@ -68,21 +67,6 @@ namespace Xtensive.Sql.Model
     /// <param name="capacity">The initial collection capacity.</param>
     public PairedNodeCollection(TOwner owner, string property, int capacity)
       : base(capacity)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(owner, "owner");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, "property");
-      this.owner = owner;
-      this.property = property;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PairedNodeCollection{TOwner,TNode}"/> class.
-    /// </summary>
-    /// <param name="owner">The collection owner.</param>
-    /// <param name="property">Owner collection property.</param>
-    /// <param name="collection">The collection whose elements are copied to the new list.</param>
-    public PairedNodeCollection(TOwner owner, string property, IEnumerable<TNode> collection)
-      : base(collection)
     {
       ArgumentValidator.EnsureArgumentNotNull(owner, "owner");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, "property");

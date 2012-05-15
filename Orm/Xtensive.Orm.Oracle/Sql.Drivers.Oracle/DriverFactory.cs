@@ -30,7 +30,7 @@ namespace Xtensive.Sql.Drivers.Oracle
       return new Version(items[0], items[1], items[2], items[3]);
     }
 
-    public override string BuildConnectionString(UrlInfo url)
+    protected override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url.Resource, "url.Resource");
@@ -73,8 +73,10 @@ namespace Xtensive.Sql.Drivers.Oracle
           MultipleActiveResultSets = true,
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
-        if (version.Major < 10)
-          throw new NotSupportedException(Strings.ExOracleBelow10gIsNotSupported);
+        if (version.Major < 9 || version.Major==9 && version.Minor < 2)
+          throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
+        if (version.Major==9)
+          return new v09.Driver(coreServerInfo);
         if (version.Major==10)
           return new v10.Driver(coreServerInfo);
         return new v11.Driver(coreServerInfo);

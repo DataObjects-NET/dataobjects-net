@@ -32,14 +32,19 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
     private const string DefaultSchemaElementName = "defaultSchema";
-
+    private const string DefaultDatabaseElementName = "defaultDatabase";
     private const string SessionsElementName = "sessions";
-    private const string TypeAliasesElementName = "typeAliases";
+    private const string MappingRulesElementName = "mappingRules";
+    private const string DatabasesElementName = "databases";
+    private const string KeyGeneratorsElementName = "keyGenerators";
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
+    private const string KeyGeneratorModeElementName = "keyGeneratorMode";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
+    private const string BuildInParallelElementName = "buildInParallel";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
+    private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -169,6 +174,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.SchemaSyncExceptionFormat" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(SchemaSyncExceptionFormatElementName, DefaultValue = "Default")]
+    public string SchemaSyncExceptionFormat
+    {
+      get { return (string) this[SchemaSyncExceptionFormatElementName]; }
+      set { this[SchemaSyncExceptionFormatElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.ForeignKeyMode" copy="true"/>
     /// </summary>
     [ConfigurationProperty(ForeignKeyModeElementName, DefaultValue = "Default")]
@@ -189,13 +204,53 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.KeyGeneratorMode" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(KeyGeneratorModeElementName, DefaultValue = "Default")]
+    public string KeyGeneratorMode
+    {
+      get { return (string) this[KeyGeneratorModeElementName]; }
+      set { this[KeyGeneratorModeElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
     public ConfigurationCollection<SessionConfigurationElement> Sessions
     {
       get { return (ConfigurationCollection<SessionConfigurationElement>) this[SessionsElementName]; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.MappingRules" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MappingRulesElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<MappingRuleElement>), AddItemName = "rule")]
+    public ConfigurationCollection<MappingRuleElement> MappingRules
+    {
+      get { return (ConfigurationCollection<MappingRuleElement>) this[MappingRulesElementName]; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.Databases" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(DatabasesElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "database")]
+    public ConfigurationCollection<DatabaseConfigurationElement> Databases
+    {
+      get { return (ConfigurationCollection<DatabaseConfigurationElement>) this[DatabasesElementName]; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.KeyGenerators" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "keyGenerator")]
+    public ConfigurationCollection<KeyGeneratorConfigurationElement> KeyGenerators
+    {
+      get { return (ConfigurationCollection<KeyGeneratorConfigurationElement>) this[KeyGeneratorsElementName]; }
     }
 
     /// <summary>
@@ -208,7 +263,6 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ServiceContainerTypeElementName] = value; }
     }
 
-
     /// <summary>
     /// <see cref="DomainConfiguration.DefaultSchema" copy="true"/>
     /// </summary>
@@ -220,6 +274,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.DefaultDatabase" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(DefaultDatabaseElementName)]
+    public string DefaultDatabase
+    {
+      get { return (string) this[DefaultDatabaseElementName]; }
+      set { this[DefaultDatabaseElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.IncludeSqlInExceptions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(IncludeSqlInExceptionsElementName,
@@ -228,6 +292,17 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (bool) this[IncludeSqlInExceptionsElementName]; }
       set { this[IncludeSqlInExceptionsElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.BuildInParallel" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(BuildInParallelElementName,
+      DefaultValue = DomainConfiguration.DefaultBuildInParallel)]
+    public bool BuildInParallel
+    {
+      get { return (bool) this[BuildInParallelElementName]; }
+      set { this[BuildInParallelElementName] = value; }
     }
 
     /// <summary>
@@ -259,18 +334,28 @@ namespace Xtensive.Orm.Configuration.Elements
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         AutoValidation = AutoValidation,
         DefaultSchema = DefaultSchema,
+        DefaultDatabase = DefaultDatabase,
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
+        SchemaSyncExceptionFormat = (SchemaSyncExceptionFormat) Enum.Parse(typeof (SchemaSyncExceptionFormat), SchemaSyncExceptionFormat, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
+        BuildInParallel = BuildInParallel,
         ForcedServerVersion = ForcedServerVersion,
       };
 
-      foreach (var entry in Types)
-        config.Types.Register(entry.ToNative());
-      foreach (var session in Sessions)
-        config.Sessions.Add(session.ToNative());
+      foreach (var element in Types)
+        config.Types.Register(element.ToNative());
+      foreach (var element in Sessions)
+        config.Sessions.Add(element.ToNative());
+      foreach (var element in MappingRules)
+        config.MappingRules.Add(element.ToNative());
+      foreach (var element in Databases)
+        config.Databases.Add(element.ToNative());
+      foreach (var element in KeyGenerators)
+        config.KeyGenerators.Add(element.ToNative());
+
       return config;
     }
 

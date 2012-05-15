@@ -4,12 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2009.05.28
 
-using System;
 using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  [Serializable]
   internal abstract class TypeAction : FixupAction
   {
     public TypeDef Type { get; private set; }

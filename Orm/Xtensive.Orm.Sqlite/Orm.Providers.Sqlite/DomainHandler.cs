@@ -4,21 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.25
 
-using Xtensive.Sql.Drivers.SQLite;
+using Xtensive.Sql.Drivers.Sqlite;
 using Xtensive.Orm.Rse.Compilation;
 
-namespace Xtensive.Orm.Providers.SQLite
+namespace Xtensive.Orm.Providers.Sqlite
 {
   /// <summary>
   /// A domain handler for Sqlite RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
-    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
-    {
-      return new DriverFactory();
-    }
-
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);

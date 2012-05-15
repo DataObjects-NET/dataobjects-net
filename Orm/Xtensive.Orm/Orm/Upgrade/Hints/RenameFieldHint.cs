@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="targetType">The current type.</param>
     /// <param name="oldFieldName">Old name of the field.</param>

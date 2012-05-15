@@ -78,11 +78,6 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\Lib\Sqlite\Net40\System.Data.SQLite.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="Sql.Drivers.Sqlite\Connection.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Driver.cs" />

@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Linq
           : ProcessProjectionElement(body);
         arguments.Add(body);
       }
-      var constructorParameters = n.Constructor.GetParameters();
+      var constructorParameters = n.GetConstructorParameters();
       for (int i = 0; i < arguments.Count; i++) {
         if (arguments[i].Type!=constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);

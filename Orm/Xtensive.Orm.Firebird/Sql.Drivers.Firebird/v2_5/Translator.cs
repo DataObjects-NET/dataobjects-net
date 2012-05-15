@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
-                                     SequenceDescriptorSection section)
+      SequenceDescriptorSection section)
     {
       switch (section) {
         case SequenceDescriptorSection.StartValue:
@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlDropTable node)
     {
-      return "DROP TABLE " + Translate(node.Table);
+      return "DROP TABLE " + Translate(context, node.Table);
     }
 
     /// <inheritdoc/>
@@ -96,18 +96,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case TypeCode.UInt64:
           return QuoteString(((UInt64) literalValue).ToString());
       }
-      if (literalType == typeof (byte[])) {
+      if (literalType==typeof (byte[])) {
         var values = (byte[]) literalValue;
-        var builder = new StringBuilder(2*(values.Length + 1));
+        var builder = new StringBuilder(2 * (values.Length + 1));
         builder.Append("x'");
         builder.AppendHexArray(values);
         builder.Append("'");
         return builder.ToString();
       }
-      if (literalType == typeof (Guid))
+      if (literalType==typeof (Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      if (literalType == typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks*100);
+      if (literalType==typeof (TimeSpan))
+        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks * 100);
       return base.Translate(context, literalValue);
     }
 
@@ -235,10 +235,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           //else if (!index.IsAscending)
           //    builder.Append("DESC ");
           builder.Append("INDEX " + QuoteIdentifier(index.DbName));
-          builder.Append(" ON " + Translate(index.DataTable));
+          builder.Append(" ON " + Translate(context, index.DataTable));
           return builder.ToString();
         case CreateIndexSection.ColumnsEnter:
-          if (node.Index.Columns[0].Expression != null) {
+          if (node.Index.Columns[0].Expression!=null) {
             if (node.Index.Columns.Count > 1)
               SqlHelper.NotSupported("expression index with multiple column");
             return "COMPUTED BY (";
@@ -257,10 +257,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           ForeignKey fk = constraint as ForeignKey;
           StringBuilder sb = new StringBuilder();
           sb.Append(")");
-          if (fk != null) {
-            if (fk.OnUpdate != ReferentialAction.NoAction)
+          if (fk!=null) {
+            if (fk.OnUpdate!=ReferentialAction.NoAction)
               sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
-            if (fk.OnDelete != ReferentialAction.NoAction)
+            if (fk.OnDelete!=ReferentialAction.NoAction)
               sb.Append(" ON DELETE " + Translate(fk.OnDelete));
           }
           return sb.ToString();
@@ -273,7 +273,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case NodeSection.Entry:
-          return "SET GENERATOR " + Translate(node.Sequence);
+          return "SET GENERATOR " + Translate(context, node.Sequence);
         case NodeSection.Exit:
           return "TO " + (node.SequenceDescriptor.LastValue.HasValue ? node.SequenceDescriptor.LastValue : 0);
       }
@@ -285,18 +285,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       if (!node.Index.IsFullText)
         return "DROP INDEX " + QuoteIdentifier(node.Index.DbName);
-      else 
-        return "DROP FULLTEXT INDEX ON " + Translate(node.Index.DataTable);
+      else
+        return "DROP FULLTEXT INDEX ON " + Translate(context, node.Index.DataTable);
     }
 
     public override string Translate(SqlCompilerContext context, SqlDropSequence node)
     {
-      return "DROP SEQUENCE " + Translate(node.Sequence);
+      return "DROP SEQUENCE " + Translate(context, node.Sequence);
     }
 
     public override string Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
     {
-      if (context.GetTraversalPath().Any(n => n.NodeType == SqlNodeType.Insert))
+      if (context.GetTraversalPath().Any(n => n.NodeType==SqlNodeType.Insert))
         return string.Empty;
       return base.Translate(context, node, section);
     }

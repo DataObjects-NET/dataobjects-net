@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Tests
       WriteLine(indent, target.Name);
     }
 
-    public static void DumpMappingName(this MappingNode target, int indent)
+    public static void DumpMappingName(this MappedNode target, int indent)
     {
       if (target.MappingName.IsNullOrEmpty())
         return;

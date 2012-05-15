@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Aspects;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 using Xtensive.Orm.Model;
 

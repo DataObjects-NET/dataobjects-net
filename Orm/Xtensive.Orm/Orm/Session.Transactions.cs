@@ -22,7 +22,7 @@ namespace Xtensive.Orm
     private const string SavepointNameFormat = "s{0}";
 
     private int nextSavepoint;
-    
+
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
@@ -54,7 +54,7 @@ namespace Xtensive.Orm
     {
       return OpenTransaction(TransactionOpenMode.Default, isolationLevel, false);
     }
-    
+
     /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
@@ -100,8 +100,8 @@ namespace Xtensive.Orm
       case TransactionOpenMode.New:
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        return transaction!=null 
-          ? CreateNestedTransaction(isolationLevel, isAutomatic) 
+        return transaction!=null
+          ? CreateNestedTransaction(isolationLevel, isAutomatic)
           : CreateOutermostTransaction(isolationLevel, isAutomatic);
       default:
         throw new ArgumentOutOfRangeException("mode");
@@ -168,54 +168,50 @@ namespace Xtensive.Orm
     internal TransactionScope OpenAutoTransaction(TransactionalBehavior behavior, IsolationLevel isolationLevel)
     {
       switch (behavior) {
-        case TransactionalBehavior.Auto:
-          if ((Configuration.Options & SessionOptions.AutoTransactionOpenMode) ==
-              SessionOptions.AutoTransactionOpenMode)
-            goto case TransactionalBehavior.Open;
-          if ((Configuration.Options & SessionOptions.AutoTransactionSuppressMode) ==
-              SessionOptions.AutoTransactionSuppressMode)
-            goto case TransactionalBehavior.Suppress;
-          goto case TransactionalBehavior.Require;
-        case TransactionalBehavior.Require:
-          return TransactionScope.VoidScopeInstance;
-        case TransactionalBehavior.Open:
-          if (IsDisconnected && Transaction!=null && !Transaction.IsDisconnected)
-            goto case TransactionalBehavior.New;
-          return OpenTransaction(TransactionOpenMode.Auto, isolationLevel, true);
-        case TransactionalBehavior.New:
-          return OpenTransaction(TransactionOpenMode.New, isolationLevel, true);
-        case TransactionalBehavior.Suppress:
-          return TransactionScope.VoidScopeInstance;
-        default:
-          throw new ArgumentOutOfRangeException();
+      case TransactionalBehavior.Auto:
+       if (Configuration.Supports(SessionOptions.AutoTransactionOpenMode))
+         goto case TransactionalBehavior.Open;
+       if (Configuration.Supports(SessionOptions.AutoTransactionSuppressMode))
+         goto case TransactionalBehavior.Suppress;
+       goto case TransactionalBehavior.Require;
+      case TransactionalBehavior.Require:
+        return TransactionScope.VoidScopeInstance;
+      case TransactionalBehavior.Open:
+        if (IsDisconnected && Transaction!=null && !Transaction.IsDisconnected)
+          goto case TransactionalBehavior.New;
+        return OpenTransaction(TransactionOpenMode.Auto, isolationLevel, true);
+      case TransactionalBehavior.New:
+        return OpenTransaction(TransactionOpenMode.New, isolationLevel, true);
+      case TransactionalBehavior.Suppress:
+        return TransactionScope.VoidScopeInstance;
+      default:
+        throw new ArgumentOutOfRangeException();
       }
     }
 
     internal void BeginTransaction(Transaction transaction)
     {
-      var isSystemTransaction = transaction.Session.Configuration.Type
-        .In(SessionType.KeyGenerator, SessionType.System);
-
-      if (isSystemTransaction || transaction.IsNested || IsDisconnected)
-        StartTransaction(transaction);
+      if (transaction.IsNested) {
+        Persist(PersistReason.NestedTransaction);
+        Handler.CreateSavepoint(transaction);
+      }
+      else
+        Handler.BeginTransaction(transaction);
     }
 
     internal void CommitTransaction(Transaction transaction)
     {
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCommittingTransaction, this);
-      
+      OrmLog.Debug(Strings.LogSessionXCommittingTransaction, this);
+
       SystemEvents.NotifyTransactionPrecommitting(transaction);
       Events.NotifyTransactionPrecommitting(transaction);
-      
+
       SystemEvents.NotifyTransactionCommitting(transaction);
       Events.NotifyTransactionCommitting(transaction);
 
       Persist(PersistReason.Commit);
 
       Handler.CompletingTransaction(transaction);
-      if (!transaction.IsActuallyStarted)
-        return;
       if (transaction.IsNested)
         Handler.ReleaseSavepoint(transaction);
       else
@@ -225,8 +221,7 @@ namespace Xtensive.Orm
     internal void RollbackTransaction(Transaction transaction)
     {
       try {
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollingBackTransaction, this);
+        OrmLog.Debug(Strings.LogSessionXRollingBackTransaction, this);
         SystemEvents.NotifyTransactionRollbacking(transaction);
         Events.NotifyTransactionRollbacking(transaction);
       }
@@ -236,11 +231,10 @@ namespace Xtensive.Orm
         }
         finally {
           try {
-            if (transaction.IsActuallyStarted)
-              if (transaction.IsNested)
-                Handler.RollbackToSavepoint(transaction);
-              else
-                Handler.RollbackTransaction(transaction);
+            if (Configuration.Supports(SessionOptions.SuppressRollbackExceptions))
+              RollbackWithSuppression(transaction);
+            else
+              Rollback(transaction);
           }
           finally {
             ClearChangeRegistry();
@@ -249,23 +243,39 @@ namespace Xtensive.Orm
       }
     }
 
+    private void RollbackWithSuppression(Transaction transaction)
+    {
+      try {
+        Rollback(transaction);
+      }
+      catch(Exception e) {
+        OrmLog.Warning(e);
+      }
+    }
+
+    private void Rollback(Transaction transaction)
+    {
+      if (transaction.IsNested)
+        Handler.RollbackToSavepoint(transaction);
+      else
+        Handler.RollbackTransaction(transaction);
+    }
+
     internal void CompleteTransaction(Transaction transaction)
     {
       queryTasks.Clear();
-      Pinner.ClearRoots();
+      pinner.ClearRoots();
 
       Transaction = transaction.Outer;
 
       switch (transaction.State) {
       case TransactionState.Committed:
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCommittedTransaction, this);
+        OrmLog.Debug(Strings.LogSessionXCommittedTransaction, this);
         SystemEvents.NotifyTransactionCommitted(transaction);
         Events.NotifyTransactionCommitted(transaction);
         break;
       case TransactionState.RolledBack:
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
+        OrmLog.Debug(Strings.LogSessionXRolledBackTransaction, this);
         SystemEvents.NotifyTransactionRollbacked(transaction);
         Events.NotifyTransactionRollbacked(transaction);
         break;
@@ -279,8 +289,6 @@ namespace Xtensive.Orm
       var transaction = Transaction;
       if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      if (!transaction.IsActuallyStarted)
-        StartTransaction(transaction);
     }
 
     /// <exception cref="InvalidOperationException">Can't create a transaction
@@ -295,19 +303,6 @@ namespace Xtensive.Orm
       if (sdRequested==SD.IsolationLevel.Snapshot && sdCurrent==SD.IsolationLevel.Serializable)
         return; // The only good case here
       throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
-    }
-
-    private void StartTransaction(Transaction transaction)
-    {
-      transaction.IsActuallyStarted = true;
-      if (transaction.IsNested) {
-        if (!transaction.Outer.IsActuallyStarted)
-          StartTransaction(transaction.Outer);
-        Persist(PersistReason.NestedTransaction);
-        Handler.CreateSavepoint(transaction);
-      }
-      else
-        Handler.BeginTransaction(transaction);
     }
 
     private string GetNextSavepointName()
@@ -340,8 +335,7 @@ namespace Xtensive.Orm
 
     private TransactionScope OpenTransactionScope(Transaction transaction)
     {
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXOpeningTransaction, this);
+      OrmLog.Debug(Strings.LogSessionXOpeningTransaction, this);
       
       SystemEvents.NotifyTransactionOpening(transaction);
       Events.NotifyTransactionOpening(transaction);
@@ -351,7 +345,7 @@ namespace Xtensive.Orm
 
       IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled)
-        logIndentScope = Log.DebugRegion(Strings.LogSessionXTransaction, this);
+        logIndentScope = OrmLog.DebugRegion(Strings.LogSessionXTransaction, this);
       
       SystemEvents.NotifyTransactionOpened(transaction);
       Events.NotifyTransactionOpened(transaction);

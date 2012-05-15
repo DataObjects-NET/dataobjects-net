@@ -60,14 +60,13 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void SessionsTest()
     {
-      var session = Domain.OpenSession();
-
-      MySessionBound testObject;
-
-      using (session.Activate()) {
-        testObject = new MySessionBound();
+      using (var session = Domain.OpenSession()) {
+        MySessionBound testObject;
+        using (session.Activate()) {
+          testObject = new MySessionBound();
+        }
+        testObject.CheckSessionActivation();
       }
-      testObject.CheckSessionActivation();
     }
 
     [Test]

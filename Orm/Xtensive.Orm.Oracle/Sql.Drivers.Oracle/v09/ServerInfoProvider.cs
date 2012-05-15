@@ -177,10 +177,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override FullTextSearchInfo GetFullTextInfo()
     {
       return null;
-//      var info = new FullTextSearchInfo();
-//      info.Features = FullTextSearchFeatures.Full;
-//      return info;
-
     }
 
     public override QueryInfo GetQueryInfo()
@@ -197,6 +193,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         QueryFeatures.DmlBatches |
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
+        QueryFeatures.MultischemaQueries |
         QueryFeatures.RowNumber;
       return queryInfo;
     }
@@ -226,9 +223,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
         ValueRange.Decimal, 38, "number");
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
-        ValueRange.Float, "float");
+        ValueRange.Float, "real");
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
-        ValueRange.Double, "double precision");
+        ValueRange.Double, "double precision", "float");
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         ValueRange.DateTime, "timestamp");
       types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,

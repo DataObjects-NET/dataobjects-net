@@ -9,14 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Caching;
 using Xtensive.Core;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-
-using Xtensive.Orm.Rse;
 using Activator = Xtensive.Orm.Internals.Activator;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm
 {
@@ -27,8 +24,7 @@ namespace Xtensive.Orm
 
     internal void Invalidate()
     {
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXInvalidate, this);
+      OrmLog.Debug(Strings.LogSessionXInvalidate, this);
 
       ClearChangeRegistry();
       InvalidateCachedEntities();
@@ -56,8 +52,7 @@ namespace Xtensive.Orm
       using (Activate()) {
         Persist(PersistReason.RemapEntityKeys);
         Invalidate();
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);
+        OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
         var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
         EntityStateCache.Clear();
         foreach (var pair in oldCacheContent) {
@@ -74,7 +69,7 @@ namespace Xtensive.Orm
 
     internal void EnforceChangeRegistrySizeLimit()
     {
-      if (EntityChangeRegistry.Count>=Configuration.EntityChangeRegistrySize)
+      if (EntityChangeRegistry.Count >= Configuration.EntityChangeRegistrySize)
         Persist(PersistReason.ChangeRegistrySizeLimit);
     }
 
@@ -100,7 +95,7 @@ namespace Xtensive.Orm
     {
       // Checking for deleted entity with the same key
       var result = EntityStateCache[key, false];
-      if (result != null) {
+      if (result!=null) {
         if (result.PersistenceState==PersistenceState.Removed)
           return;
         result.Entity.RemoveLater();
@@ -113,8 +108,7 @@ namespace Xtensive.Orm
       };
       EntityStateCache.Add(result);
 
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCachingY, this, result);
+      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
       return;
     }
 
@@ -157,21 +151,43 @@ namespace Xtensive.Orm
         result.PersistenceState = PersistenceState.New;
       }
 
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCachingY, this, result);
+      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
+    }
+
+    internal bool LookupStateInCache(Key key, out EntityState entityState)
+    {
+      return EntityStateCache.TryGetItem(key, true, out entityState);
+    }
+
+    internal bool LookupStateInCache(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
+    {
+      var entityState = EntityStateCache[key, false];
+      if (entityState!=null) {
+        var entity = entityState.Entity;
+        if (entity!=null) {
+          var entitySet = (EntitySetBase) entity.GetFieldValue(fieldInfo);
+          if (entitySet.CheckStateIsLoaded()) {
+            entitySetState = entitySet.State;
+            return true;
+          }
+        }
+      }
+      entitySetState = null;
+      return false;
     }
 
     /// <exception cref="InvalidOperationException">
     /// Attempt to associate non-null <paramref name="tuple"/> with <paramref name="key"/> of unknown type.
     /// </exception>
-    internal EntityState UpdateEntityState(Key key, Tuple tuple, bool isStale)
+    internal EntityState UpdateStateInCache(Key key, Tuple tuple, bool isStale)
     {
       var result = EntityStateCache[key, true];
-      if (result == null) {
+      if (result==null) {
         if (!key.HasExactType && tuple!=null)
-          throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType,
-            Log.Instance);
+          throw Exceptions.InternalError(
+            Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType,
+            OrmLog.Instance);
         result = AddEntityStateToCache(key, tuple, isStale);
         SystemEvents.NotifyEntityMaterialized(result);
         Events.NotifyEntityMaterialized(result);
@@ -183,18 +199,18 @@ namespace Xtensive.Orm
         }
         result.Update(tuple);
         result.IsStale = isStale;
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
+        OrmLog.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
       }
       return result;
     }
 
-    internal EntityState UpdateEntityState(Key key, Tuple tuple)
+    internal EntityState UpdateStateInCache(Key key, Tuple tuple)
     {
-      return UpdateEntityState(key, tuple, false);
+      return UpdateStateInCache(key, tuple, false);
     }
 
-    internal EntitySetState UpdateEntitySetState(Key key, FieldInfo fieldInfo, IEnumerable<Key> items, bool isFullyLoaded)
+    internal EntitySetState UpdateStateInCache(Key key, FieldInfo fieldInfo, IEnumerable<Key> entityKeys,
+      bool isFullyLoaded)
     {
       var entityState = EntityStateCache[key, true];
       if (entityState==null)
@@ -203,23 +219,7 @@ namespace Xtensive.Orm
       if (entity==null)
         return null;
       var entitySet = (EntitySetBase) entity.GetFieldValue(fieldInfo);
-      return entitySet.UpdateState(items, isFullyLoaded);
-    }
-
-    internal void UpdateCache(RecordSet source)
-    {
-      var reader = Domain.RecordSetReader;
-      foreach (var record in reader.Read(source, source.Header, this)) {
-        for (int i = 0; i < record.Count; i++) {
-          var key = record.GetKey(i);
-          if (key==null)
-            continue;
-          var tuple = record.GetTuple(i);
-          if (tuple==null)
-            continue;
-          UpdateEntityState(key, tuple);
-        }
-      }
+      return entitySet.UpdateState(entityKeys, isFullyLoaded);
     }
 
     private EntityState AddEntityStateToCache(Key key, Tuple tuple, bool isStale)
@@ -228,18 +228,18 @@ namespace Xtensive.Orm
         PersistenceState = PersistenceState.Synchronized
       };
       EntityStateCache.Add(result);
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXCachingY, this, result);
+      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
     }
 
-    private static ICache<Key,EntityState> CreateSessionCache(SessionConfiguration configuration)
+    private static ICache<Key, EntityState> CreateSessionCache(SessionConfiguration configuration)
     {
       switch (configuration.CacheType) {
       case SessionCacheType.Infinite:
         return new InfiniteCache<Key, EntityState>(configuration.CacheSize, i => i.Key);
       default:
-        return new LruCache<Key, EntityState>(configuration.CacheSize, i => i.Key,
+        return new LruCache<Key, EntityState>(
+          configuration.CacheSize, i => i.Key,
           new WeakCache<Key, EntityState>(false, i => i.Key));
       }
     }

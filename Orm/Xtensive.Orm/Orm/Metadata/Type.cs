@@ -5,9 +5,6 @@
 // Created:    2008.12.24
 
 using System;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 
 namespace Xtensive.Orm.Metadata
@@ -33,7 +30,7 @@ namespace Xtensive.Orm.Metadata
     /// <summary>
     /// Gets or sets the full type name.
     /// </summary>
-    [Field(Length = 500)]
+    [Field(Length = 1000)]
     public string Name { get; set; }
 
     /// <inheritdoc/>
@@ -45,7 +42,7 @@ namespace Xtensive.Orm.Metadata
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="id">The type identifier.</param>
     /// <param name="name">The name of the type.</param>

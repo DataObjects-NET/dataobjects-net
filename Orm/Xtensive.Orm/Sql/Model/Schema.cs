@@ -260,9 +260,10 @@ namespace Xtensive.Sql.Model
 
     #endregion
 
-    #region Constructors
+    // Constructors
 
-    internal Schema(Catalog catalog, string name) : base(catalog, name)
+    internal Schema(Catalog catalog, string name)
+      : base(catalog, name)
     {
       Tables = new PairedNodeCollection<Schema, Table>(this, "Tables");
       Views = new PairedNodeCollection<Schema, View>(this, "Views");
@@ -273,7 +274,5 @@ namespace Xtensive.Sql.Model
       Domains = new PairedNodeCollection<Schema, Domain>(this, "Domains");
       Sequences = new PairedNodeCollection<Schema, Sequence>(this, "Sequences");
     }
-
-    #endregion
   }
 }

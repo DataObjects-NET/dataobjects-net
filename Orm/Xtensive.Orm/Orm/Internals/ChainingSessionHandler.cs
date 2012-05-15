@@ -4,15 +4,13 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.06
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
-using Xtensive.Orm.Model;
-using Tuple = Xtensive.Tuples.Tuple;
+
 using Xtensive.Orm.Internals.Prefetch;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
@@ -20,16 +18,14 @@ namespace Xtensive.Orm.Internals
   /// The base class for <see cref="SessionHandler"/>s which support the chaining 
   /// with another handler.
   /// </summary>
-  public abstract class ChainingSessionHandler : Providers.SessionHandler
+  public abstract class ChainingSessionHandler : SessionHandler
   {
     /// <summary>
     /// The chained handler.
     /// </summary>
     protected internal readonly SessionHandler ChainedHandler;
 
-    internal override int PrefetchTaskExecutionCount {
-      get { return ChainedHandler.PrefetchTaskExecutionCount; }
-    }
+    internal override int PrefetchTaskExecutionCount { get { return ChainedHandler.PrefetchTaskExecutionCount; } }
 
     /// <inheritdoc/>
     public override bool TransactionIsStarted { get { return ChainedHandler.TransactionIsStarted; } }
@@ -93,12 +89,6 @@ namespace Xtensive.Orm.Internals
       ChainedHandler.Persist(registry, allowPartialExecution);
     }
 
-    /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
-    {
-      ChainedHandler.Persist(persistActions, allowPartialExecution);
-    }
-
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return ChainedHandler.Prefetch(key, type, descriptors);
@@ -117,68 +107,54 @@ namespace Xtensive.Orm.Internals
     }
 
     /// <inheritdoc/>
-    public override void FetchField(Key key, Model.FieldInfo field)
+    public override void FetchField(Key key, FieldInfo field)
     {
       ChainedHandler.FetchField(key, field);
     }
 
     /// <inheritdoc/>
-    public override void FetchEntitySet(Key ownerKey, Model.FieldInfo field, int? itemCountLimit)
+    public override void FetchEntitySet(Key ownerKey, FieldInfo field, int? itemCountLimit)
     {
       ChainedHandler.FetchEntitySet(ownerKey, field, itemCountLimit);
     }
 
-    internal override EntitySetState RegisterEntitySetState(Key key, Model.FieldInfo fieldInfo,
+    internal override EntitySetState UpdateState(Key key, FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {
-      return ChainedHandler.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
+      return ChainedHandler.UpdateState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
     }
 
-    internal override EntityState RegisterEntityState(Key key, Tuple tuple)
+    internal override EntityState UpdateState(Key key, Tuple tuple)
     {
-      return ChainedHandler.RegisterEntityState(key, tuple);
+      return ChainedHandler.UpdateState(key, tuple);
     }
 
-    internal override bool TryGetEntitySetState(Key key, Model.FieldInfo fieldInfo,
-      out EntitySetState entitySetState)
+    internal override bool LookupState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
-      return ChainedHandler.TryGetEntitySetState(key, fieldInfo, out entitySetState);
+      return ChainedHandler.LookupState(key, fieldInfo, out entitySetState);
     }
 
-    internal override bool TryGetEntityState(Key key, out EntityState entityState)
+    internal override bool LookupState(Key key, out EntityState entityState)
     {
-      return ChainedHandler.TryGetEntityState(key, out entityState);
-    }
-
-    /// <inheritdoc/>
-    public override T GetService<T>()
-    {
-      return ChainedHandler.GetService<T>();
-    }
-
-    /// <inheritdoc/>
-    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
-    {
-      return ChainedHandler.CreateEnumerationContext();
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="chainedHandler">The handler to be chained.</param>
-    protected ChainingSessionHandler(SessionHandler chainedHandler)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(chainedHandler, "chainedHandler");
-      this.ChainedHandler = chainedHandler;
+      return ChainedHandler.LookupState(key, out entityState);
     }
 
     /// <inheritdoc/>
     public override void Dispose()
     {
       ChainedHandler.Dispose();
+    }
+
+    // Constructors
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="chainedHandler">The handler to be chained.</param>
+    protected ChainingSessionHandler(SessionHandler chainedHandler)
+      : base(chainedHandler.Session)
+    {
+      ChainedHandler = chainedHandler;
     }
   }
 }

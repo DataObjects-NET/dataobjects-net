@@ -50,11 +50,11 @@ namespace Xtensive.Orm.Services
       get { return RealBinding.ParameterReference; }
     }
 
-    internal Providers.Sql.QueryParameterBinding RealBinding { get; private set; }
+    internal Providers.QueryParameterBinding RealBinding { get; private set; }
 
     // Constructors
 
-    internal QueryParameterBinding(Providers.Sql.QueryParameterBinding realBinding)
+    internal QueryParameterBinding(Providers.QueryParameterBinding realBinding)
     {
       RealBinding = realBinding;
     }

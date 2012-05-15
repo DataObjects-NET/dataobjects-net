@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Operations
       : base(key)
     {
       if (!key.HasExactType)
-        throw Exceptions.InternalError(Strings.ExKeyMustHaveExactType, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExKeyMustHaveExactType, OrmLog.Instance);
       TypeName = key.TypeInfo.Name;
     }
 

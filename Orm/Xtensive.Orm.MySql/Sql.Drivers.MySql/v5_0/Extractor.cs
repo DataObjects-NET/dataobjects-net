@@ -30,18 +30,19 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
+    /// <param name="catalogName"> </param>
     /// <inheritdoc/>
-    public override Catalog ExtractCatalog()
+    public override Catalog ExtractCatalog(string catalogName)
     {
       targetSchema = null;
 
       RegisterReplacements(replacementsRegistry);
-      Schema schema = ExtractSchema(Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant());
+      var schema = ExtractSchema(string.Empty, Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant());
       return schema.Catalog;
     }
 
     /// <inheritdoc/>
-    public override Schema ExtractSchema(string schemaName)
+    public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       targetSchema = schemaName.ToUpperInvariant();
       theCatalog.CreateSchema(targetSchema);

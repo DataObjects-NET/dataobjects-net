@@ -10,19 +10,17 @@ using System.Diagnostics;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Disposing;
 using Xtensive.IoC;
-using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Orm.Providers;
-using Xtensive.Threading;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Threading;
 
 namespace Xtensive.Orm
 {
@@ -37,13 +35,15 @@ namespace Xtensive.Orm
     IHasExtensions
   {
     private readonly object _lock = new object();
+
     private volatile ExtensionCollection extensions;
+
     private DisposingState disposingState;
     
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
     /// </summary>
-    /// <seealso cref="Session.Open(Domain)"/>
+    /// <seealso cref="OpenSession()"/>
     public event EventHandler<SessionEventArgs> SessionOpen;
 
     /// <summary>
@@ -79,11 +79,6 @@ namespace Xtensive.Orm
     /// Gets the domain configuration.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
-    
-    /// <summary>
-    /// Gets the dictionary providing cached type information.
-    /// </summary>
-    internal IntDictionary<TypeLevelCache> TypeLevelCaches { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="RecordSetReader"/> instance.
@@ -111,7 +106,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the information about provider's capabilities.
     /// </summary>
-    public ProviderInfo StorageProviderInfo { get { return Handler.ProviderInfo; } }
+    public ProviderInfo StorageProviderInfo { get { return Handlers.ProviderInfo; } }
 
     /// <summary>
     /// Gets the domain-level service container.
@@ -121,43 +116,41 @@ namespace Xtensive.Orm
     #region Private / internal members
 
     /// <summary>
-    /// Gets the storage schema.
+    /// Gets the storage model that was build from <see cref="Model"/>.
     /// </summary>
-    internal StorageModel Schema { get; set; }
-
-    /// <summary>
-    /// Gets the extracted storage schema.
-    /// </summary>
-    internal StorageModel ExtractedSchema { get; set; }
+    internal StorageModel StorageModel { get; set; }
 
     /// <summary>
     /// Gets the domain-level temporary data.
     /// </summary>
     internal GlobalTemporaryData TemporaryData { get; private set; }
 
-    /// <summary>
-    /// Indicates whether debug event logging is enabled.
-    /// </summary>
-    /// <remarks>
-    /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
-    /// </remarks>
-    internal bool IsDebugEventLoggingEnabled { get; private set; }
-
-    internal DomainHandler Handler {
-      [DebuggerStepThrough]
-      get { return Handlers.DomainHandler; }
-    }
+    internal DomainHandler Handler { get { return Handlers.DomainHandler; } }
 
     internal HandlerAccessor Handlers { get; private set; }
 
     internal ThreadSafeIntDictionary<GenericKeyTypeInfo> GenericKeyTypes { get; private set; }
 
-    internal Dictionary<KeyInfo, KeyGenerator> KeyGenerators { get; private set; }
+    internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
     internal ThreadSafeDictionary<object, object> Cache { get; private set; }
-    internal ICache<Key, Key> KeyCache { get; private set; }
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
-    
+    internal ICache<Key, Key> KeyCache { get; private set; }
+
+    internal IServiceContainer CreateSystemServices()
+    {
+      var registrations = new List<ServiceRegistration>{
+        new ServiceRegistration(typeof (Domain), this),
+        new ServiceRegistration(typeof (DomainConfiguration), Configuration),
+        new ServiceRegistration(typeof (DomainHandler), Handler),
+        new ServiceRegistration(typeof (HandlerAccessor), Handlers),
+        new ServiceRegistration(typeof (NameBuilder), Handlers.NameBuilder),
+        new ServiceRegistration(typeof (IStorageSequenceAccessor), new StorageSequenceAccessor(Handlers)),
+      };
+
+      return new ServiceContainer(registrations);
+    }
+
     private void NotifySessionOpen(Session session)
     {
       if (SessionOpen!=null)
@@ -237,7 +230,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      return OpenSession(configuration, (configuration.Options & SessionOptions.AutoActivation) == SessionOptions.AutoActivation);
+      return OpenSession(configuration, configuration.Supports(SessionOptions.AutoActivation));
     }
 
     internal Session OpenSession(SessionConfiguration configuration, bool activate)
@@ -245,8 +238,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
 
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogOpeningSessionX, configuration);
+      OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
 
       var session = new Session(this, configuration, activate);
       NotifySessionOpen(session);
@@ -258,13 +250,7 @@ namespace Xtensive.Orm
     #region IHasExtensions members
 
     /// <inheritdoc/>
-    public IExtensionCollection Extensions {
-      get {
-        if (extensions==null) lock (_lock) if (extensions==null)
-          extensions = new ExtensionCollection();
-        return extensions;
-      }
-    }
+    public IExtensionCollection Extensions { get { return extensions; } }
     
     #endregion
 
@@ -283,21 +269,17 @@ namespace Xtensive.Orm
 
     internal Domain(DomainConfiguration configuration)
     {
-      IsDebugEventLoggingEnabled = 
-        Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
-      
       Configuration = configuration;
-      TypeLevelCaches = new IntDictionary<TypeLevelCache>();
       Handlers = new HandlerAccessor(this);
       GenericKeyTypes = ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);
-      KeyGenerators = new Dictionary<KeyInfo, KeyGenerator>();
+      KeyGenerators = new KeyGeneratorRegistry();
       Cache = ThreadSafeDictionary<object, object>.Create(new object());
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(
-        Configuration.QueryCacheSize, k => k.First);
+      QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
-      PrefetchActionMap = new Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
+      PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
+      extensions = new ExtensionCollection();
     }
 
     /// <inheritdoc/>
@@ -306,8 +288,7 @@ namespace Xtensive.Orm
       if (disposingState==DisposingState.None) lock (_lock) if (disposingState==DisposingState.None) {
         disposingState = DisposingState.Disposing;
         try {
-          if (IsDebugEventLoggingEnabled)
-            Log.Debug(Strings.LogDomainIsDisposing);
+          OrmLog.Debug(Strings.LogDomainIsDisposing);
           NotifyDisposing();
           Services.DisposeSafely();
         }

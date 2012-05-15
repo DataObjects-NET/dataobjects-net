@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       TextField = TitleType.Fields["Text"];
       GraphContainersField = typeof (PrefetchManager).GetField("graphContainers",
         BindingFlags.NonPublic | BindingFlags.Instance);
-      PrefetchProcessorField = typeof (SessionHandler).GetField("prefetchManager",
+      PrefetchProcessorField = typeof (SqlSessionHandler).GetField("prefetchManager",
         BindingFlags.NonPublic | BindingFlags.Instance);
       PrefetchTestHelper.FillDataBase(Domain);
     }
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Session session)
     {
       EntitySetState state;
-      Assert.IsTrue(session.Handler.TryGetEntitySetState(key, field, out state));
+      Assert.IsTrue(session.Handler.LookupState(key, field, out state));
       Assert.AreEqual(count, state.Count());
       Assert.AreEqual(isFullyLoaded, state.IsFullyLoaded);
     }

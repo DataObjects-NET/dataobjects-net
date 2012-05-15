@@ -14,7 +14,7 @@ using System.Runtime.Serialization;
 using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 using Xtensive.Parameters;
 using Xtensive.Reflection;
@@ -137,10 +137,9 @@ namespace Xtensive.Orm
       if (key==null || !Field.ItemType.IsAssignableFrom(key.TypeInfo.UnderlyingType))
         return false;
 
-      var entityState = Session.EntityStateCache[key, true];
-      if (entityState != null) {
+      EntityState entityState;
+      if (Session.LookupStateInCache(key, out entityState))
         return Contains(key, entityState.TryGetEntity());
-      }
       return Contains(key, null);
     }
 
@@ -879,9 +878,10 @@ namespace Xtensive.Orm
 
       bool foundInDatabase;
       using (new ParameterContext().Activate()) {
-        keyParameter.Value = GetEntitySetTypeState().SeekTransform
+        var entitySetTypeState = GetEntitySetTypeState();
+        keyParameter.Value = entitySetTypeState.SeekTransform
           .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        foundInDatabase = GetEntitySetTypeState().SeekProvider.GetRecordSet(Session).FirstOrDefault()!=null;
+        foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session).FirstOrDefault()!=null;
       }
       if (foundInDatabase)
         State.Register(key);
@@ -990,7 +990,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
@@ -1012,7 +1012,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>

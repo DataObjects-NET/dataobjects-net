@@ -6,13 +6,13 @@
 
 using Xtensive.Orm;
 
-namespace Xtensive.Orm.Providers.SQLite
+namespace Xtensive.Orm.Providers.Sqlite
 {
   /// <summary>
   /// Storage provider for Sqlite.
   /// </summary>
-  [Provider(WellKnown.Provider.Sqlite, "Storage provider for Sqlite.")]
-  public class HandlerFactory : Sql.HandlerFactory
+  [Provider(WellKnown.Provider.Sqlite, typeof (Sql.Drivers.Sqlite.DriverFactory))]
+  public class HandlerFactory : Providers.HandlerFactory
   {
   }
 }

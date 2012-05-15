@@ -5,7 +5,6 @@
 // Created:    2009.05.21
 
 using System.IO;
-using System.Xml.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -27,22 +26,10 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void MainTest()
     {
-      var stream = new MemoryStream();
-      var serializer = new XmlSerializer(typeof(StoredDomainModel));
-      serializer.Serialize(stream, Domain.Model.ToStoredModel());
-      stream.Seek(0, SeekOrigin.Begin);
-      var result = (StoredDomainModel) serializer.Deserialize(stream);
+      var model = Domain.Model.ToStoredModel();
+      var serialized = model.Serialize();
+      var result = StoredDomainModel.Deserialize(serialized);
       result.UpdateReferences();
-      stream.Close();
-    }
-
-    [Test]
-    [Explicit]
-    public void SaveTest()
-    {
-      var serializer = new XmlSerializer(typeof(StoredDomainModel));
-      using (var stream = new FileStream("C:\\test.xml", FileMode.Create))
-        serializer.Serialize(stream, Domain.Model.ToStoredModel());
     }
   }
 }

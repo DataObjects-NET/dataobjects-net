@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Building.Definitions
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}.")]
   [Serializable]
-  public sealed class IndexDef : MappingNode
+  public sealed class IndexDef : MappedNode
   {
     /// <summary>
     /// Default fill factor.

@@ -17,50 +17,49 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building
 {
-  [Serializable]
   internal static class ModelInspector
   {
-    public static void Run()
+    public static void Run(BuildingContext context)
     {
-      using (Log.InfoRegion(Strings.LogInspectingModelDefinition)) {
-        InspectHierarchies();
-        InspectTypes();
-        InspectInterfaces();
-        InspectReferences();
-        InspectAbstractTypes();
+      using (BuildLog.InfoRegion(Strings.LogInspectingModelDefinition)) {
+        InspectHierarchies(context);
+        InspectTypes(context);
+        InspectInterfaces(context);
+        InspectAbstractTypes(context);
       }
     }
 
-    private static void InspectAbstractTypes()
+    private static void InspectAbstractTypes(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
       foreach (var typeDef in context.ModelDef.Types.Where(td => td.IsAbstract)) {
         var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
         if (hierarchyDef != null) {
           var node = context.DependencyGraph.TryGetNode(typeDef);
           if (node == null || !node.IncomingEdges.Any(e => e.Kind == EdgeKind.Inheritance))
             context.ModelInspectionResult.Register(new MakeTypeNonAbstractAction(typeDef));
-//            throw new DomainBuilderException(string.Format("Abstract class {0} does not have registered implementors.", typeDef.Name));
         }
       }
     }
 
-    private static void InspectHierarchies()
+    private static void InspectHierarchies(BuildingContext context)
     {
-      foreach (var hierarchy in BuildingContext.Demand().ModelDef.Hierarchies)
-        Inspect(hierarchy);
+      foreach (var hierarchy in context.ModelDef.Hierarchies)
+        Inspect(context, hierarchy);
     }
 
-    private static void InspectTypes()
+    private static void InspectTypes(BuildingContext context)
     {
-      foreach (var typeDef in BuildingContext.Demand().ModelDef.Types)
-        Inspect(typeDef);
+      // Process interfaces first because AddForeignKeyIndexAction implicitly requires
+      // all FK indexes on interfaces to be created before in can handle their implementors.
+      
+      var typesToProcess = context.ModelDef.Types.OrderBy(t => t.IsInterface ? 0 : 1);
+
+      foreach (var typeDef in typesToProcess)
+        Inspect(context, typeDef);
     }
 
-    private static void InspectInterfaces()
+    private static void InspectInterfaces(BuildingContext context)
     {
-      var context = BuildingContext.Demand();
-
       foreach (var interfaceDef in context.ModelDef.Types.Where(t => t.IsInterface)) {
 
         var interfaceNode = context.DependencyGraph.TryGetNode(interfaceDef);
@@ -75,7 +74,7 @@ namespace Xtensive.Orm.Building
         var implementorEdges = interfaceNode.IncomingEdges.Where(e => e.Kind==EdgeKind.Implementation).ToList();
 
         // There is no implementors. If there are no references to the interface, it could be safely removed
-        if (implementorEdges.Count == 0 && interfaceNode.IncomingEdges.Where(e => e.Kind == EdgeKind.Reference).Count() == 0) {
+        if (implementorEdges.Count == 0 && !interfaceNode.IncomingEdges.Any(e => e.Kind == EdgeKind.Reference)) {
           context.ModelInspectionResult.Register(new RemoveTypeAction(interfaceDef));
           continue;
         }
@@ -86,7 +85,8 @@ namespace Xtensive.Orm.Building
         if (implementorEdges.Count == 1) {
           hierarchyDef = context.ModelDef.FindHierarchy(implementorEdges[0].Tail.Value);
           if (hierarchyDef == null)
-            throw new DomainBuilderException(string.Format("{0} implementors don't belong to any hierarchy.", interfaceDef.Name));
+            throw new DomainBuilderException(string.Format(
+              Strings.ExXImplementorsDontBelongToAnyHierarchy, interfaceDef.Name));
           context.ModelInspectionResult.SingleHierarchyInterfaces.Add(interfaceDef);
         }
         else {
@@ -143,7 +143,8 @@ namespace Xtensive.Orm.Building
           // TODO: what if hierarchies.Count == 0?
           var count = hierarchies.Count;
           if (count == 0)
-            throw new DomainBuilderException(string.Format("{0} implementors don't belong to any hierarchy.", interfaceDef.Name));
+            throw new DomainBuilderException(string.Format(
+              Strings.ExXImplementorsDontBelongToAnyHierarchy, interfaceDef.Name));
           if (count == 1)
             context.ModelInspectionResult.SingleHierarchyInterfaces.Add(interfaceDef);
           else {
@@ -167,16 +168,10 @@ namespace Xtensive.Orm.Building
       }
     }
 
-    private static void InspectReferences()
+    public static void Inspect(BuildingContext context, HierarchyDef hierarchyDef)
     {
-      
-    }
-
-    public static void Inspect(HierarchyDef hierarchyDef)
-    {
-      var context = BuildingContext.Demand();
       var root = hierarchyDef.Root;
-      Log.Info(Strings.LogInspectingHierarchyX, root.Name);
+      BuildLog.Info(Strings.LogInspectingHierarchyX, root.Name);
       Validator.ValidateHierarchy(hierarchyDef);
       // Skip open generic hierarchies
       if (root.IsGenericTypeDefinition)
@@ -197,16 +192,15 @@ namespace Xtensive.Orm.Building
 
       foreach (var keyField in hierarchyDef.KeyFields) {
         var field = root.Fields[keyField.Name];
-        InspectField(root, field, true);
+        InspectField(context, root, field, true);
       }
 
       context.ModelInspectionResult.Actions.Enqueue(new AddPrimaryIndexAction(root));
     }
 
-    public static void Inspect(TypeDef typeDef)
+    public static void Inspect(BuildingContext context, TypeDef typeDef)
     {
-      var context = BuildingContext.Demand();
-      Log.Info(Strings.LogInspectingTypeX, typeDef.Name);
+      BuildLog.Info(Strings.LogInspectingTypeX, typeDef.Name);
 
       if (typeDef.IsInterface) {
          // Remove open generic interface
@@ -221,7 +215,7 @@ namespace Xtensive.Orm.Building
 
         // Fields
         foreach (var field in typeDef.Fields)
-          InspectField(typeDef, field, false);
+          InspectField(context, typeDef, field, false);
         return;
       }
 
@@ -239,7 +233,7 @@ namespace Xtensive.Orm.Building
 
         // Fields
         foreach (var field in typeDef.Fields)
-          InspectField(typeDef, field, false);
+          InspectField(context, typeDef, field, false);
         return;
       }
 
@@ -273,23 +267,20 @@ namespace Xtensive.Orm.Building
           context.DependencyGraph.AddEdge(typeDef, parent, EdgeKind.Inheritance, EdgeWeight.High);
 
         // Interfaces
-        foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType)) {
+        foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType))
           context.DependencyGraph.AddEdge(typeDef, @interface, EdgeKind.Implementation, EdgeWeight.High);
-          context.Interfaces.Add(@interface);
-        }
-       
+
         Validator.ValidateType(typeDef, hierarchyDef);
         // We should skip key fields inspection as they have been already inspected
         foreach (var field in typeDef.Fields.Where(f => !hierarchyDef.KeyFields.Any(kf => kf.Name == f.Name)))
-          InspectField(typeDef, field, false);
+          InspectField(context, typeDef, field, false);
       }
     }
 
     #region Private members
 
-    private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
+    private static void InspectField(BuildingContext context, TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
-      var context = BuildingContext.Demand();
       if ((fieldDef.Attributes & (FieldAttributes.ManualVersion | FieldAttributes.AutoVersion)) > 0)
         Validator.ValidateVersionField(fieldDef, isKeyField);
 
@@ -306,7 +297,8 @@ namespace Xtensive.Orm.Building
 
       if (fieldDef.IsStructure) {
         Validator.ValidateStructureField(typeDef, fieldDef);
-        context.DependencyGraph.AddEdge(typeDef, GetTypeDef(fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
+        context.DependencyGraph.AddEdge(
+          typeDef, GetTypeDef(context, fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
         return;
       }
 
@@ -318,14 +310,16 @@ namespace Xtensive.Orm.Building
         Validator.ValidateEntitySetField(typeDef, fieldDef);
 
       var referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
-      var referencedTypeDef = GetTypeDef(referencedType);
+      var referencedTypeDef = GetTypeDef(context, referencedType);
 
       if (!referencedTypeDef.IsInterface) {
         var hierarchyDef = context.ModelDef.FindHierarchy(referencedTypeDef);
         if (hierarchyDef==null)
-          throw new DomainBuilderException(string.Format(Strings.ExHierarchyIsNotFoundForTypeX, referencedType.GetShortName()));
+          throw new DomainBuilderException(string.Format(
+            Strings.ExHierarchyIsNotFoundForTypeX, referencedType.GetShortName()));
       }
-      context.DependencyGraph.AddEdge(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
+      context.DependencyGraph
+        .AddEdge(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
     }
 
 
@@ -333,22 +327,11 @@ namespace Xtensive.Orm.Building
 
     #region Helper members
 
-    private static TypeDef GetTypeDef(Type type)
+    private static TypeDef GetTypeDef(BuildingContext context, Type type)
     {
-      var context = BuildingContext.Demand();
       var result = context.ModelDef.Types.TryGetValue(type);
       if (result!=null)
         return result;
-      // Do not register requested type automatically
-//      if (type.IsGenericType) {
-//        var genericDef = type.GetGenericTypeDefinition();
-//        var alreadyRegisteredForGeneration = context.ModelInspectionResult.Actions
-//          .OfType<BuildGenericTypeInstancesAction>()
-//          .Any(action => action.Type.UnderlyingType == genericDef);
-//        if (alreadyRegisteredForGeneration)
-//          return ModelDefBuilder.ProcessType(type);
-//      }
-
       throw new DomainBuilderException(
         String.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.GetFullName()));
     }

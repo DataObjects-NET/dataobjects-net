@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Building.FixupActions
   {
     public FieldDef Field { get; private set; }
 
-
     // Constructors
 
     public FieldAction(TypeDef type, FieldDef field)

@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using Xtensive.Sql.Drivers.PostgreSql;
 using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -12,13 +11,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// <summary>
   /// A domain handler specific to PostgreSQL RDBMS.
   /// </summary>
-  public class DomainHandler : Sql.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
-    protected override Xtensive.Sql.SqlDriverFactory GetDriverFactory()
-    {
-      return new DriverFactory();
-    }
-
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);

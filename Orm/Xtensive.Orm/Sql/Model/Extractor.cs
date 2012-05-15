@@ -27,14 +27,15 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Extracts all schemes from the database.
     /// </summary>
+    /// <param name="catalogName">Catalog to extract.</param>
     /// <returns><see cref="Catalog"/> that holds all schemes in the database.</returns>
-    public abstract Catalog ExtractCatalog();
+    public abstract Catalog ExtractCatalog(string catalogName);
 
     /// <summary>
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <returns>Extracted <see cref="Schema"/> instance.</returns>
-    public abstract Schema ExtractSchema(string name);
+    public abstract Schema ExtractSchema(string catalogName, string schemaName);
 
     /// <summary>
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.

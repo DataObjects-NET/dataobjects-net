@@ -10,7 +10,6 @@ using Xtensive.Sql;
 using Xtensive.Orm.Model;
 using Xtensive.Sql.Tests;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Providers.Sql;
 
 namespace Xtensive.Orm.Tests
 {
@@ -86,9 +85,10 @@ namespace Xtensive.Orm.Tests
       isInitialized = true;
 
       var config = DomainConfigurationFactory.Create();
-      activeProvider = ParseProvider(config.ConnectionInfo.Provider);
+      var providerName = config.ConnectionInfo.Provider;
+      activeProvider = ParseProvider(providerName);
 
-      activeProviderInfo = ProviderInfoBuilder.Build(TestSqlDriver.Create(config.ConnectionInfo));
+      activeProviderInfo = ProviderInfoBuilder.Build(providerName, TestSqlDriver.Create(config.ConnectionInfo));
     }
 
     private static StorageProvider ParseProvider(string provider)

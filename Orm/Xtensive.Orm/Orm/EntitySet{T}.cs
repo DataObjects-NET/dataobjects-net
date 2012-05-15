@@ -15,7 +15,7 @@ using System.Runtime.Serialization;
 using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Linq;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
@@ -246,22 +246,22 @@ namespace Xtensive.Orm
     [Infrastructure]
     protected sealed override Func<QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {
-      return qe => GetItemsQuery(field).LongCount();
+      return qe => GetItemsQuery(qe, field).LongCount();
     }
 
-    private IQueryable<TItem> GetItemsQuery(FieldInfo field)
+    private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
         .GetProperty("Value", typeof(Entity)));
       var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, field);
-      return Session.Query.Provider.CreateQuery<TItem>(queryExpression);
+      return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 
  
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
@@ -270,7 +270,7 @@ namespace Xtensive.Orm
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>

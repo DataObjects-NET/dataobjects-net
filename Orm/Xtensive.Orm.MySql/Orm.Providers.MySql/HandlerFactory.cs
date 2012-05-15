@@ -11,8 +11,8 @@ namespace Xtensive.Orm.Providers.MySql
   /// <summary>
   /// Storage provider for MySql.
   /// </summary>
-  [Provider(WellKnown.Provider.MySql, "Storage provider for MySql.")]
-  public class HandlerFactory : Sql.HandlerFactory
+  [Provider(WellKnown.Provider.MySql, typeof (Xtensive.Sql.Drivers.MySql.DriverFactory))]
+  public class HandlerFactory : Providers.HandlerFactory
   {
   }
 }

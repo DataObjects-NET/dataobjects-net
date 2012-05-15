@@ -12,16 +12,15 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal partial class IndexBuilder
+  partial class IndexBuilder
   {
-    private static void BuildSingleTableIndexes(TypeInfo type)
+    private void BuildSingleTableIndexes(TypeInfo type)
     {
       if (type.Indexes.Count > 0)
         return;
       if (type.IsStructure)
         return;
 
-      var context = BuildingContext.Demand();
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
 
@@ -56,7 +55,7 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {
         if (!types.Contains(realIndex.ReflectedType))
           continue;
-        if (!context.UntypedIndexes.Contains(realIndex))
+        if (!untypedIndexes.Contains(realIndex))
           continue;
         if (root.Indexes.Any(i => i.DeclaringIndex == realIndex.DeclaringIndex && i.ReflectedType == type && i.IsTyped))
           continue;
@@ -81,7 +80,7 @@ namespace Xtensive.Orm.Building.Builders
       var ancestorIndexes = root.Indexes
         .Where(i => types.Contains(i.ReflectedType) && !i.IsTyped)
         .Reverse()
-        .Select(i => context.UntypedIndexes.Contains(i)
+        .Select(i => untypedIndexes.Contains(i)
           ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.ReflectedType == type && index.IsTyped)
           : i)
         .ToList();

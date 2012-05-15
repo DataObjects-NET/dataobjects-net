@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm.Validation
 {
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Validation
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public LengthConstraint()
     {

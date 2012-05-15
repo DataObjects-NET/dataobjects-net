@@ -4,17 +4,17 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
+using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
-using System;
+
 
 namespace Xtensive.Orm.Model
 {
   /// <summary>
   /// Provides information about sequence associated with <see cref="KeyInfo"/>.
   /// </summary>
-  public sealed class SequenceInfo : MappingNode
+  public sealed class SequenceInfo : SchemaMappedNode
   {
     private long seed = 1;
     private long increment = 1;
@@ -45,11 +45,10 @@ namespace Xtensive.Orm.Model
       }
     }
 
-
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The sequence name.</param>
     public SequenceInfo(string name)

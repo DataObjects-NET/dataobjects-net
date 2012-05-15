@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using Xtensive.Core;
+using Xtensive.Threading;
 
 namespace Xtensive.Sql
 {
@@ -14,13 +15,13 @@ namespace Xtensive.Sql
   public abstract class SqlDriverFactory
   {
     /// <summary>
-    /// Creates driver from the specified <paramref name="connectionInfo"/>.
+    /// Gets driver for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
-    /// <param name="connectionInfo">The connection info to create driver from.</param>
-    /// <returns>Created driver.</returns>
-    public SqlDriver CreateDriver(ConnectionInfo connectionInfo)
+    /// <param name="connectionInfo">Connection information to use.</param>
+    /// <returns>Driver for <paramref name="connectionInfo"/>.</returns>
+    public SqlDriver GetDriver(ConnectionInfo connectionInfo)
     {
-      return CreateDriver(connectionInfo, null);
+      return GetDriver(connectionInfo, null);
     }
 
     /// <summary>
@@ -29,16 +30,26 @@ namespace Xtensive.Sql
     /// <param name="connectionInfo">The connection info to create driver from.</param>
     /// <param name="forcedVersion">Forced server version.</param>
     /// <returns>Created driver.</returns>
-    public SqlDriver CreateDriver(ConnectionInfo connectionInfo, string forcedVersion)
+    public SqlDriver GetDriver(ConnectionInfo connectionInfo, string forcedVersion)
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
-      var connectionString = connectionInfo.ConnectionString
-        ?? BuildConnectionString(connectionInfo.ConnectionUrl);
+      var connectionString = GetConnectionString(connectionInfo);
       if (forcedVersion==string.Empty)
         forcedVersion = null; // Simplify handling for all servers
       var driver = CreateDriver(connectionString, forcedVersion);
       driver.Initialize(this);
       return driver;
+    }
+    /// <summary>
+    /// Gets connection string for the specified <see cref="ConnectionInfo"/>.
+    /// </summary>
+    /// <param name="connectionInfo">Connection information to process.</param>
+    /// <returns>Connection string for <paramref name="connectionInfo"/>.</returns>
+    public string GetConnectionString(ConnectionInfo connectionInfo)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
+      return connectionInfo.ConnectionString
+        ?? BuildConnectionString(connectionInfo.ConnectionUrl);
     }
 
     /// <summary>
@@ -54,6 +65,6 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="connectionUrl">The connection URL.</param>
     /// <returns>Built connection string</returns>
-    public abstract string BuildConnectionString(UrlInfo connectionUrl);
+    protected abstract string BuildConnectionString(UrlInfo connectionUrl);
   }
 }

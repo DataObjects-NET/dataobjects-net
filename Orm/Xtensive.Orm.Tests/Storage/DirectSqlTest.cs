@@ -57,7 +57,6 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession()) {
         var directSql = session.Services.Demand<DirectSqlAccessor>();
-        Assert.IsTrue(directSql.IsAvailable);
         Assert.IsNull(directSql.Transaction);
         
         using (var t = session.OpenTransaction()) {

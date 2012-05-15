@@ -7,9 +7,9 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.IssueJira0179_NullableBooleanFieldsQueryModel;
+using Xtensive.Orm.Tests.Issues.IssueJira0179_NullableBooleanFieldsQueryModel;
 
-namespace Xtensive.Orm.Tests.IssueJira0179_NullableBooleanFieldsQueryModel
+namespace Xtensive.Orm.Tests.Issues.IssueJira0179_NullableBooleanFieldsQueryModel
 {
   [HierarchyRoot]
   public class FlagContainer : Entity
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.IssueJira0179_NullableBooleanFieldsQueryModel
   }
 }
 
-namespace Xtensive.Orm.Tests
+namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0179_NullableBooleanFieldsQuery : AutoBuildTest
   {

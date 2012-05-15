@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Rse.Helpers
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     public TupleAccessGatherer()
       : this(null)
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Rse.Helpers
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="registerOuterColumn">A <see langword="delegate"/> invoked on each outer column usage.</param>
     public TupleAccessGatherer(Action<ApplyParameter, int> registerOuterColumn)

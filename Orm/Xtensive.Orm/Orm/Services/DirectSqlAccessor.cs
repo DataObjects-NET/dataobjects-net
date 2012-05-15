@@ -8,7 +8,7 @@ using System;
 using System.Data.Common;
 using Xtensive.Aspects;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 using Xtensive.Orm.Providers;
 
@@ -31,16 +31,16 @@ namespace Xtensive.Orm.Services
     /// Returns <see langword="true" />, if underlying storage provider 
     /// supports SQL.
     /// </summary>
+    [Obsolete("This property always has \"true\" value")]
     public bool IsAvailable {
       get {
-        return service!=null;
+        return true;
       }
     }
 
     /// <see cref="IDirectSqlService.Connection" copy="true" />
     public DbConnection Connection {
       get {
-        EnsureIsAvailable();
         return service.Connection;
       }
     }
@@ -48,8 +48,6 @@ namespace Xtensive.Orm.Services
     /// <see cref="IDirectSqlService.Transaction" copy="true" />
     public DbTransaction Transaction {
       get {
-        EnsureIsAvailable();
-        TryStartTransaction();
         return service.Transaction;
       }
     }
@@ -57,37 +55,21 @@ namespace Xtensive.Orm.Services
     /// <see cref="IDirectSqlService.CreateCommand" copy="true" />
     public DbCommand CreateCommand()
     {
-      EnsureIsAvailable();
-      TryStartTransaction();
       return service.CreateCommand();
-    }
-
-    private void TryStartTransaction()
-    {
-      if (Session.Transaction!=null)
-        Session.EnsureTransactionIsStarted();
-    }
-
-    /// <exception cref="NotSupportedException">Underlying storage provider 
-    /// does not support SQL.</exception>
-    private void EnsureIsAvailable()
-    {
-      if (service==null)
-        throw new NotSupportedException(Strings.ExUnderlyingStorageProviderDoesNotSupportSQL);
     }
 
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session">The session this instance is bound to.</param>
     [ServiceConstructor]
     public DirectSqlAccessor(Session session)
       : base(session)
     {
-      service = session.Services.Demand<SessionHandler>().GetService<IDirectSqlService>();
+      service = session.Services.Demand<IDirectSqlService>();
     }
   }
 }

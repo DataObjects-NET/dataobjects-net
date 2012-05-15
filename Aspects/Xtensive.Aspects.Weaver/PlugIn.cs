@@ -11,7 +11,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using PostSharp;
 using PostSharp.Extensibility;
 using PostSharp.Hosting;
@@ -26,25 +25,28 @@ namespace Xtensive.Aspects.Weaver
   /// </summary>
   public sealed class PlugIn : AspectWeaverPlugIn
   {
-    private static readonly byte[] tokenExpected = new byte[] {0x93, 0xa6, 0xc5, 0x3d, 0x77, 0xa5, 0x29, 0x6c};
-
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
-    private static readonly List<string> knownAssemblies = new List<string> {
+
+    private static readonly byte[] TokenExpected = new byte[] {0x93, 0xa6, 0xc5, 0x3d, 0x77, 0xa5, 0x29, 0x6c};
+    private static readonly List<string> KnownAssemblies = new List<string> {
       "Xtensive.Core",
       "Xtensive.Aspects",
       "Xtensive.Aspects.Weaver",
       "Xtensive.Orm",
     };
 
-    public static LicenseInfo CurrentLicense;
     public static readonly HashSet<string> ErrorMessages = new HashSet<string>();
+    public static LicenseInfo CurrentLicense;
 
-    /// <exception cref="InvalidOperationException">Something went wrong.</exception>
+    private LicenseValidator licenseValidator;
+
     protected override void Initialize()
     {
       base.Initialize();
 
-      var licenseInfo = LicenseValidator.GetLicense();
+      licenseValidator = new LicenseValidator(GetWeaverAssemblyLocation());
+
+      var licenseInfo = licenseValidator.ReloadLicense();
       if (!ValidateTargetAssembly(licenseInfo))
         return;
       TryCheckLicense(licenseInfo);
@@ -69,7 +71,7 @@ namespace Xtensive.Aspects.Weaver
       if (!isXtensiveAssembly) {
         CurrentLicense = licenseInfo;
         var declarations = Project.Module.AssemblyRefs
-          .Where(a => knownAssemblies.Contains(a.Name))
+          .Where(a => KnownAssemblies.Contains(a.Name))
           .ToList();
         if (declarations.Count!=0)
           isXtensiveAssembly = declarations.All(a => IsPublicTokenConsistent(a.GetPublicKeyToken()));
@@ -119,55 +121,53 @@ namespace Xtensive.Aspects.Weaver
     private static bool IsPublicTokenConsistent(byte[] assemblyToken)
     {
       // Check that lengths match
-      if (assemblyToken!=null && tokenExpected.Length==assemblyToken.Length) {
+      if (assemblyToken!=null && TokenExpected.Length==assemblyToken.Length) {
         // Check that token contents match
-        return !assemblyToken.Where((t, i) => tokenExpected[i]!=t).Any();
+        return !assemblyToken.Where((t, i) => TokenExpected[i]!=t).Any();
       }
       return false;
     }
 
-    private static void TryCheckLicense(LicenseInfo licenseInfo)
+    private void TryCheckLicense(LicenseInfo licenseInfo)
     {
-      if (licenseInfo==null)
+      var checkRequired = licenseInfo.IsValid && licenseValidator.WeaverLicenseCheckIsRequired();
+      if (!checkRequired)
         return;
-      try {
-        if (licenseInfo.IsValid && LicenseValidator.WeaverLicenseCheckIsRequired()) {
-          var companyLicenseData = licenseInfo.EvaluationMode
-            ? null
-            : LicenseValidator.GetCompanyLicenseData();
-          var request = new InternetCheckRequest(
-            companyLicenseData, licenseInfo.ExpireOn,
-            LicenseValidator.ProductVersion, LicenseValidator.HardwareId);
-          var result = InternetActivator.Check(request);
-          if (result.IsValid==false) {
-            LicenseValidator.InvalidateHardwareLicense();
-            licenseInfo.HardwareKeyIsValid = false;
-          }
-        }
-      }
-      catch {
+
+      var companyLicenseData = licenseInfo.EvaluationMode ? null : licenseValidator.GetCompanyLicenseData();
+      var request = new InternetCheckRequest(
+        companyLicenseData, licenseInfo.ExpireOn, licenseValidator.ProductVersion, licenseValidator.HardwareId);
+      var result = InternetActivator.Check(request);
+      if (result.IsValid==false && licenseInfo.RequiresHardwareLicense) {
+        licenseValidator.InvalidateHardwareLicense();
+        licenseInfo.HardwareKeyIsValid = false;
       }
     }
 
     private static void FatalLicenseError(string format, params object[] args)
     {
-      RunLicensingAgent();
+      RunLicenseManager();
       ErrorLog.Write(MessageLocation.Unknown, SeverityType.Fatal, format, args);
     }
 
-    private static void RunLicensingAgent()
+    private static void RunLicenseManager()
     {
-      var directory = Path.GetDirectoryName(Platform.Current.GetAssemblyLocation(typeof (PlugIn).Assembly));
-      var path = Path.Combine(directory, XtensiveLicensingManagerExe);
-      if (!File.Exists(path))
-        throw new FileNotFoundException(path);
-      if (!Environment.UserInteractive || Environment.OSVersion.Platform!=PlatformID.Win32NT || string.IsNullOrEmpty(path))
-        return;
-      var startInfo = new ProcessStartInfo(path) {UseShellExecute = false};
-      Process.Start(startInfo);
+      var managerDir = Path.GetDirectoryName(GetWeaverAssemblyLocation());
+      var managerExe = Path.Combine(managerDir, XtensiveLicensingManagerExe);
+      var canRunManager =
+        Environment.UserInteractive
+        && Environment.OSVersion.Platform==PlatformID.Win32NT
+        && File.Exists(managerExe);
+      if (canRunManager)
+        Process.Start(new ProcessStartInfo(managerExe) {UseShellExecute = false});
     }
 
-    
+    private static string GetWeaverAssemblyLocation()
+    {
+      return Platform.Current.GetAssemblyLocation(typeof (PlugIn).Assembly);
+    }
+
+
     // Constructors
 
     public PlugIn()

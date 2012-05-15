@@ -149,10 +149,8 @@ namespace Xtensive.Orm.Configuration
       system = BuildConfiguration(WellKnown.Sessions.System);
       service = BuildConfiguration(WellKnown.Sessions.Service);
       keyGenerator = BuildConfiguration(WellKnown.Sessions.KeyGenerator);
-      foreach (var item in this.Where(item => !item.IsLocked)) {
-        // ApplyDefaultSettings(item);
+      foreach (var item in this.Where(item => !item.IsLocked))
         item.Lock(recursive);
-      }
       base.Lock(recursive);
     }
 
@@ -179,21 +177,6 @@ namespace Xtensive.Orm.Configuration
       result = new SessionConfiguration(name);
       Add(result);
       return result;
-    }
-
-    private void ApplyDefaultSettings(SessionConfiguration config)
-    {
-      if (string.IsNullOrEmpty(config.UserName))
-        config.UserName = Default.UserName;
-      if (string.IsNullOrEmpty(config.Password))
-        config.Password = Default.Password;
-      if (config.CacheSize!=Default.CacheSize && config.CacheSize==SessionConfiguration.DefaultCacheSize)
-        config.CacheSize = Default.CacheSize;
-      if (config.CacheType != Default.CacheType && config.CacheType == SessionCacheType.Default)
-        config.CacheType = Default.CacheType;
-      if (config.DefaultIsolationLevel != Default.DefaultIsolationLevel
-        && config.DefaultIsolationLevel == SessionConfiguration.DefaultDefaultIsolationLevel)
-        config.DefaultIsolationLevel = Default.DefaultIsolationLevel;
     }
   }
 }

@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes a new instance of this class.
     /// </summary>
     public ParameterExtractor(ExpressionEvaluator evaluator)
     {

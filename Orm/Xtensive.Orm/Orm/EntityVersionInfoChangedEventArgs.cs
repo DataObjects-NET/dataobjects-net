@@ -5,7 +5,7 @@
 // Created:    2009.10.22
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
@@ -25,7 +25,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="changedEntity">The entity that was changed.</param>
     /// <param name="changedField">The field that was changed.</param>
