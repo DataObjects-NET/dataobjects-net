@@ -5,13 +5,11 @@
 // Created:    2007.08.27
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Reflection;
-
 
 namespace Xtensive.Orm.Model
 {
@@ -30,7 +28,8 @@ namespace Xtensive.Orm.Model
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendantTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaceTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> implementorTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
-    private IntDictionary<TypeInfo> typeIdIndex;
+
+    private Dictionary<int, TypeInfo> typeIdIndex;
     
     /// <summary>
     /// Determines whether this instance contains an item with the specified key.
@@ -390,7 +389,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public void RebuildTypeIdIndex()
     {
-      var index = new IntDictionary<TypeInfo>();
+      var index = new Dictionary<int, TypeInfo>();
       foreach (var type in this)
         if (type.TypeId!=TypeInfo.NoTypeId)
           index[type.TypeId] = type;

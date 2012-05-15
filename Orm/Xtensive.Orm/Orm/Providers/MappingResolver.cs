@@ -187,10 +187,10 @@ namespace Xtensive.Orm.Providers
           .ToList();
       }
 
-      private string ResolveAlias(string alias)
+      private string ResolveAlias(string name)
       {
-        string name;
-        return aliasMap.TryGetValue(alias, out name) ? name : alias;
+        string realName;
+        return aliasMap.TryGetValue(name, out realName) ? realName : name;
       }
 
       private string FormatNodeName(string mappingDatabase, string mappingSchema, string mappingName)
@@ -203,8 +203,8 @@ namespace Xtensive.Orm.Providers
       public MultidatabaseResolver(DomainConfiguration configuration)
       {
         aliasMap = configuration.Databases
-          .Where(item => !string.IsNullOrEmpty(item.Alias))
-          .ToDictionary(item => item.Alias, item => item.Name);
+          .Where(item => !string.IsNullOrEmpty(item.RealName))
+          .ToDictionary(item => item.Name, item => item.RealName);
 
         defaultDatabase = configuration.DefaultDatabase;
         defaultSchema = configuration.DefaultSchema;

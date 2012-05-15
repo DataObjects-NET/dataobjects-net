@@ -6,6 +6,7 @@
 
 using System.Configuration;
 using Xtensive.Configuration;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Configuration.Elements
 {
@@ -15,7 +16,7 @@ namespace Xtensive.Orm.Configuration.Elements
   public class DatabaseConfigurationElement : ConfigurationCollectionElementBase
   {
     private const string NameElementName = "name";
-    private const string AliasElementName = "alias";
+    private const string RealNameElementName = "realName";
     private const string MinTypeIdElementName = "minTypeId";
     private const string MaxTypeIdElementName = "maxTypeId";
 
@@ -33,19 +34,19 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DatabaseConfiguration.Alias" copy="true"/>
+    /// <see cref="DatabaseConfiguration.RealName" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(AliasElementName)]
-    public string Alias
+    [ConfigurationProperty(RealNameElementName)]
+    public string RealName
     {
-      get { return (string) this[AliasElementName]; }
-      set { this[AliasElementName] = value; }
+      get { return (string) this[RealNameElementName]; }
+      set { this[RealNameElementName] = value; }
     }
 
     /// <summary>
     /// <see cref="DatabaseConfiguration.MinTypeId" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(MinTypeIdElementName)]
+    [ConfigurationProperty(MinTypeIdElementName, DefaultValue = TypeInfo.MinTypeId)]
     public int MinTypeId
     {
       get { return (int) this[MinTypeIdElementName]; }
@@ -55,7 +56,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// <see cref="DatabaseConfiguration.MaxTypeId" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(MaxTypeIdElementName)]
+    [ConfigurationProperty(MaxTypeIdElementName, DefaultValue = int.MaxValue)]
     public int MaxTypeId
     {
       get { return (int) this[MaxTypeIdElementName]; }
@@ -69,7 +70,7 @@ namespace Xtensive.Orm.Configuration.Elements
     public DatabaseConfiguration ToNative()
     {
       return new DatabaseConfiguration(Name) {
-        Alias = Alias,
+        RealName = RealName,
         MinTypeId = MinTypeId,
         MaxTypeId = MaxTypeId,
       };

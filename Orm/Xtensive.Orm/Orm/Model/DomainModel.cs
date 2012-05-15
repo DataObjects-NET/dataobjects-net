@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Model
     public AssociationInfoCollection Associations { get; private set; }
 
     /// <summary>
-    /// Gets databases.
+    /// Gets the collection providing information about databases.
     /// </summary>
     public NodeCollection<DatabaseInfo> Databases { get; private set; }
 

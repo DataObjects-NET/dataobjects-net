@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 
@@ -60,6 +61,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly List<TypeInfo> typesToProcess;
     private readonly HashSet<string> visited = new HashSet<string>();
     private readonly Stack<DatabaseReference> visitSequence = new Stack<DatabaseReference>();
+    private Dictionary<string, DatabaseConfiguration> configurationMap;
     private readonly Dictionary<DatabaseReference, TypeReference> referenceRegistry
       = new Dictionary<DatabaseReference, TypeReference>();
 
@@ -89,13 +91,23 @@ namespace Xtensive.Orm.Building.Builders
 
       // Save calculated reference information in model.
       foreach (var db in databases)
-        model.Databases.Add(new DatabaseInfo(db));
+        model.Databases.Add(new DatabaseInfo(db, FindConfiguration(db)));
 
       foreach (var reference in referenceRegistry.Keys) {
         var owner = model.Databases[reference.OwnerDatabase];
         var target = model.Databases[reference.TargetDatabase];
         owner.ReferencedDatabases.Add(target);
       }
+    }
+
+    private DatabaseConfiguration FindConfiguration(string db)
+    {
+      DatabaseConfiguration result;
+      if (configurationMap.TryGetValue(db, out result))
+        return result;
+      result = new DatabaseConfiguration(db);
+      result.Lock();
+      return result;
     }
 
     private void Visit(string database)
@@ -133,6 +145,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       model = context.Model;
       typesToProcess = model.Types.Where(t => t.IsEntity).ToList();
+      configurationMap = context.Configuration.Databases.ToDictionary(db => db.Name);
     }
   }
 }

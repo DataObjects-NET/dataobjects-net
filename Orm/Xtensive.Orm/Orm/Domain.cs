@@ -79,11 +79,6 @@ namespace Xtensive.Orm
     /// Gets the domain configuration.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
-    
-    /// <summary>
-    /// Gets the dictionary providing cached type information.
-    /// </summary>
-    internal IntDictionary<TypeLevelCache> TypeLevelCaches { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="RecordSetReader"/> instance.
@@ -275,7 +270,6 @@ namespace Xtensive.Orm
     internal Domain(DomainConfiguration configuration)
     {
       Configuration = configuration;
-      TypeLevelCaches = new IntDictionary<TypeLevelCache>();
       Handlers = new HandlerAccessor(this);
       GenericKeyTypes = ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);

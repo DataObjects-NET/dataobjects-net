@@ -10,9 +10,9 @@ namespace Xtensive.Orm.Configuration
   {
     private readonly DatabaseConfiguration configuration;
 
-    public IDatabaseConfigurationFlow WithAlias(string alias)
+    public IDatabaseConfigurationFlow WithRealName(string realName)
     {
-      configuration.Alias = alias;
+      configuration.RealName = realName;
       return this;
     }
 

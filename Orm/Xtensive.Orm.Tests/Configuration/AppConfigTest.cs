@@ -130,11 +130,11 @@ namespace Xtensive.Orm.Tests.Configuration
 
       Assert.That(configuration.Databases.Count, Is.EqualTo(2));
       var alias1 = configuration.Databases[0];
-      Assert.That(alias1.Alias, Is.EqualTo("main"));
-      Assert.That(alias1.Name, Is.EqualTo("DO40-Tests"));
+      Assert.That(alias1.Name, Is.EqualTo("main"));
+      Assert.That(alias1.RealName, Is.EqualTo("DO40-Tests"));
       var alias2 = configuration.Databases[1];
-      Assert.That(alias2.Alias, Is.EqualTo("other"));
-      Assert.That(alias2.Name, Is.EqualTo("Other-DO40-Tests"));
+      Assert.That(alias2.Name, Is.EqualTo("other"));
+      Assert.That(alias2.RealName, Is.EqualTo("Other-DO40-Tests"));
 
       configuration.Lock(); // ensure configuration is correct
     }

@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Configuration
   public sealed class DatabaseConfiguration : LockableBase
   {
     private string name;
-    private string alias;
+    private string realName;
 
     private int minTypeId;
     private int maxTypeId;
 
     /// <summary>
-    /// Gets or sets database name (i.e. physical database name).
+    /// Gets or sets logical database name.
     /// </summary>
     public string Name
     {
@@ -36,15 +36,17 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets database alias (i.e. logical database name).
+    /// Gets or sets physical database name.
+    /// If this value is not set <see cref="Name"/>
+    /// is used as physical database name.
     /// </summary>
-    public string Alias
+    public string RealName
     {
-      get { return alias; }
+      get { return realName; }
       set
       {
         this.EnsureNotLocked();
-        alias = value;
+        realName = value;
       }
     }
 
@@ -82,9 +84,9 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc />
     public override string ToString()
     {
-      if (string.IsNullOrEmpty(alias))
-        return Name;
-      return string.Format("{0} -> {1}", Alias, Name);
+      if (string.IsNullOrEmpty(realName))
+        return name;
+      return string.Format("{0} -> {1}", name, realName);
     }
 
     /// <summary>
@@ -94,7 +96,7 @@ namespace Xtensive.Orm.Configuration
     public DatabaseConfiguration Clone()
     {
       return new DatabaseConfiguration(name) {
-        alias = alias,
+        realName = realName,
         minTypeId = minTypeId,
         maxTypeId = maxTypeId,
       };
@@ -110,6 +112,8 @@ namespace Xtensive.Orm.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Name = name;
+      minTypeId = TypeInfo.MinTypeId;
+      maxTypeId = int.MaxValue;
     }
   }
 }

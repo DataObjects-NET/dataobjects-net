@@ -5,6 +5,7 @@
 // Created:    2009.04.14
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -19,53 +20,70 @@ namespace Xtensive.Orm.Building.Builders
 
     public void BuildTypeIds()
     {
-      BuildRegularTypeIds();
+      AssignTypeIdToEntities();
+      AssignTypeIdToStructures();
 
       // Updating TypeId index
       domain.Model.Types.RebuildTypeIdIndex();
-
-      // Updating type-level caches
-      RebuildTypeLevelCaches();
     }
 
-    private void RebuildTypeLevelCaches()
+    private void AssignTypeIdToEntities()
     {
-      var caches = domain.TypeLevelCaches;
-      foreach (var type in domain.Model.Types) {
-        var typeId = type.TypeId;
-        if (typeId==TypeInfo.NoTypeId)
-          continue;
-        TypeLevelCache cache;
-        if (!caches.TryGetValue(typeId, out cache))
-          caches.Add(typeId, new TypeLevelCache(type));
+      // Load existing type ids
+      foreach (var type in GetEntitiesWithoutTypeId())
+        type.TypeId = typeIdProvider.GetTypeId(type.UnderlyingType);
+
+      // Provide type ids for remaining types
+      var typeGroups = GetEntitiesWithoutTypeId()
+        .GroupBy(t => t.MappingDatabase ?? string.Empty)
+        .OrderBy(g => g.Key);
+      foreach (var group in typeGroups) {
+        var nextTypeId = GetMaximalTypeId(group.Key) + 1;
+        foreach (var type in group.OrderBy(i => i.Name))
+          type.TypeId = nextTypeId++;
       }
     }
 
-    private void BuildRegularTypeIds()
+    private void AssignTypeIdToStructures()
     {
-      var maxTypeId = domain.Model.Types
-        .Where(type => type.TypeId >= TypeInfo.MinTypeId)
-        .Select(type => type.TypeId)
+      int nextTypeId = -1;
+      foreach (var type in GetStructuresWithoutTypeId())
+        type.TypeId = nextTypeId--;
+    }
+
+    private int GetMaximalTypeId(string mappingDatabase)
+    {
+      if (domain.Model.Databases.Count==0)
+        // Multidatabase mode is not enabled, use default range
+        return GetMaximalTypeId(TypeInfo.MinTypeId, int.MaxValue, Strings.NA);
+
+      // Query configuration for a particular database
+      var configurationEntry = domain.Model.Databases[mappingDatabase].Configuration;
+      return GetMaximalTypeId(
+        configurationEntry.MinTypeId, configurationEntry.MaxTypeId, configurationEntry.Name);
+    }
+
+    private int GetMaximalTypeId(int minTypeId, int maxTypeId, string mappingDatabase)
+    {
+      var result = domain.Model.Types
+        .Where(t => t.TypeId >= minTypeId && t.TypeId <= maxTypeId)
+        .Select(t => t.TypeId)
         .DefaultIfEmpty(TypeInfo.MinTypeId)
         .Max();
-      var typesToProcess = domain.Model.Types
-        .Where(type => type.TypeId==TypeInfo.NoTypeId && type.UnderlyingType!=typeof (Structure))
-        .Select(type => new {
-          Type = type,
-          Id = type.IsEntity ? typeIdProvider.GetTypeId(type.UnderlyingType) : TypeInfo.NoTypeId
-        })
-        .OrderByDescending(x => x.Type.IsEntity)
-        .ThenBy(x => x.Type.Name)
-        .ToList();
-      var nextTypeId = typesToProcess
-        .Where(x => x.Id!=TypeInfo.NoTypeId)
-        .Select(x => x.Id)
-        .AddOne(maxTypeId)
-        .Max() + 1;
-      foreach (var pair in typesToProcess)
-        pair.Type.TypeId = pair.Id==TypeInfo.NoTypeId
-          ? nextTypeId++
-          : pair.Id;
+      if (result==maxTypeId)
+        throw new InvalidOperationException(string.Format(
+          Strings.TypeIdRangeForDatabaseXYZIsExhausted, mappingDatabase, minTypeId, maxTypeId));
+      return result;
+    }
+
+    private IEnumerable<TypeInfo> GetEntitiesWithoutTypeId()
+    {
+      return domain.Model.Types.Where(type => type.IsEntity && type.TypeId==TypeInfo.NoTypeId);
+    }
+
+    private IEnumerable<TypeInfo> GetStructuresWithoutTypeId()
+    {
+      return domain.Model.Types.Where(type => type.IsStructure && type.UnderlyingType!=typeof (Structure));
     }
 
     // Constructors

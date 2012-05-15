@@ -6,12 +6,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Model
 {
   /// <summary>
-  /// Database.
+  /// Database info.
   /// </summary>
   public sealed class DatabaseInfo : Node
   {
@@ -21,13 +21,9 @@ namespace Xtensive.Orm.Model
     public IList<DatabaseInfo> ReferencedDatabases { get; private set; }
 
     /// <summary>
-    /// Gets all referenced database, i.e. transitive closure of <see cref="ReferencedDatabases"/>.
+    /// Gets <see cref="DatabaseConfiguration"/> for this database.
     /// </summary>
-    /// <returns>All referenced databases.</returns>
-    public IEnumerable<DatabaseInfo> GetAllReferencedDatabases()
-    {
-      return ReferencedDatabases.Flatten(db => db.ReferencedDatabases, null, true).Distinct();
-    }
+    public DatabaseConfiguration Configuration { get; private set; }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
@@ -40,14 +36,13 @@ namespace Xtensive.Orm.Model
       ReferencedDatabases = ReferencedDatabases.ToList().AsReadOnly();
     }
 
-    /// <summary>
-    /// Creates new instance of this class.
-    /// </summary>
-    /// <param name="name">Node name.</param>
-    public DatabaseInfo(string name)
+    // Constructors
+
+    internal DatabaseInfo(string name, DatabaseConfiguration configuration)
       : base(name)
     {
       ReferencedDatabases = new List<DatabaseInfo>();
+      Configuration = configuration;
     }
   }
 }

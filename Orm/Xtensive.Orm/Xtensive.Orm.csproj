@@ -418,7 +418,7 @@
     <Compile Include="Orm\Interfaces\IHasNullEntity.cs" />
     <Compile Include="Orm\Interfaces\IVersionSetProvider.cs" />
     <Compile Include="Orm\Internals\ReferentialIntegrity\NoneActionProcessor.cs" />
-    <Compile Include="Orm\Internals\TypeLevelCache.cs" />
+    <Compile Include="Orm\Internals\FieldAccessorProvider.cs" />
     <Compile Include="Orm\Internals\FieldAccessor.cs" />
     <Compile Include="Orm\Interfaces\IOperationSequence.cs" />
     <Compile Include="Orm\Interfaces\IPrecondition.cs" />

@@ -14,9 +14,8 @@ using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Internals
 {
-  internal sealed class TypeLevelCache
+  internal sealed class FieldAccessorProvider
   {
-    public readonly TypeInfo TypeInfo;
     private readonly FieldAccessor[] fieldAccessors;
 
     public FieldAccessor GetFieldAccessor(FieldInfo field)
@@ -53,9 +52,8 @@ namespace Xtensive.Orm.Internals
 
     // Constructors
 
-    public TypeLevelCache(TypeInfo typeInfo)
+    public FieldAccessorProvider(TypeInfo typeInfo)
     {
-      TypeInfo = typeInfo;
       var fields = typeInfo.Fields;
       fieldAccessors = new FieldAccessor[fields.Count==0 ? 0 : (fields.Max(field => field.FieldId) + 1)];
       foreach (var field in fields)

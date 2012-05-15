@@ -12,11 +12,11 @@ namespace Xtensive.Orm.Configuration
   public interface IDatabaseConfigurationFlow
   {
     /// <summary>
-    /// Sets <see cref="DatabaseConfiguration.Alias"/> for current <see cref="DatabaseConfiguration"/>.
+    /// Sets <see cref="DatabaseConfiguration.RealName"/> for current <see cref="DatabaseConfiguration"/>.
     /// </summary>
-    /// <param name="alias">Database alias</param>
+    /// <param name="realName">Real name.</param>
     /// <returns>Configuration flow.</returns>
-    IDatabaseConfigurationFlow WithAlias(string alias);
+    IDatabaseConfigurationFlow WithRealName(string realName);
 
     /// <summary>
     /// Sets <see cref="DatabaseConfiguration.MinTypeId"/> for current <see cref="DatabaseConfiguration"/>.

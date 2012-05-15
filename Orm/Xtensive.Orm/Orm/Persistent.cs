@@ -792,14 +792,14 @@ namespace Xtensive.Orm
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
-      return Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
+      return field.ReflectedType.Accessors.GetFieldAccessor(field);
     }
 
     internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
-      return (FieldAccessor<T>) Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
+      return (FieldAccessor<T>) field.ReflectedType.Accessors.GetFieldAccessor(field);
     }
 
     internal PersistentFieldState GetFieldState(string fieldName)
