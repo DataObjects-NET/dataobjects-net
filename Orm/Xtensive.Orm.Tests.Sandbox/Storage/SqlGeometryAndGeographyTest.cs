@@ -11,9 +11,9 @@ using NUnit.Framework;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests;
-using Xtensive.Storage.Tests.Storage.SqlGeometryAndGeographyTestModel;
+using Xtensive.Orm.Tests.Storage.SqlGeometryAndGeographyTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.SqlGeometryAndGeographyTestModel
+namespace Xtensive.Orm.Tests.Storage.SqlGeometryAndGeographyTestModel
 {
   [HierarchyRoot]
   public class Container : Entity
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage.SqlGeometryAndGeographyTestModel
   }
 }
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   public class SqlGeometryAndGeographyTest : AutoBuildTest
   {
