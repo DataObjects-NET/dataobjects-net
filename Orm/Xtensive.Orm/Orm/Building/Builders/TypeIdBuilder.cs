@@ -20,21 +20,20 @@ namespace Xtensive.Orm.Building.Builders
 
     public void BuildTypeIds()
     {
-      AssignTypeIdToEntities();
-      AssignTypeIdToStructures();
+      AssignTypeIds();
 
       // Updating TypeId index
       domain.Model.Types.RebuildTypeIdIndex();
     }
 
-    private void AssignTypeIdToEntities()
+    private void AssignTypeIds()
     {
       // Load existing type ids
-      foreach (var type in GetEntitiesWithoutTypeId())
+      foreach (var type in GetTypesWithoutTypeId())
         type.TypeId = typeIdProvider.GetTypeId(type.UnderlyingType);
 
       // Provide type ids for remaining types
-      var typeGroups = GetEntitiesWithoutTypeId()
+      var typeGroups = GetTypesWithoutTypeId()
         .GroupBy(t => t.MappingDatabase ?? string.Empty)
         .OrderBy(g => g.Key);
       foreach (var group in typeGroups) {
@@ -42,13 +41,6 @@ namespace Xtensive.Orm.Building.Builders
         foreach (var type in group.OrderBy(i => i.Name))
           type.TypeId = nextTypeId++;
       }
-    }
-
-    private void AssignTypeIdToStructures()
-    {
-      int nextTypeId = -1;
-      foreach (var type in GetStructuresWithoutTypeId())
-        type.TypeId = nextTypeId--;
     }
 
     private int GetMaximalTypeId(string mappingDatabase)
@@ -76,14 +68,9 @@ namespace Xtensive.Orm.Building.Builders
       return result;
     }
 
-    private IEnumerable<TypeInfo> GetEntitiesWithoutTypeId()
+    private IEnumerable<TypeInfo> GetTypesWithoutTypeId()
     {
       return domain.Model.Types.Where(type => type.IsEntity && type.TypeId==TypeInfo.NoTypeId);
-    }
-
-    private IEnumerable<TypeInfo> GetStructuresWithoutTypeId()
-    {
-      return domain.Model.Types.Where(type => type.IsStructure && type.UnderlyingType!=typeof (Structure));
     }
 
     // Constructors
