@@ -8,13 +8,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {  
   internal sealed class TypeIdBuilder
   {
+    private sealed class TypeIdSequence
+    {
+      private int currentValue;
+      private readonly int minValue;
+      private readonly int maxValue;
+      private readonly string mappingDatabase;
+
+      public int GetNextValue()
+      {
+        if (currentValue==maxValue)
+          throw new InvalidOperationException(string.Format(
+            Strings.TypeIdRangeForDatabaseXYZIsExhausted, mappingDatabase, minValue, maxValue));
+        return ++currentValue;
+      }
+
+      public TypeIdSequence(int currentValue, int minValue, int maxValue, string mappingDatabase)
+      {
+        this.currentValue = currentValue;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.mappingDatabase = mappingDatabase;
+      }
+    }
+
     private readonly Domain domain;
     private readonly ITypeIdProvider typeIdProvider;
 
@@ -37,35 +60,32 @@ namespace Xtensive.Orm.Building.Builders
         .GroupBy(t => t.MappingDatabase ?? string.Empty)
         .OrderBy(g => g.Key);
       foreach (var group in typeGroups) {
-        var nextTypeId = GetMaximalTypeId(group.Key) + 1;
+        var sequence = GetTypeIdSequence(group.Key);
         foreach (var type in group.OrderBy(i => i.Name))
-          type.TypeId = nextTypeId++;
+          type.TypeId = sequence.GetNextValue();
       }
     }
 
-    private int GetMaximalTypeId(string mappingDatabase)
+    private TypeIdSequence GetTypeIdSequence(string mappingDatabase)
     {
       if (domain.Model.Databases.Count==0)
         // Multidatabase mode is not enabled, use default range
-        return GetMaximalTypeId(TypeInfo.MinTypeId, int.MaxValue, Strings.NA);
+        return GetTypeIdSequence(TypeInfo.MinTypeId, int.MaxValue, Strings.NA);
 
       // Query configuration for a particular database
       var configurationEntry = domain.Model.Databases[mappingDatabase].Configuration;
-      return GetMaximalTypeId(
+      return GetTypeIdSequence(
         configurationEntry.MinTypeId, configurationEntry.MaxTypeId, configurationEntry.Name);
     }
 
-    private int GetMaximalTypeId(int minTypeId, int maxTypeId, string mappingDatabase)
+    private TypeIdSequence GetTypeIdSequence(int minTypeId, int maxTypeId, string mappingDatabase)
     {
-      var result = domain.Model.Types
+      var current = domain.Model.Types
         .Where(t => t.TypeId >= minTypeId && t.TypeId <= maxTypeId)
         .Select(t => t.TypeId)
-        .DefaultIfEmpty(minTypeId)
+        .DefaultIfEmpty(minTypeId - 1)
         .Max();
-      if (result==maxTypeId)
-        throw new InvalidOperationException(string.Format(
-          Strings.TypeIdRangeForDatabaseXYZIsExhausted, mappingDatabase, minTypeId, maxTypeId));
-      return result;
+      return new TypeIdSequence(current, minTypeId, maxTypeId, mappingDatabase);
     }
 
     private IEnumerable<TypeInfo> GetTypesWithoutTypeId()
