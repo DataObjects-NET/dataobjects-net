@@ -62,6 +62,7 @@ namespace Xtensive.Orm.Building.Builders
       case WellKnown.Provider.Oracle:
       case WellKnown.Provider.Firebird:
       case WellKnown.Provider.MySql:
+      case WellKnown.Provider.Sqlite:
         return AssemblyHelper.LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
       default:
         throw new NotSupportedException(

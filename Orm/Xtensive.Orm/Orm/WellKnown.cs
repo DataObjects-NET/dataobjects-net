@@ -188,7 +188,7 @@ namespace Xtensive.Orm
       /// <summary>
       /// All supported protocols (for exception messages, etc).
       /// </summary>
-      public const string All = "'sqlserver', 'sqlserverce', 'postgresql', 'oracle', 'mysql', 'firebird', 'sqlite'";
+      public const string All = "sqlserver, sqlserverce, postgresql, oracle, mysql, firebird, sqlite";
     }
 
     /// <summary>
