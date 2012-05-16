@@ -32,6 +32,12 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0314_IncorrectTransactionDisposing : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      // SQLite does not like hardcode concurrect access
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
