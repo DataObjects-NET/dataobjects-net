@@ -315,6 +315,17 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Creates a <see cref="NotSupportedException"/> with messages that says that <paramref name="node" />
+    /// is not supported by current storage.
+    /// </summary>
+    /// <param name="node">The node.</param>
+    /// <returns>Created exception</returns>
+    public static NotSupportedException NotSupported(SqlNode node)
+    {
+      return NotSupported(node.GetType().Name);
+    }
+
+    /// <summary>
     /// Creates a <see cref="NotSupportedException"/> with message that says that <paramref name="feature"/>
     /// is not supported by current storage.
     /// </summary>

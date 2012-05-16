@@ -165,7 +165,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case AlterTableSection.Exit:
         return string.Empty;
       default:
-        throw new NotSupportedException();
+        throw SqlHelper.NotSupported(node);
       }
     }
 
@@ -246,7 +246,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlDropSchema node)
     {
-      throw new NotSupportedException();
+      throw SqlHelper.NotSupported(node);
     }
 
     /// <inheritdoc/>
@@ -416,7 +416,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
     {
-      throw new NotSupportedException();
+      throw SqlHelper.NotSupported(action);
     }
 
     /// <inheritdoc/>
