@@ -159,7 +159,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32;
       queryInfo.ParameterPrefix = "@";
-      queryInfo.Features = QueryFeatures.NamedParameters | QueryFeatures.ParameterPrefix | QueryFeatures.Limit;
+      queryInfo.Features =
+        QueryFeatures.NamedParameters
+        | QueryFeatures.ParameterPrefix
+        | QueryFeatures.Limit
+        | QueryFeatures.InsertDefaultValues;
       return queryInfo;
     }
 

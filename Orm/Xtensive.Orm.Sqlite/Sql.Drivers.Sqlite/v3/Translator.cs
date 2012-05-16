@@ -6,6 +6,7 @@
 
 using System;
 using System.Text;
+using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -453,10 +454,19 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
       switch (section) {
+      case TableColumnSection.Type:
+        if (column.SequenceDescriptor==null)
+          return base.Translate(context, column, section);
+        return "integer"; // SQLite requires autoincrement columns to have exactly 'integer' type.
       case TableColumnSection.Exit:
-        return string.Empty;
-      case TableColumnSection.GeneratedExit:
+        if (column.SequenceDescriptor==null)
           return string.Empty;
+        var primaryKey = column.Table.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
+        if (primaryKey==null)
+          return string.Empty;
+        return string.Format("CONSTRAINT {0} PRIMARY KEY AUTOINCREMENT", QuoteIdentifier(primaryKey.Name));
+      case TableColumnSection.GeneratedExit:
+        return string.Empty;
       default:
         return base.Translate(context, column, section);
       }

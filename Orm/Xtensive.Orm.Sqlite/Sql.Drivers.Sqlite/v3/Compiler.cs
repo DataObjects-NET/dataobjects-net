@@ -5,6 +5,8 @@
 // Created:    2011.04.29
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -20,9 +22,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly long MillisecondsPerSecond = 1000L;
 
-    public override void Visit(SqlAggregate node)
+    protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
-      base.Visit(node);
+      // SQLite has special syntax for autoincrement primary keys
+      // We write everything when doing translation for column definition
+      // and should skip any PK definitions here.
+      var hasAutoIncrementColumn = node.Table.TableColumns.Any(c => c.SequenceDescriptor!=null);
+      constraints = hasAutoIncrementColumn ? constraints.Where(c => !(c is PrimaryKey)) : constraints;
+      return base.VisitCreateTableConstraints(node, constraints, hasItems);
     }
 
     /// <inheritdoc/>

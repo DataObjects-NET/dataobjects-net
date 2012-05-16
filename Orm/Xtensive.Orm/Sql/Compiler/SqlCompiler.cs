@@ -590,31 +590,19 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, node, CreateTableSection.Entry));
         context.Output.AppendText(translator.Translate(context, node, CreateTableSection.TableElementsEntry));
 
-        bool firstWasProcessed = false;
-        if (node.Table.Columns.Count>0)
-          using (context.EnterCollectionScope()) {
-            foreach (TableColumn c in node.Table.Columns) {
-              // Skipping computed columns
-              if (!c.Expression.IsNullReference() && !Driver.ServerInfo.Column.Features.Supports(ColumnFeatures.Computed))
-                continue;
-              if (firstWasProcessed)
-                context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
-              else
-                firstWasProcessed = true;
-              Visit(c);
-            }
-          }
+        // ReSharper disable ConditionIsAlwaysTrueOrFalse
+        // ReSharper disable RedundantAssignment
 
+        bool hasItems = false;
+
+        if (node.Table.Columns.Count > 0)
+          hasItems = VisitCreateTableColumns(node, node.Table.TableColumns, hasItems);
         if (node.Table.TableConstraints.Count > 0)
-          using (context.EnterCollectionScope()) {
-            foreach (TableConstraint cs in node.Table.TableConstraints) {
-              if (firstWasProcessed)
-                context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
-              else
-                firstWasProcessed = true;
-              Visit(cs);
-            }
-          }
+          hasItems = VisitCreateTableConstraints(node, node.Table.TableConstraints, hasItems);
+
+        // ReSharper restore ConditionIsAlwaysTrueOrFalse
+        // ReSharper restore RedundantAssignment
+
         context.Output.AppendText(translator.Translate(context, node, CreateTableSection.TableElementsExit));
         if (node.Table.PartitionDescriptor!=null) {
           context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
@@ -622,6 +610,38 @@ namespace Xtensive.Sql.Compiler
         }
         context.Output.AppendText(translator.Translate(context, node, CreateTableSection.Exit));
       }
+    }
+
+    protected virtual bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
+    {
+      using (context.EnterCollectionScope()) {
+        foreach (TableConstraint constraint in constraints) {
+          if (hasItems)
+            context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          else
+            hasItems = true;
+          Visit(constraint);
+        }
+      }
+      return hasItems;
+    }
+
+    protected virtual bool VisitCreateTableColumns(SqlCreateTable node, IEnumerable<TableColumn> columns, bool hasItems)
+    {
+      using (context.EnterCollectionScope()) {
+        foreach (var column in columns) {
+          // Skipping computed columns
+          if (!column.Expression.IsNullReference() && !Driver.ServerInfo.Column.Features.Supports(ColumnFeatures.Computed))
+            continue;
+          if (hasItems)
+            context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          else
+            hasItems = true;
+          Visit(column);
+        }
+      }
+
+      return hasItems;
     }
 
     public virtual void Visit(SqlCreateTranslation node)
