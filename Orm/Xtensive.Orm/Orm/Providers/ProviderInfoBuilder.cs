@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Providers
       var queryFeatures = serverInfo.Query.Features;
       var serverFeatures = serverInfo.ServerFeatures;
       var indexFeatures = serverInfo.Index.Features;
-      var foreignKeyFeatures = serverInfo.ForeignKey.Features;
 
       var f = ProviderFeatures.None;
       if (queryFeatures.Supports(QueryFeatures.DdlBatches))
@@ -34,7 +33,7 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.Collations;
       if (serverInfo.ForeignKey!=null) {
         f |= ProviderFeatures.ForeignKeyConstraints;
-        if (foreignKeyFeatures.Supports(ForeignKeyConstraintFeatures.Deferrable))
+        if (serverInfo.ForeignKey.Features.Supports(ForeignKeyConstraintFeatures.Deferrable))
           f |= ProviderFeatures.DeferrableConstraints;
       }
       if (indexFeatures.Supports(IndexFeatures.NonKeyColumns))

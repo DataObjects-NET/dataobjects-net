@@ -149,11 +149,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
     {
-      var referenceConstraintInfo = new ForeignKeyConstraintInfo();
-      referenceConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
-      referenceConstraintInfo.Actions = ForeignKeyConstraintActions.NoAction | ForeignKeyConstraintActions.Cascade | ForeignKeyConstraintActions.SetDefault | ForeignKeyConstraintActions.SetNull;
-      referenceConstraintInfo.AllowedDdlStatements = DdlStatements.All;
-      return referenceConstraintInfo;
+      return null;
     }
 
     public override QueryInfo GetQueryInfo()
