@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
 
       types = BuildFullDomain(DomainUpgradeMode.Perform);
       Assert.AreEqual(personTypeId, types[typeof (Person)]);
-      AssertEx.AreEqual(new [] {101,102,103}, types.Values.OrderBy(id => id));
+      AssertEx.AreEqual(new [] {100,101,102}, types.Values.OrderBy(id => id));
 
       types = BuildPersonDomain(DomainUpgradeMode.Perform);
       Assert.AreEqual(personTypeId, types[typeof (Person)]);
@@ -164,13 +164,13 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
     public void RecreateModeTest()
     {
       var types = BuildPersonDomain(DomainUpgradeMode.Recreate);
-      AssertEx.AreEqual(new [] {101}, types.Values.OrderBy(id => id));
+      AssertEx.AreEqual(new [] {100}, types.Values.OrderBy(id => id));
       types = BuildFullDomain(DomainUpgradeMode.Recreate);
-      AssertEx.AreEqual(new [] {101,102,103}, types.Values.OrderBy(id => id));
+      AssertEx.AreEqual(new [] {100,101,102}, types.Values.OrderBy(id => id));
       types = BuildBookPersonDomain(DomainUpgradeMode.Recreate);
-      AssertEx.AreEqual(new [] {101,102}, types.Values.OrderBy(id => id));
+      AssertEx.AreEqual(new [] {100,101}, types.Values.OrderBy(id => id));
       types = BuildBookDomain(DomainUpgradeMode.Recreate);
-      AssertEx.AreEqual(new [] {101}, types.Values.OrderBy(id => id));
+      AssertEx.AreEqual(new [] {100}, types.Values.OrderBy(id => id));
     }
 
     private Dictionary<Type, int> BuildFullDomainWithNonDefaultTypeIds()
