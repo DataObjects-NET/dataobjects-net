@@ -500,10 +500,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override string Translate(SqlNodeType type)
     {
       switch (type) {
-      case SqlNodeType.RawConcat:
-        return "||";
-      case SqlNodeType.Concat:
-        throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type));
       case SqlNodeType.DateTimePlusInterval:
         return "+";
       case SqlNodeType.DateTimeMinusInterval:
