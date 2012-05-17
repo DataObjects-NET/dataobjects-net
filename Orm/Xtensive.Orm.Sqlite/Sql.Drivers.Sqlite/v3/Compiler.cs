@@ -32,7 +32,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return base.VisitCreateTableConstraints(node, constraints, hasItems);
     }
 
-    /// <inheritdoc/>
     public override void Visit(SqlAlterTable node)
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
@@ -56,7 +55,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         base.Visit(node);
     }
 
-    /// <inheritdoc/>
     public override void Visit(SqlExtract node)
     {
       using (context.EnterScope(node)) {
@@ -69,13 +67,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
-    /// <inheritdoc/>
     public override void Visit(SqlFreeTextTable node)
     {
       throw SqlHelper.NotSupported("FreeText");
     }
 
-    /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
       switch (node.FunctionType) {
@@ -175,7 +171,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       base.Visit(node);
     }
 
-    /// <inheritdoc/>
     public override void Visit(SqlQueryExpression node)
     {
       using (context.EnterScope(node)) {
@@ -190,7 +185,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override void Visit(SqlSelect node)
     {
-      //For hinting limitations see http://www.sqlite.org/lang_indexedby.html
+      // For hinting limitations see http://www.sqlite.org/lang_indexedby.html
+
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectColumns(node);
@@ -205,7 +201,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override void VisitSelectLock(SqlSelect node)
     {
-      return;
     }
 
     public override void Visit(SqlTrim node)
@@ -225,14 +220,23 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override void VisitSelectLimitOffset(SqlSelect node)
     {
-      if (!node.Limit.IsNullReference()) {
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
-        context.Output.AppendText(" (");
-        node.Limit.AcceptVisitor(this);
-        context.Output.AppendText(")");
+      // SQLite requires limit to be present if offset it used,
+      // luckily negatives value does the job.
+
+      var isSpecialCase = !node.HasLimit && node.HasOffset;
+
+      if (!isSpecialCase) {
+        base.VisitSelectLimitOffset(node);
         return;
       }
-      base.VisitSelectLimitOffset(node);
+
+      context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
+      SqlDml.Literal(-1).AcceptVisitor(this);
+      context.Output.AppendText(translator.Translate(context, node, SelectSection.LimitEnd));
+
+      context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
+      node.Offset.AcceptVisitor(this);
+      context.Output.AppendText(translator.Translate(context, node, SelectSection.OffsetEnd));
     }
 
     private SqlExpression DateTimeTruncate(SqlExpression date)
@@ -245,14 +249,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return SqlDml.Extract(SqlDateTimePart.Second, date1) - SqlDml.Extract(SqlDateTimePart.Second, date2);
     }
 
-    #region Static helpers
-
     private static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
     }
-
-    #endregion
 
     // Constructors
 
