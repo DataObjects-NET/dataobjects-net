@@ -146,6 +146,10 @@
     <Compile Include="Orm\Interfaces\IQueryRootBuilder.cs" />
     <Compile Include="Orm\Internals\CompiledQueryRunner.cs" />
     <Compile Include="Orm\Internals\KeyGeneratorRegistry.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\CachingSequence.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\ICachingSequenceProvider.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\DomainCachingSequenceProvider.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\SessionCachingSequenceProvider.cs" />
     <Compile Include="Orm\Internals\PersistActionGenerator.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\BaseFieldNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\ExpressionMap.cs" />
