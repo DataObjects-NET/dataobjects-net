@@ -94,6 +94,11 @@ namespace Xtensive.Orm.Tests.Issues
   {
     private Schema schema;
 
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.ForeignKeyConstraints);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
