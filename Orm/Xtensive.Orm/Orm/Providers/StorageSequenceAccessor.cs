@@ -32,17 +32,28 @@ namespace Xtensive.Orm.Providers
       var generatorNode = GetGeneratorNode(sequenceInfo);
       var query = queryBuilder.Build(generatorNode, sequenceInfo.Increment);
 
-      long hiValue;
-
-      if (UpgradeContext.Current==null && query.RequiresSeparateSession)
-        hiValue = ExecuteInKeyGeneratorSession(query);
-      else
-        hiValue = query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
+      long hiValue = Execute(query, session);
 
       var increment = sequenceInfo.Increment;
       var current = hasArbitaryIncrement ? hiValue - increment : (hiValue - 1) * increment;
 
       return new Segment<long>(current + 1, increment);
+    }
+
+    private long Execute(SequenceQuery query, Session session)
+    {
+      var compartment = UpgradeContext.Current!=null
+        ? SequenceQueryCompartment.SameSession
+        : query.Compartment;
+
+      switch (compartment) {
+        case SequenceQueryCompartment.SameSession:
+          return query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
+        case SequenceQueryCompartment.SeparateSession:
+          return ExecuteInKeyGeneratorSession(query);
+        default:
+          throw new ArgumentOutOfRangeException("query.Compartment");
+      }
     }
 
     private long ExecuteInKeyGeneratorSession(SequenceQuery query)

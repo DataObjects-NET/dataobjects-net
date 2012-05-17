@@ -57,6 +57,7 @@ namespace Xtensive.Orm.Providers
     Multidatabase = 1L << 39,
     PagingRequiresOrderBy = 1L << 40,
     ZeroLimitIsError = 1L << 41,
+    TransactionalKeyGenerators = 1L << 42,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,

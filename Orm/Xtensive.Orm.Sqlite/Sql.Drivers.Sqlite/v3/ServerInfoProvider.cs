@@ -169,7 +169,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.None;
+      return ServerFeatures.Savepoints | ServerFeatures.TransactionalKeyGenerators;
     }
 
     public override IdentityInfo GetIdentityInfo()

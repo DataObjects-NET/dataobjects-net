@@ -53,6 +53,33 @@ namespace Xtensive.Sql.Drivers.Sqlite
     }
 
     /// <inheritdoc/>
+    public override void MakeSavepoint(string name)
+    {
+      EnsureTransactionIsActive();
+      var commandText = string.Format("SAVEPOINT {0}", name);
+      using (var command = CreateCommand(commandText))
+        command.ExecuteNonQuery();
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(string name)
+    {
+      EnsureTransactionIsActive();
+      var commandText = string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
+      using (var command = CreateCommand(commandText))
+        command.ExecuteNonQuery();
+    }
+
+    /// <inheritdoc/>
+    public override void ReleaseSavepoint(string name)
+    {
+      EnsureTransactionIsActive();
+      var commandText = string.Format("RELEASE SAVEPOINT {0}", name);
+      using (var command = CreateCommand(commandText))
+        command.ExecuteNonQuery();
+    }
+
+    /// <inheritdoc/>
     protected override void ClearActiveTransaction()
     {
       activeTransaction = null;

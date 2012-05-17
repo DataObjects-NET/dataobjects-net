@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers
 
     public string SelectQuery { get; private set; }
 
-    public bool RequiresSeparateSession { get; private set; }
+    public SequenceQueryCompartment Compartment { get; private set; }
 
     public long ExecuteWith(ISqlExecutor sqlExecutor)
     {
@@ -26,21 +26,21 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public SequenceQuery(string insertQuery, string selectQuery, bool requiresSeparateSession)
+    public SequenceQuery(string insertQuery, string selectQuery, SequenceQueryCompartment compartment)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(insertQuery, "insertQuery");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
 
       InsertQuery = insertQuery;
       SelectQuery = selectQuery;
-      RequiresSeparateSession = requiresSeparateSession;
+      Compartment = compartment;
     }
 
-    public SequenceQuery(string selectQuery, bool requiresSeparateSession)
+    public SequenceQuery(string selectQuery, SequenceQueryCompartment compartment)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
       SelectQuery = selectQuery;
-      RequiresSeparateSession = requiresSeparateSession;
+      Compartment = compartment;
     }
   }
 }

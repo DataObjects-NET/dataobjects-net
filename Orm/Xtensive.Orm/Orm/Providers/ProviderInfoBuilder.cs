@@ -88,6 +88,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.PagingRequiresOrderBy;
       if (queryFeatures.Supports(QueryFeatures.ZeroLimitIsError))
         f |= ProviderFeatures.ZeroLimitIsError;
+      if (serverFeatures.Supports(ServerFeatures.TransactionalKeyGenerators))
+        f |= ProviderFeatures.TransactionalKeyGenerators;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))

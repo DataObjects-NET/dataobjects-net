@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool hasSequences;
     private readonly bool hasBatches;
     private readonly bool hasInsertDefaultValues;
+    private readonly SequenceQueryCompartment compartment;
 
     public SequenceQuery Build(SchemaNode generatorNode, long increment)
     {
@@ -29,13 +30,13 @@ namespace Xtensive.Orm.Providers
       var batch = sqlNext as SqlBatch;
       if (batch==null || hasBatches)
         // There are batches or there is single statement, so we can run this as a single request
-        return new SequenceQuery(driver.Compile(sqlNext).GetCommandText(), requiresSeparateSession);
+        return new SequenceQuery(driver.Compile(sqlNext).GetCommandText(), compartment);
 
       // No batches, so we must execute this manually
       return new SequenceQuery(
         driver.Compile((ISqlCompileUnit) batch[0]).GetCommandText(),
         driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText(),
-        requiresSeparateSession);
+        compartment);
     }
 
     private ISqlCompileUnit GetSequenceBasedNextImplementation(SchemaNode generatorNode, long increment)
@@ -72,17 +73,21 @@ namespace Xtensive.Orm.Providers
       return idColumn;
     }
 
-
     public SequenceQueryBuilder(StorageDriver driver)
     {
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
 
       this.driver = driver;
+
       var providerInfo = driver.ProviderInfo;
 
       hasSequences = providerInfo.Supports(ProviderFeatures.Sequences);
       hasBatches = providerInfo.Supports(ProviderFeatures.DmlBatches);
       hasInsertDefaultValues = providerInfo.Supports(ProviderFeatures.InsertDefaultValues);
+
+      compartment = hasSequences || providerInfo.Supports(ProviderFeatures.TransactionalKeyGenerators)
+        ? SequenceQueryCompartment.SameSession
+        : SequenceQueryCompartment.SeparateSession;
     }
   }
 }

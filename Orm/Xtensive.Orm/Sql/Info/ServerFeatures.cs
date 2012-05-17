@@ -53,5 +53,10 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS supports transactional DDL for full-text indexes.
     /// </summary>
     TransactionalFullTextDdl = 0x20,
+
+    /// <summary>
+    /// Indicates whether RDBMS uses key generators that adhere to transaction boundaries.
+    /// </summary>
+    TransactionalKeyGenerators = 0x40,
   }
 }
