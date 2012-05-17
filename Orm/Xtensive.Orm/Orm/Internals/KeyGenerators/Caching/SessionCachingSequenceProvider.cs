@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
         return result;
       }
 
-      private void OnTransactionCompleted(object sender, TransactionEventArgs e)
+      private void OnTransactionRollbacked(object sender, TransactionEventArgs e)
       {
         foreach (var sequence in sequences.Values)
           sequence.Reset();
@@ -37,8 +37,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
       public CachingSequenceCollection(Session session)
       {
-        session.SystemEvents.TransactionRollbacked += OnTransactionCompleted;
-        session.SystemEvents.TransactionCommitted += OnTransactionCompleted;
+        session.SystemEvents.TransactionRollbacked += OnTransactionRollbacked;
       }
     }
 
