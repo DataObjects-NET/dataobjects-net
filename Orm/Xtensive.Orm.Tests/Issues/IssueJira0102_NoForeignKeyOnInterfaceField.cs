@@ -44,6 +44,11 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0102_NoForeignKeyOnInterfaceField : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.ForeignKeyConstraints);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
