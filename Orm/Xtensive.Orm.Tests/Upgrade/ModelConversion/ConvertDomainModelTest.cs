@@ -39,7 +39,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     [SetUp]
     public virtual void SetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
       Schema = BuildDomain().StorageModel;
     }
 

@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override void CheckRequirements()
     {
-      // SQLite does not like hardcode concurrect access
+      // SQLite does not like hardcore concurrect access
       Require.ProviderIsNot(StorageProvider.Sqlite);
     }
 

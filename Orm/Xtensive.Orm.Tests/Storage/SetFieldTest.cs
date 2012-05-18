@@ -40,10 +40,6 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
   {
     private int fieldSetCallCount;
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
-    }
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();

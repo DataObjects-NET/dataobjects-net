@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
     [SetUp]
     public void SetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
@@ -45,7 +44,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
     [Test]
     public void UpgradeToVersion2Test()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {

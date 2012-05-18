@@ -80,7 +80,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MediaTest()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(Media));
       config.Types.Register(typeof(Track<SimpleMedia>));

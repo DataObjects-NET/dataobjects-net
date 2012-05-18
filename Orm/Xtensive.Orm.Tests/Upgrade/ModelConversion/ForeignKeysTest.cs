@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 
@@ -22,7 +23,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     protected override void CheckRequirements()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
+      Require.AllFeaturesSupported(ProviderFeatures.ForeignKeyConstraints);
     }
 
     [Test]

@@ -23,7 +23,6 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules
     [SetUp]
     public void SetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (domain.OpenSession()) {
         using (var tx = Session.Current.OpenTransaction()) {
@@ -37,7 +36,6 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules
     [Test]
     public void UpgradeToVersion2Test()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (domain.OpenSession()) {
         using (Session.Current.OpenTransaction()) {
@@ -50,7 +48,6 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules
 
     private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
       if (domain != null)
         domain.DisposeSafely();
 

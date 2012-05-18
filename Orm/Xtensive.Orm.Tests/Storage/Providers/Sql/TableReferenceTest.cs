@@ -147,11 +147,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql {
   {
     private Schema existingSchema;
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

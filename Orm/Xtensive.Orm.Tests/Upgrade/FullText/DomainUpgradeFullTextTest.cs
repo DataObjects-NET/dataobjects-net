@@ -10,6 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Disposing;
 using Xtensive.Core;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Upgrade.FullText
 {
@@ -21,7 +22,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
     [SetUp]
     public void SetUp()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
+      Require.AllFeaturesSupported(ProviderFeatures.FullText);
+
       BuildDomain("Version1", DomainUpgradeMode.Recreate);
     }
 

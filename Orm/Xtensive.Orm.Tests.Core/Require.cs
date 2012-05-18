@@ -101,13 +101,13 @@ namespace Xtensive.Orm.Tests
       case WellKnown.Provider.PostgreSql:
         return StorageProvider.PostgreSql;
       case WellKnown.Provider.Oracle:
-        return  StorageProvider.Oracle;
+        return StorageProvider.Oracle;
       case WellKnown.Provider.MySql:
-        return  StorageProvider.MySql;
+        return StorageProvider.MySql;
       case WellKnown.Provider.Firebird:
-        return  StorageProvider.Firebird;
+        return StorageProvider.Firebird;
       case WellKnown.Provider.Sqlite:
-        return  StorageProvider.Sqlite;
+        return StorageProvider.Sqlite;
       default:
         throw new ArgumentOutOfRangeException("provider");
       }

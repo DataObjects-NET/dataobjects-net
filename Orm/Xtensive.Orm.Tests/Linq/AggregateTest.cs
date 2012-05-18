@@ -104,16 +104,14 @@ namespace Xtensive.Orm.Tests.Linq
     public void CountAfterFilterTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle | StorageProvider.Sqlite);
-      var result =
-        Session.Query.All<Customer>().Where(c => Session.Query.All<Order>()
-          .Where(o => o.Customer==c)
-          .Count() > 10);
+
+      var q = Session.Query;
+
+      var result = q.All<Customer>().Where(c => q.All<Order>().Where(o => o.Customer==c).Count() > 10);
+      var expected = Customers.Where(c => Orders.Where(o => o.Customer==c).Count() > 10);
+
       var list = result.ToList();
-      var expected = from c in Customers
-      where Orders
-        .Where(o => o.Customer==c)
-        .Count() > 10
-      select c;
+
       Assert.AreEqual(0, expected.Except(list).Count());
       QueryDumper.Dump(result);
       Assert.Greater(list.Count, 0);

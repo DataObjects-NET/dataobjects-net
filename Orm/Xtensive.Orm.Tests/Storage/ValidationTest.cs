@@ -135,11 +135,6 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       public string Description { get; set; }
     }
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIsNot(StorageProvider.Sqlite);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
