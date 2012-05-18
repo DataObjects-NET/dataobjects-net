@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using System.Linq;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 
@@ -16,6 +17,11 @@ namespace Xtensive.Orm.Tests.Issues
   [Serializable]
   public class Issue0766_LinqTranslationError : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Apply);
+    }
+
     [Test]
     public void MainTest()
     {
