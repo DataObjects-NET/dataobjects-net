@@ -90,6 +90,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.ZeroLimitIsError;
       if (serverFeatures.Supports(ServerFeatures.TransactionalKeyGenerators))
         f |= ProviderFeatures.TransactionalKeyGenerators;
+      if (serverInfo.Column.AllowedDdlStatements.Supports(DdlStatements.Drop))
+        f |= ProviderFeatures.ColumnDrop;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))

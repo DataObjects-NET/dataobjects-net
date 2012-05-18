@@ -68,7 +68,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       ColumnInfo columnInfo = new ColumnInfo();
       columnInfo.MaxIdentifierLength = MaxIdentifierLength;
       columnInfo.Features = ColumnFeatures.Identity | ColumnFeatures.Computed;
-      columnInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      columnInfo.AllowedDdlStatements = DdlStatements.Create;
       return columnInfo;
     }
 

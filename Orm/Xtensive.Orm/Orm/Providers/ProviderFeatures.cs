@@ -58,6 +58,7 @@ namespace Xtensive.Orm.Providers
     PagingRequiresOrderBy = 1L << 40,
     ZeroLimitIsError = 1L << 41,
     TransactionalKeyGenerators = 1L << 42,
+    ColumnDrop = 1L << 43,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
