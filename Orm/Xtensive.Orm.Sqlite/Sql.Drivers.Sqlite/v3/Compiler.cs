@@ -199,10 +199,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
-    public override void VisitSelectLock(SqlSelect node)
-    {
-    }
-
     public override void Visit(SqlTrim node)
     {
       using (context.EnterScope(node)) {

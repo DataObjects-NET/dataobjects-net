@@ -942,6 +942,7 @@
     <Compile Include="Sql\Dml\SqlIntervalPart.cs" />
     <Compile Include="Sql\Dml\SqlJoinedTable.cs" />
     <Compile Include="Sql\Dml\SqlJoinExpression.cs" />
+    <Compile Include="Sql\Dml\SqlJoinSequence.cs" />
     <Compile Include="Sql\Dml\SqlJoinType.cs" />
     <Compile Include="Sql\Dml\SqlLockType.cs" />
     <Compile Include="Sql\Dml\SqlMatchType.cs" />

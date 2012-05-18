@@ -164,7 +164,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         | QueryFeatures.ParameterPrefix
         | QueryFeatures.Limit
         | QueryFeatures.Offset
-        | QueryFeatures.InsertDefaultValues;
+        | QueryFeatures.InsertDefaultValues
+        | QueryFeatures.StrictJoinSyntax;
       return queryInfo;
     }
 

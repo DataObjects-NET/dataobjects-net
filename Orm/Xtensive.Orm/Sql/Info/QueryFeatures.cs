@@ -126,6 +126,13 @@ namespace Xtensive.Sql.Info
     ZeroLimitIsError = 1 << 21,
 
     /// <summary>
+    /// Indicates whether RDBMS is strict about join syntax.
+    /// This means recursive syntax "A join B join C on B.b = C.c on A.a = B.b" could not be used.
+    /// Linear syntax "A join B on A.a = B.b join C on B.b = C.c" should be used instead.
+    /// </summary>
+    StrictJoinSyntax = 1 << 22,
+
+    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,

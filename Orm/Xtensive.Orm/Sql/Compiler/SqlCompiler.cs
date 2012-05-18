@@ -434,7 +434,7 @@ namespace Xtensive.Sql.Compiler
         }
         context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.ColumnsExit));
       }
-      if (node.Index.NonkeyColumns != null && node.Index.NonkeyColumns.Count != 0 && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.NonKeyColumns)) {
+      if (node.Index.NonkeyColumns != null && node.Index.NonkeyColumns.Count != 0 && CheckFeature(IndexFeatures.NonKeyColumns)) {
         context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.NonkeyColumnsEnter));
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.NonkeyColumns) {
@@ -448,7 +448,7 @@ namespace Xtensive.Sql.Compiler
 
       context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.StorageOptions));
 
-      if (!node.Index.Where.IsNullReference() && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Filtered)) {
+      if (!node.Index.Where.IsNullReference() && CheckFeature(IndexFeatures.Filtered)) {
         context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.Where));
         using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
           node.Index.Where.AcceptVisitor(this);
@@ -459,13 +459,13 @@ namespace Xtensive.Sql.Compiler
     
     public virtual void Visit(SqlCreateIndex node, IndexColumn item)
     {
-        if (!item.Expression.IsNullReference() && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Expressions))
+        if (!item.Expression.IsNullReference() && CheckFeature(IndexFeatures.Expressions))
           using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
             item.Expression.AcceptVisitor(this);
           }
         else {
           context.Output.AppendText(translator.QuoteIdentifier(item.Column.Name));
-          if (!(node.Index.IsFullText || node.Index.IsSpatial) && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.SortOrder))
+          if (!(node.Index.IsFullText || node.Index.IsSpatial) && CheckFeature(IndexFeatures.SortOrder))
             context.Output.AppendText(translator.TranslateSortOrder(item.Ascending));
         }
     }
@@ -631,7 +631,7 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterCollectionScope()) {
         foreach (var column in columns) {
           // Skipping computed columns
-          if (!column.Expression.IsNullReference() && !Driver.ServerInfo.Column.Features.Supports(ColumnFeatures.Computed))
+          if (!column.Expression.IsNullReference() && !CheckFeature(ColumnFeatures.Computed))
             continue;
           if (hasItems)
             context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
@@ -710,7 +710,7 @@ namespace Xtensive.Sql.Compiler
           node.Delete.AcceptVisitor(this);
         }
 
-        if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteFrom) && node.From!=null) {
+        if (CheckFeature(QueryFeatures.DeleteFrom) && node.From!=null) {
           context.Output.AppendText(translator.Translate(context, node, DeleteSection.From));
           node.From.AcceptVisitor(this);
         }
@@ -799,7 +799,7 @@ namespace Xtensive.Sql.Compiler
         TranslateDynamicFilterViaInOperator(node);
         break;
       default:
-        if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.MulticolumnIn))
+        if (CheckFeature(QueryFeatures.MulticolumnIn))
           TranslateDynamicFilterViaInOperator(node);
         else
           TranslateDynamicFilterViaMultipleComparisons(node);
@@ -1050,7 +1050,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlRowNumber node)
     {
-      if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.RowNumber))
+      if (!CheckFeature(QueryFeatures.RowNumber))
         throw SqlHelper.NotSupported(QueryFeatures.RowNumber);
 
       using (context.EnterScope(node)) {
@@ -1159,8 +1159,36 @@ namespace Xtensive.Sql.Compiler
     {
       if (node.From==null)
         return;
+
       context.Output.AppendText(translator.Translate(context, node, SelectSection.From));
-      node.From.AcceptVisitor(this);
+
+      var joinedFrom = node.From as SqlJoinedTable;
+      var linearJoinRequired = CheckFeature(QueryFeatures.StrictJoinSyntax) && joinedFrom!=null;
+
+      if (!linearJoinRequired) {
+        node.From.AcceptVisitor(this);
+        return;
+      }
+
+      var joinSequence = SqlJoinSequence.Build(joinedFrom);
+      var previous = joinSequence.Pivot;
+      previous.AcceptVisitor(this);
+
+      for (int i = 0; i < joinSequence.Tables.Count; i++) {
+        var table = joinSequence.Tables[i];
+        var type = joinSequence.JoinTypes[i];
+        var condition = joinSequence.Conditions[i];
+        var join = new SqlJoinExpression(type, previous, table, condition);
+
+        context.Output.AppendText(translator.Translate(context, join, JoinSection.Specification));
+        table.AcceptVisitor(this);
+        if (!condition.IsNullReference()) {
+          context.Output.AppendText(translator.Translate(context, join, JoinSection.Condition));
+          condition.AcceptVisitor(this);
+        }
+
+        previous = table;
+      }
     }
 
     public virtual void VisitSelectWhere(SqlSelect node)
@@ -1575,6 +1603,21 @@ namespace Xtensive.Sql.Compiler
           yield return statement;
         }
       }
+    }
+
+    protected bool CheckFeature(ColumnFeatures features)
+    {
+      return Driver.ServerInfo.Column.Features.Supports(features);
+    }
+
+    protected bool CheckFeature(IndexFeatures features)
+    {
+      return Driver.ServerInfo.Index.Features.Supports(features);
+    }
+
+    protected bool CheckFeature(QueryFeatures features)
+    {
+      return Driver.ServerInfo.Query.Features.Supports(features);
     }
 
 
