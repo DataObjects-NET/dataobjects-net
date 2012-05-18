@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Upgrade
 
     private UpgradeActionSequence translationResult;
     
-    private Modelling.Comparison.UpgradeStage currentUpgradeStage;
+    private SqlUpgradeStage currentStage;
     private bool translated;
 
     /// <summary>
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Upgrade
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate), SqlUpgradeStage.PreCleanupData);
 
       // Data cleanup
-      currentUpgradeStage = Modelling.Comparison.UpgradeStage.CleanupData;
+      currentStage = SqlUpgradeStage.CleanupData;
       var cleanupData = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.CleanupData.ToString());
       if (cleanupData!=null)
@@ -84,35 +84,35 @@ namespace Xtensive.Orm.Upgrade
       ProcessClearDataActions(false);
 
       // Prepairing (aka запаривание :-)
-      currentUpgradeStage = Modelling.Comparison.UpgradeStage.Prepare;
+      currentStage = SqlUpgradeStage.PreUpgrade;
       var prepareActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.Prepare.ToString());
       if (prepareActions!=null)
         VisitAction(prepareActions);
 
       // Mutual renaming
-      currentUpgradeStage = Modelling.Comparison.UpgradeStage.TemporaryRename;
+      currentStage = SqlUpgradeStage.PreUpgrade;
       var renameActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.TemporaryRename.ToString());
       if (renameActions!=null)
         VisitAction(renameActions);
 
       // Upgrading
-      currentUpgradeStage = Modelling.Comparison.UpgradeStage.Upgrade;
+      currentStage = SqlUpgradeStage.Upgrade;
       var upgradeActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.Upgrade.ToString());
       if (upgradeActions!=null)
         VisitAction(upgradeActions);
 
       // Copying data
-      currentUpgradeStage = Modelling.Comparison.UpgradeStage.CopyData;
+      currentStage = SqlUpgradeStage.CopyData;
       var copyDataActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.CopyData.ToString());
       if (copyDataActions!=null)
         VisitAction(copyDataActions);
 
       // Post copying data
-      currentUpgradeStage = Modelling.Comparison.UpgradeStage.PostCopyData;
+      currentStage = SqlUpgradeStage.PostCopyData;
       var postCopyDataActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.PostCopyData.ToString());
       if (postCopyDataActions!=null)
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Upgrade
       ProcessClearDataActions(true);
 
       // Cleanup
-      currentUpgradeStage = Modelling.Comparison.UpgradeStage.Cleanup;
+      currentStage = SqlUpgradeStage.Cleanup;
       var cleanupActions = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==Modelling.Comparison.UpgradeStage.Cleanup.ToString());
       if (cleanupActions!=null)
@@ -374,20 +374,24 @@ namespace Xtensive.Orm.Upgrade
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
     {
       var columnInfo = (StorageColumnInfo) removeColumnAction.Difference.Source;
-      var table = FindTable(columnInfo.Parent);
 
       // Ensure table is not removed
+      var table = FindTable(columnInfo.Parent);
       if (table==null)
         return;
 
       var column = FindColumn(table, columnInfo.Name);
-      if (column == null)
+      if (column==null)
         return;
 
+      RegisterDropColumn(column);
+    }
+
+    private void RegisterDropColumn(TableColumn column)
+    {
+      var table = column.Table;
       if (!column.DefaultValue.IsNullReference()) {
-        var constraint = table.TableConstraints
-          .OfType<DefaultConstraint>()
-          .FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
+        var constraint = table.TableConstraints.OfType<DefaultConstraint>().FirstOrDefault(c => c.Column==column);
         if (constraint!=null)
           RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)));
       }
@@ -456,6 +460,7 @@ namespace Xtensive.Orm.Upgrade
       var removeOldColumn = SqlDdl.Alter(column.Table, SqlDdl.DropColumn(column));
       RegisterCommand(removeOldColumn, SqlUpgradeStage.Upgrade);
       table.TableColumns.Remove(column);
+
     }
 
     private void VisitCreatePrimaryKeyAction(CreateNodeAction action)
@@ -634,7 +639,7 @@ namespace Xtensive.Orm.Upgrade
       }
       var stage = !providerInfo.Supports(ProviderFeatures.TransactionalFullTextDdl)
         ? SqlUpgradeStage.NonTransactionalEpilog
-        : GetSqlUpgradeStage(currentUpgradeStage);
+        : currentStage;
       RegisterCommand(SqlDdl.Create(ftIndex), stage);
     }
 
@@ -648,7 +653,7 @@ namespace Xtensive.Orm.Upgrade
       var ftIndex = table.Indexes[fullTextIndexInfo.Name] ?? table.Indexes.OfType<FullTextIndex>().Single();
       var stage = !providerInfo.Supports(ProviderFeatures.TransactionalFullTextDdl)
         ? SqlUpgradeStage.NonTransactionalProlog
-        : GetSqlUpgradeStage(currentUpgradeStage);
+        : currentStage;
       RegisterCommand(SqlDdl.Drop(ftIndex), stage);
       table.Indexes.Remove(ftIndex);
     }
@@ -844,8 +849,6 @@ namespace Xtensive.Orm.Upgrade
     }
     
     #endregion
-
-    #region Helper methods
 
     private Table CreateTable(TableInfo tableInfo)
     {
@@ -1070,7 +1073,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void RegisterCommand(ISqlCompileUnit command)
     {
-      RegisterCommand(command, GetSqlUpgradeStage(currentUpgradeStage), false);
+      RegisterCommand(command, currentStage, false);
     }
 
     private void RegisterCommand(ISqlCompileUnit command, SqlUpgradeStage stage)
@@ -1133,30 +1136,6 @@ namespace Xtensive.Orm.Upgrade
         : node.GetTable();
       return sequenceQueryBuilder.Build(generatorNode, 0).ExecuteWith(sqlExecutor);
     }
-
-    private static SqlUpgradeStage GetSqlUpgradeStage(Modelling.Comparison.UpgradeStage stage)
-    {
-      switch (stage) {
-        case Modelling.Comparison.UpgradeStage.CleanupData:
-          return SqlUpgradeStage.CleanupData;
-        case Modelling.Comparison.UpgradeStage.Prepare:
-        case Modelling.Comparison.UpgradeStage.TemporaryRename:
-          return SqlUpgradeStage.PreUpgrade;
-        case Modelling.Comparison.UpgradeStage.Upgrade:
-          return SqlUpgradeStage.Upgrade;
-        case Modelling.Comparison.UpgradeStage.CopyData:
-          return SqlUpgradeStage.CopyData;
-        case Modelling.Comparison.UpgradeStage.PostCopyData:
-          return SqlUpgradeStage.PostCopyData;
-        case Modelling.Comparison.UpgradeStage.Cleanup:
-          return SqlUpgradeStage.Cleanup;
-        default:
-          throw new ArgumentOutOfRangeException("stage");
-      }
-    }
-
-    #endregion
-    
 
     // Constructors
 
