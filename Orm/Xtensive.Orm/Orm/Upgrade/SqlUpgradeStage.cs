@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.10.21
 
-using Xtensive.Orm.Upgrade;
-
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
   /// Stage of <see cref="UpgradeActionSequence"/>.

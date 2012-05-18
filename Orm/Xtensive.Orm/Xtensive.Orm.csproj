@@ -295,7 +295,7 @@
     <Compile Include="Orm\Providers\SqlSelectProcessor.cs" />
     <Compile Include="Orm\Providers\SqlStoreProvider.cs" />
     <Compile Include="Orm\Providers\SqlTemporaryDataProvider.cs" />
-    <Compile Include="Orm\Providers\SqlUpgradeStage.cs" />
+    <Compile Include="Orm\Upgrade\SqlUpgradeStage.cs" />
     <Compile Include="Orm\Providers\StorageExceptionBuilder.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableDescriptor.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableManager.cs" />
@@ -375,6 +375,7 @@
     <Compile Include="Orm\Upgrade\Internals\SqlWorkerTask.cs" />
     <Compile Include="Orm\Upgrade\Internals\StageModelFilter.cs" />
     <Compile Include="Orm\Upgrade\Internals\TypeIdProvider.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeActionSequenceBuilder.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
     <Compile Include="Orm\Validation\Aspects\Constraints\EmailConstraint.cs" />
