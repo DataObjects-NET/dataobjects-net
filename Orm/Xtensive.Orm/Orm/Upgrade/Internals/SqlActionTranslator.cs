@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
 
-    private UpgradeActionSequenceBuilder output;
+    private UpgradeActionSequenceBuilder currentOutput;
 
     private bool translated;
 
@@ -68,11 +68,11 @@ namespace Xtensive.Orm.Upgrade
         throw new InvalidOperationException(Strings.ExCommandsAreAlreadyTranslated);
 
       translated = true;
-      output = new UpgradeActionSequenceBuilder(driver, new UpgradeActionSequence(), SqlUpgradeStage.PreCleanupData);
+      currentOutput = new UpgradeActionSequenceBuilder(driver, new UpgradeActionSequence(), SqlUpgradeStage.PreCleanupData);
 
       // Turn off deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
-        output.RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate));
+        currentOutput.RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate));
 
       // Data cleanup
       ProcessActions(Modelling.Comparison.UpgradeStage.CleanupData, SqlUpgradeStage.CleanupData);
@@ -99,9 +99,9 @@ namespace Xtensive.Orm.Upgrade
 
       // Turn on deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
-        output.RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
+        currentOutput.RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
 
-      return output.Result;
+      return currentOutput.Result;
     }
 
     private void VisitAction(NodeAction action)
@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (fromTable == toTable) {
         copiedColumns.ForEach(pair => update.Values[toTableRef[pair.Second.Name]] = toTableRef[pair.First.Name]);
-        output.RegisterCommand(update);
+        currentOutput.RegisterCommand(update);
         return;
       }
 
@@ -252,7 +252,7 @@ namespace Xtensive.Orm.Upgrade
           update.Where = SqlDml.Exists(select);
         }
       }
-      output.RegisterCommand(update);
+      currentOutput.RegisterCommand(update);
     }
 
     private void VisitDeleteDataAction(DataAction action)
@@ -269,14 +269,14 @@ namespace Xtensive.Orm.Upgrade
     {
       var tableInfo = action.Difference.Target as TableInfo;
       var table = CreateTable(tableInfo);
-      output.RegisterCommand(SqlDdl.Create(table));
+      currentOutput.RegisterCommand(SqlDdl.Create(table));
     }
 
     private void VisitRemoveTableAction(RemoveNodeAction action)
     {
       var tableInfo = (TableInfo) action.Difference.Source;
       var table = FindTable(tableInfo);
-      output.RegisterCommand(SqlDdl.Drop(table));
+      currentOutput.RegisterCommand(SqlDdl.Drop(table));
       table.Schema.Tables.Remove(table);
     }
 
@@ -290,9 +290,8 @@ namespace Xtensive.Orm.Upgrade
         providerInfo.Supports(ProviderFeatures.TableRename)
         && newTableNode.Schema==oldTable.Schema;
 
-      if (canRename) {
-        output.RegisterCommand(SqlDdl.Rename(oldTable, newTableNode.Name));
-      }
+      if (canRename)
+        currentOutput.RegisterCommand(SqlDdl.Rename(oldTable, newTableNode.Name));
       else
         RecreateTableWithNewName(oldTable, newTableNode);
 
@@ -311,16 +310,16 @@ namespace Xtensive.Orm.Upgrade
         column.IsNullable = item.IsNullable;
       }
 
-      output.RegisterCommand(SqlDdl.Create(newTable));
+      currentOutput.RegisterCommand(SqlDdl.Create(newTable));
 
       // Copying data from one table to another
       var insert = SqlDml.Insert(SqlDml.TableRef(newTable));
       var select = SqlDml.Select(SqlDml.TableRef(oldTable));
       insert.From = select;
-      output.RegisterCommand(insert);
+      currentOutput.RegisterCommand(insert);
 
       // Removing table
-      output.RegisterCommand(SqlDdl.Drop(oldTable));
+      currentOutput.RegisterCommand(SqlDdl.Drop(oldTable));
 
       newTable.Schema.Tables.Remove(newTable);
     }
@@ -337,7 +336,7 @@ namespace Xtensive.Orm.Upgrade
       var column = CreateColumn(columnInfo, table);
       if (columnInfo.DefaultValue != null)
         column.DefaultValue = SqlDml.Literal(columnInfo.DefaultValue);
-      output.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)));
+      currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)));
     }
 
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
@@ -353,19 +352,26 @@ namespace Xtensive.Orm.Upgrade
       if (column==null)
         return;
 
-      RegisterDropColumn(column);
+      DropDefaultConstraint(column, currentOutput);
+      DropColumn(column, currentOutput);
     }
 
-    private void RegisterDropColumn(TableColumn column)
+    private void DropColumn(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
     {
       var table = column.Table;
-      if (!column.DefaultValue.IsNullReference()) {
-        var constraint = table.TableConstraints.OfType<DefaultConstraint>().FirstOrDefault(c => c.Column==column);
-        if (constraint!=null)
-          output.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)));
-      }
-      output.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
+      commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
       table.TableColumns.Remove(column);
+    }
+
+    private void DropDefaultConstraint(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
+    {
+      if (column.DefaultValue.IsNullReference())
+        return;
+      var table = column.Table;
+      var constraint = table.TableConstraints.OfType<DefaultConstraint>().FirstOrDefault(c => c.Column==column);
+      if (constraint==null)
+        return;
+      commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)));
     }
 
     private void VisitAlterColumnAction(PropertyChangeAction action)
@@ -397,7 +403,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void RenameColumn(TableColumn column, string name)
     {
-      var upgradeOutput = output.ForStage(SqlUpgradeStage.Upgrade);
+      var upgradeOutput = currentOutput.ForStage(SqlUpgradeStage.Upgrade);
 
       if (providerInfo.Supports(ProviderFeatures.ColumnRename)) {
         upgradeOutput.RegisterCommand(SqlDdl.Rename(column, name));
@@ -422,15 +428,8 @@ namespace Xtensive.Orm.Upgrade
       upgradeOutput.RegisterCommand(update);
 
       // Drop old column
-      if (!column.DefaultValue.IsNullReference()) {
-        var constraint = table.TableConstraints
-          .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
-        if (constraint!=null)
-          upgradeOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)));
-      }
-      var removeOldColumn = SqlDdl.Alter(column.Table, SqlDdl.DropColumn(column));
-      upgradeOutput.RegisterCommand(removeOldColumn);
-      table.TableColumns.Remove(column);
+      DropDefaultConstraint(column, upgradeOutput);
+      DropColumn(column, upgradeOutput);
     }
 
     private void VisitCreatePrimaryKeyAction(CreateNodeAction action)
@@ -443,7 +442,7 @@ namespace Xtensive.Orm.Upgrade
         return;
 
       var primaryKey = CreatePrimaryKey(primaryIndex.Parent, table);
-      output.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(primaryKey)));
+      currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(primaryKey)));
     }
 
     private void VisitRemovePrimaryKeyAction(RemoveNodeAction action)
@@ -457,7 +456,7 @@ namespace Xtensive.Orm.Upgrade
       
       var primaryKey = table.TableConstraints[primaryIndexInfo.Name];
 
-      output.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)));
+      currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)));
       table.TableConstraints.Remove(primaryKey);
     }
 
@@ -473,12 +472,12 @@ namespace Xtensive.Orm.Upgrade
       var index = CreateSecondaryIndex(table, secondaryIndexInfo);
       if (index.IsUnique && !allowCreateConstraints)
         return;
-      output.RegisterCommand(SqlDdl.Create(index));
+      currentOutput.RegisterCommand(SqlDdl.Create(index));
     }
 
     private void VisitRemoveSecondaryIndexAction(RemoveNodeAction action)
     {
-      var preCleanupDataOutput = output.ForStage(SqlUpgradeStage.PreCleanupData);
+      var preCleanupDataOutput = currentOutput.ForStage(SqlUpgradeStage.PreCleanupData);
 
       var secondaryIndexInfo = (SecondaryIndexInfo) action.Difference.Source;
       var table = FindTable(secondaryIndexInfo.Parent);
@@ -506,12 +505,12 @@ namespace Xtensive.Orm.Upgrade
       var table = FindTable(foreignKeyInfo.Parent);
       var foreignKey = CreateForeignKey(foreignKeyInfo);
 
-      output.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(foreignKey)));
+      currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(foreignKey)));
     }
 
     private void VisitRemoveForeignKeyAction(RemoveNodeAction action)
     {
-      var preCleanupDataOutput = output.ForStage(SqlUpgradeStage.PreCleanupData);
+      var preCleanupDataOutput = currentOutput.ForStage(SqlUpgradeStage.PreCleanupData);
 
       var foreignKeyInfo = (ForeignKeyInfo) action.Difference.Source;
       var table = FindTable(foreignKeyInfo.Parent);
@@ -540,7 +539,7 @@ namespace Xtensive.Orm.Upgrade
           MinValue = sequenceInfo.Seed
         };
         sequence.SequenceDescriptor = descriptor;
-        output.RegisterCommand(SqlDdl.Create(sequence));
+        currentOutput.RegisterCommand(SqlDdl.Create(sequence));
         createdSequences.Add(sequence);
       }
       else {
@@ -554,7 +553,7 @@ namespace Xtensive.Orm.Upgrade
       if (providerInfo.Supports(ProviderFeatures.Sequences)) {
         var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
         var sequence = node.GetSequence();
-        output.RegisterCommand(SqlDdl.Drop(sequence));
+        currentOutput.RegisterCommand(SqlDdl.Drop(sequence));
         node.Schema.Sequences.Remove(sequence);
       }
       else {
@@ -579,7 +578,7 @@ namespace Xtensive.Orm.Upgrade
         var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
         newSequenceDescriptor.LastValue = currentValue;
         exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
-        output.RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor));
+        currentOutput.RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor));
       }
       else {
         sequenceInfo.Current = newStartValue;
@@ -613,8 +612,8 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var fullTextOutput = !providerInfo.Supports(ProviderFeatures.TransactionalFullTextDdl)
-        ? output.ForStage(SqlUpgradeStage.NonTransactionalEpilog)
-        : output;
+        ? currentOutput.ForStage(SqlUpgradeStage.NonTransactionalEpilog)
+        : currentOutput;
       fullTextOutput.RegisterCommand(SqlDdl.Create(ftIndex));
     }
 
@@ -627,8 +626,8 @@ namespace Xtensive.Orm.Upgrade
       var table = FindTable(fullTextIndexInfo.Parent);
       var ftIndex = table.Indexes[fullTextIndexInfo.Name] ?? table.Indexes.OfType<FullTextIndex>().Single();
       var fullTextOutput = !providerInfo.Supports(ProviderFeatures.TransactionalFullTextDdl)
-        ? output.ForStage(SqlUpgradeStage.NonTransactionalProlog)
-        : output;
+        ? currentOutput.ForStage(SqlUpgradeStage.NonTransactionalProlog)
+        : currentOutput;
       fullTextOutput.RegisterCommand(SqlDdl.Drop(ftIndex));
       table.Indexes.Remove(ftIndex);
     }
@@ -670,7 +669,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void ProcessDeleteDataAction(DataAction action, bool postCopy)
     {
-      var deleteOutput = output.ForStage(postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
+      var deleteOutput = currentOutput.ForStage(postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
 
       var hint = (DeleteDataHint) action.DataHint;
       var soureTableInfo = (TableInfo) sourceModel.Resolve(hint.SourceTablePath, true);
@@ -719,7 +718,7 @@ namespace Xtensive.Orm.Upgrade
 
       update.Where = CreateConditionalExpression(hint, table);
 
-      var updateOutput = output.ForStage(postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
+      var updateOutput = currentOutput.ForStage(postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
 
       updateOutput.RegisterCommand(update);
     }
@@ -768,7 +767,7 @@ namespace Xtensive.Orm.Upgrade
         foreach (var typeId in typeIds)
           delete.Where |= tableRef[typeIdColumnName]==typeId;
 
-        var clearOutput = output.ForStage(postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
+        var clearOutput = currentOutput.ForStage(postCopy ? SqlUpgradeStage.PostCopyData : SqlUpgradeStage.CleanupData);
 
         clearOutput.RegisterCommand(delete);
       }
@@ -796,7 +795,7 @@ namespace Xtensive.Orm.Upgrade
         newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
 
       var addNewColumn = SqlDdl.Alter(table, SqlDdl.AddColumn(newColumn));
-      var upgradeOutput = output.ForStage(SqlUpgradeStage.Upgrade);
+      var upgradeOutput = currentOutput.ForStage(SqlUpgradeStage.Upgrade);
       upgradeOutput.RegisterCommand(addNewColumn);
 
       // Copy values if possible to convert type
@@ -820,18 +819,11 @@ namespace Xtensive.Orm.Upgrade
         upgradeOutput.RegisterCommand(copyValues);
       }
 
-      var cleanupOutput = output.ForStage(SqlUpgradeStage.Cleanup);
+      var cleanupOutput = currentOutput.ForStage(SqlUpgradeStage.Cleanup);
 
       // Drop old column
-      if (!column.DefaultValue.IsNullReference()) {
-        var constraint = table.TableConstraints
-          .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
-        if (constraint!=null)
-          cleanupOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)));
-      }
-      var removeOldColumn = SqlDdl.Alter(table, SqlDdl.DropColumn(table.TableColumns[tempName]));
-      cleanupOutput.RegisterCommand(removeOldColumn);
-      table.TableColumns.Remove(table.TableColumns[tempName]);
+      DropDefaultConstraint(column, cleanupOutput);
+      DropColumn(table.TableColumns[tempName], cleanupOutput);
     }
 
     private Table CreateTable(TableInfo tableInfo)
@@ -936,14 +928,14 @@ namespace Xtensive.Orm.Upgrade
         var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.BuildValueType(typeof(int)));
         fakeColumn.IsNullable = true;
       }
-      output.RegisterCommand(SqlDdl.Create(sequenceTable));
+      currentOutput.RegisterCommand(SqlDdl.Create(sequenceTable));
     }
 
     private void DropGeneratorTable(StorageSequenceInfo sequenceInfo)
     {
       var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
       var sequenceTable = node.GetTable();
-      output.RegisterCommand(SqlDdl.Drop(sequenceTable));
+      currentOutput.RegisterCommand(SqlDdl.Drop(sequenceTable));
       node.Schema.Tables.Remove(sequenceTable);
     }
 
@@ -1074,7 +1066,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void ProcessActions(Modelling.Comparison.UpgradeStage modellingStage, SqlUpgradeStage stage)
     {
-      output = output.ForStage(stage);
+      currentOutput = currentOutput.ForStage(stage);
       var actionName = modellingStage.ToString();
       var groupingAction = actions
         .OfType<GroupingNodeAction>()
