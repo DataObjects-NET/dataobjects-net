@@ -29,14 +29,16 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   internal sealed class SqlActionTranslator
   {
+    private const string OldTablesPrefix = "VeryOldStuff_";
     private const string SubqueryAliasName = "th";
-    private const string TemporaryNameFormat = "Temp{0}";
+    private const string TemporaryColumnNameFormat = "Temp{0}";
     private const string SubqueryTableAliasNameFormat = "a{0}";
     private const string ColumnTypePropertyName = "Type";
     private const string ColumnDefaultPropertyName = "Default";
 
     private static readonly StringComparer StringComparer = StringComparer.OrdinalIgnoreCase;
 
+    private readonly List<TableColumn> pendingColumnDrops = new List<TableColumn>();
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
     private readonly List<string> enforceChangedColumns = new List<string>();
@@ -97,11 +99,38 @@ namespace Xtensive.Orm.Upgrade
       // Cleanup
       ProcessActions(Modelling.Comparison.UpgradeStage.Cleanup, SqlUpgradeStage.Cleanup);
 
+      ProcessPendingColumnDrops();
+
       // Turn on deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         currentOutput.RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
 
       return currentOutput.Result;
+    }
+
+    private void ProcessPendingColumnDrops()
+    {
+      if (pendingColumnDrops.Count==0)
+        return;
+
+      foreach (var group in pendingColumnDrops.GroupBy(d => d.Table)) {
+        var table = group.Key;
+        var columnsToDrop = group.ToHashSet();
+        var tableName = table.Name; // Save name for further modifications
+        var tempTableName = OldTablesPrefix + table.Name;
+        // Recreate table without dropped columns
+        RecreateTableWithNewName(table, table.Schema, tempTableName, c => !columnsToDrop.Contains(c));
+        // Rename our table object
+        RenameSchemaTable(table, table.Schema, table.Schema, tempTableName);
+        // Remove dropped columns from table object
+        foreach (var column in table.Columns.ToList())
+          if (columnsToDrop.Contains(column))
+            table.Columns.Remove(column);
+        if (providerInfo.Supports(ProviderFeatures.TableRename))
+          currentOutput.RegisterCommand(SqlDdl.Rename(table, tableName));
+        else
+          RecreateTableWithNewName(table, table.Schema, tableName);
+      }
     }
 
     private void VisitAction(NodeAction action)
@@ -293,18 +322,23 @@ namespace Xtensive.Orm.Upgrade
       if (canRename)
         currentOutput.RegisterCommand(SqlDdl.Rename(oldTable, newTableNode.Name));
       else
-        RecreateTableWithNewName(oldTable, newTableNode);
+        RecreateTableWithNewName(oldTable, newTableNode.Schema, newTableNode.Name);
 
       oldTableInfo.Name = action.Name;
 
       RenameSchemaTable(oldTable, oldTable.Schema, newTableNode.Schema, newTableNode.Name);
     }
 
-    private void RecreateTableWithNewName(Table oldTable, MappingResolveResult newTableNode)
+    private void RecreateTableWithNewName(Table oldTable, Schema newSchema, string newName,
+      Func<TableColumn, bool> columnFilter = null)
     {
-      var newTable = newTableNode.Schema.CreateTable(newTableNode.Name);
+      var newTable = newSchema.CreateTable(newName);
 
-      foreach (var item in oldTable.TableColumns) {
+      var columns = oldTable.TableColumns.AsEnumerable();
+      if (columnFilter!=null)
+        columns = columns.Where(columnFilter);
+
+      foreach (var item in columns) {
         var column = newTable.CreateColumn(item.Name, item.DataType);
         column.DbName = item.DbName;
         column.IsNullable = item.IsNullable;
@@ -358,6 +392,11 @@ namespace Xtensive.Orm.Upgrade
 
     private void DropColumn(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
     {
+      if (!providerInfo.Supports(ProviderFeatures.ColumnDrop)) {
+        pendingColumnDrops.Add(column);
+        return;
+      }
+
       var table = column.Table;
       commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
       table.TableColumns.Remove(column);
@@ -962,10 +1001,10 @@ namespace Xtensive.Orm.Upgrade
 
     private string GetTemporaryName(TableColumn column)
     {
-      var tempName = string.Format(TemporaryNameFormat, column.Name);
+      var tempName = string.Format(TemporaryColumnNameFormat, column.Name);
       var counter = 0;
       while (column.Table.Columns.Any(tableColumn => StringComparer.Compare(tableColumn.Name, tempName) == 0))
-        tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
+        tempName = string.Format(TemporaryColumnNameFormat, column.Name + ++counter);
 
       return tempName;
     }
