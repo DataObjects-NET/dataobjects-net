@@ -31,9 +31,9 @@ namespace Xtensive.Orm.Upgrade
       output.Add(driver.Compile(command).GetCommandText());
     }
 
-    public UpgradeActionSequenceBuilder CreateNew(SqlUpgradeStage stage)
+    public UpgradeActionSequenceBuilder ForStage(SqlUpgradeStage stage)
     {
-      return new UpgradeActionSequenceBuilder(driver, Result, stage);
+      return stage==Stage ? this : new UpgradeActionSequenceBuilder(driver, Result, stage);
     }
 
     private static List<string> SelectOutput(UpgradeActionSequence result, SqlUpgradeStage stage)
