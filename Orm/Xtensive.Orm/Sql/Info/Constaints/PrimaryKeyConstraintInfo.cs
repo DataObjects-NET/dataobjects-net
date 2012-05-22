@@ -17,6 +17,7 @@ namespace Xtensive.Sql.Info
   public class PrimaryKeyConstraintInfo : EntityInfo
   {
     private PrimaryKeyConstraintFeatures features = PrimaryKeyConstraintFeatures.None;
+
     private string constantName;
 
     /// <summary>

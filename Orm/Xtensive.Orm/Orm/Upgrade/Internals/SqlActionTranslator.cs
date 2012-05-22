@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static readonly StringComparer StringComparer = StringComparer.OrdinalIgnoreCase;
 
-    private readonly List<TableColumn> pendingColumnDrops = new List<TableColumn>();
+    private readonly HashSet<Table> tablesToRecreate = new HashSet<Table>();
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
     private readonly List<string> enforceChangedColumns = new List<string>();
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Upgrade
       // Cleanup
       ProcessActions(Modelling.Comparison.UpgradeStage.Cleanup, SqlUpgradeStage.Cleanup);
 
-      ProcessPendingColumnDrops();
+      ProcessTableRecreations();
 
       // Turn on deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
@@ -108,24 +108,19 @@ namespace Xtensive.Orm.Upgrade
       return currentOutput.Result;
     }
 
-    private void ProcessPendingColumnDrops()
+    private void ProcessTableRecreations()
     {
-      if (pendingColumnDrops.Count==0)
+      if (tablesToRecreate.Count==0)
         return;
 
-      foreach (var group in pendingColumnDrops.GroupBy(d => d.Table)) {
-        var table = group.Key;
-        var columnsToDrop = group.ToHashSet();
+      foreach (var table in tablesToRecreate) {
         var tableName = table.Name; // Save name for further modifications
         var tempTableName = OldTablesPrefix + table.Name;
         // Recreate table without dropped columns
-        RecreateTableWithNewName(table, table.Schema, tempTableName, c => !columnsToDrop.Contains(c));
+        RecreateTableWithNewName(table, table.Schema, tempTableName);
         // Rename our table object
         RenameSchemaTable(table, table.Schema, table.Schema, tempTableName);
-        // Remove dropped columns from table object
-        foreach (var column in table.Columns.ToList())
-          if (columnsToDrop.Contains(column))
-            table.Columns.Remove(column);
+        // Rename table in database back to original name
         if (providerInfo.Supports(ProviderFeatures.TableRename))
           currentOutput.RegisterCommand(SqlDdl.Rename(table, tableName));
         else
@@ -392,13 +387,11 @@ namespace Xtensive.Orm.Upgrade
 
     private void DropColumn(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
     {
-      if (!providerInfo.Supports(ProviderFeatures.ColumnDrop)) {
-        pendingColumnDrops.Add(column);
-        return;
-      }
-
       var table = column.Table;
-      commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
+      if (providerInfo.Supports(ProviderFeatures.ColumnDrop))
+        commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
+      else
+        tablesToRecreate.Add(column.Table);
       table.TableColumns.Remove(column);
     }
 

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,35 +16,34 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Extractor : Model.Extractor
   {
+    public static readonly string PrimaryKeyName = "PrimaryKey";
+
     private const int DefaultPrecision = 38;
     private const int DefaultScale = 0;
     private const string SqliteSequence = "sqlite_sequence";
     private const string SqliteMaster = "sqlite_master";
 
-    private string targetSchema;
-    private Catalog theCatalog;
+    private Schema schema;
+    private Catalog catalog;
 
     protected override void Initialize()
     {
-      theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
+      catalog = new Catalog(string.Empty);
+      schema = catalog.CreateSchema(Driver.CoreServerInfo.DefaultSchemaName);
     }
 
     /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName)
     {
-      targetSchema = null;
-      Schema schema = ExtractSchema(catalogName, Driver.CoreServerInfo.DefaultSchemaName.ToLowerInvariant());
-      return schema.Catalog;
+      ExtractCatalogContents();
+      return catalog;
     }
 
     /// <inheritdoc/>
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
-      targetSchema = schemaName.ToLowerInvariant();
-      theCatalog.CreateSchema(targetSchema);
-
       ExtractCatalogContents();
-      return theCatalog.Schemas[targetSchema];
+      return catalog.Schemas.Single();
     }
 
     private void ExtractCatalogContents()
@@ -59,16 +57,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void ExtractTables()
     {
-      using (var cmd = Connection.CreateCommand("SELECT [name] FROM [Main].[sqlite_master] WHERE type = 'table' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'"))
+      const string query = "SELECT [name] FROM [Main].[sqlite_master] WHERE type = 'table' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
+      using (var cmd = Connection.CreateCommand(query))
       using (IDataReader reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
-          Schema schema = theCatalog.Schemas["main"];
           schema.CreateTable(reader.GetString(0));
         }
       }
-      string defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToLowerInvariant();
-      Schema defaultSchema = theCatalog.Schemas[defaultSchemaName];
-      theCatalog.DefaultSchema = defaultSchema;
     }
 
     public bool DoesTableExist(string tableName)
@@ -95,19 +90,17 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void ExtractColumns()
     {
-      Schema schema = theCatalog.Schemas["main"];
       foreach (var table in schema.Tables) {
         var select = string.Format("PRAGMA table_info([{0}])", table.Name);
-
+        var primaryKeyItems = new List<TableColumn>();
         using (var cmd = Connection.CreateCommand(select))
         using (IDataReader reader = cmd.ExecuteReader()) {
-          TableColumn tableColumn = null;
           while (reader.Read()) {
             var tableSchema = table.Schema;
             string tableName = table.Name;
 
             //Column Name
-            tableColumn = table.CreateColumn(reader.GetString(1));
+            var tableColumn = table.CreateColumn(reader.GetString(1));
 
             //Column Type
             //var empty = reader.GetString(2);
@@ -119,15 +112,21 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
             //Default Value
             var defaultValue = ReadStringOrNull(reader, 4);
-            if (!string.IsNullOrEmpty(defaultValue) && string.Compare("NULL", defaultValue, StringComparison.OrdinalIgnoreCase) != 0)
+            if (!string.IsNullOrEmpty(defaultValue) && string.Compare("NULL", defaultValue, StringComparison.OrdinalIgnoreCase)!=0)
               tableColumn.DefaultValue = defaultValue;
 
-            // Auto Increment
-            var autoInc = GetIncrementValue(tableName);
-            if (autoInc!=null && ReadInt(reader, 5)==1) //http://www.sqlite.org/autoinc.html
+            var isPrimaryKey = ReadInt(reader, 5)==1;
+            if (isPrimaryKey) {
+              primaryKeyItems.Add(tableColumn);
+              // Auto Increment
+              var autoInc = GetIncrementValue(tableName);
               tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, autoInc, 1);
+            }
           }
         }
+
+        if (primaryKeyItems.Count > 0)
+          table.CreatePrimaryKey(PrimaryKeyName, primaryKeyItems.ToArray());
       }
     }
 
@@ -141,26 +140,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
-    private bool ColumnIsPrimaryKey(string tableName, string columnName)
-    {
-      var select = string.Format("PRAGMA table_info([{0}])", tableName);
-      using (var cmd = Connection.CreateCommand(select))
-      using (IDataReader reader = cmd.ExecuteReader()) {
-        while (reader.Read())
-          if (String.Compare(reader.GetString(1), columnName, StringComparison.OrdinalIgnoreCase)==0 && reader.GetInt32(5)==1)
-            return true;
-      }
-      return false;
-    }
-
     private void ExtractViews()
     {
-      var select = "SELECT 'main' as schema, [name], sql FROM [Main].[sqlite_master] WHERE type = 'view' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
-      using (DbDataReader reader = ExecuteReader(select)) {
+      const string select = "SELECT [name], sql FROM [Main].[sqlite_master] WHERE type = 'view' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
+      using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
-          Schema schema = theCatalog.Schemas[reader.GetString(0)];
-          string view = reader.GetString(1);
-          string definition = ReadStringOrNull(reader, 2);
+          string view = reader.GetString(0);
+          string definition = ReadStringOrNull(reader, 1);
           if (string.IsNullOrEmpty(definition))
             schema.CreateView(view);
           else
@@ -171,43 +157,24 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void ExtractIndexes()
     {
-      Schema schema = theCatalog.Schemas["main"];
       foreach (var table in schema.Tables) {
         var select = string.Format("PRAGMA index_list([{0}])", table.Name);
-
         using (var cmd = Connection.CreateCommand(select))
         using (IDataReader reader = cmd.ExecuteReader()) {
-          TableColumn tableColumn = null;
           while (reader.Read()) {
-            Index index = null;
-            PrimaryKey primaryKey = null;
-
             var tableSchema = table.Schema;
             var tableName = table.Name;
-
-            var position = ReadInt(reader, 0);
             var indexName = ReadStringOrNull(reader, 1);
-            var unique = reader.GetBoolean(2);
-
-            // New index
-            if (position==0) {
-              index = null;
-              primaryKey = null;
-
-              if (ColumnIsPrimaryKey(tableName, ColumnNamesFromIndex(indexName).First()))
-                primaryKey = table.CreatePrimaryKey(indexName);
-              else {
-                index = table.CreateIndex(indexName);
-                index.IsUnique = unique;
-              }
-
-              foreach (var columnName in ColumnNamesFromIndex(indexName)) {
-                if (primaryKey!=null)
-                  primaryKey.Columns.Add(table.TableColumns[columnName]);
-                if (index!=null)
-                  index.CreateIndexColumn(table.TableColumns[columnName]);
-              }
+            if (indexName.StartsWith("sqlite_autoindex_")) {
+              // Special index used for primary keys
+              // It should be hidden here, because PK are already extracted in ExtractColumns()
+              continue;
             }
+            var unique = reader.GetBoolean(2);
+            var index = table.CreateIndex(indexName);
+            index.IsUnique = unique;
+            foreach (var columnName in ColumnNamesFromIndex(indexName))
+              index.CreateIndexColumn(table.TableColumns[columnName]);
           }
         }
       }
@@ -215,7 +182,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void ExtractForeignKeys()
     {
-      Schema schema = theCatalog.Schemas["main"];
       foreach (var table in schema.Tables) {
         var select = string.Format("PRAGMA foreign_key_list([{0}])", table.Name);
 
@@ -263,7 +229,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private SqlValueType CreateValueType(IDataRecord row, int typeNameIndex) //, int precisionIndex, int scaleIndex, int charLengthIndex
     {
-      string realType = string.Empty;
+      string realType;
       int precision = 0;
       int scale = 0;
 

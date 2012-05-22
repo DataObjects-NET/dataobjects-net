@@ -36,13 +36,14 @@ namespace Xtensive.Sql.Drivers.Sqlite
     {
       using (var connection = new SQLiteConnection(connectionString)) {
         connection.Open();
-        var version = new System.Version(connection.ServerVersion);
-
-        //var builder = new SQLiteConnectionStringBuilder(connectionString);
-        //builder.FailIfMissing = false;
+        var version = new Version(connection.ServerVersion);
         var dataSource = GetDataSource(connectionString);
         var coreServerInfo = new CoreServerInfo {
-          ServerVersion = version, ConnectionString = connectionString, DefaultSchemaName = "Main", DatabaseName = dataSource, MultipleActiveResultSets = false,
+          ServerVersion = version,
+          ConnectionString = connectionString,
+          DefaultSchemaName = "Main",
+          DatabaseName = dataSource,
+          MultipleActiveResultSets = false,
         };
 
         if (version.Major < 3)
@@ -57,7 +58,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
       SqlHelper.ValidateConnectionUrl(url);
       string result = string.Format("Data Source = {0}", url.Resource);
 
-      if (!String.IsNullOrEmpty(url.Password))
+      if (!string.IsNullOrEmpty(url.Password))
         result += String.Format("; Password = '{0}'", url.Password);
 
       return result;

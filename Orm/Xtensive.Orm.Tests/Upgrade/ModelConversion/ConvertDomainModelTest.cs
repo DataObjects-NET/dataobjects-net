@@ -79,6 +79,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void ForeignKeyTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ForeignKeyConstraints);
+
       var isConcreteTable = Domain.Model.Types["B"].Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable;
       if (!isConcreteTable) {
         Assert.AreEqual(1, Schema.Tables["B"].ForeignKeys.Count);

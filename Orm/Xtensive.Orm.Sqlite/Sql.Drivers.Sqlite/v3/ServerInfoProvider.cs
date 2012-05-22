@@ -118,6 +118,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       primaryKeyInfo.MaxIdentifierLength = MaxIdentifierLength;
       primaryKeyInfo.Features = PrimaryKeyConstraintFeatures.Clustered;
       primaryKeyInfo.AllowedDdlStatements = DdlStatements.All;
+      primaryKeyInfo.ConstantName = Extractor.PrimaryKeyName;
       return primaryKeyInfo;
     }
 

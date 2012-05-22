@@ -29,16 +29,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       get { return @"{0}{1}"; }
     }
 
-    public override string FloatFormatString
-    {
-      get { return base.FloatFormatString; }
-    }
-
-    public override string DoubleFormatString
-    {
-      get { return base.DoubleFormatString; }
-    }
-
     /// <inheritdoc/>
     public override string DdlStatementDelimiter
     {
@@ -405,13 +395,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         }
       }
       return string.Empty;
-    }
-
-    /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlRenameTable node)
-    {
-      //http://stackoverflow.com/questions/805363/how-do-i-rename-a-column-in-a-sqlite-database-table
-      return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(context, node.Table), node.NewName);
     }
 
     /// <inheritdoc/>
