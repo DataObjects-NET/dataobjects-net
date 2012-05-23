@@ -186,9 +186,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       var types = new DataTypeCollection();
 
-      var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.NonKeyIndexing | DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
+      var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable
+        | DataTypeFeatures.NonKeyIndexing | DataTypeFeatures.Grouping
+        | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
 
-      var index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering | DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
+      var index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering
+        | DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
 
       var identity = DataTypeFeatures.Identity;
 
@@ -208,23 +211,24 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index, ValueRange.Double, "float");
 
-      types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index, new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12, 31)), "datetime");
+      types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index, ValueRange.DateTime, "datetime");
 
-      types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar", "char");
-      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "varchar", "nvarchar");
-      types.VarCharMax = DataTypeInfo.Stream(SqlType.VarCharMax, common, Int32.MaxValue, "text", "xml");
+      types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common | index,
+        "varchar", "nvarchar", "nchar", "char", "text", "xml");
+      types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "blob");
 
-      //types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "blob");
-      types.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, common, Int32.MaxValue, "blob");
-
-      types.Guid = DataTypeInfo.Regular(SqlType.Guid, common | index, "uniqueidentifier");
+      types.Guid = DataTypeInfo.Regular(SqlType.Guid, common | index, "uniqueidentifier", "guid");
 
       return types;
     }
 
     public override IsolationLevels GetIsolationLevels()
     {
-      var levels = IsolationLevels.ReadUncommitted | IsolationLevels.ReadCommitted | IsolationLevels.RepeatableRead | IsolationLevels.Serializable | IsolationLevels.Snapshot;
+      var levels = IsolationLevels.ReadUncommitted
+        | IsolationLevels.ReadCommitted
+        | IsolationLevels.RepeatableRead
+        | IsolationLevels.Serializable
+        | IsolationLevels.Snapshot;
       return levels;
     }
 

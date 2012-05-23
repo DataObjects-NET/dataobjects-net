@@ -37,36 +37,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return false;
     }
 
-//#if NET40
-//    [SecuritySafeCritical]
-//#endif
-//    public override void SetStringParameterValue(DbParameter parameter, object value)
-//    {
-//      string text = value as string;
-//      if (!string.IsNullOrEmpty(text) && text.Length > VarCharMaxLength) {
-//        var sqlParameter = (SQLiteParameter) parameter;
-//        sqlParameter.InitializeLifetimeService()` = SqlDbType.NText;
-//        sqlParameter.Value = text;
-//      }
-//      else
-//        base.SetStringParameterValue(parameter, value);
-//    }
-
-//#if NET40
-//    [SecuritySafeCritical]
-//#endif
-//    public override void SetByteArrayParameterValue(DbParameter parameter, object value)
-//    {
-//      var array = value as byte[];
-//      if (array != null && array.Length > VarBinaryMaxLength) {
-//        var sqlParameter = (SQLiteParameter) parameter;
-//        sqlParameter.SqlDbType = SqlDbType.Image;
-//        sqlParameter.Value = array;
-//      }
-//      else
-//        base.SetByteArrayParameterValue(parameter, value);
-//    }
-
     public override object ReadBoolean(DbDataReader reader, int index)
     {
       var value = reader.GetDecimal(index);
@@ -113,6 +83,21 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
       else
         parameter.Value = DBNull.Value;
+    }
+
+    public override SqlValueType BuildCharSqlType(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.VarCharMax);
+    }
+
+    public override SqlValueType BuildStringSqlType(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.VarCharMax);
+    }
+
+    public override SqlValueType BuildByteArraySqlType(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.VarBinaryMax);
     }
 
     public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)

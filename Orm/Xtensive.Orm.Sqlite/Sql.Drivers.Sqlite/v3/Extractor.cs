@@ -103,9 +103,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             var tableColumn = table.CreateColumn(reader.GetString(1));
 
             //Column Type
-            //var empty = reader.GetString(2);
-            //var empty2 = empty;
-            tableColumn.DataType = CreateValueType(reader, 2);
+            tableColumn.DataType = CreateValueType(reader.GetString(2));
 
             //IsNullable
             tableColumn.IsNullable = ReadInt(reader, 3)==0;
@@ -227,81 +225,41 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return ReferentialAction.NoAction;
     }
 
-    private SqlValueType CreateValueType(IDataRecord row, int typeNameIndex) //, int precisionIndex, int scaleIndex, int charLengthIndex
+    private static readonly Regex SpacePattern = new Regex(
+      @"\s+", RegexOptions.Compiled);
+    private static readonly Regex NumberPattern = new Regex(
+      @"(?<DataType>\w+)\((?<Precision>\d+)(,\s?(?<Scale>\d+))?\)", RegexOptions.Compiled);
+
+    private SqlValueType CreateValueType(string typeDefinition)
     {
-      string realType;
-      int precision = 0;
-      int scale = 0;
+      typeDefinition = typeDefinition.ToLowerInvariant();
 
-      string typeName = row.GetString(typeNameIndex);
-      typeName = typeName.ToUpperInvariant();
+      string typeName = typeDefinition;
 
-      var spacePattern = new Regex(@"\s+");
-      var numberPattern = new Regex(@"(?<DataType>\w+)\((?<Precision>\d+)(,\s?(?<Scale>\d+))?\)"); //to get TYPE(P, S) e.g. NUMBER(5,2)
+      int precision = -1;
+      int scale = -1;
 
-      var spacelessNumber = spacePattern.Replace(typeName, @" ");
-      var match = numberPattern.Match(spacelessNumber);
+      var match = NumberPattern.Match(SpacePattern.Replace(typeDefinition, @" "));
       if (match.Success) {
-        realType = match.Groups["DataType"].Value;
-
+        typeName = match.Groups["DataType"].Value;
         if (match.Groups["Precision"].Value!=string.Empty)
           precision = int.Parse(match.Groups["Precision"].Value);
         if (match.Groups["Scale"].Value!=string.Empty)
           scale = int.Parse(match.Groups["Scale"].Value);
       }
-      else {
-        realType = typeName;
-        precision = 0;
-        scale = 0;
+
+      var sqlTypeInfo = Driver.ServerInfo.DataTypes[typeName];
+
+      if (sqlTypeInfo==null)
+        return new SqlValueType(typeName);
+
+      if (sqlTypeInfo.Type==SqlType.Decimal) {
+        if (precision >= 0 && scale >= 0)
+          return new SqlValueType(SqlType.Decimal, precision, scale > precision ? precision : scale);
+        return new SqlValueType(SqlType.Decimal, DefaultPrecision, DefaultScale);
       }
 
-      if (realType=="NUMBER" || realType=="NUMERIC" || realType=="DOUBLE" || realType=="REAL" || realType=="FLOAT") {
-        if (precision < scale)
-          precision = scale; //cheat
-        return new SqlValueType(SqlType.Decimal, precision, scale);
-      }
-
-      if (realType.Contains("INT") || realType.Contains("AUTOINC"))
-        // ignoring details because of resulting affinity
-        // although they can be read as "scale" and "precision"
-        return new SqlValueType(SqlType.Int32);
-
-      if (realType.StartsWith("CURRENCY"))
-        // "current precision" is saved as "scale", ignoring too
-        return new SqlValueType(SqlType.Double);
-
-      if (realType.StartsWith("TIME"))
-        // "timestamp precision" is saved as "scale", ignoring too
-        return new SqlValueType(SqlType.DateTime);
-
-      if (realType.StartsWith("BOOLEAN"))
-        return new SqlValueType(SqlType.Boolean);
-
-      if (realType.StartsWith("DATE"))
-        // "timestamp precision" is saved as "scale", ignoring too
-        return new SqlValueType(SqlType.DateTime);
-
-      if (realType.Contains("MEMO") || realType.Contains("TEXT")) {
-        precision = precision==0 ? int.MaxValue : precision;
-        return new SqlValueType(SqlType.VarCharMax);
-      }
-
-      if (realType.Contains("BLOB") || realType.Contains("GRAPHIC") || realType.Contains("IMAGE"))
-        return new SqlValueType(SqlType.Binary);
-
-      if (realType=="CHAR" || realType=="NCHAR") {
-        precision = precision==0 ? int.MaxValue : precision;
-        return new SqlValueType(SqlType.Char, precision);
-      }
-
-      if (realType.Contains("CHAR")) {
-        precision = precision==0 ? int.MaxValue : precision;
-        return new SqlValueType(SqlType.VarChar, precision);
-      }
-
-      var typeInfo = Driver.ServerInfo.DataTypes[realType];
-
-      return typeInfo!=null ? new SqlValueType(typeInfo.Type) : new SqlValueType(realType);
+      return new SqlValueType(sqlTypeInfo.Type);
     }
 
     private static int ReadInt(IDataRecord row, int index)
