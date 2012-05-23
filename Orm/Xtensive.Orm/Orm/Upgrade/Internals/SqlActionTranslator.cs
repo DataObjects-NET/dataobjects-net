@@ -324,16 +324,11 @@ namespace Xtensive.Orm.Upgrade
       RenameSchemaTable(oldTable, oldTable.Schema, newTableNode.Schema, newTableNode.Name);
     }
 
-    private void RecreateTableWithNewName(Table oldTable, Schema newSchema, string newName,
-      Func<TableColumn, bool> columnFilter = null)
+    private void RecreateTableWithNewName(Table oldTable, Schema newSchema, string newName)
     {
       var newTable = newSchema.CreateTable(newName);
 
-      var columns = oldTable.TableColumns.AsEnumerable();
-      if (columnFilter!=null)
-        columns = columns.Where(columnFilter);
-
-      foreach (var item in columns) {
+      foreach (var item in oldTable.TableColumns) {
         var column = newTable.CreateColumn(item.Name, item.DataType);
         column.DbName = item.DbName;
         column.IsNullable = item.IsNullable;
@@ -342,8 +337,13 @@ namespace Xtensive.Orm.Upgrade
       currentOutput.RegisterCommand(SqlDdl.Create(newTable));
 
       // Copying data from one table to another
+      var oldTableRef = SqlDml.TableRef(oldTable);
+      var select = SqlDml.Select(oldTableRef);
+
+      foreach (var item in oldTable.Columns)
+        select.Columns.Add(oldTableRef[item.Name]);
+
       var insert = SqlDml.Insert(SqlDml.TableRef(newTable));
-      var select = SqlDml.Select(SqlDml.TableRef(oldTable));
       insert.From = select;
       currentOutput.RegisterCommand(insert);
 
