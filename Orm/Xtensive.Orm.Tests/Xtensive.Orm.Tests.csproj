@@ -524,10 +524,6 @@
     <Compile Include="Upgrade\TypeIdUpgrade\Single2ManyClassesTest.cs" />
     <Compile Include="Upgrade\TypeIdUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\TypeIdUpgrade\VersionUpgradeTest.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly0.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly1.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly2.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\UpgradeHandlersSortingTest.cs" />
     <Compile Include="Upgrade\Upgrader.cs" />
     <Compile Include="Upgrade\ModelConversion\ConvertDomainModelTest.cs" />
     <Compile Include="Indexing\ForeignKeyInfoTest.cs" />
