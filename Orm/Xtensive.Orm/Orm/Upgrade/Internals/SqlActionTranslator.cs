@@ -328,11 +328,24 @@ namespace Xtensive.Orm.Upgrade
     {
       var newTable = newSchema.CreateTable(newName);
 
-      foreach (var item in oldTable.TableColumns) {
-        var column = newTable.CreateColumn(item.Name, item.DataType);
-        column.DbName = item.DbName;
-        column.IsNullable = item.IsNullable;
+      // Clone table definition
+      foreach (var oldColumn in oldTable.TableColumns) {
+        var newColumn = newTable.CreateColumn(oldColumn.Name, oldColumn.DataType);
+        newColumn.DbName = oldColumn.DbName;
+        newColumn.IsNullable = oldColumn.IsNullable;
       }
+
+      // Clone primary key
+      var oldPrimaryKey = oldTable.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
+      if (oldPrimaryKey!=null) {
+        var newPrimaryKey = newTable.CreatePrimaryKey(oldTable.Name);
+        foreach (var oldColumn in oldPrimaryKey.Columns)
+          newPrimaryKey.Columns.Add(newTable.TableColumns[oldColumn.Name]);
+      }
+
+      // Skip cloning FKs:
+      // Only SQLite can not add FK via separate statement and FKs are disabled for it
+      // So there is not reason to clone FKs here
 
       currentOutput.RegisterCommand(SqlDdl.Create(newTable));
 

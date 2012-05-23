@@ -71,7 +71,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case SqlFunctionType.Truncate:
       case SqlFunctionType.Position:
       case SqlFunctionType.Power:
-        throw new NotSupportedException();
+        throw SqlHelper.NotSupported(functionType.ToString());
       case SqlFunctionType.Concat:
         return "||";
       case SqlFunctionType.IntervalAbs:
@@ -156,7 +156,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case AlterTableSection.Exit:
         return string.Empty;
       default:
-        throw SqlHelper.NotSupported(node);
+        throw SqlHelper.NotSupported(node.Action.GetType().Name);
       }
     }
 
@@ -237,7 +237,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlDropSchema node)
     {
-      throw SqlHelper.NotSupported(node);
+      throw SqlHelper.NotSupported(node.GetType().Name);
     }
 
     /// <inheritdoc/>
@@ -332,22 +332,23 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case ExtractSection.From:
         if (extract.DateTimePart==SqlDateTimePart.Year)
           return "'%Y'";
-        else if (extract.DateTimePart==SqlDateTimePart.Month)
+        if (extract.DateTimePart==SqlDateTimePart.Month)
           return "'%m'";
-        else if (extract.DateTimePart==SqlDateTimePart.Day)
+        if (extract.DateTimePart==SqlDateTimePart.Day)
           return "'%d'";
-        else if (extract.DateTimePart==SqlDateTimePart.DayOfWeek)
+        if (extract.DateTimePart==SqlDateTimePart.DayOfWeek)
           return "'%w'";
-        else if (extract.DateTimePart==SqlDateTimePart.Hour)
+        if (extract.DateTimePart==SqlDateTimePart.Hour)
           return "'%H'";
-        else if (extract.DateTimePart==SqlDateTimePart.Minute)
+        if (extract.DateTimePart==SqlDateTimePart.Minute)
           return "'%M'";
-        else if (extract.DateTimePart==SqlDateTimePart.Second)
+        if (extract.DateTimePart==SqlDateTimePart.Second)
           return "'%s'";
-        else if (extract.DateTimePart==SqlDateTimePart.Millisecond)
+        if (extract.DateTimePart==SqlDateTimePart.Millisecond)
           return "'%f'";
-        else
-          throw new NotSupportedException(extract.ToString());
+        throw extract.DateTimePart!=SqlDateTimePart.Nothing
+          ? SqlHelper.NotSupported(extract.DateTimePart.ToString())
+          : SqlHelper.NotSupported(extract.IntervalPart.ToString());
       case ExtractSection.Exit:
         return ")";
       default:
@@ -400,7 +401,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
     {
-      throw SqlHelper.NotSupported(action);
+      throw SqlHelper.NotSupported(action.GetType().Name);
     }
 
     /// <inheritdoc/>
@@ -498,7 +499,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case SqlNodeType.BitAnd:
       case SqlNodeType.BitOr:
       case SqlNodeType.BitXor:
-        throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type));
+        throw SqlHelper.NotSupported(type.ToString());
       default:
         return base.Translate(type);
       }
