@@ -79,7 +79,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       parameter.DbType = DbType.Int64;
       if (value!=null) {
         var timeSpan = (TimeSpan) value;
-        parameter.Value = (long) timeSpan.Ticks*100;
+        parameter.Value = timeSpan.Ticks*100;
       }
       else
         parameter.Value = DBNull.Value;
@@ -117,7 +117,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 20, 0);
+      return new SqlValueType(SqlType.Int64);
     }
 
     public override SqlValueType BuildTimeSpanSqlType(int? length, int? precision, int? scale)
@@ -127,14 +127,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override object ReadTimeSpan(DbDataReader reader, int index)
     {
-      long value = 0L;
+      long value;
       try {
         value = reader.GetInt64(index);
       }
       catch (InvalidCastException) {
         value = (long) reader.GetDecimal(index);
       }
-      return TimeSpan.FromTicks(value/100);
+      return TimeSpan.FromTicks(value / 100);
     }
 
     public override void Initialize()
