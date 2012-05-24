@@ -7,6 +7,7 @@
 using System;
 using System.Text;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -97,14 +98,24 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override string Translate(SqlCompilerContext context, object literalValue)
     {
       var literalType = literalValue.GetType();
-      if (literalType == typeof(TimeSpan))
+      if (literalType==typeof(byte[]))
+        return ByteArrayToString((byte[]) literalValue);
+      if (literalType==typeof (TimeSpan))
         return TimeSpanToString(((TimeSpan) literalValue), TimeSpanFormatString);
-      else if (literalType == typeof(Boolean))
-        return ((Boolean)literalValue) ? "1" : "0";
-      else if (literalType == typeof(Guid))
-        return string.Format("'{0}'", ((Guid) literalValue)); 
-      else        
-        return base.Translate(context, literalValue);
+      if (literalType==typeof (Boolean))
+        return ((Boolean) literalValue) ? "1" : "0";
+      if (literalType==typeof (Guid))
+        return ByteArrayToString(((Guid) literalValue).ToByteArray());
+      return base.Translate(context, literalValue);
+    }
+
+    private string ByteArrayToString(byte[] literalValue)
+    {
+      var result = new StringBuilder(literalValue.Length * 2 + 3);
+      result.Append("x'");
+      result.AppendHexArray(literalValue);
+      result.Append("'");
+      return result.ToString();
     }
 
     public static string TimeSpanToString(TimeSpan value, string format)
