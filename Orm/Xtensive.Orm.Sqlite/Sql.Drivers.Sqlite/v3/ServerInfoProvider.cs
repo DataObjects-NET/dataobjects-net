@@ -143,7 +143,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       indexInfo.MaxNumberOfColumns = 16;
       indexInfo.MaxLength = 900;
       indexInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      indexInfo.Features = IndexFeatures.Unique | IndexFeatures.SortOrder;
+      // SQLite supports sort order but this is not enabled by default
+      // Also extract is incapable of extracting such information anyway
+      indexInfo.Features = IndexFeatures.Unique;
       indexInfo.PartitionMethods = PartitionMethods.None;
       return indexInfo;
     }
@@ -172,7 +174,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.Savepoints | ServerFeatures.TransactionalKeyGenerators;
+      return ServerFeatures.Savepoints
+        | ServerFeatures.TransactionalKeyGenerators
+        | ServerFeatures.SingleSessionAccess;
     }
 
     public override IdentityInfo GetIdentityInfo()

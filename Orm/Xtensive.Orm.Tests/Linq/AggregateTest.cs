@@ -71,7 +71,14 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Order>().Select(o => o.Freight).Sum();
       var expected = Orders.Select(o => o.Freight).Sum();
-      Assert.AreEqual(expected, result);
+
+      Assert.That(result.HasValue);
+      Assert.That(expected.HasValue);
+
+      var delta = Math.Abs(result.Value - expected.Value);
+
+      // Add some tolerance
+      Assert.That(delta, Is.LessThan(0.000000001m));
       Assert.Greater(result, 0);
     }
 

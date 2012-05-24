@@ -21,6 +21,11 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class LockTest : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
+    }
+
     [Test]
     public void UpdateLockThrowTest()
     {

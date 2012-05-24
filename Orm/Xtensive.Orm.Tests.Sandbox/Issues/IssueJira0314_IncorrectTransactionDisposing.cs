@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Issues.IssueJira0314_IncorrectTransactionDisposingModel;
 
@@ -34,8 +35,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override void CheckRequirements()
     {
-      // SQLite does not like hardcore concurrect access
-      Require.ProviderIsNot(StorageProvider.Sqlite);
+      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
     }
 
     protected override DomainConfiguration BuildConfiguration()
