@@ -99,7 +99,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override TemporaryTableInfo GetTemporaryTableInfo()
     {
-      return null;
+      var temporaryTableInfo = new TemporaryTableInfo();
+      temporaryTableInfo.MaxIdentifierLength = MaxIdentifierLength;
+      temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
+      temporaryTableInfo.Features = TemporaryTableFeatures.Local;
+      return temporaryTableInfo;
     }
 
     public override CheckConstraintInfo GetCheckConstraintInfo()
@@ -176,8 +180,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       return ServerFeatures.Savepoints
         | ServerFeatures.TransactionalKeyGenerators
-        | ServerFeatures.SingleSessionAccess
-        | ServerFeatures.TemporaryTableEmulation;
+        | ServerFeatures.SingleSessionAccess;
     }
 
     public override IdentityInfo GetIdentityInfo()
