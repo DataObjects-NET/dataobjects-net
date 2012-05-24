@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Providers
       if (serverFeatures.Supports(ServerFeatures.TransactionalKeyGenerators))
         f |= ProviderFeatures.TransactionalKeyGenerators;
       if (serverInfo.Column.AllowedDdlStatements.Supports(DdlStatements.Drop))
-        f |= ProviderFeatures.ColumnDrop;
+        f |= ProviderFeatures.ColumnDrop | ProviderFeatures.ColumnTypeChange;
       if (serverFeatures.Supports(ServerFeatures.SingleSessionAccess))
         f |= ProviderFeatures.SingleSessionAccess;
 
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Providers
 
       var column = serverInfo.Column;
       if ((column.AllowedDdlStatements & DdlStatements.Alter)==DdlStatements.Alter)
-        f |= ProviderFeatures.ColumnRename;
+        f |= ProviderFeatures.ColumnRename | ProviderFeatures.ColumnTypeChange;
 
       var table = serverInfo.Table;
       if ((table.AllowedDdlStatements & DdlStatements.Rename)==DdlStatements.Rename)

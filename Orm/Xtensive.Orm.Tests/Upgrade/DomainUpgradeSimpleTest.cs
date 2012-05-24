@@ -10,6 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Disposing;
 using Xtensive.Core;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion1;
 using SimpleVersion1 = Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion1;
 
@@ -19,6 +20,12 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class DomainUpgradeSimpleTest
   {
     private Domain domain;
+
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.ColumnTypeChange);
+    }
 
     [SetUp]
     public void SetUp()

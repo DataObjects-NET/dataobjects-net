@@ -13,6 +13,7 @@ using Xtensive.Disposing;
 using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Testing;
@@ -28,9 +29,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [TestFixtureSetUp]
     public void TestFixtureSetUp()
     {
-      // SQLite does not support changing column types due to poor DDL capabilities.
-      // This might change in future.
-      Require.ProviderIsNot(StorageProvider.Sqlite);
+      Require.AllFeaturesSupported(ProviderFeatures.ColumnTypeChange);
     }
 
     [SetUp]

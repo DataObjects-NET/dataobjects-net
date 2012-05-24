@@ -820,11 +820,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void ChangeColumnType(PropertyChangeAction action)
     {
-      var canChangeType =
-        providerInfo.Supports(ProviderFeatures.ColumnRename)
-        || providerInfo.Supports(ProviderFeatures.ColumnDrop);
-
-      if (!canChangeType)
+      if (!providerInfo.Supports(ProviderFeatures.ColumnTypeChange))
         throw new NotSupportedException(Strings.ExCurrentStorageDoesNotSupportChangingColumnTypes);
 
       var targetColumn = (StorageColumnInfo) targetModel.Resolve(action.Path, true);
