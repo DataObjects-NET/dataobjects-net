@@ -429,7 +429,7 @@ namespace Xtensive.Orm.Upgrade
         if (!action.Properties.ContainsKey(ColumnDefaultPropertyName))
           return;
  
-      GenerateChangeColumnTypeCommands(action);
+      ChangeColumnType(action);
     }
 
     private void VisitMoveColumnAction(MoveNodeAction action)
@@ -818,20 +818,30 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
+    private void ChangeColumnType(PropertyChangeAction action)
     {
+      var canChangeType =
+        providerInfo.Supports(ProviderFeatures.ColumnRename)
+        || providerInfo.Supports(ProviderFeatures.ColumnDrop);
+
+      if (!canChangeType)
+        throw new NotSupportedException(Strings.ExCurrentStorageDoesNotSupportChangingColumnTypes);
+
       var targetColumn = (StorageColumnInfo) targetModel.Resolve(action.Path, true);
       var sourceColumn = (StorageColumnInfo) sourceModel.Resolve(action.Path, true);
       var column = FindColumn(targetColumn.Parent, targetColumn.Name);
       var table = column.Table;
       var originalName = column.Name;
-      
+
+      var upgradeOutput = currentOutput.ForStage(SqlUpgradeStage.Upgrade);
+      var cleanupOutput = currentOutput.ForStage(SqlUpgradeStage.Cleanup);
+
       // Rename old column
       var tempName = GetTemporaryName(column);
       RenameColumn(column, tempName);
 
       // Create new columns
-      var newTypeInfo = targetColumn.Type as StorageTypeInfo;
+      var newTypeInfo = targetColumn.Type;
       var newSqlType = (SqlValueType) newTypeInfo.NativeType;
       var newColumn = table.CreateColumn(originalName, newSqlType);
       
@@ -840,7 +850,7 @@ namespace Xtensive.Orm.Upgrade
         newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
 
       var addNewColumn = SqlDdl.Alter(table, SqlDdl.AddColumn(newColumn));
-      var upgradeOutput = currentOutput.ForStage(SqlUpgradeStage.Upgrade);
+
       upgradeOutput.RegisterCommand(addNewColumn);
 
       // Copy values if possible to convert type
@@ -849,7 +859,7 @@ namespace Xtensive.Orm.Upgrade
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable) {
-          if (sourceColumn.Type.Type.StripNullable() == typeof(string) && newSqlType.Length < column.DataType.Length)
+          if (sourceColumn.Type.Type.StripNullable()==typeof (string) && newSqlType.Length < column.DataType.Length)
             copyValues.Values[tableRef[originalName]] = SqlDml.Cast(SqlDml.Substring(tableRef[tempName], 0, newSqlType.Length), newSqlType);
           else
             copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
@@ -863,8 +873,6 @@ namespace Xtensive.Orm.Upgrade
         upgradeOutput.BreakBatch();
         upgradeOutput.RegisterCommand(copyValues);
       }
-
-      var cleanupOutput = currentOutput.ForStage(SqlUpgradeStage.Cleanup);
 
       // Drop old column
       DropDefaultConstraint(column, cleanupOutput);

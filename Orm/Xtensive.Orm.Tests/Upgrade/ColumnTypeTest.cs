@@ -25,6 +25,14 @@ namespace Xtensive.Orm.Tests.Upgrade
   {
     private Domain domain;
 
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      // SQLite does not support changing column types due to poor DDL capabilities.
+      // This might change in future.
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+    }
+
     [SetUp]
     public void SetUp()
     {
