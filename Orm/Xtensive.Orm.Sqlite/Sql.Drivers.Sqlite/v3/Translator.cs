@@ -500,16 +500,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case SqlNodeType.DateTimeMinusInterval:
       case SqlNodeType.DateTimeMinusDateTime:
         return "-";
-      case SqlNodeType.Equals:
-        return "=";
-      case SqlNodeType.NotEquals:
-        return "<>";
-      case SqlNodeType.Modulo:
-        return "%";
       case SqlNodeType.Overlaps:
-      case SqlNodeType.BitAnd:
-      case SqlNodeType.BitOr:
-      case SqlNodeType.BitXor:
         throw SqlHelper.NotSupported(type.ToString());
       default:
         return base.Translate(type);

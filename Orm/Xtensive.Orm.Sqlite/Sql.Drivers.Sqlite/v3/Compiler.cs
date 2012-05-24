@@ -32,6 +32,23 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return base.VisitCreateTableConstraints(node, constraints, hasItems);
     }
 
+    public override void Visit(SqlBinary node)
+    {
+      // Bit XOR is not supported by SQLite
+      // but it can be easily emulated using remaining bit operators
+
+      if (node.NodeType==SqlNodeType.BitXor) {
+        // A ^ B = (A | B) & ~(A & B)
+        var replacement = SqlDml.BitAnd(
+          SqlDml.BitOr(node.Left, node.Right),
+          SqlDml.BitNot(SqlDml.BitAnd(node.Left, node.Right)));
+        replacement.AcceptVisitor(this);
+        return;
+      }
+
+      base.Visit(node);
+    }
+
     public override void Visit(SqlAlterTable node)
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
