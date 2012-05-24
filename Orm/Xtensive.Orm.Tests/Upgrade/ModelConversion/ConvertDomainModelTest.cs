@@ -46,6 +46,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void BaseTest()
     {
       int typeIdCount = IncludeTypeIdModifier.IsEnabled ? 1 : 0;
+
       Assert.IsNotNull(Schema);
       Assert.IsNotNull(Schema.Tables["A"]);
       Assert.IsNotNull(Schema.Tables["A"].PrimaryIndex);
@@ -54,8 +55,10 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.AreEqual(1, Schema.Tables["A"].SecondaryIndexes.Count);
       Assert.AreEqual(2, Schema.Tables["A"].SecondaryIndexes[0].KeyColumns.Count);
       Assert.IsTrue(Schema.Tables["A"].SecondaryIndexes[0].IsUnique);
-      Assert.AreEqual(new StorageTypeInfo(typeof (string), 125, null),
-        Schema.Tables["A"].Columns["Col3"].Type);
+
+      // SQLite does not use lenght constraints for varchar types
+      if (Domain.StorageProviderInfo.ProviderName!=WellKnown.Provider.Sqlite)
+        Assert.AreEqual(new StorageTypeInfo(typeof (string), 125, null), Schema.Tables["A"].Columns["Col3"].Type);
 
       Assert.IsNotNull(Schema.Tables["B"]);
       Assert.IsNotNull(Schema.Tables["B"].PrimaryIndex);
