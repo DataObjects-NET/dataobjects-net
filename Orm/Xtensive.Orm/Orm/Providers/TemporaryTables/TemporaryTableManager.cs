@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Sql;
-using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Tuples;
 
@@ -24,10 +23,10 @@ namespace Xtensive.Orm.Providers
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
+    private TemporaryTableBackEnd backEnd;
     private DomainHandler domainHandler;
-    private ProviderInfo providerInfo;
 
-    public bool Supported { get; private set; }
+    public bool Supported { get { return backEnd!=null; } }
 
     /// <summary>
     /// Builds the descriptor of a temporary table.
@@ -70,7 +69,7 @@ namespace Xtensive.Orm.Providers
 
       // table
       var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, name));
-      var table = CreateTemporaryTable(schema, tableName);
+      var table = backEnd.CreateTemporaryTable(schema, tableName);
       var typeMappings = source
         .Select(driver.GetTypeMapping)
         .ToArray();
@@ -133,58 +132,17 @@ namespace Xtensive.Orm.Providers
 
       bool isLocked;
       if (!registry.States.TryGetValue(name, out isLocked))
-        InitializeTable(context, descriptor);
+        backEnd.InitializeTable(context, descriptor);
       else if (isLocked)
         return null;
 
       registry.States[name] = true;
-      AcquireTable(context, descriptor);
+      backEnd.AcquireTable(context, descriptor);
 
       return new Disposable(disposing => {
-        ReleaseTable(context, descriptor);
+        backEnd.ReleaseTable(context, descriptor);
         registry.States[name] = false;
       });
-    }
-
-    /// <summary>
-    /// Creates the temporary table with the specified name.
-    /// </summary>
-    /// <param name="schema">The schema to create table in.</param>
-    /// <param name="tableName">Name of the table.</param>
-    /// <returns>Created table.</returns>
-    protected virtual Table CreateTemporaryTable(Schema schema, string tableName)
-    {
-      return schema.CreateTemporaryTable(tableName);
-    }
-
-    /// <summary>
-    /// Initializes the table. This is called once per session on a first acquire request.
-    /// </summary>
-    /// <param name="descriptor">The descriptor.</param>
-    protected virtual void InitializeTable(EnumerationContext context, TemporaryTableDescriptor descriptor)
-    {
-      ExecuteNonQuery(context, descriptor.CreateStatement);
-    }
-
-    /// <summary>
-    /// Gets the lock on a temporary table.
-    /// </summary>
-    /// <param name="descriptor">The descriptor.</param>
-    protected virtual void AcquireTable(EnumerationContext context, TemporaryTableDescriptor descriptor)
-    {
-    }
-
-    /// <summary>
-    /// Releases the lock on a temporary table.
-    /// </summary>
-    /// <param name="descriptor">The descriptor.</param>
-    protected virtual void ReleaseTable(EnumerationContext context, TemporaryTableDescriptor descriptor)
-    {
-    }
-
-    protected virtual bool CheckIsSupported()
-    {
-      return providerInfo.Supports(ProviderFeatures.TemporaryTables);
     }
 
     protected void ExecuteNonQuery(EnumerationContext context, string statement)
@@ -207,8 +165,13 @@ namespace Xtensive.Orm.Providers
     protected override void Initialize()
     {
       domainHandler = Handlers.DomainHandler;
-      providerInfo = Handlers.ProviderInfo;
-      Supported = CheckIsSupported();
+
+      var providerInfo = Handlers.ProviderInfo;
+
+      if (providerInfo.Supports(ProviderFeatures.TemporaryTables))
+        backEnd = new RealTemporaryTableBackEnd();
+      else if (providerInfo.Supports(ProviderFeatures.TemporaryTableEmulation))
+        backEnd = new EmulatedTemporaryTableBackEnd();
     }
   }
 }

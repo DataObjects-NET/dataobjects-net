@@ -176,6 +176,9 @@
     <Compile Include="Orm\Providers\Persister.cs" />
     <Compile Include="Orm\Providers\SequenceQueryCompartment.cs" />
     <Compile Include="Orm\Providers\SessionHandler.Fetching.cs" />
+    <Compile Include="Orm\Providers\TemporaryTables\EmulatedTemporaryTableBackEnd.cs" />
+    <Compile Include="Orm\Providers\TemporaryTables\RealTemporaryTableBackEnd.cs" />
+    <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableBackend.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />

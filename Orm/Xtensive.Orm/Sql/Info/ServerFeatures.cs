@@ -63,5 +63,12 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS allows only one session to modify database.
     /// </summary>
     SingleSessionAccess = 1 << 7,
+
+    /// <summary>
+    /// Indicates whether RDBMS will perform well if regular tables are used
+    /// instead of temporary. This has effect only if database does not support
+    /// local temporary tables.
+    /// </summary>
+    TemporaryTableEmulation = 1 << 8,
   }
 }

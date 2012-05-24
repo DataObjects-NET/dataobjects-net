@@ -176,7 +176,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       return ServerFeatures.Savepoints
         | ServerFeatures.TransactionalKeyGenerators
-        | ServerFeatures.SingleSessionAccess;
+        | ServerFeatures.SingleSessionAccess
+        | ServerFeatures.TemporaryTableEmulation;
     }
 
     public override IdentityInfo GetIdentityInfo()

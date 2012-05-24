@@ -60,6 +60,7 @@ namespace Xtensive.Orm.Providers
     TransactionalKeyGenerators = 1L << 42,
     ColumnDrop = 1L << 43,
     SingleSessionAccess = 1L << 44,
+    TemporaryTableEmulation = 1L << 45,
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
