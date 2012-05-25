@@ -61,7 +61,8 @@ namespace Xtensive.Orm.Providers
     ColumnDrop = 1L << 43,
     SingleSessionAccess = 1L << 44,
     TemporaryTableEmulation = 1L << 45,
-    ColumnTypeChange = 1L << 46,
+
+    // Feature groups
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,

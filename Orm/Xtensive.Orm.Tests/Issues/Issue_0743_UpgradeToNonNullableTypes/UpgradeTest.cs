@@ -22,12 +22,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.ColumnTypeChange);
-    }
-
     [SetUp]
     public void SetUp()
     {

@@ -147,8 +147,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpdateTypeIdWithMutualRenameTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ColumnTypeChange);
-
       Require.ProviderIsNot(StorageProvider.Firebird);
 
       int personTypeId;
@@ -180,8 +178,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpgradeToVersion2Test()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ColumnTypeChange);
-
       Require.ProviderIsNot(StorageProvider.Firebird);
 
       BuildDomain("2", DomainUpgradeMode.Perform);

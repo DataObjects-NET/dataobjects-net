@@ -29,16 +29,14 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   internal sealed class SqlActionTranslator
   {
-    private const string OldTablesPrefix = "VeryOldStuff_";
     private const string SubqueryAliasName = "th";
-    private const string TemporaryColumnNameFormat = "Temp{0}";
+    private const string TemporaryNameFormat = "Temp{0}";
     private const string SubqueryTableAliasNameFormat = "a{0}";
     private const string ColumnTypePropertyName = "Type";
     private const string ColumnDefaultPropertyName = "Default";
 
     private static readonly StringComparer StringComparer = StringComparer.OrdinalIgnoreCase;
 
-    private readonly HashSet<Table> tablesToRecreate = new HashSet<Table>();
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
     private readonly List<string> enforceChangedColumns = new List<string>();
@@ -99,33 +97,11 @@ namespace Xtensive.Orm.Upgrade
       // Cleanup
       ProcessActions(Modelling.Comparison.UpgradeStage.Cleanup, SqlUpgradeStage.Cleanup);
 
-      ProcessTableRecreations();
-
       // Turn on deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         currentOutput.RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
 
       return currentOutput.Result;
-    }
-
-    private void ProcessTableRecreations()
-    {
-      if (tablesToRecreate.Count==0)
-        return;
-
-      foreach (var table in tablesToRecreate) {
-        var tableName = table.Name; // Save name for further modifications
-        var tempTableName = OldTablesPrefix + table.Name;
-        // Recreate table without dropped columns
-        RecreateTableWithNewName(table, table.Schema, tempTableName);
-        // Rename our table object
-        RenameSchemaTable(table, table.Schema, table.Schema, tempTableName);
-        // Rename table in database back to original name
-        if (providerInfo.Supports(ProviderFeatures.TableRename))
-          currentOutput.RegisterCommand(SqlDdl.Rename(table, tableName));
-        else
-          RecreateTableWithNewName(table, table.Schema, tableName);
-      }
     }
 
     private void VisitAction(NodeAction action)
@@ -394,18 +370,36 @@ namespace Xtensive.Orm.Upgrade
       if (column==null)
         return;
 
-      DropDefaultConstraint(column, currentOutput);
       DropColumn(column, currentOutput);
     }
 
     private void DropColumn(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
     {
+      DropDefaultConstraint(column, commandOutput);
+
       var table = column.Table;
-      if (providerInfo.Supports(ProviderFeatures.ColumnDrop))
+
+      if (providerInfo.Supports(ProviderFeatures.ColumnDrop)) {
         commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
-      else
-        tablesToRecreate.Add(column.Table);
+        table.TableColumns.Remove(column);
+        return;
+      }
+
+      // Save original and temporary names
+      var name = table.Name;
+      var tempName = GetTemporaryName(table);
+
+      // Recreate table without dropped column
       table.TableColumns.Remove(column);
+      RecreateTableWithNewName(table, table.Schema, tempName);
+      RenameSchemaTable(table, table.Schema, table.Schema, tempName);
+
+      // Rename table back to original name
+      if (providerInfo.Supports(ProviderFeatures.TableRename))
+        currentOutput.RegisterCommand(SqlDdl.Rename(table, name));
+      else
+        RecreateTableWithNewName(table, table.Schema, name);
+      RenameSchemaTable(table, table.Schema, table.Schema, name);
     }
 
     private void DropDefaultConstraint(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
@@ -473,7 +467,6 @@ namespace Xtensive.Orm.Upgrade
       upgradeOutput.RegisterCommand(update);
 
       // Drop old column
-      DropDefaultConstraint(column, upgradeOutput);
       DropColumn(column, upgradeOutput);
     }
 
@@ -820,9 +813,6 @@ namespace Xtensive.Orm.Upgrade
 
     private void ChangeColumnType(PropertyChangeAction action)
     {
-      if (!providerInfo.Supports(ProviderFeatures.ColumnTypeChange))
-        throw new NotSupportedException(Strings.ExCurrentStorageDoesNotSupportChangingColumnTypes);
-
       var targetColumn = (StorageColumnInfo) targetModel.Resolve(action.Path, true);
       var sourceColumn = (StorageColumnInfo) sourceModel.Resolve(action.Path, true);
       var column = FindColumn(targetColumn.Parent, targetColumn.Name);
@@ -871,7 +861,6 @@ namespace Xtensive.Orm.Upgrade
       }
 
       // Drop old column
-      DropDefaultConstraint(column, cleanupOutput);
       DropColumn(table.TableColumns[tempName], cleanupOutput);
     }
 
@@ -1009,13 +998,21 @@ namespace Xtensive.Orm.Upgrade
       table.TableColumns.Add(column);
     }
 
+    private string GetTemporaryName(Table table)
+    {
+      var tempName = string.Format(TemporaryNameFormat, table.Name);
+      var counter = 0;
+      while (table.Schema.Tables.Any(t => StringComparer.Compare(t.Name, tempName)==0))
+        tempName = string.Format(TemporaryNameFormat, table.Name + ++counter);
+      return tempName;
+    }
+
     private string GetTemporaryName(TableColumn column)
     {
-      var tempName = string.Format(TemporaryColumnNameFormat, column.Name);
+      var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
-      while (column.Table.Columns.Any(tableColumn => StringComparer.Compare(tableColumn.Name, tempName) == 0))
-        tempName = string.Format(TemporaryColumnNameFormat, column.Name + ++counter);
-
+      while (column.Table.Columns.Any(c => StringComparer.Compare(c.Name, tempName)==0))
+        tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
       return tempName;
     }
 

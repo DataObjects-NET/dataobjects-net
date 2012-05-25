@@ -21,12 +21,6 @@ namespace Xtensive.Orm.Tests.Upgrade
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.ColumnTypeChange);
-    }
-
     [SetUp]
     public void SetUp()
     {

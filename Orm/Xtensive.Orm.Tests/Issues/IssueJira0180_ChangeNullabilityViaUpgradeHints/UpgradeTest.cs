@@ -21,12 +21,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.ColumnTypeChange);
-    }
-
     [Test]
     public void NoneTest()
     {
