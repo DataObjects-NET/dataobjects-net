@@ -38,11 +38,16 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     private IEnumerator<Tuple> GetGreedyEnumerator()
     {
-      using (var cs = Context.BeginEnumeration())
-      using (Context.Activate()) {
-        foreach (var tuple in Source.ToList())
+      using (var cs = Context.BeginEnumeration()) {
+        List<Tuple> items;
+
+        using (Context.Activate())
+          items = Source.ToList();
+
+        foreach (var tuple in items)
           yield return tuple;
-        if (cs != null)
+
+        if (cs!=null)
           cs.Complete();
       }
     }
