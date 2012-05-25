@@ -13,6 +13,7 @@ using Xtensive.Disposing;
 using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Upgrade;
@@ -26,6 +27,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   {
     private Domain domain;
     private bool canConvertBoolToString;
+    private bool ignoreLengthConstraints;
 
     [SetUp]
     public void SetUp()
@@ -73,14 +75,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int32ToShortStringTest()
     {
-      ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.Perform, 3, null, null);
+      var expectedValue = ignoreLengthConstraints ? "12345" : null;
+      ChangeFieldTypeTest("FInt2", typeof (string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void Int32ToShortStringSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.PerformSafely, 3, null, null));
+      if (ignoreLengthConstraints)
+        ChangeFieldTypeTest("FInt2", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() => 
+          ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.PerformSafely, 3, null, null));
     }
 
     [Test]
@@ -107,14 +113,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void StringToShortStringTest()
     {
-      ChangeFieldTypeTest("FString5", typeof (string), "123", Mode.Perform, 3, null, null);
+      var expectedValue = ignoreLengthConstraints ? "12345" : "123";
+      ChangeFieldTypeTest("FString5", typeof (string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void StringToShortStringSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FString5", typeof (string), string.Empty, Mode.PerformSafely, 3, null, null));
+      if (ignoreLengthConstraints)
+        ChangeFieldTypeTest("FString5", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FString5", typeof (string), string.Empty, Mode.PerformSafely, 3, null, null));
     }
 
     [Test]
@@ -270,11 +280,19 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(typeof (X));
       configuration.Types.Register(typeof (TestUpgrader));
       configuration.Types.Register(typeof (FieldTypeChanger));
+      ConfigureStorageTraits(configuration);
+      domain = Domain.Build(configuration);
+    }
 
-      canConvertBoolToString = configuration.ConnectionInfo.Provider
+    private void ConfigureStorageTraits(DomainConfiguration configuration)
+    {
+      var provider = configuration.ConnectionInfo.Provider;
+
+      canConvertBoolToString = provider
         .In(WellKnown.Provider.Firebird, WellKnown.Provider.Sqlite);
 
-      domain = Domain.Build(configuration);
+      ignoreLengthConstraints = provider
+        .In(WellKnown.Provider.Sqlite);
     }
 
     private void ChangeFieldTypeTest(string fieldName, Type newColumnType, object expectedValue, DomainUpgradeMode mode, int? newLength, int? newPresicion, int? newScale)
