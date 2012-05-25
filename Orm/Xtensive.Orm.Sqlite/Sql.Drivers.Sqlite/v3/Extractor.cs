@@ -99,16 +99,16 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             var tableSchema = table.Schema;
             string tableName = table.Name;
 
-            //Column Name
+            // Column Name
             var tableColumn = table.CreateColumn(reader.GetString(1));
 
-            //Column Type
+            // Column Type
             tableColumn.DataType = CreateValueType(reader.GetString(2));
 
-            //IsNullable
+            // IsNullable
             tableColumn.IsNullable = ReadInt(reader, 3)==0;
 
-            //Default Value
+            // Default Value
             var defaultValue = ReadStringOrNull(reader, 4);
             if (!string.IsNullOrEmpty(defaultValue) && string.Compare("NULL", defaultValue, StringComparison.OrdinalIgnoreCase)!=0)
               tableColumn.DefaultValue = defaultValue;
@@ -117,8 +117,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             if (isPrimaryKey) {
               primaryKeyItems.Add(tableColumn);
               // Auto Increment
-              var autoInc = GetIncrementValue(tableName);
-              tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, autoInc, 1);
+              var incrementValue = GetIncrementValue(tableName);
+              if (incrementValue!=null)
+                tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, incrementValue, 1);
             }
           }
         }

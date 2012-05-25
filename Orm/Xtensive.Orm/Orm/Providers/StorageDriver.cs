@@ -15,6 +15,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
+using Xtensive.Sql.Model;
 using Xtensive.Threading;
 using Xtensive.Tuples;
 
@@ -91,12 +92,36 @@ namespace Xtensive.Orm.Providers
 
     private void FixExtractionResult(SqlExtractionResult result)
     {
-      var isSqlServerFamily = ProviderInfo.ProviderName.In(
-        WellKnown.Provider.SqlServer, WellKnown.Provider.SqlServerCe);
+      switch (ProviderInfo.ProviderName) {
+      case WellKnown.Provider.SqlServer:
+      case WellKnown.Provider.SqlServerCe:
+        FixExtractionResultSqlServerFamily(result);
+        break;
+      case WellKnown.Provider.Sqlite:
+        FixExtractionResultSqlite(result);
+        break;
+      }
+    }
 
-      // This code works for SQL Server and SQL Server CE
-      if (!isSqlServerFamily)
-        return;
+    private void FixExtractionResultSqlite(SqlExtractionResult result)
+    {
+      var tablesToFix =
+        result.Catalogs
+          .SelectMany(c => c.Schemas)
+          .SelectMany(s => s.Tables)
+          .Where(t => t.Name.EndsWith("-Generator")
+            && t.TableColumns.Count==1
+            && t.TableColumns[0].SequenceDescriptor==null);
+
+      foreach (var table in tablesToFix) {
+        var column = table.TableColumns[0];
+        column.SequenceDescriptor = new SequenceDescriptor(column, 1, 1);
+      }
+    }
+
+    private void FixExtractionResultSqlServerFamily(SqlExtractionResult result)
+    {
+      // Don't bother about tables for diagramming
 
       foreach (var schema in result.Catalogs.SelectMany(c => c.Schemas)) {
         var tables = schema.Tables;
