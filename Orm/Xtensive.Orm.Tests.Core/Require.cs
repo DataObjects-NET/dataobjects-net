@@ -23,12 +23,18 @@ namespace Xtensive.Orm.Tests
     {
       EnsureIsInitialized();
       if ((activeProvider & allowedProviders)==0)
-        IgnoreMe("This test is not suitable for '{0}' provider", activeProvider.ToString().ToLowerInvariant());
+        IgnoreMe(
+          "This test requires one of the following providers: {0}",
+          allowedProviders.ToString().ToLowerInvariant());
     }
 
     public static void ProviderIsNot(StorageProvider disallowedProviders)
     {
-      ProviderIs(~disallowedProviders);
+      EnsureIsInitialized();
+      if ((activeProvider & ~disallowedProviders)==0)
+        IgnoreMe(
+          "This test requires any provider except the following: {0}",
+          disallowedProviders.ToString().ToLowerInvariant());
     }
 
     public static void ProviderVersionAtLeast(Version minimalVersion)
