@@ -565,6 +565,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void StringIndexOfTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support IndexOf()");
+
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.IndexOf("tt")==3).First();
       Assert.IsNotNull(customer);
@@ -573,6 +575,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void StringIndexOfCharTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support IndexOf()");
+
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.IndexOf('t')==3).First();
       Assert.IsNotNull(customer);
@@ -704,6 +708,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MathAcosTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Acos()");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Acos(Math.Sin(o.Id))==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
@@ -712,6 +718,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MathAsinTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Asin()");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Asin(Math.Cos(o.Id))==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
@@ -720,6 +728,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MathAtanTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Atan()");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Atan(o.Id)==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
@@ -738,6 +748,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MathSinTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sin()");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Sin(o.Id)==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
@@ -746,6 +758,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MathTanTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Tan()");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Tan(o.Id)==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
@@ -778,6 +792,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MathSqrtTest()
     {
+Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Sqrt(o.Id)==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
@@ -802,6 +818,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MathPowTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Pow()");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Pow(o.Id < 1000 ? 1 : 2, 3)==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
