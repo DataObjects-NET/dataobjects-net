@@ -353,7 +353,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         if (extract.DateTimePart==SqlDateTimePart.Minute)
           return "'%M'";
         if (extract.DateTimePart==SqlDateTimePart.Second)
-          return "'%s'";
+          return "'%S'";
         if (extract.DateTimePart==SqlDateTimePart.Millisecond)
           return "'%f'";
         throw extract.DateTimePart!=SqlDateTimePart.Nothing

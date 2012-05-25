@@ -174,13 +174,32 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
-          SqlLiteral year = node.Arguments[0] as SqlLiteral;
-          SqlLiteral month = node.Arguments[1] as SqlLiteral;
-          SqlLiteral day = node.Arguments[2] as SqlLiteral;
-          Visit(SqlDml.FunctionCall("DATETIME", string.Format("{0}-{1}-{2}", translator.Translate(context, year.GetValue()), translator.Translate(context, month.GetValue()), translator.Translate(context, day.GetValue()))));
+          DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
           return;
       }
       base.Visit(node);
+    }
+
+    private SqlExpression DateTimeConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
+    {
+      // date('0000-01-01',
+      //   '+' || cast(year as varchar)        || ' years',
+      //   '+' || cast((month - 1) as varchar) || ' months',
+      //   '+' || cast((day - 1) as varchar)   || ' days')
+
+      var zeroYear = SqlDml.Literal("0000-01-01");
+      var plus = SqlDml.Literal("+");
+      var one = SqlDml.Literal(1);
+
+      var yearSuffix = SqlDml.Literal(" years");
+      var monthSuffix = SqlDml.Literal(" months");
+      var daySuffix = SqlDml.Literal(" days");
+
+      var yearModifier = SqlDml.Concat(plus, year, yearSuffix);
+      var monthModifier = SqlDml.Concat(plus, SqlDml.Subtract(month, one), monthSuffix);
+      var dayModifier = SqlDml.Concat(plus, SqlDml.Subtract(day, one), daySuffix);    
+
+      return SqlDml.FunctionCall("DATE", zeroYear, yearModifier, monthModifier, dayModifier);
     }
 
     public override void Visit(SqlQueryExpression node)
@@ -250,11 +269,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private SqlExpression DateTimeTruncate(SqlExpression date)
     {
       return SqlDml.FunctionCall("DATE", date);
-    }
-
-    private SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
-    {
-      return SqlDml.Extract(SqlDateTimePart.Second, date1) - SqlDml.Extract(SqlDateTimePart.Second, date2);
     }
 
     private static SqlCast CastToLong(SqlExpression arg)
