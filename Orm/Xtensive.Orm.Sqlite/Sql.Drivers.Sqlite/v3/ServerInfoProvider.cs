@@ -172,7 +172,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         | QueryFeatures.Limit
         | QueryFeatures.Offset
         | QueryFeatures.InsertDefaultValues
-        | QueryFeatures.StrictJoinSyntax;
+        | QueryFeatures.StrictJoinSyntax
+        | QueryFeatures.ScalarSubquery;
       return queryInfo;
     }
 
