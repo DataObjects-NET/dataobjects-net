@@ -836,6 +836,8 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     [Test]
     public void MathRoundToPlaceTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Pow() which is used in Round() translation");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => Math.Round((decimal) o.Id, 2)==0 || o.Id > 0).First();
       Assert.IsNotNull(order);
@@ -1072,6 +1074,8 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     [Test]
     public void DecimalRoundPlacesTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Pow() which is used in Round() translation");
+
       var orders = Session.Query.All<Order>();
       var order = orders.Where(o => decimal.Round(o.Id, 2)==0.00m || o.Id > 0).First();
       Assert.IsNotNull(order);

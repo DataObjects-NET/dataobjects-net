@@ -69,7 +69,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case SqlFunctionType.Sqrt:
       case SqlFunctionType.Square:
       case SqlFunctionType.Tan:
-      case SqlFunctionType.Truncate:
       case SqlFunctionType.Position:
       case SqlFunctionType.Power:
         throw SqlHelper.NotSupported(functionType.ToString());

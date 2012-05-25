@@ -109,6 +109,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           }
           break;
         case SqlFunctionType.Truncate:
+          Visit(CastToLong(node.Arguments[0]));
           return;
         case SqlFunctionType.IntervalToMilliseconds:
           Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
