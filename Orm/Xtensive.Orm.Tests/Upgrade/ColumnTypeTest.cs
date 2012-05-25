@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class ColumnTypeTest
   {
     private Domain domain;
+    private bool canConvertBoolToString;
 
     [SetUp]
     public void SetUp()
@@ -131,22 +132,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void BoolToStringTest()
     {
-      string expectedValue;
-      if (domain.Configuration.ConnectionInfo.Provider.In(WellKnown.Provider.Firebird, WellKnown.Provider.MySql)) {
-        expectedValue = "1";
-      }
-      else {
-        expectedValue = string.Empty;
-      }
-      ChangeFieldTypeTest("FBool", typeof (string), null, Mode.Perform, 100, null, null);
+      var expectedValue = canConvertBoolToString ? "1" : null;
+      ChangeFieldTypeTest("FBool", typeof (string), expectedValue, Mode.Perform, 100, null, null);
     }
 
     [Test]
     public void BoolToStringSafelyTest()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FBool", typeof (string), string.Empty, Mode.PerformSafely, 100, null, null));
+      if (canConvertBoolToString)
+        ChangeFieldTypeTest("FBool", typeof (string), "1", Mode.PerformSafely, 100, null, null);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FBool", typeof (string), string.Empty, Mode.PerformSafely, 100, null, null));
     }
 
     [Test]
@@ -273,6 +270,10 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(typeof (X));
       configuration.Types.Register(typeof (TestUpgrader));
       configuration.Types.Register(typeof (FieldTypeChanger));
+
+      canConvertBoolToString = configuration.ConnectionInfo.Provider
+        .In(WellKnown.Provider.Firebird, WellKnown.Provider.Sqlite);
+
       domain = Domain.Build(configuration);
     }
 
