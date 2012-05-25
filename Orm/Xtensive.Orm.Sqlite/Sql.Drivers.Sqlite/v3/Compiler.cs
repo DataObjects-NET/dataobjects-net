@@ -110,12 +110,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           break;
         case SqlFunctionType.Truncate:
           return;
-        case SqlFunctionType.Substring:
-          if (node.Arguments.Count==2)
-            Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1]));
-          else
-            Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Substring), node.Arguments[0], node.Arguments[1], node.Arguments[2]));
-          return;
         case SqlFunctionType.IntervalToMilliseconds:
           Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
           return;
