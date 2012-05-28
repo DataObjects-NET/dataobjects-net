@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override string DateTimeFormatString
     {
-      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\.ffffff\'"; }
+      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\.FFFFFFF\'"; }
     }
 
     /// <inheritdoc/>
