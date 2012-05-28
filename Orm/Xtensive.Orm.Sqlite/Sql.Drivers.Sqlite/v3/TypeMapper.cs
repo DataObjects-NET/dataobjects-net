@@ -85,6 +85,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         parameter.Value = DBNull.Value;
     }
 
+    public override SqlValueType BuildDecimalSqlType(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.Decimal);
+    }
+
     public override SqlValueType BuildCharSqlType(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarCharMax);

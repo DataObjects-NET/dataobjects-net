@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   {
     private Domain domain;
     private bool canConvertBoolToString;
-    private bool ignoreLengthConstraints;
+    private bool ignoreColumnPrecision;
 
     [SetUp]
     public void SetUp()
@@ -75,14 +75,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int32ToShortStringTest()
     {
-      var expectedValue = ignoreLengthConstraints ? "12345" : null;
+      var expectedValue = ignoreColumnPrecision ? "12345" : null;
       ChangeFieldTypeTest("FInt2", typeof (string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void Int32ToShortStringSafelyTest()
     {
-      if (ignoreLengthConstraints)
+      if (ignoreColumnPrecision)
         ChangeFieldTypeTest("FInt2", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
       else
         AssertEx.Throws<SchemaSynchronizationException>(() => 
@@ -113,14 +113,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void StringToShortStringTest()
     {
-      var expectedValue = ignoreLengthConstraints ? "12345" : "123";
+      var expectedValue = ignoreColumnPrecision ? "12345" : "123";
       ChangeFieldTypeTest("FString5", typeof (string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void StringToShortStringSafelyTest()
     {
-      if (ignoreLengthConstraints)
+      if (ignoreColumnPrecision)
         ChangeFieldTypeTest("FString5", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
       else
         AssertEx.Throws<SchemaSynchronizationException>(() =>
@@ -196,14 +196,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToShortDecimalTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.0), Mode.Perform, null, 2, 0);
+      var expectedValue = ignoreColumnPrecision ? 1.2m : 1m;
+      ChangeFieldTypeTest("FDecimal", typeof (decimal), expectedValue, Mode.Perform, null, 2, 0);
     }
 
     [Test]
     public void DecimalToShortDecimalSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() =>
-        ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
+      if (ignoreColumnPrecision)
+        ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
     }
 
     [Test]
@@ -215,7 +219,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToNullableDecimalTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
+      ChangeFieldTypeTest("FDecimal", typeof (decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
     }
 
     [Test]
@@ -291,7 +295,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       canConvertBoolToString = provider
         .In(WellKnown.Provider.Firebird, WellKnown.Provider.Sqlite);
 
-      ignoreLengthConstraints = provider
+      ignoreColumnPrecision = provider
         .In(WellKnown.Provider.Sqlite);
     }
 

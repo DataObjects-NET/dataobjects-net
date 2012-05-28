@@ -9,17 +9,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Extractor : Model.Extractor
   {
-    public static readonly string PrimaryKeyName = "PrimaryKey";
+    public const string PrimaryKeyName = "PrimaryKey";
 
-    private const int DefaultPrecision = 38;
-    private const int DefaultScale = 0;
     private const string SqliteSequence = "sqlite_sequence";
     private const string SqliteMaster = "sqlite_master";
 
@@ -103,7 +100,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             var tableColumn = table.CreateColumn(reader.GetString(1));
 
             // Column Type
-            tableColumn.DataType = CreateValueType(reader.GetString(2));
+            tableColumn.DataType = ParseValueType(reader.GetString(2));
 
             // IsNullable
             tableColumn.IsNullable = ReadInt(reader, 3)==0;
@@ -226,41 +223,48 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return ReferentialAction.NoAction;
     }
 
-    private static readonly Regex SpacePattern = new Regex(
-      @"\s+", RegexOptions.Compiled);
-    private static readonly Regex NumberPattern = new Regex(
-      @"(?<DataType>\w+)\((?<Precision>\d+)(,\s?(?<Scale>\d+))?\)", RegexOptions.Compiled);
-
-    private SqlValueType CreateValueType(string typeDefinition)
+    private SqlValueType ParseValueType(string typeDefinition)
     {
-      typeDefinition = typeDefinition.ToLowerInvariant();
+      string typeName = ParseTypeName(typeDefinition);
 
-      string typeName = typeDefinition;
+      // First try predefined names first
+      var typeInfo = Driver.ServerInfo.DataTypes[typeName];
+      if (typeInfo!=null)
+        return new SqlValueType(typeInfo.Type);
+     
+      // If it didn't succeed use generic matching algorithm
+      // (rules are taken from sqlite docs)
 
-      int precision = -1;
-      int scale = -1;
+      // (1) If the declared type contains the string "INT" then it is assigned INTEGER affinity.
+      if (typeName.Contains("int"))
+        return new SqlValueType(SqlType.Int64);
 
-      var match = NumberPattern.Match(SpacePattern.Replace(typeDefinition, @" "));
-      if (match.Success) {
-        typeName = match.Groups["DataType"].Value;
-        if (match.Groups["Precision"].Value!=string.Empty)
-          precision = int.Parse(match.Groups["Precision"].Value);
-        if (match.Groups["Scale"].Value!=string.Empty)
-          scale = int.Parse(match.Groups["Scale"].Value);
-      }
+      // (2) If the declared type of the column contains any of the strings "CHAR", "CLOB", or "TEXT"
+      // then that column has TEXT affinity.
+      if (typeName.Contains("char") || typeName.Contains("clob") || typeName.Contains("text"))
+        return new SqlValueType(SqlType.VarCharMax);
 
-      var sqlTypeInfo = Driver.ServerInfo.DataTypes[typeName];
+      // (3) If the declared type for a column contains the string "BLOB"
+      // or if no type is specified then the column has affinity NONE.
+      if (typeName.Contains("blob") || typeName==string.Empty)
+        return new SqlValueType(SqlType.VarBinaryMax);
 
-      if (sqlTypeInfo==null)
-        return new SqlValueType(typeName);
+      // (4) If the declared type for a column contains any of the strings
+      // "REAL", "FLOA", or "DOUB" then the column has REAL affinity.
+      if (typeName.Contains("real") || typeName.Contains("floa") || typeName.Contains("doub"))
+        return new SqlValueType(SqlType.Double);
 
-      if (sqlTypeInfo.Type==SqlType.Decimal) {
-        if (precision >= 0 && scale >= 0)
-          return new SqlValueType(SqlType.Decimal, precision, scale > precision ? precision : scale);
-        return new SqlValueType(SqlType.Decimal, DefaultPrecision, DefaultScale);
-      }
+      // (5) Otherwise, the affinity is NUMERIC.
+      return new SqlValueType(SqlType.Decimal);
+    }
 
-      return new SqlValueType(sqlTypeInfo.Type);
+    private string ParseTypeName(string typeDefinition)
+    {
+      var result = typeDefinition
+        .SkipWhile(char.IsWhiteSpace)
+        .TakeWhile(ch => char.IsLetterOrDigit(ch) || char.IsWhiteSpace(ch))
+        .ToArray();
+      return new string(result).ToLowerInvariant();
     }
 
     private static int ReadInt(IDataRecord row, int index)

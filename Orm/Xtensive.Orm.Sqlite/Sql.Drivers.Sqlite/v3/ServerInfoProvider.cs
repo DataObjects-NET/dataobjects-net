@@ -214,7 +214,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
       types.Int64 = DataTypeInfo.Range(SqlType.Int64, common | index | identity, ValueRange.Int64, "bigint");
 
-      types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index, ValueRange.Decimal, 38, "decimal", "numeric");
+      types.Decimal = DataTypeInfo.Regular(SqlType.Decimal, common | index, "decimal", "numeric");
 
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index, ValueRange.Float, "real");
 
