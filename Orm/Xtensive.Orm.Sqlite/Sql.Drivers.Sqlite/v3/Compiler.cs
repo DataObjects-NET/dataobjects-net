@@ -268,7 +268,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private SqlExpression DateTimeTruncate(SqlExpression date)
     {
-      return SqlDml.FunctionCall("DATE", date);
+      return SqlDml.FunctionCall("DATETIME", SqlDml.FunctionCall("DATE", date));
     }
 
     private static SqlCast CastToLong(SqlExpression arg)
