@@ -128,9 +128,13 @@ namespace Xtensive.Orm.Upgrade
 
     private static bool CheckScaleAndPrecision(StorageTypeInfo from, StorageTypeInfo to)
     {
-      return 
-        (from.Scale <= to.Scale) && 
-        (from.Precision <= to.Precision);
+      return LessOrEqual(from.Scale, to.Scale) && LessOrEqual(from.Precision,to.Precision);
+    }
+
+    private static bool LessOrEqual(int? a, int? b)
+    {
+      // Can't use 'a <= b' because it evalutes to false when both are null
+      return a==b || a < b;
     }
 
     // Constructors
