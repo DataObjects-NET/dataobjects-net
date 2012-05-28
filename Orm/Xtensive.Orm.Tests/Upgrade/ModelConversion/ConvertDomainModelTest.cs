@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       // SQLite does not use lenght constraints for varchar types
       if (Domain.StorageProviderInfo.ProviderName!=WellKnown.Provider.Sqlite)
-        Assert.AreEqual(new StorageTypeInfo(typeof (string), 125, null), Schema.Tables["A"].Columns["Col3"].Type);
+        Assert.AreEqual(new StorageTypeInfo(typeof (string), null, 125), Schema.Tables["A"].Columns["Col3"].Type);
 
       Assert.IsNotNull(Schema.Tables["B"]);
       Assert.IsNotNull(Schema.Tables["B"].PrimaryIndex);
