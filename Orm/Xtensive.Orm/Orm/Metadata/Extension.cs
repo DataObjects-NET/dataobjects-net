@@ -44,6 +44,18 @@ namespace Xtensive.Orm.Metadata
       return Name;
     }
 
+    /// <summary>
+    /// Determines whether the instance is read only.
+    /// </summary>
+    /// <returns>
+    ///   <c>true</c> if instance is read only; otherwise, <c>false</c>.
+    /// </returns>
+    protected override bool IsReadOnly()
+    {
+      return base.IsReadOnly() 
+        && StringComparer.OrdinalIgnoreCase.Compare(Name, WellKnown.DomainModelExtensionName) == 0;
+    }
+
 
     // Constructors
 

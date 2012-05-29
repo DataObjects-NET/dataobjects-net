@@ -42,8 +42,13 @@ namespace Xtensive.Orm.Metadata
     /// <exception cref="Exception">Object is read-only.</exception>
     protected void EnsureIsWritable()
     {
-      if (BuildingContext.Current==null)
+      if (IsReadOnly())
         throw Exceptions.ObjectIsReadOnly(null);
+    }
+
+    protected virtual bool IsReadOnly()
+    {
+      return BuildingContext.Current==null;
     }
 
 
