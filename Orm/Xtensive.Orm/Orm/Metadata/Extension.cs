@@ -6,7 +6,6 @@
 
 using System;
 
-
 namespace Xtensive.Orm.Metadata
 {
   /// <summary>
@@ -17,7 +16,7 @@ namespace Xtensive.Orm.Metadata
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Metadata.Extension")]
-  public class Extension : MetadataBase
+  public class Extension : Entity
   {
     /// <summary>
     /// Gets or sets the name of the extension.
