@@ -94,6 +94,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.ColumnDrop;
       if (serverFeatures.Supports(ServerFeatures.SingleSessionAccess))
         f |= ProviderFeatures.SingleSessionAccess;
+      if (queryFeatures.Supports(QueryFeatures.StrictJoinSyntax))
+        f |= ProviderFeatures.StrictJoinSyntax;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))

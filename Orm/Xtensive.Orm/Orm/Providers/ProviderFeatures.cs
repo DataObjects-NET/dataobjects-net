@@ -61,6 +61,7 @@ namespace Xtensive.Orm.Providers
     ColumnDrop = 1L << 43,
     SingleSessionAccess = 1L << 44,
     TemporaryTableEmulation = 1L << 45,
+    StrictJoinSyntax = 1L << 46,
 
     // Feature groups
     Paging = Take | Skip,
