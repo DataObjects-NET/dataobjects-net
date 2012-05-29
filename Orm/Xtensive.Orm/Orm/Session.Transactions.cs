@@ -191,6 +191,23 @@ namespace Xtensive.Orm
       }
     }
 
+    internal void BeginDisconnectedTransaction()
+    {
+      disconnectedTransaction = OpenTransaction();
+    }
+
+    internal void EndDisconnectedTransaction(bool commit)
+    {
+      if (commit)
+        disconnectedTransaction.Complete();
+      try {
+        disconnectedTransaction.Dispose();
+      }
+      finally {
+        disconnectedTransaction = null;
+      }
+    }
+
     internal void BeginTransaction(Transaction transaction)
     {
       var isSystemTransaction = transaction.Session.Configuration.Type
