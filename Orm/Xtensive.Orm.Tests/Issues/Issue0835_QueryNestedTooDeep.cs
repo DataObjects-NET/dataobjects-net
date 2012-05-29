@@ -339,6 +339,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "parser stack overflow");
+
       using (var session = Domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
           var query = session.Query.All<PaymentTransfer>().Select(c => new PaymentTransferDto {
