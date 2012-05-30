@@ -314,7 +314,8 @@ namespace Xtensive.Orm.Upgrade
       // Clone primary key
       var oldPrimaryKey = oldTable.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
       if (oldPrimaryKey!=null) {
-        var newPrimaryKey = newTable.CreatePrimaryKey(oldTable.Name);
+        var newPrimaryKey = newTable.CreatePrimaryKey(oldPrimaryKey.Name);
+        newPrimaryKey.IsClustered = oldPrimaryKey.IsClustered;
         foreach (var oldColumn in oldPrimaryKey.Columns)
           newPrimaryKey.Columns.Add(newTable.TableColumns[oldColumn.Name]);
       }
