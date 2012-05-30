@@ -4,13 +4,15 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.22
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Tuples;
 using ArgumentValidator = Xtensive.Core.ArgumentValidator;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -44,9 +46,15 @@ namespace Xtensive.Orm.Upgrade
         : ParameterTransmissionType.Regular;
       var descriptor = CreateDescriptor(mapping.Extension,
         mapping.StringMapping, mapping.ExtensionName, ParameterTransmissionType.Regular,
-        mapping.StringMapping, mapping.ExtensionText, extensionTextTransmissionType);
+        mapping.StringMapping, mapping.ExtensionText, extensionTextTransmissionType,
+        ProvideExtensionMetadataFilter);
 
       executor.Overwrite(descriptor, extensions.Select(item => (Tuple) Tuple.Create(item.Name, item.Value)));
+    }
+
+    private void ProvideExtensionMetadataFilter(SqlDelete delete)
+    {
+      delete.Where = delete.Delete[mapping.ExtensionName]==SqlDml.Literal(WellKnown.DomainModelExtensionName);
     }
 
     private void WriteTypes(IEnumerable<TypeMetadata> types)
@@ -69,7 +77,8 @@ namespace Xtensive.Orm.Upgrade
 
     private IPersistDescriptor CreateDescriptor(string tableName,
       TypeMapping mapping1, string columnName1, ParameterTransmissionType transmissionType1,
-      TypeMapping mapping2, string columnName2, ParameterTransmissionType transmissionType2)
+      TypeMapping mapping2, string columnName2, ParameterTransmissionType transmissionType2,
+      Action<SqlDelete> deleteTransform = null)
     {
       var catalog = new Catalog(task.Catalog);
       var schema = catalog.CreateSchema(task.Schema);
@@ -90,8 +99,12 @@ namespace Xtensive.Orm.Upgrade
         bindings[i] = binding;
       }
 
+      var delete = SqlDml.Delete(tableRef);
+      if (deleteTransform!=null)
+        deleteTransform.Invoke(delete);
+
       var storeRequest = new PersistRequest(driver, insert, bindings);
-      var clearRequest = new PersistRequest(driver, SqlDml.Delete(tableRef), null);
+      var clearRequest = new PersistRequest(driver, delete, null);
 
       storeRequest.Prepare();
       clearRequest.Prepare();
