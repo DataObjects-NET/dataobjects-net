@@ -5,7 +5,6 @@
 // Created:    2009.07.17
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;

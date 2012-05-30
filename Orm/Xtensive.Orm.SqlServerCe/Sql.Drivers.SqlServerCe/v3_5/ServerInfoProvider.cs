@@ -182,7 +182,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.None;
+      return ServerFeatures.TemporaryTableEmulation;
     }
 
     public override IdentityInfo GetIdentityInfo()

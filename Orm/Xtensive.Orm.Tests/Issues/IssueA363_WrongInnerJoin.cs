@@ -5,7 +5,6 @@
 // Created:    2011.01.21
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -19,35 +18,34 @@ namespace Xtensive.Orm.Tests.Issues
     [HierarchyRoot]
     public abstract class MyEntity : Entity
     {
-        [Field, Key]
-        public int Id { get; private set; }
+      [Field, Key]
+      public int Id { get; private set; }
 
-        [Field(Length = 100)]
-        public string Text { get; set; }
+      [Field(Length = 100)]
+      public string Text { get; set; }
     }
 
     [HierarchyRoot]
     public class SomeEntity : Entity
     {
-        [Field, Key]
-        public int Id { get; private set; }
+      [Field, Key]
+      public int Id { get; private set; }
 
-        [Field(Length = 100)]
-        public string Text { get; set; }
+      [Field(Length = 100)]
+      public string Text { get; set; }
     }
 
     public class MyEntityWithLink : MyEntity
     {
-        [Field(Nullable = false)]
-        public SomeEntity link { get; set; }
+      [Field(Nullable = false)]
+      public SomeEntity Link { get; set; }
     }
 
     public class MyEntityWithText : MyEntity
     {
       [Field]
-      public string someData { get; set; }
+      public string SomeData { get; set; }
     }
-  
   }
 
   [Serializable]
@@ -56,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
+      config.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
       return config;
     }
 
@@ -65,19 +63,19 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var se1 = new SomeEntity { Text = "se1" };
-        var se2 = new SomeEntity { Text = "se2" };
+        var se1 = new SomeEntity {Text = "se1"};
+        var se2 = new SomeEntity {Text = "se2"};
 
-        var mie1 = new MyEntityWithLink { link = se1, Text = "MyEntityWithLink" };
-        var mie2 = new MyEntityWithLink { link = se2, Text = "MyEntityWithLink" };
-        var mihe2 = new MyEntityWithText() { someData = "ololo", Text = "MyEntityWithText" };
+        var mie1 = new MyEntityWithLink {Link = se1, Text = "MyEntityWithLink"};
+        var mie2 = new MyEntityWithLink {Link = se2, Text = "MyEntityWithLink"};
+        var mihe2 = new MyEntityWithText {SomeData = "ololo", Text = "MyEntityWithText"};
 
         // if MyEntityWithLink.SomeEntity - decorated with [Field(Nullable = false)] - there are no MyEntityWithText data
         // if MyEntityWithLink.SomeEntity - decorated with [Field(Nullable = true)] - ok
         var items = Query.All<MyEntity>().OrderBy(a => a.Id)
-            .Select(q => (q as MyEntityWithLink != null)
-                ? new { d = (q as MyEntityWithLink).link.Text }
-                : new { d = (q as MyEntityWithText).someData });
+          .Select(q => (q as MyEntityWithLink!=null)
+            ? new {d = (q as MyEntityWithLink).Link.Text}
+            : new {d = (q as MyEntityWithText).SomeData});
         var result = items.ToList();
         t.Complete();
 

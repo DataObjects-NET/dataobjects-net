@@ -608,7 +608,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionAnonymousCollationsTest()
     {
+      // SQLite does not support paging operations inside set operations
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName})
         .Take(10)
@@ -619,7 +623,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionAnonymous2Test()
     {
+      // SQLite does not support paging operations inside set operations
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       var customers = Session.Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})
         .Where(c => c.Address.StreetAddress.Length < 10)
@@ -632,7 +640,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnionAnonymous3Test()
     {
+      // SQLite does not support paging operations inside set operations
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
       var customers = Session.Query.All<Customer>();
       var shipper = Session.Query.All<Shipper>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})

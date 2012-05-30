@@ -18,40 +18,57 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Empty option set.
     /// </summary>
-    None = 0x0,
+    None = 0,
 
     /// <summary>
     /// Indicates that RDBMS uses large objects (LOBs) for manipulating large data chunks.
     /// <seealso cref="ICharacterLargeObject"/>.
     /// <seealso cref="IBinaryLargeObject"/>.
     /// </summary>
-    LargeObjects = 0x1,
+    LargeObjects = 1 << 0,
 
     /// <summary>
     /// Indicates that RDBMS supports cursor parameters.
     /// </summary>
-    CursorParameters = 0x2,
+    CursorParameters = 1 << 1,
 
     /// <summary>
     /// Indicates whether RDBMS supports returning multiple results via cursor parameters.
     /// Does matter only if <see cref="CursorParameters"/> feature is avaliable.
     /// </summary>
-    MultipleResultsViaCursorParameters = 0x4,
+    MultipleResultsViaCursorParameters = 1 << 2,
 
     /// <summary>
     /// Indicates whether RDBMS supports savepoints.
     /// </summary>
-    Savepoints = 0x8,
+    Savepoints = 1 << 3,
 
     /// <summary>
     /// Indicates whether RDBMS supports transactional DDL
     /// (except full-text indexes which have separate option).
     /// </summary>
-    TransactionalDdl = 0x10,
+    TransactionalDdl = 1 << 4,
 
     /// <summary>
     /// Indicates whether RDBMS supports transactional DDL for full-text indexes.
     /// </summary>
-    TransactionalFullTextDdl = 0x20,
+    TransactionalFullTextDdl = 1 << 5,
+
+    /// <summary>
+    /// Indicates whether RDBMS uses key generators that adhere to transaction boundaries.
+    /// </summary>
+    TransactionalKeyGenerators = 1 << 6,
+
+    /// <summary>
+    /// Indicates whether RDBMS allows only one session to modify database.
+    /// </summary>
+    SingleSessionAccess = 1 << 7,
+
+    /// <summary>
+    /// Indicates whether RDBMS will perform well if regular tables are used
+    /// instead of temporary. This has effect only if database does not support
+    /// local temporary tables.
+    /// </summary>
+    TemporaryTableEmulation = 1 << 8,
   }
 }

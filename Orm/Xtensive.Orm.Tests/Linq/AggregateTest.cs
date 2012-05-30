@@ -71,7 +71,14 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Order>().Select(o => o.Freight).Sum();
       var expected = Orders.Select(o => o.Freight).Sum();
-      Assert.AreEqual(expected, result);
+
+      Assert.That(result.HasValue);
+      Assert.That(expected.HasValue);
+
+      var delta = Math.Abs(result.Value - expected.Value);
+
+      // Add some tolerance
+      Assert.That(delta, Is.LessThan(0.000000001m));
       Assert.Greater(result, 0);
     }
 
@@ -103,17 +110,15 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CountAfterFilterTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var result =
-        Session.Query.All<Customer>().Where(c => Session.Query.All<Order>()
-          .Where(o => o.Customer==c)
-          .Count() > 10);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle | StorageProvider.Sqlite);
+
+      var q = Session.Query;
+
+      var result = q.All<Customer>().Where(c => q.All<Order>().Where(o => o.Customer==c).Count() > 10);
+      var expected = Customers.Where(c => Orders.Where(o => o.Customer==c).Count() > 10);
+
       var list = result.ToList();
-      var expected = from c in Customers
-      where Orders
-        .Where(o => o.Customer==c)
-        .Count() > 10
-      select c;
+
       Assert.AreEqual(0, expected.Except(list).Count());
       QueryDumper.Dump(result);
       Assert.Greater(list.Count, 0);

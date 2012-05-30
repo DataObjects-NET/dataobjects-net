@@ -20,7 +20,8 @@ namespace Xtensive.Sql.Tests
         {"oracle", typeof (Drivers.Oracle.DriverFactory)},
         {"postgresql", typeof (Drivers.PostgreSql.DriverFactory)},
         {"firebird", typeof (Drivers.Firebird.DriverFactory)},
-        {"mysql", typeof (Drivers.MySql.DriverFactory)}
+        {"mysql", typeof (Drivers.MySql.DriverFactory)},
+        {"sqlite", typeof (Drivers.Sqlite.DriverFactory)},
       };
 
     public static SqlDriver Create(UrlInfo connectionUrl)

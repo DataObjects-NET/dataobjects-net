@@ -524,10 +524,6 @@
     <Compile Include="Upgrade\TypeIdUpgrade\Single2ManyClassesTest.cs" />
     <Compile Include="Upgrade\TypeIdUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\TypeIdUpgrade\VersionUpgradeTest.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly0.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly1.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\Assembly2.cs" />
-    <Compile Include="Upgrade\UpgradeHandlersSorting\UpgradeHandlersSortingTest.cs" />
     <Compile Include="Upgrade\Upgrader.cs" />
     <Compile Include="Upgrade\ModelConversion\ConvertDomainModelTest.cs" />
     <Compile Include="Indexing\ForeignKeyInfoTest.cs" />
@@ -640,6 +636,9 @@
     <None Include="ObjectModel\Interfaces\Slavery.cd" />
     <None Include="ObjectModel\Northwind.cd" />
     <None Include="ObjectModel\NorthwindDO.cd" />
+    <None Include="Tests.db3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="DO40-Test.sdf">

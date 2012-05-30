@@ -162,6 +162,8 @@ namespace Xtensive.Sql
     {
       if (node==null)
         return true;
+      if (node is SqlBinary)
+        return true; // Allow easy operation for SQLite
       switch (node.NodeType) {
         case SqlNodeType.Add:
         case SqlNodeType.Case:

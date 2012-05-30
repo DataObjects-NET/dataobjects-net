@@ -258,7 +258,7 @@ namespace Xtensive.Orm.Upgrade
         && !type.IsNullable())
         type = type.ToNullable();
         
-      return new StorageTypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
+      return new StorageTypeInfo(type, sqlValueType, column.IsNullable, sqlValueType.Length, sqlValueType.Precision, sqlValueType.Scale);
     }
 
     /// <summary>

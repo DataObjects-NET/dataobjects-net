@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void ValidateNullableKeyColumns()
     {
-      var col = new StorageColumnInfo(table, "c2", new StorageTypeInfo(typeof (string), true, null));
+      var col = new StorageColumnInfo(table, "c2", new StorageTypeInfo(typeof (string), null, true));
       new KeyColumnRef(index, col, Direction.Positive);
 
       AssertEx.Throws<AggregateException>(index.Validate);

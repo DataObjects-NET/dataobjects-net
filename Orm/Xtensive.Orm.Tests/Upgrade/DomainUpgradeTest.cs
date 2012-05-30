@@ -148,6 +148,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void UpdateTypeIdWithMutualRenameTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
+
       int personTypeId;
       int businessContactTypeId;
       
@@ -178,6 +179,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void UpgradeToVersion2Test()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
+
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {

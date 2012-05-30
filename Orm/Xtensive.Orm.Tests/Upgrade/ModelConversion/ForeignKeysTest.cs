@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 
@@ -19,6 +20,11 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class ForeignKeysTest : AutoBuildTest
   {
     private Domain domain;
+
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.ForeignKeyConstraints);
+    }
 
     [Test]
     public void MainTest()

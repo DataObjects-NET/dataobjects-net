@@ -19,16 +19,22 @@ namespace Xtensive.Orm.Tests
     private static StorageProvider activeProvider;
     private static ProviderInfo activeProviderInfo;
 
-    public static void ProviderIs(StorageProvider allowedProviders)
+    public static void ProviderIs(StorageProvider allowedProviders, string reason = null)
     {
       EnsureIsInitialized();
       if ((activeProvider & allowedProviders)==0)
-        IgnoreMe("This test is not suitable for '{0}' provider", activeProvider.ToString().ToLowerInvariant());
+        IgnoreMe(
+          "This test requires one of the following providers: {0}",
+          allowedProviders.ToString().ToLowerInvariant(), reason);
     }
 
-    public static void ProviderIsNot(StorageProvider disallowedProviders)
+    public static void ProviderIsNot(StorageProvider disallowedProviders, string reason = null)
     {
-      ProviderIs(~disallowedProviders);
+      EnsureIsInitialized();
+      if ((activeProvider & ~disallowedProviders)==0)
+        IgnoreMe(
+          "This test requires any provider except the following: {0}",
+          disallowedProviders.ToString().ToLowerInvariant(), reason);
     }
 
     public static void ProviderVersionAtLeast(Version minimalVersion)
@@ -73,9 +79,12 @@ namespace Xtensive.Orm.Tests
         IgnoreMe("This test requires storage that does not support at least one of the '{0}' features", disallowedFeatures);
     }
 
-    private static void IgnoreMe(string message, object argument)
+    private static void IgnoreMe(string format, object argument, string reason = null)
     {
-      throw new IgnoreException(string.Format(message, argument));
+      var message = string.Format(format, argument);
+      if (!string.IsNullOrEmpty(reason))
+        message = string.Format("{0}. Reason: {1}", message, reason);
+      throw new IgnoreException(message);
     }
 
     private static void EnsureIsInitialized()
@@ -101,11 +110,13 @@ namespace Xtensive.Orm.Tests
       case WellKnown.Provider.PostgreSql:
         return StorageProvider.PostgreSql;
       case WellKnown.Provider.Oracle:
-        return  StorageProvider.Oracle;
+        return StorageProvider.Oracle;
       case WellKnown.Provider.MySql:
-        return  StorageProvider.MySql;
+        return StorageProvider.MySql;
       case WellKnown.Provider.Firebird:
-        return  StorageProvider.Firebird;
+        return StorageProvider.Firebird;
+      case WellKnown.Provider.Sqlite:
+        return StorageProvider.Sqlite;
       default:
         throw new ArgumentOutOfRangeException("provider");
       }

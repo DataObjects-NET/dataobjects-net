@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     public const string GuidKeyValue = "b4fa0c56-be9a-4bd0-a50f-17c4c6b4af91";
     public const string GuidDefaultValue = "6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA";
   }
+
   #region Various enums
 
   public enum EByte : byte
@@ -59,7 +60,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 
   public enum EULong : ulong
   {
-    Min = ulong.MinValue, Default = 0, Max = ulong.MaxValue
+    Min = ulong.MinValue, Default = 0, Max = long.MaxValue
   }
 
   #endregion
@@ -85,10 +86,6 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = true)]
     public bool FBool { get; set; }
 
-//  Note: temporary disabled, do not remove ]:->
-//  [Field]
-//  public char FChar { get; set; }
-
     [Field(DefaultValue = byte.MaxValue)]
     public byte FByte { get; set; }
 
@@ -110,7 +107,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = long.MaxValue)]
     public long FLong { get; set; }
 
-    [Field(DefaultValue = ulong.MaxValue)]
+    [Field(DefaultValue = long.MaxValue)] // SQLite provides only 8 byte signed integer
     public ulong FULong { get; set; }
 
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
@@ -196,7 +193,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = long.MaxValue)]
     public long? FNLong { get; set; }
 
-    [Field(DefaultValue = ulong.MaxValue)]
+    [Field(DefaultValue = long.MaxValue)] // SQLite provides only 8 byte signed integer
     public ulong? FNULong { get; set; }
 
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
@@ -271,16 +268,11 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
 
-        var field = typeof (StorageDriver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
-        var sqlDriver = (SqlDriver) field.GetValue(Domain.Handlers.StorageDriver);
-        var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
-        var minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
-
         using (var t = Session.Current.OpenTransaction()) {
           X x = Query.SingleOrDefault<X>(key);
           Assert.AreEqual(true, x.FBool);
           Assert.AreEqual(byte.MaxValue, x.FByte);
-          Assert.AreEqual(new byte[] {10,10,10,10}, x.FByteArray);
+          Assert.AreEqual(new byte[] {10, 10, 10, 10}, x.FByteArray);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FDateTime);
           Assert.AreEqual(12.12M, x.FDecimal);
           Assert.AreEqual(float.MaxValue, x.FDouble);
@@ -296,14 +288,14 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FGuid);
           Assert.AreEqual(int.MaxValue, x.FInt);
           Assert.AreEqual(long.MaxValue, x.FLong);
-          Assert.AreEqual(new byte[] {10,10,10,10}, x.FLongByteArray);
+          Assert.AreEqual(new byte[] {10, 10, 10, 10}, x.FLongByteArray);
           Assert.AreEqual("default value", x.FLongString);
           Assert.AreEqual(sbyte.MaxValue, x.FSByte);
           Assert.AreEqual(short.MaxValue, x.FShort);
           Assert.AreEqual("default value", x.FString);
           Assert.AreEqual(TimeSpan.FromTicks(1000), x.FTimeSpan);
           Assert.AreEqual(uint.MaxValue, x.FUInt);
-          Assert.AreEqual(ulong.MaxValue, x.FULong);
+          Assert.AreEqual(long.MaxValue, x.FULong);
           Assert.AreEqual(ushort.MaxValue, x.FUShort);
 
           Assert.AreEqual(true, x.FNBool);
@@ -327,7 +319,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(short.MaxValue, x.FNShort);
           Assert.AreEqual(TimeSpan.FromTicks(1000), x.FNTimeSpan);
           Assert.AreEqual(uint.MaxValue, x.FNUInt);
-          Assert.AreEqual(ulong.MaxValue, x.FNULong);
+          Assert.AreEqual(long.MaxValue, x.FNULong);
           Assert.AreEqual(ushort.MaxValue, x.FNUShort);
           Assert.IsNotNull(x.Ref);
 

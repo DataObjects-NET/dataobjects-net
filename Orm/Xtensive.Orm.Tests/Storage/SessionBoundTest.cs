@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Orm.Providers;
 using Xtensive.Testing;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
@@ -41,6 +42,11 @@ namespace Xtensive.Orm.Tests.Storage
         : base(session)
       {
       }
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
     }
 
     protected override DomainConfiguration BuildConfiguration()

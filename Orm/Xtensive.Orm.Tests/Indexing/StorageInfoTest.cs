@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Indexing
       // Table 1
       table1 = new TableInfo(storage, "table1");
       pi1 = new PrimaryIndexInfo(table1, "pk1");
-      column1 = new StorageColumnInfo(table1, "col1", new StorageTypeInfo(typeof(string), false, null));
+      column1 = new StorageColumnInfo(table1, "col1", new StorageTypeInfo(typeof(string), null, false));
       column2 = new StorageColumnInfo(table1, "col2", new StorageTypeInfo(typeof(string), null));
       column3 = new StorageColumnInfo(table1, "col3", new StorageTypeInfo(typeof(string), null));
       new KeyColumnRef(pi1, column1, Direction.Positive);

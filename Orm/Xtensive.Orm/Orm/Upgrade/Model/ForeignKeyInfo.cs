@@ -154,9 +154,8 @@ namespace Xtensive.Orm.Upgrade.Model
 
       return first.Type.ToNullable()==second.Type.ToNullable()
         && first.Length==second.Length
-          && first.Scale==second.Scale
-            && first.Precision==second.Precision
-              && first.Culture==second.Culture;
+        && first.Scale==second.Scale
+        && first.Precision==second.Precision;
     }
 
     // Constructors

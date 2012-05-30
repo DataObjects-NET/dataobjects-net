@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Issues.IssueJira0314_IncorrectTransactionDisposingModel;
 
@@ -32,6 +33,11 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0314_IncorrectTransactionDisposing : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();

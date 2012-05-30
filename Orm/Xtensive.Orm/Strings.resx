@@ -2386,4 +2386,7 @@ Error: {1}</value>
   <data name="TypeIdRangeForDatabaseXYZIsExhausted">
     <value xml:space="preserve">Type ID range for database '{0}' ({1}, {2}) is exhausted</value>
   </data>
+    <data name="ExCurrentStorageDoesNotSupportChangingColumnTypes">
+        <value xml:space="preserve">Current storage does not support changing column types</value>
+    </data>
 </root>

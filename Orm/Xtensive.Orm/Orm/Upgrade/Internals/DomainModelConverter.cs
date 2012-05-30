@@ -178,13 +178,11 @@ namespace Xtensive.Orm.Upgrade
       var nonNullableType = column.ValueType;
       var nullableType    = ToNullable(nonNullableType, column.IsNullable);
 
-      var typeInfoPrototype = new StorageTypeInfo(nullableType, column.IsNullable, 
-        column.Length, column.Scale, column.Precision, null);
+      var typeInfoPrototype = new StorageTypeInfo(nullableType, null, column.IsNullable, column.Length, column.Precision, column.Scale);
       var nativeTypeInfo = CreateType(nonNullableType, column.Length, column.Precision, column.Scale);
 
       // We need the same type as in SQL database here (i.e. the same as native)
-      var typeInfo = new StorageTypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
-        nativeTypeInfo.Length, nativeTypeInfo.Scale, nativeTypeInfo.Precision, nativeTypeInfo.NativeType);
+      var typeInfo = new StorageTypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), nativeTypeInfo.NativeType, column.IsNullable, nativeTypeInfo.Length, nativeTypeInfo.Precision, nativeTypeInfo.Scale);
 
       var defaultValue = GetColumnDefaultValue(column, typeInfo);
       if (column.IsSystem && column.Field.IsTypeId) {
@@ -496,11 +494,7 @@ namespace Xtensive.Orm.Upgrade
       var sqlValueType = driver.BuildValueType(type, length, precision, scale);
 
       return new StorageTypeInfo(
-        sqlValueType.Type.ToClrType(),
-        sqlValueType.Length,
-        sqlValueType.Scale,
-        sqlValueType.Precision,
-        sqlValueType);
+        sqlValueType.Type.ToClrType(), sqlValueType, sqlValueType.Length, sqlValueType.Precision, sqlValueType.Scale);
     }
 
     private SecondaryIndexInfo CreateSecondaryIndex(TableInfo owningTable, string indexName, IndexInfo originalModelIndex)

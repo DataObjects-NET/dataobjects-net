@@ -13,6 +13,8 @@ using Xtensive.Disposing;
 using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Testing;
@@ -24,6 +26,8 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class ColumnTypeTest
   {
     private Domain domain;
+    private bool canConvertBoolToString;
+    private bool ignoreColumnPrecision;
 
     [SetUp]
     public void SetUp()
@@ -71,14 +75,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int32ToShortStringTest()
     {
-      ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.Perform, 3, null, null);
+      var expectedValue = ignoreColumnPrecision ? "12345" : null;
+      ChangeFieldTypeTest("FInt2", typeof (string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void Int32ToShortStringSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.PerformSafely, 3, null, null));
+      if (ignoreColumnPrecision)
+        ChangeFieldTypeTest("FInt2", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() => 
+          ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.PerformSafely, 3, null, null));
     }
 
     [Test]
@@ -105,14 +113,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void StringToShortStringTest()
     {
-      ChangeFieldTypeTest("FString5", typeof (string), "123", Mode.Perform, 3, null, null);
+      var expectedValue = ignoreColumnPrecision ? "12345" : "123";
+      ChangeFieldTypeTest("FString5", typeof (string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
     public void StringToShortStringSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FString5", typeof (string), string.Empty, Mode.PerformSafely, 3, null, null));
+      if (ignoreColumnPrecision)
+        ChangeFieldTypeTest("FString5", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FString5", typeof (string), string.Empty, Mode.PerformSafely, 3, null, null));
     }
 
     [Test]
@@ -130,22 +142,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void BoolToStringTest()
     {
-      string expectedValue;
-      if (domain.Configuration.ConnectionInfo.Provider.In(WellKnown.Provider.Firebird, WellKnown.Provider.MySql)) {
-        expectedValue = "1";
-      }
-      else {
-        expectedValue = string.Empty;
-      }
-      ChangeFieldTypeTest("FBool", typeof (string), null, Mode.Perform, 100, null, null);
+      var expectedValue = canConvertBoolToString ? "1" : null;
+      ChangeFieldTypeTest("FBool", typeof (string), expectedValue, Mode.Perform, 100, null, null);
     }
 
     [Test]
     public void BoolToStringSafelyTest()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FBool", typeof (string), string.Empty, Mode.PerformSafely, 100, null, null));
+      if (canConvertBoolToString)
+        ChangeFieldTypeTest("FBool", typeof (string), "1", Mode.PerformSafely, 100, null, null);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FBool", typeof (string), string.Empty, Mode.PerformSafely, 100, null, null));
     }
 
     [Test]
@@ -188,14 +196,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToShortDecimalTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.0), Mode.Perform, null, 2, 0);
+      var expectedValue = ignoreColumnPrecision ? 1.2m : 1m;
+      ChangeFieldTypeTest("FDecimal", typeof (decimal), expectedValue, Mode.Perform, null, 2, 0);
     }
 
     [Test]
     public void DecimalToShortDecimalSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() =>
-        ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
+      if (ignoreColumnPrecision)
+        ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0);
+      else
+        AssertEx.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
     }
 
     [Test]
@@ -207,7 +219,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToNullableDecimalTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
+      ChangeFieldTypeTest("FDecimal", typeof (decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
     }
 
     [Test]
@@ -272,7 +284,19 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(typeof (X));
       configuration.Types.Register(typeof (TestUpgrader));
       configuration.Types.Register(typeof (FieldTypeChanger));
+      ConfigureStorageTraits(configuration);
       domain = Domain.Build(configuration);
+    }
+
+    private void ConfigureStorageTraits(DomainConfiguration configuration)
+    {
+      var provider = configuration.ConnectionInfo.Provider;
+
+      canConvertBoolToString = provider
+        .In(WellKnown.Provider.Firebird, WellKnown.Provider.Sqlite);
+
+      ignoreColumnPrecision = provider
+        .In(WellKnown.Provider.Sqlite);
     }
 
     private void ChangeFieldTypeTest(string fieldName, Type newColumnType, object expectedValue, DomainUpgradeMode mode, int? newLength, int? newPresicion, int? newScale)

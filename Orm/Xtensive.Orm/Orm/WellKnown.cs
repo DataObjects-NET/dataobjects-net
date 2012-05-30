@@ -182,9 +182,13 @@ namespace Xtensive.Orm
       /// </summary>
       public const string Firebird = "firebird";
       /// <summary>
+      /// SQLite.
+      /// </summary>
+      public const string Sqlite = "sqlite";
+      /// <summary>
       /// All supported protocols (for exception messages, etc).
       /// </summary>
-      public const string All = "'sqlserver', 'sqlserverce', 'postgresql', 'oracle', 'mysql', 'firebird'";
+      public const string All = "sqlserver, sqlserverce, postgresql, oracle, mysql, firebird, sqlite";
     }
 
     /// <summary>

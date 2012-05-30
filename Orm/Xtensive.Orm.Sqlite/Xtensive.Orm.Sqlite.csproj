@@ -75,21 +75,43 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\Lib\SQLite\Net35\System.Data.SQLite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\Lib\SQLite\Net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Sql.Drivers.Sqlite\Resources\Strings.resx">
-      <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Connection.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Driver.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\DriverFactory.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Resources\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Sql.Drivers.Sqlite\v3\Compiler.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Driver.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Extractor.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\Translator.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\v3\TypeMapper.cs" />
+    <Compile Include="Orm.Providers.Sqlite\DomainHandler.cs" />
+    <Compile Include="Orm.Providers.Sqlite\HandlerFactory.cs" />
+    <Compile Include="Orm.Providers.Sqlite\SqlCompiler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
+    <EmbeddedResource Include="Sql.Drivers.Sqlite\Resources\Strings.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -99,6 +121,11 @@
       <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
       <Name>Xtensive.Orm</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Sql.Drivers.Sqlite\Issues.txt" />
+    <Content Include="Sql.Drivers.Sqlite\Progression.txt" />
+    <Content Include="Sql.Drivers.Sqlite\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

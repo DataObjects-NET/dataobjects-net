@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Providers
       var queryFeatures = serverInfo.Query.Features;
       var serverFeatures = serverInfo.ServerFeatures;
       var indexFeatures = serverInfo.Index.Features;
-      var foreignKeyFeatures = serverInfo.ForeignKey.Features;
 
       var f = ProviderFeatures.None;
       if (queryFeatures.Supports(QueryFeatures.DdlBatches))
@@ -34,7 +33,7 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.Collations;
       if (serverInfo.ForeignKey!=null) {
         f |= ProviderFeatures.ForeignKeyConstraints;
-        if (foreignKeyFeatures.Supports(ForeignKeyConstraintFeatures.Deferrable))
+        if (serverInfo.ForeignKey.Features.Supports(ForeignKeyConstraintFeatures.Deferrable))
           f |= ProviderFeatures.DeferrableConstraints;
       }
       if (indexFeatures.Supports(IndexFeatures.NonKeyColumns))
@@ -89,10 +88,21 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.PagingRequiresOrderBy;
       if (queryFeatures.Supports(QueryFeatures.ZeroLimitIsError))
         f |= ProviderFeatures.ZeroLimitIsError;
+      if (serverFeatures.Supports(ServerFeatures.TransactionalKeyGenerators))
+        f |= ProviderFeatures.TransactionalKeyGenerators;
+      if (serverInfo.Column.AllowedDdlStatements.Supports(DdlStatements.Drop))
+        f |= ProviderFeatures.ColumnDrop;
+      if (serverFeatures.Supports(ServerFeatures.SingleSessionAccess))
+        f |= ProviderFeatures.SingleSessionAccess;
+      if (queryFeatures.Supports(QueryFeatures.StrictJoinSyntax))
+        f |= ProviderFeatures.StrictJoinSyntax;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))
         f |= ProviderFeatures.TemporaryTables;
+      else if (serverFeatures.Supports(ServerFeatures.TemporaryTableEmulation))
+        f |= ProviderFeatures.TemporaryTableEmulation;
+
       if (serverInfo.FullTextSearch!=null) {
         f |= ProviderFeatures.FullText;
         if (serverInfo.FullTextSearch.Features==FullTextSearchFeatures.Full)

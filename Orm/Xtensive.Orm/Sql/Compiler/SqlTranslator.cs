@@ -990,17 +990,17 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
       var traversalPath = context.GetTraversalPath().Skip(1);
-      var explicitJoinOrder = Driver.ServerInfo.Query.Features.Supports(QueryFeatures.ExplicitJoinOrder) && traversalPath.FirstOrDefault() is SqlJoinExpression;
+      var explicitJoinOrder =
+        Driver.ServerInfo.Query.Features.Supports(QueryFeatures.ExplicitJoinOrder)
+        && traversalPath.FirstOrDefault() is SqlJoinExpression;
       switch (section) {
       case JoinSection.Entry:
         return explicitJoinOrder ? "(" : string.Empty;
       case JoinSection.Specification:
-        bool natural = false;
-        if (node.Expression.IsNullReference() && node.JoinType != SqlJoinType.CrossJoin &&
-            node.JoinType != SqlJoinType.UnionJoin)
-          natural = true;
-        return
-          (natural ? "NATURAL " : string.Empty) + Translate(node.JoinType) + " JOIN";
+          bool isNatural = node.Expression.IsNullReference()
+            && node.JoinType!=SqlJoinType.CrossJoin
+            && node.JoinType!=SqlJoinType.UnionJoin;
+          return (isNatural ? "NATURAL " : string.Empty) + Translate(node.JoinType) + " JOIN";
       case JoinSection.Condition:
         return
           node.JoinType==SqlJoinType.UsingJoin ? "USING" : "ON";

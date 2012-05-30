@@ -95,7 +95,6 @@
     <Compile Include="Orm.Providers.SqlServerCe\DomainHandler.cs" />
     <Compile Include="Orm.Providers.SqlServerCe\HandlerFactory.cs" />
     <Compile Include="Orm.Providers.SqlServerCe\SqlCompiler.cs" />
-    <Compile Include="Orm.Providers.SqlServerCe\TemporaryTableManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql.Drivers.SqlServerCe\Resources\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>

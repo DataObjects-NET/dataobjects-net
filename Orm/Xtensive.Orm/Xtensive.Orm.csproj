@@ -146,6 +146,10 @@
     <Compile Include="Orm\Interfaces\IQueryRootBuilder.cs" />
     <Compile Include="Orm\Internals\CompiledQueryRunner.cs" />
     <Compile Include="Orm\Internals\KeyGeneratorRegistry.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\CachingSequence.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\ICachingSequenceProvider.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\DomainCachingSequenceProvider.cs" />
+    <Compile Include="Orm\Internals\KeyGenerators\Caching\SessionCachingSequenceProvider.cs" />
     <Compile Include="Orm\Internals\PersistActionGenerator.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\BaseFieldNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\ExpressionMap.cs" />
@@ -170,7 +174,11 @@
     <Compile Include="Orm\Providers\Interfaces\IPersistDescriptor.cs" />
     <Compile Include="Orm\Providers\MappingResolveResult.cs" />
     <Compile Include="Orm\Providers\Persister.cs" />
+    <Compile Include="Orm\Providers\SequenceQueryCompartment.cs" />
     <Compile Include="Orm\Providers\SessionHandler.Fetching.cs" />
+    <Compile Include="Orm\Providers\TemporaryTables\EmulatedTemporaryTableBackEnd.cs" />
+    <Compile Include="Orm\Providers\TemporaryTables\RealTemporaryTableBackEnd.cs" />
+    <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableBackend.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />
@@ -290,7 +298,7 @@
     <Compile Include="Orm\Providers\SqlSelectProcessor.cs" />
     <Compile Include="Orm\Providers\SqlStoreProvider.cs" />
     <Compile Include="Orm\Providers\SqlTemporaryDataProvider.cs" />
-    <Compile Include="Orm\Providers\SqlUpgradeStage.cs" />
+    <Compile Include="Orm\Upgrade\SqlUpgradeStage.cs" />
     <Compile Include="Orm\Providers\StorageExceptionBuilder.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableDescriptor.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableManager.cs" />
@@ -370,6 +378,7 @@
     <Compile Include="Orm\Upgrade\Internals\SqlWorkerTask.cs" />
     <Compile Include="Orm\Upgrade\Internals\StageModelFilter.cs" />
     <Compile Include="Orm\Upgrade\Internals\TypeIdProvider.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeActionSequenceBuilder.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
     <Compile Include="Orm\Validation\Aspects\Constraints\EmailConstraint.cs" />
@@ -937,6 +946,7 @@
     <Compile Include="Sql\Dml\SqlIntervalPart.cs" />
     <Compile Include="Sql\Dml\SqlJoinedTable.cs" />
     <Compile Include="Sql\Dml\SqlJoinExpression.cs" />
+    <Compile Include="Sql\Dml\SqlJoinSequence.cs" />
     <Compile Include="Sql\Dml\SqlJoinType.cs" />
     <Compile Include="Sql\Dml\SqlLockType.cs" />
     <Compile Include="Sql\Dml\SqlMatchType.cs" />

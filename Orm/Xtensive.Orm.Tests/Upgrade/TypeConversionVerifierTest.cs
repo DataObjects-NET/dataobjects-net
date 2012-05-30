@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void ConversionToStringTest()
     {
-      var stringTypeInfo = new StorageTypeInfo(typeof (String), 100, null);
+      var stringTypeInfo = new StorageTypeInfo(typeof (String), null, 100);
       var typeList = new[] {
         typeof (String),
         typeof (Int16),
@@ -96,13 +96,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void CanConvertSafelyTest()
     {
-      var sourceType = new StorageTypeInfo(typeof (String), 10, null);
-      var targetType = new StorageTypeInfo(typeof (String), 5, null);
+      var sourceType = new StorageTypeInfo(typeof (String), null, 10);
+      var targetType = new StorageTypeInfo(typeof (String), null, 5);
       Assert.IsTrue(TypeConversionVerifier.CanConvert(sourceType, targetType));
       Assert.IsFalse(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
-      targetType = new StorageTypeInfo(typeof (String), 10, null);
+      targetType = new StorageTypeInfo(typeof (String), null, 10);
       Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
-      targetType = new StorageTypeInfo(typeof (String), 11, null);
+      targetType = new StorageTypeInfo(typeof (String), null, 11);
       Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
     }
 

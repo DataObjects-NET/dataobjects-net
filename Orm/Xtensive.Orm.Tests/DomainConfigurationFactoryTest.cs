@@ -6,29 +6,35 @@
 
 using System;
 using NUnit.Framework;
-using System.Text;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests
 {
   [TestFixture]
-  public class DomainConfigurationFactoryTest : AutoBuildTest
+  public class DomainConfigurationFactoryTest
   {
-    private DomainConfiguration config;
-
-    [TestFixtureSetUp]
-    public override void TestFixtureSetUp()
-    {
-      config = BuildConfiguration();
-    }
+    // ReSharper disable LocalizableElement
 
     [Test]
     public void MainTest()
     {
-      var result = new StringBuilder();
-      result.Append("ConnectionString: ").AppendLine(config.ConnectionInfo.ToString());
-      result.Append("ForeignKeyMode: ").AppendLine(config.ForeignKeyMode.ToString());
-      Console.WriteLine(result.ToString());
+      var urlConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
+      Console.WriteLine("ConnectionURL: " + urlConnectionInfo);
+
+      var stringConnectionInfo = DomainConfigurationFactory.Create(true).ConnectionInfo;
+      Console.WriteLine("ConnectionString: " + stringConnectionInfo);
+
+      var providerDescriptor = ProviderDescriptor.Get(urlConnectionInfo.Provider);
+      var driverFactory = (SqlDriverFactory) Activator.CreateInstance(providerDescriptor.DriverFactory);
+      var driver = driverFactory.GetDriver(urlConnectionInfo);
+      var providerInfo = ProviderInfoBuilder.Build(urlConnectionInfo.Provider, driver);
+
+      Console.WriteLine("Features: " + providerInfo.ProviderFeatures);
     }
+
+    // ReSharper restore LocalizableElement
   }
 }

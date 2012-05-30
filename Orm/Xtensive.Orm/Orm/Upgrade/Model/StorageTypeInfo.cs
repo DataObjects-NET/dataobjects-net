@@ -11,6 +11,7 @@ using Xtensive.Core;
 using System.Text;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Validation;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade.Model
 {
@@ -48,11 +49,6 @@ namespace Xtensive.Orm.Upgrade.Model
     public int? Length { get;  private set; }
 
     /// <summary>
-    /// Gets the culture.
-    /// </summary>
-    public CultureInfo Culture { get; private set; }
-
-    /// <summary>
     /// Gets the scale.
     /// </summary>
     public int? Scale { get; private set; }
@@ -65,7 +61,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <summary>
     /// Gets the native type.
     /// </summary>
-    public object NativeType { get; private set;  }
+    public SqlValueType NativeType { get; private set;  }
 
     /// <inheritdoc/>
     public void Validate()
@@ -80,9 +76,8 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       if (IsTypeUndefined)
         return Undefined;
-      var clone = new StorageTypeInfo(Type, IsNullable, NativeType);
+      var clone = new StorageTypeInfo(Type, NativeType, IsNullable);
       clone.Length = Length;
-      clone.Culture = Culture;
       clone.Scale = Scale;
       clone.Precision = Precision;
       return clone;
@@ -139,8 +134,6 @@ namespace Xtensive.Orm.Upgrade.Model
           result = (result * 397) ^ Scale.Value;
         if (Precision.HasValue)
           result = (result * 397) ^ Precision.Value;
-        if (Culture!=null)
-          result = (result * 397) ^ Culture.GetHashCode();
         return result;
       }
     }
@@ -184,9 +177,6 @@ namespace Xtensive.Orm.Upgrade.Model
         sb.Append(Strings.NullableMark);
       sb.Append(Strings.Comma).Append(string.Format(
         Strings.PropertyPairFormat, Strings.Length, Length.HasValue ? Length.Value.ToString() : "null"));
-      if (Culture!=null)
-        sb.Append(Strings.Comma).Append(string.Format(
-          Strings.PropertyPairFormat, Strings._Culture, Culture));
       if (Scale > 0)
         sb.Append(Strings.Comma).Append(string.Format(
           Strings.PropertyPairFormat, Strings.Scale, Scale));
@@ -199,8 +189,7 @@ namespace Xtensive.Orm.Upgrade.Model
       return sb.ToString();
     }
 
-
-    #region Constructors
+    // Constructors
 
     private StorageTypeInfo()
     {
@@ -211,8 +200,8 @@ namespace Xtensive.Orm.Upgrade.Model
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, object nativeType)
-      : this(type, type.IsClass || type.IsNullable(), nativeType)
+    public StorageTypeInfo(Type type, SqlValueType nativeType)
+      : this(type, nativeType, type.IsClass || type.IsNullable())
     {
     }
 
@@ -220,10 +209,10 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
-    /// <param name="length">The length.</param>
     /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, int? length, object nativeType)
-      : this(type, type.IsClass || type.IsNullable(), length, nativeType)
+    /// <param name="length">The length.</param>
+    public StorageTypeInfo(Type type, SqlValueType nativeType, int? length)
+      : this(type, nativeType, type.IsClass || type.IsNullable(), length)
     {
     }
 
@@ -231,24 +220,12 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
-    /// <param name="length">The length.</param>
-    /// <param name="culture">The culture.</param>
     /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, int? length, CultureInfo culture, object nativeType)
-      : this(type, type.IsClass || type.IsNullable(), length, culture, nativeType)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
-    /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, int? length, int? scale, int? precision, object nativeType)
-      : this(type, type.IsClass || type.IsNullable(), length, scale, precision, nativeType)
+    /// <param name="scale">The scale.</param>
+    public StorageTypeInfo(Type type, SqlValueType nativeType, int? length, int? precision, int? scale)
+      : this(type, nativeType, type.IsClass || type.IsNullable(), length, precision, scale)
     {
     }
 
@@ -256,9 +233,9 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
-    /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, bool isNullable, object nativeType)
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
+    public StorageTypeInfo(Type type, SqlValueType nativeType, bool isNullable)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (isNullable && type.IsValueType && !type.IsNullable())
@@ -272,11 +249,11 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
+    /// <param name="nativeType">The native type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
-    /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, bool isNullable, int? length, object nativeType)
-      : this(type, isNullable, nativeType)
+    public StorageTypeInfo(Type type, SqlValueType nativeType, bool isNullable, int? length)
+      : this(type, nativeType, isNullable)
     {
       Length = length;
     }
@@ -285,33 +262,16 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">Underlying data type.</param>
-    /// <param name="isNullable">Indicates whether type is nullable.</param>
-    /// <param name="length">The length.</param>
-    /// <param name="culture">The culture.</param>
     /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, bool isNullable, int? length, CultureInfo culture, object nativeType)
-      : this(type, isNullable, length, nativeType)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
-      Culture = culture;
-    }
-
-    /// <summary>
-    /// 	Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
-    /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    /// <param name="nativeType">The native type.</param>
-    public StorageTypeInfo(Type type, bool isNullable, int? length, int? scale, int? precision, object nativeType)
-      : this(type, isNullable, length, nativeType)
+    /// <param name="scale">The scale.</param>
+    public StorageTypeInfo(Type type, SqlValueType nativeType, bool isNullable, int? length, int? precision, int? scale)
+      : this(type, nativeType, isNullable, length)
     {
       Scale = scale;
       Precision = precision;
     }
-
-    #endregion
   }
 }

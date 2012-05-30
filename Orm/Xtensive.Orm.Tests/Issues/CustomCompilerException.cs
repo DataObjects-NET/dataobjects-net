@@ -124,6 +124,8 @@ namespace Xtensive.Orm.Tests.Issues
         [Test]
         public void MainTest()
         {
+            Require.ProviderIsNot(StorageProvider.Sqlite, "parser stack overflow");
+
             using (var session = Domain.OpenSession())
             {
                 using (var transactionScope = session.OpenTransaction())

@@ -1257,6 +1257,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current storage does not support changing column types.
+        /// </summary>
+        internal static string ExCurrentStorageDoesNotSupportChangingColumnTypes {
+            get {
+                return ResourceManager.GetString("ExCurrentStorageDoesNotSupportChangingColumnTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Current storage provider does not support savepoints (nested transactions)..
         /// </summary>
         internal static string ExCurrentStorageProviderDoesNotSupportSavepoints {
