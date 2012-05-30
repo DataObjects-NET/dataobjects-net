@@ -269,7 +269,6 @@
     <Compile Include="Storage\AbstractGenericsTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
     <Compile Include="Storage\ClientProfileSessionTest.cs" />
-    <Compile Include="Storage\ClientProfileTest.cs" />
     <Compile Include="Storage\DiartisBugsTest.cs" />
     <Compile Include="Storage\DisconnectedStateSideEffectsTest.cs" />
     <Compile Include="Storage\DisconnectedStateTest2.cs" />
