@@ -80,6 +80,8 @@ namespace Xtensive.Orm
     private bool isDelayedQueryRunning;
     private volatile bool isDisposed;
 
+    private TransactionScope disconnectedTransaction;
+
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
     /// </summary>
@@ -428,6 +430,7 @@ namespace Xtensive.Orm
       if (Configuration.Supports(SessionOptions.Disconnected)) {
         disposableSet.Add(new DisconnectedState().Attach(this));
         disposableSet.Add(DisconnectedState.Connect());
+        BeginDisconnectedTransaction();
       }
 
       // Perform activation

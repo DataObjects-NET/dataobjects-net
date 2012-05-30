@@ -5,15 +5,11 @@
 // Created:    2007.08.10
 
 using System;
-using System.Collections.Generic;
 using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-
-using Xtensive.Orm.Services;
-using System.Linq;
 
 namespace Xtensive.Orm
 {
@@ -69,7 +65,7 @@ namespace Xtensive.Orm
     public void SaveChanges()
     {
       if (Configuration.Supports(SessionOptions.Disconnected))
-        DisconnectedState.ApplyChanges();
+        SaveLocalChanges();
       else
         Persist(PersistReason.Manual);
     }
@@ -82,9 +78,32 @@ namespace Xtensive.Orm
     public void CancelChanges()
     {
       if (Configuration.Supports(SessionOptions.Disconnected))
-        DisconnectedState.CancelChanges();
+        CancelLocalChanges();
       else
         throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
+    }
+
+    private void SaveLocalChanges()
+    {
+      Validate();
+      EndDisconnectedTransaction(true);
+      try {
+        DisconnectedState.ApplyChanges();
+      }
+      finally {
+        BeginDisconnectedTransaction();
+      }
+    }
+
+    private void CancelLocalChanges()
+    {
+      EndDisconnectedTransaction(false);
+      try {
+        DisconnectedState.CancelChanges();
+      }
+      finally {
+        BeginDisconnectedTransaction();
+      }
     }
 
     internal void Persist(PersistReason reason)
