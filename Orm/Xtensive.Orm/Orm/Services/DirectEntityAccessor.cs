@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Aspects;
+using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Model;
 
@@ -34,6 +35,16 @@ namespace Xtensive.Orm.Services
       return targetEntity.UpdateVersionInfo(targetEntity, changedField);
     }
 
+    /// <summary>
+    /// Gets the internal state of the entity.
+    /// </summary>
+    /// <param name="target">The target entity.</param>
+    public EntityState GetEntityState(Entity target)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+
+      return target.State;
+    }
 
     // Constructors
 

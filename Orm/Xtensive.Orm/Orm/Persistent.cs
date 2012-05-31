@@ -337,6 +337,39 @@ namespace Xtensive.Orm
       }
     }
 
+    protected internal void SetReferenceKey(FieldInfo field, Key value)
+    {
+      Key oldValue = null;
+      try {
+        oldValue = GetReferenceKey(field);
+        if (field.ReflectedType.IsInterface)
+          field = TypeInfo.FieldMap[field];
+        SystemBeforeSetValue(field, value);
+        if (!field.IsEntity)
+          throw new InvalidOperationException(
+            String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+
+        var types = Session.Domain.Model.Types;
+        if (value == null) {
+          for (int i = field.MappingInfo.Offset; i <= field.MappingInfo.EndOffset; i++)
+            Tuple.SetValue(i, null);
+          return;
+        }
+        var type = types[field.ValueType];
+        if (!(type == value.TypeInfo || type.GetDescendants().Contains(value.TypeInfo)))
+          throw new InvalidOperationException(string.Format("Key of {0} type is not assignable to field of {1} type", value.TypeInfo.Name, field.ValueType.Name));
+
+        value.Value.CopyTo(Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+
+        SystemSetValue(field, oldValue, value);
+        SystemSetValueCompleted(field, oldValue, value, null);
+      }
+      catch(Exception e) {
+        SystemSetValueCompleted(field, oldValue, value, e);
+        throw;
+      }
+    }
+
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely. 
