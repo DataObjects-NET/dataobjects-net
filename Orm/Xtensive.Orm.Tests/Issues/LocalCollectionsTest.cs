@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Issues.LocalCollectionsTest_Model
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 250)]
     public string Text { get; set; }
   }
 }

@@ -4,64 +4,64 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0116_InterfacesCastAndIndexesModel
 {
   public class Employee : Record, IEmployee
   {
-    [Field]
+    [Field(Length = 200)]
     public String InsuranceNumber { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String PensionNumber { get; set; }
 
     [Field]
     public Double EmploymentFraction { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String PersonNumber { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String LastName { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String FirstName { get; set; }
 
     [Field]
     public Boolean Active { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String BankAccountNumber { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Notes { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String WebSite { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Email { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Fax { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Mobile { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Phone { get; set; }
 
     [Field]
     public ICountry Country { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Place { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String PostalCode { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Address { get; set; }
 
     [Field]
     public Int32 Number { get; set; }
 
-    [Field]
+    [Field(Length = 200)]
     public String Name { get; set; }
 
     public Employee(IParty createdBy)

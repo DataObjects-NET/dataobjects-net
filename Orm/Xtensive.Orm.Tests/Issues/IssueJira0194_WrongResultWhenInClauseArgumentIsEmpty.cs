@@ -16,10 +16,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0194_WrongResultWhenInClauseArgumen
   [HierarchyRoot, KeyGenerator(KeyGeneratorKind.None)]
   public class Person : Entity
   {
-    [Field, Key(0)]
+    [Field(Length = 100), Key(0)]
     public string Name { get; private set; }
 
-    [Field, Key(1)]
+    [Field(Length = 100), Key(1)]
     public string Surname { get; private set; }
 
     public Person(string name, string surname)

@@ -26,22 +26,22 @@ namespace Xtensive.Orm.Tests.Issues
       [Field]
       public Guid? UniqueIndentifier { get; set; }
 
-      [Field]
+      [Field(Length = 400)]
       public string Name { get; set; }
 
-      [Field]
+      [Field(Length = 400)]
       public string Email { get; set; }
 
-      [Field]
+      [Field(Length = 400)]
       public string Password { get; set; }
 
-      [Field]
+      [Field(Length = 400)]
       public string AlternativePassword { get; set; }
 
-      [Field]
+      [Field(Length = 400)]
       public string PasswordQuestion { get; set; }
 
-      [Field]
+      [Field(Length = 400)]
       public string PasswordAnswer { get; set; }
 
       [Field, Association(OnTargetRemove = OnRemoveAction.Clear, PairTo = "Users")]
