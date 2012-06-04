@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
       [Field(Length = 64)]
       public string SysName { get; set; }
 
-      [Field(Length = 400)]
+      [Field(Length = 250)]
       public string Name { get; set; }
 
       [Field(Length = 400)]

@@ -5,21 +5,12 @@
 // Created:    2011.03.03
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Transactions;
-
 using NUnit.Framework;
-
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
-
-using System;
-
-using Xtensive.Orm;
 using Xtensive.Orm.Tests.Issues.IssueJIRA0020_CustomLINQCompilerContainerInterface_Model;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -39,7 +30,10 @@ namespace Xtensive.Orm.Tests.Issues
       [Field]
       public Region Region { get; set; }
 
-      public string RegionName { get { return exprComp(this); } }
+      public string RegionName
+      {
+        get { return exprComp(this); }
+      }
 
       private static readonly Expression<Func<Person, string>> expr = p => p.Region.Name;
 
@@ -48,16 +42,16 @@ namespace Xtensive.Orm.Tests.Issues
       /// <summary>
       /// The custom linq compiler container.
       /// </summary>
-      [CompilerContainer(typeof(Expression))]
+      [CompilerContainer(typeof (Expression))]
       public static class CustomLinqCompilerContainer
       {
-        [Compiler(typeof(Person), "RegionName", TargetKind.PropertyGet)]
+        [Compiler(typeof (Person), "RegionName", TargetKind.PropertyGet)]
         public static Expression PersonRegionName(Expression assignmentExpression)
         {
           return expr.BindParameters(assignmentExpression);
         }
 
-        [Compiler(typeof(ITest), "RegionName", TargetKind.PropertyGet)]
+        [Compiler(typeof (ITest), "RegionName", TargetKind.PropertyGet)]
         public static Expression ITestRegionName(Expression assignmentExpression)
         {
           Expression<Func<ITest, string>> le = it => it is Person ? (it as Person).Region.Name : null;
@@ -88,43 +82,33 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof(ITest).Assembly, typeof(ITest).Namespace);
-      config.Sessions.Default.Options = SessionOptions.AutoActivation;
-      return config;
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof (ITest).Assembly, typeof (ITest).Namespace);
+      configuration.Sessions.Default.Options = SessionOptions.AutoActivation;
+      return configuration;
     }
 
     [Test]
-//    [Transactional(ActivateSession = true)]
-    public void VirtualFieldSelect1()
+    public void VirtualFieldSelect()
     {
-    }
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
+        var region = new Region {Name = "13123123121"};
+        var person = new Person {Age = 1, Region = region};
 
-    /// <summary>
-    /// Проверка виртуальных полей
-    /// </summary>
-    [Test]
-    public void VirtualFieldSelect2()
-    {
-      using (var s = Domain.OpenSession())
-      using (var t = s.OpenTransaction()) {
-        var r = new Region { Name = "13123123121" };
-        var p = new Person { Age = 1, Region = r };
+        var persons = session.Query.All<Person>();
 
-        var queryable = s.Query.All<Person>();
-
-        var qwe = from person in queryable
-                  where person.RegionName == "13123123121"
-                  select person;
-        var result = qwe.ToList();
+        var personsQuery = persons.Where(p => p.RegionName=="13123123121");
+        var result = personsQuery.ToList();
         Assert.AreEqual(1, result.Count);
 
-        var q = queryable as IQueryable<ITest>;
-        var qq = from test in q
-                 where test.RegionName == "13123123121"
-                 select test;
-        var interfaceResult = qq.ToList();
-        Assert.AreEqual(1, interfaceResult.Count);
+        var interfaces = persons as IQueryable<ITest>;
+        if (interfaces!=null) {
+          // Convariant upcast will work in .NET 4.0+
+          var interfacesQuery = interfaces.Where(test => test.RegionName=="13123123121");
+          var interfaceResult = interfacesQuery.ToList();
+          Assert.AreEqual(1, interfaceResult.Count);
+        }
       }
     }
   }
