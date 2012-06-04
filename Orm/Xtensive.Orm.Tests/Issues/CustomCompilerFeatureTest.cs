@@ -75,7 +75,8 @@ namespace Xtensive.Orm.Tests.Issues
 
       public Person(Session session)
         : base(session)
-      {}
+      {
+      }
     }
 
     [Serializable]
@@ -136,7 +137,8 @@ namespace Xtensive.Orm.Tests.Issues
 
       public Region(Session session)
         : base(session)
-      {}
+      {
+      }
     }
   }
 
@@ -152,7 +154,8 @@ namespace Xtensive.Orm.Tests.Issues
 
       protected HasVirtualFields(Session session)
         : base(session)
-      {}
+      {
+      }
     }
 
     [CompilerContainer(typeof (Expression))]
@@ -198,7 +201,8 @@ namespace Xtensive.Orm.Tests.Issues
 
       public Customer(Session session)
         : base(session)
-      {}
+      {
+      }
     }
 
     public class Enterprise : HasVirtualFields
@@ -229,8 +233,10 @@ namespace Xtensive.Orm.Tests.Issues
 
       #endregion
 
-      public Enterprise(Session session) : base(session)
-      {}
+      public Enterprise(Session session)
+        : base(session)
+      {
+      }
     }
 
     [Serializable]
@@ -253,7 +259,8 @@ namespace Xtensive.Orm.Tests.Issues
 
       public Area(Session session)
         : base(session)
-      {}
+      {
+      }
     }
   }
 
@@ -262,62 +269,68 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (IHasVirtualFields).Assembly, typeof (IHasVirtualFields).Namespace);
-      config.Types.Register(typeof (HasVirtualFields).Assembly, typeof (HasVirtualFields).Namespace);
-      config.Sessions.Default.Options = SessionOptions.ServerProfile;
-      return config;
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof (IHasVirtualFields).Assembly, typeof (IHasVirtualFields).Namespace);
+      configuration.Types.Register(typeof (HasVirtualFields).Assembly, typeof (HasVirtualFields).Namespace);
+      configuration.Sessions.Default.Options = SessionOptions.ServerProfile;
+      return configuration;
     }
 
     [Test]
     public void HierarchyVirtualFieldTest()
     {
-      using (Session s = Domain.OpenSession())
-      using (TransactionScope t = s.OpenTransaction()) {
-        var r = new Area(s) {Name = "13123123121"};
-        var p = new Customer(s) {Age = 1, Area = r};
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
+        var area = new Area(session) {Name = "13123123121"};
+        var customer = new Customer(session) {Age = 1, Area = area};
 
-        var queryable = s.Query.All<Customer>();
+        var customers = session.Query.All<Customer>();
+        var customersQuery = customers.Where(c => c.RegionName=="13123123121");
+        Assert.AreEqual(1, customersQuery.ToList().Count);
 
-        var qwe = from customer in queryable
-                                   where customer.RegionName == "13123123121"
-                                   select customer;
-        Assert.AreEqual(1, qwe.ToList().Count);
+        var virtualEntities = customers as IQueryable<HasVirtualFields>;
+        if (virtualEntities!=null) {
+          // Covariant upcast will work in .NET 4.0+
+          var virtualEntitiesQuery = virtualEntities.Where(item => item.RegionName=="13123123121");
+          Assert.AreEqual(1, virtualEntitiesQuery.ToList().Count);
+        }
 
-        var q = queryable as IQueryable<HasVirtualFields>;
-        var qq = from root in q
-                                          where root.RegionName == "13123123121"
-                                          select root;
-        Assert.AreEqual(1, qq.ToList().Count);
+        var allCustomers = session.Query.All<Customer>()
+          .OrderBy(c => c.RegionName)
+          .ToList();
 
-        s.Query.All<Customer>().OrderBy(c => c.RegionName).ToList();
-        s.Query.All<HasVirtualFields>().OrderBy(c => c.RegionName).ToList();
+        var allVirtualEntities = session.Query.All<HasVirtualFields>()
+          .OrderBy(c => c.RegionName)
+          .ToList();
       }
     }
 
     [Test]
     public void InterfaceVirtualFieldTest()
     {
-      using (Session s = Domain.OpenSession())
-      using (TransactionScope t = s.OpenTransaction()) {
-        var r = new Region(s) {Name = "13123123121"};
-        var p = new Person(s) {Age = 1, Region = r};
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
+        var region = new Region(session) {Name = "13123123121"};
+        var person = new Person(session) {Age = 1, Region = region};
 
-        var queryable = s.Query.All<Person>();
+        var persons = session.Query.All<Person>();
+        var personsQuery = persons.Where(p => p.RegionName=="13123123121");
+        Assert.AreEqual(1, personsQuery.ToList().Count);
 
-        var qwe = from person in queryable
-                                 where person.RegionName == "13123123121"
-                                 select person;
-        Assert.AreEqual(1, qwe.ToList().Count);
+        var virtualEntities = persons as IQueryable<IHasVirtualFields>;
+        if (virtualEntities!=null) {
+          // Covariant upcast will work in .NET 4.0+
+          var virtualEntitiesQuery = virtualEntities.Where(root => root.RegionName=="13123123121");
+          Assert.AreEqual(1, virtualEntitiesQuery.ToList().Count);
+        }
 
-        var q = queryable as IQueryable<IHasVirtualFields>;
-        var qq = from root in q
-                                           where root.RegionName == "13123123121"
-                                           select root;
-        Assert.AreEqual(1, qq.ToList().Count);
+        var allPersons = session.Query.All<Person>()
+          .OrderBy(c => c.RegionName)
+          .ToList();
 
-        s.Query.All<Person>().OrderBy(c => c.RegionName).ToList();
-        s.Query.All<IHasVirtualFields>().OrderBy(c => c.RegionName).ToList();
+        var allVirtualEntities = session.Query.All<IHasVirtualFields>()
+          .OrderBy(c => c.RegionName)
+          .ToList();
       }
     }
   }
