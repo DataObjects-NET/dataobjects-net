@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Tests.Storage
 {
   namespace ForceServerVersionModel
   {
-    [HierarchyRoot]
+    [HierarchyRoot, KeyGenerator(KeyGeneratorKind.None)]
     public class Forced : Entity
     {
       [Field, Key]
@@ -21,6 +21,11 @@ namespace Xtensive.Orm.Tests.Storage
 
       [Field]
       public DateTime DateTimeField { get; set; }
+
+      public Forced(Session session, int id)
+        : base(session, id)
+      {
+      }
     }
   }
 
