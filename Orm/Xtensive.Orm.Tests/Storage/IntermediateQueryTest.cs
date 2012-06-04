@@ -5,7 +5,6 @@
 // Created:    2010.11.17
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -68,25 +67,22 @@ namespace Xtensive.Orm.Tests.Storage
     public void SelectManyTest()
     {
       using (var session = Domain.OpenSession())
-      {
-        using (var transactionScope = session.OpenTransaction())
-        {
-          var parent = new Parent();
-          var child = new Child();
-          parent.MyChildren.Add(child);
+      using (session.OpenTransaction()) {
+        var parent = new Parent();
+        var child = new Child();
+        parent.MyChildren.Add(child);
 
-          Session.Current.SaveChanges();
+        Session.Current.SaveChanges();
 
-          var list = session.Query.All<Parent>()
-            .SelectMany(p => p.MyChildren, (p, c) => new {MasterId = p.ID, SlaveId = c.ID})
-            .ToList();
+        var list = session.Query.All<Parent>()
+          .SelectMany(p => p.MyChildren, (p, c) => new {MasterId = p.ID, SlaveId = c.ID})
+          .ToList();
 
-          Assert.AreEqual(1, list.Count);
+        Assert.AreEqual(1, list.Count);
 
-          var p0 = session.Query.All<Parent>().First();
-          foreach (var c in p0.MyChildren) {
-            Console.WriteLine(c);
-          }
+        var p0 = session.Query.All<Parent>().First();
+        foreach (var c in p0.MyChildren) {
+          Console.WriteLine(c);
         }
       }
     }
@@ -95,31 +91,32 @@ namespace Xtensive.Orm.Tests.Storage
     public void CustomQueryTestTest()
     {
       using (var session = Domain.OpenSession())
-      {
-        using (var transactionScope = session.OpenTransaction())
-        {
-          var parent = new Parent();
-          var child = new Child();
-          parent.MyChildren.Add(child);
+      using (session.OpenTransaction()) {
+        var parent = new Parent();
+        var child = new Child();
+        parent.MyChildren.Add(child);
 
-          Session.Current.SaveChanges();
+        Session.Current.SaveChanges();
 
-          var types = Domain.Model.Types;
-          var itemsType = Domain.Model.Types[typeof(Parent)].Fields["MyChildren"].Associations[0].AuxiliaryType.UnderlyingType;
-          var qqq = session.Query.All(itemsType) as IQueryable<EntitySetItem<Parent, Child>>;
-          var list = qqq.ToList();
-          var qq = qqq
-            .Select(e => new { MasterId = e.Master.ID, SlaveId = e.Slave.ID })
+        var types = Domain.Model.Types;
+        var itemsType = Domain.Model
+          .Types[typeof (Parent)]
+          .Fields["MyChildren"]
+          .Associations[0].AuxiliaryType.UnderlyingType;
+
+        var items = session.Query.All(itemsType) as IQueryable<EntitySetItem<Parent, Child>>;
+        if (items!=null) {
+          // Covariant upcast with work in .NET 4.0+
+          var list = items.ToList();
+          var result = items
+            .Select(e => new {MasterId = e.Master.ID, SlaveId = e.Slave.ID})
             .ToList();
-
           Assert.AreEqual(1, list.Count);
-
-          var p0 = session.Query.All<Parent>().First();
-          foreach (var c in p0.MyChildren)
-          {
-            Console.WriteLine(c);
-          }
         }
+
+        var firstParent = session.Query.All<Parent>().First();
+        foreach (var c in firstParent.MyChildren)
+          Console.WriteLine(c);
       }
     }
   }
