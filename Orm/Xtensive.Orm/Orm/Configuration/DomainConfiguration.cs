@@ -460,6 +460,11 @@ namespace Xtensive.Orm.Configuration
     /// If provider does not utilize collations this setting is ignored.
     /// <remarks>
     /// Only 'sqlserver', 'sqlserverce' and 'sqlite' providers support this setting.
+    /// For 'sqlite' provider the following non-standard collations are supported
+    /// in addition to any user-provided collations:
+    /// Xtensive_Ordinal, Xtensive_Ordinal_IgnoreCase,
+    /// Xtensive_CurrentCulture, Xtensive_CurrentCulture_IgnoreCase,
+    /// Xtensive_InvariantCulture, Xtensive_InvariantCulture_IgnoreCase.
     /// </remarks>
     /// </summary>
     public string Collation
