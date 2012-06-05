@@ -105,6 +105,7 @@ namespace Xtensive.Orm.Configuration
 
     private bool? isMultidatabase;
     private bool? isMultischema;
+    private string collation;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -455,6 +456,23 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets collation for all columns.
+    /// If provider does not utilize collations this setting is ignored.
+    /// <remarks>
+    /// Only 'sqlserver', 'sqlserverce' and 'sqlite' providers support this setting.
+    /// </remarks>
+    /// </summary>
+    public string Collation
+    {
+      get { return collation; }
+      set
+      {
+        this.EnsureNotLocked();
+        collation = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -559,6 +577,7 @@ namespace Xtensive.Orm.Configuration
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
       forcedServerVersion = configuration.forcedServerVersion;
       buildInParallel = configuration.buildInParallel;
+      collation = configuration.collation;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();

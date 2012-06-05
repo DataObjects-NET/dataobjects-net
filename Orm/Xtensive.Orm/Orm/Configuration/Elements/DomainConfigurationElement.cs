@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string KeyGeneratorsElementName = "keyGenerators";
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
-    private const string KeyGeneratorModeElementName = "keyGeneratorMode";
+    private const string CollationElementName = "collation";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
     private const string BuildInParallelElementName = "buildInParallel";
@@ -204,13 +204,13 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.KeyGeneratorMode" copy="true"/>
+    /// <see cref="DomainConfiguration.Collation" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(KeyGeneratorModeElementName, DefaultValue = "Default")]
-    public string KeyGeneratorMode
+    [ConfigurationProperty(CollationElementName)]
+    public string Collation
     {
-      get { return (string) this[KeyGeneratorModeElementName]; }
-      set { this[KeyGeneratorModeElementName] = value; }
+      get { return (string) this[CollationElementName]; }
+      set { this[CollationElementName] = value; }
     }
 
     /// <summary>
@@ -343,6 +343,7 @@ namespace Xtensive.Orm.Configuration.Elements
         IncludeSqlInExceptions = IncludeSqlInExceptions,
         BuildInParallel = BuildInParallel,
         ForcedServerVersion = ForcedServerVersion,
+        Collation = Collation,
       };
 
       foreach (var element in Types)

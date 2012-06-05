@@ -6,6 +6,7 @@
 
 using System;
 using System.Data.SQLite;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Drivers.Sqlite.Resources;
@@ -62,6 +63,17 @@ namespace Xtensive.Sql.Drivers.Sqlite
         result += String.Format("; Password = '{0}'", url.Password);
 
       return result;
+    }
+
+    static DriverFactory()
+    {
+      // Register our helper collations
+
+      var functions = typeof (DriverFactory).Assembly.GetTypes()
+        .Where(t => typeof (SQLiteFunction).IsAssignableFrom(t));
+
+      foreach (var f in functions)
+        SQLiteFunction.RegisterFunction(f);
     }
   }
 }

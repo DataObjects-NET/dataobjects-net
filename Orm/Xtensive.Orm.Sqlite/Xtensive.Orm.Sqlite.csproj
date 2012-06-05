@@ -86,6 +86,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Sql.Drivers.Sqlite\Collations\CurrentCultureCollation.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Collations\CurrentCultureIgnoreCaseCollation.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Collations\InvariantCultureCollation.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Collations\InvariantCultureIgnoreCaseCollation.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Collations\OrdinalCollation.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\Collations\OrdinalIgnoreCaseCollation.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Connection.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Driver.cs" />
     <Compile Include="Sql.Drivers.Sqlite\DriverFactory.cs" />

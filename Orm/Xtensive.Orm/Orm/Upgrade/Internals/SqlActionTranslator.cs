@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly ISqlExecutor sqlExecutor;
     private readonly bool allowCreateConstraints;
 
+    private readonly string collationName;
     private readonly ActionSequence actions;
     private readonly SqlExtractionResult sqlModel;
     private readonly StorageModel sourceModel;
@@ -879,18 +880,20 @@ namespace Xtensive.Orm.Upgrade
 
     private TableColumn CreateColumn(StorageColumnInfo columnInfo, Table table)
     {
-      var type = (SqlValueType) columnInfo.Type.NativeType;
+      var type = columnInfo.Type.NativeType;
       var column = table.CreateColumn(columnInfo.Name, type);
-      var isPrimaryKeyColumn = columnInfo.Parent.PrimaryIndex!=null
-        && columnInfo.Parent.PrimaryIndex.KeyColumns
-          .Any(keyColumn => keyColumn.Value==columnInfo);
+      var isPrimaryKeyColumn =
+        columnInfo.Parent.PrimaryIndex!=null
+        && columnInfo.Parent.PrimaryIndex.KeyColumns.Any(keyColumn => keyColumn.Value==columnInfo);
 
-      if (!column.IsNullable
-        && column.Name!=typeIdColumnName
-        && !isPrimaryKeyColumn)
+      if (!column.IsNullable && column.Name!=typeIdColumnName && !isPrimaryKeyColumn)
         column.DefaultValue = GetDefaultValueExpression(columnInfo);
 
       column.IsNullable = columnInfo.Type.IsNullable;
+
+      if (collationName!=null)
+        column.Collation = table.Schema.Collations[collationName] ?? new Collation(table.Schema, collationName);
+
       return column;
     }
 
@@ -1151,6 +1154,12 @@ namespace Xtensive.Orm.Upgrade
       this.enforceChangedColumns = enforceChangedColumns;
       this.sqlExecutor = sqlExecutor;
       this.allowCreateConstraints = allowCreateConstraints;
+
+      if (providerInfo.Supports(ProviderFeatures.Collations)) {
+        var collation = handlers.Domain.Configuration.Collation;
+        if (!string.IsNullOrEmpty(collation))
+          collationName = collation;
+      }
     }
   }
 }

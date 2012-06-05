@@ -19,10 +19,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override EntityInfo GetCollationInfo()
     {
-      var collationInfo = new EntityInfo();
-      collationInfo.MaxIdentifierLength = MaxIdentifierLength;
-      collationInfo.AllowedDdlStatements = DdlStatements.None;
-      return collationInfo;
+      return null;
     }
 
     /// <inheritdoc/>

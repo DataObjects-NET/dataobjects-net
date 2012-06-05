@@ -71,8 +71,16 @@ namespace Xtensive.Orm.Building.Builders
       mapping.TemporaryTableDatabase = defaultSchema.Catalog.Name;
       mapping.TemporaryTableSchema = defaultSchema.Name;
 
-      var collation = defaultSchema.Collations.FirstOrDefault();
-      mapping.TemporaryTableCollation = collation!=null ? collation.Name : null;
+      if (providerInfo.Supports(ProviderFeatures.Collations))
+        if (!string.IsNullOrEmpty(configuration.Collation)) {
+          // If user explicitly specified collation use that
+          mapping.TemporaryTableCollation = configuration.Collation;
+        }
+        else {
+          // Otherwise use first available collation
+          var collation = defaultSchema.Collations.FirstOrDefault();
+          mapping.TemporaryTableCollation = collation!=null ? collation.Name : null;
+        }
 
       mapping.Lock();
       return mapping;

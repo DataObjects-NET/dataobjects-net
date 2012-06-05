@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers
     DdlBatches = 1L << 0,
     DmlBatches = 1L << 1,
     ClusteredIndexes = 1L << 2,
-    Collations = 1L << 3, // Not used
+    Collations = 1L << 3,
     Apply = 1L << 4,
     DeferrableConstraints = 1L << 5,
     ForeignKeyConstraints = 1L << 6,
