@@ -8,7 +8,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_4
 {
   internal class Translator : v8_3.Translator
   {
-    // Constuctors
+    // Constructors
 
     public Translator(SqlDriver driver)
       : base(driver)

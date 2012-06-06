@@ -10,7 +10,7 @@ using System.Data.Common;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
-  internal class TypeMapper : v8_0.TypeMapper
+  internal class TypeMapper : v8_2.TypeMapper
   {
     public override bool IsLiteralCastRequired(Type type)
     {

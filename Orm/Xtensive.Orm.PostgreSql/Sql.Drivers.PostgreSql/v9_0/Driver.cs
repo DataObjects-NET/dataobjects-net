@@ -1,13 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Denis Kryuchkov
-// Created:    2009.07.07
+// Created by: Denis Krjuchkov
+// Created:    2012.06.06
 
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.Drivers.PostgreSql.v8_4
+namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
   internal class Driver : PostgreSql.Driver
   {
