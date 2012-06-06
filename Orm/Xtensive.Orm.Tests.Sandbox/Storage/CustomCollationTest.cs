@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Collation = "Xtensive_InvariantCulture_IgnoreCase";
+      configuration.Collation = "StringComparer_InvariantCulture_IgnoreCase";
       configuration.Types.Register(typeof (Collated));
       return configuration;
     }
@@ -48,14 +48,14 @@ namespace Xtensive.Orm.Tests.Storage
         CreateEntities();
 
         var expected = new[] {
-          "bye", "Bye", "hello", "Hello",
-          "пока", "Пока", "привет", "Привет"
+          "bye", "bye", "hello", "hello",
+          "пока", "пока", "привет", "привет"
         };
 
         var actual = session.Query.All<Collated>()
           .OrderBy(c => c.Name)
           .AsEnumerable()
-          .Select(c => c.Name)
+          .Select(c => c.Name.ToLowerInvariant())
           .ToArray();
 
         Assert.That(actual.SequenceEqual(expected));

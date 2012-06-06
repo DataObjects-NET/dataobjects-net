@@ -9,7 +9,7 @@ using System.Data.SQLite;
 
 namespace Xtensive.Sql.Drivers.Sqlite.Collations
 {
-  [SQLiteFunction(FuncType = FunctionType.Collation, Name = "Xtensive_Ordinal_IgnoreCase")]
+  [SQLiteFunction(FuncType = FunctionType.Collation, Name = "StringComparer_Ordinal_IgnoreCase")]
   public class OrdinalIgnoreCaseCollation : SQLiteFunction
   {
     public override int Compare(string param1, string param2)

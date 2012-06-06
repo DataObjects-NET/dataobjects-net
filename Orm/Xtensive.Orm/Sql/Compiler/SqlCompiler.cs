@@ -456,18 +456,18 @@ namespace Xtensive.Sql.Compiler
       }
       context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.Exit));
     }
-    
+
     public virtual void Visit(SqlCreateIndex node, IndexColumn item)
     {
-        if (!item.Expression.IsNullReference() && CheckFeature(IndexFeatures.Expressions))
-          using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
-            item.Expression.AcceptVisitor(this);
-          }
-        else {
-          context.Output.AppendText(translator.QuoteIdentifier(item.Column.Name));
-          if (!(node.Index.IsFullText || node.Index.IsSpatial) && CheckFeature(IndexFeatures.SortOrder))
-            context.Output.AppendText(translator.TranslateSortOrder(item.Ascending));
-        }
+      if (!item.Expression.IsNullReference() && CheckFeature(IndexFeatures.Expressions)) {
+        using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns))
+          item.Expression.AcceptVisitor(this);
+      }
+      else {
+        context.Output.AppendText(translator.QuoteIdentifier(item.Column.Name));
+        if (!(node.Index.IsFullText || node.Index.IsSpatial) && CheckFeature(IndexFeatures.SortOrder))
+          context.Output.AppendText(translator.TranslateSortOrder(item.Ascending));
+      }
     }
 
     public virtual void Visit(SqlCreatePartitionFunction node)

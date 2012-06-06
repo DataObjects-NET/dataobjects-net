@@ -9,7 +9,7 @@ using System.Data.SQLite;
 
 namespace Xtensive.Sql.Drivers.Sqlite.Collations
 {
-  [SQLiteFunction(FuncType = FunctionType.Collation, Name = "Xtensive_CurrentCulture")]
+  [SQLiteFunction(FuncType = FunctionType.Collation, Name = "StringComparer_CurrentCulture")]
   public class CurrentCultureCollation : SQLiteFunction
   {
     public override int Compare(string param1, string param2)

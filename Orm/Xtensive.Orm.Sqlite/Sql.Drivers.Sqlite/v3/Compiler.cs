@@ -266,6 +266,15 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       context.Output.AppendText(translator.Translate(context, node, SelectSection.OffsetEnd));
     }
 
+    public override void Visit(SqlCreateIndex node, IndexColumn item)
+    {
+      base.Visit(node, item);
+
+      var column = item.Column as TableColumn;
+      if (column!=null && column.Collation!=null)
+        context.Output.AppendText(translator.Translate(context, column, TableColumnSection.Collate));
+    }
+
     private SqlExpression DateTimeTruncate(SqlExpression date)
     {
       return SqlDml.FunctionCall("DATETIME", SqlDml.FunctionCall("DATE", date));

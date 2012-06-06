@@ -237,22 +237,23 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       node.FreeText.AcceptVisitor(this);
       context.Output.AppendText(") ");
     }
-    
-  public override void Visit(SqlCreateIndex node, IndexColumn item)
-  {
-    base.Visit(node, item);
-    switch (item.Languages.Count) {
-      case 0:
-      break;
-      case 1:
-      if (!string.IsNullOrEmpty(item.Languages[0].Name)) 
-        context.Output.AppendText(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
-      break;
-      default:
-        throw new InvalidOperationException(string.Format(
-          Strings.ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY, item.Name, item.Index.Name));
+
+    public override void Visit(SqlCreateIndex node, IndexColumn item)
+    {
+      base.Visit(node, item);
+
+      switch (item.Languages.Count) {
+        case 0:
+          break;
+        case 1:
+          if (!string.IsNullOrEmpty(item.Languages[0].Name))
+            context.Output.AppendText(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
+          break;
+        default:
+          throw new InvalidOperationException(string.Format(
+            Strings.ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY, item.Name, item.Index.Name));
+      }
     }
-  }
 
     #region Static helpers
 

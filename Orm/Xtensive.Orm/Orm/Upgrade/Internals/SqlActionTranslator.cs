@@ -891,7 +891,7 @@ namespace Xtensive.Orm.Upgrade
 
       column.IsNullable = columnInfo.Type.IsNullable;
 
-      if (collationName!=null)
+      if (columnInfo.Type.Type==typeof (string) && collationName!=null)
         column.Collation = table.Schema.Collations[collationName] ?? new Collation(table.Schema, collationName);
 
       return column;
