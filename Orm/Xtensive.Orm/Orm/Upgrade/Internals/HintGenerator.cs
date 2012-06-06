@@ -34,7 +34,8 @@ namespace Xtensive.Orm.Upgrade
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping;
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> reverseFieldMapping;
-    
+    private readonly Dictionary<StoredTypeInfo, StoredFieldInfo[]> storedNestedFields;
+
     private readonly List<Hint> schemaHints = new List<Hint>();
 
     public HintGenerationResult GenerateHints(IEnumerable<UpgradeHint> upgradeHints)
@@ -960,6 +961,21 @@ namespace Xtensive.Orm.Upgrade
     private List<string> GetAffectedColumns(StoredTypeInfo type, StoredFieldInfo field)
     {
       var affectedColumns = new List<string>();
+
+      if (type.IsStructure) {
+        var structureFields = storedModel.Types
+          .Where(t => t.IsEntity)
+          .SelectMany(t => storedNestedFields[t].Where(f => f.IsStructure && f.ValueType==type.UnderlyingType));
+
+        foreach (var structureField in structureFields) {
+          var nestedField = structureField.Fields.FirstOrDefault(f => f.OriginalName==field.Name);
+          if (nestedField!=null)
+            affectedColumns.AddRange(GetAffectedColumns(structureField.DeclaringType, nestedField));
+        }
+
+        return affectedColumns;
+      }
+
       foreach (var primitiveField in field.PrimitiveFields) {
         var inheritanceSchema = type.Hierarchy.InheritanceSchema;
         switch (inheritanceSchema) {
@@ -970,8 +986,9 @@ namespace Xtensive.Orm.Upgrade
             affectedColumns.Add(GetColumnPath(type.Hierarchy.Root.MappingName, primitiveField.MappingName));
             break;
           case InheritanceSchema.ConcreteTable:
-            var typeToProcess = GetAffectedMappedTypes(type, type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable);
-            affectedColumns.AddRange(typeToProcess.Select(t => GetColumnPath(t.MappingName, primitiveField.MappingName)));
+            var columns = GetAffectedMappedTypes(type, true)
+              .Select(t => GetColumnPath(t.MappingName, primitiveField.MappingName));
+            affectedColumns.AddRange(columns);
             break;
           default:
             throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
@@ -1204,6 +1221,10 @@ namespace Xtensive.Orm.Upgrade
       this.currentModel.UpdateReferences();
       currentTypes = this.currentModel.Types.ToDictionary(t => t.UnderlyingType);
       storedTypes = this.storedModel.Types.ToDictionary(t => t.UnderlyingType);
+      storedNestedFields = new Dictionary<StoredTypeInfo, StoredFieldInfo[]>();
+
+      foreach (var type in storedModel.Types)
+        storedNestedFields.Add(type, type.Fields.Flatten(f => f.Fields, null, true).ToArray());
     }
   }
 }
