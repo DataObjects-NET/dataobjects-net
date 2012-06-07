@@ -7,7 +7,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
@@ -28,51 +27,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       }
       return base.ReadDateTime(reader, index);
     }
-
-    public void BindGeometry(DbParameter parameter, object value)
-    {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-
-      var sqlParameter = (SqlParameter) parameter;
-      sqlParameter.UdtTypeName = "geometry";
-      sqlParameter.Value = value;
-    }
-
-    public void BindGeography(DbParameter parameter, object value)
-    {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-
-      var sqlParameter = (SqlParameter) parameter;
-      sqlParameter.UdtTypeName = "geography";
-      sqlParameter.Value = value;
-    }
-
-    public object ReadGeography(DbDataReader reader, int index)
-    {
-      return reader.GetValue(index);
-    }
-
-    public object ReadGeometry(DbDataReader reader, int index)
-    {
-      return reader.GetValue(index);
-    }
-
-    public SqlValueType MapGeography(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Geography);
-    }
-
-    public SqlValueType MapGeometry(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Geometry);
-    }
-
 
     // Constructors
 

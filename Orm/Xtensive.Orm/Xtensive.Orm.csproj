@@ -925,6 +925,7 @@
     <Compile Include="Sql\Drivers\SqlServer\Driver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\DriverFactory.cs" />
     <Compile Include="Sql\Drivers\SqlServer\ErrorMessageParser.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\SqlServerTypeMapper.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\ColumnResolver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\Compiler.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\Driver.cs" />
@@ -935,6 +936,8 @@
     <Compile Include="Sql\Drivers\SqlServer\v10\Compiler.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\Driver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\Extractor.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\GeographyMapper.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\GeometryMapper.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\ServerInfoProvider.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\Translator.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\TypeMapper.cs" />
@@ -1059,6 +1062,7 @@
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\SqlType.cs" />
     <Compile Include="Sql\SqlValueType.cs" />
+    <Compile Include="Sql\ValueTypeMapping\CustomTypeMapper.cs" />
     <Compile Include="Sql\ValueTypeMapping\TypeMapper.cs" />
     <Compile Include="Sql\ValueTypeMapping\TypeMapping.cs" />
     <Compile Include="Sql\ValueTypeMapping\TypeMappingRegistry.cs" />

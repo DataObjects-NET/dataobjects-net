@@ -15,15 +15,26 @@ namespace Xtensive.Sql
   {
     public TypeMapper Mapper { get; private set; }
 
-    public void Add(
-      Type type,
-      Func<DbDataReader, int, object> valueReader,
-      Action<DbParameter, object> valueBinder,
-      Func<int?, int?, int?, SqlValueType> mapper)
+    public void Add(Type type, Func<DbDataReader, int, object> valueReader,
+      Action<DbParameter, object> valueBinder, Func<int?, int?, int?, SqlValueType> mapper)
     {
       var mapping = new TypeMapping(
         type, valueReader, valueBinder,
         mapper, Mapper.IsParameterCastRequired(type));
+
+      Add(mapping);
+    }
+
+    public void Add(CustomTypeMapper customMapper)
+    {
+      // Allow custom mapper to dynamically disable itself
+      if (!customMapper.Enabled)
+        return;
+
+      var mapping = new TypeMapping(
+        customMapper.Type, customMapper.ReadValue, customMapper.BindValue,
+        customMapper.MapType, customMapper.ParameterCastRequired);
+
       Add(mapping);
     }
 
