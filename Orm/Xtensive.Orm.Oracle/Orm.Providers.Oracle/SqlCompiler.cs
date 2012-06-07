@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers.Oracle
         switch (Type.GetTypeCode(aggregateColumn.Type)) {
         case TypeCode.Single:
         case TypeCode.Double:
-          result = SqlDml.Cast(result, Driver.BuildValueType(aggregateColumn.Type));
+          result = SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type));
           break;
         }
       }

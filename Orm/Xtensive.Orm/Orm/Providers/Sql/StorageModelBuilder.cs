@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers.Sql
 
     public override StorageTypeInfo CreateType(Type type, int? length, int? precision, int? scale)
     {
-      var sqlValueType = domainHandler.Driver.BuildValueType(type, length, precision, scale);
+      var sqlValueType = domainHandler.Driver.MapValueType(type, length, precision, scale);
       return new StorageTypeInfo(
         sqlValueType.Type.ToClrType(),
         sqlValueType.Length,

@@ -933,7 +933,7 @@ namespace Xtensive.Orm.Providers.Sql
           sequenceInfo.Increment);
       sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
-        var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.BuildValueType(typeof(int)));
+        var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(typeof(int)));
         fakeColumn.IsNullable = true;
       }
       RegisterCommand(SqlDdl.Create(sequenceTable));

@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       return base.IsLiteralCastRequired(type);
     }
 
-    public override void SetGuidParameterValue(DbParameter parameter, object value)
+    public override void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Guid;
       parameter.Value = value ?? DBNull.Value;
@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       return reader.GetGuid(index);
     }
 
-    public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapGuid(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Guid);
     }

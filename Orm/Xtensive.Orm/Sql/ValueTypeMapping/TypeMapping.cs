@@ -15,8 +15,9 @@ namespace Xtensive.Sql
   public sealed class TypeMapping
   {
     private readonly Func<DbDataReader, int, object> valueReader;
-    private readonly Action<DbParameter, object> parameterValueSetter;
-    private readonly Func<int?, int?, int?, SqlValueType> sqlTypeBuilder;
+    private readonly Action<DbParameter, object> valueBinder;
+    private readonly Func<int?, int?, int?, SqlValueType> mapper;
+
     public Type Type { get; private set; }
     public bool LiteralCastRequired { get; private set; }
     public bool ParameterCastRequired { get; private set; }
@@ -25,30 +26,20 @@ namespace Xtensive.Sql
     {
       return valueReader.Invoke(reader, index);
     }
-    
-    public void SetParameterValue(DbParameter parameter, object value)
+
+    public void BindValue(DbParameter parameter, object value)
     {
-      parameterValueSetter.Invoke(parameter, value);
+      valueBinder.Invoke(parameter, value);
     }
 
-    public SqlValueType BuildSqlType()
+    public SqlValueType MapType()
     {
-      return sqlTypeBuilder.Invoke(null, null, null);
+      return mapper.Invoke(null, null, null);
     }
 
-    public SqlValueType BuildSqlType(int length)
+    public SqlValueType MapType(int? length, int? precision, int? scale)
     {
-      return sqlTypeBuilder.Invoke(length, null, null);
-    }
-
-    public SqlValueType BuildSqlType(int precision, int scale)
-    {
-      return sqlTypeBuilder.Invoke(null, precision, scale);
-    }
-
-    public SqlValueType BuildSqlType(int? length, int? precision, int? scale)
-    {
-      return sqlTypeBuilder.Invoke(length, precision, scale);
+      return mapper.Invoke(length, precision, scale);
     }
 
 
@@ -56,8 +47,8 @@ namespace Xtensive.Sql
 
     internal TypeMapping(Type type,
       Func<DbDataReader, int, object> valueReader,
-      Action<DbParameter, object> parameterValueSetter,
-      Func<int?, int?, int?, SqlValueType> sqlTypeBuilder,
+      Action<DbParameter, object> valueBinder,
+      Func<int?, int?, int?, SqlValueType> mapper,
       bool parameterCastRequired,
       bool literalCastRequired)
     {
@@ -65,8 +56,8 @@ namespace Xtensive.Sql
       ParameterCastRequired = parameterCastRequired;
       LiteralCastRequired = literalCastRequired;
       this.valueReader = valueReader;
-      this.parameterValueSetter = parameterValueSetter;
-      this.sqlTypeBuilder = sqlTypeBuilder;
+      this.valueBinder = valueBinder;
+      this.mapper = mapper;
     }
   }
 }

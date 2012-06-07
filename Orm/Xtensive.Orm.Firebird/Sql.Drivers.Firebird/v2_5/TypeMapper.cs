@@ -38,51 +38,51 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     }
 
 
-    public override SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapBoolean(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
     }
 
-    public override SqlValueType BuildTimeSpanSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }
 
-    public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUShort(int? length, int? precision, int? scale)
     {
-      return base.BuildIntSqlType(length, precision, scale);
+      return base.MapInt(length, precision, scale);
     }
 
-    public override SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUInt(int? length, int? precision, int? scale)
     {
-      return base.BuildLongSqlType(length, precision, scale);
+      return base.MapLong(length, precision, scale);
     }
 
-    public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
-      return base.BuildStringSqlType(30, null, null);
+      return base.MapString(30, null, null);
       ;
     }
 
-    public override SqlValueType BuildCharSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapChar(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Char, 1);
     }
 
-    public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapGuid(int? length, int? precision, int? scale)
     {
-      return base.BuildStringSqlType(36, null, null);
+      return base.MapString(36, null, null);
       ;
     }
 
-    public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapByte(int? length, int? precision, int? scale)
     {
-      return base.BuildShortSqlType(length, precision, scale);
+      return base.MapShort(length, precision, scale);
     }
 
-    public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
-      return base.BuildShortSqlType(length, precision, scale);
+      return base.MapShort(length, precision, scale);
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)
@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return SqlHelper.GuidFromString(s);
     }
 
-    public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
+    public override void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
       if (value!=null) {
@@ -121,7 +121,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return c;
     }
 
-    public override void SetCharParameterValue(DbParameter parameter, object value)
+    public override void BindChar(DbParameter parameter, object value)
     {
       parameter.DbType = System.Data.DbType.String;
       if (value==null || (default(char).Equals(value))) {
@@ -140,23 +140,23 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return s;
     }
 
-    public override void SetULongParameterValue(DbParameter parameter, object value)
+    public override void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = System.Data.DbType.String;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetBooleanParameterValue(DbParameter parameter, object value)
+    public override void BindBoolean(DbParameter parameter, object value)
     {
       object val = DBNull.Value;
       if (value!=null)
         val = ((bool) value) ? (short) 1 : (short) 0;
-      SetShortParameterValue(parameter, val);
+      BindShort(parameter, val);
     }
 
-    public override void SetGuidParameterValue(DbParameter parameter, object value)
+    public override void BindGuid(DbParameter parameter, object value)
     {
-      SetStringParameterValue(parameter, value==null ? DBNull.Value : (object) SqlHelper.GuidToString((Guid) value));
+      BindString(parameter, value==null ? DBNull.Value : (object) SqlHelper.GuidToString((Guid) value));
     }
 
     // Constructors

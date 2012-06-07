@@ -13,14 +13,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class TypeMapper : v09.TypeMapper
   {
-    public override void SetFloatParameterValue(DbParameter parameter, object value)
+    public override void BindFloat(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.BinaryFloat;
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetDoubleParameterValue(DbParameter parameter, object value)
+    public override void BindDouble(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.BinaryDouble;

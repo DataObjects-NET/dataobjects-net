@@ -1565,7 +1565,7 @@ namespace Xtensive.Sql.Compiler
       : base(driver)
     {
       translator = driver.Translator;
-      decimalType = driver.TypeMappings.Decimal.BuildSqlType();
+      decimalType = driver.TypeMappings[typeof (Decimal)].MapType();
     }
   }
 }

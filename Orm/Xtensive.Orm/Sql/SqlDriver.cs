@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -31,7 +32,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the type mappings.
     /// </summary>
-    public TypeMappingCollection TypeMappings { get; private set; }
+    public TypeMappingRegistry TypeMappings { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="SqlTranslator"/>.
@@ -175,9 +176,8 @@ namespace Xtensive.Sql
     /// <returns>Created connection.</returns>
     protected abstract SqlConnection CreateConnection(string connectionString);
 
-    protected virtual TypeMappingCollection CreateTypeMappingCollection(TypeMapper mapper)
+    protected virtual void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
-      return new TypeMappingCollection(mapper);
     }
 
     #region Private / internal methods
@@ -195,6 +195,38 @@ namespace Xtensive.Sql
 
       Translator = CreateTranslator();
       Translator.Initialize();
+    }
+
+    private TypeMappingRegistry CreateTypeMappingCollection(TypeMapper mapper)
+    {
+      var builder = new TypeMappingRegistryBuilder(mapper);
+      RegisterStandardMappings(builder);
+      RegisterCustomMappings(builder);
+      return builder.Build();
+    }
+
+    private static void RegisterStandardMappings(TypeMappingRegistryBuilder builder)
+    {
+      var mapper = builder.Mapper;
+
+      builder.Add(typeof (bool), mapper.ReadBoolean, mapper.BindBoolean, mapper.MapBoolean);
+      builder.Add(typeof (char), mapper.ReadChar, mapper.BindChar, mapper.MapChar);
+      builder.Add(typeof (string), mapper.ReadString, mapper.BindString, mapper.MapString);
+      builder.Add(typeof (byte), mapper.ReadByte, mapper.BindByte, mapper.MapByte);
+      builder.Add(typeof (sbyte), mapper.ReadSByte, mapper.BindSByte, mapper.MapSByte);
+      builder.Add(typeof (short), mapper.ReadShort, mapper.BindShort, mapper.MapShort);
+      builder.Add(typeof (ushort), mapper.ReadUShort, mapper.BindUShort, mapper.MapUShort);
+      builder.Add(typeof (int), mapper.ReadInt, mapper.BindInt, mapper.MapInt);
+      builder.Add(typeof (uint), mapper.ReadUInt, mapper.BindUInt, mapper.MapUInt);
+      builder.Add(typeof (long), mapper.ReadLong, mapper.BindLong, mapper.MapLong);
+      builder.Add(typeof (ulong), mapper.ReadULong, mapper.BindULong, mapper.MapULong);
+      builder.Add(typeof (float), mapper.ReadFloat, mapper.BindFloat, mapper.MapFloat);
+      builder.Add(typeof (double), mapper.ReadDouble, mapper.BindDouble, mapper.MapDouble);
+      builder.Add(typeof (decimal), mapper.ReadDecimal, mapper.BindDecimal, mapper.MapDecimal);
+      builder.Add(typeof (DateTime), mapper.ReadDateTime, mapper.BindDateTime, mapper.MapDateTime);
+      builder.Add(typeof (TimeSpan), mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
+      builder.Add(typeof (Guid), mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
+      builder.Add(typeof (byte[]), mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
     }
 
     private Extractor BuildExtractor(SqlConnection connection)

@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
 
     private static SqlExpression Cast(SqlExpression target, Type type)
     {
-      var destinationType = ExpressionTranslationContext.Current.Driver.BuildValueType(type);
+      var destinationType = ExpressionTranslationContext.Current.Driver.MapValueType(type);
       return SqlDml.Cast(target, destinationType);
     }
   }

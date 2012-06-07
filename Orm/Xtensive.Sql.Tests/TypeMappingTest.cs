@@ -39,12 +39,12 @@ namespace Xtensive.Sql.Tests
       var schema = ExtractDefaultSchema();
       EnsureTableNotExists(schema, TableName);
       var table = schema.CreateTable(TableName);
-      var idColumnType = Driver.TypeMappings.Int.BuildSqlType();
+      var idColumnType = Driver.TypeMappings[typeof (int)].MapType();
       var idColumn = table.CreateColumn(IdColumnName, idColumnType);
       table.CreatePrimaryKey("PK_" + TableName, idColumn);
       for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
         var mapping = typeMappings[columnIndex];
-        var column = table.CreateColumn(GetColumnName(columnIndex), mapping.BuildSqlType());
+        var column = table.CreateColumn(GetColumnName(columnIndex), mapping.MapType());
         column.IsNullable = true;
       }
       ExecuteNonQuery(SqlDdl.Create(table));
@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Tests
           var parameterName = GetParameterName(columnIndex);
           SqlExpression parameterExpression = SqlDml.ParameterRef(parameterName);
           if (mapping.ParameterCastRequired)
-            parameterExpression = SqlDml.Cast(parameterExpression, mapping.BuildSqlType());
+            parameterExpression = SqlDml.Cast(parameterExpression, mapping.MapType());
           insertQuery.Values.Add(tableRef[GetColumnName(columnIndex)], parameterExpression);
           var parameter = insertCommand.CreateParameter();
           parameter.ParameterName = parameterName;
@@ -74,7 +74,7 @@ namespace Xtensive.Sql.Tests
         for (int rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
           idParameter.Value = rowIndex;
           for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++)
-            typeMappings[columnIndex].SetParameterValue(parameters[columnIndex], testValues[columnIndex][rowIndex]);
+            typeMappings[columnIndex].BindValue(parameters[columnIndex], testValues[columnIndex][rowIndex]);
           insertCommand.ExecuteNonQuery();
         }
       }
@@ -100,11 +100,11 @@ namespace Xtensive.Sql.Tests
           var parameterName = GetParameterName(parameterIndex++);
           SqlExpression parameterExpression = SqlDml.ParameterRef(parameterName);
           if (mapping.ParameterCastRequired)
-            parameterExpression = SqlDml.Cast(parameterExpression, mapping.BuildSqlType());
+            parameterExpression = SqlDml.Cast(parameterExpression, mapping.MapType());
           query.Columns.Add(parameterExpression, columnName);
           var parameter = command.CreateParameter();
           parameter.ParameterName = parameterName;
-          typeMappings[columnIndex].SetParameterValue(parameter, testValues[columnIndex][rowIndex]);
+          typeMappings[columnIndex].BindValue(parameter, testValues[columnIndex][rowIndex]);
           command.Parameters.Add(parameter);
         }
       }
@@ -133,7 +133,7 @@ namespace Xtensive.Sql.Tests
             ? (SqlExpression) SqlDml.Null
             : SqlDml.Literal(value);
           if (mapping.LiteralCastRequired)
-            valueExpression = SqlDml.Cast(valueExpression, mapping.BuildSqlType());
+            valueExpression = SqlDml.Cast(valueExpression, mapping.MapType());
           query.Columns.Add(valueExpression, columnName);
         }
       }

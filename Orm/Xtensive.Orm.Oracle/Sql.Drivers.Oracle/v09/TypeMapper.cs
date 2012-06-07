@@ -20,95 +20,95 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private const int IntPrecision = 10;
     private const int LongPrecision = 20;
 
-    public override void SetBooleanParameterValue(DbParameter parameter, object value)
+    public override void BindBoolean(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : ((bool) value ? 1.0m : 0.0m);
     }
 
-    public override void SetByteParameterValue(DbParameter parameter, object value)
+    public override void BindByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (byte) value;
     }
 
-    public override void SetSByteParameterValue(DbParameter parameter, object value)
+    public override void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (sbyte) value;
     }
 
-    public override void SetShortParameterValue(DbParameter parameter, object value)
+    public override void BindShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (short) value;
     }
 
-    public override void SetUShortParameterValue(DbParameter parameter, object value)
+    public override void BindUShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (ushort) value;
     }
 
-    public override void SetIntParameterValue(DbParameter parameter, object value)
+    public override void BindInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (int) value;
     }
 
-    public override void SetUIntParameterValue(DbParameter parameter, object value)
+    public override void BindUInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (uint) value;
     }
 
-    public override void SetLongParameterValue(DbParameter parameter, object value)
+    public override void BindLong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (long) value;
     }
 
-    public override void SetULongParameterValue(DbParameter parameter, object value)
+    public override void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value==null ? (object) DBNull.Value : (decimal) (ulong) value;
     }
 
-    public override void SetFloatParameterValue(DbParameter parameter, object value)
+    public override void BindFloat(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.Single;
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetDoubleParameterValue(DbParameter parameter, object value)
+    public override void BindDouble(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.Double;
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
+    public override void BindTimeSpan(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.IntervalDS;
       nativeParameter.Value = value==null ? (object) DBNull.Value : new OracleIntervalDS((TimeSpan) value);
     }
 
-    public override void SetByteArrayParameterValue(DbParameter parameter, object value)
+    public override void BindByteArray(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.Blob;
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetGuidParameterValue(DbParameter parameter, object value)
+    public override void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
-    public override void SetStringParameterValue(DbParameter parameter, object value)
+    public override void BindString(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.NVarchar2;
@@ -202,52 +202,52 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return result.Value;
     }
 
-    public override SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapBoolean(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, BooleanPrecision, 0);
     }
 
-    public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, BytePrecision, 0);
     }
 
-    public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, BytePrecision, 0);
     }
 
-    public override SqlValueType BuildShortSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapShort(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, ShortPrecision, 0);
     }
 
-    public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUShort(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, ShortPrecision, 0);
     }
 
-    public override SqlValueType BuildIntSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapInt(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, IntPrecision, 0);
     }
 
-    public override SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUInt(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, IntPrecision, 0);
     }
 
-    public override SqlValueType BuildLongSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapLong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, LongPrecision, 0);
     }
 
-    public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, LongPrecision, 0);
     }
 
-    public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapGuid(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarChar, 32);
     }

@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   public class TypeMapper : v09.TypeMapper
   {
-    public override void SetDateTimeParameterValue(DbParameter parameter, object value)
+    public override void BindDateTime(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.DateTime2;
       parameter.Value = value ?? DBNull.Value;
@@ -24,30 +24,33 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       string type = reader.GetDataTypeName(index);
       if (type=="time") {
         var time = (TimeSpan) reader.GetValue(index);
-        return new DateTime(time.Ticks/100);
+        return new DateTime(time.Ticks / 100);
       }
       return base.ReadDateTime(reader, index);
     }
 
-    public object ReadGeometry(DbDataReader reader, int index)
+    public void BindGeometry(DbParameter parameter, object value)
     {
-      return reader.GetValue(index);
-    }
-
-    public void SetGeometryParameterValue(DbParameter parameter, object value)
-    {
-      if (value == null) {
+      if (value==null) {
         parameter.Value = DBNull.Value;
         return;
       }
-      var sqlParameter = (SqlParameter)parameter;
+
+      var sqlParameter = (SqlParameter) parameter;
       sqlParameter.UdtTypeName = "geometry";
       sqlParameter.Value = value;
     }
 
-    public SqlValueType BuildGeographySqlType(int? length, int? precision, int? scale)
+    public void BindGeography(DbParameter parameter, object value)
     {
-      return new SqlValueType(SqlType.Geography);
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+
+      var sqlParameter = (SqlParameter) parameter;
+      sqlParameter.UdtTypeName = "geography";
+      sqlParameter.Value = value;
     }
 
     public object ReadGeography(DbDataReader reader, int index)
@@ -55,18 +58,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return reader.GetValue(index);
     }
 
-    public void SetGeographyParameterValue(DbParameter parameter, object value)
+    public object ReadGeometry(DbDataReader reader, int index)
     {
-      if (value == null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      var sqlParameter = (SqlParameter)parameter;
-      sqlParameter.UdtTypeName = "geography";
-      sqlParameter.Value = value;
+      return reader.GetValue(index);
     }
 
-    public SqlValueType BuildGeometrySqlType(int? length, int? precision, int? scale)
+    public SqlValueType MapGeography(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.Geography);
+    }
+
+    public SqlValueType MapGeometry(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Geometry);
     }

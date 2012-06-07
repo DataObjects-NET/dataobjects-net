@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
 
           var bytesColumn = GetColumnInfo(domain.Schema, person.TypeInfo, "Bytes");
           var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
-          var expected = driver.TypeMappings[typeof (byte[])].BuildSqlType().Length;
+          var expected = driver.TypeMappings[typeof (byte[])].MapType().Length;
           Assert.AreEqual(expected, bytesColumn.Type.Length);
 
           tx.Complete();

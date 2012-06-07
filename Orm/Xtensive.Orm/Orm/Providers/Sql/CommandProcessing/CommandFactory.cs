@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
-      mapping.SetParameterValue(parameter, value);
+      mapping.BindValue(parameter, value);
       commandPart.Parameters.Add(parameter);
     }
 

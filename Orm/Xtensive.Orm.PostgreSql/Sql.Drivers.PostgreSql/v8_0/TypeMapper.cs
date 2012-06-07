@@ -51,25 +51,25 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return false;
     }
 
-    public override void SetSByteParameterValue(DbParameter parameter, object value)
+    public override void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetUShortParameterValue(DbParameter parameter, object value)
+    public override void BindUShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
       parameter.Value = value ?? DBNull.Value;
     }
     
-    public override void SetUIntParameterValue(DbParameter parameter, object value)
+    public override void BindUInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetULongParameterValue(DbParameter parameter, object value)
+    public override void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value ?? DBNull.Value;
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 #if NET40
     [SecuritySafeCritical]
 #endif
-    public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
+    public override void BindTimeSpan(DbParameter parameter, object value)
     {
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
@@ -87,38 +87,38 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         : DBNull.Value;
     }
 
-    public override void SetGuidParameterValue(DbParameter parameter, object value)
+    public override void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
-    public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
     }
  
-    public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
     }
 
-    public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUShort(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int32);
     }
 
-    public override SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUInt(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }
 
-    public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, 20, 0);
     }
 
-    public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapGuid(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarChar, 32);
     }

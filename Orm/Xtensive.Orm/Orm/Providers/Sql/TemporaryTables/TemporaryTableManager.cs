@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Providers.Sql
         .ToArray();
       int fieldIndex = 0;
       foreach (var mapping in typeMappings) {
-        var column = table.CreateColumn(fieldNames[fieldIndex], mapping.BuildSqlType());
+        var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
         column.IsNullable = true;
         // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
         if (mapping.Type==typeof (string))

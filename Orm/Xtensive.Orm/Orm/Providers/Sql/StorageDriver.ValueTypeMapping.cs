@@ -22,19 +22,19 @@ namespace Xtensive.Orm.Providers.Sql
       return allMappings.GetMapping(type);
     }
 
-    public SqlValueType BuildValueType(ColumnInfo columnInfo)
+    public SqlValueType MapValueType(ColumnInfo columnInfo)
     {
-      return allMappings.GetMapping(columnInfo.ValueType).BuildSqlType(columnInfo.Length, null, null);
+      return allMappings.GetMapping(columnInfo.ValueType).MapType(columnInfo.Length, null, null);
     }
 
-    public SqlValueType BuildValueType(Type type)
+    public SqlValueType MapValueType(Type type)
     {
-      return allMappings.GetMapping(type).BuildSqlType();
+      return allMappings.GetMapping(type).MapType();
     }
 
-    public SqlValueType BuildValueType(Type type, int? length, int? precision, int? scale)
+    public SqlValueType MapValueType(Type type, int? length, int? precision, int? scale)
     {
-      return allMappings.GetMapping(type).BuildSqlType(length, precision, scale);
+      return allMappings.GetMapping(type).MapType(length, precision, scale);
     }
   }
 }

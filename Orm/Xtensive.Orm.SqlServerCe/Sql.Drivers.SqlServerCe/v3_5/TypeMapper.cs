@@ -39,7 +39,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
 #if NET40
     [SecuritySafeCritical]
 #endif
-    public override void SetStringParameterValue(DbParameter parameter, object value)
+    public override void BindString(DbParameter parameter, object value)
     {
       string text = value as string;
       if (!string.IsNullOrEmpty(text) && text.Length > VarCharMaxLength) {
@@ -48,13 +48,13 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
         sqlParameter.Value = text;
       }
       else
-        base.SetStringParameterValue(parameter, value);
+        base.BindString(parameter, value);
     }
 
 #if NET40
     [SecuritySafeCritical]
 #endif
-    public override void SetByteArrayParameterValue(DbParameter parameter, object value)
+    public override void BindByteArray(DbParameter parameter, object value)
     {
       var array = value as byte[];
       if (array != null && array.Length > VarBinaryMaxLength) {
@@ -63,41 +63,41 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
         sqlParameter.Value = array;
       }
       else
-        base.SetByteArrayParameterValue(parameter, value);
+        base.BindByteArray(parameter, value);
     }
 
-    public override void SetSByteParameterValue(DbParameter parameter, object value)
+    public override void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetUShortParameterValue(DbParameter parameter, object value)
+    public override void BindUShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetUIntParameterValue(DbParameter parameter, object value)
+    public override void BindUInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetULongParameterValue(DbParameter parameter, object value)
+    public override void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetDateTimeParameterValue(DbParameter parameter, object value)
+    public override void BindDateTime(DbParameter parameter, object value)
     {
       if (value!=null)
         value = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
-      base.SetDateTimeParameterValue(parameter, value);
+      base.BindDateTime(parameter, value);
     }
 
-    public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
+    public override void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
       if (value!=null) {
@@ -108,27 +108,27 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
         parameter.Value = DBNull.Value;
     }
 
-    public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
     }
 
-    public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUShort(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int32);
     }
 
-    public override SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUInt(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }
 
-    public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, 20, 0);
     }
 
-    public override SqlValueType BuildTimeSpanSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }

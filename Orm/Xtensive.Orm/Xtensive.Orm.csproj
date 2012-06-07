@@ -938,7 +938,6 @@
     <Compile Include="Sql\Drivers\SqlServer\v10\ServerInfoProvider.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\Translator.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\TypeMapper.cs" />
-    <Compile Include="Sql\Drivers\SqlServer\v10\TypeMappingCollection.cs" />
     <Compile Include="Sql\Info\ColumnFeatures.cs" />
     <Compile Include="Sql\Info\ColumnInfo.cs" />
     <Compile Include="Sql\Info\Constaints\AssertConstraintInfo.cs" />
@@ -1062,7 +1061,8 @@
     <Compile Include="Sql\SqlValueType.cs" />
     <Compile Include="Sql\ValueTypeMapping\TypeMapper.cs" />
     <Compile Include="Sql\ValueTypeMapping\TypeMapping.cs" />
-    <Compile Include="Sql\ValueTypeMapping\TypeMappingCollection.cs" />
+    <Compile Include="Sql\ValueTypeMapping\TypeMappingRegistry.cs" />
+    <Compile Include="Sql\ValueTypeMapping\TypeMappingRegistryBuilder.cs" />
     <Compile Include="Sql\ValueTypeMapping\ValueRangeValidator.cs" />
     <Compile Include="Orm\Upgrade\Model\StorageColumnInfo.cs" />
     <Compile Include="Orm\Upgrade\Model\ColumnInfoCollection.cs" />

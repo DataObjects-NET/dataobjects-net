@@ -36,17 +36,17 @@ namespace Xtensive.Orm.Providers.SqlServerCe
         // floats are promoted to doubles, but we need the same type
         if (originType==aggregateType && originType!=typeof (float))
           return result;
-        var sqlType = Driver.BuildValueType(aggregateType);
+        var sqlType = Driver.MapValueType(aggregateType);
         return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
       }
       if (aggregateColumn.AggregateType==AggregateType.Count) {
-        var sqlType = Driver.BuildValueType(typeof(long));
+        var sqlType = Driver.MapValueType(typeof(long));
         return SqlDml.Cast(SqlDml.Count(sourceColumns[aggregateColumn.SourceIndex]), sqlType);
       }
 
       // cast to decimal is dangerous, because 'decimal' defaults to integer type
       if (aggregateColumn.AggregateType==AggregateType.Sum && aggregateType!=typeof(decimal))
-        return SqlDml.Cast(result, Driver.BuildValueType(aggregateType));
+        return SqlDml.Cast(result, Driver.MapValueType(aggregateType));
       return result;
     }
 
