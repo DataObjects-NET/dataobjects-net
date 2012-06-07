@@ -14,21 +14,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal class TypeMapper : Sql.TypeMapper
   {
     /// <inheritdoc/>
-    public override bool IsLiteralCastRequired(Type type)
-    {
-      switch (Type.GetTypeCode(type)) {
-        case TypeCode.Byte:
-        case TypeCode.SByte:
-        case TypeCode.Int16:
-        case TypeCode.UInt16:
-        case TypeCode.Int64:
-        case TypeCode.UInt64:
-          return true;
-      }
-      return false;
-    }
-
-    /// <inheritdoc/>
     public override bool IsParameterCastRequired(Type type)
     {
       switch (Type.GetTypeCode(type)) {

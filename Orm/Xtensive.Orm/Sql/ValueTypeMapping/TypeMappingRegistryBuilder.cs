@@ -15,21 +15,21 @@ namespace Xtensive.Sql
   {
     public TypeMapper Mapper { get; private set; }
 
+    public void Add(
+      Type type,
+      Func<DbDataReader, int, object> valueReader,
+      Action<DbParameter, object> valueBinder,
+      Func<int?, int?, int?, SqlValueType> mapper)
+    {
+      var mapping = new TypeMapping(
+        type, valueReader, valueBinder,
+        mapper, Mapper.IsParameterCastRequired(type));
+      Add(mapping);
+    }
+
     public TypeMappingRegistry Build()
     {
       return new TypeMappingRegistry(this);
-    }
-
-    public void Add(
-      Type type, Func<DbDataReader, int, object> valueReader,
-      Action<DbParameter, object> parameterValueSetter,
-      Func<int?, int?, int?, SqlValueType> sqlTypeBuilder)
-    {
-      var mapping = new TypeMapping(
-        type, valueReader, parameterValueSetter, sqlTypeBuilder,
-        Mapper.IsParameterCastRequired(type),
-        Mapper.IsLiteralCastRequired(type));
-      Add(mapping);
     }
 
     // Constructors

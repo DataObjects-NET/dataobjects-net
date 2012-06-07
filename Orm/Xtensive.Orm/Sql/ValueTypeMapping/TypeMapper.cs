@@ -26,11 +26,6 @@ namespace Xtensive.Sql
     protected int? VarCharMaxLength { get; private set; }
     protected int? VarBinaryMaxLength { get; private set; }
 
-    public virtual bool IsLiteralCastRequired(Type type)
-    {
-      return false;
-    }
-
     public virtual bool IsParameterCastRequired(Type type)
     {
       return false;

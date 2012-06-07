@@ -18,24 +18,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   {
     private ValueRange<DateTime> dateTimeRange;
 
-    public override bool IsLiteralCastRequired(Type type)
-    {
-      switch (Type.GetTypeCode(type)) {
-        case TypeCode.Byte:
-        case TypeCode.SByte:
-        case TypeCode.Int16:
-        case TypeCode.UInt16:
-        case TypeCode.Int64:
-        case TypeCode.UInt64:
-          return true;
-      }
-      if (type==typeof(TimeSpan))
-        return true;
-      if (type==typeof(Guid))
-        return true;
-      return false;
-    }
-
     public override void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;

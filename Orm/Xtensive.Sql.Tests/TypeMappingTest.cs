@@ -132,8 +132,6 @@ namespace Xtensive.Sql.Tests
           var valueExpression = value==null
             ? (SqlExpression) SqlDml.Null
             : SqlDml.Literal(value);
-          if (mapping.LiteralCastRequired)
-            valueExpression = SqlDml.Cast(valueExpression, mapping.MapType());
           query.Columns.Add(valueExpression, columnName);
         }
       }

@@ -19,7 +19,6 @@ namespace Xtensive.Sql
     private readonly Func<int?, int?, int?, SqlValueType> mapper;
 
     public Type Type { get; private set; }
-    public bool LiteralCastRequired { get; private set; }
     public bool ParameterCastRequired { get; private set; }
 
     public object ReadValue(DbDataReader reader, int index)
@@ -49,15 +48,15 @@ namespace Xtensive.Sql
       Func<DbDataReader, int, object> valueReader,
       Action<DbParameter, object> valueBinder,
       Func<int?, int?, int?, SqlValueType> mapper,
-      bool parameterCastRequired,
-      bool literalCastRequired)
+      bool parameterCastRequired)
     {
       Type = type;
-      ParameterCastRequired = parameterCastRequired;
-      LiteralCastRequired = literalCastRequired;
+
       this.valueReader = valueReader;
       this.valueBinder = valueBinder;
       this.mapper = mapper;
+
+      ParameterCastRequired = parameterCastRequired;
     }
   }
 }

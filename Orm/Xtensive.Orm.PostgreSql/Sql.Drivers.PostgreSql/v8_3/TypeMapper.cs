@@ -12,14 +12,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class TypeMapper : v8_2.TypeMapper
   {
-    public override bool IsLiteralCastRequired(Type type)
-    {
-      if (type==typeof(Guid))
-        return true;
-
-      return base.IsLiteralCastRequired(type);
-    }
-
     public override void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Guid;

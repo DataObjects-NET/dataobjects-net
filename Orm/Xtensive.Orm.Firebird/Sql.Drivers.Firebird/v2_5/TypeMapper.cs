@@ -17,27 +17,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return true;
     }
 
-    public override bool IsLiteralCastRequired(Type type)
-    {
-      switch (Type.GetTypeCode(type)) {
-        case TypeCode.Byte:
-        case TypeCode.SByte:
-        case TypeCode.Int16:
-        case TypeCode.UInt16:
-        case TypeCode.Int64:
-        case TypeCode.UInt64:
-          return true;
-      }
-      if (type==typeof (TimeSpan))
-        return true;
-      if (type==typeof (Guid))
-        return true;
-      //            if (type == typeof(DateTime))
-      //                return true;
-      return base.IsLiteralCastRequired(type);
-    }
-
-
     public override SqlValueType MapBoolean(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);

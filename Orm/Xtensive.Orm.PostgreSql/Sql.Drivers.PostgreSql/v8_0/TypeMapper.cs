@@ -16,20 +16,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
-    public override bool IsLiteralCastRequired(Type type)
-    {
-      switch (Type.GetTypeCode(type)) {
-      case TypeCode.Byte:
-      case TypeCode.SByte:
-      case TypeCode.Int16:
-      case TypeCode.UInt16:
-      case TypeCode.Int64:
-      case TypeCode.UInt64:
-        return true;
-      }
-      return false;
-    }
-
     public override bool IsParameterCastRequired(Type type)
     {
       switch (Type.GetTypeCode(type)) {
