@@ -24,7 +24,7 @@ namespace Xtensive.Sql
     public TypeMapping TryGetMapping(Type type)
     {
       if (type.IsEnum)
-        type = type.GetEnumUnderlyingType();
+        type = Enum.GetUnderlyingType(type);
 
       TypeMapping result;
       mappings.TryGetValue(type, out result);
