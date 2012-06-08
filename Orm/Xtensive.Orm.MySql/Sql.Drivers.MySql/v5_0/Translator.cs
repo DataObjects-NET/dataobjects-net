@@ -428,8 +428,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section,
-      int position)
+    public override string Translate(SqlCompilerContext context, SqlFunctionCall node,
+      FunctionCallSection section, int position)
     {
       switch (section) {
         case FunctionCallSection.Entry:
@@ -444,6 +444,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
               return Translate(node.FunctionType);
           }
           break;
+        case FunctionCallSection.ArgumentEntry:
+          return string.Empty;
+        case FunctionCallSection.ArgumentDelimiter:
+          return ArgumentDelimiter;
       }
 
       return base.Translate(context, node, section, position);

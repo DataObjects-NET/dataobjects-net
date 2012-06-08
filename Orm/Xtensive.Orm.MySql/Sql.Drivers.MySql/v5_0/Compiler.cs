@@ -143,9 +143,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           node.Arguments.CopyTo(exprs, 0);
           Visit(SqlDml.Concat(exprs));
           return;
-        case SqlFunctionType.Position:
-          Position(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
-          return;
         case SqlFunctionType.CharLength:
           SqlDml.FunctionCall(translator.Translate(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);
           //          SqlDml.CharLength(node.Arguments[0]).AcceptVisitor(this);
@@ -202,22 +199,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     #region Static helpers
 
-    private static SqlExpression Position(SqlExpression substring, SqlExpression _string)
-    {
-      return SqlDml.FunctionCall("LOCATE", _string, substring) - 1;
-    }
-
     private static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
     }
 
-    protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
+    private static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
     {
       return SqlDml.FunctionCall("DATEDIFF", date1, date2);
     }
 
-    protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
+    private static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
     {
       return SqlDml.FunctionCall("MICROSECOND", SqlDml.FunctionCall("DATEDIFF", date1, date2) * NanosecondsPerMillisecond);
     }
@@ -232,27 +224,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       return SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MONTH"), months, date);
     }
 
-    protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
+    private static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
     {
       return SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("DAY"), days, date);
     }
 
-    private static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours)
-    {
-      return SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("HOUR"), hours, date);
-    }
-
-    private static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes)
-    {
-      return SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MINUTE"), minutes, date);
-    }
-
-    private static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds)
-    {
-      return SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("SECOND"), seconds, date);
-    }
-
-    protected static SqlUserFunctionCall DateAddMicrosecond(SqlExpression date, SqlExpression microseconds)
+    private static SqlUserFunctionCall DateAddMicrosecond(SqlExpression date, SqlExpression microseconds)
     {
       return SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MICROSECOND"), microseconds, date);
     }
