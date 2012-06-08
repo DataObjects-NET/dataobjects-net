@@ -91,15 +91,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    protected virtual SqlExpression DateTimeTruncate(SqlExpression date)
-    {
-      return DateAddMicrosecond(DateAddSecond(DateAddMinute(DateAddHour(date,
-        -SqlDml.Extract(SqlDateTimePart.Hour, date)),
-        -SqlDml.Extract(SqlDateTimePart.Minute, date)),
-        -SqlDml.Extract(SqlDateTimePart.Second, date)),
-        -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
-    }
-
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
@@ -177,9 +168,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           return;
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
-          return;
-        case SqlFunctionType.DateTimeTruncate:
-          DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),

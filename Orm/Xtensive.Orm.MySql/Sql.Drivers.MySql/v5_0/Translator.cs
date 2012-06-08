@@ -43,6 +43,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void Initialize()
     {
       base.Initialize();
+
       FloatNumberFormat.NumberDecimalSeparator = ".";
       FloatNumberFormat.NumberGroupSeparator = "";
 
@@ -105,6 +106,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
           //datetime/timespan
 
+        case SqlFunctionType.DateTimeTruncate:
+          return "DATE";
         case SqlFunctionType.CurrentDate:
           return "CURDATE()";
         case SqlFunctionType.CurrentTimeStamp:
@@ -114,7 +117,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.DateTimeAddYears:
         case SqlFunctionType.DateTimeAddMonths:
         case SqlFunctionType.DateTimeConstruct:
-        case SqlFunctionType.DateTimeTruncate:
         case SqlFunctionType.IntervalToMilliseconds:
           return string.Empty;
           //string
