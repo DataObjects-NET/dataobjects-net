@@ -255,10 +255,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         ValueRange.Decimal, 38, "decimal", "numeric", "year");
 
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
-        ValueRange.Float, "real");
+        ValueRange.Float, "float");
 
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
-        ValueRange.Double, "float");
+        ValueRange.Double, "double precision");
 
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
