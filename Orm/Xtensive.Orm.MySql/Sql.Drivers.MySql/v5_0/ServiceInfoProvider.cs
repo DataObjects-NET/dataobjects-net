@@ -164,10 +164,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       indexInfo.MaxNumberOfColumns = 16;
       indexInfo.MaxLength = 900;
       indexInfo.AllowedDdlStatements = DdlStatements.All;
-      indexInfo.Features =
-        IndexFeatures.Unique |
-        IndexFeatures.SortOrder |
-        IndexFeatures.FullText;
+      indexInfo.Features = IndexFeatures.Unique | IndexFeatures.FullText;
       indexInfo.PartitionMethods = PartitionMethods.None;
       return indexInfo;
     }
