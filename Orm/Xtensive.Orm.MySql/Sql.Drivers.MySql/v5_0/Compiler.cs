@@ -134,6 +134,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void Visit(SqlFunctionCall node)
     {
       switch (node.FunctionType) {
+        case SqlFunctionType.Truncate:
+          var argument = node.Arguments[0];
+          SqlDml.FunctionCall("TRUNCATE", argument, SqlDml.Literal(0)).AcceptVisitor(this);
+          return;
         case SqlFunctionType.Concat:
           var exprs = new SqlExpression[node.Arguments.Count];
           node.Arguments.CopyTo(exprs, 0);
@@ -176,6 +180,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             node.Arguments[2] - 1));
           return;
       }
+
       base.Visit(node);
     }
 
