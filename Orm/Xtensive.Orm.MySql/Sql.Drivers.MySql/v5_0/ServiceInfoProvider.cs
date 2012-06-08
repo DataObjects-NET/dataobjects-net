@@ -186,9 +186,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override FullTextSearchInfo GetFullTextInfo()
     {
-      var info = new FullTextSearchInfo();
-      info.Features = FullTextSearchFeatures.None;
-      return info;
+      return null;
     }
 
     /// <inheritdoc/>
