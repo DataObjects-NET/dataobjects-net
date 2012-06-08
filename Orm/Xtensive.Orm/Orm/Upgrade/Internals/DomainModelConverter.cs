@@ -273,6 +273,11 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
+      if (!providerInfo.Supports(ProviderFeatures.FullText)) {
+        Log.Warning(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX, fullTextIndex.Name);
+        return null;
+      }
+
       var table = GetTable(fullTextIndex.PrimaryIndex.ReflectedType);
       var primaryIndex = table.PrimaryIndex;
       var ftIndex = new StorageFullTextIndexInfo(table, fullTextIndex.Name);
