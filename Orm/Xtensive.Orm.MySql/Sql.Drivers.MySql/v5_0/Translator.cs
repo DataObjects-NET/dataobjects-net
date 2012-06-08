@@ -30,16 +30,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       get { return string.Empty; }
     }
 
-    public override string FloatFormatString
-    {
-      get { return base.FloatFormatString; }
-    }
-
-    public override string DoubleFormatString
-    {
-      get { return base.DoubleFormatString; }
-    }
-
     public override string DdlStatementDelimiter
     {
       get { return ";"; }
@@ -60,37 +50,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       DoubleNumberFormat.NumberGroupSeparator = "";
     }
 
-    private string Quote(string openingBracket, string closingBracket, string delimiter, string escapedClosingBracket,
-                         string[] names)
-    {
-      string[] tokens = names.Where(name => !string.IsNullOrEmpty(name)).ToArray();
-      var builder = new StringBuilder();
-      for (int i = 0; i < tokens.Length - 1; i++) {
-        builder.Append(openingBracket);
-        builder.Append(tokens[i].Replace(closingBracket, escapedClosingBracket));
-        builder.Append(closingBracket);
-        builder.Append(delimiter);
-      }
-      builder.Append(openingBracket);
-      builder.Append(tokens[tokens.Length - 1].Replace(closingBracket, escapedClosingBracket));
-      builder.Append(closingBracket);
-      return builder.ToString();
-    }
-
-    /// <summary>
-    /// Quotes the specified identifier with square brackets (i.e. ``).
-    /// </summary>
-    /// <returns>Quoted indentifier.</returns>
-    public string QuoteIdentifierWithBackTick(string[] names)
-    {
-      return Quote("`", "`", ".", "``", names);
-    }
-
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override string QuoteIdentifier(params string[] names)
     {
-      return QuoteIdentifierWithBackTick(names);
+      return SqlHelper.QuoteIdentifierWithBackTick(names);
     }
 
     /// <inheritdoc/>
@@ -106,7 +70,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SelectSection.HintsEntry:
           return string.Empty;
         case SelectSection.HintsExit:
-          if (node.Hints.Count == 0)
+          if (node.Hints.Count==0)
             return string.Empty;
           var hints = new List<string>(node.Hints.Count);
           foreach (SqlHint hint in node.Hints) {
@@ -220,7 +184,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
-                                     SequenceDescriptorSection section)
+      SequenceDescriptorSection section)
     {
       return string.Empty;
       //throw new NotSupportedException(Strings.ExDoesNotSupportSequences);
@@ -315,7 +279,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           var builder = new StringBuilder();
           builder.Append("CREATE ");
           var temporaryTable = node.Table as TemporaryTable;
-          if (temporaryTable != null) {
+          if (temporaryTable!=null) {
             builder.Append("TEMPORARY TABLE " + Translate(temporaryTable));
           }
           else {
@@ -347,9 +311,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       switch (section) {
         case CreateIndexSection.Entry:
           return string.Format("CREATE {0}INDEX {1} USING BTREE ON {2} "
-                               , index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty)
-                               , QuoteIdentifier(index.Name)
-                               , Translate(index.DataTable));
+            , index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty)
+            , QuoteIdentifier(index.Name)
+            , Translate(index.DataTable));
 
         case CreateIndexSection.Exit:
           return string.Empty;
@@ -361,7 +325,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override string Translate(SqlCompilerContext context, SqlDropIndex node)
     {
       return string.Format("DROP INDEX {0} ON {1}", QuoteIdentifier(node.Index.Name),
-                           QuoteIdentifier(node.Index.DataTable.Name));
+        QuoteIdentifier(node.Index.DataTable.Name));
     }
 
     public override string Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
@@ -371,19 +335,18 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           if (constraint is PrimaryKey)
             return string.Empty;
           return base.Translate(context, constraint, section);
-        case ConstraintSection.Exit:
-          {
-            var fk = constraint as ForeignKey;
-            var sb = new StringBuilder();
-            sb.Append(")");
-            if (fk != null) {
-              if (fk.OnUpdate != ReferentialAction.NoAction)
-                sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
-              if (fk.OnDelete != ReferentialAction.NoAction)
-                sb.Append(" ON DELETE " + Translate(fk.OnDelete));
-            }
-            return sb.ToString();
+        case ConstraintSection.Exit: {
+          var fk = constraint as ForeignKey;
+          var sb = new StringBuilder();
+          sb.Append(")");
+          if (fk!=null) {
+            if (fk.OnUpdate!=ReferentialAction.NoAction)
+              sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
+            if (fk.OnDelete!=ReferentialAction.NoAction)
+              sb.Append(" ON DELETE " + Translate(fk.OnDelete));
           }
+          return sb.ToString();
+        }
         default:
           return base.Translate(context, constraint, section);
       }
@@ -394,7 +357,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       switch (section) {
         case AlterTableSection.DropBehavior:
           var cascadableAction = node.Action as SqlCascadableAction;
-          if (cascadableAction == null || !cascadableAction.Cascade)
+          if (cascadableAction==null || !cascadableAction.Cascade)
             return string.Empty;
           if (cascadableAction is SqlDropConstraint)
             return string.Empty;
@@ -414,7 +377,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision
-      if (type.Type == SqlType.Interval)
+      if (type.Type==SqlType.Interval)
         return "decimal(18, 18)";
       return base.Translate(type);
     }
@@ -429,27 +392,27 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case TypeCode.UInt64:
           return QuoteString(((UInt64) literalValue).ToString());
       }
-      if (literalType == typeof (byte[])) {
+      if (literalType==typeof (byte[])) {
         var values = (byte[]) literalValue;
-        var builder = new StringBuilder(2*(values.Length + 1));
+        var builder = new StringBuilder(2 * (values.Length + 1));
         builder.Append("x'");
         builder.AppendHexArray(values);
         builder.Append("'");
         return builder.ToString();
       }
-      if (literalType == typeof (Guid))
+      if (literalType==typeof (Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      if (literalType == typeof (TimeSpan))
-        return Convert.ToString(((TimeSpan) literalValue).Ticks*100);
+      if (literalType==typeof (TimeSpan))
+        return Convert.ToString(((TimeSpan) literalValue).Ticks * 100);
       return base.Translate(context, literalValue);
     }
 
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      bool isSecond = node.DateTimePart == SqlDateTimePart.Second || node.IntervalPart == SqlIntervalPart.Second;
-      bool isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond ||
-                           node.IntervalPart == SqlIntervalPart.Millisecond;
+      bool isSecond = node.DateTimePart==SqlDateTimePart.Second || node.IntervalPart==SqlIntervalPart.Second;
+      bool isMillisecond = node.DateTimePart==SqlDateTimePart.Millisecond ||
+        node.IntervalPart==SqlIntervalPart.Millisecond;
       if (!(isSecond || isMillisecond))
         return base.Translate(context, node, section);
       switch (section) {
@@ -464,7 +427,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section,
-                                     int position)
+      int position)
     {
       switch (section) {
         case FunctionCallSection.Entry:
@@ -611,9 +574,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case TypeCode.DateTime:
           return "timestamp";
         default:
-          if (type == typeof (TimeSpan))
+          if (type==typeof (TimeSpan))
             return "numeric";
-          if (type == typeof (Guid))
+          if (type==typeof (Guid))
             return "text";
           return "text";
       }
@@ -644,6 +607,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     public Translator(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

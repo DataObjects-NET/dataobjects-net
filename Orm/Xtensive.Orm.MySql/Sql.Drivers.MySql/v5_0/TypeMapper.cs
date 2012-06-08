@@ -26,11 +26,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case TypeCode.DateTime:
           return true;
       }
-      if (type == typeof (Guid))
+      if (type==typeof (Guid))
         return true;
-      if (type == typeof (TimeSpan))
+      if (type==typeof (TimeSpan))
         return true;
-      if (type == typeof (byte[]))
+      if (type==typeof (byte[]))
         return true;
       return false;
     }
@@ -66,9 +66,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      if (value != null) {
+      if (value!=null) {
         var timeSpan = (TimeSpan) value;
-        parameter.Value = timeSpan.Ticks*100;
+        parameter.Value = timeSpan.Ticks * 100;
       }
       else
         parameter.Value = DBNull.Value;
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
-      parameter.Value = value == null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
+      parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
     /// <inheritdoc/>
@@ -139,7 +139,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       catch (InvalidCastException) {
         value = (long) reader.GetDecimal(index);
       }
-      return TimeSpan.FromTicks(value/100);
+      return TimeSpan.FromTicks(value / 100);
     }
 
     /// <inheritdoc/>
@@ -154,6 +154,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     // Constructors
     public TypeMapper(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class Compiler : SqlCompiler
   {
-    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks*100;
+    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
     protected static readonly long NanosecondsPerSecond = 1000000000;
     protected static readonly long NanosecondsPerMillisecond = 1000000;
     protected static readonly long NanosecondsPerMicrosecond = 1000;
@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void Visit(SqlAlterTable node)
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
-      if (renameColumnAction != null)
+      if (renameColumnAction!=null)
         context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
       else if (node.Action is SqlDropConstraint) {
         using (context.EnterScope(node)) {
@@ -94,25 +94,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     protected virtual SqlExpression DateTimeTruncate(SqlExpression date)
     {
       return DateAddMicrosecond(DateAddSecond(DateAddMinute(DateAddHour(date,
-                                                                        -SqlDml.Extract(SqlDateTimePart.Hour, date)),
-                                                            -SqlDml.Extract(SqlDateTimePart.Minute, date)),
-                                              -SqlDml.Extract(SqlDateTimePart.Second, date)),
-                                -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
+        -SqlDml.Extract(SqlDateTimePart.Hour, date)),
+        -SqlDml.Extract(SqlDateTimePart.Minute, date)),
+        -SqlDml.Extract(SqlDateTimePart.Second, date)),
+        -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
     }
 
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return CastToLong(DateDiffDay(date2, date1))*NanosecondsPerDay
-             +
-             CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1))*
-             NanosecondsPerMillisecond;
+      return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
+        +
+        CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) *
+          NanosecondsPerMillisecond;
     }
 
     protected virtual SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
       return DateAddMicrosecond(
-        DateAddDay(date, interval/NanosecondsPerDay),
-        (interval/NanosecondsPerMillisecond*NanosecondsPerMicrosecond)%(MillisecondsPerDay*NanosecondsPerMicrosecond));
+        DateAddDay(date, interval / NanosecondsPerDay),
+        (interval / NanosecondsPerMillisecond * NanosecondsPerMicrosecond) % (MillisecondsPerDay * NanosecondsPerMicrosecond));
     }
 
     /// <inheritdoc/>
@@ -123,14 +123,18 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         bool needOpeningParenthesis = false;
         bool needClosingParenthesis = false;
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
-        if (needOpeningParenthesis) context.Output.AppendText("(");
+        if (needOpeningParenthesis)
+          context.Output.AppendText("(");
         node.Left.AcceptVisitor(this);
-        if (needClosingParenthesis) context.Output.AppendText(")");
+        if (needClosingParenthesis)
+          context.Output.AppendText(")");
         context.Output.AppendText(translator.Translate(node.NodeType));
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
-        if (needOpeningParenthesis) context.Output.AppendText("(");
+        if (needOpeningParenthesis)
+          context.Output.AppendText("(");
         node.Right.AcceptVisitor(this);
-        if (needClosingParenthesis) context.Output.AppendText(")");
+        if (needClosingParenthesis)
+          context.Output.AppendText(")");
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
       }
     }
@@ -149,7 +153,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           return;
         case SqlFunctionType.CharLength:
           SqlDml.FunctionCall(translator.Translate(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);
-//          SqlDml.CharLength(node.Arguments[0]).AcceptVisitor(this);
+          //          SqlDml.CharLength(node.Arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
@@ -162,7 +166,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlDml.Power(node.Arguments[0], 2).AcceptVisitor(this);
           return;
         case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0])/NanosecondsPerMillisecond);
+          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
           return;
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToNanoseconds:
@@ -179,9 +183,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-                                                    node.Arguments[0] - 2001),
-                                        node.Arguments[1] - 1),
-                           node.Arguments[2] - 1));
+            node.Arguments[0] - 2001),
+            node.Arguments[1] - 1),
+            node.Arguments[2] - 1));
           return;
       }
       base.Visit(node);
@@ -222,7 +226,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
     {
-      return SqlDml.FunctionCall("MICROSECOND", SqlDml.FunctionCall("DATEDIFF", date1, date2)*NanosecondsPerMillisecond);
+      return SqlDml.FunctionCall("MICROSECOND", SqlDml.FunctionCall("DATEDIFF", date1, date2) * NanosecondsPerMillisecond);
     }
 
     private static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
@@ -266,6 +270,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected internal Compiler(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

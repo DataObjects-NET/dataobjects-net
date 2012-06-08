@@ -198,7 +198,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override QueryInfo GetQueryInfo()
     {
       var queryInfo = new QueryInfo();
-      queryInfo.MaxLength = 60000*4000;
+      queryInfo.MaxLength = 60000 * 4000;
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32; //TODO: Determine max nested sub queries and variables.
       queryInfo.ParameterPrefix = "?";
@@ -235,39 +235,39 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       var types = new DataTypeCollection();
 
       DataTypeFeatures common = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.NonKeyIndexing |
-                                DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
+        DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
 
       DataTypeFeatures index = DataTypeFeatures.Indexing | DataTypeFeatures.KeyConstraint;
 
       DataTypeFeatures identity = DataTypeFeatures.Identity;
 
       types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
-                                         ValueRange.Bool, "boolean");
+        ValueRange.Bool, "boolean");
 
       types.Int8 = DataTypeInfo.Range(SqlType.Int8, common | index | identity,
-                                      ValueRange.Byte, "tinyint");
+        ValueRange.Byte, "tinyint");
 
       types.Int16 = DataTypeInfo.Range(SqlType.Int16, common | index | identity,
-                                       ValueRange.Int16, "smallint");
+        ValueRange.Int16, "smallint");
 
       types.Int32 = DataTypeInfo.Range(SqlType.Int32, common | index | identity,
-                                       ValueRange.Int32, "int");
+        ValueRange.Int32, "int");
 
       types.Int64 = DataTypeInfo.Range(SqlType.Int64, common | index | identity,
-                                       ValueRange.Int64, "bigint");
+        ValueRange.Int64, "bigint");
 
       types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
-                                              ValueRange.Decimal, 38, "decimal", "numeric", "year");
+        ValueRange.Decimal, 38, "decimal", "numeric", "year");
 
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
-                                       ValueRange.Float, "real");
+        ValueRange.Float, "real");
 
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
-                                        ValueRange.Double, "float");
+        ValueRange.Double, "float");
 
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
-                                          new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
-                                          "datetime", "time");
+        new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
+        "datetime", "time");
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 255, "char");
       types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "varchar");
@@ -285,7 +285,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override IsolationLevels GetIsolationLevels()
     {
-      IsolationLevels levels =
+      var levels =
         IsolationLevels.ReadUncommitted |
         IsolationLevels.ReadCommitted |
         IsolationLevels.RepeatableRead |
@@ -322,6 +322,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     public ServerInfoProvider(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

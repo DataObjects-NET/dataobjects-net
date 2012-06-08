@@ -223,7 +223,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             }
             else {
               index = table.CreateIndex(reader.GetString(2));
-              index.IsUnique = reader.GetInt32(3) == 0;
+              index.IsUnique = reader.GetInt32(3)==0;
             }
           }
           TableColumn column = table.TableColumns[reader.GetString(6)];
@@ -293,7 +293,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             CreateIndexBasedConstraint(table, constraintName, constraintType, columns);
             columns.Clear();
           }
-          if (columns.Count == 0) {
+          if (columns.Count==0) {
             Schema schema = theCatalog.Schemas[reader.GetString(0)];
             table = schema.Tables[reader.GetString(1)];
             constraintName = reader.GetString(2);
@@ -339,7 +339,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     private SqlValueType CreateValueType(IDataRecord row,
-                                         int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
+      int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
       string typeName = row.GetString(typeNameIndex).ToUpperInvariant();
       string columnName = row.GetString(6).ToUpperInvariant();
@@ -347,7 +347,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
       int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
 
-      if (typeName == "NUMBER" || typeName == "NUMERIC" || typeName == "DOUBLE" || typeName == "REAL" || typeName == "DECIMAL") {
+      if (typeName=="NUMBER" || typeName=="NUMERIC" || typeName=="DOUBLE" || typeName=="REAL" || typeName=="DECIMAL") {
         return new SqlValueType(SqlType.Decimal, precision, scale);
       }
 
@@ -409,20 +409,20 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         return new SqlValueType(SqlType.VarBinaryMax);
       }
 
-      if (typeName == "VARBINARY") {
+      if (typeName=="VARBINARY") {
         int length = ReadInt(row, charLengthIndex);
         return new SqlValueType(SqlType.VarBinary, length);
       }
 
-      if (typeName == "VARCHAR" || typeName == "CHAR") {
+      if (typeName=="VARCHAR" || typeName=="CHAR") {
         int length = Convert.ToInt32(row[charLengthIndex]);
-        SqlType sqlType = typeName.Length == 4 ? SqlType.Char : SqlType.VarChar;
+        SqlType sqlType = typeName.Length==4 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
       }
       DataTypeInfo typeInfo = Driver.ServerInfo.DataTypes[typeName];
-      return typeInfo != null
-               ? new SqlValueType(typeInfo.Type)
-               : new SqlValueType(typeName);
+      return typeInfo!=null
+        ? new SqlValueType(typeInfo.Type)
+        : new SqlValueType(typeName);
     }
 
     private static void CreateIndexBasedConstraint(
@@ -464,7 +464,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       string value = ReadStringOrNull(row, index);
       if (!string.IsNullOrEmpty(value)) {
         value = value.ToUpperInvariant();
-        return value == "FULLTEXT";
+        return value=="FULLTEXT";
       }
       else {
         return false;
@@ -476,7 +476,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       string value = ReadStringOrNull(row, index);
       if (!string.IsNullOrEmpty(value)) {
         value = value.ToUpperInvariant();
-        return value == "AUTO_INCREMENT";
+        return value=="AUTO_INCREMENT";
       }
       else {
         return false;
@@ -518,9 +518,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected virtual void RegisterReplacements(Dictionary<string, string> replacements)
     {
-      string schemaFilter = targetSchema != null
-                              ? "= " + SqlHelper.QuoteString(targetSchema)
-                              : "NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA')";
+      string schemaFilter = targetSchema!=null
+        ? "= " + SqlHelper.QuoteString(targetSchema)
+        : "NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA')";
 
       replacements[SchemaFilterPlaceholder] = schemaFilter;
       replacements[IndexesFilterPlaceholder] = "1 > 0";
@@ -549,6 +549,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     public Extractor(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

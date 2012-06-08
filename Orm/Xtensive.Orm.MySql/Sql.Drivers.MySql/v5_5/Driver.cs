@@ -40,6 +40,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_5
 
     public Driver(CoreServerInfo coreServerInfo)
       : base(coreServerInfo)
-    {}
+    {
+    }
   }
 }
