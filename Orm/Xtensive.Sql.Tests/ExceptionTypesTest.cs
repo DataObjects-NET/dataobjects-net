@@ -64,9 +64,9 @@ namespace Xtensive.Sql.Tests
     {
       var table = schema.CreateTable(CheckedTableName);
       CreatePrimaryKey(table);
-      var valueColumn1 = table.CreateColumn("value1", Driver.TypeMappings.Int.BuildSqlType());
+      var valueColumn1 = table.CreateColumn("value1", Driver.TypeMappings[typeof (int)].MapType());
       valueColumn1.IsNullable = true;
-      var valueColumn2 = table.CreateColumn("value2", Driver.TypeMappings.Int.BuildSqlType());
+      var valueColumn2 = table.CreateColumn("value2", Driver.TypeMappings[typeof (int)].MapType());
       valueColumn2.IsNullable = false;
 
       var tableRef = SqlDml.TableRef(table);
@@ -124,7 +124,7 @@ namespace Xtensive.Sql.Tests
     {
       var table = schema.CreateTable(UniqueTableName);
       CreatePrimaryKey(table);
-      var column = table.CreateColumn("value", Driver.TypeMappings.Int.BuildSqlType());
+      var column = table.CreateColumn("value", Driver.TypeMappings[typeof (int)].MapType());
       column.IsNullable = true;
       table.CreateUniqueConstraint("unique_me", column);
       ExecuteNonQuery(SqlDdl.Create(table));
@@ -154,7 +154,7 @@ namespace Xtensive.Sql.Tests
     {
       var table = schema.CreateTable(DeadlockTableName);
       CreatePrimaryKey(table);
-      var column = table.CreateColumn("value", Driver.TypeMappings.Int.BuildSqlType());
+      var column = table.CreateColumn("value", Driver.TypeMappings[typeof (int)].MapType());
       column.IsNullable = true;
       ExecuteNonQuery(SqlDdl.Create(table));
 
@@ -288,7 +288,7 @@ namespace Xtensive.Sql.Tests
 
     private TableColumn CreatePrimaryKey(Table table)
     {
-      var column = table.CreateColumn(IdColumnName, Driver.TypeMappings.Int.BuildSqlType());
+      var column = table.CreateColumn(IdColumnName, Driver.TypeMappings[typeof (int)].MapType());
       table.CreatePrimaryKey("pk_" + table.Name, column);
       return column;
     }

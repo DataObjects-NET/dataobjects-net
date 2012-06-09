@@ -126,6 +126,12 @@
     <Compile Include="Sql.Drivers.PostgreSql\v8_4\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v8_4\Translator.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v8_4\TypeMapper.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_0\Compiler.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_0\Driver.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_0\Extractor.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_0\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_0\Translator.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_0\TypeMapper.cs" />
     <EmbeddedResource Include="Sql.Drivers.PostgreSql\Resources\Strings.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>

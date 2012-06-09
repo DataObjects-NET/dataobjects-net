@@ -5778,6 +5778,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Full text indexes are not supported by current storage, ignoring index &apos;{0}&apos;.
+        /// </summary>
+        internal static string LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX {
+            get {
+                return ResourceManager.GetString("LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hierarchy: &apos;{0}&apos;.
         /// </summary>
         internal static string LogHierarchyX {

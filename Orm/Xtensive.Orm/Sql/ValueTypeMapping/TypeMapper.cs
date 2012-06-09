@@ -25,27 +25,21 @@ namespace Xtensive.Sql
     protected int? MaxDecimalPrecision { get; private set; }
     protected int? VarCharMaxLength { get; private set; }
     protected int? VarBinaryMaxLength { get; private set; }
-    protected static BinaryFormatter Formatter = new BinaryFormatter();
-
-    public virtual bool IsLiteralCastRequired(Type type)
-    {
-      return false;
-    }
 
     public virtual bool IsParameterCastRequired(Type type)
     {
       return false;
     }
 
-    #region SetXxxParameterValue methods
+    #region BindXxx methods
 
-    public virtual void SetBooleanParameterValue(DbParameter parameter, object value)
+    public virtual void BindBoolean(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Boolean;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetCharParameterValue(DbParameter parameter, object value)
+    public virtual void BindChar(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
       if (value==null) {
@@ -56,103 +50,102 @@ namespace Xtensive.Sql
       parameter.Value = _char==default(char) ? string.Empty : _char.ToString();
     }
 
-    public virtual void SetStringParameterValue(DbParameter parameter, object value)
+    public virtual void BindString(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetByteParameterValue(DbParameter parameter, object value)
+    public virtual void BindByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Byte;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetSByteParameterValue(DbParameter parameter, object value)
+    public virtual void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.SByte;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetShortParameterValue(DbParameter parameter, object value)
+    public virtual void BindShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetUShortParameterValue(DbParameter parameter, object value)
+    public virtual void BindUShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.UInt16;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetIntParameterValue(DbParameter parameter, object value)
+    public virtual void BindInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetUIntParameterValue(DbParameter parameter, object value)
+    public virtual void BindUInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.UInt32;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetLongParameterValue(DbParameter parameter, object value)
+    public virtual void BindLong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetULongParameterValue(DbParameter parameter, object value)
+    public virtual void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.UInt64;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetFloatParameterValue(DbParameter parameter, object value)
+    public virtual void BindFloat(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Single;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetDoubleParameterValue(DbParameter parameter, object value)
+    public virtual void BindDouble(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Double;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetDecimalParameterValue(DbParameter parameter, object value)
+    public virtual void BindDecimal(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetDateTimeParameterValue(DbParameter parameter, object value)
+    public virtual void BindDateTime(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.DateTime;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetTimeSpanParameterValue(DbParameter parameter, object value)
+    public virtual void BindTimeSpan(DbParameter parameter, object value)
     {
-        parameter.DbType = DbType.Int64;
-        if (value != null)
-        {
-            var timeSpan = (TimeSpan)value;
-            parameter.Value = timeSpan.Ticks * 100;
-        }
-        else
-            parameter.Value = DBNull.Value;
+      parameter.DbType = DbType.Int64;
+      if (value!=null) {
+        var timeSpan = (TimeSpan) value;
+        parameter.Value = timeSpan.Ticks * 100;
+      }
+      else
+        parameter.Value = DBNull.Value;
     }
 
-    public virtual void SetGuidParameterValue(DbParameter parameter, object value)
+    public virtual void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Guid;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void SetByteArrayParameterValue(DbParameter parameter, object value)
+    public virtual void BindByteArray(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Binary;
       parameter.Value = value ?? DBNull.Value;
@@ -253,87 +246,82 @@ namespace Xtensive.Sql
       if (value == null || value is byte[])
         return value;
 
-      try {
-        var ms = new MemoryStream();
-        Formatter.Serialize(ms, value);
-        return ms.ToArray();
-      }
-      catch (Exception e) {
-        // Log this
-        throw;
-      }
+      var formatter = new BinaryFormatter();
+      var stream = new MemoryStream();
+      formatter.Serialize(stream, value);
+      return stream.ToArray();
     }
 
     #endregion
 
-    #region BuildXxxSqlType methods
+    #region MapXxx methods
 
-    public virtual SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapBoolean(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Boolean);
     }
 
-    public virtual SqlValueType BuildCharSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapChar(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarChar, 1);
     }
 
-    public virtual SqlValueType BuildStringSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapString(int? length, int? precision, int? scale)
     {
       return ChooseStreamType(SqlType.VarChar, SqlType.VarCharMax, length, VarCharMaxLength);
     }
     
-    public virtual SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.UInt8);
     }
 
-    public virtual SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int8);
     }
 
-    public virtual SqlValueType BuildShortSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapShort(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
     }
 
-    public virtual SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapUShort(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.UInt16);
     }
 
-    public virtual SqlValueType BuildIntSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapInt(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int32);
     }
 
-    public virtual SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapUInt(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.UInt32);
     }
 
-    public virtual SqlValueType BuildLongSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapLong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }
 
-    public virtual SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.UInt64);
     }
 
-    public virtual SqlValueType BuildFloatSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapFloat(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Float);
     }
 
-    public virtual SqlValueType BuildDoubleSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapDouble(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Double);
     }
 
-    public virtual SqlValueType BuildDecimalSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
       if (MaxDecimalPrecision==null)
         return new SqlValueType(SqlType.Decimal);
@@ -349,22 +337,22 @@ namespace Xtensive.Sql
       return new SqlValueType(SqlType.Decimal, null, null, precision, scale);
     }
 
-    public virtual SqlValueType BuildDateTimeSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.DateTime);
     }
 
-    public virtual SqlValueType BuildTimeSpanSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Interval);
     }
 
-    public virtual SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapGuid(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Guid);
     }
 
-    public virtual SqlValueType BuildByteArraySqlType(int? length, int? precision, int? scale)
+    public virtual SqlValueType MapByteArray(int? length, int? precision, int? scale)
     {
       return ChooseStreamType(SqlType.VarBinary, SqlType.VarBinaryMax, length, VarBinaryMaxLength);
     }

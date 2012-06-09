@@ -19,62 +19,44 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const int BooleanPrecision = 1;
     private ValueRange<DateTime> dateTimeRange;
 
-    public override bool IsLiteralCastRequired(Type type)
-    {
-      switch (Type.GetTypeCode(type)) {
-        case TypeCode.Byte:
-        case TypeCode.SByte:
-        case TypeCode.Int16:
-        case TypeCode.UInt16:
-        case TypeCode.Int64:
-        case TypeCode.UInt64:
-          return true;
-      }
-      if (type==typeof(TimeSpan))
-        return true;
-      if (type==typeof(Guid))
-        return true;
-      return false;
-    }
-
     public override object ReadBoolean(DbDataReader reader, int index)
     {
       var value = reader.GetDecimal(index);
       return SQLiteConvert.ToBoolean(value);
     }
 
-    public override void SetSByteParameterValue(DbParameter parameter, object value)
+    public override void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetUShortParameterValue(DbParameter parameter, object value)
+    public override void BindUShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetUIntParameterValue(DbParameter parameter, object value)
+    public override void BindUInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetULongParameterValue(DbParameter parameter, object value)
+    public override void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void SetDateTimeParameterValue(DbParameter parameter, object value)
+    public override void BindDateTime(DbParameter parameter, object value)
     {
       if (value!=null)
         value = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
-      base.SetDateTimeParameterValue(parameter, value);
+      base.BindDateTime(parameter, value);
     }
 
-    public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
+    public override void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
       if (value!=null) {
@@ -85,47 +67,47 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         parameter.Value = DBNull.Value;
     }
 
-    public override SqlValueType BuildDecimalSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal);
     }
 
-    public override SqlValueType BuildCharSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapChar(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarCharMax);
     }
 
-    public override SqlValueType BuildStringSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapString(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarCharMax);
     }
 
-    public override SqlValueType BuildByteArraySqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapByteArray(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarBinaryMax);
     }
 
-    public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
     }
 
-    public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUShort(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int32);
     }
 
-    public override SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapUInt(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }
 
-    public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }
 
-    public override SqlValueType BuildTimeSpanSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
     }

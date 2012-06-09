@@ -4,8 +4,6 @@
 // Created by: Denis Kryuchkov
 // Created:    2009.07.07
 
-using System;
-using Npgsql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 

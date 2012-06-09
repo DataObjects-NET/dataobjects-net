@@ -10,17 +10,9 @@ using System.Data.Common;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
-  internal class TypeMapper : v8_0.TypeMapper
+  internal class TypeMapper : v8_2.TypeMapper
   {
-    public override bool IsLiteralCastRequired(Type type)
-    {
-      if (type==typeof(Guid))
-        return true;
-
-      return base.IsLiteralCastRequired(type);
-    }
-
-    public override void SetGuidParameterValue(DbParameter parameter, object value)
+    public override void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Guid;
       parameter.Value = value ?? DBNull.Value;
@@ -31,7 +23,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       return reader.GetGuid(index);
     }
 
-    public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
+    public override SqlValueType MapGuid(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Guid);
     }

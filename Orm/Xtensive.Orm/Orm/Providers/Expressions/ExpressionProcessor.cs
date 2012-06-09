@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Providers
         if (type==typeof(bool) && fixBooleanExpressions)
           result = booleanExpressionConverter.IntToBoolean(result);
         else if (typeMapping.ParameterCastRequired)
-          result = SqlDml.Cast(result, typeMapping.BuildSqlType());
+          result = SqlDml.Cast(result, typeMapping.MapType());
       }
       return result;
     }
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Providers
         case ExpressionType.ArrayLength:
           if (expression.Operand.Type != typeof(byte[]))
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
-          return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.BuildValueType(typeof (int)));
+          return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.MapValueType(typeof (int)));
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
           return SqlDml.Negate(operand);
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Providers
         result.Else = 0;
         operand = result;
       }
-      return SqlDml.Cast(operand, driver.BuildValueType(targetType));
+      return SqlDml.Cast(operand, driver.MapValueType(targetType));
     }
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)

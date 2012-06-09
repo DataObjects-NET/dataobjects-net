@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType==AggregateType.Sum || aggregateColumn.AggregateType==AggregateType.Avg)
-        result = SqlDml.Cast(result, Driver.BuildValueType(aggregateColumn.Type));
+        result = SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type));
       return result;
     }
 

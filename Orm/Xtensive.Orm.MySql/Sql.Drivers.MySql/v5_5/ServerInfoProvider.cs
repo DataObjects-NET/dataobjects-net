@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_5
       var tableInfo = new TableInfo();
       tableInfo.MaxIdentifierLength = MaxIdentifierLength;
       tableInfo.AllowedDdlStatements = DdlStatements.All;
-      //From version  5.1.14
+      // From version  5.1.14
       tableInfo.PartitionMethods = PartitionMethods.Hash | PartitionMethods.Range | PartitionMethods.List;
       return tableInfo;
     }
@@ -28,6 +28,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_5
 
     public ServerInfoProvider(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

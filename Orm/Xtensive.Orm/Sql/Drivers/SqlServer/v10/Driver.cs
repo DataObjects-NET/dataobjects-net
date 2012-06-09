@@ -4,10 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
-using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
@@ -38,9 +36,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return new ServerInfoProvider(this);
     }
 
-    protected override Sql.TypeMappingCollection CreateTypeMappingCollection(Sql.TypeMapper mapper)
+    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
-      return new TypeMappingCollection((TypeMapper) mapper);
+      builder.Add(new GeometryMapper());
+      builder.Add(new GeographyMapper());
     }
 
 

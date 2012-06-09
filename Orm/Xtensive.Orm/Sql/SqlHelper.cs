@@ -5,6 +5,7 @@
 // Created:    2009.07.17
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -55,19 +56,28 @@ namespace Xtensive.Sql
       return Quote("[", "]", ".", "]]", names);
     }
 
+    /// <summary>
+    /// Quotes the specified identifier with square brackets (i.e. ``).
+    /// </summary>
+    /// <returns>Quoted indentifier.</returns>
+    public static string QuoteIdentifierWithBackTick(string[] names)
+    {
+      return Quote("`", "`", ".", "``", names);
+    }
+
     private static string Quote(string openingBracket, string closingBracket, string delimiter,
-      string escapedClosingBracket, string[] names)
+      string escapedClosingBracket, IEnumerable<string> names)
     {
       var tokens = names.Where(name => !string.IsNullOrEmpty(name)).ToArray();
       var builder = new StringBuilder();
-      for (int i = 0; i < tokens.Length-1; i++) {
+      for (int i = 0; i < tokens.Length - 1; i++) {
         builder.Append(openingBracket);
         builder.Append(tokens[i].Replace(closingBracket, escapedClosingBracket));
         builder.Append(closingBracket);
         builder.Append(delimiter);
       }
       builder.Append(openingBracket);
-      builder.Append(tokens[tokens.Length-1].Replace(closingBracket, escapedClosingBracket));
+      builder.Append(tokens[tokens.Length - 1].Replace(closingBracket, escapedClosingBracket));
       builder.Append(closingBracket);
       return builder.ToString();
     }

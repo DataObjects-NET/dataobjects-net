@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers
 
     public BooleanExpressionConverter(StorageDriver driver)
     {
-      booleanType = driver.BuildValueType(typeof (bool));
+      booleanType = driver.MapValueType(typeof (bool));
     }
   }
 }

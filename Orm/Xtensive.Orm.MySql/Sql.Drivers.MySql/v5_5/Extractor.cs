@@ -12,6 +12,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_5
 
     public Extractor(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

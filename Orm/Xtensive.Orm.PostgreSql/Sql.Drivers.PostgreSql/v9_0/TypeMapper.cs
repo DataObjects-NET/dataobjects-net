@@ -1,12 +1,12 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Malisa Ncube
-// Created:    2011.03.20
+// Created by: Denis Krjuchkov
+// Created:    2012.06.06
 
-namespace Xtensive.Sql.Drivers.MySql.v5_1
+namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
-  internal class TypeMapper : v5_0.TypeMapper
+  internal class TypeMapper : v8_4.TypeMapper
   {
     // Constructors
 

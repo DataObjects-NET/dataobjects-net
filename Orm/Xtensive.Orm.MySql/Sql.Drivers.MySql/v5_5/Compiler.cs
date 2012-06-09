@@ -12,6 +12,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_5
 
     public Compiler(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }

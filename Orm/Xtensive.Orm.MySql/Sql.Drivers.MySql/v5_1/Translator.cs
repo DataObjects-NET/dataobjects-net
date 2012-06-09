@@ -11,6 +11,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_1
     // Constructors
     public Translator(SqlDriver driver)
       : base(driver)
-    {}
+    {
+    }
   }
 }
