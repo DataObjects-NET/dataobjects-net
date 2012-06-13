@@ -1,0 +1,8 @@
+- RemoveFieldHint, ChangeFieldTypeHint are now correctly handled for Structure fields
+- Hex format for byte array literals is used for PostgreSQL 9.0 and later
+- Fixed index direction support for MySQL
+- Improved translation of DateTime.Date for MySQL
+- Fixed incorrect translation of Math.Truncate and Decimal.Truncate for MySQL
+- Fixed incorrect translation of String.IndexOf for MySQL
+- Correctly skip full-text indexes if storage does not support them
+- Fixed mapping of Single and Double types for MySQL
