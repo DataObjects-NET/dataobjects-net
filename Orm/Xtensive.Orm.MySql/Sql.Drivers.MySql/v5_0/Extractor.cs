@@ -17,7 +17,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal partial class Extractor : Model.Extractor
   {
     private const int DefaultPrecision = 38;
-
     private const int DefaultScale = 0;
 
     private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
@@ -34,21 +33,19 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override Catalog ExtractCatalog()
     {
       targetSchema = null;
-
       RegisterReplacements(replacementsRegistry);
-      Schema schema = ExtractSchema(Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant());
+      var schema = ExtractSchema(Driver.CoreServerInfo.DefaultSchemaName);
       return schema.Catalog;
     }
 
     /// <inheritdoc/>
     public override Schema ExtractSchema(string schemaName)
     {
-      targetSchema = schemaName.ToUpperInvariant();
-      theCatalog.CreateSchema(targetSchema);
-
+      targetSchema = schemaName;
+      var result = theCatalog.CreateSchema(targetSchema);
       RegisterReplacements(replacementsRegistry);
       ExtractCatalogContents();
-      return theCatalog.Schemas[targetSchema];
+      return result;
     }
 
     private void ExtractCatalogContents()
@@ -63,19 +60,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       ExtractUniqueAndPrimaryKeyConstraints();
     }
 
-    private void ExtractSchemas()
-    {
-      // In MySQL schemas are databases,  so we extract databases, 
-      // but ensure we get into the context of a default database entered in the connection string.
-      using (DbDataReader reader = ExecuteReader(GetExtractSchemasQuery()))
-        while (reader.Read())
-          theCatalog.CreateSchema(reader.GetString(0));
-      // choosing the default schema
-      string defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
-      Schema defaultSchema = theCatalog.Schemas[defaultSchemaName];
-      theCatalog.DefaultSchema = defaultSchema;
-    }
-
     // ---- ExtractTables
     //  0   table_schema, 
     //  1   table_name, 
@@ -84,10 +68,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
       using (DbDataReader reader = ExecuteReader(GetExtractTablesQuery())) {
         while (reader.Read()) {
-          string schemaName = reader.GetString(0);
-          schemaName = schemaName.ToUpperInvariant();
-          Schema schema = theCatalog.Schemas[schemaName];
-          string tableName = reader.GetString(1);
+          var schemaName = reader.GetString(0);
+          var schema = theCatalog.Schemas[schemaName];
+          var tableName = reader.GetString(1);
           schema.CreateTable(tableName);
         }
       }
@@ -294,8 +277,14 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             columns.Clear();
           }
           if (columns.Count==0) {
-            Schema schema = theCatalog.Schemas[reader.GetString(0)];
-            table = schema.Tables[reader.GetString(1)];
+            var schemaName = reader.GetString(0);
+            var tableName = reader.GetString(1);
+            var schema = theCatalog.Schemas[schemaName];
+            if (schema==null)
+              throw new InvalidOperationException(string.Format("Schema '{0}' is not found", schemaName));
+            table = schema.Tables[tableName];
+            if (table==null)
+              throw new InvalidOperationException(string.Format("Table '{0}' is not found in schema '{1}'", tableName, schemaName));
             constraintName = reader.GetString(2);
             constraintType = reader.GetString(3);
           }
@@ -466,9 +455,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         value = value.ToUpperInvariant();
         return value=="FULLTEXT";
       }
-      else {
-        return false;
-      }
+      return false;
     }
 
     private static bool ReadAutoIncrement(IDataRecord row, int index)
@@ -478,9 +465,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         value = value.ToUpperInvariant();
         return value=="AUTO_INCREMENT";
       }
-      else {
-        return false;
-      }
+      return false;
     }
 
     private static long ReadLong(IDataRecord row, int index)

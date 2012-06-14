@@ -6,4 +6,5 @@
 [mysql] Fixed incorrect translation of Math.Truncate and Decimal.Truncate for MySQL
 [mysql] Fixed incorrect translation of String.IndexOf for MySQL
 [mysql] Fixed mapping of Single and Double types for MySQL
+[mysql] Fixed schema extraction with case-sensitive collation for MySQL
 [postgresql] Hex format for byte array literals is used for PostgreSQL 9.0 and later
