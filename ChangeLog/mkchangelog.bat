@@ -15,10 +15,10 @@
 @goto :end
 
 :process
-@echo Changes in %~n1:>> "%output_file%"
+@set version=%~n1:
+@echo Changes in %version:_= %>> "%output_file%"
 @echo.>> "%output_file%"
 @for /F "usebackq delims==" %%I in ("%1") do @echo %%I>> "%output_file%"
-@echo.>> "%output_file%"
 @echo.>> "%output_file%"
 
 :end
