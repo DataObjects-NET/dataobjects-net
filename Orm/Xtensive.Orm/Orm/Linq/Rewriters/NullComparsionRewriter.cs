@@ -1,19 +1,12 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
-using Xtensive.Orm;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
   internal class NullComparsionRewriter : ExpressionVisitor
   {
-    public static Expression Rewrite(Expression e)
-    {
-      return new NullComparsionRewriter().Visit(e);
-    }
-
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -21,12 +14,11 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitConditional(ConditionalExpression c)
     {
-        var test = Visit(c.Test);
-        var ifTrue = Visit(c.IfTrue);
-        var ifFalse = Visit(c.IfFalse);
+      var test = Visit(c.Test);
+      var ifTrue = Visit(c.IfTrue);
+      var ifFalse = Visit(c.IfFalse);
 
       if (test.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual)) {
-
         var binaryExpression = (BinaryExpression) test;
         var left = binaryExpression.Left.StripCasts();
         var right = binaryExpression.Right.StripCasts();
@@ -55,6 +47,17 @@ namespace Xtensive.Orm.Linq.Rewriters
     private static bool IsEntity(Expression expression)
     {
       return expression.Type.IsSubclassOf(typeof (Entity));
+    }
+
+    public static Expression Rewrite(Expression e)
+    {
+      return new NullComparsionRewriter().Visit(e);
+    }
+
+    // Constructors
+
+    private NullComparsionRewriter()
+    {
     }
   }
 }

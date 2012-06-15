@@ -4,16 +4,13 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.24
 
-using System;
 using System.Linq.Expressions;
-using Xtensive.Linq;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Parameters;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
@@ -22,14 +19,6 @@ namespace Xtensive.Orm.Linq.Rewriters
     private readonly Expression parameterOfTupleExpression;
     private readonly ApplyParameter applyParameter;
     private readonly Parameter<Tuple> parameterOfTuple;
-
-    public static CompilableProvider Rewrite(CompilableProvider provider,
-      Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
-    {
-      var expressionRewriter = new ApplyParameterToTupleParameterRewriter(parameterOfTuple, applyParameter);
-      var providerRewriter = new CompilableProviderVisitor(expressionRewriter.RewriteExpression);
-      return providerRewriter.VisitCompilable(provider);
-    }
 
     public static Expression Rewrite(Expression expression,
       Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
@@ -64,7 +53,10 @@ namespace Xtensive.Orm.Linq.Rewriters
           newItemProjector, 
           expression.ProjectionExpression.TupleParameterBindings, 
           expression.ProjectionExpression.ResultType);
-        return new GroupingExpression(expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression, expression.ApplyParameter, expression.KeyExpression, expression.SelectManyInfo);
+        return new GroupingExpression(
+          expression.Type, expression.OuterParameter, expression.DefaultIfEmpty,
+          newProjectionExpression, expression.ApplyParameter,
+          expression.KeyExpression, expression.SelectManyInfo);
       }
       return expression;
     }
@@ -80,7 +72,10 @@ namespace Xtensive.Orm.Linq.Rewriters
           newItemProjector, 
           expression.ProjectionExpression.TupleParameterBindings, 
           expression.ProjectionExpression.ResultType);
-        return new SubQueryExpression(expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression, expression.ApplyParameter, expression.ExtendedType);
+        return new SubQueryExpression(
+          expression.Type, expression.OuterParameter,
+          expression.DefaultIfEmpty, newProjectionExpression,
+          expression.ApplyParameter, expression.ExtendedType);
       }
       return expression;
     }
@@ -88,6 +83,13 @@ namespace Xtensive.Orm.Linq.Rewriters
     private Expression RewriteExpression(Provider provider, Expression expression)
     {
       return Visit(expression);
+    }
+
+    public static CompilableProvider Rewrite(CompilableProvider provider, Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
+    {
+      var expressionRewriter = new ApplyParameterToTupleParameterRewriter(parameterOfTuple, applyParameter);
+      var providerRewriter = new CompilableProviderVisitor(expressionRewriter.RewriteExpression);
+      return providerRewriter.VisitCompilable(provider);
     }
 
     // Constructors

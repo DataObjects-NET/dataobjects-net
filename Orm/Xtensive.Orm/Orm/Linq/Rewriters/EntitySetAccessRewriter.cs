@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Linq;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -14,11 +13,6 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class EntitySetAccessRewriter : ExpressionVisitor
   {
-    public static Expression Rewrite(Expression e)
-    {
-      return new EntitySetAccessRewriter().Visit(e);
-    }
-
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -53,6 +47,17 @@ namespace Xtensive.Orm.Linq.Rewriters
     private static bool IsEntitySet(Expression expression)
     {
       return expression!=null && expression.Type.IsOfGenericType(typeof (EntitySet<>));
+    }
+
+    public static Expression Rewrite(Expression e)
+    {
+      return new EntitySetAccessRewriter().Visit(e);
+    }
+
+    // Constructors
+
+    private EntitySetAccessRewriter()
+    {
     }
   }
 }

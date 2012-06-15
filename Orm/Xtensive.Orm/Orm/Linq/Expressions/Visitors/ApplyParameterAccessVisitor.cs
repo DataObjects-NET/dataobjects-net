@@ -7,7 +7,6 @@
 using System;
 using System.Linq.Expressions;
 
-using Xtensive.Linq;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Helpers;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
