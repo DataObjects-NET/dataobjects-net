@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Linq;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -14,11 +13,6 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class EqualityRewriter : ExpressionVisitor
   {
-    public static Expression Rewrite(Expression e)
-    {
-      return new EqualityRewriter().Visit(e);
-    }
-
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -51,6 +45,17 @@ namespace Xtensive.Orm.Linq.Rewriters
         return Expression.Equal(mc.Object, mc.Arguments[0]);
 
       return base.VisitMethodCall(mc);
+    }
+
+    public static Expression Rewrite(Expression e)
+    {
+      return new EqualityRewriter().Visit(e);
+    }
+
+    // Constructors
+
+    private EqualityRewriter()
+    {
     }
   }
 }

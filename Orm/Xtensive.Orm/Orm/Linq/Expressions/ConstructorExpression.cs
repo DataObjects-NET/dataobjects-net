@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
         var parametrizedExpression = mapped as ParameterizedExpression;
-        if (parametrizedExpression!=null && parametrizedExpression.OuterParameter==OuterParameter)
+        if (parametrizedExpression!=null && (parametrizedExpression.OuterParameter==OuterParameter || OuterParameter==null))
           return mapped.Remap(offset, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       };
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Linq
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
         var parametrizedExpression = mapped as ParameterizedExpression;
-        if (parametrizedExpression!=null && parametrizedExpression.OuterParameter==OuterParameter)
+        if (parametrizedExpression!=null && (parametrizedExpression.OuterParameter==OuterParameter || OuterParameter==null))
           return mapped.Remap(map, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       };

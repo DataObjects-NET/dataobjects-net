@@ -402,7 +402,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
-    <Compile Include="Orm\Linq\Rewriters\CoalesceRewriter.cs" />
     <Compile Include="Orm\Operations\EntityInitializeOperation.cs" />
     <Compile Include="Orm\Operations\Internals\BlockingOperationRegistrationScope.cs" />
     <Compile Include="Orm\Operations\KeySetOperation.cs" />

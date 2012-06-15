@@ -1,0 +1,3 @@
+[main] Fixed index duplication under certain scenarios
+[main] Fixed error about duplicate index name under certain scenarios
+[main] Added SessionOptions.SuppressRollbackExceptions

@@ -4,9 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.07.03
 
-using System.Linq.Expressions;
-using Xtensive.Linq;
 using System.Linq;
+using System.Linq.Expressions;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -17,10 +16,25 @@ namespace Xtensive.Orm.Linq.Rewriters
     private readonly ParameterExpression targetParameter;
     private bool processingFailed;
 
-    public static bool TryRewrite(LambdaExpression resultSelector, ParameterExpression sourceParameter, ParameterExpression targetParameter, out LambdaExpression result)
+    protected override Expression VisitMemberAccess(MemberExpression m)
+    {
+      if (m.Expression==sourceParameter && m.Type==targetParameter.Type)
+        return targetParameter;
+      return base.VisitMemberAccess(m);
+    }
+
+    protected override Expression VisitParameter(ParameterExpression p)
+    {
+      if (p==sourceParameter)
+        processingFailed = true;
+      return p;
+    }
+
+    public static bool TryRewrite(LambdaExpression resultSelector,
+      ParameterExpression sourceParameter, ParameterExpression targetParameter, out LambdaExpression result)
     {
       var parameters = resultSelector.Parameters
-        .Select(p => p == sourceParameter ? targetParameter : p)
+        .Select(p => p==sourceParameter ? targetParameter : p)
         .ToArray();
       var rewriter = new SelectManySelectorRewriter(sourceParameter, targetParameter);
       var body = rewriter.Visit(resultSelector.Body);
@@ -31,21 +45,6 @@ namespace Xtensive.Orm.Linq.Rewriters
       result = Expression.Lambda(body, parameters);
       return true;
     }
-
-    protected override Expression VisitMemberAccess(MemberExpression m)
-    {
-      if (m.Expression == sourceParameter && m.Type == targetParameter.Type)
-        return targetParameter;
-      return base.VisitMemberAccess(m);
-    }
-
-    protected override Expression VisitParameter(ParameterExpression p)
-    {
-      if (p == sourceParameter)
-        processingFailed = true;
-      return p;
-    }
-
 
     // Constructors
 

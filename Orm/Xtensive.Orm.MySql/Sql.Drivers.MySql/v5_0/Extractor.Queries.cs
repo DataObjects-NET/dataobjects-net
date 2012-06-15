@@ -12,15 +12,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     protected const string TableFilterPlaceholder = "{TABLE_FILTER}";
     protected const string IndexesFilterPlaceholder = "{INDEXES_FILTER}";
 
-    protected string GetExtractSchemasQuery()
-    {
-      return
-        @"SELECT 
-                    u.user 
-                FROM mysql.user u 
-                WHERE user <> ''";
-    }
-
     protected string GetExtractTablesQuery()
     {
       return
@@ -183,12 +174,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
                 t.table_name,
                 t.constraint_name,
                 c.ordinal_position";
-    }
-
-    protected virtual string GetExtractSequencesQuery()
-    {
-      return
-        @"";
     }
   }
 }

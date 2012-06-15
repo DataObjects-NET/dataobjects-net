@@ -4,13 +4,11 @@
 // Created by: Alexis Kochetov
 // Created:    2010.04.27
 
-using System;
 using System.Linq.Expressions;
-using Xtensive.Linq;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Helpers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Orm.Rse.Helpers;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
