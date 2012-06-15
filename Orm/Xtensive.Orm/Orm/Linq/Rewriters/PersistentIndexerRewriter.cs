@@ -8,7 +8,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -28,9 +27,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         if (IsIndexerAccessor(binaryExpression.Right))
           rightExpression = GetMemberExpression((MethodCallExpression) binaryExpression.Right);
 
-        if (leftExpression!=null
-          && rightExpression!=null
-            && rightExpression.Type!=leftExpression.Type)
+        if (leftExpression!=null && rightExpression!=null && rightExpression.Type!=leftExpression.Type)
           throw new InvalidOperationException(String.Format(Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
 
         if (leftExpression!=null) {
@@ -55,7 +52,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (IsIndexerAccessor(mc)) {
-        MemberExpression memberExpression = GetMemberExpression(mc);
+        var memberExpression = GetMemberExpression(mc);
         return Expression.Convert(memberExpression, typeof (object));
       }
       return base.VisitMethodCall(mc);
@@ -70,7 +67,9 @@ namespace Xtensive.Orm.Linq.Rewriters
     private static MemberExpression GetMemberExpression(MethodCallExpression mc)
     {
       var name = (string) ExpressionEvaluator.Evaluate(mc.Arguments[0]).Value;
-      var propertyInfo = mc.Object.Type.GetProperties(BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).SingleOrDefault(property => property.Name==name);
+      var propertyInfo = mc.Object.Type
+        .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+        .SingleOrDefault(property => property.Name==name);
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
       throw new InvalidOperationException(String.Format(Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
@@ -91,6 +90,8 @@ namespace Xtensive.Orm.Linq.Rewriters
     {
       return new PersistentIndexerRewriter(context).Visit(query);
     }
+
+    // Constructors
 
     private PersistentIndexerRewriter(TranslatorContext context)
     {

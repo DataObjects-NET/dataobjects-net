@@ -4,23 +4,22 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Linq;
-using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Parameters;
-using Xtensive.Orm.Providers;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Parameters;
 using Xtensive.Reflection;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {
@@ -37,8 +36,8 @@ namespace Xtensive.Orm.Linq
     public ProviderInfo ProviderInfo { get; private set; }
 
     public Expression Query { get; private set; }
-    
-    public Domain Domain { get; set; }
+
+    public Domain Domain { get; private set; }
 
     public DomainModel Model { get; private set; }
 
@@ -54,7 +53,7 @@ namespace Xtensive.Orm.Linq
 
     public bool IsRoot(Expression expression)
     {
-      return Query == expression;
+      return Query==expression;
     }
 
     public string GetNextAlias()
@@ -72,7 +71,7 @@ namespace Xtensive.Orm.Linq
       return GetApplyParameter(projection.ItemProjector.DataSource);
     }
 
-    internal ApplyParameter GetApplyParameter(CompilableProvider provider)
+    public ApplyParameter GetApplyParameter(CompilableProvider provider)
     {
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
@@ -85,7 +84,7 @@ namespace Xtensive.Orm.Linq
       return parameter;
     }
 
-    internal void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
+    public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
     {
       ApplyParameter parameter;
       if (applyParameters.TryGetValue(old, out parameter)) {
@@ -126,8 +125,8 @@ namespace Xtensive.Orm.Linq
       RseCompilerConfiguration = rseCompilerConfiguration;
 
       // Applying query preprocessors
-      foreach (var preprocessor in domain.Handler.QueryPreprocessors)
-        query = preprocessor.Apply(query);
+      query = domain.Handler.QueryPreprocessors
+        .Aggregate(query, (current, preprocessor) => preprocessor.Apply(current));
 
       // Built-in preprocessors
       query = ClosureAccessRewriter.Rewrite(query);
