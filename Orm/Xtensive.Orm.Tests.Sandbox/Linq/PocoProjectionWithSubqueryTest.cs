@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       public long Id { get; set; }
 
-      public IEnumerable<Item2> Items2 { get; set; }
+      public IEnumerable<long> Id2 { get; set; }
     }
   }
 
@@ -93,14 +93,16 @@ namespace Xtensive.Orm.Tests.Linq
           .OrderByDescending(i1 => i1.Id)
           .Select(i1 => new QueryModel {
             Id = i1.Id,
-            Items2 = session.Query.All<Item2>().Where(i2 => i2.Owner.Id==i1.Owner.Id)
+            Id2 = session.Query.All<Item2>()
+              .Where(i2 => i2.Owner.Id==i1.Owner.Id)
+              .Select(i2 => i2.Id)
           });
 
         var count = query.Count();
         Assert.That(count, Is.EqualTo(1));
 
         foreach (var item in query)
-          Assert.That(item.Items2.ToArray().Length, Is.EqualTo(1));
+          Assert.That(item.Id2.ToArray().Length, Is.EqualTo(1));
 
         tx.Complete();
       }
