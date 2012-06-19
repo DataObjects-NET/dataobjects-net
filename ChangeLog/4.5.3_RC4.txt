@@ -1,1 +1,2 @@
 [main] Fix POCO materialization when subqueries are used
+[sqlserver] Improve detection of serialization failure errors for SQL Server

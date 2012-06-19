@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return SqlExceptionInfo.Create(SqlExceptionType.OperationTimeout);
       if (errorCode==1205)
         return SqlExceptionInfo.Create(SqlExceptionType.Deadlock);
-      if (errorCode==3958 || errorCode==3960)
+      if (errorCode >= 3950 && errorCode <= 3961)
         return SqlExceptionInfo.Create(SqlExceptionType.SerializationFailure);
       if (errorCode >= 100 && errorCode <= 499)
         return SqlExceptionInfo.Create(SqlExceptionType.SyntaxError);
